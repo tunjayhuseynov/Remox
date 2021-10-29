@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+  font-family: "Segoe UI", sans-serif;
+}
+
+:root{
+  --before: -30%;
+  --right: 130%;
+}
+
+.caseMiddle::before{
+  content: '';
+  position: absolute;
+  left: var(--before);
+  width: 2px;
+  height: 75px;
+  @apply bg-primary;
+}
+
+.caseMiddle::after{
+  content: '';
+  position: absolute;
+  left: var(--right);
+  width: 2px;
+  height: 75px;
+  @apply bg-primary;
+}
