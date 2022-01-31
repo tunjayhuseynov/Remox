@@ -7,11 +7,11 @@ import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite } from "../API/useFirebase";
 import { useContractKit } from "@celo-tools/use-contractkit";
-import { toTransactionObject } from "@celo-tools/use-contractkit/node_modules/@celo/connect";
+import { toTransactionObject } from "@celo/connect";
 
 
 export default function useSignInOrUp() {
-    const { kit, address } = useContractKit()
+    const { kit } = useContractKit()
     const [error, setError] = useState<{ errorCode: string, errorMessage: string }>();
     const [user, setUser] = useState<User>();
     const [isLoading, setLoading] = useState<boolean>(false);
