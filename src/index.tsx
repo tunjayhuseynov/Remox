@@ -1,21 +1,30 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
+import { StrictMode } from 'react';
+import { render } from 'react-dom';
+import './dist/index.css';
 import App from './App';
-import { store } from './app/store';
+import { ContractKitProvider, Mainnet } from '@celo-tools/use-contractkit';
+import '@celo-tools/use-contractkit/lib/styles.css';
+import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import * as serviceWorker from './serviceWorker';
+import store from './redux/store';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
+render(
+  <StrictMode>
+    <ContractKitProvider
+      dapp={{
+        name: 'My awesome dApp',
+        icon: "http://localhost:3000/favicon.png",
+        description: 'My awesome description',
+        url: 'http://localhost:3000',
+      }}
+      networks={[Mainnet]}
+    >
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </ContractKitProvider>
+  </StrictMode>,
   document.getElementById('root')
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
