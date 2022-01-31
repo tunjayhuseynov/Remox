@@ -8,6 +8,7 @@ import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite } from "../API/useFirebase";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { toTransactionObject } from "@celo/connect";
+import { toWei } from "web3-utils";
 
 
 export default function useSignInOrUp() {
@@ -24,13 +25,11 @@ export default function useSignInOrUp() {
             const token = await hashing(address, password)
             const encryptedMessageToken = await hashing(password, token)
             let userCredential;
-            if (dataForSignUp) {
-                userCredential = await createUserWithEmailAndPassword(auth, token + "@gmail.com", password)
-            } else {
+            if (!dataForSignUp) {
                 userCredential = await signInWithEmailAndPassword(auth, token + "@gmail.com", password)
             }
 
-            const user = userCredential.user;
+            let user = userCredential?.user;
 
             if (dataForSignUp) {
                 const BatchAbi = await (import("API/ABI/BatchRequest.json"))
@@ -39,7 +38,9 @@ export default function useSignInOrUp() {
                     kit.connection,
                     (new kit.web3.eth.Contract(BatchAbi.abi as any)).deploy({ data: BatchAbi.bytecode }) as any)
 
-                const contract = await tx.sendAndWaitForReceipt({ from: address })
+                const contract = await tx.sendAndWaitForReceipt({ from: address, gasPrice: toWei("0.5", "Gwei")})
+                userCredential = await createUserWithEmailAndPassword(auth, token + "@gmail.com", password)
+                let user = userCredential.user;
 
                 await FirestoreWrite<IUser>().createDoc('users', user.uid, {
                     id: user.uid,
@@ -65,14 +66,14 @@ export default function useSignInOrUp() {
                 }))
                 dispatch(changeAccount(address))
             } else {
-                const incomingData = await FirestoreRead<IUser>("users", user.uid)
+                const incomingData = await FirestoreRead<IUser>("users", user!.uid)
                 if (!incomingData) {
                     throw new Error("No Data In Users")
                 }
                 dispatch(setStorage({
                     accountAddress: address,
                     token: token,
-                    uid: user.uid,
+                    uid: user!.uid,
                     contractAddress: incomingData.contractAddress,
                     companyName: decryptMessage(incomingData?.companyName, encryptedMessageToken),
                     surname: decryptMessage(incomingData?.surname, encryptedMessageToken),
