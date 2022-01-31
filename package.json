@@ -1,6 +1,7 @@
 {
   "name": "remox",
   "version": "0.1.0",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@celo-tools/celo-ethers-wrapper": "^0.1.0",
