@@ -1,6 +1,54 @@
-Check Input Read for MEthod in useTransactionProcess (transferWithComment)
-Transaction Table design
+Paying with comment (need to talk with Orxan)
+
+Error handling for useContractKit
+
+Add Member, give warning if team not selected
+
+Create Account Show Error
+
+Search Bar
+
+New Notification bar , react toastify
+
+All Coin List 
+
+Create stats for admins
+
+Design error in TransactionHistory
+
+Safari Select Pay Type design error
+
+Firebase Rules for Request in create and update (restirct for update)
+
+Peer to peer crypto
+
+/* Requests and importants
+    
+    Add Storage feature to the upload
+    Attach link, confirm that it is link
+    request from Company, not from Remox (but Company is Optinal, Sorus Orxandan)
+ 
+*/
+
+/* Multisig*/
+
+Multisig Name Update
+
+Multisig user name update
+
+Multisig Pending Complated
+
+Multisig Batch request
+
 Notification BatchRequest Adaptation
+
 Add Multisig Action which are complated to useTransactionProcess
-Dark Mode 
-New design
+
+
+/*
+
+Batch Request Contract Address - 0xB01a87B806EE0f5233d7c6559d7FB6d39Ad0046d
+
+Test Gelato - 0x9cbCc357EEcFfC529c47E4172741dBa1a6E212A2
+
+*/

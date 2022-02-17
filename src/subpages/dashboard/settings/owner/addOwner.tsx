@@ -29,7 +29,7 @@ const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             <div className="flex flex-col space-y-3">
                 <span>Wallet Address</span>
                 <div>
-                    <input onChange={(e) => setAddress(e.target.value)} type="text" placeholder="0xabc..." className="w-full px-3 py-2 border border-black rounded-lg" />
+                    <input onChange={(e) => setAddress(e.target.value)} type="text" placeholder="0xabc..." className="w-full px-3 py-2 border border-black rounded-lg dark:bg-darkSecond" />
                 </div>
             </div>
             <div className="flex justify-center">

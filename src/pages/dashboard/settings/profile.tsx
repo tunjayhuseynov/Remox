@@ -43,10 +43,10 @@ const ProfileSetting = () => {
                         <div className="flex space-x-4 items-center max-w-[600px]">
                             <div className="grid grid-cols-2 gap-x-4">
                                 <div>
-                                    <input type="text" defaultValue={profile?.name} name="name" className="border px-2 py-2 outline-none border-gray-700 rounded-lg" />
+                                    <input type="text" defaultValue={profile?.name} name="name" className="border px-2 py-2 outline-none border-gray-700 rounded-lg dark:bg-darkSecond" />
                                 </div>
                                 <div>
-                                    <input type="text" name="surname" defaultValue={profile?.surname} className="border px-2 py-2 outline-none border-gray-700 rounded-lg" />
+                                    <input type="text" name="surname" defaultValue={profile?.surname} className="border px-2 py-2 outline-none border-gray-700 rounded-lg dark:bg-darkSecond" />
                                 </div>
                             </div>
                             <div className="flex-grow">
@@ -60,7 +60,7 @@ const ProfileSetting = () => {
                         <div>Organization Name</div>
                         <div className="flex space-x-4 items-center max-w-[600px]">
                             <div className="flex-grow">
-                                <input type="text" name="company" defaultValue={profile?.companyName} className="border px-2 py-2 outline-none border-gray-700 rounded-lg w-full" />
+                                <input type="text" name="company" defaultValue={profile?.companyName} className="border px-2 py-2 outline-none border-gray-700 rounded-lg w-full dark:bg-darkSecond" />
                             </div>
                             <div>
                                 <Button type="submit" className="px-12 py-2" isLoading={isCompany}>Update</Button>

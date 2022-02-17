@@ -52,15 +52,14 @@ const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMem
         </div>
         <div className="pl-[2px] hidden sm:flex items-start">
             {(props.member.interval === DateInterval.monthly && "Monthly")}
-            {(props.member.interval === DateInterval.weakly && "Weekly")}
+            {(props.member.interval === DateInterval.weekly && "Weekly")}
         </div>
         <div className="flex space-x-8">
             {props.member.paymantDate && <>
                 <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate">
-                    {/* {new Date().getUTCDay() < new Date(props.member.paymantDate).getUTCDay() ? dateFormat(date.addMonths(new Date(), 1), `${new Date(props.member.paymantDate).getUTCDay()} mmm yyyy`) : dateFormat(new Date(props.member.paymantDate), `dd mmm yyyy`)} */}
-                    {dateFormat(new Date(props.member.paymantDate), `dd ${dateFormat(new Date(), 'mmm')} yyyy`)}
+                    {dateFormat(new Date(props.member.paymantDate), `dd mmmm yyyy`)}
                 </div>
-                {new Date().getUTCDay() < new Date(props.member.paymantDate).getUTCDay() && <div title="Late Payment">
+                {new Date().getTime() > new Date(props.member.paymantDate).getTime() && <div title="Late Payment">
                     <img src="/icons/warningmark.svg" className="max-w-[20px] max-h-[20px]" alt="" />
                 </div>}
             </>}

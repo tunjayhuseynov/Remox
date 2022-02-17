@@ -4,11 +4,18 @@ import { generate } from "shortid";
 import { IBalanceItem, SelectBalances } from "../../../redux/reducers/currencies";
 import { motion, useAnimation } from 'framer-motion'
 import { Fragment, useEffect, useRef } from "react";
+import { selectDarkMode } from "redux/reducers/notificationSlice";
 
 
 const variants = {
     black: {
         color: "#000000",
+        transition: {
+            duration: 1,
+        }
+    },
+    white: {
+        color: "#FFFFFF",
         transition: {
             duration: 1,
         }
@@ -20,8 +27,22 @@ const variants = {
             times: [0, 0.2, 1]
         }
     },
+    redDark: {
+        color: ["#FFFFFF", "#ed0037", "#FFFFFF"],
+        transition: {
+            duration: 2,
+            times: [0, 0.2, 1]
+        }
+    },
     green: {
         color: ["#000000", "#00e55f", "#000000"],
+        transition: {
+            duration: 2,
+            times: [0, 0.2, 1]
+        }
+    },
+    greenDark: {
+        color: ["#FFFFFF", "#00e55f", "#FFFFFF"],
         transition: {
             duration: 2,
             times: [0, 0.2, 1]
@@ -32,6 +53,7 @@ const variants = {
 const Assets = () => {
     const selectBalance = useSelector(SelectBalances)
     const prevBalance = useRef(selectBalance)
+    const darkMode = useSelector(selectDarkMode)
 
     useEffect(() => {
         prevBalance.current = selectBalance
@@ -72,19 +94,19 @@ const Assets = () => {
                                 <div><img src={item?.coins?.coinUrl} width={30} height={30} alt="" /></div>
                                 <div>{item?.coins?.name} </div>
                             </div>
-                            <motion.div animate={price === 0 && amount === 0 ? "black" : price === 0 ? amount > 0 ? "green" : "red" : price > 0 ? "green" : "red"}>
+                            <motion.div animate={price === 0 && amount === 0 ? `${darkMode ? "white" : "black"}` : price === 0 ? amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                 $ {(item.amount * item.tokenPrice).toFixed(2)}
                             </motion.div>
-                            <motion.div animate={amount === 0 ? "black" : amount > 0 ? "green" : "red"}>
+                            <motion.div animate={amount === 0 ? `${darkMode ? "white" : "black"}` : amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                 {(item.amount || 0).toFixed(2)}
                             </motion.div>
-                            <motion.div variants={variants} className="hidden sm:block" animate={price === 0 ? "black" : price > 0 ? "green" : "red"}>
+                            <motion.div variants={variants} className="hidden sm:block" animate={price === 0 ? `${darkMode ? "white" : "black"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                 $ {(item.tokenPrice || 0).toFixed(2)}
                             </motion.div>
-                            <motion.div variants={variants} className="hidden sm:block" animate={per24 === 0 ? "black" : per24 > 0 ? "green" : "red"}>
+                            <motion.div variants={variants} className="hidden sm:block" animate={per24 === 0 ? `${darkMode ? "white" : "black"}` : per24 > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                 % {(item.per_24 || 0).toFixed(2)}
                             </motion.div>
-                            <motion.div animate={percent === 0 ? "black" : percent > 0 ? "green" : "red"}>
+                            <motion.div animate={percent === 0 ? `${darkMode ? "white" : "black"}` : percent > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                 % {(item.percent || 0).toFixed(2)}
                             </motion.div>
                         </div>

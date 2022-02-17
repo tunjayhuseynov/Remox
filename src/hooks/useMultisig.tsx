@@ -16,7 +16,7 @@ const useMultisig = () => {
         internalSigns: number;
     }>()
 
-    const { transactions, FetchTransactions, isLoading, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal } = useFetchMultisig()
+    const { transactions, FetchTransactions, isLoading, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useFetchMultisig()
 
     const isMultisig = selectedAccount.toLowerCase() !== storage!.accountAddress.toLowerCase()
 
@@ -54,7 +54,7 @@ const useMultisig = () => {
 
 
 
-    return { transactions, isMultisig, isLoading, fetchTxs, refetch, owners, signAndInternal, addOwner, replaceOwner, changeSigns, removeOwner, }
+    return { transactions, isMultisig, isLoading, fetchTxs, refetch, owners, signAndInternal, addOwner, replaceOwner, changeSigns, removeOwner, confirmTransaction, revokeTransaction }
 }
 
 export default useMultisig;

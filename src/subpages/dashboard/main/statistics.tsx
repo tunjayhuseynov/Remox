@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies } from '../../../redux/reducers/currencies';
-import { AltCoins, Coins, TransactionFeeTokenName } from '../../../types/coins';
+import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
+import { AltCoins, Coins, CoinsName } from '../../../types/coins';
 import { generate } from 'shortid';
 import Web3 from 'web3'
 import { useAppSelector } from '../../../redux/hooks';
@@ -23,15 +23,14 @@ const Statistic = () => {
 
     const transactions = useAppSelector(SelectTransactions)
 
-    const [percent, setPercent] = useState<number>()
-    const [balance, setBalance] = useState<string>()
-
-
     const [lastIn, setIn] = useState<number>()
     const [lastOut, setOut] = useState<number>();
 
     const [allInOne, setAllInOne] = useState<Balance[]>()
 
+    let totalBalance = useAppSelector(SelectTotalBalance)
+    let balance;
+    if (totalBalance !== undefined) balance = parseFloat(`${totalBalance}`).toFixed(2)
 
     const currencies = useAppSelector(SelectCurrencies)
     const celo = (useAppSelector(SelectCurrencies)).CELO
@@ -88,13 +87,8 @@ const Statistic = () => {
         return `conic-gradient(#FF774E 0deg 360deg)`
     }, [celoBalance, cusdBalance, ceurBalance, ubeBalance, mooBalance, mobiBalance, poofBalance, celo, cusd, ceur, ube, moo, mobi, poof, creal])
 
-
-
-
-    useEffect(() => {
-        if (celoBalance && cusdBalance && ceurBalance && ubeBalance && mooBalance && mobiBalance && poofBalance && crealBalance) {
-
-            //const total = celoBalance.amount + cusdBalance.amount + ceurBalance.amount + ubeBalance.amount + mooBalance.amount + poofBalance.amount + mobiBalance.amount;
+    const percent = useMemo(() => {
+        if (currencies && balanceRedux && balanceRedux.CELO) {
             const currencObj = Object.values(currencies)
             const currencObj2: IBalanceItem[] = Object.values(balanceRedux)
 
@@ -107,20 +101,9 @@ const Statistic = () => {
                 return a;
             }, 0)
 
-            const result: number =
-                (celoBalance.amount * celoBalance.tokenPrice) + (cusdBalance.amount * cusdBalance.tokenPrice) +
-                (ceurBalance.amount * ceurBalance.tokenPrice) + (ubeBalance.amount * ubeBalance.tokenPrice) +
-                (mooBalance.amount * mooBalance.tokenPrice) + (mobiBalance.amount * mobiBalance.tokenPrice) +
-                (poofBalance.amount * poofBalance.tokenPrice) + (crealBalance.amount * crealBalance.tokenPrice)
-
-            setBalance(result.toFixed(2))
-            setPercent(per / indexable)
-
-        } else if (celoBalance === undefined) {
-            setBalance(undefined)
+            return (per / indexable)
         }
-    }, [celoBalance, cusdBalance, ceurBalance, ubeBalance, mooBalance, mobiBalance, poofBalance, currencies])
-
+    }, [balanceRedux])
 
 
     useEffect(() => {
@@ -134,7 +117,7 @@ const Statistic = () => {
             let myin = 0;
             let myout = 0;
             transactions.result.forEach(t => {
-                let feeToken = Object.entries(TransactionFeeTokenName).find(w => w[0] === t.tokenSymbol)?.[1]
+                let feeToken = Object.entries(CoinsName).find(w => w[0] === t.tokenSymbol)?.[1]
                 const coin = feeToken ? Coins[feeToken] : Coins.cUSD;
                 const tTime = new Date(parseInt(t.timeStamp) * 1e3)
                 if (tTime.getMonth() === new Date().getMonth()) {
@@ -157,9 +140,9 @@ const Statistic = () => {
                 <div className="text-base text-greylish">Total Balance</div>
                 <div className="text-base text-greylish opacity-70">24h</div>
             </div>
-            <div className="flex justify-between shadow-custom rounded-xl px-8 py-8">
+            <div className="flex justify-between shadow-custom dark:bg-darkSecond rounded-xl px-8 py-8">
                 <div className="text-4xl">
-                    {balance || (balance !== undefined && parseFloat(balance) === 0) ? `$${balance}` : <ClipLoader />}
+                    {(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <ClipLoader />}
                 </div>
                 <div className="flex items-center text-3xl text-greylish opacity-70" style={
                     balance !== undefined && parseFloat(balance) !== 0 ? percent && percent > 0 ? { color: 'green' } : { color: 'red' } : { color: 'black' }
@@ -173,7 +156,7 @@ const Statistic = () => {
             <div className="flex justify-between sm:pl-4">
                 <div className="text-greylish text-sm sm:text-base">Money in (c.m.)</div>
             </div>
-            <div className="flex justify-between shadow-custom rounded-xl px-8 py-4">
+            <div className="flex justify-between shadow-custom dark:bg-darkSecond rounded-xl px-8 py-4">
                 <div className="text-xl sm:text-2xl opacity-80">
                     {lastIn !== undefined && transactions !== undefined && balance !== undefined ? `+ $${lastIn?.toFixed(2)}` : <ClipLoader />}
                 </div>
@@ -184,7 +167,7 @@ const Statistic = () => {
             <div className="flex justify-between sm:pl-4">
                 <div className="text-greylish text-sm sm:text-base">Money out (c.m.)</div>
             </div>
-            <div className="flex justify-between shadow-custom rounded-xl px-8 py-4">
+            <div className="flex justify-between shadow-custom dark:bg-darkSecond rounded-xl px-8 py-4">
                 <div className="text-greylish opacity-80 text-xl sm:text-2xl">
                     {lastOut !== undefined && transactions !== undefined && balance !== undefined ? `- $${lastOut?.toFixed(2)}` : <ClipLoader />}
                 </div>
@@ -197,7 +180,7 @@ const Statistic = () => {
                 {celoBalance !== undefined && cusdBalance !== undefined ? <div className="w-[200px] h-[200px] rounded-full relative" style={{
                     background: chart
                 }}>
-                    <div className="w-[120px] h-[120px] bg-white left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
+                    <div className="w-[120px] h-[120px] bg-white dark:bg-dark  left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
                 </div> : null}
             </div>
         </div>
@@ -205,7 +188,7 @@ const Statistic = () => {
             balance && allInOne !== undefined ?
                 <div className="flex flex-col gap-5 overflow-hidden col-span-2 sm:col-span-1">
                     {allInOne.map((item, index) => {
-                        return <CoinItem key={generate()} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
+                        return <CoinItem key={item.coins.contractAddress} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
                     })}
                 </div> : <ClipLoader />
         }</>

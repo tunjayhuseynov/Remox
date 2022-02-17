@@ -22,8 +22,8 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
     }
 
     return <div>
-        <div className="flex space-x-1 items-center bg-greylish bg-opacity-10 rounded-xl px-3 my-3">
-            <div className="cursor-pointer" onClick={click}>
+        <div className="flex space-x-1 items-center bg-greylish bg-opacity-10 rounded-xl px-3 my-3 cursor-pointer" onClick={click}>
+            <div >
                 <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
             </div>
             <div className={`py-3 grid  px-2 ${grid} items-center w-full`}>
@@ -37,6 +37,7 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
                 <div className={`grid grid-cols-[10%,90%] ${grid !== "grid-cols-[37%,33%,30%]" ? "justify-start" : "justify-end"} gap-x-2 items-center`}>
                     {status === TransactionStatus.Completed && <div className="bg-green-400 w-2 h-2 rounded-full"></div>}
                     {status === TransactionStatus.Pending && <div className="bg-primary w-2 h-2 rounded-full"></div>}
+                    {status === TransactionStatus.Rejected && <div className="bg-red-600 w-2 h-2 rounded-full"></div>}
                     <div>{status}</div>
                 </div>
                 <div></div>

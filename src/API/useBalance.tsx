@@ -1,48 +1,38 @@
-import { useContractKit } from '@celo-tools/use-contractkit';
+import { NetworkNames, useContractKit } from '@celo-tools/use-contractkit';
 import { StableToken } from '@celo/contractkit';
 import { useEffect, useState } from 'react';
-
-export const tokenAdresses = [
-    {
-        "tokenName": "UBE",
-        "address": "0x00Be915B9dCf56a3CBE739D9B9c202ca692409EC"
-    },
-    {
-        "tokenName": "MOO",
-        "address": "0x17700282592D6917F6A73D0bF8AcCf4D578c131e"
-    },
-    {
-        "tokenName": "MOBI",
-        "address": "0x73a210637f6F6B7005512677Ba6B3C96bb4AA44B"
-    },
-    {
-        "tokenName": "POOF",
-        "address": "0x00400FcbF0816bebB94654259de7273f4A05c762"
-    },
-]
+import { useDispatch } from 'react-redux';
+import { deleteBalance } from 'redux/reducers/currencies';
+import { AltCoins, Coins } from 'types';
 
 export default function useBalance(address: string) {
     const { kit } = useContractKit()
     const [fetchedBalance, setFetchedBalance] = useState<{ [name: string]: string }>()
     const [isLoading, setLoading] = useState(false)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         fetchBalance()
-    },[])
+    }, [])
+
+    useEffect(() => {
+        dispatch(deleteBalance)
+    }, [address])
 
     const fetchBalance = async () => {
         if (!kit.defaultAccount) return null;
         try {
             let balances: { [name: string]: string } = {};
             setLoading(true)
-            for (const item of tokenAdresses) {
-
-                const ethers = await kit.contracts.getErc20(item.address);
+            
+            for (const i of Object.values(Coins)) {
+                const item = i as AltCoins
+                const ethers = await kit.contracts.getErc20(item.contractAddress);
                 let balance = await ethers.balanceOf(address);
                 let bnBalance = kit.web3.utils.toBN(balance.toString());
                 let altcoinBalance = kit.web3.utils.fromWei(bnBalance.toString(), 'ether');
 
-                balances = Object.assign(balances, { [item.tokenName]: altcoinBalance });
+                balances = Object.assign(balances, { [item.name]: altcoinBalance });
             }
 
             let stabletokenEUR = await kit.contracts.getStableToken(StableToken.cEUR);

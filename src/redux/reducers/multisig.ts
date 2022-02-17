@@ -1,9 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { NonExecTransactionItem } from '../../types/sdk';
 import { RootState } from '../store';
 
+export interface MultisigTransactionItem {
+    destination: string,
+    data: string,
+    executed: boolean,
+    confirmations: string[],
+    value: string,
+    id?: number,
+    requiredCount?: string,
+    owner?: string,
+    newOwner?: string,
+    valueOfTransfer?: string,
+    method?: string
+}
+
 interface State {
-    transactions: NonExecTransactionItem[] | undefined;
+    transactions: MultisigTransactionItem[] | undefined;
     sign?: number;
     internalSign?: number;
 }

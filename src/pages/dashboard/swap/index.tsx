@@ -1,20 +1,18 @@
 import Dropdown from "components/general/dropdown";
 import { Coins } from "types/coins";
 import { DropDownItem } from 'types'
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectBalances } from "redux/reducers/currencies";
-import { selectStorage } from "redux/reducers/storage";
 import { changeError, changeSuccess, selectError, selectSuccess } from "redux/reducers/notificationSlice";
 import Success from "components/general/success";
 import Error from "components/general/error";
 import { ClipLoader } from "react-spinners";
 import Modal from "components/general/modal";
-import { useRefetchData, useModalSideExit } from 'hooks';
+import { useModalSideExit } from 'hooks';
 import useMultisig from "hooks/useMultisig";
 import Button from "components/button";
 import useSwap from "API/useSwap";
-// import { useGetConvertableTokenAmountMutation, useSwapCoinsMutation } from "redux/api";
 
 const Swap = () => {
     const [token1, setToken1] = useState<DropDownItem>(Coins.cUSD)
@@ -42,14 +40,11 @@ const Swap = () => {
     const [deadline, setDeadline] = useState<number>(1.5)
 
     const balances = useSelector(SelectBalances)
-    const storage = useSelector(selectStorage)
     const isSuccess = useSelector(selectSuccess)
     const isError = useSelector(selectError)
 
     const dispatch = useDispatch()
 
-    // const [fetchCoin, { isLoading: coinLoading }] = useGetConvertableTokenAmountMutation()
-    // const [swap, { isLoading }] = useSwapCoinsMutation()
     const { Exchange, MinmumAmountOut, isLoading } = useSwap()
 
     const change = async (value?: number) => {
@@ -83,13 +78,12 @@ const Swap = () => {
                     Math.floor(deadline * 60)
                 )
                 dispatch(changeSuccess({
-                    activate: true, text: <div className="flex flex-col items-center">
+                    activate: true, text: <div className="flex flex-col items-center space-y-1">
                         <div className="font-semobold text-xl">Successfully Swapped</div>
-                        <div className="text-primary text-sm font-semibold" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div>
+                        <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div>
                     </div>
                 }))
                 setOpen(false)
-  
             } catch (error) {
                 console.error(error)
                 dispatch(changeError({ activate: true }))
@@ -113,7 +107,7 @@ const Swap = () => {
         const token2_amount = parseFloat(parseFloat(appAmount).toFixed(2))
         setToken1(token2_copy)
         setToken2(token1_copy)
-        
+
         setToken1Amount(token2_amount)
         if (token1Input.current) {
             token1Input.current.value = token2_amount.toString();
@@ -124,12 +118,12 @@ const Swap = () => {
 
     return <div className="flex items-center justify-center">
         <div className="flex flex-col w-[50%]">
-            <div className="shadow-custom rounded-xl bg-white pt-3 pb-10 px-3 flex flex-col space-y-1">
+            <div className="shadow-custom rounded-xl bg-white dark:bg-darkSecond pt-3 pb-10 px-3 flex flex-col space-y-1">
                 <div className="flex justify-between">
                     <div className="font-bold font-xl pb-2">Swap</div>
                     <div className="relative">
-                        <img src="/icons/settings.svg" className="cursor-pointer" onClick={() => setSetting(!isSetting)} />
-                        {isSetting && <div ref={settingRef} className="absolute z-[300] shadow-custom bg-white rounded-xl min-w-[250px] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
+                        <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
+                        {isSetting && <div ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[250px] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
                             <div className="flex flex-col space-y-4">
                                 <div className="font-bold">Transaction Settings</div>
                                 <div className="flex flex-col space-y-3">
@@ -190,7 +184,7 @@ const Swap = () => {
                                 if (w.value === token2.value) {
                                     setToken2(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, value: w.value, coinUrl: w.coinUrl, feeName: w.feeName, id: w.value, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, value: w.value, coinUrl: w.coinUrl, feeName: w.feeName, id: w.value, className: "text-sm" }))} />
                         </div>
                         <div>
                             <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="bg-transparent text-center outline-none unvisibleArrow max-w-[130px]" placeholder="0" min="0" step="any" />
@@ -201,7 +195,7 @@ const Swap = () => {
                             Balance: {token1 && token1.name && balances[token1.name as keyof typeof balances] ? (balances[token1.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
                         </div>
                         <div className="flex space-x-2">
-                            <button className="shadow-custom bg-white px-2 py-1 rounded-xl text-xs" onClick={
+                            <button className="shadow-custom bg-white dark:bg-darkSecond px-2 py-1 rounded-xl text-xs" onClick={
                                 () => {
                                     if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
                                         const amount = balances[token1.name as keyof typeof balances]!.amount * 0.5
@@ -212,7 +206,7 @@ const Swap = () => {
                             }>
                                 50%
                             </button>
-                            <button className="shadow-custom bg-white px-2 py-1 rounded-xl text-xs" onClick={() => {
+                            <button className="shadow-custom bg-white dark:bg-darkSecond px-2 py-1 rounded-xl text-xs" onClick={() => {
                                 if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
                                     const amount = balances[token1.name as keyof typeof balances]!.amount
                                     token1Input.current!.value = amount.toFixed(2)
@@ -226,7 +220,7 @@ const Swap = () => {
                 </div>
                 <div className="flex items-center justify-center">
                     <div className="bg-greylish bg-opacity-10 px-3 py-1 rounded-lg cursor-pointer" onClick={changeSwap}>
-                        <img src="/icons/arrowdown.svg" alt="" />
+                        <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
                     </div>
                 </div>
                 <div className="flex bg-greylish bg-opacity-10 justify-between rounded-md py-3 px-3">
@@ -236,7 +230,7 @@ const Swap = () => {
                                 if (w.value === token1.value) {
                                     setToken1(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, value: w.value, feeName: w.feeName, coinUrl: w.coinUrl, id: w.value, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, value: w.value, feeName: w.feeName, coinUrl: w.coinUrl, id: w.value, className: "text-sm" }))} />
                         </div>
                         <div>
                             {!(!token1Amount) && (!isLoading ?
@@ -288,7 +282,7 @@ const Swap = () => {
                     </div>
                     <div className="grid grid-cols-[7%,73%,20%] items-center">
                         <div>
-                            <img src={`/icons/longdown.svg`} alt="" />
+                            <img src={`/icons/longdown.svg`} alt="" className="dark:invert dark:brightness-0" />
                         </div>
                     </div>
                     <div className="grid grid-cols-[7%,73%,20%] items-center">

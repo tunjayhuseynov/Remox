@@ -1,15 +1,13 @@
 import dateFormat from "dateformat";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import Dropdown from "../../../components/general/dropdown";
-// import { useLazyGetTransactionsQuery } from "../../redux/api";
 import { useAppSelector } from "../../../redux/hooks";
 import { SelectCurrencies } from "../../../redux/reducers/currencies";
-import { Coins, CoinsURL, TransactionFeeTokenName } from "../../../types/coins";
+import { CoinsURL } from "../../../types/coins";
 import { DropDownItem } from "../../../types/dropdown";
 import { AddressReducer } from 'utils'
-import { Transactions } from "../../../types/sdk";
 import _ from "lodash";
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import { useTransactionProcess } from "hooks";
@@ -44,7 +42,7 @@ const Details = () => {
                 const isBatch = txFind.id === ERC20MethodIds.batchRequest;
                 const isSwap = txFind.id === ERC20MethodIds.swap;
                 let paidTo, totalAmount, walletAddress;
-                let fee = `${fromWei((parseFloat(txFind.rawData.gas) * parseFloat(txFind.rawData.gasPrice)).toString(), "ether")} ${!isBatch && txFind.rawData.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`;
+                let fee = `${fromWei((parseInt(txFind.rawData.gasUsed) * parseInt(txFind.rawData.gasPrice)).toString(), "ether")} ${!isBatch && txFind.rawData.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`;
                 let date = dateFormat(new Date(parseInt(txFind.rawData.timeStamp) * 1e3), "dd/mm/yyyy hh:MM:ss")
 
                 if (isBatch) {

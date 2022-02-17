@@ -1,13 +1,14 @@
-import { Dispatch, MutableRefObject, useEffect, useState } from "react";
+import { Dispatch, useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { Coins } from "../../types/coins";
 import { DropDownItem } from "../../types/dropdown";
-import { Member } from "../../types/sdk";
 import Dropdown from "components/general/dropdown";
 import { CoinsName } from "../../types";
+import { IMember } from "API/useContributors";
+import { IRequest } from "API/useRequest";
 
 
-const TeamInput = (props: Member & { index: number, selectedId: string[], generalWallet: DropDownItem, setGeneralWallet: Dispatch<DropDownItem>, setSelectedId: Dispatch<string[]>, members: Array<Member & { selected: boolean }>, setMembers: Dispatch<Array<Member & { selected: boolean }>> }) => {
+const TeamInput = (props: (IMember | IRequest) & { index: number, selectedId: string[], setSelectedId: Dispatch<string[]>, members: Array<(IMember | IRequest) & { selected: boolean }>, setMembers: Dispatch<Array<(IMember | IRequest) & { selected: boolean }>> }) => {
 
     const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: Coins[props.currency].name, type: Coins[props.currency].value, value: Coins[props.currency].value, coinUrl: Coins[props.currency].coinUrl })
     const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>()
@@ -32,7 +33,7 @@ const TeamInput = (props: Member & { index: number, selectedId: string[], genera
 
     const updateValue = ({ val, wallet = false, is2 = false, customWallet }: { val: string, wallet?: boolean, is2?: boolean, customWallet?: CoinsName }) => {
         const arr = [...props.members]
-        const newArr = arr.reduce<Array<Member & { selected: boolean }>>((a, e) => {
+        const newArr = arr.reduce<Array<(IMember | IRequest) & { selected: boolean }>>((a, e) => {
             if (e.id !== props.id) a.push(e)
             else {
                 let newItem;
@@ -72,38 +73,42 @@ const TeamInput = (props: Member & { index: number, selectedId: string[], genera
 
     return <>
         <div className="flex items-center">
-            <input checked={props.selectedId.some(w => w === props.id)} className="relative cursor-pointer w-[20px] h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" type="checkbox" onChange={(e) => {
+            <input checked={props.selectedId.some(w => w === props.id)} className="relative cursor-pointer w-[20px] h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full dark:text-white checked:before:bg-primary checked:before:block dark:bg-darkSecond" type="checkbox" onChange={(e) => {
                 updateTick({ tick: e.target.checked })
             }} />
-            <h2 className={`text-black px-3 py-1 name__${props.index} text-sm`}>{props.name}</h2>
+            <h2 className={`text-black px-3 py-1 name__${props.index} text-sm dark:text-white`}>{props.name}</h2>
         </div>
         <div className="flex items-center">
-            <h2 className={`text-black py-1 rounded-md address__${props.index} text-sm truncate`}>{props.address}</h2>
+            <h2 className={`text-black py-1 rounded-md address__${props.index} text-sm truncate dark:text-white`}>{props.address}</h2>
         </div>
         {/* <div className="col-span-2 sm:col-span-1 flex border border-greylish rounded-md border-opacity-60">
             <input className="text-black py-1 outline-none ml-2 rounded-md w-full font-bold unvisibleArrow" placeholder="Amount" defaultValue={props.amount} type="number" name={`amount__${props.index}`} min="0" required step={'any'} onBlur={d => props.setSelectedId([...props.selectedId])} onChange={e => updateValue({ val: e.target.value })} />
             {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
         </div> */}
-        <div className={`col-span-2 sm:col-span-1 border text-black py-1 rounded-md grid ${props.usdBase ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-            <input className="outline-none unvisibleArrow pl-2" placeholder="Amount" defaultValue={props.amount} type="number" name={`amount__${props.index}`} onChange={(e) => {
+        <div className={`col-span-2 sm:col-span-1 border dark:bg-darkSecond dark:border-darkSecond text-black py-1 rounded-md grid ${props.usdBase ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={props.amount} type="number" name={`amount__${props.index}`} onChange={(e) => {
                 updateValue({ val: e.target.value })
             }} required step={'any'} min={0} />
-            {props.usdBase && <span className="text-xs self-center opacity-70">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
+            {props.usdBase && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
+            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
         </div>
         <div className="hidden sm:block"></div>
         <div></div>
         <div></div>
-        {props.secondaryCurrency && selectedWallet2 ? <div className={`col-span-2 sm:col-span-1 border text-black py-1 rounded-md grid ${props.usdBase ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-            <input className="outline-none unvisibleArrow pl-2" placeholder="Amount" defaultValue={props?.secondaryAmount} type="number" name={`amount__${props.index}`} onChange={(e) => {
+        {props.secondaryCurrency && selectedWallet2 ? <div className={`col-span-2 sm:col-span-1 border dark:bg-darkSecond dark:border-darkSecond text-black py-1 rounded-md grid ${props.usdBase ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={props?.secondaryAmount} type="number" name={`amount__${props.index}`} onChange={(e) => {
                 updateValue({ val: e.target.value, wallet: false, is2: true })
             }} step={'any'} min={0} />
-            {props.usdBase && <span className="text-xs self-center opacity-70">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
+            {props.usdBase && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
+            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
         </div> : <div className="text-primary cursor-pointer text-sm" onClick={() => {
             setSelectedWallet2({ name: Coins[CoinsName.CELO].name, type: Coins[CoinsName.CELO].value, value: Coins[CoinsName.CELO].value, coinUrl: Coins[CoinsName.CELO].coinUrl })
             updateValue({ val: '', wallet: true, is2: true, customWallet: CoinsName.CELO })
-        }}>+ Add another token</div>}
+        }}> <span className="bg-greylish bg-opacity-5 font-semibold tracking-wide py-3 px-5 text-center rounded-xl">+ Add another token</span></div>}
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
         <div></div>
     </>
 }

@@ -32,23 +32,17 @@ export default function useSignInOrUp() {
             let user = userCredential?.user;
 
             if (dataForSignUp) {
-                const BatchAbi = await (import("API/ABI/BatchRequest.json"))
 
-                const tx = toTransactionObject(
-                    kit.connection,
-                    (new kit.web3.eth.Contract(BatchAbi.abi as any)).deploy({ data: BatchAbi.bytecode }) as any)
-
-                const contract = await tx.sendAndWaitForReceipt({ from: address, gasPrice: toWei("0.5", "Gwei")})
                 userCredential = await createUserWithEmailAndPassword(auth, token + "@gmail.com", password)
                 let user = userCredential.user;
 
                 await FirestoreWrite<IUser>().createDoc('users', user.uid, {
                     id: user.uid,
                     address: address,
-                    contractAddress: contract.contractAddress,
                     companyName: encryptMessage(dataForSignUp.companyName, encryptedMessageToken),
                     name: encryptMessage(dataForSignUp.name, encryptedMessageToken),
                     surname: encryptMessage(dataForSignUp.surname, encryptedMessageToken),
+                    seenTime: new Date().getTime(),
                     timestamp: new Date().getTime()
                 })
                 await FirestoreWrite<{ addresses: { name: string, address: string }[] }>().createDoc('multisigs', user.uid, {
@@ -58,7 +52,6 @@ export default function useSignInOrUp() {
                     accountAddress: address,
                     token: token,
                     uid: user.uid,
-                    contractAddress: contract.contractAddress,
                     companyName: dataForSignUp?.companyName,
                     surname: dataForSignUp?.surname,
                     name: dataForSignUp?.name,

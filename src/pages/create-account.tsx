@@ -5,6 +5,8 @@ import Button from "../components/button";
 import Input from "../components/input";
 import useAuth from "../hooks/useAuth";
 import { useSignInOrUp } from "../hooks";
+import { useAppSelector } from "redux/hooks";
+import { selectDarkMode } from "redux/reducers/notificationSlice";
 
 export default function CreateAccount() {
 
@@ -12,6 +14,7 @@ export default function CreateAccount() {
     const { executeSign, isLoading } = useSignInOrUp()
     const { user } = useAuth(address);
     const navigate = useNavigate()
+    const dark = useAppSelector(selectDarkMode)
 
     const list = useMemo<Array<{ title: string, type?: string, name: string }>>(() => [
         { title: "First Name", name: "userName" }, { title: "Last Name", name: "surname" },
@@ -41,6 +44,7 @@ export default function CreateAccount() {
                 companyName: inputData.companyName,
                 name: inputData.name,
                 surname: inputData.surname,
+                seenTime: new Date().getTime(),
                 timestamp: new Date().getTime()
             })
 
@@ -53,7 +57,7 @@ export default function CreateAccount() {
     return <div className="h-screen w-full">
         <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
-                <img src="/logo.png" alt="" className="w-[150px]" />
+                <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
         <form onSubmit={create} className="py-[100px] sm:py-0 sm:h-full">

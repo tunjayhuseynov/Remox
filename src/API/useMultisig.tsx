@@ -1,15 +1,18 @@
 import { useContractKit } from '@celo-tools/use-contractkit';
 import { toTransactionObject } from '@celo/connect';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 import { selectStorage } from 'redux/reducers/storage';
 import { auth } from '../firebase';
 import { FirestoreWrite, useFirestoreRead } from './useFirebase';
-import { selectMultisigTransactions, setInternalSign, setSign, setTransactions } from "../redux/reducers/multisig"
+import { setInternalSign, setSign } from "../redux/reducers/multisig"
 import { AltCoins, Coins } from 'types';
 import { StableToken } from '@celo/contractkit';
 import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper';
+import { DashboardContext } from 'pages/dashboard/layout';
+const multiProxy = import("./ABI/MultisigProxy.json")
+const multisigContract = import("./ABI/Multisig.json")
 
 export enum MethodIds {
     "0x173825d9" = 'removeOwner',
@@ -41,6 +44,7 @@ export default function useMultisig() {
     const [isLoading, setLoading] = useState(false)
     const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser!.uid)
     const [transactions, setTransactions] = useState<Transaction[]>()
+    const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
 
     const dispatch = useDispatch()
 
@@ -108,6 +112,63 @@ export default function useMultisig() {
     }
 
 
+    const createMultisigAccount = async (owners: string[], name: string, sign: string, internalSign: string) => {
+        setLoading(true)
+        try {
+            if (Number(sign) > owners.length + 1 || Number(internalSign) > owners.length + 1) {
+                throw new Error("Minimum sign count must be greater than the number of owners");
+            }
+            const { abi: proxyABI, bytecode: proxyBytecode } = await multiProxy
+            const { abi: multiSigABI, bytecode: multiSigBytecode } = await multisigContract
+            const tx0 = toTransactionObject(
+                kit.connection,
+                (new kit.web3.eth.Contract(proxyABI as any)).deploy({ data: proxyBytecode }) as any)
+
+            const tx1 = toTransactionObject(
+                kit.connection,
+                (new kit.web3.eth.Contract(multiSigABI as any)).deploy({ data: multiSigBytecode }) as any)
+
+            const res0 = await tx0.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')})
+            const res1 = await tx1.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            if (!res0.contractAddress || !res1.contractAddress) {
+                throw new Error("MultiSig deploy failure");
+            }
+            const proxyAddress = res0.contractAddress
+            const multiSigAddress = res1.contractAddress
+
+            new Promise(resolve => setTimeout(resolve, 500))
+            const initializerAbi = multiSigABI.find((abi) => abi.type === 'function' && abi.name === 'initialize')
+            const callData = kit.web3.eth.abi.encodeFunctionCall(
+                initializerAbi as any,
+                [[address, ...owners] as any, sign as any, internalSign as any]
+            )
+
+            const proxy = new kit.web3.eth.Contract(proxyABI as any, proxyAddress)
+            const txInit = toTransactionObject(
+                kit.connection,
+                proxy.methods._setAndInitializeImplementation(multiSigAddress, callData)
+            )
+            const txChangeOwner = toTransactionObject(
+                kit.connection,
+                proxy.methods._transferOwnership(proxyAddress)
+            )
+            await txInit.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            await txChangeOwner.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+
+            if (data) {
+                await FirestoreWrite().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: proxyAddress }] })
+            } else {
+                await FirestoreWrite().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: proxyAddress }] })
+            }
+            await refetch()
+            setLoading(false)
+            return { multiSigAddress: proxyAddress }
+        } catch (e: any) {
+            setLoading(false)
+            throw new Error(e.message);
+        }
+    }
+
     const importMultisigAccount = async (contractAddress: string, name = "") => {
         setLoading(true)
         try {
@@ -170,7 +231,7 @@ export default function useMultisig() {
                 );
 
                 const ss = await kitMultiSig.submitOrConfirmTransaction(selectedAccount, tx.txo);
-                await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')});
+                await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 setLoading(false)
                 return true
             } catch (error) {
@@ -205,7 +266,7 @@ export default function useMultisig() {
                     );
 
                     const ss = await kitMultiSig.submitOrConfirmTransaction(selectedAccount, tx.txo);
-                    await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')});
+                    await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 }
 
                 if (isInternal) {
@@ -215,7 +276,7 @@ export default function useMultisig() {
                     );
 
                     const ssInternal = await kitMultiSig.submitOrConfirmTransaction(selectedAccount, txInteral.txo);
-                    await ssInternal.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')});
+                    await ssInternal.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 }
                 setLoading(false)
                 return true;
@@ -246,7 +307,7 @@ export default function useMultisig() {
                 );
 
                 const ss = await kitMultiSig.submitOrConfirmTransaction(selectedAccount, tx.txo);
-                await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')});
+                await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 setLoading(false)
                 return true
             } catch (error) {
@@ -290,7 +351,7 @@ export default function useMultisig() {
 
                 const ss = await kitMultiSig.submitOrConfirmTransaction(selectedAccount, tx.txo);
                 setLoading(false)
-                await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')});
+                await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
             } catch (error) {
                 setLoading(false)
                 console.error(error)
@@ -304,6 +365,7 @@ export default function useMultisig() {
     const submitTransaction = async (multisigAddress: string, toAddress: string, amount: string, coin: AltCoins) => {
         let golden;
         try {
+            setLoading(true)
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
 
             let value = kit.web3.utils.toWei(amount, 'ether');
@@ -318,14 +380,17 @@ export default function useMultisig() {
                 web3MultiSig.methods.submitTransaction(golden.address, "0", stringToSolidityBytes(celoObj.txo.encodeABI())),
             );
 
-            await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')})
+            await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            setLoading(false);
             return { message: "sucess" }
         } catch (e: any) {
+            setLoading(false)
             throw new Error(e);
         }
     }
 
     const revokeTransaction = async (multisigAddress: string, transactionId: string | number) => {
+        setLoading(true)
         try {
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
 
@@ -334,15 +399,18 @@ export default function useMultisig() {
                 web3MultiSig.methods.revokeConfirmation(transactionId)
             );
 
-            await tx.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')})
+            await tx.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
 
+            setLoading(false)
             return { message: "success" }
         } catch (e: any) {
+            setLoading(false)
             throw new Error(e);
         }
     }
 
     const confirmTransaction = async (multisigAddress: string, transactionId: string | number) => {
+        setLoading(true)
         try {
 
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
@@ -352,15 +420,17 @@ export default function useMultisig() {
                 web3MultiSig.methods.confirmTransaction(transactionId)
             );
 
-            await tx.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')})
-
+            await tx.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            setLoading(false)
             return { message: "success" }
         } catch (e: any) {
+            setLoading(false)
             throw new Error(e);
         }
     }
 
     const executeTransaction = async (multisigAddress: string, transactionId: string | number) => {
+        setLoading(true)
         try {
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
 
@@ -368,11 +438,12 @@ export default function useMultisig() {
                 kit.connection,
                 web3MultiSig.methods.executeTransaction(transactionId)
             );
-                
-            await tx.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')})
 
+            await tx.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            setLoading(false)
             return { message: "success" }
         } catch (e: any) {
+            setLoading(false)
             throw new Error(e);
         }
     }
@@ -422,5 +493,5 @@ export default function useMultisig() {
         }
     }
 
-    return { importMultisigAccount, data, isLoading, transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, getTransaction, submitTransaction, revokeTransaction, confirmTransaction, executeTransaction };
+    return { importMultisigAccount, createMultisigAccount, data, isLoading, transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, getTransaction, submitTransaction, revokeTransaction, confirmTransaction, executeTransaction };
 }

@@ -24,7 +24,7 @@ const variants = {
     }
 }
 
-const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string }>(({ children, onClick, className }, ref) => <li ref={ref} onClick={onClick} className={`${className} text-left border px-3 py-2 bg-white hover:bg-gray-200 cursor-pointer`}>{children}</li>)
+const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string }>(({ children, onClick, className }, ref) => <li ref={ref} onClick={onClick} className={`${className} text-left border dark:border-darkSecond px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li>)
 
 const Viewer = ({ displayName, name, address, coinUrl, className, disableAddressDisplay }: { displayName?: string, name: string, address?: string, coinUrl?: CoinsURL, className?: string, disableAddressDisplay?: boolean }) => <div className="flex flex-col">
     <div className="flex flex-col">
@@ -55,7 +55,7 @@ const Dropdown = ({ selected, list, nameActivation = false, onSelect, className,
 
     return (
         <div className={`relative ${parentClass} `}>
-            <div onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border rounded-xl ${isOpen && 'rounded-b-none'} py-2 px-3 cursor-pointer`}>
+            <div onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond rounded-xl ${isOpen && 'rounded-b-none'} py-2 px-3 cursor-pointer`}>
                 {!loader ? <div className="truncate">
                     {Viewer({ name: selected.name, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
                 </div> : <ClipLoader />}

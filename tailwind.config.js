@@ -1,12 +1,14 @@
 module.exports = {
   mode: 'jit',
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'class', // or 'media' or 'class'
   theme: {
     extend: {
       colors: {
         primary: "#FF7348",
-        greylish: "#707070"
+        greylish: "#707070",
+        darkSecond: "#1C1C1C",
+        dark: '#252525'
       },
       boxShadow: {
         custom: "0px 2px 7px 0px #dad8d8"

@@ -1,7 +1,6 @@
 import { IuseContributor } from "API/useContributors";
 import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
-import { useUpdateTeamMutation } from "redux/api";
 import { useAppDispatch } from "redux/hooks";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Button from "../../../../components/button";
@@ -20,7 +19,7 @@ const EditTeam = (props: IuseContributor & { onCurrentModal: Dispatch<boolean> }
             Team Name
         </div>
         <div className="place-self-center">
-            <input type="text" defaultValue={props.name} onChange={(e) => setInput(e.target.value)} className="text-center px-3 rounded-md py-2 outline-none border-2 border-black border-opacity-50" required />
+            <input type="text" defaultValue={props.name} onChange={(e) => setInput(e.target.value)} className="text-center px-3 rounded-md py-2 outline-none border-2 border-black border-opacity-50 dark:bg-darkSecond" required />
         </div>
         <div className="grid grid-cols-2 self-end gap-x-5">
             <Button version="second" className="w-full py-3" onClick={() => {

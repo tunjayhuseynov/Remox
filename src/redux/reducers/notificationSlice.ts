@@ -7,6 +7,7 @@ interface NotificatinoState {
     onError: boolean;
     onErrorText: string;
     notificationSeen: number;
+    darkMode: boolean;
 }
 
 const initialState: NotificatinoState = {
@@ -14,7 +15,8 @@ const initialState: NotificatinoState = {
     onSuccessText: 'Successfully!',
     onError: false,
     onErrorText: '',
-    notificationSeen: 0
+    notificationSeen: 0,
+    darkMode: localStorage.getItem('darkMode') ? localStorage.getItem('darkMode') === 'true' ? true : false : true,
 }
 
 export const notificationSlice = createSlice({
@@ -31,15 +33,20 @@ export const notificationSlice = createSlice({
         },
         changeNotificationSeen: (state, action: PayloadAction<number>) => {
             state.notificationSeen = action.payload;
+        },
+        changeDarkMode: (state, action: PayloadAction<boolean>) => {
+            localStorage.setItem('darkMode', action.payload.toString());
+            state.darkMode = action.payload;
         }
     },
 })
 
-export const { changeError, changeSuccess, changeNotificationSeen } = notificationSlice.actions
+export const { changeError, changeSuccess, changeNotificationSeen, changeDarkMode } = notificationSlice.actions
 
 export const selectError = (state: RootState) => state.notification.onError
 export const selectErrorText = (state: RootState) => state.notification.onErrorText
 export const selectSuccessText = (state: RootState) => state.notification.onSuccessText
 export const selectSuccess = (state: RootState) => state.notification.onSuccess
+export const selectDarkMode = (state: RootState) => state.notification.darkMode
 
 export default notificationSlice.reducer

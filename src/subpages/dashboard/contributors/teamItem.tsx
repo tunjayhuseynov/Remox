@@ -60,7 +60,7 @@ const TeamItem = (props: IMember & { teamName: string }) => {
             {props.address}
         </div>
         {modalVisible && <Modal onDisable={setModalVisible}>
-            <Profile {...props} onDeleteModal={setDeleteModal} onCurrentModal={setModalVisible} onEditModal={setModalEditVisible} />
+            <Profile {...props} member={props} onDeleteModal={setDeleteModal} onCurrentModal={setModalVisible} onEditModal={setModalEditVisible} />
         </Modal>}
         {modalEditVisible && <Modal onDisable={setModalEditVisible}>
             <EditMember {...props} onCurrentModal={setModalVisible} />

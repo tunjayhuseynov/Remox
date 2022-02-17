@@ -18,6 +18,7 @@ export default function useProfile() {
       name: decryptMessage(data!.name, storage!.encryptedMessageToken),
       surname: decryptMessage(data!.surname, storage!.encryptedMessageToken),
       companyName: decryptMessage(data!.companyName, storage!.encryptedMessageToken),
+      seenTime: data?.seenTime ?? 0,
       timestamp: data!.timestamp
     }
   }
@@ -44,6 +45,16 @@ export default function useProfile() {
     setLoading(false)
   }
 
+  const UpdateSeenTime = async (time: number) => {
+    setLoading(true)
+    await FirestoreWrite<{
+      seenTime: number,
+    }>().updateDoc("users", auth.currentUser!.uid, {
+      seenTime: time,
+    })
+    setLoading(false)
+  }
 
-  return { isLoading, UpdateCompany, UpdateNameSurname, profile }
+
+  return { isLoading, UpdateCompany, UpdateNameSurname, UpdateSeenTime, profile }
 };

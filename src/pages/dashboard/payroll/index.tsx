@@ -6,13 +6,13 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks'
 import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/reducers/notificationSlice'
 import Error from 'components/general/error';
 import _ from 'lodash';
-import { Member } from 'types/sdk';
 import { SelectBalances } from 'redux/reducers/currencies';
 import { Coins } from 'types';
 import { useNavigate } from 'react-router-dom'
 import Button from 'components/button';
 import { selectContributors } from 'redux/reducers/contributors';
-import { IuseContributor } from 'API/useContributors';
+import { DateInterval, IMember, IuseContributor } from 'API/useContributors';
+import date from 'date-and-time'
 
 const Payroll = () => {
     const history = useNavigate()
@@ -27,7 +27,7 @@ const Payroll = () => {
 
     const [teams, setTeams] = useState<IuseContributor[]>([])
 
-    const memberState = useState<Member[]>([])
+    const memberState = useState<IMember[]>([])
 
 
     useEffect(() => {
@@ -38,7 +38,7 @@ const Payroll = () => {
 
     const totalPrice: { [name: string]: number } = useMemo(() => {
         if (contributors && balance.CELO) {
-            const list: Member[] = [];
+            const list: IMember[] = [];
             contributors.forEach(team => {
                 team.members?.forEach(member => {
                     list.push(member)
@@ -46,12 +46,28 @@ const Payroll = () => {
             })
             const first = Object.entries(_(list).groupBy('currency').value()).map(([currency, members]) => {
                 let totalAmount = members.reduce((acc, curr) => {
-                    if (new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                    if (new Date(curr.paymantDate).getTime() > new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                         return acc;
                     }
                     let amount = parseFloat(curr.amount)
                     if (curr.usdBase) {
                         amount /= (balance[Coins[curr.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                    }
+
+                    if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                        const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
+
+                        if (curr.interval === DateInterval.weekly) {
+                            amount *= Math.max(1, Math.floor(days / 7))
+                        } else if (curr.interval === DateInterval.monthly) {
+                            amount *= Math.max(1, Math.floor(days / 30))
+                        }
+
+                        return acc + amount;
+                    }
+
+                    if (curr.interval === DateInterval.weekly) {
+                        amount *= Math.floor((31 - new Date().getDate()) / 7)
                     }
 
                     return acc + amount;
@@ -65,12 +81,15 @@ const Payroll = () => {
 
             const second = Object.entries(_(list).groupBy('secondaryCurrency').value()).filter(s => s[0] !== 'undefined').map(([currency, members]) => {
                 let totalAmount = members.reduce((acc, curr) => {
-                    if (new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                    if (new Date(curr.paymantDate).getTime() > new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                         return acc;
                     }
                     let amount = (parseFloat(curr!.secondaryAmount!))
                     if (curr.secondaryUsdBase) {
                         amount /= (balance[Coins[curr.secondaryCurrency! as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                    }
+                    if (curr.interval === DateInterval.weekly) {
+                        amount *= Math.floor((31 - new Date().getDate()) / 7)
                     }
 
                     return acc + amount
@@ -86,7 +105,6 @@ const Payroll = () => {
             let res: any = {}
 
             first.forEach((item) => {
-                console.log(item)
                 if (!res[item.currency]) {
                     res[item.currency] = item.totalAmount
                 } else {
@@ -123,7 +141,7 @@ const Payroll = () => {
                     </div> : <div><ClipLoader /></div>}
                 </div>
                 <div className="flex justify-between">
-                    <div className='grid grid-cols-2 gap-12'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12'>
                         {totalPrice ?
                             Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {
                                 return <div key={currency} className="flex space-x-2 relative h-fit">
@@ -141,13 +159,28 @@ const Payroll = () => {
                     </div>
                     <div>
                         <Button onClick={() => {
+                            const arr = [...memberState[0]]
+                            
+                            arr.forEach(curr => {
+                                if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                                    const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
+                                    let amount = parseFloat(curr.amount)
+                                    if (curr.interval === DateInterval.weekly) {
+                                        amount *= Math.max(1, Math.floor(days / 7))
+                                    } else if (curr.interval === DateInterval.monthly) {
+                                        amount *= Math.max(1, Math.floor(days / 30))
+                                    }
+                                    curr = {...curr, amount: amount.toString()}
+                                }
+                            })
+                           
                             history(
                                 {
-                                    pathname: '/masspayout',
+                                    pathname: '/dashboard/masspayout',
                                 },
                                 {
                                     state: {
-                                        memberList: memberState[0]
+                                        memberList: arr
                                     }
                                 })
                         }}>

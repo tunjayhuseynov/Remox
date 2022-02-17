@@ -1,12 +1,12 @@
 import { Dispatch } from "react";
 import { Coins } from "types/coins";
-import { Member } from "types/sdk";
 import Avatar from 'components/avatar'
 import Button from "components/button";
 import { IMember } from "API/useContributors";
+import { useNavigate } from "react-router-dom";
 
-const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<boolean>, onCurrentModal: Dispatch<boolean>, onEditModal: Dispatch<boolean> }) => {
-
+const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<boolean>, onCurrentModal: Dispatch<boolean>, onEditModal: Dispatch<boolean>, member: IMember }) => {
+    const navigate = useNavigate()
     return <>
         <div>
             <div className="text-xl font-bold pb-3">
@@ -19,7 +19,7 @@ const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<bo
                         <div className="flex space-x-2 items-center">
                             <Avatar name={props.name} />
                             <div>
-                                {props.name} 
+                                {props.name}
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<bo
             <div className="flex justify-center items-center pt-10">
                 <div className="grid grid-cols-2 gap-y-3 gap-x-5 justify-center">
                     <div className="col-span-2">
-                        <Button className="px-6 py-3 w-full">
+                        <Button className="px-6 py-3 w-full" onClick={() => navigate({ pathname: '/dashboard/masspayout' }, { state: { memberList: [props.member] } })}>
                             Pay Now
                         </Button>
                     </div>

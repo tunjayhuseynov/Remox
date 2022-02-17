@@ -1,6 +1,5 @@
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { StableToken } from "@celo/contractkit";
-import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import { GoldTokenWrapper } from "@celo/contractkit/lib/wrappers/GoldTokenWrapper";
 import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransactionWallet";
 import { StableTokenWrapper } from "@celo/contractkit/lib/wrappers/StableTokenWrapper";
@@ -8,6 +7,9 @@ import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import { AltCoins, Coins } from "types";
 import _ from 'lodash'
+import { DashboardContext } from "pages/dashboard/layout";
+import { useContext } from "react";
+import { BatchRequest } from "./Contracts/BatchRequest";
 
 const Ether = import("ethers");
 const nomAbi = import("API/ABI/nom.json")
@@ -16,11 +18,14 @@ export interface PaymentInput {
     coin: AltCoins,
     amount: string,
     recipient: string,
-    comment?: string
+    comment?: string,
+    from?: boolean,
 }
 
 export default function usePay() {
-    const { kit, address, performActions } = useContractKit()
+    const { kit, address } = useContractKit()
+    const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
+
     const storage = useSelector(selectStorage)
 
     const BatchPay = async (inputArr: PaymentInput[]) => {
@@ -38,10 +43,10 @@ export default function usePay() {
 
         for (let index = 0; index < approveArr.length; index++) {
             const token = await kit.contracts.getErc20(approveArr[index].coin.contractAddress);
-            const approve = token.approve(storage!.contractAddress!, kit.web3.utils.toWei(approveArr[index].amount.toString(), 'ether'))
+            const approve = token.approve(BatchRequest.address, kit.web3.utils.toWei(approveArr[index].amount.toString(), 'ether'))
             await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
         }
-        
+
 
         for (let i = 0; i < inputArr.length; i++) {
             const tx = await GenerateTx(inputArr[i])
@@ -49,7 +54,7 @@ export default function usePay() {
         }
 
         const input = toTransactionBatch(arr)
-
+      
         const router = new kit.connection.web3.eth.Contract(
             [
                 {
@@ -154,55 +159,50 @@ export default function usePay() {
                     "payable": false,
                     "stateMutability": "nonpayable",
                     "type": "function"
-                }], storage!.contractAddress!)
+                }], BatchRequest.address)
 
-
-
-        const sender = await router.methods.executeTransactions(input.destinations, input.values, input.callData, input.callDataLengths).send({ from: address!, gas: 210000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-        console.log(sender.transactionHash)
+        const sender = await router.methods.executeTransactions(input.destinations, input.values, input.callData, input.callDataLengths).send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+        await refetch()
     }
 
     const Pay = async ({ coin, amount, recipient, comment }: PaymentInput) => {
         try {
-            return await performActions(async (kit) => {
-                let nomContract = new kit.web3.eth.Contract(
-                    (await nomAbi).abi as AbiItem[],
-                    "0xABf8faBbC071F320F222A526A2e1fBE26429344d"
-                )
 
-                const isAddressExist = kit.web3.utils.isAddress(recipient);
-                if (!isAddressExist) {
-                    if (recipient.slice(0, 2) != "0x") {
-                        recipient = recipient.slice(recipient.length - 4) == ".nom" ? recipient.slice(0, recipient.length - 4) : recipient
-                        const bytes = (await Ether).utils.formatBytes32String(recipient);
-                        recipient = await nomContract.methods.resolve(bytes).call();
+            let celotx = await GenerateTx({ coin, amount, recipient, comment });
 
-                        if (recipient.slice(0, 7) == "0x00000") throw new Error('There is not any wallet belong this address');
-                    }
-                    else throw new Error('There is not any wallet belong this address');
-                }
-
-
-                let celotx = await GenerateTx({ coin, amount, recipient, comment });
-                console.log(celotx.txo.encodeABI())
-                let txSend = await celotx.send({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-                let celoReceipt = await txSend.waitReceipt();
-
-                return {
-                    from: address!,
-                    to: recipient,
-                    value: amount,
-                    transactionHash: celoReceipt.transactionHash
-                };
-            })
+            let txSend = await celotx.send({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            let celoReceipt = await txSend.waitReceipt();
+            await refetch()
+            return {
+                from: address!,
+                to: recipient,
+                value: amount,
+                transactionHash: celoReceipt.transactionHash
+            };
 
         } catch (error: any) {
             throw new Error(error)
         }
     }
 
-    const GenerateTx = async ({ coin, amount, recipient, comment }: PaymentInput) => {
+    const GenerateTx = async ({ coin, amount, recipient, comment, from = false }: PaymentInput) => {
         const amountWei = kit.web3.utils.toWei(amount.toString(), 'ether');
+
+        let nomContract = new kit.web3.eth.Contract(
+            (await nomAbi).abi as AbiItem[],
+            "0xABf8faBbC071F320F222A526A2e1fBE26429344d"
+        )
+        const isAddressExist = kit.web3.utils.isAddress(recipient);
+        if (!isAddressExist) {
+            if (recipient.slice(0, 2) != "0x") {
+                recipient = recipient.slice(recipient.length - 4) == ".nom" ? recipient.slice(0, recipient.length - 4) : recipient
+                const bytes = (await Ether).utils.formatBytes32String(recipient);
+                recipient = await nomContract.methods.resolve(bytes).call();
+
+                if (recipient.slice(0, 7) == "0x00000") throw new Error('There is not any wallet belong this address');
+            }
+            else throw new Error('There is not any wallet belong this address');
+        }
 
         let token = await (
             async () => {
@@ -228,7 +228,7 @@ export default function usePay() {
         return comment
             ? await (token as unknown as GoldTokenWrapper | StableTokenWrapper)
                 .transferWithComment(recipient, amountWei, comment)
-            : await token.transferFrom(address!, recipient, amountWei);
+            : from ? await token.transferFrom(address!, recipient, amountWei) : await token.transfer(recipient, amountWei);
     }
 
     return { Pay, BatchPay };

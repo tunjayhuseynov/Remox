@@ -37,10 +37,14 @@ export default function useContributors() {
     }
 
     const getMember = async (teamId: string, memberId: string) => {
-        setLoading(true)
-        const doc = await FirestoreRead<IuseContributor>("contributors", teamId)
-        setLoading(false)
-        return doc?.members.find(m => m.id === memberId)
+        try {
+            setLoading(true)
+            const doc = await FirestoreRead<IuseContributor>("contributors", teamId)
+            setLoading(false)
+            return doc?.members.find(m => m.id === memberId)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const addMember = async (id: string, member: IMember) => {

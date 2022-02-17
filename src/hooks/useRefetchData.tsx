@@ -6,12 +6,18 @@ import { setTimeout } from 'timers'
 import useBalance from '../API/useBalance'
 import useCurrency from '../API/useCurrency'
 import { useLazyGetTransactionsQuery } from '../redux/api'
-import { updateAllCurrencies, updateUserBalance } from '../redux/reducers/currencies'
+import { updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/reducers/currencies'
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from '../redux/reducers/storage'
 import { SelectTransactions, setTransactions } from '../redux/reducers/transactions'
 import { Coins } from '../types/coins'
-import { GetBalanceResponse, MultisigBalanceResponse } from '../types/sdk'
+import useRequest from 'API/useRequest'
+import useRequestHook from 'hooks/useRequest'
+import { addRequests } from 'redux/reducers/requests'
+
+interface Balance {
+    [name: string]: string;
+}
 
 const useRefetchData = (disableInterval = false) => {
     const dispatch = useDispatch()
@@ -21,13 +27,23 @@ const useRefetchData = (disableInterval = false) => {
 
     const fetchedCurrencies = useCurrency()
     const contributors = useContributors()
+    const { data } = useRequest()
+    const { setGenLoading } = useRequestHook()
     const { fetchBalance, fetchedBalance, isLoading: balanceLoading } = useBalance(selectedAccount)
 
     const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
 
     useEffect(() => {
+        if (data) {
+            setTimeout(() => {
+                dispatch(addRequests(data!.requests))
+            }, 1500)
+        }
+    }, [data])
+
+    useEffect(() => {
         if (transactionData && transactionData.result.length > 0 && !transactionFetching) {
-            if (transactionStore?.result[0].hash !== transactionData.result[0].hash || transactionStore?.result[transactionStore.result.length - 1].hash !== transactionData.result[transactionData.result.length - 1].hash) {
+            if (transactionStore?.result[0]?.hash !== transactionData.result[0]?.hash || transactionStore?.result[transactionStore.result.length - 1]?.hash !== transactionData.result[transactionData.result.length - 1]?.hash) {
                 dispatch(setTransactions(transactionData))
             }
         } else if (transactionData && transactionData.result.length === 0) dispatch(setTransactions(transactionData))
@@ -52,11 +68,13 @@ const useRefetchData = (disableInterval = false) => {
             const mobi = fetchedCurrencies.find(c => c.name === 'MOBI')
             const poof = fetchedCurrencies.find(c => c.name === 'POOF')
             const creal = fetchedCurrencies.find(c => c.name === 'cREAL')
+            const pact = fetchedCurrencies.find(c => c.name === 'PACT')
+            const ari = fetchedCurrencies.find(c => c.name === 'ARI')
 
-            if (fetchedBalance) {
+            if (fetchedBalance && !balanceLoading) {
                 let balance = fetchedBalance as { [name: string]: string; } | undefined;
 
-                if (balance && celo && cusd && ceur && ube && moo && mobi && poof && creal) {
+                if (balance && celo && cusd && ceur && ube && moo && mobi && poof && creal && pact && ari) {
 
                     let pCelo;
                     let pCusd;
@@ -66,7 +84,10 @@ const useRefetchData = (disableInterval = false) => {
                     let pMobi;
                     let pPoof;
                     let pReal;
-                    balance = balance as GetBalanceResponse;
+                    let pPact;
+                    let pAri;
+
+                    balance = balance as Balance;
                     pCelo = parseFloat(balance.CELO);
                     pCusd = parseFloat(balance.cUSD);
                     pCeur = parseFloat(balance.cEUR);
@@ -75,7 +96,8 @@ const useRefetchData = (disableInterval = false) => {
                     pMobi = parseFloat(balance.MOBI);
                     pPoof = parseFloat(balance.POOF);
                     pReal = parseFloat(balance.cREAL);
-
+                    pPact = parseFloat(balance.PACT);
+                    pAri = parseFloat(balance.ARI);
 
                     const celoPrice = pCelo * (celo.price ?? 0);
                     const cusdPrice = pCusd * (cusd.price ?? 0);
@@ -85,8 +107,10 @@ const useRefetchData = (disableInterval = false) => {
                     const mobiPrice = pMobi * (mobi.price ?? 0);
                     const poofPrice = pPoof * (poof.price ?? 0);
                     const cRealPrice = pReal * (creal.price ?? 0);
+                    const PactPrice = pPact * (pact.price ?? 0);
+                    const ariPrice = pAri * (ari.price ?? 0);
 
-                    const total = celoPrice + cusdPrice + mooPrice + + ceurPrice + ubePrice + mobiPrice + poofPrice + cRealPrice;
+                    const total = celoPrice + cusdPrice + mooPrice + + ceurPrice + ubePrice + mobiPrice + poofPrice + cRealPrice + PactPrice + ariPrice;
 
                     const updatedBalance = [
                         { amount: pCelo, per_24: celo.percent_24, percent: (celoPrice * 100) / total, coins: Coins.CELO, tokenPrice: +celo.price },
@@ -96,10 +120,18 @@ const useRefetchData = (disableInterval = false) => {
                         { amount: pMoo, per_24: moo.percent_24, percent: (mooPrice * 100) / total, coins: Coins.MOO, tokenPrice: +moo.price },
                         { amount: pMobi, per_24: mobi.percent_24, percent: (mobiPrice * 100) / total, coins: Coins.MOBI, tokenPrice: +mobi.price },
                         { amount: pPoof, per_24: poof.percent_24, percent: (poofPrice * 100) / total, coins: Coins.POOF, tokenPrice: +poof.price },
-                        { amount: pReal, per_24: creal.percent_24, percent: (cRealPrice * 100) / total, coins: Coins.cREAL, tokenPrice: +creal.price }
+                        { amount: pReal, per_24: creal.percent_24, percent: (cRealPrice * 100) / total, coins: Coins.cREAL, tokenPrice: +creal.price },
+                        { amount: pPact, per_24: pact.percent_24, percent: (PactPrice * 100) / total, coins: Coins.PACT, tokenPrice: +pact.price },
+                        { amount: pAri, per_24: ari.percent_24, percent: (ariPrice * 100) / total, coins: Coins.ARI, tokenPrice: +ari.price },
                     ]
 
-                    dispatch(updateUserBalance(updatedBalance))
+                    const totalBalance: number = updatedBalance.reduce((acc, curr) => acc + (curr.amount * curr.tokenPrice), 0)
+
+                    dispatch(updateTotalBalance(totalBalance))
+
+                    setTimeout(() => {
+                        dispatch(updateUserBalance(updatedBalance))
+                    }, 1000);
                 }
             }
         }
@@ -115,8 +147,10 @@ const useRefetchData = (disableInterval = false) => {
             dispatch(updateAllCurrencies(
                 fetchedCurrencies
             ))
-
-            fetchBalance()
+            dispatch(updateTotalBalance(undefined))
+            fetchBalance().catch(() => {
+                fetchBalance().catch((error) => { console.error(error) })
+            })
         }
 
     }

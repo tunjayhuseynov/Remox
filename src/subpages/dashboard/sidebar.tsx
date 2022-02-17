@@ -5,7 +5,6 @@ import Siderbarlist from './sidebarlist'
 import Error from '../../components/general/error';
 import Modal from '../../components/general/modal';
 import Success from '../../components/general/success';
-import { useImportAddressMutation } from '../../redux/api';
 import { changeError, changeSuccess, selectError, selectSuccess } from '../../redux/reducers/notificationSlice';
 import { changeAccount, SelectSelectedAccount } from '../../redux/reducers/selectedAccount';
 import { selectStorage } from '../../redux/reducers/storage';
@@ -80,14 +79,14 @@ const Sidebar = () => {
                     setCreateModal(true)
                     setAccountModal(false)
                 }}>
-                    <img src="/icons/teamicon.svg" alt="" />
+                    <img src="/icons/teamicon.svg" className="dark:invert dark:brightness-0" alt="" />
                     <span>Create Multisig Account</span>
                 </div>
                 <div className="flex space-x-3 border border-black px-5 py-2 rounded-md cursor-pointer items-center" onClick={() => {
                     setImportModal(true)
                     setAccountModal(false)
                 }}>
-                    <img src="/icons/teamicon.svg" alt="" />
+                    <img src="/icons/teamicon.svg" className="dark:invert dark:brightness-0" alt="" />
                     <span>Import Multisig Account</span>
                 </div>
             </div>
@@ -97,11 +96,11 @@ const Sidebar = () => {
                 <div className="text-center font-semibold">Import MultiSig Account</div>
                 <div className="flex flex-col">
                     <span className="text-greylish opacity-35 pl-3">MultiSig Name</span>
-                    <input ref={importNameInputRef} type="text" className="border p-3 rounded-md border-black" placeholder="0xabc..." />
+                    <input ref={importNameInputRef} type="text" className="border p-3 rounded-md border-black dark:bg-darkSecond outline-none" placeholder="0xabc..." />
                 </div>
                 <div className="flex flex-col">
                     <span className="text-greylish opacity-35 pl-3">MultiSig Address</span>
-                    <input ref={importInputRef} type="text" className="border p-3 rounded-md border-black" placeholder="0xabc..." />
+                    <input ref={importInputRef} type="text" className="border p-3 rounded-md border-black dark:bg-darkSecond outline-none" placeholder="0xabc..." />
                 </div>
                 <div className="flex justify-center">
                     <Button className="px-10 py-2" onClick={importClick} isLoading={isLoading}>

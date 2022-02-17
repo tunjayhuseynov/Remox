@@ -7,6 +7,8 @@ import '@celo-tools/use-contractkit/lib/styles.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import "react-datepicker/dist/react-datepicker.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 render(
   <StrictMode>

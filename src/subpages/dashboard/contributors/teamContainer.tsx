@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { generate } from "shortid";
-import { useDeleteTeamMutation } from "../../../redux/api";
 import Modal from "../../../components/general/modal";
 import Delete from "./buttons/delete";
 import EditTeam from './buttons/editTeam'
@@ -11,7 +9,6 @@ import useContributors from "hooks/useContributors";
 
 const TeamContainer = (props: IuseContributor) => {
     const [deleteModal, setDeleteModal] = useState(false)
-    // const [deleteTeam] = useDeleteTeamMutation()
     const { removeTeam } = useContributors()
 
     const [editModal, setEditModal] = useState(false)
@@ -33,7 +30,7 @@ const TeamContainer = (props: IuseContributor) => {
             </div>
             <div className="flex space-x-3">
                 <div className="cursor-pointer" onClick={() => setEditModal(true)}>
-                    <img src="/icons/editicon.svg" alt="" />
+                    <img src="/icons/editicon.svg" className="dark:invert dark:brightness-0" alt="" />
                 </div>
                 <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
                     <img src="/icons/trashicon.svg" alt="" />
@@ -41,7 +38,7 @@ const TeamContainer = (props: IuseContributor) => {
             </div>
         </div>
         {props.members && props.members.slice(0, num).map(w =>
-            <div key={generate()} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
+            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
                 <TeamItem teamName={props.name} {...w} />
             </div>
         )}

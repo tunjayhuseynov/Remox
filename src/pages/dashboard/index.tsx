@@ -1,4 +1,3 @@
-import { useContractKit } from "@celo-tools/use-contractkit";
 import { AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
@@ -36,9 +35,9 @@ export default function Dashboard() {
     </AnimatePresence>
     <div className="flex flex-col pt-6 gap-16">
       <Navbar></Navbar>
-      <div className="grid grid-cols-2 md:grid-cols-11 md:gap-12">
-        <div className="hidden md:block md:col-span-2"><Sidebar /></div>
-        <div className="col-span-11 md:col-span-8 pl-2 md:pl-7 pr-2">
+      <div className="flex space-x-11">
+        <div className="hidden md:block md:col-span-2 w-[250px] flex-none"><Sidebar /></div>
+        <div className="col-span-11 md:col-span-8 pl-2 flex-grow pr-20">
           <Suspense fallback={<div className="h-full w-full flex justify-center items-center"><ClipLoader /></div>}>
             <Outlet />
           </Suspense>

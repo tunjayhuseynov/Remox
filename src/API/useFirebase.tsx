@@ -4,14 +4,19 @@ import { onSnapshot, doc, setDoc, getDoc, collection, query, where, getDocs, Whe
 
 
 export async function FirestoreRead<DataType>(collection: string, document: string) {
-    const docRef = doc(db, collection, document);
-    const docSnap = await getDoc(docRef);
+    try {
+        const docRef = doc(db, collection, document);
+        const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-        return docSnap.data() as DataType;
-    } else {
-        console.error("No such document!");
-        return undefined;
+        if (docSnap.exists()) {
+            return docSnap.data() as DataType;
+        } else {
+            console.error("No such document!");
+            return undefined;
+        }
+    } catch (error: any) {
+        console.error("Error getting document:", error);
+        throw new Error(error);
     }
 }
 
@@ -59,11 +64,11 @@ export function useFirestoreRead<DataType>(collection: string, document: string)
             setData(doc.data() as DataType | undefined)
         });
     }
-
+ 
     useEffect(() => {
         const unsub = readDoc(collection, document);
         return () => unsub();
-    }, [])
+    }, [document])
 
     return { data };
 }

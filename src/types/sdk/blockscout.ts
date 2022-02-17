@@ -1,4 +1,4 @@
-import { TransactionFeeTokenName } from "../coins";
+import { CoinsName } from "../coins";
 
 export interface GetTransactions{
     message: string,
@@ -24,6 +24,6 @@ export interface Transactions{
     to: string,
     tokenDecimal: string,
     tokenName: string,
-    tokenSymbol: TransactionFeeTokenName,
+    tokenSymbol: CoinsName,
     transactionIndex: string
 }

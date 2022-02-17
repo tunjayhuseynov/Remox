@@ -12,32 +12,47 @@ import useModalSideExit from '../../hooks/useModalSideExit';
 import { SelectSelectedAccount } from '../../redux/reducers/selectedAccount';
 import Visitcard from '../../components/visitcard';
 import Button from '../../components/button';
+import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 
 const Navbar = () => {
     const storage = useAppSelector(selectStorage)
     const menuBar = useAppSelector(selectToggle)
     const dispatch = useAppDispatch()
     const selectedAccount = useAppSelector(SelectSelectedAccount)
+    const dark = useAppSelector(selectDarkMode)
 
+    const darkMode = () => {
+        const mode = localStorage.getItem('darkMode')
+        if (mode === 'true') {
+            dispatch(changeDarkMode(false))
+        }
+        else {
+            dispatch(changeDarkMode(true))
+        }
+    }
 
-
-    return <div className="grid grid-cols-3 md:grid-cols-5 gap-12">
+    return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr,1fr,1fr,1fr] gap-12">
         <div className="md:hidden pl-4">
             <div className="inline-block" onClick={() => dispatch(setMenu(!menuBar.mobileMenu))}>
                 <Hamburger toggled={menuBar.mobileMenu} hideOutline={true} />
             </div>
         </div>
         <div className="h-[50px] flex justify-center md:justify-start items-center md:pl-4 lg:pl-14">
-            <img src="/logo.png" alt="" width="150" />
+            <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
         </div>
         <div className="search col-span-2 hidden md:block">
-            <div className="w-full h-12 shadow backdrop-blur bg-gray-50 rounded-lg flex items-center pl-3 gap-3">
+            <div className="w-full h-12 shadow backdrop-blur bg-gray-50 dark:bg-darkSecond rounded-lg flex items-center pl-3 gap-3">
                 <BsSearch />
-                <input type="text" placeholder={'Search'} className="flex-grow bg-transparent outline-none" />
+                <input type="text" placeholder={'Search'} className="flex-grow bg-transparent outline-none " />
             </div>
         </div>
         <div className="actions hidden md:flex items-center justify-evenly md:col-span-2">
-            {storage ? <Visitcard name={selectedAccount !== storage.accountAddress ? 'MultiSig' : "Wallet"} address={selectedAccount} /> : <ClipLoader />}
+            <div className="flex space-x-5 items-center justify-center">
+                <div className="w-12 h-12 bg-gray-50 dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
+                    <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" />
+                </div>
+                {storage ? <Visitcard name={selectedAccount !== storage.accountAddress ? 'MultiSig' : "Wallet"} address={selectedAccount} /> : <ClipLoader />}
+            </div>
             <NavbarDropdown />
             <div className="relative">
                 <NotificationCointainer />
@@ -48,7 +63,7 @@ const Navbar = () => {
 
 
 
-const Li = ({ children, link }: { children: any, link: string }) => <li className="text-left border px-3 py-2 bg-white hover:text-primary hover:border-b-primary cursor-pointer first:rounded-t-xl last:rounded-b-xl"><Link to={link} className='flex gap-2'>{children}</Link></li>
+const Li = ({ children, link }: { children: any, link: string }) => <li className="text-left border px-3 py-2 bg-white dark:bg-darkSecond hover:text-primary hover:border-b-primary cursor-pointer first:rounded-t-xl last:rounded-b-xl"><Link to={link} className='flex gap-2'>{children}</Link></li>
 
 export const NavbarDropdown = () => {
     const [isOpen, setOpen] = useState(false)
@@ -66,22 +81,22 @@ export const NavbarDropdown = () => {
         </Button>
         {isOpen && <div ref={divRef} className="absolute w-[150%] rounded-2xl sm:-left-1/4  -bottom-1 translate-y-full shadow-xl z-50">
             <ul>
-                <Li link={'/pay'}><PaySVG /> Pay Someone</Li>
-                <Li link="/masspayout"><MassPayoutSVG />Payroll</Li>
-                <Li link=''><RequestMoneySVG /> Request Money</Li>
-                <Li link=''><FundSVG /> Add Funds</Li>
+                <Li link={'/dashboard/pay'}><PaySVG /> Pay Someone</Li>
+                <Li link="/dashboard/masspayout"><MassPayoutSVG />Payroll</Li>
+                <Li link=''><RequestMoneySVG /> Request Money <span className="text-[10px]">coming soon</span></Li>
+                <Li link=''><FundSVG /> Add Funds <span className="text-[10px]">coming soon</span> </Li>
             </ul>
         </div>
         }
     </div>
 }
 
-const PaySVG = () => <img src='/icons/senticon.svg' alt="" />
+const PaySVG = () => <img src='/icons/senticon.svg' className="dark:invert dark:brightness-0" alt="" />
 
-const MassPayoutSVG = () => <img src='/icons/masspayouticon.svg' alt="" />
+const MassPayoutSVG = () => <img src='/icons/masspayouticon.svg' className="dark:invert dark:brightness-0" alt="" />
 
-const RequestMoneySVG = () => <img src='/icons/moneyrequesticon.svg' alt="" />
+const RequestMoneySVG = () => <img src='/icons/moneyrequesticon.svg' className="dark:invert dark:brightness-0" alt="" />
 
-const FundSVG = () => <img src='/icons/addfundds.svg' alt="" />
+const FundSVG = () => <img src='/icons/addfundds.svg' className="dark:invert dark:brightness-0" alt="" />
 
 export default Navbar;

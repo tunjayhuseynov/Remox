@@ -10,7 +10,7 @@ import CSV from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import Input from "subpages/pay/payinput";
-import { Coins, TransactionFeeTokenName } from "types/coins";
+import { Coins } from "types/coins";
 import { useAppDispatch } from "redux/hooks";
 import { changeError, selectError } from "redux/reducers/notificationSlice";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
@@ -58,8 +58,6 @@ const Pay = () => {
         addressRef.current = []
         amountRef.current = []
         uniqueRef.current = []
-        //setAmountState([])
-        //setWallets([]);
     }
 
 
@@ -84,8 +82,8 @@ const Pay = () => {
                 amountRef.current.push((amount2 || ""));
                 amm.push(parseFloat(amount2 || "0"))
 
-                const a = { ...Coins[coin as TransactionFeeTokenName], type: Coins[coin as TransactionFeeTokenName].value };
-                const b = { ...Coins[coin2 as TransactionFeeTokenName], type: Coins[coin2 as TransactionFeeTokenName].value };
+                const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].value };
+                const b = { ...Coins[coin2 as keyof Coins], type: Coins[coin2 as keyof Coins].value };
                 const wallet = [a, b];
                 wllt.push(...wallet)
                 setAmountState(amm)
@@ -147,7 +145,8 @@ const Pay = () => {
                     const arr: Array<PaymentInput> = result.map(w => ({
                         coin: Coins[w.tokenName as keyof Coins],
                         recipient: w.toAddress,
-                        amount: w.amount
+                        amount: w.amount, 
+                        from: true
                     }))
 
                     await BatchPay(arr)
@@ -173,7 +172,7 @@ const Pay = () => {
            
         } catch (error: any) {
             console.error(error)
-            dispatch(changeError({ activate: true, text: error?.data?.message.slice(0, 80) }));
+            dispatch(changeError({ activate: true, text: error.message }));
         }
 
         setIsPaying(false);
@@ -181,12 +180,12 @@ const Pay = () => {
 
     return <div className="sm:px-32">
         <form onSubmit={Submit}>
-            <div className="sm:flex flex-col items-center justify-center min-h-screen">
+            <div className="sm:flex flex-col items-center justify-center min-h-screen py-10">
                 <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
-                    <div className="pl-14 py-2 text-left w-full">
+                    <div className="py-2 text-center w-full">
                         <div className="text-xl font-semibold">Pay Someone</div>
                     </div>
-                    <div className="shadow-xl border sm:flex flex-col gap-3 gap-y-10 sm:gap-10 py-10">
+                    <div className="sm:flex flex-col gap-3 gap-y-10 sm:gap-10 py-10">
                         <div className="sm:flex flex-col pl-3 sm:pl-12 sm:pr-[20%] gap-3 gap-y-10  sm:gap-10">
                             <div className="flex flex-col space-y-5">
                                 <span className="text-left text-sm font-semibold">Payment Type</span>
@@ -223,16 +222,16 @@ const Pay = () => {
                                 </div>
                             </div>
                             <div className="py-5 sm:py-0 grid grid-cols-[65%,35%] gap-16">
-                                <div className="grid grid-cols-2 gap-x-5 sm:grid-cols-3">
-                                    <Button version="second" className="min-w-[200px]" onClick={() => {
+                                <div className="flex space-x-5">
+                                    <Button version="second" className="min-w-[200px] text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                         setIndex(index + 1)
                                     }}>
                                         + Add More
                                     </Button>
                                     <Button version="second" onClick={() => {
                                         fileInput.current?.click()
-                                    }} className="min-w-[200px]">
-                                        Import CSV
+                                    }} className="min-w-[200px] text-left !px-6 font-semibold tracking-wide shadow-none">
+                                        Import CSV file
                                     </Button>
                                 </div>
                                 <span className="self-center text-lg opacity-60">Total: ${amountState.reduce((a, e, i) => {
@@ -241,16 +240,16 @@ const Pay = () => {
                                     return a + e * (balance[wallets[i].name as keyof typeof balance]?.tokenPrice ?? 1);
                                 }, 0).toFixed(2)}</span>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col space-y-3">
                                 <span className="text-left">Description (Optional)</span>
                                 <div className="grid grid-cols-1">
-                                    <textarea className="border-2 rounded-xl p-1 outline-none" name="description" id="" cols={30} rows={5}></textarea>
+                                    <textarea placeholder="Paid 50 CELO to Ermak....." className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
                                 </div>
                             </div>
                         </div>
                         <div className="flex justify-center pt-5 sm:pt-0">
                             <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[200px] sm:w-[400px] justify-center gap-5">
-                                <Button version="second" onClick={() => router(-1)}>Close</Button>
+                                <Button version="second" onClick={() => router("/dashboard")}>Close</Button>
                                 <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isPaying}>Pay</Button>
                             </div>
                         </div>
@@ -258,7 +257,7 @@ const Pay = () => {
                 </div>
             </div>
         </form>
-        {isSuccess && <Success onClose={setSuccess} onAction={() => { router(-1) }} />}
+        {isSuccess && <Success onClose={setSuccess} onAction={() => { router("/dashboard") }} />}
         {isError && <Error onClose={(val) => dispatch(changeError({ activate: val, text: '' }))} />}
     </div>
 }

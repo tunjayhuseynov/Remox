@@ -5,5 +5,6 @@ export interface IUser{
     surname?: string;
     companyName?: string;
     contractAddress?: string;
+    seenTime: number;
     timestamp: number;
 }

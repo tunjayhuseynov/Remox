@@ -24,7 +24,7 @@ const ReplaceOwner = ({ onDisable, ownerAddress }: { onDisable: React.Dispatch<b
         <div className="flex flex-col space-y-3">
             <span>Wallet Address</span>
             <div>
-                <input defaultValue={ownerAddress} onChange={(e) => setAddress(e.target.value)} type="text" placeholder="0xabc..." className="w-full px-3 py-2 border border-black rounded-lg" />
+                <input defaultValue={ownerAddress} onChange={(e) => setAddress(e.target.value)} type="text" placeholder="0xabc..." className="w-full px-3 py-2 border border-black rounded-lg dark:bg-darkSecond" />
             </div>
         </div>
         <div className="flex justify-center">

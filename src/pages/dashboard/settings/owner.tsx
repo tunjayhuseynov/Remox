@@ -57,7 +57,7 @@ const OwnerSetting = () => {
         <div className="shadow-custom px-12 py-4 -mx-10 rounded-xl">
             <div className="flex flex-col space-y-5">
                 {owners?.map((e, i) => <div key={shortid()} className="grid grid-cols-[55%,10%,5%,30%] items-center">
-                    <div key={generate()} className="flex items-center space-x-2">
+                    <div  className="flex items-center space-x-2">
                         <div>
                             <Avatar className="bg-opacity-10 font-bold text-xs" name="Ow" />
                         </div>
@@ -73,7 +73,7 @@ const OwnerSetting = () => {
                         setSelectedOwner(e)
                         setReplaceOwnerModal(true)
                     }}>
-                        <img src="/icons/editSetting.svg" alt="" />
+                        <img src="/icons/editSetting.svg" alt="" className="dark:invert dark:brightness-0"/>
                     </div>
                     <div className="cursor-pointer" onClick={() => {
                         setRemovable({ name: `Owner ${i + 1}`, address: e })

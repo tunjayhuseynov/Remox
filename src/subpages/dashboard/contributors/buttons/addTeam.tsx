@@ -30,7 +30,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         <div className="grid grid-cols-2 items-center">
             <div>Team Name</div>
             <div>
-                <input ref={teamName} type="text" className="border pl-3 w-full rounded-xl h-10 outline-none" />
+                <input ref={teamName} type="text" className="border pl-3 w-full rounded-xl h-10 outline-none dark:bg-darkSecond" />
             </div>
             {error && <div className="text-red-600"> Something went wrong</div>}
         </div>

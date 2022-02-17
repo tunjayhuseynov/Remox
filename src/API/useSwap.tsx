@@ -4,16 +4,19 @@ import { StableToken } from '@celo/contractkit';
 import { ChainId, Fetcher, Fraction, JSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
 import { utils } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
-import { useState } from 'react';
+import { DashboardContext } from 'pages/dashboard/layout';
+import { useContext, useState } from 'react';
 import { AltCoins, Coins } from 'types';
 
 export default function useSwap() {
     const { kit, address } = useContractKit()
+    const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
+    
     const [isLoading, setLoading] = useState(false)
 
     const Exchange = async (inputCoin: AltCoins, outputCoin: AltCoins, amount: string, slippage: string, deadline: number) => {
         const provider = new CeloProvider('https://forno.celo.org')
-        
+
         setLoading(true)
         let token;
         try {
@@ -42,8 +45,7 @@ export default function useSwap() {
                 kit.web3.utils.toWei(amount, 'ether')
             );
 
-            let sendFunc = await approve.send();
-            await sendFunc.waitReceipt();
+            let sendFunc = await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("1", 'Gwei') });
 
             const router = new kit.connection.web3.eth.Contract(
                 [
@@ -106,15 +108,16 @@ export default function useSwap() {
             const txx = await router.methods.swapExactTokensForTokens(...ubeRouter.args);
 
             const sender = await txx.send({ from: address });
+            await refetch()
             setLoading(false)
             return { hash: sender.transactionHash }
         } catch (e: any) {
+            setLoading(false)
             throw new Error(e);
         }
     }
 
     const MinmumAmountOut = async (inputCoin: AltCoins, outputCoin: AltCoins, amount: string, slippage: string, deadline: number) => {
-        console.log(amount)
         const provider = new CeloProvider('https://forno.celo.org')
         setLoading(true)
         let priceImpactWithoutFeePercent;
@@ -177,9 +180,10 @@ export default function useSwap() {
             setLoading(false)
             return { minimumAmountOut, oneTokenValue: minimumAmountOutOne, feeAmount: feeAmount };
         } catch (e: any) {
+            setLoading(false)
             throw new Error(e);
         }
     }
 
-    return { Exchange, MinmumAmountOut, isLoading};
+    return { Exchange, MinmumAmountOut, isLoading };
 }

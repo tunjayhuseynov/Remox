@@ -1,11 +1,10 @@
-import { auth } from "firebase";
 import { useFirestoreReadMultiple } from "API/useFirebase";
 import { CoinsName } from "types";
 import { selectStorage } from "redux/reducers/storage";
 import { useSelector } from "react-redux";
 
 export enum DateInterval {
-  weakly = "weekly",
+  weekly = "weekly",
   monthly = "monthly",
 }
 
