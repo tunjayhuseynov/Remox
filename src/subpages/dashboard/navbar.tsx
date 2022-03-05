@@ -37,7 +37,7 @@ const Navbar = () => {
                 <Hamburger toggled={menuBar.mobileMenu} hideOutline={true} />
             </div>
         </div>
-        <div className="h-[50px] flex justify-center md:justify-start items-center md:pl-4 lg:pl-14">
+        <div className="h-[50px] flex justify-center md:justify-start items-center md:pl-4 lg:pl-10">
             <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
         </div>
         <div className="search col-span-2 hidden md:block">
@@ -83,7 +83,7 @@ export const NavbarDropdown = () => {
             <ul>
                 <Li link={'/dashboard/pay'}><PaySVG /> Pay Someone</Li>
                 <Li link="/dashboard/masspayout"><MassPayoutSVG />Payroll</Li>
-                <Li link=''><RequestMoneySVG /> Request Money <span className="text-[10px]">coming soon</span></Li>
+                <Li link='/dashboard/requests'><RequestMoneySVG /> Request Money</Li>
                 <Li link=''><FundSVG /> Add Funds <span className="text-[10px]">coming soon</span> </Li>
             </ul>
         </div>

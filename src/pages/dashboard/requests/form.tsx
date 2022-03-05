@@ -14,7 +14,6 @@ import DatePicker from "react-datepicker";
 import Modal from "components/general/modal";
 import dateFormat from "dateformat";
 import { IRequest } from "API/useRequest";
-import { FirestoreRead } from "API/useFirebase";
 import { isAddress } from "web3-utils";
 import { toast, ToastContainer } from 'react-toastify';
 import useCurrency from "API/useCurrency";
@@ -125,51 +124,49 @@ export default function Form() {
 
   return <>
     <ToastContainer />
-    <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full cursor-pointer">
-      <div onClick={() => router('/dashboard')}>
+    <header className="flex justify-start h-[75px] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
+      <div onClick={() => router('/dashboard')} className="w-[100px] h-[20px] sm:w-full sm:h-[30px]" >
         <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
       </div>
     </header>
-    <div className="sm:px-32">
+    <div className="px-8 sm:px-32">
       <form onSubmit={Submit}>
-        <div className="sm:flex flex-col items-center justify-center min-h-screen py-24">
+        <div className="py-0 pt-24 sm:flex flex-col items-center justify-center min-h-screen sm:py-24">
           <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
             <div className="py-2 text-center w-full">
               <div className="text-3xl font-semibold">Request money from Remox</div>
             </div>
             <div className="sm:flex flex-col gap-3 gap-y-10 sm:gap-10 py-10">
-              <div className="sm:flex flex-col pl-3 sm:pl-12 sm:pr-[20%] gap-3 gap-y-10  sm:gap-10">
+              <div className="sm:flex flex-col pl-3 sm:pl-12 sm:pr-[20%] gap-3 gap-y-10 sm:gap-10">
                 <div className="flex flex-col space-y-5">
                   <span className="text-left text-xl font-semibold">Deposit To</span>
-                  <div className="flex space-x-24">
+                  <div className="flex  space-x-24 pb-5 pl-1  sm:pb-0">
                     <div className="flex space-x-2 items-center">
-                      <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
+                      <input type="radio" className="w-4 h-4 checkradio cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
                       <label className="font-semibold text-sm">
                         Pay with Token Amounts
                       </label>
                     </div>
                     <div className="flex space-x-2 items-center">
-                      <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
+                      <input type="radio" className="w-4 h-4  checkradio cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
                       <label className="font-semibold text-sm">
                         Pay with USD-based Amounts
                       </label>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col">
-                  <div className="grid grid-cols-4 sm:grid-cols-[25%,35%,35%,5%] gap-5">
-                    <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
-                  </div>
+                <div className="pb-14 sm:pb-0 grid grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
+                  <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
                 </div>
-                <div className="flex flex-col space-y-5">
+                <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                   <span className="text-left text-xl font-semibold tracking-wide">Details</span>
-                  <div className="grid grid-cols-2 gap-x-40 gap-y-7">
+                  <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-40 sm:gap-y-7">
                     <div className="flex flex-col space-y-2">
                       <div className="font-semibold tracking-wide">
                         Request Type
                       </div>
                       <div>
-                        <input type="text" name="requestType" placeholder="Request type" className="h-[45px] w-full border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+                        <input type="text" name="requestType" placeholder="Request type" className="mb-0 sm:w-full sm:h-[45px] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -177,7 +174,7 @@ export default function Form() {
                         Name of service
                       </div>
                       <div>
-                        <input type="text" name="nameService" placeholder="Name of service" className="h-[45px] w-full border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+                        <input type="text" name="nameService" placeholder="Name of service" className="mb-0 sm:w-full sm:h-[45px]  border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -185,7 +182,7 @@ export default function Form() {
                         Date of service
                       </div>
                       <div>
-                        <DatePicker className="h-[45px] w-full bg-red-500 border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
+                        <DatePicker className="mb-0 sm:w-full sm:h-[45px]  bg-red-500 border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -193,12 +190,12 @@ export default function Form() {
                         Attach link (optional)
                       </div>
                       <div>
-                        <input type="text" name="attachLink" placeholder="Attach link" className="h-[45px] w-full border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" />
+                        <input type="text" name="attachLink" placeholder="Attach link" className="mb-0 sm:w-full sm:h-[45px] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" />
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col space-y-3">
+                <div className="flex flex-col space-y-3 w-[82%] sm:w-full">
                   <span className="text-left">Upload receipt or invoice (optional)</span>
                   <div className="grid grid-cols-1">
                     <Upload setFile={setFile} />
@@ -206,9 +203,9 @@ export default function Form() {
                 </div>
               </div>
               <div className="flex justify-center pt-5 sm:pt-0">
-                <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[200px] sm:w-[400px] justify-center gap-5">
-                  <Button version="second" onClick={() => router("/dashboard")}>Close</Button>
-                  <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >Request</Button>
+                <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[400px] sm: justify-center sm:gap-5">
+                  <Button version="second" className="w-[150px] sm:w-full" onClick={() => router("/dashboard")}>Close</Button>
+                  <Button type="submit" className=" w-[150px] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >Request</Button>
                 </div>
               </div>
             </div>
@@ -318,9 +315,9 @@ export default function Form() {
                 }
               </div>
               <div className="flex justify-center pt-5 sm:pt-0">
-                <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[200px] sm:w-[400px] justify-center gap-5">
-                  <Button version="second" onClick={() => setModal(false)}>Back</Button>
-                  <Button type="submit" className="bg-primary px-0 py-2 text-white flex items-center justify-center rounded-lg" isLoading={loading} onClick={Send}>Confirm & Submit</Button>
+                <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[400px] sm:justify-center sm:gap-5">
+                  <Button version="second" onClick={() => setModal(false)} className="w-[150px] sm:w-full" >Back</Button>
+                  <Button type="submit" className=" w-[150px] sm:w-full bg-primary px-0 py-2 text-white flex items-center justify-center rounded-lg" isLoading={loading} onClick={Send}>Confirm & Submit</Button>
                 </div>
               </div>
             </div>

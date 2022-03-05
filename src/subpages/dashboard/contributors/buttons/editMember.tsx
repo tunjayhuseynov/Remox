@@ -8,20 +8,30 @@ import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "components/button";
-import { DateInterval, IMember } from "API/useContributors";
+import { DateInterval, ExecutionType, IMember } from "API/useContributors";
 import { useAppSelector } from "redux/hooks";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/reducers/storage";
 import { encryptMessage } from "utils/hashing";
 import { useContractKit } from "@celo-tools/use-contractkit";
-
+import useAllowance from "API/useAllowance";
+import useGelato from "API/useGelato";
+import { Contracts } from "API/Contracts/Contracts";
+import usePay, { PaymentInput } from "API/usePay";
+import date from 'date-and-time'
+import { SelectBalances } from 'redux/reducers/currencies';
 
 const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const dispatch = useDispatch()
     const { kit } = useContractKit()
 
     const storage = useAppSelector(selectStorage)
+    const balance = useAppSelector(SelectBalances)
+
+    const { allow, loading: allowLoading } = useAllowance()
+    const { GenerateBatchPay } = usePay()
+    const { updateAddress, updateCommand, updateTime, createTask, cancelTask, loading } = useGelato()
 
     const contributors = useAppSelector(selectContributors).contributors
     const { editMember, isLoading } = useContributors()
@@ -31,12 +41,16 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const [secondActive, setSecondActive] = useState(false)
 
     const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date());
+
+    const [selectedExecution, setSelectedExecution] = useState(props.execution === ExecutionType.auto)
 
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({ name: "Monthly", type: DateInterval.monthly })
     const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: Coins[props.currency].name, type: Coins[props.currency].value, value: Coins[props.currency].value, id: Coins[props.currency].value, coinUrl: Coins[props.currency].coinUrl });
     const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>({ name: Coins[props.currency].name, type: Coins[props.currency].value, value: Coins[props.currency].value, id: Coins[props.currency].value, coinUrl: Coins[props.currency].coinUrl });
 
     const [selectedType, setSelectedType] = useState(props.usdBase)
+
 
 
     useEffect(() => {
@@ -47,6 +61,9 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
         }
         if (props.paymantDate) {
             setStartDate(new Date(props.paymantDate))
+        }
+        if (props.paymantEndDate) {
+            setEndDate(new Date(props.paymantEndDate))
         }
         if (props.secondaryCurrency) {
             setSelectedWallet2({ name: Coins[props.secondaryCurrency].name, type: Coins[props.secondaryCurrency].value, value: Coins[props.secondaryCurrency].value, id: Coins[props.secondaryCurrency].value, coinUrl: Coins[props.secondaryCurrency].coinUrl })
@@ -80,32 +97,123 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                 const isAddressExist = kit.web3.utils.isAddress(addressValue.trim());
                 if (!isAddressExist) throw new Error("There is not any wallet belong this address");
             }
-            let newMember: IMember = {
-                id: props.id,
-                name: encryptMessage(memberNameValue, storage?.encryptedMessageToken),
-                address: encryptMessage(addressValue.trim(), storage?.encryptedMessageToken),
-                amount: encryptMessage(amountValue, storage?.encryptedMessageToken),
-                currency: selectedWallet.value,
-                teamId: selectedTeam.id,
-                usdBase: selectedType,
-
-                interval: selectedFrequency!.type as DateInterval,
-                paymantDate: startDate!.toISOString(),
-            }
-
-            if (amountValue2 && selectedWallet2 && selectedWallet2.value) {
-                newMember = {
-                    ...newMember,
-                    secondaryAmount: encryptMessage(amountValue2.trim(), storage?.encryptedMessageToken),
-                    secondaryCurrency: selectedWallet2.value,
-                    secondaryUsdBase: selectedType,
-                }
-            }
 
             try {
+                let hash;
+                if (props.taskId) {
+                    if (selectedExecution) {
+                        hash = props.taskId as string;
+                        if (props.address !== addressValue) {
+                            await updateAddress(hash, addressValue)
+                        }
+                        if (props.paymantDate !== startDate.toISOString() || props.paymantEndDate !== endDate.toISOString()) {
+                            await updateTime(props.taskId as string, startDate.toISOString(), (selectedFrequency.type as DateInterval))
+                        }
+                        if (props.amount !== amountValue.trim() || props.currency !== selectedWallet.value || props.secondaryAmount !== amountValue2 || props.secondaryCurrency !== selectedWallet2.value) {
+                            const interval = selectedFrequency!.type as DateInterval
+                            const days = date.subtract(startDate, endDate).toDays();
+                            const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
+                            let realMoney = Number(amountValue) * realDays
+                            if (selectedType) {
+                                realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
+                            }
+                            await allow(Coins[selectedWallet.value], Contracts.Gelato.address, realMoney.toString())
+                            const paymentList: PaymentInput[] = []
+
+                            paymentList.push({
+                                coin: Coins[selectedWallet.value],
+                                recipient: addressValue.trim(),
+                                amount: amountValue.trim()
+                            })
+
+                            if (amountValue2 && selectedWallet2.value) {
+                                let realMoney = Number(amountValue2) * realDays
+                                if (selectedType) {
+                                    realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
+                                }
+                                await allow(Coins[selectedWallet2.value], Contracts.Gelato.address, realMoney.toString())
+                                paymentList.push({
+                                    coin: Coins[selectedWallet2.value],
+                                    recipient: addressValue.trim(),
+                                    amount: amountValue2.trim()
+                                })
+                            }
+
+                            const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
+                            await updateCommand(hash, encodeAbi)
+                        }
+                    } else {
+                        await cancelTask(props.taskId as string)
+                    }
+                }
+                else {
+                    if (selectedExecution) {
+                        const interval = selectedFrequency!.type as DateInterval
+                        const days = date.subtract(startDate, endDate).toDays();
+                        const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
+                        let realMoney = Number(amountValue) * realDays
+                        if (selectedType) {
+                            realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
+                        }
+             
+                        await allow(Coins[selectedWallet.value], Contracts.Gelato.address, realMoney.toString())
+                        const paymentList: PaymentInput[] = []
+
+                        paymentList.push({
+                            coin: Coins[selectedWallet.value],
+                            recipient: addressValue.trim(),
+                            amount: amountValue.trim()
+                        })
+
+                        if (amountValue2 && selectedWallet2.value) {
+                            let realMoney = Number(amountValue2) * realDays
+                            if (selectedType) {
+                                realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
+                            }
+                            await allow(Coins[selectedWallet2.value], Contracts.Gelato.address, realMoney.toString())
+                            paymentList.push({
+                                coin: Coins[selectedWallet2.value],
+                                recipient: addressValue.trim(),
+                                amount: amountValue2.trim()
+                            })
+                        }
+
+                        const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
+                        hash = await createTask(selectedFrequency!.type as DateInterval, Contracts.BatchRequest.address, encodeAbi)
+                    }
+                }
+
+
+                let newMember: IMember = {
+                    id: props.id,
+                    name: encryptMessage(memberNameValue, storage?.encryptedMessageToken),
+                    address: encryptMessage(addressValue.trim(), storage?.encryptedMessageToken),
+                    amount: encryptMessage(amountValue, storage?.encryptedMessageToken),
+                    currency: selectedWallet.value,
+                    teamId: selectedTeam.id,
+                    usdBase: selectedType,
+                    interval: selectedFrequency!.type as DateInterval,
+                    execution: selectedExecution ? ExecutionType.auto : ExecutionType.manual,
+                    paymantDate: startDate!.toISOString(),
+                    paymantEndDate: endDate!.toISOString(),
+                }
+
+                if (hash) newMember.taskId = hash
+                else if (!hash && props.taskId) newMember.taskId = ""
+
+                if (amountValue2 && selectedWallet2 && selectedWallet2.value) {
+                    newMember = {
+                        ...newMember,
+                        secondaryAmount: encryptMessage(amountValue2.trim(), storage?.encryptedMessageToken),
+                        secondaryCurrency: selectedWallet2.value,
+                        secondaryUsdBase: selectedType,
+                    }
+                }
+
+
                 await editMember(props.teamId, props.id, newMember)
                 dispatch(changeSuccess({ activate: true, text: "Member updated successfully" }))
-            } catch (error : any) {
+            } catch (error: any) {
                 console.error(error)
                 dispatch(changeError({ activate: true, text: error?.message ?? "There was an error updating the member" }))
             }
@@ -173,6 +281,22 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
 
                             </div>
                         </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}
+                    <div className="col-span-2 flex flex-col space-y-4">
+                        <div className="flex space-x-24">
+                            <div className="flex space-x-2 items-center">
+                                <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="execution" value="manual" onChange={(e) => setSelectedExecution(false)} checked={!selectedExecution} />
+                                <label className="font-semibold text-sm">
+                                    Manual Execution
+                                </label>
+                            </div>
+                            <div className="flex space-x-2 items-center">
+                                <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="execution" value="auto" onChange={(e) => setSelectedExecution(true)} checked={selectedExecution} />
+                                <label className="font-semibold text-sm">
+                                    Automated Execution
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div className="col-span-2 flex flex-col space-y-4 w-1/2">
                         <div className="font-bold">Payment Frequency</div>
                         <div>
@@ -180,16 +304,22 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         </div>
                     </div>
                     <div className="col-span-2 flex flex-col space-y-4 w-1/2">
-                        <div className="font-bold">Payment Date</div>
+                        <div className="font-bold">Payment Start Date</div>
                         <div className="border dark:border-darkSecond p-2 rounded-md">
                             <DatePicker className="dark:bg-dark outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} />
+                        </div>
+                    </div>
+                    <div className="col-span-2 flex flex-col space-y-4 w-1/2">
+                        <div className="font-bold">Payment End Date</div>
+                        <div className="border dark:border-darkSecond p-2 rounded-md">
+                            <DatePicker className="dark:bg-dark outline-none" selected={endDate} minDate={new Date()} onChange={(date) => date ? setEndDate(date) : null} />
                         </div>
                     </div>
                 </div>
                 <div className="flex justify-center items-center pt-10">
                     <div className="flex justify-center">
                         <div>
-                            <Button type='submit' isLoading={isLoading} className="w-full px-6 py-3">
+                            <Button type='submit' isLoading={isLoading || loading || allowLoading} className="w-full px-6 py-3">
                                 Save
                             </Button>
                         </div>

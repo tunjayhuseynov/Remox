@@ -1,21 +1,25 @@
-import { useContractKit } from "@celo-tools/use-contractkit";
+import { useContractKit, localStorageKeys } from "@celo-tools/use-contractkit";
 import { useSelector } from "react-redux";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { selectStorage } from "./redux/reducers/storage";
 import { selectUnlock } from "./redux/reducers/unlock";
-import { lazy, Suspense, useLayoutEffect } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react'
 import { ClipLoader } from "react-spinners";
+import { selectDarkMode } from "redux/reducers/notificationSlice";
 
 import CreateAccount from "./pages/create-account"
 import Unlock from "./pages/unlock";
 import Home from "./pages/home";
 import Layout from "pages/dashboard/layout";
-import MassPay from "pages/masspay/masspay";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
 import RequestLayout from "pages/dashboard/requests/layout";
 import TabPage from "pages/dashboard/requests/tab";
 import Form from "pages/dashboard/requests/form";
+import DynamicPayroll from "pages/dashboard/payroll/dynamic";
+import TagsSetting from "pages/dashboard/settings/tags";
 
+const MassPay = lazy(() => import("pages/masspay"))
+const Automations = lazy(() => import("pages/dashboard/automations"));
+const Insight = lazy(() => import("pages/dashboard/insight"))
 const Payroll = lazy(() => import("pages/dashboard/payroll"));
 const Pay = lazy(() => import("pages/pay"));
 const SettingLayout = lazy(() => import("pages/dashboard/settings"));
@@ -33,15 +37,23 @@ const MultisigTransaction = lazy(() => import("pages/dashboard/multisig/transact
 
 
 function App() {
-  const { address } = useContractKit();
+  const { address, destroy } = useContractKit();
   const unlock = useSelector(selectUnlock)
   const storage = useSelector(selectStorage)
   const darkMode = useSelector(selectDarkMode)
+
+  const navigate = useNavigate()
 
   useLayoutEffect(() => {
     document.documentElement.classList.add(darkMode ? "dark" : "light", darkMode ? "tw-dark" : "tw-light")
     document.documentElement.classList.remove(darkMode ? "light" : "dark", darkMode ? "tw-light" : "tw-dark")
   }, [darkMode])
+
+  useEffect(() => {
+    if (localStorage.getItem(localStorageKeys.lastUsedWalletType) && localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
+      destroy().then(s => navigate('/'))
+    }
+  }, [])
 
   return (
     <div>
@@ -83,8 +95,13 @@ function App() {
               <Route path="transactions/rejected" element={<Transactions />} />
               <Route path="assets" element={<Assets />} />
               <Route path="contributors" element={<Contributors />} />
+              <Route path="insight" element={<Insight />} />
+              <Route path="automations" element={<Automations />} />
               <Route path="swap" element={<Swap />} />
-              <Route path="payroll" element={<Payroll />} />
+              <Route path="payroll" element={<Payroll />} >
+                <Route path="" element={<DynamicPayroll type="manual" />} />
+                <Route path="automation" element={<DynamicPayroll type="auto" />} />
+              </Route>
               <Route path={'transactions/:id'} element={<Details />} />
               <Route path={'settings'} element={
                 <SettingLayout />
@@ -92,8 +109,10 @@ function App() {
                 <Route path={''} element={<OwnerSetting />} />
                 <Route path={`spending`} element={<SpendingSetting />} />
                 <Route path={`profile`} element={<ProfileSetting />} />
+                <Route path={`tags`} element={<TagsSetting />} />
               </Route>
               <Route path={'requests'} element={
+
                 <RequestLayout />
               }>
                 <Route path={''} element={<TabPage />} />

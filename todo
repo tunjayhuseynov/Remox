@@ -1,3 +1,7 @@
+MAIN PROBLEM: EDIT BALANCE LOADER
+
+Total Amount text align issue 
+
 Paying with comment (need to talk with Orxan)
 
 Error handling for useContractKit
@@ -21,6 +25,14 @@ Safari Select Pay Type design error
 Firebase Rules for Request in create and update (restirct for update)
 
 Peer to peer crypto
+
+Request Money Mobile Version
+
+useGelato try catch on awaits
+
+Payroll Remove if next paymet pass the end payment
+
+React Select make centrilized
 
 /* Requests and importants
     
@@ -49,6 +61,6 @@ Add Multisig Action which are complated to useTransactionProcess
 
 Batch Request Contract Address - 0xB01a87B806EE0f5233d7c6559d7FB6d39Ad0046d
 
-Test Gelato - 0x9cbCc357EEcFfC529c47E4172741dBa1a6E212A2
+Test Gelato - 0x9e60044AfAC6Ed3dc6cf715b18DeaBDC417BE96E
 
 */

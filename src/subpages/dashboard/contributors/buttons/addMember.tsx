@@ -7,17 +7,28 @@ import { useAppDispatch, useAppSelector } from "redux/hooks"
 import { changeSuccess, changeError, selectError } from 'redux/reducers/notificationSlice'
 import DatePicker from "react-datepicker";
 import Button from "components/button";
-import { DateInterval, IMember } from "API/useContributors";
+import { DateInterval, ExecutionType, IMember } from "API/useContributors";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from 'uuid'
 import { selectStorage } from "redux/reducers/storage";
 import { encryptMessage } from "utils/hashing";
 import { useContractKit } from "@celo-tools/use-contractkit";
+import useAllowance from "API/useAllowance";
+import useGelato from "API/useGelato";
+import { Contracts } from "API/Contracts/Contracts";
+import usePay, { PaymentInput } from "API/usePay";
+import date from 'date-and-time'
+import { SelectBalances } from "redux/reducers/currencies";
 
 const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const { kit } = useContractKit()
     const storage = useAppSelector(selectStorage)
+
+    const { allow, loading: allowLoading } = useAllowance()
+    const { GenerateBatchPay } = usePay()
+    const { createTask, loading } = useGelato()
+    const balance = useAppSelector(SelectBalances)
 
     const contributors = useAppSelector(selectContributors).contributors
     const { addMember, isLoading } = useContributors()
@@ -25,6 +36,9 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
     const [secondActive, setSecondActive] = useState(false)
 
     const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date());
+
+    const [selectedExecution, setSelectedExecution] = useState(false)
 
     const [selected, setSelected] = useState<DropDownItem>(contributors.length > 0 ? { name: "Select Team", coinUrl: CoinsURL.None } : { name: "No Team", coinUrl: CoinsURL.None })
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({ name: "Monthly", type: DateInterval.monthly })
@@ -34,9 +48,6 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
     const [selectedType, setSelectedType] = useState(false)
 
     const dispatch = useAppDispatch()
-
-
-
 
 
     const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
@@ -70,6 +81,42 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                         const isAddressExist = kit.web3.utils.isAddress(walletAddressValue.trim());
                         if (!isAddressExist) throw new Error("There is not any wallet belong this address");
                     }
+                    let hash;
+                    if (selectedExecution) {
+                        const interval = selectedFrequency!.type as DateInterval
+                        const days = Math.abs(date.subtract(startDate, endDate).toDays());
+                        const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
+                        let realMoney = Number(amountValue) * realDays
+
+                        if (selectedType) {
+                            realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
+                        }
+                        await allow(Coins[selectedWallet.value], Contracts.Gelato.address, realMoney.toString())
+                        const paymentList: PaymentInput[] = []
+
+                        paymentList.push({
+                            coin: Coins[selectedWallet.value],
+                            recipient: walletAddressValue.trim(),
+                            amount: amountValue.trim()
+                        })
+
+                        if (amountValue2 && selectedWallet2.value) {
+                            let realMoney = Number(amountValue2) * realDays
+                            if (selectedType) {
+                                realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
+                            }
+                            await allow(Coins[selectedWallet2.value], Contracts.Gelato.address, realMoney.toString())
+                            paymentList.push({
+                                coin: Coins[selectedWallet2.value],
+                                recipient: walletAddressValue.trim(),
+                                amount: amountValue2.trim()
+                            })
+                        }
+
+                        const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
+                        hash = await createTask(interval, Contracts.BatchRequest.address, encodeAbi)
+                    }
+
                     let sent: IMember = {
                         id: uuidv4(),
                         name: encryptMessage(`${firstNameValue} ${lastNameValue}`, storage?.encryptedMessageToken),
@@ -78,10 +125,13 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                         amount: encryptMessage(parseFloat(amountValue.trim()).toString(), storage?.encryptedMessageToken),
                         teamId: selected.id,
                         usdBase: selectedType,
-
+                        execution: selectedExecution ? ExecutionType.auto : ExecutionType.manual,
                         interval: selectedFrequency!.type as DateInterval,
                         paymantDate: startDate!.toISOString(),
+                        paymantEndDate: endDate!.toISOString(),
                     }
+
+                    if (hash) sent.taskId = hash
 
                     if (amountValue2 && selectedWallet2.value) {
                         sent = {
@@ -91,6 +141,8 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                             secondaryUsdBase: selectedType,
                         }
                     }
+
+
 
                     await addMember(selected.id, sent)
 
@@ -103,6 +155,7 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
             }
         }
     }
+
 
     return <>
         <form onSubmit={Submit}>
@@ -165,6 +218,22 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
 
                         </div>
                     </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}
+                <div className="flex flex-col space-y-4">
+                    <div className="flex space-x-24">
+                        <div className="flex space-x-2 items-center">
+                            <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="execution" value="manual" onChange={(e) => setSelectedExecution(false)} checked={!selectedExecution} />
+                            <label className="font-semibold text-sm">
+                                Manual Execution
+                            </label>
+                        </div>
+                        <div className="flex space-x-2 items-center">
+                            <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="execution" value="auto" onChange={(e) => setSelectedExecution(true)} checked={selectedExecution} />
+                            <label className="font-semibold text-sm">
+                                Automated Execution
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div className="flex flex-col space-y-4 w-1/2">
                     <div className="font-bold">Payment Frequency</div>
                     <div>
@@ -172,14 +241,20 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                     </div>
                 </div>
                 <div className="flex flex-col space-y-4 w-1/2">
-                    <div className="font-bold">Payment Date</div>
+                    <div className="font-bold">Payment Start Date</div>
                     <div className="border dark:border-darkSecond p-2 rounded-md">
                         <DatePicker className="dark:bg-dark w-full outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} />
                     </div>
                 </div>
+                <div className="flex flex-col space-y-4 w-1/2">
+                    <div className="font-bold">Payment End Date</div>
+                    <div className="border dark:border-darkSecond p-2 rounded-md">
+                        <DatePicker className="dark:bg-dark w-full outline-none" selected={endDate} minDate={new Date()} onChange={(date) => date ? setEndDate(date) : null} />
+                    </div>
+                </div>
                 {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
                 <div className="flex justify-center">
-                    <Button type="submit" className="px-8 py-3" isLoading={isLoading}>
+                    <Button type="submit" className="px-8 py-3" isLoading={isLoading || loading || allowLoading}>
                         Add Person
                     </Button>
                 </div>

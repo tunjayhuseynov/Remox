@@ -10,8 +10,8 @@ import { selectStorage } from "redux/reducers/storage";
 import TeamInput from "subpages/pay/teaminput";
 import { Coins } from "types/coins";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { IBalanceItem, SelectBalances } from "redux/reducers/currencies";
-import { changeError, selectError } from "redux/reducers/notificationSlice";
+import { SelectBalances } from "redux/reducers/currencies";
+import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { useRefetchData } from "hooks";
 import Button from "components/button";
@@ -23,10 +23,12 @@ import useContributors from "hooks/useContributors";
 import date from 'date-and-time'
 import { encryptMessage } from "utils/hashing";
 import { IRequest } from "API/useRequest";
+import { Tag } from "API/useTags";
+import { selectTags } from "redux/reducers/tags";
 
 
 const MassPay = () => {
-    const { state } = useLocation() as { state: { memberList?: IMember[] | IRequest[], request?: boolean} }
+    const { state } = useLocation() as { state: { memberList?: IMember[] | IRequest[], request?: boolean } }
     const memberList = state?.memberList
     const { editMember } = useContributors()
 
@@ -35,10 +37,13 @@ const MassPay = () => {
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const isError = useAppSelector(selectError)
     const balance = useAppSelector(SelectBalances)
+    const tags = useAppSelector(selectTags)
+    const dark = useAppSelector(selectDarkMode)
+
     const router = useNavigate();
     const dispatch = useAppDispatch()
 
-    const [refetch] = useRefetchData(true)
+    const [refetch] = useRefetchData()
 
     const { BatchPay, Pay } = usePay()
     const { submitTransaction } = useMultisig()
@@ -113,7 +118,7 @@ const MassPay = () => {
         try {
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1) {
-                    await Pay({ coin: Coins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+                    await Pay({ coin: Coins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
 
                     if (result[0].member && !state?.request) {
                         let member = { ...result[0].member! } as IMember;
@@ -137,7 +142,7 @@ const MassPay = () => {
                         from: true
                     }))
 
-                    await BatchPay(arr)
+                    await BatchPay(arr, undefined, [tags.find(w => w.id === "Payroll")!])
 
                     for (let index = 0; index < result.length; index++) {
                         if (result[index].member && !state?.request) {
@@ -193,11 +198,22 @@ const MassPay = () => {
                     </div>
                     <div className=" h-auto rounded-xl flex flex-col gap-10 py-10">
                         {contributors && contributors.length === 0 ? <div className="flex justify-center">No Team Yet. Please, first, create a team</div> : <><div className="flex flex-col px-4 sm:pl-12 sm:pr-[20%] gap-10">
+
                             <div className="flex flex-col space-y-3">
                                 <span className="text-left text-sm font-semibold">Paying From</span>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 sm:gap-x-10">
                                     {!(contributors && selectedTeam) ? <ClipLoader /> : <Dropdown className="h-full" disableAddressDisplay={true} onSelect={setSelectedTeam} nameActivation={true} selected={selectedTeam} list={contributors.map(w => ({ name: w.name, address: w.id }))} />}
                                     {/* {!(balance && balance.CELO && selectedWallet) ? <ClipLoader /> : <Dropdown onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={list} disableAddressDisplay={true} />} */}
+                                </div>
+                            </div>
+                            <div className="flex flex-col space-y-3">
+                                <span className="text-left text-sm font-semibold">Tags</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 sm:gap-x-10">
+                                    {tags.length > 0 && <div className="flex space-x-3 border rounded-lg items-center px-2 py-3 dark:border-darkSecond">
+                                        <div className="w-[18px] h-[18px] rounded-full" style={{ backgroundColor: tags.find(s => s.name == "Payroll")?.color }}></div>
+                                        <div>Payroll</div>
+                                    </div>}
+                                    {tags.length === 0 && <div>No tag yet</div>}
                                 </div>
                             </div>
                             <div className="flex flex-col">

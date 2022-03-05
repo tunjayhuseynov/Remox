@@ -2,8 +2,10 @@ import { useFirestoreReadMultiple } from "API/useFirebase";
 import { CoinsName } from "types";
 import { selectStorage } from "redux/reducers/storage";
 import { useSelector } from "react-redux";
+import { FieldValue } from "firebase/firestore";
 
 export enum DateInterval {
+  daily = "daily",
   weekly = "weekly",
   monthly = "monthly",
 }
@@ -16,6 +18,11 @@ export interface IuseContributor {
   members: IMember[]
 }
 
+export enum ExecutionType {
+  auto = "auto",
+  manual = "manual",
+}
+
 export interface IMember {
   id: string;
   name: string,
@@ -23,13 +30,15 @@ export interface IMember {
   currency: CoinsName,
   amount: string,
   teamId: string,
+  execution: ExecutionType,
   paymantDate: string,
+  paymantEndDate: string,
   interval: DateInterval,
   usdBase: boolean,
   secondaryCurrency?: CoinsName,
   secondaryAmount?: string,
   secondaryUsdBase?: boolean,
-
+  taskId?: string,
 }
 
 export default function useContributors() {

@@ -9,6 +9,7 @@ import { useContractKit } from '@celo-tools/use-contractkit';
 import { setMenu } from 'redux/reducers/toggles';
 import { removeTransactions } from 'redux/reducers/transactions';
 import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { toast, ToastContainer } from 'react-toastify';
 
 const Unlock = () => {
     const location = useLocation()
@@ -25,8 +26,18 @@ const Unlock = () => {
         if (!initialised) {
             dispatch(setMenu(false))
             dispatch(removeTransactions())
-            dispatch(removeStorage())
-            router('/')
+            // dispatch(removeStorage())
+            toast.error(<div className="dark:text-white"><strong>You've not signed in yet</strong> <br /> Please, sign in first</div>, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                bodyClassName: "dark:border-darkSecond dark:bg-darkSecond",
+                className: "dark:bg-darkSecond",
+            });
         }
         if (inputRef.current && address && initialised) {
             setIncorrect(false);
@@ -48,6 +59,7 @@ const Unlock = () => {
     }
 
     return <>
+        <ToastContainer />
         <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />

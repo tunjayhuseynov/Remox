@@ -1,7 +1,5 @@
-[
-    {
-        "inputs": [
-            {
+[{
+        "inputs": [{
                 "internalType": "address payable",
                 "name": "_gelato",
                 "type": "address"
@@ -17,8 +15,7 @@
     },
     {
         "anonymous": false,
-        "inputs": [
-            {
+        "inputs": [{
                 "indexed": true,
                 "internalType": "uint256",
                 "name": "txFee",
@@ -29,18 +26,6 @@
                 "internalType": "address",
                 "name": "feeToken",
                 "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "execAddress",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "bytes",
-                "name": "execData",
-                "type": "bytes"
             },
             {
                 "indexed": false,
@@ -60,8 +45,7 @@
     },
     {
         "anonymous": false,
-        "inputs": [
-            {
+        "inputs": [{
                 "indexed": false,
                 "internalType": "bytes32",
                 "name": "taskId",
@@ -79,8 +63,7 @@
     },
     {
         "anonymous": false,
-        "inputs": [
-            {
+        "inputs": [{
                 "indexed": false,
                 "internalType": "address",
                 "name": "taskCreator",
@@ -140,8 +123,7 @@
     },
     {
         "anonymous": false,
-        "inputs": [
-            {
+        "inputs": [{
                 "indexed": true,
                 "internalType": "bytes32",
                 "name": "taskId",
@@ -164,21 +146,18 @@
         "type": "event"
     },
     {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "_taskId",
-                "type": "bytes32"
-            }
-        ],
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "_taskId",
+            "type": "bytes32"
+        }],
         "name": "cancelTask",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [
-            {
+        "inputs": [{
                 "internalType": "address",
                 "name": "_execAddress",
                 "type": "address"
@@ -187,6 +166,11 @@
                 "internalType": "bytes4",
                 "name": "_execSelector",
                 "type": "bytes4"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_execCommand",
+                "type": "bytes"
             },
             {
                 "internalType": "address",
@@ -200,19 +184,16 @@
             }
         ],
         "name": "createTask",
-        "outputs": [
-            {
-                "internalType": "bytes32",
-                "name": "task",
-                "type": "bytes32"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "task",
+            "type": "bytes32"
+        }],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [
-            {
+        "inputs": [{
                 "internalType": "address",
                 "name": "_execAddress",
                 "type": "address"
@@ -221,6 +202,11 @@
                 "internalType": "bytes4",
                 "name": "_execSelector",
                 "type": "bytes4"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_execCommand",
+                "type": "bytes"
             },
             {
                 "internalType": "address",
@@ -239,19 +225,16 @@
             }
         ],
         "name": "createTaskNoPrepayment",
-        "outputs": [
-            {
-                "internalType": "bytes32",
-                "name": "task",
-                "type": "bytes32"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "task",
+            "type": "bytes32"
+        }],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [
-            {
+        "inputs": [{
                 "internalType": "uint128",
                 "name": "_startTime",
                 "type": "uint128"
@@ -270,6 +253,11 @@
                 "internalType": "bytes4",
                 "name": "_execSelector",
                 "type": "bytes4"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_execCommand",
+                "type": "bytes"
             },
             {
                 "internalType": "address",
@@ -293,18 +281,25 @@
             }
         ],
         "name": "createTimedTask",
-        "outputs": [
-            {
-                "internalType": "bytes32",
-                "name": "task",
-                "type": "bytes32"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "task",
+            "type": "bytes32"
+        }],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "task",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bool",
+                "name": "_useTaskTreasuryFunds",
+                "type": "bool"
+            },
             {
                 "internalType": "uint256",
                 "name": "_txFee",
@@ -316,34 +311,14 @@
                 "type": "address"
             },
             {
-                "internalType": "address",
-                "name": "_taskCreator",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "_useTaskTreasuryFunds",
-                "type": "bool"
-            },
-            {
                 "internalType": "bool",
                 "name": "_revertOnFailure",
                 "type": "bool"
             },
             {
-                "internalType": "bytes32",
-                "name": "_resolverHash",
-                "type": "bytes32"
-            },
-            {
                 "internalType": "address",
-                "name": "_execAddress",
+                "name": "_taskCreator",
                 "type": "address"
-            },
-            {
-                "internalType": "bytes",
-                "name": "_execData",
-                "type": "bytes"
             }
         ],
         "name": "exec",
@@ -352,58 +327,84 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
-        ],
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
         "name": "execAddresses",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
+        "outputs": [{
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
+        "name": "execCommands",
+        "outputs": [{
+            "internalType": "bytes",
+            "name": "",
+            "type": "bytes"
+        }],
         "stateMutability": "view",
         "type": "function"
     },
     {
         "inputs": [],
         "name": "fee",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
+        "outputs": [{
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+        }],
         "stateMutability": "view",
         "type": "function"
     },
     {
         "inputs": [],
         "name": "feeToken",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
+        "outputs": [{
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }],
         "stateMutability": "view",
         "type": "function"
     },
     {
         "inputs": [],
         "name": "gelato",
-        "outputs": [
-            {
-                "internalType": "address payable",
+        "outputs": [{
+            "internalType": "address payable",
+            "name": "",
+            "type": "address"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "taskId",
+            "type": "bytes32"
+        }],
+        "name": "getDetails",
+        "outputs": [{
+                "internalType": "address",
                 "name": "",
                 "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
             }
         ],
         "stateMutability": "view",
@@ -412,8 +413,7 @@
     {
         "inputs": [],
         "name": "getFeeDetails",
-        "outputs": [
-            {
+        "outputs": [{
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
@@ -428,8 +428,7 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
+        "inputs": [{
                 "internalType": "address",
                 "name": "_resolverAddress",
                 "type": "address"
@@ -441,38 +440,31 @@
             }
         ],
         "name": "getResolverHash",
-        "outputs": [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
         "stateMutability": "pure",
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "_func",
-                "type": "string"
-            }
-        ],
+        "inputs": [{
+            "internalType": "string",
+            "name": "_func",
+            "type": "string"
+        }],
         "name": "getSelector",
-        "outputs": [
-            {
-                "internalType": "bytes4",
-                "name": "",
-                "type": "bytes4"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes4",
+            "name": "",
+            "type": "bytes4"
+        }],
         "stateMutability": "pure",
         "type": "function"
     },
     {
-        "inputs": [
-            {
+        "inputs": [{
                 "internalType": "address",
                 "name": "_taskCreator",
                 "type": "address"
@@ -504,78 +496,63 @@
             }
         ],
         "name": "getTaskId",
-        "outputs": [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
         "stateMutability": "pure",
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_taskCreator",
-                "type": "address"
-            }
-        ],
+        "inputs": [{
+            "internalType": "address",
+            "name": "_taskCreator",
+            "type": "address"
+        }],
         "name": "getTaskIdsByUser",
-        "outputs": [
-            {
-                "internalType": "bytes32[]",
-                "name": "",
-                "type": "bytes32[]"
-            }
-        ],
+        "outputs": [{
+            "internalType": "bytes32[]",
+            "name": "",
+            "type": "bytes32[]"
+        }],
         "stateMutability": "view",
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
-        ],
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
         "name": "taskCreator",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
+        "outputs": [{
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }],
         "stateMutability": "view",
         "type": "function"
     },
     {
         "inputs": [],
         "name": "taskTreasury",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
+        "outputs": [{
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }],
         "stateMutability": "view",
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
-        ],
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
         "name": "timedTask",
-        "outputs": [
-            {
+        "outputs": [{
                 "internalType": "uint128",
                 "name": "nextExec",
                 "type": "uint128"
@@ -590,15 +567,81 @@
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "version",
-        "outputs": [
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            },
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
+                "internalType": "address",
+                "name": "_execAddress",
+                "type": "address"
             }
         ],
+        "name": "updateAddress",
+        "outputs": [{
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_execCommand",
+                "type": "bytes"
+            }
+        ],
+        "name": "updateCommand",
+        "outputs": [{
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint128",
+                "name": "_startTime",
+                "type": "uint128"
+            },
+            {
+                "internalType": "uint128",
+                "name": "_interval",
+                "type": "uint128"
+            }
+        ],
+        "name": "updateTime",
+        "outputs": [{
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "version",
+        "outputs": [{
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        }],
         "stateMutability": "view",
         "type": "function"
     }

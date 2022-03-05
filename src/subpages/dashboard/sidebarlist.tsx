@@ -20,6 +20,8 @@ const Sidebarlist = () => {
             <NavLink to="/dashboard/payroll" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><PayrollSVG active={isActive} />Payroll</Li>}</NavLink>
             <NavLink to="/dashboard/requests" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><RequestsSVG active={isActive} />Requests</Li>}</NavLink>
             <NavLink to="/dashboard/transactions" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><TransactionsSVG active={isActive} />Transactions</Li>}</NavLink>
+            <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><InsightSVG active={isActive} />Insights</Li>}</NavLink>
+            <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AutomationsSVG active={isActive} />Automations</Li>}</NavLink>
             <NavLink to="/dashboard/swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SwapSVG active={isActive} />Swap</Li>}</NavLink>
             <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AssetsSVG active={isActive} />Assets</Li>}</NavLink>
             <NavLink to="/dashboard/contributors" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><TeamsSVG active={isActive} />Contributors</Li>}</NavLink>
@@ -37,6 +39,8 @@ const Sidebarlist = () => {
 
 const DashboardSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? '/icons/sidebar/dashboard_active.png' : '/icons/sidebar/dashboard.png'} alt='Dashboard' />
 
+const AutomationsSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ?  '/icons/sidebar/refresh_active.png' : '/icons/sidebar/refresh.png'} alt="Payroll" />
+
 const PayrollSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? '/icons/sidebar/payroll_active.png' : '/icons/sidebar/payroll.png'} alt="Payroll" />
 
 const RequestsSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? "/icons/sidebar/requests_active.png" : '/icons/sidebar/requests.png'} alt="Requests" />
@@ -50,6 +54,8 @@ const AssetsSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   $
 const TeamsSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? '/icons/sidebar/team_active.png' : '/icons/sidebar/team.png'} alt="Teams" />
 
 const SettingSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? '/icons/sidebar/settings_active.png' : '/icons/sidebar/settings.png'} alt="" />
+
+const InsightSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? "/icons/sidebar/insight_active.png" : '/icons/sidebar/insight.png'} alt="Insight" />
 
 const LogoutSVG = ({ active = false }) => <BiLogOut className="w-[24px] h-[24px]" />
 

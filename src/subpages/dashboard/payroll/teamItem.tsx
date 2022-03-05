@@ -1,14 +1,14 @@
 import { Coins } from "types/coins";
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
-import { DateInterval, IMember } from "API/useContributors";
+import { DateInterval, ExecutionType, IMember } from "API/useContributors";
 
 const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {
 
     return <>
         <div className="pl-[2px] items-start">
             <div className="flex space-x-3 items-center">
-                <input type="checkbox" checked={props.memberState[0].some(s => s.id === props.member.id)} className="relative cursor-pointer max-w-[20px] max-h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                <input type="checkbox" checked={(props.member.execution === ExecutionType.auto && new Date(props.member.paymantDate).getTime() < new Date().getTime()) || props.memberState[0].some(s => s.id === props.member.id)} className="relative cursor-pointer max-w-[20px] max-h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     const members = [...props.memberState[0]]
                     if (e.target.checked) {
                         if (!members.some(s => s.id === props.member.id)) {
@@ -62,6 +62,13 @@ const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMem
                 {new Date().getTime() > new Date(props.member.paymantDate).getTime() && <div title="Late Payment">
                     <img src="/icons/warningmark.svg" className="max-w-[20px] max-h-[20px]" alt="" />
                 </div>}
+            </>}
+        </div>
+        <div className="flex space-x-8">
+            {props.member.paymantEndDate && <>
+                <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate">
+                    {dateFormat(new Date(props.member.paymantEndDate), `dd mmmm yyyy`)}
+                </div>
             </>}
         </div>
 
