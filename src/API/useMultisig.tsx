@@ -11,6 +11,8 @@ import { AltCoins, Coins } from 'types';
 import { StableToken } from '@celo/contractkit';
 import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper';
 import { DashboardContext } from 'pages/dashboard/layout';
+import usePay, { PaymentInput } from './usePay';
+import { Contracts } from './Contracts/Contracts';
 const multiProxy = import("./ABI/MultisigProxy.json")
 const multisigContract = import("./ABI/Multisig.json")
 
@@ -45,6 +47,7 @@ export default function useMultisig() {
     const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser!.uid)
     const [transactions, setTransactions] = useState<Transaction[]>()
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
+    const { GenerateBatchPay } = usePay()
 
     const dispatch = useDispatch()
 
@@ -128,7 +131,7 @@ export default function useMultisig() {
                 kit.connection,
                 (new kit.web3.eth.Contract(multiSigABI as any)).deploy({ data: multiSigBytecode }) as any)
 
-            const res0 = await tx0.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei')})
+            const res0 = await tx0.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             const res1 = await tx1.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             if (!res0.contractAddress || !res1.contractAddress) {
                 throw new Error("MultiSig deploy failure");
@@ -362,25 +365,36 @@ export default function useMultisig() {
 
 
 
-    const submitTransaction = async (multisigAddress: string, toAddress: string, amount: string, coin: AltCoins) => {
-        let golden;
+    const submitTransaction = async (multisigAddress: string, input: PaymentInput[]) => {
+        let token;
         try {
             setLoading(true)
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
 
-            let value = kit.web3.utils.toWei(amount, 'ether');
+            if (input.length === 1) {
+                const { amount, recipient: toAddress, coin } = input[0]
+                let value = kit.web3.utils.toWei(amount, 'ether');
 
-            if (coin == Coins.CELO) golden = await kit.contracts.getGoldToken()
-            else if (coin == Coins.cUSD || coin == Coins.cEUR) golden = await kit.contracts.getStableToken(coin.name as unknown as StableToken)
-            else golden = await kit.contracts.getErc20(coin.contractAddress)
+                if (coin == Coins.CELO) token = await kit.contracts.getGoldToken()
+                else if (coin == Coins.cUSD || coin == Coins.cEUR) token = await kit.contracts.getStableToken(coin.name as unknown as StableToken)
+                else token = await kit.contracts.getErc20(coin.contractAddress)
 
-            const celoObj = golden.transfer(toAddress, value);
-            const txs = toTransactionObject(
-                kit.connection,
-                web3MultiSig.methods.submitTransaction(golden.address, "0", stringToSolidityBytes(celoObj.txo.encodeABI())),
-            );
+                const celoObj = token.transfer(toAddress, value);
+                const txs = toTransactionObject(
+                    kit.connection,
+                    web3MultiSig.methods.submitTransaction(token.address, "0", stringToSolidityBytes(celoObj.txo.encodeABI())),
+                );
 
-            await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+                await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            } else {
+                const data = await GenerateBatchPay(input)
+                const txs = toTransactionObject(
+                    kit.connection,
+                    web3MultiSig.methods.submitTransaction(Contracts.BatchRequest.address, "0", stringToSolidityBytes(data.txo.encodeABI())),
+                );
+
+                await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            }
             setLoading(false);
             return { message: "sucess" }
         } catch (e: any) {

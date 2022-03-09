@@ -19,16 +19,7 @@ export interface IBalanceItem {
 }
 
 interface IBalanceMembers {
-	CELO: IBalanceItem | undefined;
-	cUSD: IBalanceItem | undefined;
-	cEUR: IBalanceItem | undefined;
-	UBE: IBalanceItem | undefined;
-	MOO: IBalanceItem | undefined;
-	MOBI: IBalanceItem | undefined;
-	POOF: IBalanceItem | undefined;
-	cREAL: IBalanceItem | undefined;
-	PACT: IBalanceItem | undefined;
-	ARI: IBalanceItem | undefined;
+	[name: string]: IBalanceItem;
 }
 
 interface ICurrency {
@@ -63,18 +54,7 @@ const State: ICurrency = {
 		PACT: undefined,
 		ARI: undefined,
 	},
-	balances: {
-		CELO: undefined,
-		cUSD: undefined,
-		cEUR: undefined,
-		cREAL: undefined,
-		UBE: undefined,
-		MOO: undefined,
-		MOBI: undefined,
-		POOF: undefined,
-		PACT: undefined,
-		ARI: undefined,
-	},
+	balances: {	},
 	totalBalance: undefined
 };
 
@@ -139,93 +119,13 @@ export const CurrencySlice = createSlice({
 				PACT: undefined,
 				ARI: undefined,
 			};
-			state.balances = {
-				CELO: undefined,
-				cUSD: undefined,
-				cEUR: undefined,
-				cREAL: undefined,
-				UBE: undefined,
-				MOO: undefined,
-				MOBI: undefined,
-				POOF: undefined,
-				PACT: undefined,
-				ARI: undefined,
-			};
+			state.balances = {};
 		},
 		updateUserBalance: (state: ICurrency, action) => {
 			if (!action.payload) return;
-			const [ celo, cusd, ceur, ube, moo, mobi, poof, creal, pact, ari ]: IBalanceItem[] = action.payload;
+
 			state.balances = {
-				CELO: {
-					amount: celo.amount,
-					per_24: celo.per_24,
-					percent: celo.percent,
-					coins: celo.coins,
-					tokenPrice: celo.tokenPrice
-				},
-				cUSD: {
-					amount: cusd.amount,
-					per_24: cusd.per_24,
-					percent: cusd.percent,
-					coins: cusd.coins,
-					tokenPrice: cusd.tokenPrice
-				},
-				cEUR: {
-					amount: ceur.amount,
-					per_24: ceur.per_24,
-					percent: ceur.percent,
-					coins: ceur.coins,
-					tokenPrice: ceur.tokenPrice
-				},
-				cREAL: {
-					amount: creal.amount,
-					per_24: creal.per_24,
-					percent: creal.percent,
-					coins: creal.coins,
-					tokenPrice: creal.tokenPrice
-				},
-				UBE: {
-					amount: ube.amount,
-					per_24: ube.per_24,
-					percent: ube.percent,
-					coins: ube.coins,
-					tokenPrice: ube.tokenPrice
-				},
-				MOO: {
-					amount: moo.amount,
-					per_24: moo.per_24,
-					percent: moo.percent,
-					coins: moo.coins,
-					tokenPrice: moo.tokenPrice
-				},
-				MOBI: {
-					amount: mobi.amount,
-					per_24: mobi.per_24,
-					percent: mobi.percent,
-					coins: mobi.coins,
-					tokenPrice: mobi.tokenPrice
-				},
-				POOF: {
-					amount: poof.amount,
-					per_24: poof.per_24,
-					percent: poof.percent,
-					coins: poof.coins,
-					tokenPrice: poof.tokenPrice
-				},
-				PACT: {
-					amount: pact.amount,
-					per_24: pact.per_24,
-					percent: pact.percent,
-					coins: pact.coins,
-					tokenPrice: pact.tokenPrice
-				},
-				ARI: {
-					amount: ari.amount,
-					per_24: ari.per_24,
-					percent: ari.percent,
-					coins: ari.coins,
-					tokenPrice: ari.tokenPrice
-				},
+				...action.payload
 			};
 		}
 	}

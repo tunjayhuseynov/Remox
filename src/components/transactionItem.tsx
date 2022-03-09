@@ -113,7 +113,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                             <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(swapData.amountIn, 'ether'))}
+                                {parseFloat(fromWei(swapData.amountIn, 'ether')).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>

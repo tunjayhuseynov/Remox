@@ -45,7 +45,7 @@ export default function useSignInOrUp() {
                     name: encryptMessage(dataForSignUp.name, encryptedMessageToken),
                     surname: encryptMessage(dataForSignUp.surname, encryptedMessageToken),
                     seenTime: new Date().getTime(),
-                    timestamp: new Date().getTime()
+                    timestamp: Math.floor(new Date().getTime() / 1e3)
                 })
                 await FirestoreWrite<{ addresses: { name: string, address: string }[] }>().createDoc('multisigs', user.uid, {
                     addresses: []

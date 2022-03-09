@@ -10,7 +10,7 @@ import { updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../r
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from '../redux/reducers/storage'
 import { SelectTransactions, setTransactions } from '../redux/reducers/transactions'
-import { Coins } from '../types/coins'
+import { AltCoins, Coins } from '../types/coins'
 import useRequest from 'API/useRequest'
 import useRequestHook from 'hooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
@@ -85,7 +85,7 @@ const useRefetchData = () => {
             if (fetchedBalance && !balanceLoading) {
                 let balance = fetchedBalance as { [name: string]: string; } | undefined;
 
-                if (balance && celo && cusd && ceur && ube && moo && mobi && poof && creal && pact && ari) {
+                if (balance) {
 
                     let pCelo;
                     let pCusd;
@@ -97,51 +97,55 @@ const useRefetchData = () => {
                     let pReal;
                     let pPact;
                     let pAri;
-
                     balance = balance as Balance;
-                    pCelo = parseFloat(balance.CELO);
-                    pCusd = parseFloat(balance.cUSD);
-                    pCeur = parseFloat(balance.cEUR);
-                    pUbe = parseFloat(balance.UBE);
-                    pMoo = parseFloat(balance.MOO);
-                    pMobi = parseFloat(balance.MOBI);
-                    pPoof = parseFloat(balance.POOF);
-                    pReal = parseFloat(balance.cREAL);
-                    pPact = parseFloat(balance.PACT);
-                    pAri = parseFloat(balance.ARI);
 
-                    const celoPrice = pCelo * (celo.price ?? 0);
-                    const cusdPrice = pCusd * (cusd.price ?? 0);
-                    const ceurPrice = pCeur * (ceur.price ?? 0);
-                    const ubePrice = pUbe * (ube.price ?? 0);
-                    const mooPrice = pMoo * (moo.price ?? 0);
-                    const mobiPrice = pMobi * (mobi.price ?? 0);
-                    const poofPrice = pPoof * (poof.price ?? 0);
-                    const cRealPrice = pReal * (creal.price ?? 0);
-                    const PactPrice = pPact * (pact.price ?? 0);
-                    const ariPrice = pAri * (ari.price ?? 0);
+                    pCelo = parseFloat(balance.CELO) || 0;
+                    pCusd = parseFloat(balance.cUSD) || 0;
+                    pCeur = parseFloat(balance.cEUR) || 0;
+                    pUbe = parseFloat(balance.UBE) || 0;
+                    pMoo = parseFloat(balance.MOO) || 0;
+                    pMobi = parseFloat(balance.MOBI) || 0;
+                    pPoof = parseFloat(balance.POOF) || 0;
+                    pReal = parseFloat(balance.cREAL) || 0;
+                    pPact = parseFloat(balance.PACT) || 0;
+                    pAri = parseFloat(balance.ARI) || 0;
 
-                    const total = celoPrice + cusdPrice + mooPrice + + ceurPrice + ubePrice + mobiPrice + poofPrice + cRealPrice + PactPrice + ariPrice;
 
-                    const updatedBalance = [
-                        { amount: pCelo, per_24: celo.percent_24, percent: (celoPrice * 100) / total, coins: Coins.CELO, tokenPrice: +celo.price },
-                        { amount: pCusd, per_24: cusd.percent_24, percent: (cusdPrice * 100) / total, coins: Coins.cUSD, tokenPrice: +cusd.price },
-                        { amount: pCeur, per_24: ceur.percent_24, percent: (ceurPrice * 100) / total, coins: Coins.cEUR, tokenPrice: +ceur.price },
-                        { amount: pUbe, per_24: ube.percent_24, percent: (ubePrice * 100) / total, coins: Coins.UBE, tokenPrice: +ube.price },
-                        { amount: pMoo, per_24: moo.percent_24, percent: (mooPrice * 100) / total, coins: Coins.MOO, tokenPrice: +moo.price },
-                        { amount: pMobi, per_24: mobi.percent_24, percent: (mobiPrice * 100) / total, coins: Coins.MOBI, tokenPrice: +mobi.price },
-                        { amount: pPoof, per_24: poof.percent_24, percent: (poofPrice * 100) / total, coins: Coins.POOF, tokenPrice: +poof.price },
-                        { amount: pReal, per_24: creal.percent_24, percent: (cRealPrice * 100) / total, coins: Coins.cREAL, tokenPrice: +creal.price },
-                        { amount: pPact, per_24: pact.percent_24, percent: (PactPrice * 100) / total, coins: Coins.PACT, tokenPrice: +pact.price },
-                        { amount: pAri, per_24: ari.percent_24, percent: (ariPrice * 100) / total, coins: Coins.ARI, tokenPrice: +ari.price },
-                    ]
+                    const total = fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
 
-                    const totalBalance: number = updatedBalance.reduce((acc, curr) => acc + (curr.amount * curr.tokenPrice), 0)
+                    const arrPrices = fetchedCurrencies.map(c => {
+                        const amount = parseFloat((balance?.[c.name]) ?? "0");
+                        const price = c.price * amount;
+                        return {
+                            coins: Coins[c.name as unknown as keyof Coins],
+                            per_24: c?.percent_24,
+                            price,
+                            amount,
+                            percent: (price * 100) / total,
+                            tokenPrice: c.price
+                        }
+                    })
+
+                    const prices = fetchedCurrencies.reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
+                        const amount = parseFloat((balance?.[c.name]) ?? "0");
+                        const price = c.price * amount;
+                        a[c.name] = {
+                            coins: Coins[c.name as unknown as keyof Coins],
+                            per_24: c?.percent_24,
+                            price,
+                            amount,
+                            percent: (price * 100) / total,
+                            tokenPrice: c.price
+                        }
+                        return a;
+                    }, {})
+
+                    const totalBalance: number = arrPrices.reduce((acc, curr) => acc + (curr.amount * curr.tokenPrice), 0)
 
                     dispatch(updateTotalBalance(totalBalance))
 
                     setTimeout(() => {
-                        dispatch(updateUserBalance(updatedBalance))
+                        dispatch(updateUserBalance(prices))
                     }, 1000);
                 }
             }

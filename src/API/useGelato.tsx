@@ -65,7 +65,7 @@ export default function useGelato() {
 
     const createTask = async (interval: DateInterval | "instant", executionAddress: string, executionCommand: string) => {
         setLoading(true)
-        const startDate = new Date().getTime()
+        const startDate = Math.floor(new Date().getTime() / 1e3)
         let timeInterval;
         if (interval === DateInterval.daily) {
             timeInterval = 60 * 60 * 24

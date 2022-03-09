@@ -23,13 +23,14 @@ const Home = () => {
         key.name = "Poof.cash";
         key.icon = "https://poof.cash/images/LogoMark.svg";
 
+
     }, [])
 
     const connectEvent = async () => {
         try {
             if (!address) {
                 await connect()
-                
+
                 if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
                     const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
                     if (str) {

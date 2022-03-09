@@ -27,50 +27,30 @@ export default function useBalance(address: string) {
             let balances: { [name: string]: string } = {};
             setLoading(true)
 
-            for (const i of Object.values(Coins)) {
-                const item = i as AltCoins
-                const ethers = await kit.contracts.getErc20(item.contractAddress);
-                let balance = await ethers.balanceOf(address);
-                let bnBalance = kit.web3.utils.toBN(balance.toString());
-                let altcoinBalance = kit.web3.utils.fromWei(bnBalance.toString(), 'ether');
-                balances = Object.assign(balances, { [item.name]: altcoinBalance });
-            }
-
             let cEUR, cREAL, CELO, cUSD;
-            // if (walletType !== "PrivateKey") {
+            if (walletType === "PrivateKey") {
+                await Promise.all([pastEvents("CELO_v2"), pastEvents("cUSD_v2"), pastEvents("cEUR_v2"), pastEvents("cREAL_v2")])
+                const values = await Promise.all([balance("CELO_v2"), balance("cUSD_v2"), balance("cEUR_v2"), balance("cREAL_v2")])
+                CELO = values[0]
+                cUSD = values[1]
+                cEUR = values[2]
+                cREAL = values[3]
 
-                let stabletokenEUR = await kit.contracts.getStableToken(StableToken.cEUR);
-                let balanceEUR = await stabletokenEUR.balanceOf(address);
-                let bnEUR = kit.web3.utils.toBN(balanceEUR.toString());
-                cEUR = kit.web3.utils.fromWei(bnEUR.toString(), 'ether');
+                balances = { CELO, cEUR, cUSD, cREAL }
+            } else {
+                for (const i of Object.values(Coins)) {
+                    const item = i as AltCoins
+                    const ethers = await kit.contracts.getErc20(item.contractAddress);
+                    let balance = await ethers.balanceOf(address);
+                    let bnBalance = kit.web3.utils.toBN(balance.toString());
+                    let altcoinBalance = kit.web3.utils.fromWei(bnBalance.toString(), 'ether');
 
-
-
-                let stabletokenREAL = await kit.contracts.getStableToken(StableToken.cREAL);
-                let balanceREAL = await stabletokenREAL.balanceOf(address);
-                let bnREAL = kit.web3.utils.toBN(balanceREAL.toString());
-                cREAL = kit.web3.utils.fromWei(bnREAL.toString(), 'ether');
-
-                let goldtoken = await kit.contracts.getGoldToken();
-                let balanceGoldtoken = await goldtoken.balanceOf(address);
-                let bnGold = kit.web3.utils.toBN(balanceGoldtoken.toString());
-                CELO = kit.web3.utils.fromWei(bnGold.toString(), 'ether');
-
-                let stabletokenUSD = await kit.contracts.getStableToken();
-                let balanceUSD = await stabletokenUSD.balanceOf(address);
-                let bnUSD = kit.web3.utils.toBN(balanceUSD.toString());
-                cUSD = kit.web3.utils.fromWei(bnUSD.toString(), 'ether');
-
-            // } else {
-            //     await pastEvents("cUSD_v2")
-            //     CELO = await balance("CELO_v2")
-            //     cEUR = await balance("cEUR_v2")
-            //     cUSD = await balance("cUSD_v2")
-            //     cREAL = await balance("cREAL_v2")
-            // }
-            setFetchedBalance({ CELO, cREAL, cUSD, cEUR, ...balances })
+                    balances = Object.assign(balances, { [item.name]: altcoinBalance });
+                }
+            }
+            setFetchedBalance({ ...balances })
             setLoading(false)
-            return { CELO, cREAL, cUSD, cEUR, ...balances };
+            return { ...balances };
         } catch (e) {
             console.error(e)
             setLoading(false)

@@ -111,18 +111,17 @@ export default function TabPage() {
         }
       } else {
         if (result.length === 1) {
-          await submitTransaction(selectedAccount, result[0].toAddress, result[0].amount, Coins[result[0].tokenName as keyof Coins])
+          await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: Coins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
         }
         else if (result.length > 1) {
           const arr: Array<PaymentInput> = result.map(w => ({
             coin: Coins[w.tokenName as keyof Coins],
             recipient: w.toAddress,
-            amount: w.amount
+            amount: w.amount,
+            from: true
           }))
 
-          for (let i = 0; i < arr.length; i++) {
-            await submitTransaction(selectedAccount, result[i].toAddress, result[i].amount, Coins[result[i].tokenName as keyof Coins])
-          }
+          await submitTransaction(selectedAccount, arr)
         }
       }
 

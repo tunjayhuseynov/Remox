@@ -44,7 +44,6 @@ function App() {
 
   const navigate = useNavigate()
 
-
   useLayoutEffect(() => {
     document.documentElement.classList.add(darkMode ? "dark" : "light", darkMode ? "tw-dark" : "tw-light")
     document.documentElement.classList.remove(darkMode ? "light" : "dark", darkMode ? "tw-light" : "tw-dark")

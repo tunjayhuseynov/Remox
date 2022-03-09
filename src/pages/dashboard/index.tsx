@@ -10,11 +10,13 @@ import MobileMenu from "../../subpages/dashboard/mobileMenu";
 import Navbar, { NavbarDropdown } from "../../subpages/dashboard/navbar";
 import Sidebar from "../../subpages/dashboard/sidebar";
 import Sidebarlist from "../../subpages/dashboard/sidebarlist";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import useMoola from "API/useMoola";
 
 export default function Dashboard() {
   const toggle = useSelector(selectToggle)
   const storage = useSelector(selectStorage)
+
 
   return <>
     <AnimatePresence>

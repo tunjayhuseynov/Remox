@@ -47,7 +47,7 @@ export default function useRequest() {
             nameOfService: params.nameOfService,
             serviceDate: params.serviceDate,
 
-            timestamp: new Date().getTime(),
+            timestamp: Math.floor(new Date().getTime() / 1e3),
             status: RequestStatus.pending,
         }
         if (params.secondaryAmount && params.secondaryCurrency) {

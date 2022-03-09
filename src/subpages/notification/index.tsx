@@ -19,7 +19,6 @@ enum Status {
 }
 
 const NotificationCointainer = () => {
-
     const [list] = useTransactionProcess()
     const { profile } = useProfile()
     const [openNotify, setNotify] = useState(false)
@@ -46,9 +45,10 @@ const NotificationCointainer = () => {
 
         return () => window.removeEventListener('click', click)
     }, [click, divRef])
- 
+
+
     return <>
-        <IoMdNotificationsOutline className={openNotify ? "text-primary text-2xl cursor-pointer" : "text-2xl cursor-pointer transition hover:text-primary hover:transition"} onClick={()=>{setNotify(!openNotify)}}/>
+        <IoMdNotificationsOutline className="text-2xl cursor-pointer" onClick={() => setNotify(!openNotify)} />
         {list && new Date(profile?.seenTime ?? 0) < new Date(parseInt((list && list.length > 0 ? list[0]?.rawData.timeStamp : "0")) * 1e3) && <div className="absolute w-[10px] h-[10px] bg-primary rounded-full -top-1 -right-1">
 
         </div>}

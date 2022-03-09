@@ -1,60 +1,39 @@
 MAIN PROBLEM: EDIT BALANCE LOADER
-
 Total Amount text align issue 
-
 Paying with comment (need to talk with Orxan)
-
 Error handling for useContractKit
-
 Add Member, give warning if team not selected
-
 Create Account Show Error
-
 Search Bar
-
 New Notification bar , react toastify
-
 All Coin List 
-
 Create stats for admins
-
 Design error in TransactionHistory
-
 Safari Select Pay Type design error
-
 Firebase Rules for Request in create and update (restirct for update)
-
 Peer to peer crypto
-
-Request Money Mobile Version
-
+Excel issue
+useGelato createTask on addMember there is no startDate
 useGelato try catch on awaits
-
 Payroll Remove if next paymet pass the end payment
-
 React Select make centrilized
-
-/* Requests and importants
-    
-    Add Storage feature to the upload
-    Attach link, confirm that it is link
-    request from Company, not from Remox (but Company is Optinal, Sorus Orxandan)
- 
-*/
-
-/* Multisig*/
+Add Storage feature to the upload
+Attach link, confirm that it is link
+Request from Company, not from Remox (but Company is Optinal, Sorus Orxandan)
+Pay Someone wallet resets after balance fetched
 
 Multisig Name Update
-
 Multisig user name update
-
 Multisig Pending Complated
-
-Multisig Batch request
-
 Notification BatchRequest Adaptation
-
 Add Multisig Action which are complated to useTransactionProcess
+
+
+**//** Done **//**
+Request Money Mobile Version ++
+Multisig Batch request **//**(need 2 test) **//** 
+
+
 
 
 /*

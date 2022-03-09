@@ -15,7 +15,7 @@ export default function useContributors() {
             id: id,
             userId: auth.currentUser!.uid,
             name,
-            timestamp: new Date().getTime(),
+            timestamp: Math.floor(new Date().getTime() / 1e3),
             members: []
         })
         setLoading(false)

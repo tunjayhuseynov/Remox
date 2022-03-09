@@ -107,7 +107,7 @@ export default function useSwap() {
 
             const txx = await router.methods.swapExactTokensForTokens(...ubeRouter.args);
 
-            const sender = await txx.send({ from: address });
+            const sender = await txx.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
             await refetch()
             setLoading(false)
             return { hash: sender.transactionHash }
