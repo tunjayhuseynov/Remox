@@ -55,6 +55,8 @@ const Pay = () => {
     const addressRef = useRef<Array<string>>([])
     const [wallets, setWallets] = useState<DropDownItem[]>([])
     const amountRef = useRef<Array<string>>([])
+    // sonradan elave olunub
+    const amount2Ref = useRef<Array<string>>([])
 
     const [csvImport, setCsvImport] = useState<csvFormat[]>([]);
 
@@ -91,6 +93,8 @@ const Pay = () => {
                 nameRef.current.push((name || ""));
                 addressRef.current.push((address || ""));
                 amountRef.current.push((amount2 || ""));
+                // sonradan elave olunub
+                amount2Ref.current.push((amount2 || ""));
                 amm.push(parseFloat(amount2 || "0"))
 
                 const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].value };
@@ -107,6 +111,7 @@ const Pay = () => {
         }
     }, [csvImport])
 
+   console.log(amount2Ref.current)
 
     useEffect(() => {
         if (balance && balance.CELO) {
@@ -273,6 +278,7 @@ const Pay = () => {
         setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
     }
 
+
     return <div className="sm:px-32">
         <form onSubmit={Submit}>
             <div className="sm:flex flex-col items-center justify-center min-h-screen py-10">
@@ -326,11 +332,11 @@ const Pay = () => {
                                             uniqueRef.current[i * 2 + 1] = generate()
                                         }
 
-                                        return <Input key={uniqueRef.current[i * 2]} amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={i * 2} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
+                                        return <Input key={uniqueRef.current[i * 2]} amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={i * 2} name={nameRef.current} address={addressRef.current} amount={amountRef.current} amount2={amount2Ref.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
                                     }) : <div><ClipLoader /></div>}
                                 </div>
                             </div>
-                            <div className="py-5 sm:py-0 grid grid-cols-[65%,35%] gap-16">
+                            <div className="py-5 sm:py-0 grid grid-cols-[65%,35%] ">
                                 <div className="flex space-x-5">
                                     <Button version="second" className="min-w-[200px] text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                         setIndex(index + 1)

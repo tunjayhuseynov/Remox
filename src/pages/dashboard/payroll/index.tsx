@@ -15,7 +15,9 @@ const Payroll = () => {
         <div className="text-2xl font-bold pl-10">
             Payroll
         </div>
-        <div className="flex pl-5 w-full relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10">
+
+        <div className="flex pl-5 pt-2 w-full ">
+
             <NavLink to={path} end className={({ isActive }) => isActive ? 'text-primary border-b-[3px] border-primary z-50 mx-5' : 'mx-5'}>
                 <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
                     <span>Manual Payroll</span>

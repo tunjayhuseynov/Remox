@@ -12,9 +12,13 @@ import useModalSideExit from '../../hooks/useModalSideExit';
 import { SelectSelectedAccount } from '../../redux/reducers/selectedAccount';
 import Visitcard from '../../components/visitcard';
 import Button from '../../components/button';
+import "index.css"
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 
+
 const Navbar = () => {
+    
+   
     const storage = useAppSelector(selectStorage)
     const menuBar = useAppSelector(selectToggle)
     const dispatch = useAppDispatch()
@@ -31,7 +35,7 @@ const Navbar = () => {
         }
     }
 
-    return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr,1fr,1fr,1fr] gap-12">
+    return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr,1fr,1fr,1fr] gap-12 ">
         <div className="md:hidden pl-4">
             <div className="inline-block" onClick={() => dispatch(setMenu(!menuBar.mobileMenu))}>
                 <Hamburger toggled={menuBar.mobileMenu} hideOutline={true} />
@@ -60,12 +64,13 @@ const Navbar = () => {
         </div>
     </div>
 }
+ 
 
-
-
-const Li = ({ children, link }: { children: any, link: string }) => <li className="text-left border px-3 py-2 bg-white dark:bg-darkSecond hover:text-primary hover:border-b-primary cursor-pointer first:rounded-t-xl last:rounded-b-xl"><Link to={link} className='flex gap-2'>{children}</Link></li>
+const Li = ({ children, link }: { children: any, link: string }) => <li className="navbarli text-left border-b-2 transition  px-5 py-4 bg-white dark:bg-darkSecond hover:text-primary  hover:border-b-primary hover:transition cursor-pointer first:rounded-t-xl last:rounded-b-xl"><Link to={link} className='flex gap-2'>{children}</Link></li>
 
 export const NavbarDropdown = () => {
+    
+
     const [isOpen, setOpen] = useState(false)
     const divRef = useModalSideExit(isOpen, setOpen)
 
@@ -79,9 +84,9 @@ export const NavbarDropdown = () => {
                 </div>
             </>
         </Button>
-        {isOpen && <div ref={divRef} className="absolute w-[150%] rounded-2xl sm:-left-1/4  -bottom-1 translate-y-full shadow-xl z-50">
+        {isOpen && <div ref={divRef} className="absolute w-[150%] rounded-xl sm:-left-1/4   -bottom-1 translate-y-full shadow-xl z-50">
             <ul>
-                <Li link={'/dashboard/pay'}><PaySVG /> Pay Someone</Li>
+                <Li link={'/dashboard/pay'}  ><PaySVG/> Pay Someone</Li>
                 <Li link="/dashboard/masspayout"><MassPayoutSVG />Payroll</Li>
                 <Li link='/dashboard/requests'><RequestMoneySVG /> Request Money</Li>
                 <Li link=''><FundSVG /> Add Funds <span className="text-[10px]">coming soon</span> </Li>
@@ -90,13 +95,13 @@ export const NavbarDropdown = () => {
         }
     </div>
 }
+ 
+const PaySVG = () => <img src='/icons/navbar/paysomeonepy.png' className="w-[15px] h-[15px] object-cover" alt="" />
 
-const PaySVG = () => <img src='/icons/senticon.svg' className="dark:invert dark:brightness-0" alt="" />
+const MassPayoutSVG = () => <img src='/icons/navbar/payroll.png' className="w-[15px] h-[15px] object-cover"  alt="" />
 
-const MassPayoutSVG = () => <img src='/icons/masspayouticon.svg' className="dark:invert dark:brightness-0" alt="" />
+const RequestMoneySVG = () => <img src='/icons/navbar/requestmoney.png' className="w-[15px] h-[15px] object-cover"  alt="" />
 
-const RequestMoneySVG = () => <img src='/icons/moneyrequesticon.svg' className="dark:invert dark:brightness-0" alt="" />
+const FundSVG = () => <img src='/icons/navbar/addfunds.png' className="w-[15px] h-[15px] object-cover"   alt="" />
 
-const FundSVG = () => <img src='/icons/addfundds.svg' className="dark:invert dark:brightness-0" alt="" />
-
-export default Navbar;
+export default Navbar;  

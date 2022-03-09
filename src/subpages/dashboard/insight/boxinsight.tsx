@@ -169,7 +169,9 @@ const Boxinsight = ({ selectedDate }: { selectedDate: number }) => {
                         {w.interest && parseFloat(w.interest) !== 0 ? `${parseFloat(w.interest).toFixed(2)}%` : ''}
                     </p>
                 </div>
-                <h1 className="text-2xl pl-2 pt-4 font-bold">{w.text} {w.money ? <span>${w.money.split('.')[0]}{w.money.split('.')[1] && <span className="text-greylish text-lg">.{w.money.split('.')[1]}</span>} </span> : !w.text && <ClipLoader size={'24px'} />}  {w.endnum && <span className="text-greylish opacity-80 tracking-wider text-xl">{w.endnum}</span>}</h1>
+
+                <h1 className="text-3xl pl-2 pt-4 font-bold">{w.text} {w.money ? <span>${w.money.split('.')[0]}{w.money.split('.')[1] && <span className="text-greylish text-lg">.{w.money.split('.')[1]}</span>} </span> : !w.text && <ClipLoader size={'24px'} />}  {w.endnum && <span className="text-greylish opacity-80 tracking-wider text-xl">{w.endnum}</span>}</h1>
+
             </div>
         })}
 

@@ -33,15 +33,17 @@ export default function useBalance(address: string) {
                 let balance = await ethers.balanceOf(address);
                 let bnBalance = kit.web3.utils.toBN(balance.toString());
                 let altcoinBalance = kit.web3.utils.fromWei(bnBalance.toString(), 'ether');
-
                 balances = Object.assign(balances, { [item.name]: altcoinBalance });
             }
+
             let cEUR, cREAL, CELO, cUSD;
             // if (walletType !== "PrivateKey") {
+
                 let stabletokenEUR = await kit.contracts.getStableToken(StableToken.cEUR);
                 let balanceEUR = await stabletokenEUR.balanceOf(address);
                 let bnEUR = kit.web3.utils.toBN(balanceEUR.toString());
                 cEUR = kit.web3.utils.fromWei(bnEUR.toString(), 'ether');
+
 
 
                 let stabletokenREAL = await kit.contracts.getStableToken(StableToken.cREAL);
