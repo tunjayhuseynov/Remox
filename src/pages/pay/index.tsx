@@ -277,7 +277,8 @@ const Pay = () => {
     const onChange = (value: any) => {
         setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
     }
-    
+
+
     return <div className="sm:px-32">
         <form onSubmit={Submit}>
             <div className="sm:flex flex-col items-center justify-center min-h-screen py-10">

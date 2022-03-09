@@ -146,23 +146,29 @@ export default function Form() {
                   <span className="text-left text-xl font-semibold">Deposit To</span>
                   <div className="flex  space-x-24 pb-5 pl-1  sm:pb-0">
                     <div className="flex space-x-2 items-center">
+
                       <input type="radio"  className="w-4 h-4 peer  cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
                       <label className="font-semibold peer-checked:text-[#ff501a] text-sm">
+
                         Pay with Token Amounts
                       </label>
                     </div>
                     <div className="flex space-x-2 items-center">
+
                       <input type="radio"  className="w-4 h-4 peer cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
                       <label className="font-semibold peer-checked:text-[#ff501a] text-sm">
+
                         Pay with USD-based Amounts
                       </label>
                     </div>
                   </div>
                 </div>
+
                 <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
                   <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current} amount2={amount2Ref.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
                 </div>
                 <div className="flex flex-col gap-5 pb-5 pr-20 sm:pr-0  sm:pb-0 sm:space-y-5 sm:gap-0">
+
                   <span className="text-left text-xl font-semibold tracking-wide">Details</span>
                   <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-40 sm:gap-y-7">
                     <div className="flex flex-col space-y-2">
@@ -170,7 +176,9 @@ export default function Form() {
                         Request Type
                       </div>
                       <div>
+
                         <input type="text" name="requestType" placeholder="Request type" className="mb-0  h-[30px]  w-full sm:h-[45px] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -178,7 +186,9 @@ export default function Form() {
                         Name of service
                       </div>
                       <div>
+
                         <input type="text" name="nameService" placeholder="Name of service" className="mb-0  h-[30px]  w-full sm:h-[45px]  border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -186,7 +196,9 @@ export default function Form() {
                         Date of service
                       </div> 
                       <div>
+
                         <DatePicker className="mb-0 h-[30px]   w-full sm:h-[45px]  bg-red-500 border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
+
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -194,7 +206,9 @@ export default function Form() {
                         Attach link (optional)
                       </div>
                       <div>
+
                         <input type="text" name="attachLink" placeholder="Attach link" className="mb-0  h-[30px]  w-full sm:h-[45px] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" />
+
                       </div>
                     </div>
                   </div>
@@ -207,9 +221,11 @@ export default function Form() {
                 </div>
               </div>
               <div className="flex justify-center pt-5 sm:pt-0">
+
                 <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[300px] sm: justify-center sm:gap-5">
                   <Button version="second" className="w-[100px] sm:w-full" onClick={() => router("/dashboard")}>Close</Button>
                   <Button type="submit" className=" w-[100px] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >Request</Button>
+
                 </div>
               </div>
             </div>

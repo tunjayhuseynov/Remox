@@ -594,6 +594,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   grid-column: span 4 / span 4;
 }
 
+.col-span-1 {
+  grid-column: span 1 / span 1;
+}
+
 .-m-2 {
   margin: -0.5rem;
 }
@@ -673,9 +677,7 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-left: 0.5rem;
 }
 
-.mb-0 {
-  margin-bottom: 0px;
-}
+
 
 .mb-10 {
   margin-bottom: 2.5rem;
@@ -684,6 +686,16 @@ Ensure the default browser behavior of the `hidden` attribute.
 .ml-4 {
   margin-left: 1rem;
 }
+
+
+.mb-0 {
+  margin-bottom: 0px;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
 
 .block {
   display: block;
@@ -783,6 +795,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .h-\[50px\] {
   height: 50px;
+
+}
+
+.h-12 {
+  height: 3rem;
+
 }
 
 .h-12 {
@@ -817,10 +835,16 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .h-\[50\%\] {
   height: 50%;
+
 }
 
 .h-\[60px\] {
   height: 60px;
+}
+
+.h-\[30px\] {
+  height: 30px;
+
 }
 
 .h-\[42px\] {
@@ -1021,6 +1045,15 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .w-\[25\%\] {
   width: 25%;
+
+}
+
+.w-\[150px\] {
+  width: 150px;
+}
+
+.w-\[50\%\] {
+  width: 50%;
 }
 
 .w-\[80\%\] {
@@ -1067,8 +1100,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   width: 35%;
 }
 
-.min-w-\[25\%\] {
-  min-width: 25%;
+
+.w-\[82\%\] {
+  width: 82%;
+}
+
+.min-w-\[20\%\] {
+  min-width: 20%;
+
 }
 
 .min-w-\[300px\] {
@@ -1098,6 +1137,16 @@ Ensure the default browser behavior of the `hidden` attribute.
 .min-w-\[50vw\] {
   min-width: 50vw;
 }
+
+
+.min-w-\[25\%\] {
+  min-width: 25%;
+}
+
+.min-w-\[30\%\] {
+  min-width: 30%;
+}
+
 
 .max-w-\[90vw\] {
   max-width: 90vw;
@@ -1308,12 +1357,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   grid-template-columns: 80%;
 }
 
-.grid-rows-2 {
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+
+.grid-cols-\[25\%\2c 35\%\2c 35\%\2c 5\%\] {
+  grid-template-columns: 25% 35% 35% 5%;
 }
 
-.grid-rows-4 {
-  grid-template-rows: repeat(4, minmax(0, 1fr));
+.grid-rows-2 {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+
 }
 
 .grid-rows-\[25\%\2c 25\%\2c 50\%\] {
@@ -1390,6 +1441,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .gap-10 {
   gap: 2.5rem;
+
+}
+
+.gap-5 {
+  gap: 1.25rem;
+
 }
 
 .gap-16 {
@@ -1560,6 +1617,14 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 
 .space-y-12 > :not([hidden]) ~ :not([hidden]) {
+
+  --tw-space-y-reverse: 0;
+  margin-top: calc(3rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(3rem * var(--tw-space-y-reverse));
+}
+
+.space-y-1 > :not([hidden]) ~ :not([hidden]) {
+
   --tw-space-y-reverse: 0;
   margin-top: calc(3rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(3rem * var(--tw-space-y-reverse));
@@ -1881,6 +1946,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding: 1.25rem;
 }
 
+.p-0 {
+  padding: 0px;
+}
+
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
@@ -1974,6 +2043,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 .py-0 {
   padding-top: 0px;
   padding-bottom: 0px;
+}
+
+.px-0 {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .px-0 {
@@ -2082,6 +2156,7 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .pt-10 {
   padding-top: 2.5rem;
+
 }
 
 .pb-10 {
@@ -2090,10 +2165,25 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .pt-\[30px\] {
   padding-top: 30px;
+
 }
 
-.pb-3 {
-  padding-bottom: 0.75rem;
+.pb-10 {
+  padding-bottom: 2.5rem;
+}
+
+
+.pb-8 {
+  padding-bottom: 2rem;
+}
+
+.pr-3 {
+  padding-right: 0.75rem;
+}
+
+.pt-12 {
+  padding-top: 3rem;
+
 }
 
 .pt-24 {
@@ -2112,28 +2202,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-bottom: 2rem;
 }
 
-.pr-3 {
-  padding-right: 0.75rem;
+
+.pt-24 {
+  padding-top: 6rem;
 }
 
-.pt-12 {
-  padding-top: 3rem;
+.pl-1 {
+  padding-left: 0.25rem;
 }
 
-.pr-5 {
-  padding-right: 1.25rem;
-}
+.pb-14 {
+  padding-bottom: 3.5rem;
 
-.pr-10 {
-  padding-right: 2.5rem;
-}
-
-.pb-1 {
-  padding-bottom: 0.25rem;
-}
-
-.pl-\[2px\] {
-  padding-left: 2px;
 }
 
 .text-left {
@@ -2732,6 +2812,14 @@ html{
     grid-column: span 1 / span 1;
   }
 
+  .sm\:col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+
+  .sm\:mb-0 {
+    margin-bottom: 0px;
+  }
+
   .sm\:block {
     display: block;
   }
@@ -2752,9 +2840,7 @@ html{
     height: 100%;
   }
 
-  .sm\:h-\[40px\] {
-    height: 40px;
-  }
+
 
   .sm\:h-\[30px\] {
     height: 30px;
@@ -2762,6 +2848,10 @@ html{
 
   .sm\:h-\[45px\] {
     height: 45px;
+  }
+
+  .sm\:h-\[40px\] {
+    height: 40px;
   }
 
   .sm\:min-h-\[auto\] {
@@ -2858,12 +2948,12 @@ html{
     gap: 2.5rem;
   }
 
-  .sm\:gap-5 {
-    gap: 1.25rem;
-  }
-
   .sm\:gap-0 {
     gap: 0px;
+  }
+
+  .sm\:gap-5 {
+    gap: 1.25rem;
   }
 
   .sm\:gap-x-10 {
@@ -2874,6 +2964,12 @@ html{
   .sm\:gap-y-7 {
     row-gap: 1.75rem;
   }
+
+  .sm\:gap-x-5 {
+    -webkit-column-gap: 1.25rem;
+            column-gap: 1.25rem;
+  }
+
 
   .sm\:space-x-0 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-x-reverse: 0;
@@ -2928,16 +3024,22 @@ html{
     padding-bottom: 1.25rem;
   }
 
-  .sm\:pb-0 {
-    padding-bottom: 0px;
+
+  .sm\:pt-6 {
+    padding-top: 1.5rem;
+  }
+
+  .sm\:pt-14 {
+    padding-top: 3.5rem;
+
   }
 
   .sm\:pr-0 {
     padding-right: 0px;
   }
 
-  .sm\:pt-6 {
-    padding-top: 1.5rem;
+  .sm\:pb-0 {
+    padding-bottom: 0px;
   }
 
   .sm\:pt-14 {
@@ -2966,6 +3068,15 @@ html{
   .sm\:text-2xl {
     font-size: 1.5rem;
     line-height: 2rem;
+  }
+
+  .sm\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .sm\:font-semibold {
+    font-weight: 600;
   }
 }
 
@@ -3002,16 +3113,10 @@ html{
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .md\:grid-cols-\[25\%\2c 35\%\2c 35\%\2c 5\%\] {
-    grid-template-columns: 25% 35% 35% 5%;
-  }
 
   .md\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 
-  .md\:grid-rows-1 {
-    grid-template-rows: repeat(1, minmax(0, 1fr));
   }
 
   .md\:justify-start {
@@ -3077,6 +3182,7 @@ html{
 
   .lg\:grid-cols-\[20\%\2c 20\%\2c 20\%\2c 20\%\2c 1fr\] {
     grid-template-columns: 20% 20% 20% 20% 1fr;
+
   }
 
   .lg\:grid-cols-\[60\%\2c 35\%\2c 1fr\] {

@@ -20,6 +20,7 @@ const Sidebarlist = () => {
     const navigator = useNavigate()
     return <>
         <ul>
+
             <NavLink to="/dashboard" end={true} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><DashboardSVG active={isActive} darkMode={darkMode} />Dashboard</Li>}</NavLink>
             <NavLink to="/dashboard/payroll" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><PayrollSVG active={isActive} darkMode={darkMode}  />Payroll</Li>}</NavLink>
             <NavLink to="/dashboard/requests" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><RequestsSVG active={isActive} darkMode={darkMode}  />Requests</Li>}</NavLink>
@@ -30,6 +31,7 @@ const Sidebarlist = () => {
             <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AssetsSVG active={isActive} darkMode={darkMode}  />Assets</Li>}</NavLink>
             <NavLink to="/dashboard/contributors" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><TeamsSVG active={isActive} darkMode={darkMode}  />Contributors</Li>}</NavLink>
             <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SettingSVG active={isActive} darkMode={darkMode}  />Settings</Li>}</NavLink>
+
             <Li onClick={() => {
                 dispatch(setMenu(false))
                 dispatch(removeTransactions())
@@ -49,6 +51,7 @@ const PayrollSVG = ({ active = false, darkMode = true }) => <img className={`w-[
 
 const RequestsSVG = ({ active = false, darkMode = true }) => <img className={`w-[24px] h-[24px]`} src={active ? "/icons/sidebar/requests_active.png" :  darkMode ? '/icons/sidebar/requestsag.png' : '/icons/sidebar/requests.png'} alt="Requests" />
 
+
 const TransactionsSVG = ({ active = false, darkMode = true }) => <img className={`w-[24px] h-[24px]`} src={active ? "/icons/sidebar/transaction_active.png" : darkMode ?  '/icons/sidebar/transactionag.png' : '/icons/sidebar/transaction.png'} alt="Transaction" />
 
 const SwapSVG = ({ active = false, darkMode = true }) => <img className={`w-[24px] h-[24px]`} src={active ? '/icons/sidebar/swap_active.png' : darkMode ?  '/icons/sidebar/swapag.png' : '/icons/sidebar/swap.png'} alt="Swap" />
@@ -60,6 +63,8 @@ const TeamsSVG = ({ active = false, darkMode = true }) => <img className={`w-[24
 const SettingSVG = ({ active = false, darkMode = true }) => <img className={`w-[24px] h-[24px]`} src={active ? '/icons/sidebar/settings_active.png' : darkMode ?  '/icons/sidebar/settingsag.png' : '/icons/sidebar/settings.png'} alt="" />
 
 const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-[24px] h-[24px]`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ?  '/icons/sidebar/insightag.png' : '/icons/sidebar/insight.png'} alt="Insight" />
+
+const InsightSVG = ({ active = false }) => <img className={`w-[24px] h-[24px]   ${!active && 'dark:invert dark:brightness-0'}`} src={active ? "/icons/sidebar/insight_active.png" : '/icons/sidebar/insight.png'} alt="Insight" />
 
 const LogoutSVG = ({ active = false }) => <BiLogOut className="w-[24px] h-[24px]" />
 
