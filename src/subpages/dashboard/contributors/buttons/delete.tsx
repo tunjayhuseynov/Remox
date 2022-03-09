@@ -16,11 +16,9 @@ const Delete = ({ name, onCurrentModal, onDelete, onSuccess }: { name: string, o
             <Button className="bg-red-500 hover:bg-red-500 hover:text-white border-red-500 text-white w-[80px] h-[27px] px-1 py-0" onClick={async () => {
                 setLoading(true);
                 try {
-                    //onSuccess(true) 
                     await onDelete()
                     setLoading(false)
                     dispatch(changeSuccess({ activate: true, text: "Successfully Deleted" }))
-                    //onCurrentModal(false)
                 } catch (error) {
                     console.error(error)
                     setLoading(false)

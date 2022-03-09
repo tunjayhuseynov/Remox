@@ -6,22 +6,27 @@ import Success from "components/general/success";
 import Error from "components/general/error";
 import { DropDownItem } from "types/dropdown";
 import { MultipleTransactionData } from "types/sdk";
-import CSV from 'utils/CSV'
+import CSV, { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import Input from "subpages/pay/payinput";
-import { Coins } from "types/coins";
+import { Coins, PoofCoins, AltCoins } from "types/coins";
 import { useAppDispatch } from "redux/hooks";
-import { changeError, selectError } from "redux/reducers/notificationSlice";
+import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IBalanceItem, SelectBalances } from "redux/reducers/currencies";
 import Button from "components/button";
 import usePay, { PaymentInput } from "API/usePay";
 import useMultisig from 'API/useMultisig'
-
+import Select, { StylesConfig } from 'react-select';
+import chroma from 'chroma-js';
+import { Tag } from "API/useTags";
+import { selectTags } from "redux/reducers/tags";
+import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
 
 const Pay = () => {
 
+    const { walletType } = useContractKit()
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
     const isError = useSelector(selectError)
@@ -39,19 +44,25 @@ const Pay = () => {
 
     const [selectedType, setSelectedType] = useState(false)
 
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+
+    const tags = useSelector(selectTags)
+    const dark = useSelector(selectDarkMode)
+
     const [amountState, setAmountState] = useState<number[]>([])
     const uniqueRef = useRef<string[]>([generate(), generate()])
     const nameRef = useRef<Array<string>>([])
     const addressRef = useRef<Array<string>>([])
     const [wallets, setWallets] = useState<DropDownItem[]>([])
     const amountRef = useRef<Array<string>>([])
+    // sonradan elave olunub
+    const amount2Ref = useRef<Array<string>>([])
 
-    const [csvImport, setCsvImport] = useState<string[][]>([]);
+    const [csvImport, setCsvImport] = useState<csvFormat[]>([]);
 
     const fileInput = useRef<HTMLInputElement>(null);
 
     const [selectedWallet, setSelectedWallet] = useState<DropDownItem>();
-    const [list, setList] = useState<Array<DropDownItem>>([]);
 
     const reset = () => {
         nameRef.current = []
@@ -60,16 +71,18 @@ const Pay = () => {
         uniqueRef.current = []
     }
 
+    const isPrivate = WalletTypes.PrivateKey === walletType;
+
 
     useEffect(() => {
         if (csvImport.length > 0) {
-            const list = csvImport.filter(w => w[1] && w[2] && w[3] && w[4] && w[5])
+            const list = csvImport.filter(w => w.address && w.amount && w.coin)
             reset()
             let ind = 0;
             const wllt: any[] = []
             const amm: number[] = []
             for (let index = 0; index < list.length; index++) {
-                const [name, address, amount, coin, amount2, coin2] = list[index].slice(0, 6)
+                const { name, address, amount, coin, amount2, coin2 } = list[index]
 
                 uniqueRef.current.push(generate())
                 uniqueRef.current.push(generate())
@@ -80,6 +93,8 @@ const Pay = () => {
                 nameRef.current.push((name || ""));
                 addressRef.current.push((address || ""));
                 amountRef.current.push((amount2 || ""));
+                // sonradan elave olunub
+                amount2Ref.current.push((amount2 || ""));
                 amm.push(parseFloat(amount2 || "0"))
 
                 const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].value };
@@ -96,6 +111,7 @@ const Pay = () => {
         }
     }, [csvImport])
 
+   console.log(amount2Ref.current)
 
     useEffect(() => {
         if (balance && balance.CELO) {
@@ -106,9 +122,13 @@ const Pay = () => {
                 coinUrl: coin.coins.coinUrl,
             }))
             const v = { name: coins[0].name.split(' ')[1], coinUrl: coins[0].coinUrl, type: coins[0].type }
-            setWallets([{ ...v }, { ...v }])
+            if (isPrivate) {
+                const v = { name: PoofCoins.CELO_v2.name, coinUrl: PoofCoins.CELO_v2.coinUrl, type: PoofCoins.CELO_v2.type }
+                setWallets([{ ...v }, { ...v }])
+            } else {
+                setWallets([{ ...v }, { ...v }])
+            }
             setSelectedWallet(coins[0])
-            setList(coins)
         }
     }, [balance])
 
@@ -139,17 +159,17 @@ const Pay = () => {
 
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1 && selectedWallet && selectedWallet.name) {
-                    await Pay({ coin: Coins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+                    await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : Coins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: Coins[w.tokenName as keyof Coins],
+                        coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : Coins[result[0].tokenName as keyof Coins]) as AltCoins,
                         recipient: w.toAddress,
-                        amount: w.amount, 
+                        amount: w.amount,
                         from: true
                     }))
 
-                    await BatchPay(arr)
+                    await BatchPay(arr, undefined, selectedTags)
                 }
             } else {
                 if (result.length === 1 && selectedWallet && selectedWallet.name) {
@@ -169,7 +189,7 @@ const Pay = () => {
             }
             setSuccess(true);
             //refetch()
-           
+
         } catch (error: any) {
             console.error(error)
             dispatch(changeError({ activate: true, text: error.message }));
@@ -178,6 +198,86 @@ const Pay = () => {
         setIsPaying(false);
     }
 
+    type SelectType = { value: string, label: string, color: string, transactions: string[], isDefault: boolean }
+
+    const colourStyles: StylesConfig<SelectType, true> = {
+        control: (styles) => ({ ...styles, boxShadow: 'none', border: "1px solid #1C1C1C", "&:hover": { border: "1px solid #1C1C1C", }, backgroundColor: dark ? "text-dark" : 'white' }),
+        option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+            const color = chroma(data.color);
+            return {
+                ...styles,
+                outline: 'none',
+                border: 'none',
+                backgroundColor: isDisabled
+                    ? undefined
+                    : isSelected
+                        ? data.color
+                        : isFocused
+                            ? color.alpha(0.1).css()
+                            : undefined,
+                color: isDisabled
+                    ? '#ccc'
+                    : isSelected
+                        ? chroma.contrast(color, 'white') > 2
+                            ? 'white'
+                            : 'black'
+                        : data.color,
+                cursor: isDisabled ? 'not-allowed' : 'default',
+
+                ':active': {
+                    ...styles[':active'],
+                    backgroundColor: !isDisabled
+                        ? isSelected
+                            ? data.color
+                            : color.alpha(0.3).css()
+                        : undefined,
+                },
+            };
+        },
+        multiValue: (styles, { data }) => {
+            const color = chroma(data.color);
+            return {
+                ...styles,
+                backgroundColor: color.alpha(0).css(),
+            };
+        },
+        multiValueLabel: (styles, { data }) => ({
+            ...styles,
+            color: data.color,
+            ...dot(data.color)
+        }),
+        multiValueRemove: (styles, { data }) => {
+
+            return {
+                ...styles,
+                color: data.color,
+                ':hover': {
+                    backgroundColor: data.color,
+                    color: 'white',
+                },
+            }
+        },
+    };
+
+    const dot = (color = 'transparent') => ({
+        alignItems: 'center',
+        display: 'flex',
+
+        ':before': {
+            backgroundColor: color,
+            borderRadius: 10,
+            content: '" "',
+            display: 'block',
+            marginRight: 8,
+            height: 10,
+            width: 10,
+        },
+    });
+
+    const onChange = (value: any) => {
+        setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
+    }
+    
     return <div className="sm:px-32">
         <form onSubmit={Submit}>
             <div className="sm:flex flex-col items-center justify-center min-h-screen py-10">
@@ -204,6 +304,20 @@ const Pay = () => {
                                     </div>
                                 </div>
                             </div>
+                            <div className="flex flex-col space-y-3">
+                                <span className="text-left text-sm font-semibold">Tags</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 sm:gap-x-10">
+                                    {tags && tags.length > 0 && <Select
+                                        closeMenuOnSelect={false}
+                                        isMulti
+                                        isClearable={false}
+                                        options={tags.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
+                                        styles={colourStyles}
+                                        onChange={onChange}
+                                    />}
+                                    {tags.length === 0 && <div>No tag yet</div>}
+                                </div>
+                            </div>
                             <div className="flex flex-col">
                                 <div className="flex space-x-5 sm:space-x-0 sm:justify-between py-4 items-center">
                                     <span className="text-left font-semibold text-sm">Paying To</span>
@@ -217,11 +331,11 @@ const Pay = () => {
                                             uniqueRef.current[i * 2 + 1] = generate()
                                         }
 
-                                        return <Input key={uniqueRef.current[i * 2]} amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={i * 2} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
+                                        return <Input key={uniqueRef.current[i * 2]} amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={i * 2} name={nameRef.current} address={addressRef.current} amount={amountRef.current} amount2={amount2Ref.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
                                     }) : <div><ClipLoader /></div>}
                                 </div>
                             </div>
-                            <div className="py-5 sm:py-0 grid grid-cols-[65%,35%] gap-16">
+                            <div className="py-5 sm:py-0 grid grid-cols-[65%,35%] ">
                                 <div className="flex space-x-5">
                                     <Button version="second" className="min-w-[200px] text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                         setIndex(index + 1)

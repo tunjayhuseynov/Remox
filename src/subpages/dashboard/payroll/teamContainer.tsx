@@ -29,7 +29,7 @@ const TeamContainer = (props: IuseContributor & { memberState: [IMember[], React
             </div>
         </div>
         {props.members && props.members.slice(0, num).map(w =>
-            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
+            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,20%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
                 <TeamItem teamName={props.name} member={w} memberState={props.memberState} />
             </div>
         )}

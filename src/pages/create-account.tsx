@@ -60,18 +60,18 @@ export default function CreateAccount() {
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
-        <form onSubmit={create} className="py-[100px] sm:py-0 sm:h-full">
-            <section className="flex flex-col items-center  h-full justify-center gap-10">
+        <form className="py-[100px] sm:py-0 sm:h-full">
+            <section className="flex flex-col items-center h-full justify-center gap-8">
                 <div className="flex flex-col gap-4">
-                    <div className="text-xl sm:text-3xl text-primary text-center">Set Account Details</div>
-                    <div className="text-greylish tracking-wide font-light text-lg text-center">This password encrypts your accounts on this device.</div>
+                    <div className="text-xl sm:text-3xl text-primary dark:text-white text-center">Set Account Details</div>
+                    <div className="text-greylish dark:text-primary tracking-wide font-light text-sm sm:text-lg text-center">This password encrypts your accounts on this device.</div>
                 </div>
-                <div className="grid sm:grid-cols-3 gap-x-24 gap-y-8 px-3">
+                <div className="flex flex-col px-3 items-center justify-center min-w-[25%]">
                     {list.map((w, i) => <Input key={i} {...w} />)}
                 </div>
-                <div className="flex sm:flex-row flex-col-reverse justify-center items-center gap-10 pt-8">
-                    <Button version="second" className="w-[150px] h-[50px]" onClick={() => navigate('/')}>Back</Button>
-                    <Button type="submit" className="w-[150px] h-[50px] px-0" isLoading={isLoading}>Set Account</Button>
+                <div className="grid grid-rows-2 sm:grid-cols-2 gap-5">
+                    <Button version="second" onClick={() => navigate('/')}>Back</Button>
+                    <Button type="submit" isLoading={isLoading}>Set Account</Button>
                 </div>
             </section>
         </form>

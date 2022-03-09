@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { GetTransactions, Transactions } from '../types/sdk';
 import { hexToNumberString, fromWei, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
+import { Tag } from 'API/useTags';
+import tags, { selectTags } from 'redux/reducers/tags';
 
 
 export const ERC20MethodIds = {
@@ -22,6 +24,7 @@ export interface IFormattedTransaction {
     method: string;
     hash: string,
     id: string;
+    tags?: Tag[]
 }
 
 export interface ITransfer extends IFormattedTransaction {
@@ -55,7 +58,7 @@ export interface IBatchRequest extends IFormattedTransaction {
 
 const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], GetTransactions] | [] => {
     const transactions = useSelector(SelectTransactions);
-
+    const tags = useSelector(selectTags);
     return useMemo(() => {
         if (transactions) {
             let result: Transactions[] = [...transactions.result]
@@ -72,7 +75,7 @@ const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], G
 
             uniqueHashs.forEach((transaction: Transactions) => {
                 const input = transaction.input;
-                const formatted = InputReader(input, transaction);
+                const formatted = InputReader(input, transaction, tags);
 
                 if (formatted) {
                     FormattedTransaction.push({
@@ -86,11 +89,12 @@ const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], G
             return [FormattedTransaction, transactions];
         };
         return []
-    }, [transactions])
+    }, [transactions, tags])
 }
 
 
-const InputReader = (input: string, transaction: Transactions) => {
+const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
+    const theTags = tags.filter(s => s.transactions.includes(transaction.hash.toLowerCase()))
     if (input.startsWith(ERC20MethodIds.transferFrom)) {
         const len = ERC20MethodIds.transferFrom.length
         return {
@@ -99,6 +103,7 @@ const InputReader = (input: string, transaction: Transactions) => {
             from: "0x" + input.slice(len, len + 64).substring(24),
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64 + 64 + 64, len + 64 + 64 + 64 + 64)).toString(),
+            tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.transfer)) {
         const len = ERC20MethodIds.transfer.length
@@ -107,6 +112,7 @@ const InputReader = (input: string, transaction: Transactions) => {
             id: ERC20MethodIds.transfer,
             to: "0x" + input.slice(len, len + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
+            tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.swap)) {
         const len = ERC20MethodIds.swap.length;
@@ -118,6 +124,7 @@ const InputReader = (input: string, transaction: Transactions) => {
             amountOutMin: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             coinIn: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(input.length - 64 - 64, input.length - 64).substring(24).toLowerCase())!,
             coinOutMin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(input.length - 64, input.length).substring(24).toLowerCase())!,
+            tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.batchRequest)) {
         const len = ERC20MethodIds.batchRequest.length;
@@ -140,11 +147,11 @@ const InputReader = (input: string, transaction: Transactions) => {
                 amount
             };
         }
-
         return {
             method: "batchRequest",
             id: ERC20MethodIds.batchRequest,
-            payments: coins
+            payments: coins,
+            tags: theTags
         }
     } else if (input === ERC20MethodIds.noInput) {
         return {
@@ -153,6 +160,7 @@ const InputReader = (input: string, transaction: Transactions) => {
             from: transaction.from,
             to: transaction.to,
             amount: transaction.value.toString(),
+            tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.transferWithComment)) {
         const len = ERC20MethodIds.transferWithComment.length
@@ -161,7 +169,8 @@ const InputReader = (input: string, transaction: Transactions) => {
             id: ERC20MethodIds.transferWithComment,
             to: "0x" + input.slice(len, len + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
-            comment: hexToUtf8("0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64))
+            comment: hexToUtf8("0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)),
+            tags: theTags
         }
     }
 }

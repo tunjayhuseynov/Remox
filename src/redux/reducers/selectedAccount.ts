@@ -5,6 +5,7 @@ import { IStorage } from './storage'
 
 interface IContainer {
     address: string, 
+    privateToken: string
 }
 
 const init = (): IContainer => {
@@ -12,9 +13,9 @@ const init = (): IContainer => {
 
     if (val) {
         const data: IStorage = JSON.parse(val)
-        return { address: data.accountAddress }
+        return { address: data.accountAddress, privateToken: '' }
     }
-    return { address: '' };
+    return { address: '', privateToken: '' };
 }
 
 export const SelectedAccountSlice = createSlice({
@@ -24,12 +25,15 @@ export const SelectedAccountSlice = createSlice({
         changeAccount: (state: IContainer, action: PayloadAction<string>) => {
             state.address = action.payload
         },
- 
+        changePrivateToken: (state: IContainer, action: PayloadAction<string>) => {
+            state.privateToken = action.payload
+        }
     },
 })
 
-export const { changeAccount } = SelectedAccountSlice.actions
+export const { changeAccount, changePrivateToken } = SelectedAccountSlice.actions
 
 export const SelectSelectedAccount = (state: RootState) => state.selectedAccount.address
+export const SelectPrivateToken = (state: RootState) => state.selectedAccount.privateToken
 
 export default SelectedAccountSlice.reducer

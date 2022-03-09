@@ -39,7 +39,6 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                 Add Team
             </Button>
         </div>
-
     </div>
 }
 
