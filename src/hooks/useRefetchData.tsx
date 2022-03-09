@@ -14,12 +14,14 @@ import { Coins } from '../types/coins'
 import useRequest from 'API/useRequest'
 import useRequestHook from 'hooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
+import { useListenTags } from 'API/useTags'
+import { setTags } from 'redux/reducers/tags'
 
 interface Balance {
     [name: string]: string;
 }
 
-const useRefetchData = (disableInterval = false) => {
+const useRefetchData = () => {
     const dispatch = useDispatch()
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
@@ -30,6 +32,7 @@ const useRefetchData = (disableInterval = false) => {
     const { data } = useRequest()
     const { setGenLoading } = useRequestHook()
     const { fetchBalance, fetchedBalance, isLoading: balanceLoading } = useBalance(selectedAccount)
+    const tagData = useListenTags()
 
     const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
 
@@ -56,6 +59,14 @@ const useRefetchData = (disableInterval = false) => {
             }, 1500)
         }
     }, [contributors])
+
+    useEffect(() => {
+        if (tagData && tagData?.tags && tagData?.tags.length > 0) {
+            setTimeout(() => {
+                dispatch(setTags(tagData.tags))
+            }, 1500)
+        }
+    }, [tagData])
 
     useEffect(() => {
         if (fetchedCurrencies && fetchedCurrencies.length > 0 && ((storage?.accountAddress === selectedAccount && fetchedBalance && !balanceLoading) || (storage?.accountAddress !== selectedAccount))) {
@@ -147,7 +158,7 @@ const useRefetchData = (disableInterval = false) => {
             dispatch(updateAllCurrencies(
                 fetchedCurrencies
             ))
-            dispatch(updateTotalBalance(undefined))
+            //dispatch(updateTotalBalance(undefined))
             fetchBalance().catch(() => {
                 fetchBalance().catch((error) => { console.error(error) })
             })

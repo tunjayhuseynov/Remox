@@ -17,6 +17,7 @@ import Accordion from "../../../components/accordion";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "../../../hooks/useTransactionProcess";
 import { fromWei } from "web3-utils";
 import { HiDownload } from 'react-icons/hi'
+import { selectTags } from "redux/reducers/tags";
 
 const Transactions = () => {
     const storage = useAppSelector(selectStorage);
@@ -25,6 +26,7 @@ const Transactions = () => {
     const multisigSelector = useAppSelector(selectMultisig)
     const { refetch, isMultisig } = useMultisig()
     const { pathname } = useLocation()
+    const tags = useAppSelector(selectTags)
 
     let page : string;
     if (pathname.includes("/pending")) {
@@ -70,7 +72,8 @@ const Transactions = () => {
                         id: transaction.id,
                         hash: transaction.hash,
                         rawData: transaction.rawData,
-                        payments: value
+                        payments: value,
+                        tags: transaction.tags,
                     }
                     TXs.push(tx)
                 })
@@ -88,7 +91,7 @@ const Transactions = () => {
         })
 
         resolve(result)
-    }), [transactions])
+    }), [transactions, tags])
 
     const path = '/dashboard/transactions'
 

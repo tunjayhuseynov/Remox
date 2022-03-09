@@ -37,7 +37,7 @@ export default function TabPage() {
   const dispatch = useDispatch()
   const isError = useAppSelector(selectError)
   const [isSuccess, setSuccess] = useState(false)
-  const [refetch] = useRefetchData(true)
+  const [refetch] = useRefetchData()
 
   let page;
   if (pathname.split("/").length === 3) {

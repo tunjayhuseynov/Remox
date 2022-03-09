@@ -9,6 +9,7 @@ import { FirestoreRead, FirestoreWrite } from "../API/useFirebase";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { toTransactionObject } from "@celo/connect";
 import { toWei } from "web3-utils";
+import useTags from "API/useTags";
 
 
 export default function useSignInOrUp() {
@@ -17,6 +18,7 @@ export default function useSignInOrUp() {
     const [user, setUser] = useState<User>();
     const [isLoading, setLoading] = useState<boolean>(false);
     const dispatch = useDispatch()
+    const { checkTag } = useTags()
 
 
     const executeSign = async (address: string, password: string, dataForSignUp?: IUser) => {
@@ -48,6 +50,7 @@ export default function useSignInOrUp() {
                 await FirestoreWrite<{ addresses: { name: string, address: string }[] }>().createDoc('multisigs', user.uid, {
                     addresses: []
                 })
+                await checkTag()
                 dispatch(setStorage({
                     accountAddress: address,
                     token: token,
@@ -63,6 +66,7 @@ export default function useSignInOrUp() {
                 if (!incomingData) {
                     throw new Error("No Data In Users")
                 }
+                await checkTag()
                 dispatch(setStorage({
                     accountAddress: address,
                     token: token,

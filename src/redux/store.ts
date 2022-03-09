@@ -9,10 +9,12 @@ import SelectedAcount from './reducers/selectedAccount';
 import Multisig from './reducers/multisig';
 import Contributors from './reducers/contributors';
 import Requests from './reducers/requests';
+import Tags from './reducers/tags';
 import { BlockScoutApi } from './api';
 
 const store = configureStore({
 	reducer: {
+		tags: Tags,
 		currencyandbalance: Currency,
 		notification: Notification,
 		storage: Storage,

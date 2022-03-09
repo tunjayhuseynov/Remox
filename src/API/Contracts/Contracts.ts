@@ -1,0 +1,10 @@
+export const Contracts = {
+	BatchRequest: {
+		address: '0xB01a87B806EE0f5233d7c6559d7FB6d39Ad0046d',
+		name: 'RemoxBatchRequest'
+	},
+    Gelato: {
+        address: '0x9e60044AfAC6Ed3dc6cf715b18DeaBDC417BE96E',
+        name: 'RemoxGelato'
+    }
+};

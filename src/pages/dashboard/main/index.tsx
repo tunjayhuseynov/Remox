@@ -2,10 +2,6 @@ import { ClipLoader } from 'react-spinners';
 import TransactionHistory from '../../../subpages/dashboard/main/transactionHistory'
 import Statistics from '../../../subpages/dashboard/main/statistics'
 import useTransactionProcess from '../../../hooks/useTransactionProcess';
-import { useEffect, useRef, useState } from 'react';
-import { useContractKit } from '@celo-tools/use-contractkit';
-import GELATO from 'API/ABI/Gelato.json'
-import { AbiItem } from 'web3-utils';
 
 const Main = () => {
     const [transactions] = useTransactionProcess(true)

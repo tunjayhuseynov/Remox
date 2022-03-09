@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import transactions from "redux/reducers/transactions";
 import { Coins } from "types";
 import { fromWei } from 'web3-utils'
 import { AddressReducer } from "../utils";
@@ -43,7 +44,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
         peer = MultipleData.payments[0].to
     }
 
-    return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,34%,10%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-4 `}>
+    return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,32.3%,10.7%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-4 `}>
         <div className="flex space-x-3 overflow-hidden">
             <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} ${!isSwap && !isMultiple && 'pt-3'} justify-center`}>
                 <div className={`bg-greylish bg-opacity-10 ${detect ? "w-[45px] h-[45px] text-lg" : "w-[25px] h-[25px] text-xs"} flex items-center justify-center rounded-full font-bold `}>
@@ -156,7 +157,15 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 </div>}
             </div>
         </div>
-        {detect && <div></div>}
+        {detect &&
+            <div className="flex flex-col space-y-3">
+                {transaction.tags && transaction.tags.map((tag, index) => {
+                    return <div key={tag.id} className="flex space-x-3">
+                        <div className="w-[18px] h-[18px] rounded-full" style={{ backgroundColor: tag.color }}></div>
+                        <div>{tag.name}</div>
+                    </div>
+                })}
+            </div>}
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
             <Link to={`/dashboard/transactions/${transaction.rawData.hash}`}><div className={`text-primary  ${detect ? "px-6 max-h-[80px] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white"} rounded-xl py-2 transition-colors duration-300`}>View Details</div></Link>
         </div>

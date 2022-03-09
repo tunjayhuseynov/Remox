@@ -13,12 +13,23 @@ import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import { useTransactionProcess } from "hooks";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { fromWei } from "web3-utils";
+import { selectTags } from "redux/reducers/tags";
+import { useSelector } from "react-redux";
+import Select, { StylesConfig } from 'react-select';
+import chroma from 'chroma-js';
+import useTags, { Tag } from "API/useTags";
+import { selectDarkMode } from "redux/reducers/notificationSlice";
 
 const Details = () => {
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const currencies = useAppSelector(SelectCurrencies)
 
     const [transactions] = useTransactionProcess()
+
+    const tags = useSelector(selectTags)
+    const dark = useSelector(selectDarkMode)
+
+    const { removeTransactions, addTransaction } = useTags()
 
     let params = useParams<{ id: string }>() as { id: string }
 
@@ -74,6 +85,100 @@ const Details = () => {
         }
     }, [transactions, params.id])
 
+    type SelectType = { value: string, label: string, color: string, transactions: string[], isDefault: boolean }
+
+    const colourStyles: StylesConfig<SelectType, true> = {
+        control: (styles) => ({ ...styles, boxShadow: 'none', height: '100%', border: "1px solid transparent", "&:hover": { border: "1px solid transparent", }, backgroundColor: dark ? "text-dark" : 'white' }),
+        option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+            const color = chroma(data.color);
+            return {
+                ...styles,
+                outline: 'none',
+                border: 'none',
+                backgroundColor: isDisabled
+                    ? undefined
+                    : isSelected
+                        ? data.color
+                        : isFocused
+                            ? color.alpha(0.1).css()
+                            : undefined,
+                color: isDisabled
+                    ? '#ccc'
+                    : isSelected
+                        ? chroma.contrast(color, 'white') > 2
+                            ? 'white'
+                            : 'black'
+                        : data.color,
+                cursor: isDisabled ? 'not-allowed' : 'default',
+
+                ':active': {
+                    ...styles[':active'],
+                    backgroundColor: !isDisabled
+                        ? isSelected
+                            ? data.color
+                            : color.alpha(0.3).css()
+                        : undefined,
+                },
+            };
+        },
+        multiValue: (styles, { data }) => {
+            const color = chroma(data.color);
+            return {
+                ...styles,
+                backgroundColor: color.alpha(0).css(),
+            };
+        },
+        multiValueLabel: (styles, { data }) => ({
+            ...styles,
+            color: data.color,
+            ...dot(data.color)
+        }),
+        multiValueRemove: (styles, { data }) => {
+
+            return {
+                ...styles,
+                color: data.color,
+                ':hover': {
+                    backgroundColor: data.color,
+                    color: 'white',
+                },
+            }
+        },
+    };
+
+    const dot = (color = 'transparent') => ({
+        alignItems: 'center',
+        display: 'flex',
+
+        ':before': {
+            backgroundColor: color,
+            borderRadius: 10,
+            content: '" "',
+            display: 'block',
+            marginRight: 8,
+            height: 10,
+            width: 10,
+        },
+    });
+
+    const onChange = async (value: any) => {
+        const selectedTags = value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault }))
+
+        const deletedTags = tx?.tags?.filter(s => !selectedTags.find((t: any) => t.id === s.id))
+
+        if (selectedTags && selectedTags.length > 0) {
+            for (const tag of selectedTags) {
+                await addTransaction(tag.id, tx!.hash)
+            }
+        }
+
+        if (deletedTags && deletedTags.length > 0) {
+            for (const tag of deletedTags) {
+                await removeTransactions(tag.id, tx!.hash!.toLocaleLowerCase())
+            }
+        }
+    }
+
     return <>
         <div>
             <div className="w-full shadow-custom px-5 py-14 rounded-xl flex flex-col items-center justify-center">
@@ -99,6 +204,25 @@ const Details = () => {
                             list={[
                                 ...info.walletAddress.map(w => ({ name: w, coinUrl: CoinsURL.None, disableAddressDisplay: true })),
                             ]} />}
+                    {tags && tags.length > 0 && tx.tags && tx.tags?.length > 0 && <Select
+                        className="bg-greylish bg-opacity-10 rounded-xl"
+                        closeMenuOnSelect={false}
+                        defaultValue={tx.tags?.map(t => ({ value: t.id, label: t.name, color: t.color, transactions: t.transactions, isDefault: t.isDefault }))}
+                        isMulti
+                        isClearable={false}
+                        options={tags.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
+                        styles={colourStyles}
+                        onChange={onChange}
+                    />}
+                    {tags && tags.length > 0 && tx.tags && tx.tags?.length === 0 && <Select
+                        className="bg-greylish bg-opacity-10 rounded-xl"
+                        closeMenuOnSelect={false}
+                        isMulti
+                        isClearable={false}
+                        options={tags.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
+                        styles={colourStyles}
+                        onChange={onChange}
+                    />}
                 </div> : <ClipLoader />}
                 {notFound && <div>There is no such transaction belongs to your address</div>}
             </div>
