@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
 import { AltCoins, Coins, CoinsName } from '../../../types/coins';
-import { generate } from 'shortid';
-import Web3 from 'web3'
 import { useAppSelector } from '../../../redux/hooks';
 import CoinItem from './coinitem';
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
@@ -33,67 +31,35 @@ const Statistic = () => {
     if (totalBalance !== undefined) balance = parseFloat(`${totalBalance}`).toFixed(2)
 
     const currencies = useAppSelector(SelectCurrencies)
-    const celo = (useAppSelector(SelectCurrencies)).CELO
-    const cusd = (useAppSelector(SelectCurrencies)).cUSD
-    const ceur = (useAppSelector(SelectCurrencies)).cEUR
-    const ube = (useAppSelector(SelectCurrencies)).UBE
-    const moo = (useAppSelector(SelectCurrencies)).MOO
-    const mobi = (useAppSelector(SelectCurrencies)).MOBI
-    const poof = (useAppSelector(SelectCurrencies)).POOF
-    const creal = (useAppSelector(SelectCurrencies)).cREAL
-    const pact = (useAppSelector(SelectCurrencies)).PACT
-    const ARI = (useAppSelector(SelectCurrencies)).ARI
 
     const balanceRedux = useAppSelector(SelectBalances)
-    const celoBalance = (useAppSelector(SelectBalances)).CELO
-    const cusdBalance = (useAppSelector(SelectBalances)).cUSD
-    const ceurBalance = (useAppSelector(SelectBalances)).cEUR
-    const ubeBalance = (useAppSelector(SelectBalances)).UBE
-    const mooBalance = (useAppSelector(SelectBalances)).MOO
-    const mobiBalance = (useAppSelector(SelectBalances)).MOBI
-    const poofBalance = (useAppSelector(SelectBalances)).POOF
-    const crealBalance = (useAppSelector(SelectBalances)).cREAL
-    const pactBalance = (useAppSelector(SelectBalances)).PACT
-    const ariBalance = (useAppSelector(SelectBalances)).ARI
 
-
-
-    const all = useMemo(() => {
-        if (celoBalance !== undefined && pactBalance !== undefined && ariBalance !== undefined && crealBalance !== undefined && cusdBalance !== undefined && ceurBalance !== undefined && ubeBalance !== undefined && mooBalance !== undefined && mobiBalance !== undefined && poofBalance !== undefined) {
-            return {
-                CELO: celoBalance,
-                cUSD: cusdBalance,
-                cEUR: ceurBalance,
-                UBE: ubeBalance,
-                MOO: mooBalance,
-                MOBI: mobiBalance,
-                POOF: poofBalance,
-                cREAL: crealBalance,
-                PACT: pactBalance,
-                ARI: ariBalance
-            }
-        }
-    }, [celoBalance, cusdBalance, ceurBalance, ubeBalance, mooBalance, mobiBalance, poofBalance])
+    const all = balanceRedux
 
     const chart = useMemo(() => {
-        if (celoBalance !== undefined && pactBalance !== undefined && ariBalance !== undefined && crealBalance !== undefined && cusdBalance !== undefined && ceurBalance !== undefined && ubeBalance !== undefined && mooBalance !== undefined && mobiBalance !== undefined && poofBalance !== undefined) {
-            const celoDeg = Math.ceil(celoBalance.percent * 3.6)
-            const cusdDeg = Math.ceil(cusdBalance.percent * 3.6) + celoDeg;
-            const ceurDeg = Math.ceil(ceurBalance.percent * 3.6) + cusdDeg;
-            const ubeDeg = Math.ceil(ubeBalance.percent * 3.6) + ceurDeg;
-            const mooDeg = Math.ceil(mooBalance.percent * 3.6) + ubeDeg;
-            const mobiDeg = Math.ceil(mooBalance.percent * 3.6) + mooDeg;
-            const poofDeg = Math.ceil(poofBalance.percent * 3.6) + mobiDeg;
-            const crealDeg = Math.ceil(crealBalance.percent * 3.6) + poofDeg;
-            const pactDeg = Math.ceil(pactBalance.percent * 3.6) + crealDeg;
-            const ariDeg = Math.ceil(ariBalance.percent * 3.6) + pactDeg;
+        let deg = 0;
+        let res = Object.values(all).sort((a,b)=>b.percent - a.percent).reduce((a: string, c: IBalanceItem, index: number, arr) => {
+            if (index === 0) {
+                deg = Math.ceil(c.percent * 3.6) + deg;
+                a += `${c.coins.color} ${0}deg ${deg}deg,`
+            }
+            else {
+                a += `${c.coins.color} ${deg}deg `
+                deg = Math.ceil(c.percent * 3.6) + deg;
+                a += `${deg}deg`
 
-            if (!celoDeg && !cusdDeg && !ceurDeg && !ubeDeg && !mooDeg && !mobiDeg && !poofDeg && !crealDeg && !pactDeg && !ariDeg) return `conic-gradient(#FF774E 0deg 360deg)`
+                if (index !== arr.length - 1) {
+                    a += ','
+                }
+            }
+            return a;
+        }, "conic-gradient(")
+        res += ')'
 
-            return `conic-gradient(#fbce5c 0deg ${celoDeg}deg, #46cd85 ${celoDeg}deg ${cusdDeg}deg, #040404 ${cusdDeg}deg ${ceurDeg}deg, #6D619A ${ceurDeg}deg ${ubeDeg}deg, #3288ec ${ubeDeg}deg ${mooDeg}deg, #e984a0 ${mooDeg}deg ${mobiDeg}deg, #7D72FC ${mobiDeg}deg ${poofDeg}deg, #e904a3 ${poofDeg}deg ${crealDeg}deg, #6190FC ${crealDeg}deg ${pactDeg}deg, #6EA7A2 ${pactDeg}deg ${ariDeg}deg)`
-        }
-        return `conic-gradient(#FF774E 0deg 360deg)`
-    }, [celoBalance, cusdBalance, ceurBalance, ubeBalance, mooBalance, mobiBalance, poofBalance, celo, cusd, ceur, ube, moo, mobi, poof, creal, pact, pactBalance, ARI, ariBalance])
+        if (res === "conic-gradient()") return `conic-gradient(#FF774E 0deg 360deg)`
+
+        return res
+    }, [balanceRedux])
 
     const percent = useMemo(() => {
         if (currencies && balanceRedux && balanceRedux.CELO) {
@@ -198,7 +164,7 @@ const Statistic = () => {
         <div className="sm:flex flex-col hidden">
             <div>Asset</div>
             <div className="h-full">
-                {celoBalance !== undefined && cusdBalance !== undefined ? <div className="aspect-square  rounded-full relative" style={{
+                {Object.values(balanceRedux).length > 0 ? <div className="aspect-square  rounded-full relative" style={{
                     background: chart
                 }}>
                     <div className="w-[50%] h-[50%] bg-white dark:bg-dark  left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>

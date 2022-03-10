@@ -71,45 +71,11 @@ const useRefetchData = () => {
     useEffect(() => {
         if (fetchedCurrencies && fetchedCurrencies.length > 0 && ((storage?.accountAddress === selectedAccount && fetchedBalance && !balanceLoading) || (storage?.accountAddress !== selectedAccount))) {
 
-            const celo = fetchedCurrencies.find(c => c.name === 'CELO')
-            const cusd = fetchedCurrencies.find(c => c.name === 'cUSD')
-            const ceur = fetchedCurrencies.find(c => c.name === 'cEUR')
-            const ube = fetchedCurrencies.find(c => c.name === 'UBE')
-            const moo = fetchedCurrencies.find(c => c.name === 'MOO')
-            const mobi = fetchedCurrencies.find(c => c.name === 'MOBI')
-            const poof = fetchedCurrencies.find(c => c.name === 'POOF')
-            const creal = fetchedCurrencies.find(c => c.name === 'cREAL')
-            const pact = fetchedCurrencies.find(c => c.name === 'PACT')
-            const ari = fetchedCurrencies.find(c => c.name === 'ARI')
-
             if (fetchedBalance && !balanceLoading) {
                 let balance = fetchedBalance as { [name: string]: string; } | undefined;
 
                 if (balance) {
-
-                    let pCelo;
-                    let pCusd;
-                    let pCeur;
-                    let pUbe;
-                    let pMoo;
-                    let pMobi;
-                    let pPoof;
-                    let pReal;
-                    let pPact;
-                    let pAri;
                     balance = balance as Balance;
-
-                    pCelo = parseFloat(balance.CELO) || 0;
-                    pCusd = parseFloat(balance.cUSD) || 0;
-                    pCeur = parseFloat(balance.cEUR) || 0;
-                    pUbe = parseFloat(balance.UBE) || 0;
-                    pMoo = parseFloat(balance.MOO) || 0;
-                    pMobi = parseFloat(balance.MOBI) || 0;
-                    pPoof = parseFloat(balance.POOF) || 0;
-                    pReal = parseFloat(balance.cREAL) || 0;
-                    pPact = parseFloat(balance.PACT) || 0;
-                    pAri = parseFloat(balance.ARI) || 0;
-
 
                     const total = fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
 

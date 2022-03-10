@@ -1,5 +1,4 @@
 import { useContractKit } from '@celo-tools/use-contractkit';
-import { StableToken } from '@celo/contractkit';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { deleteBalance } from 'redux/reducers/currencies';
