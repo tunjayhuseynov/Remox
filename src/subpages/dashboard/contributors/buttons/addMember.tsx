@@ -91,7 +91,7 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                         if (selectedType) {
                             realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
                         }
-                        await allow(Coins[selectedWallet.value], Contracts.Gelato.address, realMoney.toString())
+                        await allow(Coins[selectedWallet.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
                         const paymentList: PaymentInput[] = []
 
                         paymentList.push({
@@ -105,7 +105,7 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                             if (selectedType) {
                                 realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
                             }
-                            await allow(Coins[selectedWallet2.value], Contracts.Gelato.address, realMoney.toString())
+                            await allow(Coins[selectedWallet2.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
                             paymentList.push({
                                 coin: Coins[selectedWallet2.value],
                                 recipient: walletAddressValue.trim(),

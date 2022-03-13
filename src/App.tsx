@@ -16,12 +16,14 @@ import TabPage from "pages/dashboard/requests/tab";
 import Form from "pages/dashboard/requests/form";
 import DynamicPayroll from "pages/dashboard/payroll/dynamic";
 import TagsSetting from "pages/dashboard/settings/tags";
+import DynamicLendBorrow from "pages/dashboard/lend&borrow/dynamic";
 
 const MassPay = lazy(() => import("pages/masspay"))
 const Automations = lazy(() => import("pages/dashboard/automations"));
 const Insight = lazy(() => import("pages/dashboard/insight"))
 const Payroll = lazy(() => import("pages/dashboard/payroll"));
 const Pay = lazy(() => import("pages/pay"));
+const LendBorrow = lazy(() => import("pages/dashboard/lend&borrow"))
 const SettingLayout = lazy(() => import("pages/dashboard/settings"));
 const OwnerSetting = lazy(() => import("pages/dashboard/settings/owner"));
 const SpendingSetting = lazy(() => import("pages/dashboard/settings/spending"));
@@ -110,6 +112,10 @@ function App() {
                 <Route path={`spending`} element={<SpendingSetting />} />
                 <Route path={`profile`} element={<ProfileSetting />} />
                 <Route path={`tags`} element={<TagsSetting />} />
+              </Route>
+              <Route path="lend-and-borrow" element={<LendBorrow />}>
+                <Route path="" element={<DynamicLendBorrow type="lend" />} />
+                <Route path="borrow" element={<DynamicLendBorrow type="borrow" />} />
               </Route>
               <Route path={'requests'} element={
 

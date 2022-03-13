@@ -140,23 +140,23 @@ export default function Form() {
               <div className="sm:flex flex-col pl-3 sm:pl-12 sm:pr-[20%] gap-3 gap-y-10 sm:gap-10">
                 <div className="flex flex-col space-y-5">
                   <span className="text-left text-xl font-semibold">Deposit To</span>
-                  <div className="flex  space-x-24 pb-5 pl-1  sm:pb-0">
+                  <div className="flex space-x-12 sm:space-x-24 pb-5 pl-1 sm:pb-0">
                     <div className="flex space-x-2 items-center">
-                      <input type="radio" className="w-4 h-4 checkradio cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
-                      <label className="font-semibold text-sm">
+                      <input type="radio" className="w-4 h-4 checkradio cursor-pointer peer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
+                      <label className="font-semibold text-sm peer-checked:text-primary">
                         Pay with Token Amounts
                       </label>
                     </div>
                     <div className="flex space-x-2 items-center">
-                      <input type="radio" className="w-4 h-4  checkradio cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
-                      <label className="font-semibold text-sm">
+                      <input type="radio" className="w-4 h-4 checkradio cursor-pointer peer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
+                      <label className="font-semibold text-sm peer-checked:text-primary">
                         Pay with USD-based Amounts
                       </label>
                     </div>
                   </div>
                 </div>
-                <div className="pb-14 sm:pb-0 grid grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                  <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
+                <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
+                  <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current}  selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
                 </div>
                 <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                   <span className="text-left text-xl font-semibold tracking-wide">Details</span>

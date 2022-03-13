@@ -63,7 +63,7 @@ const Navbar = () => {
 
 
 
-const Li = ({ children, link }: { children: any, link: string }) => <li className="text-left border px-3 py-2 bg-white dark:bg-darkSecond hover:text-primary hover:border-b-primary cursor-pointer first:rounded-t-xl last:rounded-b-xl"><Link to={link} className='flex gap-2'>{children}</Link></li>
+const Li = ({ children, link }: { children: any, link: string }) => <li className="text-left border-b-2 px-5 py-4 bg-white dark:bg-darkSecond hover:text-primary hover:border-b-primary hover:transition cursor-pointer first:rounded-t-xl last:rounded-b-xl"><Link to={link} className='flex gap-2'>{children}</Link></li>
 
 export const NavbarDropdown = () => {
     const [isOpen, setOpen] = useState(false)
@@ -79,7 +79,7 @@ export const NavbarDropdown = () => {
                 </div>
             </>
         </Button>
-        {isOpen && <div ref={divRef} className="absolute w-[150%] rounded-2xl sm:-left-1/4  -bottom-1 translate-y-full shadow-xl z-50">
+        {isOpen && <div ref={divRef} className="absolute w-[150%] rounded-xl sm:-left-1/4  -bottom-1 translate-y-full shadow-xl z-50">
             <ul>
                 <Li link={'/dashboard/pay'}><PaySVG /> Pay Someone</Li>
                 <Li link="/dashboard/masspayout"><MassPayoutSVG />Payroll</Li>
@@ -91,12 +91,12 @@ export const NavbarDropdown = () => {
     </div>
 }
 
-const PaySVG = () => <img src='/icons/senticon.svg' className="dark:invert dark:brightness-0" alt="" />
+const PaySVG = () => <img src='/icons/navbar/paysomeone.png' className="w-[15px] h-[15px] self-center object-cover" alt="" />
 
-const MassPayoutSVG = () => <img src='/icons/masspayouticon.svg' className="dark:invert dark:brightness-0" alt="" />
+const MassPayoutSVG = () => <img src='/icons/navbar/payroll.png' className="w-[15px] h-[15px] self-center object-cover"  alt="" />
 
-const RequestMoneySVG = () => <img src='/icons/moneyrequesticon.svg' className="dark:invert dark:brightness-0" alt="" />
+const RequestMoneySVG = () => <img src='/icons/navbar/requestmoney.png' className="w-[15px] h-[15px] self-center object-cover"  alt="" />
 
-const FundSVG = () => <img src='/icons/addfundds.svg' className="dark:invert dark:brightness-0" alt="" />
+const FundSVG = () => <img src='/icons/navbar/addfunds.png' className="w-[15px] h-[15px] self-center object-cover"   alt="" />  
 
 export default Navbar;

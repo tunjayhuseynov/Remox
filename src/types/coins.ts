@@ -100,7 +100,7 @@ export const PoofCoins: PoofCoins = {
 		coinUrl: CoinsURL.cREAL,
 		value: PoofCoinsName.cREAL_V2,
 		lowerName: CoinsNameLower.cREAL,
-		type: TokenType.Altcoin,
+		type: TokenType.StableToken,
 		contractAddress: '0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787'
 	},
 	CELO_v1: {
@@ -132,7 +132,7 @@ export const PoofCoins: PoofCoins = {
 		coinUrl: CoinsURL.cREAL,
 		value: PoofCoinsName.cREAL_V1,
 		lowerName: CoinsNameLower.cREAL,
-		type: TokenType.Altcoin,
+		type: TokenType.StableToken,
 		contractAddress: '0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787'
 	}
 };
@@ -170,7 +170,7 @@ export const Coins: Coins = {
 		coinUrl: CoinsURL.cREAL,
 		value: CoinsName.cREAL,
 		lowerName: CoinsNameLower.cREAL,
-		type: TokenType.Altcoin,
+		type: TokenType.StableToken,
 		contractAddress: '0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787',
 		color: "#e904a3"
 	},

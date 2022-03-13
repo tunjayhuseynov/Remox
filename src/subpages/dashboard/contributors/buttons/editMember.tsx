@@ -117,7 +117,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             if (selectedType) {
                                 realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
                             }
-                            await allow(Coins[selectedWallet.value], Contracts.Gelato.address, realMoney.toString())
+                            await allow(Coins[selectedWallet.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
                             const paymentList: PaymentInput[] = []
 
                             paymentList.push({
@@ -131,7 +131,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                                 if (selectedType) {
                                     realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
                                 }
-                                await allow(Coins[selectedWallet2.value], Contracts.Gelato.address, realMoney.toString())
+                                await allow(Coins[selectedWallet2.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
                                 paymentList.push({
                                     coin: Coins[selectedWallet2.value],
                                     recipient: addressValue.trim(),
@@ -156,7 +156,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
                         }
              
-                        await allow(Coins[selectedWallet.value], Contracts.Gelato.address, realMoney.toString())
+                        await allow(Coins[selectedWallet.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
                         const paymentList: PaymentInput[] = []
 
                         paymentList.push({
@@ -170,7 +170,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             if (selectedType) {
                                 realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
                             }
-                            await allow(Coins[selectedWallet2.value], Contracts.Gelato.address, realMoney.toString())
+                            await allow(Coins[selectedWallet2.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
                             paymentList.push({
                                 coin: Coins[selectedWallet2.value],
                                 recipient: addressValue.trim(),

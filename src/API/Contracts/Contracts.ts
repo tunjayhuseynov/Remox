@@ -10,5 +10,9 @@ export const Contracts = {
     MoolaProxy: {
         address: "0xD1088091A174d33412a968Fa34Cb67131188B332",
         name: "MoolaProxy"
+    },
+    MoolaDataProxy: {
+        address: "0x43d067ed784D9DD2ffEda73775e2CC4c560103A1",
+        name: "MoolaDataProxy"
     }
 };

@@ -67,6 +67,7 @@ const Pay = () => {
         addressRef.current = []
         amountRef.current = []
         uniqueRef.current = []
+        setWallets([])
     }
 
     const isPrivate = WalletTypes.PrivateKey === walletType;
@@ -91,6 +92,7 @@ const Pay = () => {
                 nameRef.current.push((name || ""));
                 addressRef.current.push((address || ""));
                 amountRef.current.push((amount2 || ""));
+
                 amm.push(parseFloat(amount2 || "0"))
 
                 const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].value };

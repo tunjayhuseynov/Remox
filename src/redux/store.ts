@@ -10,6 +10,7 @@ import Multisig from './reducers/multisig';
 import Contributors from './reducers/contributors';
 import Requests from './reducers/requests';
 import Tags from './reducers/tags';
+import Moola from './reducers/moola';
 import { BlockScoutApi } from './api';
 
 const store = configureStore({
@@ -19,6 +20,7 @@ const store = configureStore({
 		notification: Notification,
 		storage: Storage,
 		unlock: Unlock,
+		moola: Moola,
 		toggle: Toggle,
 		transactionsStore: Transaction,
 		selectedAccount: SelectedAcount,

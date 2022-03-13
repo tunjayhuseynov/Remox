@@ -57,7 +57,7 @@ export default function usePay() {
         const approveArr = await GroupCoinsForApprove(inputArr)
 
         for (let index = 0; index < approveArr.length; index++) {
-            await allow(approveArr[index].coin, Contracts.BatchRequest.address, approveArr[index].amount.toString())
+            await allow(approveArr[index].coin.contractAddress, Contracts.BatchRequest.address, approveArr[index].amount.toString())
         }
 
         const exeTran = await GenerateBatchPay(inputArr)
@@ -67,7 +67,7 @@ export default function usePay() {
         if (task) {
             const abi = exeTran.encodeABI()
             for (let index = 0; index < approveArr.length; index++) {
-                await allow(approveArr[index].coin, Contracts.Gelato.address, approveArr[index].amount.toString())
+                await allow(approveArr[index].coin.contractAddress, Contracts.Gelato.address, approveArr[index].amount.toString())
             }
             await createTask(task.interval, Contracts.BatchRequest.address, abi);
         }
@@ -112,7 +112,7 @@ export default function usePay() {
             if (task) {
                 let celotx = await GenerateTx({ coin, amount, recipient, comment });
                 const abi = celotx.txo.encodeABI()
-                await allow(coin as AltCoins, Contracts.Gelato.address, kit.web3.utils.toWei(amount.toString(), 'ether'))
+                await allow((coin as AltCoins).contractAddress, Contracts.Gelato.address, kit.web3.utils.toWei(amount.toString(), 'ether'))
                 await createTask(task.interval, coin.contractAddress, abi);
             }
             await refetch()

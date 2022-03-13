@@ -176,7 +176,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             chart: inChart,
             tags: <>
                 {inTags.map(tag => {
-                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 ">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
+                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
             </>
         },
@@ -187,7 +187,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             chart: outChart,
             tags: <>
                 {outTags.map(tag => {
-                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 ">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
+                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
             </>
         },
@@ -200,7 +200,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                 <div className="grid grid-cols-2 gap-x-10 px-8 py-5 bg-white dark:bg-darkSecond  drop-shadow-xl rounded-xl">
                     <div className="flex flex-col">
                         <div className="flex flex-col"><h1 className="font-bold text-4xl ">$ {a.headermoney}</h1><p className="text-gray-500  pt-2 text-sm">Total {a.header}</p></div>
-                        <div className="flex flex-col gap-4 pt-3">
+                        <div className="flex flex-col gap-4 pt-3 ">
                             {a.tags}
                         </div>
                     </div>

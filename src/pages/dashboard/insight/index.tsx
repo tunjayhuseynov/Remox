@@ -26,7 +26,7 @@ const Insight = () => {
                 <div className="grid grid-cols-3 pt-10 pb-10 gap-x-28 gap-y-10">
                     <Boxinsight selectedDate={selectedDate} />
                 </div>
-                <div className="grid grid-cols-2 gap-x-5">
+                <div className="grid xl:grid-cols-2 gap-x-20">
                     <Boxmoney selectedDate={selectedDate} />
                 </div>
             </div>

@@ -1,23 +1,23 @@
 import { useContractKit } from '@celo-tools/use-contractkit'
 import { AltCoins } from 'types'
 import { useState } from 'react'
+import BigNumber from 'bignumber.js'
 
 export default function useAllowance() {
     const { kit, address } = useContractKit()
     const [loading, setLoading] = useState(false)
 
-    const allow = async (token: AltCoins, spender: string, etherAmount: string) => {
+    const allow = async (contract: string, spender: string, etherAmount: string) => {
         setLoading(true)
         try {
-            const tokenContract = await kit.contracts.getErc20(token.contractAddress)
+            const tokenContract = await kit.contracts.getErc20(contract)
 
-            const amount = kit.web3.utils.toBN(kit.web3.utils.toWei(etherAmount, 'ether'))
-            
+            const amount = new BigNumber(kit.web3.utils.toWei(etherAmount, 'ether'))
+
             const allowance = await tokenContract.allowance(address!, spender)
-             
-            const sum = amount.add(kit.web3.utils.toBN(kit.web3.utils.toWei(allowance.shiftedBy(-18).toNumber().toString(), 'ether')))
 
-            const approve = tokenContract.approve(spender, sum.toString())
+
+            const approve = tokenContract.approve(spender, (amount.plus(allowance)).toString())
 
             await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLoading(false)
@@ -28,16 +28,16 @@ export default function useAllowance() {
         }
     }
 
-    const disallow = async (token: AltCoins, spender: string, etherAmount: string) => {
+    const disallow = async (contract: string, spender: string, etherAmount: string) => {
         setLoading(true)
         try {
-            const tokenContract = await kit.contracts.getErc20(token.contractAddress)
+            const tokenContract = await kit.contracts.getErc20(contract)
 
-            const amount = kit.web3.utils.toBN(kit.web3.utils.toWei(etherAmount, 'ether'))
+            const amount = new BigNumber(kit.web3.utils.toWei(etherAmount, 'ether'))
 
             const allowance = await tokenContract.allowance(address!, spender)
 
-            const sum = amount.sub(kit.web3.utils.toBN(allowance.toString()))
+            const sum = amount.minus(allowance)
 
             const approve = tokenContract.approve(spender, sum.toString())
             await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
