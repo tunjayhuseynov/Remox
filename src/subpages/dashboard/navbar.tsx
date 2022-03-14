@@ -49,7 +49,7 @@ const Navbar = () => {
         <div className="actions hidden md:flex items-center justify-evenly md:col-span-2">
             <div className="flex space-x-5 items-center justify-center">
                 <div className="w-12 h-12 bg-gray-50 dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
-                    <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" />
+                    <img src="/icons/navbar/dark.svg" className="dark:brightness-100 dark:invert" />
                 </div>
                 {storage ? <Visitcard name={selectedAccount !== storage.accountAddress ? 'MultiSig' : "Wallet"} address={selectedAccount} /> : <ClipLoader />}
             </div>

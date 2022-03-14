@@ -1,7 +1,7 @@
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { updateData } from "redux/reducers/moola";
+import { useDispatch, useSelector } from "react-redux";
+import { selectMoolaData, updateData } from "redux/reducers/moola";
 import { AltCoins, Coins, TokenType } from "types";
 import { BN, etherSize, print, printRay, printRayRate, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
@@ -24,6 +24,7 @@ export default function useMoola() {
     const [initLoading, setInitLaoding] = useState(false)
 
     const dispatch = useDispatch()
+    const moolaData = useSelector(selectMoolaData)
 
     useEffect(() => {
         getContract().catch((error: any) => { console.error(error.message) })
@@ -210,7 +211,7 @@ export default function useMoola() {
 
     const InitializeUser = async () => {
         try {
-            setInitLaoding(true)
+            if (moolaData.length === 0) setInitLaoding(true)
             const coinList: AltCoins[] = Object.values(Coins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
             const userData: MoolaUserComponentData[] = [];
             for (let index = 0; index < coinList.length; index++) {
@@ -237,7 +238,7 @@ export default function useMoola() {
                     console.error(error.message)
                 }
             }
-            setInitLaoding(false)
+            if (moolaData.length === 0) setInitLaoding(false)
             return userData
         } catch (error: any) {
             console.error(error)

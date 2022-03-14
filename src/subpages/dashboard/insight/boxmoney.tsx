@@ -174,6 +174,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             header: "Money in",
             headermoney: lastIn?.toFixed(2),
             chart: inChart,
+            tagList: inTags,
             tags: <>
                 {inTags.map(tag => {
                     return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
@@ -185,6 +186,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             header: "Money out",
             headermoney: lastOut?.toFixed(2),
             chart: outChart,
+            tagList: outTags,
             tags: <>
                 {outTags.map(tag => {
                     return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
@@ -204,7 +206,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                             {a.tags}
                         </div>
                     </div>
-                    {inTags.length > 0 ? <div className="aspect-square rounded-full relative" style={{
+                    {a.tagList.length > 0 ? <div className="aspect-square rounded-full relative" style={{
                         background: a.chart
                     }}>
                         <div className="w-[50%] h-[50%] bg-white dark:bg-darkSecond  left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
