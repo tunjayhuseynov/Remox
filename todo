@@ -12,7 +12,6 @@ Design error in TransactionHistory
 Safari Select Pay Type design error
 Firebase Rules for Request in create and update (restirct for update)
 Peer to peer crypto
-Excel issue
 useGelato createTask on addMember there is no startDate
 useGelato try catch on awaits
 Payroll Remove if next paymet pass the end payment
@@ -30,6 +29,7 @@ Add Multisig Action which are complated to useTransactionProcess
 
 
 **//** Done **//**
+Excel issue +++
 Request Money Mobile Version ++
 Multisig Batch request **//**(need 2 test) **//** 
 

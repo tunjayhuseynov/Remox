@@ -1,9 +1,7 @@
-import { useContractKit } from '@celo-tools/use-contractkit';
+import { useState } from 'react';
 import { MoolaUserComponentData } from 'API/useMoola';
 import Button from 'components/button';
 import Modal from 'components/general/modal';
-import { useEffect, useState } from 'react';
-import { AltCoins } from 'types';
 import MdContent from './mdcontent';
 
 export default function Card({ box, type }: { box: MoolaUserComponentData, type: "lend" | "borrow" }) {
@@ -34,7 +32,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                     </div>
                 </div>
             </div>
-            {leftModal && box.walletBalance !== 0 &&
+            {leftModal && ((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)) &&
                 <Modal onDisable={setLeftModal} className="lg:min-w-[30%]">
                     <MdContent box={box} type={isLending ? "withdraw" : "repay"} setModal={setLeftModal} />
                 </Modal>

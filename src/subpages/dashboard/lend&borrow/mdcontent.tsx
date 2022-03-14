@@ -99,7 +99,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                         </p>
                         <p className="text-lg">
                             {type === "deposit" && box.walletBalance.toLocaleString()}
-                            {(type === "withdraw" || type === "borrow") && box.lendingBalance.toLocaleString()} 
+                            {(type === "withdraw" || type === "borrow") && box.lendingBalance.toLocaleString()}
                             {type === "repay" && box.loanBalance.toFixed(2)} <span className="opacity-50 text-sm">{box.currency.name}</span>
                         </p>
                     </div>
@@ -138,7 +138,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 <p className="flex justify-center pb-2">Loan Status</p>
                 <div className="grid grid-cols-2 gap-5">
                     <div className="grid gap-2 text-left">
-                        <div className="flex justify-between items-center"><p>Debt:</p><span className="opacity-80">${(parseFloat(fromWei(selectedType ? box.userData.currentVariableDebt : box.userData.currentStableDebt)) * currencies[box.currency.name].price).toFixed(4)}</span></div>
+                        <div className="flex justify-between items-center"><p>Debt:</p><span className="opacity-80">${((parseFloat(fromWei(box.userData.currentStableDebt)) * parseFloat(fromWei(box.userData.currentVariableDebt))) * currencies[box.currency.name].price).toFixed(4)}</span></div>
                         <div className="flex justify-between items-center"><p>New LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
                         <div className="flex justify-between items-center"><p>Liquidation <br />Threshold:</p><span className="opacity-80">{coinData.coinReserveConfig.LiquidationThreshold}</span></div>
                         <div className="flex justify-between items-center"><p>Interest Rate:</p><span className="opacity-80">{box.userData.stableBorrowRate}</span></div>
