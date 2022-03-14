@@ -82,12 +82,14 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
 
                 let text = type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
                 dispatch(changeSuccess({ activate: true, text: dynamicText(text, amountState.toLocaleString(), box.currency.name) }))
+                setModal(false)
             }
         } catch (error) {
             console.error(error)
             dispatch(changeError({ activate: true, text: `Failed to ${type}` }))
+            setModal(false)
         }
-        setModal(false)
+        
     }
 
     return <>

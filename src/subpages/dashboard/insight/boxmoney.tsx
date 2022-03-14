@@ -119,18 +119,17 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
         }
     }, [transactions, currencies, selectedDate])
 
-
     const inChart = useMemo(() => {
-        if (inTags.length > 0 && lastIn) {
-
+        if (lastIn !== undefined) {
             let grad = "conic-gradient("
             let startDeg = 0;
             inTags.forEach(tag => {
-                let calc = tag.totalAmount;
-
-                const deg = Math.floor(3.6 * ((calc * 100) / lastIn))
-                grad += `${tag.color} ${startDeg}deg ${startDeg + deg}deg,`
-                startDeg += deg;
+                if(lastIn !== 0){
+                    let calc = tag.totalAmount;
+                    const deg = Math.floor(3.6 * ((calc * 100) / lastIn))
+                    grad += `${tag.color} ${startDeg}deg ${startDeg + deg}deg,`
+                    startDeg += deg;
+                }
             })
             if (startDeg < 360) {
                 grad += `#FF7348 ${startDeg}deg 360deg`
@@ -145,15 +144,16 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
     }, [inTags, lastIn])
 
     const outChart = useMemo(() => {
-        if (outTags.length > 0 && lastOut) {
-
-            let grad = "conic-gradient("
+        if (lastOut !== undefined) {
+            let grad = "conic-gradient(" 
             let startDeg = 0;
             outTags.forEach(tag => {
-                let calc = tag.totalAmount;
-                const deg = Math.floor(3.6 * ((calc * 100) / lastOut))
-                grad += `${tag.color} ${startDeg}deg ${startDeg + deg}deg,`
-                startDeg = deg;
+                if(lastOut !== 0){
+                    let calc = tag.totalAmount; 
+                    const deg = Math.floor(3.6 * ((calc * 100) / lastOut))
+                    grad += `${tag.color} ${startDeg}deg ${startDeg + deg}deg,`
+                    startDeg = deg;
+                }
             })
             if (startDeg < 360) {
                 grad += `#FF7348 ${startDeg}deg 360deg`
@@ -194,7 +194,6 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             </>
         },
     ]
-
     return <>
         {boxmoneydata.map((a) => {
             return <div key={a.id} className="mb-10">
@@ -206,11 +205,11 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                             {a.tags}
                         </div>
                     </div>
-                    {a.tagList.length > 0 ? <div className="aspect-square rounded-full relative" style={{
+                     <div className="aspect-square rounded-full relative" style={{
                         background: a.chart
                     }}>
                         <div className="w-[50%] h-[50%] bg-white dark:bg-darkSecond  left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
-                    </div> : null}
+                    </div> 
                 </div>
             </div>
         })}

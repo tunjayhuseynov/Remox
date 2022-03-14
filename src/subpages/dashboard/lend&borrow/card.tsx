@@ -9,6 +9,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
     const [rightModal, setRightModal] = useState(false)
 
     const isLending = type === "lend"
+    console.log(((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)))
     return (
         <div className={`rounded-xl shadow-custom px-10 pb-10 pt-10`}>
             <div className='flex flex-col space-y-3'>
@@ -24,7 +25,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                         </div>
                     </div>
                     <div className={`flex items-center justify-center ${box.walletBalance !== 0 ? "gap-10" : ""} `}>
-                        {box.walletBalance !== 0 ? <Button onClick={() => { setLeftModal(true) }} version="second" className=" bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Withdraw Funds" : "Repay Funds"}</Button> : undefined}
+                        {((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)) ? <Button onClick={() => { setLeftModal(true) }} version="second" className=" bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Withdraw Funds" : "Repay Funds"}</Button> : undefined}
                         <Button onClick={() => { setRightModal(true) }} className=" bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Deposits Funds" : "Borrow Funds"}</Button>
                     </div>
                     <div className="flex items-center justify-center">
