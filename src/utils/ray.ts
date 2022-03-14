@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 
 const ray = '1000000000000000000000000000';
-const ether = '1000000000000000000';
+export const etherSize = '1000000000000000000';
 
 type Num = string | number;
 
@@ -10,15 +10,15 @@ export function BN(num: Num) {
 }
 
 export function toWei(num: Num) {
-	return BN(num).times(ether).toString();
+	return BN(num).times(etherSize).toString();
 }
 
 export function fromWei(num: Num) {
-    return BN(num).div(ether).toString()
+    return BN(num).div(etherSize).toString()
 }
 
 export function print(num: Num) {
-	return BN(num).dividedBy(ether).toFixed();
+	return BN(num).dividedBy(etherSize).toFixed();
 }
 
 export function printRay(num: Num) {

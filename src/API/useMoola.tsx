@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateData } from "redux/reducers/moola";
 import { AltCoins, Coins, TokenType } from "types";
-import { BN, print, printRay, printRayRate, toWei } from "utils/ray";
+import { BN, etherSize, print, printRay, printRayRate, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
@@ -226,8 +226,8 @@ export default function useMoola() {
                     userData.push({
                         apy: parseFloat(coinData.liquidityRate),
                         walletBalance: parseFloat(balance),
-                        lendingBalance: parseFloat(lendingBalance),
-                        loanBalance: loanBalance,
+                        lendingBalance: parseFloat(BN(lendingBalance).toFixed(2, 2)),
+                        loanBalance: parseFloat(BN(loanBalance).toFixed(2, 2)),
                         currency: element,
                         averageStableBorrowRate: parseFloat(coinData.averageStableBorrowRate),
                         userData: data,

@@ -24,7 +24,7 @@ const DynamicLendBorrow = ({ type }: { type: "lend" | "borrow" }) => {
 
     let data = userData.filter(s => type === "lend" ? s.lendingBalance !== 0 : s.loanBalance !== 0)
     let defaultValue = userData.find(s => s.currency.name === "cUSD")
-    return <div className={` ${userData.length > 1 ? "grid grid-cols-2 gap-10" : ""} `}>
+    return <div className={` ${data.length > 1 ? "grid grid-cols-2 gap-10" : ""} `}>
         {data.map((box) => <Card key={box.currency.contractAddress} box={box} type={type} />)}
         {
             data.length === 0 && defaultValue && <Card key={defaultValue.currency.contractAddress} box={defaultValue} type={type} />

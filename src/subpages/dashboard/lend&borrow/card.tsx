@@ -16,7 +16,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                     <div className="grid grid-cols-2 text-center">
                         <div className="flex flex-col items-center justify-center text-center pb-2">
                             <div className="text-xl">{isLending ? "Current Lending Balance" : "Current Loan Amount"}</div>
-                            <div> <span>{isLending ? box.lendingBalance.toPrecision(2) : box.loanBalance.toPrecision(2)}</span> <span className="opacity-80">{box.currency.name}</span> </div>
+                            <div> <span>{isLending ? box.lendingBalance : box.loanBalance}</span> <span className="opacity-80">{box.currency.name}</span> </div>
                         </div>
                         <div className="flex flex-col items-center justify-center text-center pb-2">
                             <div className="text-xl">{isLending ? "Lendin APY" : "Interest Rate"}</div>
@@ -28,7 +28,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                         <Button onClick={() => { setRightModal(true) }} className=" bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Deposits Funds" : "Borrow Funds"}</Button>
                     </div>
                     <div className="flex items-center justify-center">
-                        <p>Deposit {box.currency.name} to begin earing fees</p>
+                        <p>{isLending ? `Deposit ${box.currency.name} to begin earing fees` : "Take out a crypto backet loan against your lending balance"}</p>
                     </div>
                 </div>
             </div>

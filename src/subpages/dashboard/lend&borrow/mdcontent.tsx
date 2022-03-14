@@ -49,6 +49,13 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         })()
     }, [wallets])
 
+    const dynamicText = (action: string, money: string, currency: string) => {
+        return <div className="flex flex-col space-y-5 items-center">
+            <div className="font-semibold">You have succesfully {action}  your {currency} </div>
+            <div className="font-bold text-xl">{money} {currency}</div>
+            <div className="font-semibold">You can view the transaction on <span className="underline text-primary pointer" onClick={() => window.open("https://www.instagram.com/tunjayhuseynov/", "_blank")}>Explorer</span></div>
+        </div>
+    }
 
     const create = async () => {
         try {
@@ -74,7 +81,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 await refresh()
 
                 let text = type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
-                dispatch(changeSuccess({ activate: true, text: `You have succesfully ${text} your ${box.currency.name}` }))
+                dispatch(changeSuccess({ activate: true, text: dynamicText(text, amountState.toLocaleString(), box.currency.name) }))
             }
         } catch (error) {
             console.error(error)
@@ -83,7 +90,6 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         setModal(false)
     }
 
-    const isLending = type === "deposit" || type === "withdraw"
     return <>
         <div className="flex flex-col space-y-8">
             <div className="font-semibold text-2xl flex justify-center py-4">
@@ -136,19 +142,25 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                     </div>
                 </div>
                 <p className="flex justify-center pb-2">Loan Status</p>
-                <div className="grid grid-cols-2 gap-5">
-                    <div className="grid gap-2 text-left">
-                        <div className="flex justify-between items-center"><p>Debt:</p><span className="opacity-80">${((parseFloat(fromWei(box.userData.currentStableDebt)) * parseFloat(fromWei(box.userData.currentVariableDebt))) * currencies[box.currency.name].price).toFixed(4)}</span></div>
-                        <div className="flex justify-between items-center"><p>New LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
-                        <div className="flex justify-between items-center"><p>Liquidation <br />Threshold:</p><span className="opacity-80">{coinData.coinReserveConfig.LiquidationThreshold}</span></div>
-                        <div className="flex justify-between items-center"><p>Interest Rate:</p><span className="opacity-80">{box.userData.stableBorrowRate}</span></div>
-                        <div className="flex justify-between items-center"><p>Loan Terms:</p><span className="opacity-80">{selectedType ? "Variable" : "Stable"}</span></div>
+                <div className="grid grid-rows-5">
+                    <div className="grid grid-cols-2 gap-x-5 items-center">
+                        <div className="flex justify-between space-x-2"><p>Debt:</p><span className="opacity-80">${((parseFloat(fromWei(box.userData.currentStableDebt)) * parseFloat(fromWei(box.userData.currentVariableDebt))) * currencies[box.currency.name].price).toFixed(4)}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Health Factor:</p><span className="text-green-500">Safer</span></div>
                     </div>
-                    <div className="grid gap-2 text-left">
-                        <div className="flex justify-between"><p>Health Factor:</p><span className="text-green-500"></span></div>
-                        <div className="flex justify-between"><p>Maximum LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
-                        <div className="flex justify-between"><p>Collateral Assets:</p><span className="opacity-80">{box.currency.name}</span></div>
-                        <div className="flex justify-between"><p>Debt Assets:</p><span className="opacity-80">{box.currency.name}</span></div>
+                    <div className="grid grid-cols-2 gap-x-5 items-center">
+                        <div className="flex justify-between space-x-2"><p>New LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Maximum LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-5 items-center">
+                        <div className="flex justify-between space-x-2 items-center"><p>Liquidation <br />Threshold:</p><span className="opacity-80">{coinData.coinReserveConfig.LiquidationThreshold}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Collateral Assets:</p><span className="opacity-80">{box.currency.name}</span></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-5 items-center">
+                        <div className="flex justify-between space-x-2"><p>Interest Rate:</p><span className="opacity-80">{box.userData.stableBorrowRate}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Debt Assets:</p><span className="opacity-80">{box.currency.name}</span></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-5 items-center">
+                        <div className="flex justify-between space-x-2"><p>Loan Terms:</p><span className="opacity-80">{selectedType ? "Variable" : "Stable"}</span></div>
                     </div>
                 </div>
             </div> : <div className="flex items-center justify-center"><ClipLoader /></div>)
