@@ -7,6 +7,7 @@ import transactions from "redux/reducers/transactions";
 import { Coins } from "types";
 import { fromWei } from 'web3-utils'
 import { AddressReducer } from "../utils";
+import Button from "components/button";
 
 const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedTransaction, isMultiple?: boolean }) => {
 
@@ -167,9 +168,8 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 })}
             </div>}
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-            <Link to={`/dashboard/transactions/${transaction.rawData.hash}`}><div className={`text-primary  ${detect ? "px-6 max-h-[80px] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white"} rounded-xl py-2 transition-colors duration-300`}>View Details</div></Link>
+            <Link to={`/dashboard/transactions/${transaction.rawData.hash}`}> <Button version="second" className="px-8 py-2" >View Details</Button></Link>
         </div>
     </div>
 }
-
 export default TransactionItem;
