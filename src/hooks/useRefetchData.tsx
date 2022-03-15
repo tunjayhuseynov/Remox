@@ -10,7 +10,7 @@ import { updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../r
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from '../redux/reducers/storage'
 import { SelectTransactions, setTransactions } from '../redux/reducers/transactions'
-import { AltCoins, Coins } from '../types/coins'
+import { AltCoins, Coins, TokenType } from '../types/coins'
 import useRequest from 'API/useRequest'
 import useRequestHook from 'hooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
@@ -92,7 +92,13 @@ const useRefetchData = () => {
                         }
                     })
 
-                    const prices = fetchedCurrencies.reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
+                    const prices = fetchedCurrencies.sort((a, b) => {
+                        const aa = Coins[a.name as unknown as keyof Coins]
+                        const bb = Coins[b.name as unknown as keyof Coins]
+                        if(aa.type !== bb.type && bb.type === TokenType.GoldToken) return -1
+                        if(aa.type !== bb.type && aa.type !== TokenType.GoldToken && bb.type === TokenType.StableToken) return -1
+                        return 0
+                    }).reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
                         const amount = parseFloat((balance?.[c.name]) ?? "0");
                         const price = c.price * amount;
                         a[c.name] = {

@@ -48,7 +48,7 @@ const Swap = () => {
     const { Exchange, MinmumAmountOut, isLoading } = useSwap()
 
     const change = async (value?: number) => {
-        if (token1.value && token2.value) {
+        if (token1.name && token2.name) {
             try {
                 const data = await MinmumAmountOut(
                     Coins[token1.name as keyof Coins],
@@ -68,7 +68,7 @@ const Swap = () => {
     }
 
     const startSwap = async () => {
-        if (token1.value && token2.value && token1Amount && token1Amount > 0) {
+        if (token1.name && token2.name && token1Amount && token1Amount > 0) {
             try {
                 const data = await Exchange(
                     Coins[token1.name as keyof Coins],
@@ -181,10 +181,10 @@ const Swap = () => {
                     <div className="flex flex-col space-y-2 w-[130px]">
                         <div>
                             <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
-                                if (w.value === token2.value) {
+                                if (w.name === token2.name) {
                                     setToken2(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, value: w.value, coinUrl: w.coinUrl, feeName: w.feeName, id: w.value, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
                         </div>
                         <div>
                             <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[130px]" placeholder="0" min="0" step="any" />
@@ -227,10 +227,10 @@ const Swap = () => {
                     <div className="flex flex-col space-y-2 w-[130px]">
                         <div>
                             <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
-                                if (w.value === token1.value) {
+                                if (w.name === token1.name) {
                                     setToken1(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(Coins).map(w => ({ name: w.name, type: w.value, value: w.value, feeName: w.feeName, coinUrl: w.coinUrl, id: w.value, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
                         </div>
                         <div>
                             {!(!token1Amount) && (!isLoading ?

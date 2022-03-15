@@ -60,11 +60,11 @@ export default function useMoola() {
             const weiAmount = toWei(amount)
             const deposit = await moola.methods.deposit(asset, weiAmount, (to ?? address!), 0)
             await allow(asset, contractRef.current!, amount.toString())
-            await deposit.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await deposit.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
 
             setLaoding(false)
 
-            return true
+            return res.transactionHash
         } catch (error: any) {
             console.error(error)
             setLaoding(false)
@@ -84,10 +84,10 @@ export default function useMoola() {
             const weiAmount = toWei(amount)
             const withdraw = await moola.methods.withdraw(asset, weiAmount, (to ?? address!))
 
-            await withdraw.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await withdraw.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
-            return true
 
+            return res.transactionHash
         } catch (error: any) {
             console.error(error)
             setLaoding(false)
@@ -107,9 +107,9 @@ export default function useMoola() {
             const weiAmount = toWei(amount)
             const borrow = await moola.methods.borrow(asset, weiAmount, interestRateMode, 0, (to ?? address!))
 
-            await borrow.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await borrow.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
-            return true
+            return res.transactionHash
         } catch (error: any) {
             console.error(error)
             setLaoding(false)
@@ -129,9 +129,9 @@ export default function useMoola() {
             const weiAmount = toWei(amount)
             const repay = await moola.methods.repay(asset, weiAmount, interestRateMode, (to ?? address!))
             await allow(asset, contractRef.current!, amount.toString())
-            await repay.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await repay.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
-            return true
+            return res.transactionHash
         } catch (error: any) {
             console.error(error)
             setLaoding(false)
@@ -208,6 +208,32 @@ export default function useMoola() {
         }, 1000)
     }
 
+    const getSingleInitialUserData = async (currency: AltCoins) => {
+        try {
+            const element = currency;
+            const contract = await kit.contracts.getErc20(element.contractAddress)
+            const weiBalance = await contract.balanceOf(address!)
+            const balance = kit.web3.utils.fromWei(weiBalance.toString(), "ether")
+            const data = await getUserAccountData(element.contractAddress)
+            const coinData = await getReserveData(element.contractAddress)
+            const lendingBalance = kit.web3.utils.fromWei(data.currentATokenBalance, "ether")
+            const loanBalance = parseFloat(kit.web3.utils.fromWei(data.currentStableDebt, "ether")) + parseFloat(kit.web3.utils.fromWei(data.currentVariableDebt, "ether"))
+            return {
+                apy: parseFloat(coinData.liquidityRate),
+                walletBalance: parseFloat(balance),
+                lendingBalance: parseFloat(BN(lendingBalance).toFixed(2, 2)),
+                loanBalance: parseFloat(BN(loanBalance).toFixed(2, 2)),
+                currency: element,
+                averageStableBorrowRate: parseFloat(coinData.averageStableBorrowRate),
+                userData: data,
+                coinData: coinData
+            }
+        } catch (error: any) {
+            console.error(error.message)
+            throw new Error(error.message)
+        }
+    }
+
 
     const InitializeUser = async () => {
         try {
@@ -247,7 +273,7 @@ export default function useMoola() {
         }
     }
 
-    return { getContract, deposit, withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading };
+    return { getContract, deposit, withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading, getSingleInitialUserData };
 }
 
 export interface MoolaUserData {

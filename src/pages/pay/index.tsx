@@ -95,8 +95,8 @@ const Pay = () => {
 
                 amm.push(parseFloat(amount2 || "0"))
 
-                const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].value };
-                const b = { ...Coins[coin2 as keyof Coins], type: Coins[coin2 as keyof Coins].value };
+                const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].name };
+                const b = { ...Coins[coin2 as keyof Coins], type: Coins[coin2 as keyof Coins].name };
                 const wallet = [a, b];
                 wllt.push(...wallet)
                 setAmountState(amm)
@@ -114,7 +114,7 @@ const Pay = () => {
         if (balance && balance.CELO) {
             const coins = Object.values(balance).map((coin: IBalanceItem) => ({
                 name: `${coin.amount.toFixed(3)} ${coin.coins.name}`,
-                type: coin.coins.value.toString(),
+                type: coin.coins.name.toString(),
                 amount: coin.amount.toString(),
                 coinUrl: coin.coins.coinUrl,
             }))

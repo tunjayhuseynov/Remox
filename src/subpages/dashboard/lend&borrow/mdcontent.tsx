@@ -6,7 +6,7 @@ import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
 import useMoola, { InterestRateMode, MoolaUserComponentData } from "API/useMoola";
 import { useSelector } from 'react-redux'
-import { SelectCurrencies } from 'redux/reducers/currencies'
+import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { fromWei, printRayRate } from "utils/ray";
 import { Coins } from 'types'
 import { ClipLoader } from "react-spinners";
@@ -18,17 +18,19 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
 
     const dispatch = useAppDispatch()
     const currencies = useSelector(SelectCurrencies)
-
-    const [coinData, setCoinData] = useState(box.coinData)
-    const [coinLoading, setCoinLoading] = useState(false)
-
+    const balances = useSelector(SelectBalances)
+    
+    const [componentData, setComponentData] = useState(box)
+    const [coinLoading, setCoinLoading] = useState(true)
+    
+    const maxAmount = type === "deposit" ? balances[componentData.currency.name].amount : type === "withdraw" ? componentData.lendingBalance : componentData.loanBalance
     const {
         borrow,
         deposit,
         withdraw,
         repay,
         getContract,
-        getReserveData,
+        getSingleInitialUserData,
         refresh,
         loading
     } = useMoola()
@@ -38,8 +40,10 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
             if (wallets[0]?.name) {
                 try {
                     setCoinLoading(true)
-                    let data = await getReserveData(Coins[wallets[0].name as unknown as keyof Coins].contractAddress)
-                    setCoinData(data)
+                    const coin = Coins[wallets[0].name as unknown as keyof Coins]
+                    let userData = await getSingleInitialUserData(coin)
+
+                    setComponentData(userData)
                     setTimeout(() => setCoinLoading(false), 550)
                 } catch (error: any) {
                     setTimeout(() => setCoinLoading(false), 550)
@@ -49,11 +53,11 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         })()
     }, [wallets])
 
-    const dynamicText = (action: string, money: string, currency: string) => {
+    const dynamicText = (action: string, money: string, currency: string, hash: string) => {
         return <div className="flex flex-col space-y-5 items-center">
-            <div className="font-semibold">You have succesfully {action}  your {currency} </div>
+            <div className="font-semibold">You have succesfully {action} your {currency} </div>
             <div className="font-bold text-xl">{money} {currency}</div>
-            <div className="font-semibold">You can view the transaction on <span className="underline text-primary pointer" onClick={() => window.open("https://www.instagram.com/tunjayhuseynov/", "_blank")}>Explorer</span></div>
+            <div className="font-semibold">You can view the transaction on <span className="underline text-primary pointer cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${hash}/token-transfers`, "_blank")}>Explorer</span></div>
         </div>
     }
 
@@ -61,19 +65,19 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         try {
             if (wallets.length > 0 && amountState) {
                 await getContract()
-
+                let hash;
                 switch (type) {
                     case "withdraw":
-                        await withdraw(box.currency.contractAddress, amountState)
+                        hash = await withdraw(componentData.currency.contractAddress, amountState)
                         break;
                     case "repay":
-                        await repay(box.currency.contractAddress, amountState, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
+                        hash = await repay(componentData.currency.contractAddress, amountState, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
                         break;
                     case "borrow":
-                        await borrow(box.currency.contractAddress, amountState, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
+                        hash = await borrow(componentData.currency.contractAddress, amountState, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
                         break;
                     case "deposit":
-                        await deposit(box.currency.contractAddress, amountState.toString())
+                        hash = await deposit(componentData.currency.contractAddress, amountState.toString())
                         break;
                     default:
                         break;
@@ -81,7 +85,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 await refresh()
 
                 let text = type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
-                dispatch(changeSuccess({ activate: true, text: dynamicText(text, amountState.toLocaleString(), box.currency.name) }))
+                dispatch(changeSuccess({ activate: true, text: dynamicText(text, amountState.toLocaleString(), wallets[0].name, hash) }))
                 setModal(false)
             }
         } catch (error) {
@@ -89,7 +93,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
             dispatch(changeError({ activate: true, text: `Failed to ${type}` }))
             setModal(false)
         }
-        
+
     }
 
     return <>
@@ -106,16 +110,16 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                             {type === "repay" && "Current Loan Amount"}
                         </p>
                         <p className="text-lg">
-                            {type === "deposit" && box.walletBalance.toLocaleString()}
-                            {(type === "withdraw" || type === "borrow") && box.lendingBalance.toLocaleString()}
-                            {type === "repay" && box.loanBalance.toFixed(2)} <span className="opacity-50 text-sm">{box.currency.name}</span>
+                            {type === "deposit" && componentData.walletBalance.toFixed(2)}
+                            {(type === "withdraw" || type === "borrow") && componentData.lendingBalance.toFixed(2)}
+                            {type === "repay" && componentData.loanBalance.toFixed(2)} <span className="opacity-50 text-sm">{componentData.currency.name}</span>
                         </p>
                     </div>
                     {type === "deposit" && <div className="flex flex-col border-l-[2px]">
                         <p className="text-xl pb-2">
                             Available Liquidity
                         </p>
-                        <p className="text-lg">{Number(box.coinData.availableLiquidity).toLocaleString()} <span className="opacity-50 text-sm">{box.currency.name}</span> </p>
+                        <p className="text-lg">{Number(componentData.coinData.availableLiquidity).toLocaleString()} <span className="opacity-50 text-sm">{componentData.currency.name}</span> </p>
                     </div>
                     }
                 </div>
@@ -125,7 +129,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
             </div>
             <div className=" py-4 px-12 pt-0">
                 <p className="text-greylish">{`${type[0].toUpperCase()}${type.substring(1)}`} Amount</p>
-                <Input setAmount={setAmountState} amount={amountState} selectedWallet={wallets} setWallet={setWallets} />
+                <Input setAmount={setAmountState} amount={amountState} selectedWallet={wallets} setWallet={setWallets} customCurreny={componentData.currency.name} maxAmount={maxAmount} />
             </div>
             {(type === "borrow" || type === "repay") && (!coinLoading ? <div className="py-4 px-12 text-center">
                 <p className="pb-4">Loan Terms</p>
@@ -137,7 +141,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                         </label>
                     </div>
                     <div className="flex gap-2">
-                        <input type="radio" className="w-4 h-4 peer cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(false)} checked={!selectedType} disabled={!coinData.coinReserveConfig.StableEnabled} />
+                        <input type="radio" className="w-4 h-4 peer cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(false)} checked={!selectedType} disabled={!componentData.coinData.coinReserveConfig.StableEnabled} />
                         <label className="font-semibold peer-checked:text-primary text-sm pb-1">
                             Stable Loan
                         </label>
@@ -146,20 +150,20 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 <p className="flex justify-center pb-2">Loan Status</p>
                 <div className="grid grid-rows-5">
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2"><p>Debt:</p><span className="opacity-80">${((parseFloat(fromWei(box.userData.currentStableDebt)) * parseFloat(fromWei(box.userData.currentVariableDebt))) * currencies[box.currency.name].price).toFixed(4)}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Debt:</p><span className="opacity-80">${((parseFloat(fromWei(componentData.userData.currentStableDebt)) * parseFloat(fromWei(componentData.userData.currentVariableDebt))) * currencies[componentData.currency.name].price).toFixed(4)}</span></div>
                         <div className="flex justify-between space-x-2"><p>Health Factor:</p><span className="text-green-500">Safer</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2"><p>New LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
-                        <div className="flex justify-between space-x-2"><p>Maximum LTV:</p><span className="opacity-80">{coinData.coinReserveConfig.LoanToValue}</span></div>
+                        <div className="flex justify-between space-x-2"><p>New LTV:</p><span className="opacity-80">{componentData.coinData.coinReserveConfig.LoanToValue}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Maximum LTV:</p><span className="opacity-80">{componentData.coinData.coinReserveConfig.LoanToValue}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2 items-center"><p>Liquidation <br />Threshold:</p><span className="opacity-80">{coinData.coinReserveConfig.LiquidationThreshold}</span></div>
-                        <div className="flex justify-between space-x-2"><p>Collateral Assets:</p><span className="opacity-80">{box.currency.name}</span></div>
+                        <div className="flex justify-between space-x-2 items-center"><p>Liquidation <br />Threshold:</p><span className="opacity-80">{componentData.coinData.coinReserveConfig.LiquidationThreshold}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Collateral Assets:</p><span className="opacity-80">{componentData.currency.name}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2"><p>Interest Rate:</p><span className="opacity-80">{box.userData.stableBorrowRate}</span></div>
-                        <div className="flex justify-between space-x-2"><p>Debt Assets:</p><span className="opacity-80">{box.currency.name}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Interest Rate:</p><span className="opacity-80">{componentData.userData.stableBorrowRate}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Debt Assets:</p><span className="opacity-80">{componentData.currency.name}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
                         <div className="flex justify-between space-x-2"><p>Loan Terms:</p><span className="opacity-80">{selectedType ? "Variable" : "Stable"}</span></div>

@@ -9,7 +9,6 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
     const [rightModal, setRightModal] = useState(false)
 
     const isLending = type === "lend"
-    console.log(((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)))
     return (
         <div className={`rounded-xl shadow-custom px-10 pb-10 pt-10`}>
             <div className='flex flex-col space-y-3'>
@@ -21,7 +20,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                         </div>
                         <div className="flex flex-col items-center justify-center text-center pb-2">
                             <div className="text-xl">{isLending ? "Lendin APY" : "Interest Rate"}</div>
-                            <div> <span>Up to </span>{isLending ? box.apy : box.averageStableBorrowRate}<span className="opacity-80"> %</span> </div>
+                            <div>{isLending ? <><span>Up to </span>{box.apy}</> : box.averageStableBorrowRate}<span className="opacity-80"> %</span> </div>
                         </div>
                     </div>
                     <div className={`flex items-center justify-center ${box.walletBalance !== 0 ? "gap-10" : ""} `}>
@@ -34,12 +33,12 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                 </div>
             </div>
             {leftModal && ((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)) &&
-                <Modal onDisable={setLeftModal} className="lg:min-w-[30%]">
+                <Modal onDisable={setLeftModal} className="lg:min-w-[30%]" disableX={true}>
                     <MdContent box={box} type={isLending ? "withdraw" : "repay"} setModal={setLeftModal} />
                 </Modal>
             }
             {rightModal &&
-                <Modal onDisable={setRightModal} className="lg:min-w-[30%]">
+                <Modal onDisable={setRightModal} className="lg:min-w-[30%]" disableX={true}>
                     <MdContent box={box} type={isLending ? "deposit" : "borrow"} setModal={setRightModal} />
                 </Modal>
             }

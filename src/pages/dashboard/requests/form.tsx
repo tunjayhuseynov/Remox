@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { changeError, changeSuccess, selectDarkMode, selectError, selectSuccess } from "redux/reducers/notificationSlice";
 import Input from "subpages/pay/payinput";
 import { generate } from 'shortid'
-import { Coins, DropDownItem } from "types";
+import { Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import DatePicker from "react-datepicker";
@@ -86,18 +86,18 @@ export default function Form() {
       });
       return
     }
-    if (request && serviceName && startDate && amount && address && wallet && wallet.value) {
+    if (request && serviceName && startDate && amount && address && wallet && wallet.name) {
       setResult({
         address,
         amount,
-        currency: wallet.value,
+        currency: wallet.name as CoinsName,
         name: name ?? "",
         requestType: request,
         nameOfService: serviceName,
         serviceDate: startDate.getTime(),
         attachLink: link ?? "",
         secondaryAmount: amountRef.current?.length > 1 ? amountRef.current[1] : undefined,
-        secondaryCurrency: wallets.length > 1 ? wallets[1].value : undefined,
+        secondaryCurrency: wallets.length > 1 ? (wallets[1].name as CoinsName) : undefined,
         usdBase: selectedType,
         uploadedLink: file?.name ?? undefined
       })
@@ -156,7 +156,7 @@ export default function Form() {
                   </div>
                 </div>
                 <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                  <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current}  selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
+                  <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
                 </div>
                 <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                   <span className="text-left text-xl font-semibold tracking-wide">Details</span>

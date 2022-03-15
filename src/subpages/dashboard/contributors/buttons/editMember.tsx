@@ -2,7 +2,7 @@ import { Dispatch, SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ClipLoader } from "react-spinners";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
-import { Coins, CoinsURL } from "types/coins";
+import { Coins, CoinsURL, CoinsName } from "types/coins";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
@@ -46,8 +46,8 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const [selectedExecution, setSelectedExecution] = useState(props.execution === ExecutionType.auto)
 
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({ name: "Monthly", type: DateInterval.monthly })
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: Coins[props.currency].name, type: Coins[props.currency].value, value: Coins[props.currency].value, id: Coins[props.currency].value, coinUrl: Coins[props.currency].coinUrl });
-    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>({ name: Coins[props.currency].name, type: Coins[props.currency].value, value: Coins[props.currency].value, id: Coins[props.currency].value, coinUrl: Coins[props.currency].coinUrl });
+    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: Coins[props.currency].name, id: Coins[props.currency].name, coinUrl: Coins[props.currency].coinUrl });
+    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>({ name: Coins[props.currency].name, id: Coins[props.currency].name, coinUrl: Coins[props.currency].coinUrl });
 
     const [selectedType, setSelectedType] = useState(props.usdBase)
 
@@ -66,7 +66,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
             setEndDate(new Date(props.paymantEndDate))
         }
         if (props.secondaryCurrency) {
-            setSelectedWallet2({ name: Coins[props.secondaryCurrency].name, type: Coins[props.secondaryCurrency].value, value: Coins[props.secondaryCurrency].value, id: Coins[props.secondaryCurrency].value, coinUrl: Coins[props.secondaryCurrency].coinUrl })
+            setSelectedWallet2({ name: Coins[props.secondaryCurrency].name, id: Coins[props.secondaryCurrency].name, coinUrl: Coins[props.secondaryCurrency].coinUrl })
         }
     }, [])
 
@@ -81,7 +81,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
         const { memberName, amount, address, amount2 } = e.target as HTMLFormElement;
 
         if (memberName && amount && address && selectedWallet && selectedTeam) {
-            if (!selectedWallet.value) {
+            if (!selectedWallet.name) {
                 alert("Please, choose a Celo wallet")
                 return
             }
@@ -109,31 +109,31 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         if (props.paymantDate !== startDate.toISOString() || props.paymantEndDate !== endDate.toISOString()) {
                             await updateTime(props.taskId as string, startDate.toISOString(), (selectedFrequency.type as DateInterval))
                         }
-                        if (props.amount !== amountValue.trim() || props.currency !== selectedWallet.value || props.secondaryAmount !== amountValue2 || props.secondaryCurrency !== selectedWallet2.value) {
+                        if (props.amount !== amountValue.trim() || props.currency !== selectedWallet.name || props.secondaryAmount !== amountValue2 || props.secondaryCurrency !== selectedWallet2.name) {
                             const interval = selectedFrequency!.type as DateInterval
                             const days = date.subtract(startDate, endDate).toDays();
                             const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
                             let realMoney = Number(amountValue) * realDays
                             if (selectedType) {
-                                realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
+                                realMoney *= (balance[Coins[selectedWallet.name].name]?.tokenPrice ?? 1)
                             }
-                            await allow(Coins[selectedWallet.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                            await allow(Coins[selectedWallet.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
                             const paymentList: PaymentInput[] = []
 
                             paymentList.push({
-                                coin: Coins[selectedWallet.value],
+                                coin: Coins[selectedWallet.name],
                                 recipient: addressValue.trim(),
                                 amount: amountValue.trim()
                             })
 
-                            if (amountValue2 && selectedWallet2.value) {
+                            if (amountValue2 && selectedWallet2.name) {
                                 let realMoney = Number(amountValue2) * realDays
                                 if (selectedType) {
-                                    realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
+                                    realMoney *= (balance[Coins[selectedWallet2.name].name]?.tokenPrice ?? 1)
                                 }
-                                await allow(Coins[selectedWallet2.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                                await allow(Coins[selectedWallet2.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
                                 paymentList.push({
-                                    coin: Coins[selectedWallet2.value],
+                                    coin: Coins[selectedWallet2.name],
                                     recipient: addressValue.trim(),
                                     amount: amountValue2.trim()
                                 })
@@ -153,26 +153,26 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
                         let realMoney = Number(amountValue) * realDays
                         if (selectedType) {
-                            realMoney *= (balance[Coins[selectedWallet.value].name]?.tokenPrice ?? 1)
+                            realMoney *= (balance[Coins[selectedWallet.name].name]?.tokenPrice ?? 1)
                         }
-             
-                        await allow(Coins[selectedWallet.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
+
+                        await allow(Coins[selectedWallet.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
                         const paymentList: PaymentInput[] = []
 
                         paymentList.push({
-                            coin: Coins[selectedWallet.value],
+                            coin: Coins[selectedWallet.name],
                             recipient: addressValue.trim(),
                             amount: amountValue.trim()
                         })
 
-                        if (amountValue2 && selectedWallet2.value) {
+                        if (amountValue2 && selectedWallet2.name) {
                             let realMoney = Number(amountValue2) * realDays
                             if (selectedType) {
-                                realMoney *= (balance[Coins[selectedWallet2.value].name]?.tokenPrice ?? 1)
+                                realMoney *= (balance[Coins[selectedWallet2.name].name]?.tokenPrice ?? 1)
                             }
-                            await allow(Coins[selectedWallet2.value].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                            await allow(Coins[selectedWallet2.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
                             paymentList.push({
-                                coin: Coins[selectedWallet2.value],
+                                coin: Coins[selectedWallet2.name],
                                 recipient: addressValue.trim(),
                                 amount: amountValue2.trim()
                             })
@@ -189,7 +189,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                     name: encryptMessage(memberNameValue, storage?.encryptedMessageToken),
                     address: encryptMessage(addressValue.trim(), storage?.encryptedMessageToken),
                     amount: encryptMessage(amountValue, storage?.encryptedMessageToken),
-                    currency: selectedWallet.value,
+                    currency: selectedWallet.name as CoinsName,
                     teamId: selectedTeam.id,
                     usdBase: selectedType,
                     interval: selectedFrequency!.type as DateInterval,
@@ -201,11 +201,11 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                 if (hash) newMember.taskId = hash
                 else if (!hash && props.taskId) newMember.taskId = ""
 
-                if (amountValue2 && selectedWallet2 && selectedWallet2.value) {
+                if (amountValue2 && selectedWallet2 && selectedWallet2.name) {
                     newMember = {
                         ...newMember,
                         secondaryAmount: encryptMessage(amountValue2.trim(), storage?.encryptedMessageToken),
-                        secondaryCurrency: selectedWallet2.value,
+                        secondaryCurrency: selectedWallet2.name as CoinsName,
                         secondaryUsdBase: selectedType,
                     }
                 }
