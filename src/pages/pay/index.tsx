@@ -151,7 +151,6 @@ const Pay = () => {
                     })
                 }
             }
-            console.log(storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase(), addressList, amountList)
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1) {
                     await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : Coins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
@@ -285,14 +284,14 @@ const Pay = () => {
                                 <span className="text-left text-sm font-semibold">Payment Type</span>
                                 <div className="flex space-x-24">
                                     <div className="flex space-x-2 items-center">
-                                        <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
-                                        <label className="font-semibold text-sm">
+                                        <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer peer" name="paymentType" value="token" onChange={(e) => setSelectedType(false)} checked={!selectedType} />
+                                        <label className="font-semibold text-sm peer-checked:text-primary">
                                             Pay with Token Amounts
                                         </label>
                                     </div>
                                     <div className="flex space-x-2 items-center">
-                                        <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
-                                        <label className="font-semibold text-sm">
+                                        <input type="radio" className="w-4 h-4 accent-[#ff501a] cursor-pointer peer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(true)} checked={selectedType} />
+                                        <label className="font-semibold text-sm peer-checked:text-primary">
                                             Pay with USD-based Amounts
                                         </label>
                                     </div>

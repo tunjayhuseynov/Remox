@@ -8,14 +8,29 @@ import Copied from "components/copied";
 import { useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 import { BaseUrl } from 'utils/const';
+import { motion, AnimateSharedLayout } from "framer-motion";
 
 export default function RequestLayout() {
     const [modalVisibility, setModalVisible] = useState(false)
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
     const selectedAccount = useSelector(SelectSelectedAccount)
+    const [selected, setSelected] = useState(0);
 
-    const path = '/dashboard/requests'
+    const data = [
+        {
+            to: "/dashboard/requests",
+            text: "Pending"
+        },
+        {
+            to: "/dashboard/requests/approved",
+            text: "Approved"
+        },
+        {
+            to: "/dashboard/requests/rejected",
+            text: "Rejected"
+        }
+    ]
 
     return (
         <div className="flex flex-col space-y-5">
@@ -33,21 +48,18 @@ export default function RequestLayout() {
                 </div>
             </div>
             <div className="flex pl-10 w-full">
-                <NavLink to={path} end className={({ isActive }) => isActive ? 'text-primary border-b-[3px] border-primary z-50 mx-5' : 'mx-5'}>
-                    <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
-                        <span>Pending Requests</span>
-                    </div>
-                </NavLink>
-                <NavLink to={path + "/approved"} className={({ isActive }) => `mx-5 ${isActive && "text-primary border-b-[3px] border-primary z-50"}`}>
-                    <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
-                        Approved Requests
-                    </div>
-                </NavLink>
-                <NavLink to={path + "/rejected"} className={({ isActive }) => isActive ? 'text-primary border-b-[3px] border-primary z-50 mx-5' : 'mx-5'}>
-                    <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
-                        <span>Rejected Requests</span>
-                    </div>
-                </NavLink>
+                <AnimateSharedLayout>
+                    {data.map((item, i) => {
+                        return <NavLink key={i} to={`${item.to}`} end className={'mx-5'}>
+                            <motion.div className={`tiflex gap-x-3 pb-3 font-semibold tracking-widertle ${i === selected ? "selected" : ""}`} onClick={() => setSelected(i)} animate >
+                                <span>{item.text} </span>
+                                <span className="relative">
+                                    {i === selected && (<motion.span className="absolute w-full h-[3px] bg-primary rounded-[2px] bottom-[-10px]" layoutId="underline" />)}
+                                    Requests</span>
+                            </motion.div>
+                        </NavLink>
+                    })}
+                </AnimateSharedLayout>
             </div>
             <div className="px-10 py-5">
                 <Outlet />
