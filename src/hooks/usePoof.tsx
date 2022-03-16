@@ -8,7 +8,7 @@ import { PoofCoinsName } from 'types'
 const snarkjs = require('@poofcash/snarkjs')
 const PoofArtifact = import("../API/ABI/Poof.json")
 
-export default function usePoof(provingSystem: number) {
+export default function usePoof(provingSystem: number, isPoof: boolean = true) {
     const { kit, address } = useContractKit()
     const Events = useRef<{ [name: string]: any[] }>({})
     const pk = useSelector(SelectPrivateToken)
@@ -24,8 +24,10 @@ export default function usePoof(provingSystem: number) {
     useEffect(() => {
         (async () => {
 
-            poof.initialize(() => snarkjs);
-            await init(provingSystem)
+            if (isPoof) {
+                poof.initialize(() => snarkjs);
+                await init(provingSystem)
+            }
         })()
 
     }, [kit])

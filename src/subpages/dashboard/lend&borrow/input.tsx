@@ -15,13 +15,15 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
     }, [])
 
     return <div className="sm:h-[40px] sm:w-full md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid  grid-cols-[50%,50%]">
-        <input className="outline-none unvisibleArrow pl-2  dark:bg-darkSecond dark:text-white" placeholder="Amount" value={amount} defaultValue={amount} type="number" name={`amount__${0}`} onChange={(e) => {
+        <input className="outline-none unvisibleArrow pl-2  dark:bg-darkSecond dark:text-white" placeholder="Amount" value={amount === -1 ? '' : amount } type="number" name={`amount__${0}`} onChange={(e) => {
+            console.log(e.target.value)
+            if (e.target.value === '') return setAmount(-1)
             const amnt = Number(e.target.value)
             if (amnt > (maxAmount || Number.MAX_SAFE_INTEGER)) {
                 setAmount(maxAmount || Number.MAX_SAFE_INTEGER)
             }
             else setAmount(amnt)
-        }} required step={'any'} min={0} />
+        }} required step={'any'} />
         {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
             const wallet = [...selectedWallet];
             wallet[0] = val;

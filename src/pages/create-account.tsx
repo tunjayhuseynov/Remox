@@ -21,38 +21,39 @@ export default function CreateAccount() {
         { title: "Organization Name", name: "companyName" }, { title: "Password", name: "password", type: "password", limit: 6 },
     ], [])
 
-    // if (user || !address) return <Navigate to={'/'} />
+    if (user || !address) return <Navigate to={'/'} />
 
 
-    // const create = async (e: SyntheticEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
-    //     const target = e.target as HTMLFormElement
+    const create = async (e: SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const target = e.target as HTMLFormElement
+        console.log(target["password"].value)
+        console.log(target["repeatPassword"].value)
+        if (target["password"].value !== target["repeatPassword"].value) return
 
-    //     if (target["password"].value !== target["repeatPassword"].value) return
+        const inputData = {
+            name: target["userName"].value,
+            surname: target["surname"].value,
+            companyName: target["companyName"].value,
+            password: target["password"].value,
+        }
 
-    //     const inputData = {
-    //         name: target["userName"].value,
-    //         surname: target["surname"].value,
-    //         companyName: target["companyName"].value,
-    //         password: target["password"].value,
-    //     }
+        try {
+            const user = await executeSign(address, inputData.password, {
+                address: address,
+                id: "placeholder",
+                companyName: inputData.companyName,
+                name: inputData.name,
+                surname: inputData.surname,
+                seenTime: new Date().getTime(),
+                timestamp: new Date().getTime()
+            })
 
-    //     try {
-    //         const user = await executeSign(address, inputData.password, {
-    //             address: address,
-    //             id: "placeholder",
-    //             companyName: inputData.companyName,
-    //             name: inputData.name,
-    //             surname: inputData.surname,
-    //             seenTime: new Date().getTime(),
-    //             timestamp: new Date().getTime()
-    //         })
-
-    //         navigate('/dashboard')
-    //     } catch (error) {
-    //         console.error(error)
-    //     }
-    // }
+            navigate('/dashboard')
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     return <div className="h-screen w-full">
         <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
@@ -60,7 +61,7 @@ export default function CreateAccount() {
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
-        <form className="py-[100px] sm:py-0 sm:h-full">
+        <form className="py-[100px] sm:py-0 sm:h-full" onSubmit={create}>
             <section className="flex flex-col items-center h-full justify-center gap-8">
                 <div className="flex flex-col gap-4">
                     <div className="text-xl sm:text-3xl text-primary dark:text-white text-center">Set Account Details</div>

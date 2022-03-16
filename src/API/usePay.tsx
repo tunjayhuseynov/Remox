@@ -34,11 +34,11 @@ export interface Task {
 }
 
 export default function usePay() {
-    const { kit, address } = useContractKit()
+    const { kit, address, walletType } = useContractKit()
     const { createTask, getTaskIDs } = useGelato()
     const { allow } = useAllowance()
     const { addTransaction } = useTags()
-    const { transfer } = usePoof(2)
+    const { transfer } = usePoof(2, walletType === "PrivateKey")
 
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
 

@@ -13,7 +13,7 @@ import { ClipLoader } from "react-spinners";
 
 const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borrow" | "deposit", setModal: React.Dispatch<React.SetStateAction<boolean>>, box: MoolaUserComponentData }) => {
     const [selectedType, setSelectedType] = useState(true)
-    const [amountState, setAmountState] = useState<number>(0)
+    const [amountState, setAmountState] = useState<number>(-1)
     const [wallets, setWallets] = useState<DropDownItem[]>([])
 
     const dispatch = useAppDispatch()
@@ -63,7 +63,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
 
     const create = async () => {
         try {
-            if (wallets.length > 0 && amountState) {
+            if (wallets.length > 0 && amountState > 0) {
                 await getContract()
                 let hash;
                 switch (type) {

@@ -11,7 +11,6 @@ import Navbar, { NavbarDropdown } from "../../subpages/dashboard/navbar";
 import Sidebar from "../../subpages/dashboard/sidebar";
 import Sidebarlist from "../../subpages/dashboard/sidebarlist";
 import { Suspense, useEffect } from "react";
-import useMoola from "API/useMoola";
 
 export default function Dashboard() {
   const toggle = useSelector(selectToggle)
@@ -39,7 +38,7 @@ export default function Dashboard() {
       <Navbar></Navbar>
       <div className="flex space-x-11">
         <div className="hidden md:block md:col-span-2 w-[250px] flex-none"><Sidebar /></div>
-        <div className="col-span-11 md:col-span-8 pl-2 flex-grow pr-20">
+        <div className="pl-2 flex-grow pr-20">
           <Suspense fallback={<div className="h-full w-full flex justify-center items-center"><ClipLoader /></div>}>
             <Outlet />
           </Suspense>

@@ -7,7 +7,7 @@ import usePoof from 'hooks/usePoof'
 
 export default function useBalance(address: string) {
     const { kit, walletType } = useContractKit()
-    const { balance, pastEvents } = usePoof(1)
+    const { balance, pastEvents } = usePoof(1, walletType === "PrivateKey")
     const [fetchedBalance, setFetchedBalance] = useState<{ [name: string]: string }>()
     const [isLoading, setLoading] = useState(false)
     const dispatch = useDispatch()

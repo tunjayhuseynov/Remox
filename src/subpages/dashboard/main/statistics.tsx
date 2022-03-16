@@ -38,22 +38,21 @@ const Statistic = () => {
 
     const chart = useMemo(() => {
         let deg = 0;
-        let res = Object.values(all).sort((a,b)=>b.percent - a.percent).reduce((a: string, c: IBalanceItem, index: number, arr) => {
-            if (index === 0) {
-                deg = Math.ceil(c.percent * 3.6) + deg;
-                a += `${c.coins.color} ${0}deg ${deg}deg,`
-            }
-            else {
-                a += `${c.coins.color} ${deg}deg `
-                deg = Math.ceil(c.percent * 3.6) + deg;
-                a += `${deg}deg`
-
-                if (index !== arr.length - 1) {
-                    a += ','
+        let res = Object.values(all).sort((a, b) => b.percent - a.percent).reduce((a: string, c: IBalanceItem, index: number, arr) => {
+            if (c.percent) {
+                if (index === 0) {
+                    deg = Math.ceil(c.percent * 3.6) + deg;
+                    a += `${c.coins.color} ${0}deg ${deg}deg,`
+                }
+                else {
+                    a += `${c.coins.color} ${deg}deg `
+                    deg = Math.ceil(c.percent * 3.6) + deg;
+                    a += `${deg}deg,`
                 }
             }
             return a;
         }, "conic-gradient(")
+        res = res !== "conic-gradient(" ? res.substring(0, res.length - 1) : res
         res += ')'
 
         if (res === "conic-gradient()") return `conic-gradient(#FF774E 0deg 360deg)`

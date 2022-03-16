@@ -95,8 +95,9 @@ const useRefetchData = () => {
                     const prices = fetchedCurrencies.sort((a, b) => {
                         const aa = Coins[a.name as unknown as keyof Coins]
                         const bb = Coins[b.name as unknown as keyof Coins]
-                        if(aa.type !== bb.type && bb.type === TokenType.GoldToken) return -1
-                        if(aa.type !== bb.type && aa.type !== TokenType.GoldToken && bb.type === TokenType.StableToken) return -1
+                        if(aa.type !== bb.type && aa.type === TokenType.GoldToken) return -1
+                        if(aa.type !== bb.type && aa.type === TokenType.StableToken && bb.type === TokenType.Altcoin) return -1
+                        if(aa.type !== bb.type && aa.type === TokenType.Altcoin) return 1
                         return 0
                     }).reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
                         const amount = parseFloat((balance?.[c.name]) ?? "0");

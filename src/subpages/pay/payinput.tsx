@@ -13,7 +13,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
 
     useEffect(() => {
         if (!selectedWallet[index] && !selectedWallet[index + 1]) {
-            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))[0];
+            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl}))[0];
             setWallet([...selectedWallet, v, v])
         }
 
@@ -34,7 +34,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 const wallet = [...selectedWallet];
                 wallet[index] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
+            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
         <div className="hidden md:flex items-center">
@@ -63,7 +63,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 const wallet = [...selectedWallet];
                 wallet[index + 1] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))} />}
+            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, type: w.value, coinUrl: w.coinUrl, value: w.value }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
             :

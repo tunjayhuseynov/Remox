@@ -60,7 +60,6 @@ const Pay = () => {
 
     const fileInput = useRef<HTMLInputElement>(null);
 
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>();
 
     const reset = () => {
         nameRef.current = []
@@ -118,14 +117,13 @@ const Pay = () => {
                 amount: coin.amount.toString(),
                 coinUrl: coin.coins.coinUrl,
             }))
-            const v = { name: coins[0].name.split(' ')[1], coinUrl: coins[0].coinUrl, type: coins[0].type }
+            const v = { name: coins[0].name.split(' ')[1], coinUrl: coins[0].coinUrl}
             if (isPrivate) {
                 const v = { name: PoofCoins.CELO_v2.name, coinUrl: PoofCoins.CELO_v2.coinUrl, type: PoofCoins.CELO_v2.type }
                 setWallets([{ ...v }, { ...v }])
             } else {
                 setWallets([{ ...v }, { ...v }])
             }
-            setSelectedWallet(coins[0])
         }
     }, [balance])
 
@@ -140,7 +138,7 @@ const Pay = () => {
 
 
             for (let index = 0; index < addressList.length; index++) {
-                if (addressList[index] && amountList[index] && wallets[index].type) {
+                if (addressList[index] && amountList[index] && wallets[index].name) {
                     let amount = amountList[index];
                     if (selectedType) {
                         let value = (balance[wallets[index].name as keyof typeof balance]?.tokenPrice ?? 1)
@@ -153,9 +151,9 @@ const Pay = () => {
                     })
                 }
             }
-
+            console.log(storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase(), addressList, amountList)
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
-                if (result.length === 1 && selectedWallet && selectedWallet.name) {
+                if (result.length === 1) {
                     await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : Coins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                 }
                 else if (result.length > 1) {
@@ -169,7 +167,7 @@ const Pay = () => {
                     await BatchPay(arr, undefined, selectedTags)
                 }
             } else {
-                if (result.length === 1 && selectedWallet && selectedWallet.name) {
+                if (result.length === 1) {
                     await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: Coins[result[0].tokenName as keyof Coins] }])
                 }
                 else if (result.length > 1) {
@@ -345,7 +343,7 @@ const Pay = () => {
                                     </Button>
                                 </div>
                                 <span className="self-center text-lg opacity-60">Total: ${amountState.reduce((a, e, i) => {
-                                    if (!wallets[i]?.type) return a;
+                                    if (!wallets[i]?.name) return a;
                                     if (selectedType) return a + e;
                                     return a + e * (balance[wallets[i].name as keyof typeof balance]?.tokenPrice ?? 1);
                                 }, 0).toFixed(2)}</span>
