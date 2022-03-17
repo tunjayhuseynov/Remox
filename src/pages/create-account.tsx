@@ -27,8 +27,6 @@ export default function CreateAccount() {
     const create = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         const target = e.target as HTMLFormElement
-        console.log(target["password"].value)
-        console.log(target["repeatPassword"].value)
         if (target["password"].value !== target["repeatPassword"].value) return
 
         const inputData = {
