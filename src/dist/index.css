@@ -472,6 +472,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   position: relative;
 }
 
+.bottom-\[-10px\] {
+  bottom: -10px;
+}
+
 .-right-5 {
   right: -1.25rem;
 }
@@ -540,10 +544,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   bottom: -1.5rem;
 }
 
-.bottom-\[-10px\] {
-  bottom: -10px;
-}
-
 .-bottom-3 {
   bottom: -0.75rem;
 }
@@ -585,6 +585,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-bottom: 0.75rem;
 }
 
+.mx-5 {
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+}
+
 .mx-7 {
   margin-left: 1.75rem;
   margin-right: 1.75rem;
@@ -593,11 +598,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .\!my-0 {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
-}
-
-.mx-5 {
-  margin-left: 1.25rem;
-  margin-right: 1.25rem;
 }
 
 .my-14 {
@@ -703,6 +703,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   height: 0.5rem;
 }
 
+.h-\[3px\] {
+  height: 3px;
+}
+
 .h-\[28px\] {
   height: 28px;
 }
@@ -777,10 +781,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .h-\[24px\] {
   height: 24px;
-}
-
-.h-\[3px\] {
-  height: 3px;
 }
 
 .h-fit {
@@ -1398,16 +1398,16 @@ Ensure the default browser behavior of the `hidden` attribute.
   column-gap: 0.5rem;
 }
 
+.gap-x-3 {
+  column-gap: 0.75rem;
+}
+
 .gap-x-1 {
   column-gap: 0.25rem;
 }
 
 .gap-x-5 {
   column-gap: 1.25rem;
-}
-
-.gap-x-3 {
-  column-gap: 0.75rem;
 }
 
 .gap-y-10 {
@@ -1618,6 +1618,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-radius: 9999px;
 }
 
+.rounded-\[2px\] {
+  border-radius: 2px;
+}
+
 .\!rounded-sm {
   border-radius: 0.125rem !important;
 }
@@ -1628,10 +1632,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .rounded-md {
   border-radius: 0.375rem;
-}
-
-.rounded-\[2px\] {
-  border-radius: 2px;
 }
 
 .rounded-b-none {
@@ -1659,12 +1659,12 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-bottom-width: 1px;
 }
 
-.border-b-\[3px\] {
-  border-bottom-width: 3px;
-}
-
 .border-l {
   border-left-width: 1px;
+}
+
+.border-b-\[3px\] {
+  border-bottom-width: 3px;
 }
 
 .border-l-\[2px\] {
@@ -2016,6 +2016,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-right: 0.75rem !important;
 }
 
+.pb-3 {
+  padding-bottom: 0.75rem;
+}
+
 .pl-2 {
   padding-left: 0.5rem;
 }
@@ -2086,10 +2090,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .pb-10 {
   padding-bottom: 2.5rem;
-}
-
-.pb-3 {
-  padding-bottom: 0.75rem;
 }
 
 .pt-\[30px\] {
@@ -2204,16 +2204,16 @@ Ensure the default browser behavior of the `hidden` attribute.
   font-size: 1.5rem;
 }
 
+.font-semibold {
+  font-weight: 600;
+}
+
 .font-light {
   font-weight: 300;
 }
 
 .font-bold {
   font-weight: 700;
-}
-
-.font-semibold {
-  font-weight: 600;
 }
 
 .font-normal {

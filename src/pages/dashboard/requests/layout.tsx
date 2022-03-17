@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 import { BaseUrl } from 'utils/const';
 import { motion, AnimateSharedLayout } from "framer-motion";
+import AnimatedTabBar from 'components/animatedTabBar';
 
 export default function RequestLayout() {
     const [modalVisibility, setModalVisible] = useState(false)
@@ -20,15 +21,15 @@ export default function RequestLayout() {
     const data = [
         {
             to: "/dashboard/requests",
-            text: "Pending"
+            text: "Pending Requests",
         },
         {
             to: "/dashboard/requests/approved",
-            text: "Approved"
+            text: "Approved Requests"
         },
         {
             to: "/dashboard/requests/rejected",
-            text: "Rejected"
+            text: "Rejected Requests"
         }
     ]
 
@@ -48,18 +49,7 @@ export default function RequestLayout() {
                 </div>
             </div>
             <div className="flex pl-10 w-full">
-                <AnimateSharedLayout>
-                    {data.map((item, i) => {
-                        return <NavLink key={i} to={`${item.to}`} end className={'mx-5'}>
-                            <motion.div className={`tiflex gap-x-3 pb-3 font-semibold tracking-widertle ${i === selected ? "selected" : ""}`} onClick={() => setSelected(i)} animate >
-                                <span>{item.text} </span>
-                                <span className="relative">
-                                    {i === selected && (<motion.span className="absolute w-full h-[3px] bg-primary rounded-[2px] bottom-[-10px]" layoutId="underline" />)}
-                                    Requests</span>
-                            </motion.div>
-                        </NavLink>
-                    })}
-                </AnimateSharedLayout>
+                <AnimatedTabBar data={data} />
             </div>
             <div className="px-10 py-5">
                 <Outlet />

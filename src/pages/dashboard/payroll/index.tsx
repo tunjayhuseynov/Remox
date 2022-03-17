@@ -5,6 +5,7 @@ import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/re
 import Error from 'components/general/error';
 import { NavLink, Outlet } from 'react-router-dom';
 import { motion, AnimateSharedLayout } from "framer-motion";
+import AnimatedTabBar from 'components/animatedTabBar';
 
 const Payroll = () => {
     const isSuccess = useAppSelector(selectSuccess)
@@ -15,11 +16,11 @@ const Payroll = () => {
     const data = [
         {
             to: "/dashboard/payroll",
-            text: "Manual"
+            text: "Manual Payroll"
         },
         {
             to: "/dashboard/payroll/automation",
-            text: "Automated"
+            text: "Automated Payroll"
         }
     ]
 
@@ -28,18 +29,7 @@ const Payroll = () => {
             Payroll
         </div>
         <div className="flex pl-5 pt-2 w-full ">
-            <AnimateSharedLayout>
-                {data.map((item, i) => {
-                    return <NavLink key={i} to={`${item.to}`} end className={'mx-5'}>
-                        <motion.div className={`tiflex gap-x-3 pb-3 font-semibold tracking-widertle ${i === selected ? "selected" : ""}`} onClick={() => setSelected(i)} animate >
-                            <span>{item.text} </span>
-                            <span className="relative">
-                                {i === selected && (<motion.span className="absolute w-full h-[3px] bg-primary rounded-[2px] bottom-[-10px]" layoutId="underline" />)}
-                                Payroll</span>
-                        </motion.div>
-                    </NavLink>
-                })}
-            </AnimateSharedLayout>
+            <AnimatedTabBar data={data} />
         </div>
         <div className="py-3">
             <Outlet />
