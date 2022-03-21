@@ -20,7 +20,6 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
     const click = () => {
         setOpen(!isOpen)
     }
-
     return <div>
         <div className="flex space-x-1 items-center bg-greylish bg-opacity-10 rounded-xl px-3 my-3 cursor-pointer" onClick={click}>
             <div >
@@ -32,7 +31,17 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
                 </div>
                 <div className="text-sm text-greylish">
                     {method}
-                    {direction !== undefined && date && <>{TransactionDirection.Swap === direction ? "Swapped" : ""} {TransactionDirection.In === direction ? "Received" : ""} {TransactionDirection.Out === direction ? "Executed" : ""} on {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate")}</>}
+                    {direction !== undefined && date &&
+                        <>
+                            {TransactionDirection.Swap === direction ? "Swapped" : ""}
+                            {TransactionDirection.In === direction ? "Received" : ""}
+                            {TransactionDirection.Borrow === direction ? "Borrowed" : ""}
+                            {TransactionDirection.Withdraw === direction ? "Withdrawn" : ""}
+                            {TransactionDirection.Repay === direction ? "Repaid" : ""}
+                            {TransactionDirection.Deposit === direction ? "Deposited" : ""}
+                            {TransactionDirection.AutomationOut === direction ? "Executed (A)" : ""}
+                            {TransactionDirection.AutomationIn === direction ? "Received (A)" : ""}
+                            {TransactionDirection.Out === direction ? "Executed" : ""} on {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate")}</>}
                 </div>
                 <div className={`grid grid-cols-[10%,90%] ${grid !== "grid-cols-[37%,33%,30%]" ? "justify-start" : "justify-end"} gap-x-2 items-center`}>
                     {status === TransactionStatus.Completed && <div className="bg-green-400 w-2 h-2 rounded-full"></div>}

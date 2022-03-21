@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 const ray = '1000000000000000000000000000';
 export const etherSize = '1000000000000000000';
 
-type Num = string | number;
+type Num = string | number | BigNumber;
 
 export function BN(num: Num) {
 	return new BigNumber(num);
@@ -14,7 +14,7 @@ export function toWei(num: Num) {
 }
 
 export function fromWei(num: Num) {
-    return BN(num).div(etherSize).toString()
+    return BN(num).div(etherSize).toFixed(4)
 }
 
 export function print(num: Num) {
@@ -27,4 +27,7 @@ export function printRay(num: Num) {
 
 export function printRayRate(num: Num) {
 	return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2) + '%';
+}
+export function printRayRateRaw(num: Num) {
+	return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2);
 }

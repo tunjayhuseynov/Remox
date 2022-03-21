@@ -1,5 +1,4 @@
 import { useContractKit } from '@celo-tools/use-contractkit'
-import { AltCoins } from 'types'
 import { useState } from 'react'
 import BigNumber from 'bignumber.js'
 

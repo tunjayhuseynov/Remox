@@ -6,6 +6,7 @@ import useTransactionProcess from '../../../hooks/useTransactionProcess';
 const Main = () => {
     const [transactions] = useTransactionProcess(true)
 
+
     return <main className="flex gap-5 flex-col xl:flex-row">
         <div className="w-1/2">
             <div className="grid grid-cols-2 gap-8 max-h-full">

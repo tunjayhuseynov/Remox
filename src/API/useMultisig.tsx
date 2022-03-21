@@ -13,6 +13,7 @@ import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrappe
 import { DashboardContext } from 'pages/dashboard/layout';
 import usePay, { PaymentInput } from './usePay';
 import { Contracts } from './Contracts/Contracts';
+import { fromWei } from 'utils/ray';
 const multiProxy = import("./ABI/MultisigProxy.json")
 const multisigContract = import("./ABI/Multisig.json")
 
@@ -77,7 +78,7 @@ export default function useMultisig() {
                     value: tx.value.toString(),
                 }
 
-                let value = kit.web3.utils.fromWei(tx.value.toString(), 'ether')
+                let value = fromWei(tx.value)
                 obj.value = value
                 obj.id = index
                 obj.requiredCount = ""
@@ -97,7 +98,7 @@ export default function useMultisig() {
                     if (methodId == "0xa9059cbb") {
                         let hex = tx.data.slice(100).replace(/^0+/, '')
                         let value = parseInt(hex, 16)
-                        obj.valueOfTransfer = kit.web3.utils.fromWei(value.toString(), 'ether')
+                        obj.valueOfTransfer = fromWei(value)
                     }
                 }
 
@@ -477,7 +478,7 @@ export default function useMultisig() {
                 value: tx.value.toString(),
             }
 
-            let value = kit.web3.utils.fromWei(tx.value.toString(), 'ether')
+            let value = fromWei(tx.value)
             txResult.value = value
             txResult.requiredCount = ""
             txResult.owner = ""
@@ -496,7 +497,7 @@ export default function useMultisig() {
                 if (methodId == "0xa9059cbb") {
                     let hex = tx.data.slice(100).replace(/^0+/, '')
                     let value = parseInt(hex, 16)
-                    txResult.valueOfTransfer = kit.web3.utils.fromWei(value.toString(), 'ether')
+                    txResult.valueOfTransfer = fromWei(value.toString())
                 }
             }
 

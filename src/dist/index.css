@@ -1384,6 +1384,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   grid-template-columns: 80%;
 }
 
+.grid-cols-\[25\%\2c 50\%\2c 25\%\] {
+  grid-template-columns: 25% 50% 25%;
+}
+
 .grid-rows-2 {
   grid-template-rows: repeat(2, minmax(0, 1fr));
 }

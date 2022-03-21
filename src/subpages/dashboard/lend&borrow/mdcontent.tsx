@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import useMoola, { InterestRateMode, MoolaUserComponentData } from "API/useMoola";
+import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaUserComponentData } from "API/useMoola";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { fromWei, printRayRate } from "utils/ray";
@@ -19,10 +19,11 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
     const dispatch = useAppDispatch()
     const currencies = useSelector(SelectCurrencies)
     const balances = useSelector(SelectBalances)
-    
+
     const [componentData, setComponentData] = useState(box)
     const [coinLoading, setCoinLoading] = useState(true)
-    
+    const [status, setStatus] = useState<MoolaBorrowStatus>()
+
     const maxAmount = type === "deposit" ? balances[componentData.currency.name].amount : type === "withdraw" ? componentData.lendingBalance : componentData.loanBalance
     const {
         borrow,
@@ -32,6 +33,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         getContract,
         getSingleInitialUserData,
         refresh,
+        getBorrowInfo,
         loading
     } = useMoola()
 
@@ -42,8 +44,8 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                     setCoinLoading(true)
                     const coin = Coins[wallets[0].name as unknown as keyof Coins]
                     let userData = await getSingleInitialUserData(coin)
-
                     setComponentData(userData)
+                   
                     setTimeout(() => setCoinLoading(false), 550)
                 } catch (error: any) {
                     setTimeout(() => setCoinLoading(false), 550)
@@ -52,6 +54,16 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
             }
         })()
     }, [wallets])
+
+    useEffect(() => {
+        (async () => {
+            if (amountState && wallets[0]) {
+                const info = await getBorrowInfo(amountState, Coins[wallets[0].name as keyof Coins])
+                console.log(info)
+                setStatus(info)
+            }
+        })()
+    }, [amountState])
 
     const dynamicText = (action: string, money: string, currency: string, hash: string) => {
         return <div className="flex flex-col space-y-5 items-center">
@@ -129,41 +141,43 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
             </div>
             <div className=" py-4 px-12 pt-0">
                 <p className="text-greylish">{`${type[0].toUpperCase()}${type.substring(1)}`} Amount</p>
-                <Input setAmount={setAmountState} amount={amountState} selectedWallet={wallets} setWallet={setWallets} customCurreny={componentData.currency.name} maxAmount={maxAmount} />
+                <Input setAmount={setAmountState} amount={amountState} selectedWallet={wallets} setWallet={setWallets} customCurreny={componentData.currency.name} maxAmount={parseFloat(componentData.availableBorrow)} />
             </div>
-            {(type === "borrow" || type === "repay") && (!coinLoading ? <div className="py-4 px-12 text-center">
+            {(type === "borrow" || type === "repay") && amountState > 0 && ((!coinLoading && status) ? <div className="py-4 px-12 text-center">
                 <p className="pb-4">Loan Terms</p>
                 <div className="grid grid-cols-2 px-20 gap-10 pb-4">
                     <div className="flex gap-2">
-                        <input type="radio" className="w-4 h-4 peer cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(true)} checked={selectedType} />
+                        <input type="radio" className="w-4 h-4 peer accent-[#ff501a] cursor-pointer" name="paymentType" value="token" onChange={(e) => setSelectedType(true)} checked={selectedType} />
                         <label className="font-semibold peer-checked:text-primary text-sm pb-1">
                             Variable Loan
                         </label>
                     </div>
-                    <div className="flex gap-2">
-                        <input type="radio" className="w-4 h-4 peer cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(false)} checked={!selectedType} disabled={!componentData.coinData.coinReserveConfig.StableEnabled} />
-                        <label className="font-semibold peer-checked:text-primary text-sm pb-1">
-                            Stable Loan
-                        </label>
-                    </div>
+                    {componentData.coinData.coinReserveConfig.StableEnabled &&
+                        <div className="flex gap-2">
+                            <input type="radio" className="w-4 h-4 peer accent-[#ff501a] cursor-pointer" name="paymentType" value="fiat" onChange={(e) => setSelectedType(false)} checked={!selectedType} disabled={!componentData.coinData.coinReserveConfig.StableEnabled} />
+                            <label className="font-semibold peer-checked:text-primary text-sm pb-1">
+                                Stable Loan
+                            </label>
+                        </div>
+                    }
                 </div>
                 <p className="flex justify-center pb-2">Loan Status</p>
                 <div className="grid grid-rows-5">
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2"><p>Debt:</p><span className="opacity-80">${((parseFloat(fromWei(componentData.userData.currentStableDebt)) * parseFloat(fromWei(componentData.userData.currentVariableDebt))) * currencies[componentData.currency.name].price).toFixed(4)}</span></div>
-                        <div className="flex justify-between space-x-2"><p>Health Factor:</p><span className="text-green-500">Safer</span></div>
+                        <div className="flex justify-between space-x-2"><p>Debt:</p><span className="opacity-80">$ {status.debt}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Health Factor:</p><span className={`${parseFloat(status.healthFactor) < 1.25 ? "text-red-500" : "text-green-500"}`}>{parseFloat(status.healthFactor) < 1.25 ? "Riskier" : "Safer"}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2"><p>New LTV:</p><span className="opacity-80">{componentData.coinData.coinReserveConfig.LoanToValue}</span></div>
+                        <div className="flex justify-between space-x-2"><p>New LTV:</p><span className="opacity-80">{status.ltv}%</span></div>
                         <div className="flex justify-between space-x-2"><p>Maximum LTV:</p><span className="opacity-80">{componentData.coinData.coinReserveConfig.LoanToValue}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
                         <div className="flex justify-between space-x-2 items-center"><p>Liquidation <br />Threshold:</p><span className="opacity-80">{componentData.coinData.coinReserveConfig.LiquidationThreshold}</span></div>
-                        <div className="flex justify-between space-x-2"><p>Collateral Assets:</p><span className="opacity-80">{componentData.currency.name}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Collateral Assets:</p><span className="opacity-80">{status.colList.join(", ")}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
-                        <div className="flex justify-between space-x-2"><p>Interest Rate:</p><span className="opacity-80">{componentData.userData.stableBorrowRate}</span></div>
-                        <div className="flex justify-between space-x-2"><p>Debt Assets:</p><span className="opacity-80">{componentData.currency.name}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Interest Rate:</p><span className="opacity-80">{selectedType ? componentData.coinData.variableBorrowRate : componentData.coinData.stableBorrowRate}</span></div>
+                        <div className="flex justify-between space-x-2"><p>Debt Assets:</p><span className="opacity-80">{status.debtList.join(", ")}</span></div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-5 items-center">
                         <div className="flex justify-between space-x-2"><p>Loan Terms:</p><span className="opacity-80">{selectedType ? "Variable" : "Stable"}</span></div>

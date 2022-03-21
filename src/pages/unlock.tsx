@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { removeStorage, selectStorage } from '../redux/reducers/storage';
+import { removeStorage } from '../redux/reducers/storage';
 import { setUnlock } from '../redux/reducers/unlock';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import Button from '../components/button';
@@ -9,7 +9,7 @@ import { useContractKit } from '@celo-tools/use-contractkit';
 import { setMenu } from 'redux/reducers/toggles';
 import { removeTransactions } from 'redux/reducers/transactions';
 import { selectDarkMode } from 'redux/reducers/notificationSlice';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastRun } from 'utils/toast';
 
 const Unlock = () => {
     const location = useLocation()
@@ -22,22 +22,12 @@ const Unlock = () => {
     const router = useNavigate()
     const [incorrrect, setIncorrect] = useState(false)
 
+
     const Submit = async () => {
         if (!initialised) {
             dispatch(setMenu(false))
             dispatch(removeTransactions())
-            // dispatch(removeStorage())
-            toast.error(<div className="dark:text-white"><strong>You've not signed in yet</strong> <br /> Please, sign in first</div>, {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                bodyClassName: "dark:border-darkSecond dark:bg-darkSecond",
-                className: "dark:bg-darkSecond",
-            });
+            ToastRun(<div className="dark:text-white"><strong>You've not signed in yet</strong> <br /> Please, sign in first</div>)
         }
         if (inputRef.current && address && initialised) {
             setIncorrect(false);
@@ -59,7 +49,6 @@ const Unlock = () => {
     }
 
     return <>
-        <ToastContainer />
         <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />

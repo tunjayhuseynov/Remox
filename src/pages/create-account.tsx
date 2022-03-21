@@ -7,6 +7,7 @@ import useAuth from "../hooks/useAuth";
 import { useSignInOrUp } from "../hooks";
 import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { ToastRun } from "utils/toast";
 
 export default function CreateAccount() {
 
@@ -27,7 +28,10 @@ export default function CreateAccount() {
     const create = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         const target = e.target as HTMLFormElement
-        if (target["password"].value !== target["repeatPassword"].value) return
+        if (target["password"].value !== target["repeatPassword"].value) {
+            ToastRun(<div className="dark:text-white"><strong>Passwords don't match</strong></div>)
+            return 
+        }
 
         const inputData = {
             name: target["userName"].value,
