@@ -35,11 +35,11 @@ const Contributors = () => {
             </button> */}
         </div>
         <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] border-b border-black sm:pb-5 px-5" >
-                <div className="font-normal">Name</div>
-                <div className="font-normal hidden lg:block">Team</div>
-                <div className="font-normal">Amount</div>
-                <div className="font-normal">Wallet Address</div>
+            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] rounded-xl bg-greylish bg-opacity-10 dark:bg-greylish  sm:mb-5 px-5" >
+                <div className="font-normal py-3">Name</div>
+                <div className="font-normal py-3 hidden lg:block">Team</div>
+                <div className="font-normal py-3">Amount</div>
+                <div className="font-normal py-3">Wallet Address</div>
             </div>
             <div>
                 {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={generate()}><TeamContainer {...w} /></Fragment> : undefined)}

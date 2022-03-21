@@ -19,6 +19,7 @@ enum Status {
 }
 
 const NotificationCointainer = () => {
+
     const [list] = useTransactionProcess()
     const { profile } = useProfile()
     const [openNotify, setNotify] = useState(false)
@@ -45,15 +46,20 @@ const NotificationCointainer = () => {
 
         return () => window.removeEventListener('click', click)
     }, [click, divRef])
-
-
+ 
     return <>
-        <IoMdNotificationsOutline className={openNotify ? "text-primary text-2xl cursor-pointer" : "text-2xl cursor-pointer transition hover:text-primary hover:transition"} onClick={() => setNotify(!openNotify)} />
+        <IoMdNotificationsOutline className={openNotify ? "text-primary text-3xl cursor-pointer" : "text-3xl cursor-pointer transition hover:text-primary hover:transition"} onClick={()=>{setNotify(!openNotify)}}/>
         {list && new Date(profile?.seenTime ?? 0) < new Date(parseInt((list && list.length > 0 ? list[0]?.rawData.timeStamp : "0")) * 1e3) && <div className="absolute w-[10px] h-[10px] bg-primary rounded-full -top-1 -right-1">
 
         </div>}
         {openNotify &&
-            <div ref={divRef} className="translate-x-[75%] sm:translate-x-0 z-40 absolute shadow-custom min-w-[325px] min-h-[200px] right-0 bg-white dark:bg-darkSecond mt-7 rounded-xl">
+            <div ref={divRef} className=" z-40 fixed shadow-custom min-w-[325px] h-[100vh] overflow-y-scroll overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
+                <div className="flex justify-between py-6 px-5 text-center border-t-2 dark:border-greylish">
+                <p className="text-greylish opacity-45 text-center text-xl flex items-center">Action Bar</p>
+                { <button onClick={() => setNotify(false)} className="text-center">
+                    <img src="/icons/navbar/cross.png" className="w-[25px] h-[25px]" alt="" />
+                </button>}
+                </div>
                 <div className="flex flex-col min-h-[325px] sm:min-h-[auto] justify-center sm:justify-between sm:items-stretch items-center">
                     {
                         list && list.slice(0, 5).map((transaction) => {
@@ -78,7 +84,7 @@ export default NotificationCointainer;
 
 const NotificationItem = ({ status, title, body, link }: { status: Status, title: TransactionType, body: string, link: string }) => {
 
-    return <div className="grid grid-cols-[15%,65%,20%] min-h-[50px] border-b-2 dark:border-darkSecond dark:bg-darkSecond items-center px-3 py-2">
+    return <div className="grid grid-cols-[15%,65%,20%] min-h-[50px] border-t-2 dark:border-greylish dark:bg-darkSecond items-center px-3 py-2">
         <div>
             {
                 status === Status.OK && <div className="w-[15px] h-[15px] rounded-full bg-blue-600"></div>

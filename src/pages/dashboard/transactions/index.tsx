@@ -5,7 +5,7 @@ import Web3 from "web3";
 import TransactionItem from "../../../components/transactionItem";
 import { useAppSelector } from "../../../redux/hooks";
 import { selectStorage } from "../../../redux/reducers/storage";
-import { AltCoins, Coins, CoinsName, TransactionDirection } from "../../../types";
+import { AltCoins, Coins, CoinsName, DropDownItem, TransactionDirection } from "../../../types";
 import { TransactionStatus } from "../../../types/dashboard/transaction";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
@@ -18,6 +18,7 @@ import useTransactionProcess, { ERC20MethodIds, IBatchRequest, IFormattedTransac
 import { fromWei } from "web3-utils";
 import { HiDownload } from 'react-icons/hi'
 import { selectTags } from "redux/reducers/tags";
+import {WalletDropdown} from "../../../components/general/walletdropdown"
 
 const Transactions = () => {
     const storage = useAppSelector(selectStorage);
@@ -28,7 +29,7 @@ const Transactions = () => {
     const { pathname } = useLocation()
     const tags = useAppSelector(selectTags)
 
-    let page : string;
+    let page: string;
     if (pathname.includes("/pending")) {
         page = "pending"
     } else if (pathname.includes("/rejected")) {
@@ -122,13 +123,14 @@ const Transactions = () => {
                 }
                 <div className="py-5">
                     <div className="w-full pt-4 pb-3 rounded-xl">
-                        <div id="header" className="grid grid-cols-[25%,45%,30%] sm:grid-cols-[39%,31%,15%,15%] border-b border-black pb-3 " >
-                            <div className="sm:hidden text-xs font-medium">Recipient/Sender</div>
-                            <div className="hidden sm:block text-xs sm:text-base font-medium">{page !== "completed" ? "Your Confirmation" : "Recipient/Sender"}</div>
-                            <div className="text-xs sm:text-base font-medium">{page !== "completed" ? "Action" : "Paid Amount"}</div>
-                            <div className="font-medium hidden md:block">{page !== "completed" ? "Signatures" : "Details"}</div>
+                        <div id="header" className="grid grid-cols-[25%,45%,30%] sm:grid-cols-[39%,30%,11%,10%,10%] border-b border-black pb-3 " >
+                            <div className="sm:hidden text-xs font-medium pt-2">Recipient/Sender</div>
+                            <div className="hidden sm:block text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Your Confirmation" : "Recipient/Sender"}</div>
+                            <div className="text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Action" : "Paid Amount"}</div>
+                            <div className="font-medium hidden md:block pt-2">{page !== "completed" ? "Signatures" : "Details"}</div>
+                            <WalletDropdown />
                             {!isMultisig && <> <div className="place-self-end ">
-                                {list && <CSVLink className="font-normal px-2 sm:px-5 py-1 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex items-center justify-center xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
+                                {list && <CSVLink className="font-normal px-2 sm:px-5 py-2 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex items-center justify-center xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
                                     let tx = w.rawData
                                     let feeToken = Object.entries(CoinsName).find(s => s[0] === tx.tokenSymbol)?.[1]
                                     return {
@@ -161,7 +163,7 @@ const Transactions = () => {
                                             }, '')
 
                                             return <Accordion key={(w.id?.toString() ?? Math.random().toString()) + w.data} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[38%,31%,15%,6%]"} dataCount={1} method={method} status={w.executed ? TransactionStatus.Completed : w.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}>
-                                                <div className="pl-5 grid sm:grid-cols-[20%,30%,25%,25%] lg:grid-cols-[38%,32%,15%,15%] min-h-[75px] py-6 items-center">
+                                                <div className="pl-5 grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[38%,31%,15%,6%] min-h-[75px] py-6 items-center">
                                                     <div>
                                                         {w.executed ? <div className="text-white bg-green-500 border-2 border-green-500 rounded-xl px-3 py-1 text-center text-xs w-[125px]">Submitted</div> : null}
                                                         {w.executed ? null : w.confirmations.includes(storage!.accountAddress) ? <div className="text-white bg-primary border-2 border-primary rounded-xl px-3 py-1 text-center text-xs max-w-[175px]">You've Confirmed</div> : <div className="border-2 text-center border-primary  px-3 py-1 rounded-xl text-xs max-w-[175px]">You've not confirmed yet</div>}
@@ -193,7 +195,7 @@ const Transactions = () => {
                                     </div> : <div className="text-center py-3">No Transaction Yet</div>}
                             </div>
                         }
-                        {page === "completed" && ( list && transactionVisual ? transactionVisual : <div className="text-center py-2"><ClipLoader /></div>)}
+                        {page === "completed" && (list && transactionVisual ? transactionVisual : <div className="text-center py-2"><ClipLoader /></div>)}
                     </div>
                 </div>
             </div>
@@ -201,5 +203,7 @@ const Transactions = () => {
         </div>
     </>
 }
+
+
 
 export default Transactions;

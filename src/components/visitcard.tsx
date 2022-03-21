@@ -10,10 +10,10 @@ const Visitcard = ({ name, address }: { name: string, address: string }) => {
 
 
     return <>
-        <div ref={setDivRef} className="px-5 py-1 flex flex-col bg-gray-50 dark:bg-darkSecond rounded-xl relative ">
+        <div ref={setDivRef} className="px-4 min-w-[125px] py-2 flex flex-col bg-gray-50 dark:bg-darkSecond rounded-xl relative ">
             <h3 className="text-lg">{name}</h3>
             <p className="text-xs" >{AddressReducer(address)}</p>
-            <div className="bg-primary p-2 rounded-xl cursor-pointer absolute translate-x-1/2 -translate-y-1/2  right-0 top-1/2" onClick={() => {
+            <div className="bg-primary p-2 rounded-xl cursor-pointer absolute  -translate-y-1/2  right-[10px] top-1/2" onClick={() => {
                 navigator.clipboard.writeText(address.trim())
                 setTooltip(true)
                 setTimeout(() => {

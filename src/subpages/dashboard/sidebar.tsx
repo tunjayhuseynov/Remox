@@ -12,10 +12,19 @@ import { DropDownItem } from '../../types';
 import Create from '../multisig/create';
 import Button from '../../components/button';
 import useMultisig from '../../API/useMultisig';
+import { removeStorage } from '../../redux/reducers/storage'
+import { setMenu } from '../../redux/reducers/toggles'
+import { removeTransactions } from '../../redux/reducers/transactions'
+import { useContractKit } from '@celo-tools/use-contractkit'
+import { useNavigate} from 'react-router-dom'
+import { BiLogOut } from 'react-icons/bi'
+import { RiFlaskLine } from 'react-icons/ri';
 
 const Sidebar = () => {
 
+    const { destroy } = useContractKit()
     const { data, importMultisigAccount, isLoading } = useMultisig()
+    const navigator = useNavigate()
 
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
@@ -62,47 +71,58 @@ const Sidebar = () => {
 
     return <div className="flex flex-col gap-14 pl-4 lg:pl-10">
         <div>
-            <Dropdown list={list} selected={selectedItem} onSelect={(w) => {
+            <Siderbarlist />
+        </div>
+
+        <div className="flex items-center gap-5 mt-10 mb-2">
+            <Dropdown className="min-w-[170px]" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                 if (w.address) {
                     setItem(w)
                     dispatch(changeAccount(w.address))
                 }
             }} />
-        </div>
-        <div>
-            <Siderbarlist />
-        </div>
-        {isAccountModal && <Modal onDisable={setAccountModal}>
-            <div className="flex flex-col gap-4 mt-[-2rem]">
-                <div className="text-center font-semibold">Multi-Signature Account</div>
-                <div className="flex space-x-3 border border-black px-5 py-2 rounded-md cursor-pointer items-center" onClick={() => {
+            <span onClick={() => {
+                dispatch(setMenu(false))
+                dispatch(removeTransactions())
+                dispatch(removeStorage())
+                destroy() 
+                navigator('/')
+            }}><LogoutSVG />
+            </span>
+        </div>  
+        {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
+            <div className="flex flex-col gap-8 mt-[-2rem]">
+                <div className="text-center font-semibold pt-4 text-xl">Multi-Signature Account</div>
+                <div className="flex space-x-3 border border-greylish  py-3 rounded-md cursor-pointer items-center justify-center" onClick={() => {
                     setCreateModal(true)
                     setAccountModal(false)
                 }}>
-                    <img src="/icons/teamicon.svg" className="dark:invert dark:brightness-0" alt="" />
                     <span>Create Multisig Account</span>
                 </div>
-                <div className="flex space-x-3 border border-black px-5 py-2 rounded-md cursor-pointer items-center" onClick={() => {
+                <div className="flex space-x-3 border border-greylish  py-3 rounded-md cursor-pointer items-center justify-center" onClick={() => {
                     setImportModal(true)
                     setAccountModal(false)
                 }}>
-                    <img src="/icons/teamicon.svg" className="dark:invert dark:brightness-0" alt="" />
                     <span>Import Multisig Account</span>
                 </div>
+                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false) } className=" w-[30%] px-4 py-2">Cancel</Button></div>
             </div>
         </Modal>}
-        {isImportModal && <Modal onDisable={setImportModal}>
+        {isImportModal && <Modal onDisable={setImportModal} disableX={true}>
             <div className="flex flex-col gap-4 mt-[-2rem]">
-                <div className="text-center font-semibold">Import MultiSig Account</div>
+                <div className="text-center font-semibold text-xl">Import MultiSig Account</div>
                 <div className="flex flex-col">
                     <span className="text-greylish opacity-35 pl-3">MultiSig Name</span>
-                    <input ref={importNameInputRef} type="text" className="border p-3 rounded-md border-black dark:bg-darkSecond outline-none" placeholder="0xabc..." />
+                    <input ref={importNameInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig name" />
                 </div>
                 <div className="flex flex-col">
                     <span className="text-greylish opacity-35 pl-3">MultiSig Address</span>
-                    <input ref={importInputRef} type="text" className="border p-3 rounded-md border-black dark:bg-darkSecond outline-none" placeholder="0xabc..." />
+                    <input ref={importInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig Address" />
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-5">
+                <Button className="px-10 py-2" version="second" onClick={() => setImportModal(false)}>
+                        Cancel
+                    </Button>
                     <Button className="px-10 py-2" onClick={importClick} isLoading={isLoading}>
                         Import
                     </Button>
@@ -110,7 +130,7 @@ const Sidebar = () => {
             </div>
         </Modal>}
         {
-            isCreateModal && <Modal onDisable={setCreateModal}>
+            isCreateModal && <Modal onDisable={setCreateModal} disableX={true}>
                 <Create setCreateModal={setCreateModal} />
             </Modal>
         }
@@ -119,5 +139,7 @@ const Sidebar = () => {
     </div>
 
 }
+
+const LogoutSVG = ({ active = false }) => <BiLogOut className="w-[24px] h-[24px] cursor-pointer" />
 
 export default Sidebar;
