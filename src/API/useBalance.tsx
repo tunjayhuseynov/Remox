@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { deleteBalance } from 'redux/reducers/currencies';
 import { AltCoins, Coins } from 'types';
 import usePoof from 'hooks/usePoof'
+import { etherSize, fromWei } from 'utils/ray';
 
 export default function useBalance(address: string) {
     const { kit, walletType } = useContractKit()
@@ -41,8 +42,7 @@ export default function useBalance(address: string) {
                     const item = i as AltCoins
                     const ethers = await kit.contracts.getErc20(item.contractAddress);
                     let balance = await ethers.balanceOf(address);
-                    let bnBalance = kit.web3.utils.toBN(balance.toString());
-                    let altcoinBalance = kit.web3.utils.fromWei(bnBalance.toString(), 'ether');
+                    let altcoinBalance = fromWei(balance)
 
                     balances = Object.assign(balances, { [item.name]: altcoinBalance });
                 }

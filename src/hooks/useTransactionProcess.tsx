@@ -3,10 +3,11 @@ import { SelectTransactions } from '../redux/reducers/transactions';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { GetTransactions, Transactions } from '../types/sdk';
-import { hexToNumberString, fromWei, hexToUtf8 } from 'web3-utils'
+import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
 import { Tag } from 'API/useTags';
-import tags, { selectTags } from 'redux/reducers/tags';
+import { selectTags } from 'redux/reducers/tags';
+import { fromWei } from 'utils/ray';
 
 
 export const ERC20MethodIds = {
@@ -16,6 +17,11 @@ export const ERC20MethodIds = {
     approve: "0x095ea7b3",
     batchRequest: "0xc23bfbf7",
     swap: "0x38ed1739",
+    automatedTransfer: "0x7f87a6f0",
+    moolaBorrow: "0xa415bcad",
+    moolaDeposit: "0xe8eda9df",
+    moolaWithdraw: "0x69328dec",
+    moolaRepay: "0x573ade81",
     noInput: "0x"
 }
 
@@ -27,9 +33,14 @@ export interface IFormattedTransaction {
     tags?: Tag[]
 }
 
-export interface ITransfer extends IFormattedTransaction {
+export interface ITransfer extends IFormattedTransaction { // aw, Moola Borrow
     to: string;
     amount: string;
+    coin: AltCoins
+}
+
+export interface IAutomationTransfer extends IFormattedTransaction {
+    taskId: string;
 }
 
 export interface ITransferComment extends ITransfer {
@@ -67,7 +78,7 @@ const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], G
 
             const groupedHash = _(result).groupBy("hash").value();
             const uniqueHashs = Object.values(groupedHash).reduce((acc: Transactions[], value: Transactions[]) => {
-                const best = _(value).maxBy((o) => parseFloat(fromWei(o.value.toString(), "ether")));
+                const best = _(value).maxBy((o) => parseFloat(fromWei(o.value)));
                 if (best) acc.push(best)
 
                 return acc;
@@ -93,13 +104,14 @@ const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], G
 }
 
 
-const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
+export const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
     const theTags = tags.filter(s => s.transactions.includes(transaction.hash.toLowerCase()))
     if (input.startsWith(ERC20MethodIds.transferFrom)) {
         const len = ERC20MethodIds.transferFrom.length
         return {
             method: "transferFrom",
             id: ERC20MethodIds.transferFrom,
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             from: "0x" + input.slice(len, len + 64).substring(24),
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64 + 64 + 64, len + 64 + 64 + 64 + 64)).toString(),
@@ -110,6 +122,7 @@ const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
         return {
             method: "transfer",
             id: ERC20MethodIds.transfer,
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             to: "0x" + input.slice(len, len + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             tags: theTags
@@ -171,6 +184,64 @@ const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             comment: hexToUtf8("0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)),
             tags: theTags
+        }
+    }
+    else if (input.startsWith(ERC20MethodIds.automatedTransfer)) {
+        const len = ERC20MethodIds.automatedTransfer.length
+
+        return {
+            method: "automatedTransfer",
+            id: ERC20MethodIds.automatedTransfer,
+            tags: theTags,
+            taskId: "0x" + input.slice(len, len + 64)
+        }
+    }
+    else if (input.startsWith(ERC20MethodIds.moolaBorrow)) {
+        const len = ERC20MethodIds.moolaBorrow.length
+        const coins: AltCoins[] = Object.values(Coins)
+        return {
+            method: "moolaBorrow",
+            id: ERC20MethodIds.moolaBorrow,
+            coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
+            amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
+            to: "0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64).substring(24),
+            tags: theTags,
+        }
+    }
+    else if (input.startsWith(ERC20MethodIds.moolaDeposit)) {
+        const len = ERC20MethodIds.moolaDeposit.length
+        const coins: AltCoins[] = Object.values(Coins)
+        return {
+            method: "moolaDeposit",
+            id: ERC20MethodIds.moolaDeposit,
+            coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
+            amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
+            to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
+            tags: theTags,
+        }
+    }
+    else if (input.startsWith(ERC20MethodIds.moolaWithdraw)) {
+        const len = ERC20MethodIds.moolaWithdraw.length
+        const coins: AltCoins[] = Object.values(Coins)
+        return {
+            method: "moolaWithdraw",
+            id: ERC20MethodIds.moolaWithdraw,
+            coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
+            amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
+            to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
+            tags: theTags,
+        }
+    }
+    else if (input.startsWith(ERC20MethodIds.moolaRepay)) {
+        const len = ERC20MethodIds.moolaRepay.length
+        const coins: AltCoins[] = Object.values(Coins)
+        return {
+            method: "moolaWithdraw",
+            id: ERC20MethodIds.moolaRepay,
+            coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
+            amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
+            to: "0x" + input.slice(len + 64 + 64 + 64, len + 64 + 64 + 64 + 64).substring(24),
+            tags: theTags,
         }
     }
 }

@@ -3,13 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/reducers/moola";
 import { AltCoins, Coins, TokenType } from "types";
-import { BN, etherSize, print, printRay, printRayRate, toWei } from "utils/ray";
+import BigNumber from 'bignumber.js'
+import { BN, etherSize, fromWei, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
+import { SelectCurrencies } from 'redux/reducers/currencies'
 const MoolaProxy = import("./ABI/MoolaProxy.json")
 const Moola = import("./ABI/Moola.json")
 const MoolaData = import("./ABI/MoolaData.json")
+const MoolaPriceOracle = import("./ABI/MoolaPriceOracle.json")
 
 export enum InterestRateMode {
     Stable = "1",
@@ -19,12 +22,15 @@ export enum InterestRateMode {
 export default function useMoola() {
     const { kit, address } = useContractKit()
     const contractRef = useRef<string>()
+    const priceOracleRef = useRef<string>()
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
 
     const dispatch = useDispatch()
+    const MoolaUserData = useSelector(selectMoolaData)
     const moolaData = useSelector(selectMoolaData)
+    const currencies = useSelector(SelectCurrencies)
 
     useEffect(() => {
         getContract().catch((error: any) => { console.error(error.message) })
@@ -38,7 +44,9 @@ export default function useMoola() {
 
             const tx = await proxy.methods.getLendingPool()
             const address = await tx.call()
+            const priceOracle = await proxy.methods.getPriceOracle().call()
             contractRef.current = address
+            priceOracleRef.current = priceOracle
             setLaoding(false)
             return address;
         } catch (error: any) {
@@ -48,10 +56,32 @@ export default function useMoola() {
         }
     }
 
+    const getBorrowLimit = async (walletAddress?: string) => {
+        try {
+            const abi = await Moola
+            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
+            return (await moola.methods.getUserAccountData((walletAddress ?? address!)).call()).availableBorrowsETH
+        } catch (error: any) {
+            console.error(error)
+            throw new Error(error.message)
+        }
+    }
+
+    const getPrice = async (asset: string) => {
+        try {
+            const abi = await MoolaPriceOracle
+            const contract = new kit.web3.eth.Contract(abi.abi as AbiItem[], priceOracleRef.current)
+            return await contract.methods.getAssetPrice(asset).call()
+        } catch (error: any) {
+            console.error("getPrice", error)
+            throw new Error(error.message)
+        }
+    }
+
     const deposit = async (asset: string, amount: number | string, to?: string) => {
         try {
             setLaoding(true)
-            if (!contractRef.current) {
+            if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
             const abi = await Moola
@@ -75,7 +105,7 @@ export default function useMoola() {
     const withdraw = async (asset: string, amount: number | string, to?: string) => {
         try {
             setLaoding(true)
-            if (!contractRef.current) {
+            if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
             const abi = await Moola
@@ -83,7 +113,7 @@ export default function useMoola() {
 
             const weiAmount = toWei(amount)
             const withdraw = await moola.methods.withdraw(asset, weiAmount, (to ?? address!))
-
+            await allow(asset, contractRef.current!, amount.toString())
             const res = await withdraw.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
 
@@ -98,7 +128,7 @@ export default function useMoola() {
     const borrow = async (asset: string, amount: number | string, interestRateMode: InterestRateMode, to?: string) => {
         try {
             setLaoding(true)
-            if (!contractRef.current) {
+            if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
             const abi = await Moola
@@ -106,7 +136,7 @@ export default function useMoola() {
 
             const weiAmount = toWei(amount)
             const borrow = await moola.methods.borrow(asset, weiAmount, interestRateMode, 0, (to ?? address!))
-
+            await allow(asset, contractRef.current!, amount.toString())
             const res = await borrow.send({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash
@@ -120,7 +150,7 @@ export default function useMoola() {
     const repay = async (asset: string, amount: number | string, interestRateMode: InterestRateMode, to?: string) => {
         try {
             setLaoding(true)
-            if (!contractRef.current) {
+            if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
             const abi = await Moola
@@ -141,7 +171,7 @@ export default function useMoola() {
 
     const getReserveData = async (asset: string): Promise<MoolaReserveData> => {
         try {
-            if (!contractRef.current) {
+            if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
             const abi = await MoolaData
@@ -153,9 +183,11 @@ export default function useMoola() {
 
             return {
                 availableLiquidity: print(reserveData.availableLiquidity),
+                rawAvailableLiquidity: reserveData.availableLiquidity,
                 totalStableDebt: print(reserveData.totalStableDebt),
                 totalVariableDebt: print(reserveData.totalVariableDebt),
-                liquidityRate: printRayRate(reserveData.liquidityRate),
+                liquidityRate: printRayRateRaw(reserveData.liquidityRate),
+                rawLiquidityRate: reserveData.liquidityRate,
                 variableBorrowRate: printRayRate(reserveData.variableBorrowRate),
                 stableBorrowRate: printRayRate(reserveData.stableBorrowRate),
                 averageStableBorrowRate: printRayRate(reserveData.averageStableBorrowRate),
@@ -202,23 +234,34 @@ export default function useMoola() {
     }
 
     const refresh = async () => {
-        let data = await InitializeUser()
-        setTimeout(() => {
-            dispatch(updateData(data))
-        }, 1000)
+        await InitializeUser()
     }
 
     const getSingleInitialUserData = async (currency: AltCoins) => {
         try {
+            if (!contractRef.current || !priceOracleRef.current) {
+                await getContract()
+            }
             const element = currency;
             const contract = await kit.contracts.getErc20(element.contractAddress)
             const weiBalance = await contract.balanceOf(address!)
-            const balance = kit.web3.utils.fromWei(weiBalance.toString(), "ether")
+            const balance = fromWei(weiBalance)
+            const price = currencies[element.name].price
+            const celoPerToken = await getPrice(element.contractAddress)
             const data = await getUserAccountData(element.contractAddress)
             const coinData = await getReserveData(element.contractAddress)
-            const lendingBalance = kit.web3.utils.fromWei(data.currentATokenBalance, "ether")
-            const loanBalance = parseFloat(kit.web3.utils.fromWei(data.currentStableDebt, "ether")) + parseFloat(kit.web3.utils.fromWei(data.currentVariableDebt, "ether"))
+            const lendingBalance = fromWei(data.currentATokenBalance)
+            const loanBalance = parseFloat(fromWei(data.currentStableDebt)) + parseFloat(fromWei(data.currentVariableDebt))
+            const maxBorrow = await getBorrowLimit(address!)
+
+
+            const maxCoin = BN(maxBorrow).multipliedBy(etherSize).dividedBy(celoPerToken)
+            const maxBorrowValue = BigNumber.minimum(maxCoin, coinData.rawAvailableLiquidity).multipliedBy('0.99').div(etherSize).toString()
+
+
             return {
+                currencyPrice: price.toString(),
+                availableBorrow: maxBorrowValue,
                 apy: parseFloat(coinData.liquidityRate),
                 walletBalance: parseFloat(balance),
                 lendingBalance: parseFloat(BN(lendingBalance).toFixed(2, 2)),
@@ -234,37 +277,78 @@ export default function useMoola() {
         }
     }
 
+    const getBorrowInfo = async (borrowAmount: number, currency: AltCoins): Promise<MoolaBorrowStatus> => {
+        const collaterals = MoolaUserData.map((userData) => (
+            {
+                currency: userData.currency,
+                usageAsCollateralEnabled: userData.userData.usageAsCollateralEnabled,
+                debt: BN(userData.userData.currentStableDebt).plus(userData.userData.currentVariableDebt).plus(currency.name === userData.currency.name ? toWei(borrowAmount) : 0),
+                deposit: BN(userData.userData.currentATokenBalance),
+                lt: userData.coinData.liquidityRate
+            }))
+        console.log(collaterals)
+
+        const debtList = collaterals.filter(d => !d.debt.eq(0)).map((c) => c.currency.name)
+        const colList = collaterals.filter(d => !d.deposit.eq(0)).map((c) => c.currency.name)
+
+        const debtSum = collaterals.reduce((acc, c) => acc.plus(c.debt), BN(0))
+        const collateralSum = collaterals.reduce((acc, c) => acc.plus(c.deposit), BN(0))
+
+
+
+        const celo = currencies.CELO;
+        const bases = collaterals.map((item) => {
+            const isCelo = item.currency.name === "CELO";
+            const deposit = item.deposit.multipliedBy((isCelo ? 1 : currencies[item.currency.name].price)).div((isCelo ? 1 : celo.price))
+            const debt = item.debt.multipliedBy((isCelo ? 1 : currencies[item.currency.name].price)).div((isCelo ? 1 : celo.price))
+            return {
+                celoBaseDeposit: deposit,
+                celoBaseDebt: debt,
+                lt: deposit.eq(0) ? 0 : BN(deposit).multipliedBy(item.lt)
+            }
+        })
+        console.log("Bases: :", bases)
+
+        const collateralLTSum = bases.reduce((acc, c) => acc.plus(c.lt), BN(0))
+        const averageLiquidationThreshold = BN(collateralLTSum).dividedBy(collateralSum).multipliedBy(100)
+
+        const totalDeposit = bases.reduce((a, c) => a.plus(c.celoBaseDeposit), BN(0))
+        const totalDebt = bases.reduce((a, c) => a.plus(c.celoBaseDebt), BN(0))
+        console.log("Total Deposit: ", totalDeposit.toString())
+        console.log("Total Debt: ", totalDebt.toString())
+        return {
+            ltv: BN(totalDebt).dividedBy(totalDeposit).multipliedBy(100).toFixed(2, 2),
+            debt: debtSum.div(etherSize).toFixed(4, 2),
+            debtList: debtList,
+            colList,
+            healthFactor: BN(collateralSum).multipliedBy(averageLiquidationThreshold).dividedBy(debtSum).dividedBy(100).toFixed(2, 2)
+        }
+    }
+
 
     const InitializeUser = async () => {
         try {
             if (moolaData.length === 0) setInitLaoding(true)
+            if (!contractRef.current || !priceOracleRef.current) {
+                await getContract()
+            }
             const coinList: AltCoins[] = Object.values(Coins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
             const userData: MoolaUserComponentData[] = [];
             for (let index = 0; index < coinList.length; index++) {
                 try {
                     const element = coinList[index];
-                    const contract = await kit.contracts.getErc20(element.contractAddress)
-                    const weiBalance = await contract.balanceOf(address!)
-                    const balance = kit.web3.utils.fromWei(weiBalance.toString(), "ether")
-                    const data = await getUserAccountData(element.contractAddress)
-                    const coinData = await getReserveData(element.contractAddress)
-                    const lendingBalance = kit.web3.utils.fromWei(data.currentATokenBalance, "ether")
-                    const loanBalance = parseFloat(kit.web3.utils.fromWei(data.currentStableDebt, "ether")) + parseFloat(kit.web3.utils.fromWei(data.currentVariableDebt, "ether"))
-                    userData.push({
-                        apy: parseFloat(coinData.liquidityRate),
-                        walletBalance: parseFloat(balance),
-                        lendingBalance: parseFloat(BN(lendingBalance).toFixed(2, 2)),
-                        loanBalance: parseFloat(BN(loanBalance).toFixed(2, 2)),
-                        currency: element,
-                        averageStableBorrowRate: parseFloat(coinData.averageStableBorrowRate),
-                        userData: data,
-                        coinData: coinData
-                    })
+
+                    const data = await getSingleInitialUserData(element)
+
+                    userData.push(data)
                 } catch (error: any) {
                     console.error(error.message)
                 }
             }
             if (moolaData.length === 0) setInitLaoding(false)
+            setTimeout(() => {
+                dispatch(updateData(userData))
+            }, 1000)
             return userData
         } catch (error: any) {
             console.error(error)
@@ -273,7 +357,7 @@ export default function useMoola() {
         }
     }
 
-    return { getContract, deposit, withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading, getSingleInitialUserData };
+    return { getContract, deposit, getPrice, withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading, getSingleInitialUserData, getBorrowInfo };
 }
 
 export interface MoolaUserData {
@@ -303,9 +387,11 @@ export interface MoolaReserveConfig {
 
 export interface MoolaReserveData {
     availableLiquidity: string,
+    rawAvailableLiquidity: string,
     totalStableDebt: string,
     totalVariableDebt: string,
     liquidityRate: string,
+    rawLiquidityRate: string,
     variableBorrowRate: string,
     stableBorrowRate: string,
     averageStableBorrowRate: string,
@@ -319,10 +405,20 @@ export interface MoolaReserveData {
 export interface MoolaUserComponentData {
     walletBalance: number,
     lendingBalance: number,
+    availableBorrow: string,
     loanBalance: number,
     currency: AltCoins,
+    currencyPrice: string,
     apy: number,
     averageStableBorrowRate: number,
     userData: MoolaUserData,
     coinData: MoolaReserveData,
+}
+
+export interface MoolaBorrowStatus {
+    ltv: string,
+    debt: string;
+    debtList: string[];
+    colList: string[];
+    healthFactor: string
 }

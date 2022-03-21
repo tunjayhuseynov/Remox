@@ -17,6 +17,7 @@ import { DateInterval } from "./useContributors";
 import useAllowance from './useAllowance'
 import useTags, { Tag } from "./useTags";
 import usePoof from "hooks/usePoof";
+import { fromWei, toWei } from "utils/ray";
 
 const Ether = import("ethers");
 const nomAbi = import("API/ABI/nom.json")
@@ -38,7 +39,7 @@ export default function usePay() {
     const { createTask, getTaskIDs } = useGelato()
     const { allow } = useAllowance()
     const { addTransaction } = useTags()
-    const { transfer } = usePoof(2, walletType === "PrivateKey")
+    const Poof = usePoof(2, walletType === "PrivateKey")
 
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
 
@@ -48,8 +49,10 @@ export default function usePay() {
 
         if (Object.values(PoofCoins).find((s: PoofAltCoins) => (s.name as string) === (inputArr[0].coin.name as string))) {
             for (let index = 0; index < inputArr.length; index++) {
-                const amountWei = kit.web3.utils.toWei(inputArr[index].amount.toString(), 'ether');
-                await transfer(inputArr[index].coin.name as PoofCoinsName, amountWei, inputArr[index].recipient)
+                const amountWei = toWei(inputArr[index].amount)
+                if(Poof){
+                    await Poof.transfer(inputArr[index].coin.name as PoofCoinsName, amountWei, inputArr[index].recipient)
+                }
             }
             return
         }
@@ -101,7 +104,9 @@ export default function usePay() {
         try {
             if (Object.values(PoofCoins).find((s: PoofAltCoins) => s.name === coin.name)) {
                 const amountWei = kit.web3.utils.toWei(amount.toString(), 'ether');
-                await transfer(coin.name as unknown as PoofCoinsName, amountWei, recipient)
+                if(Poof){
+                    await Poof.transfer(coin.name as unknown as PoofCoinsName, amountWei, recipient)
+                }
                 return
             }
 
@@ -167,8 +172,7 @@ export default function usePay() {
             }
         )();
         let currentBalance = await token.balanceOf(address!);
-        let bnBalance = kit.web3.utils.toBN(currentBalance.toString());
-        let celoBalance = kit.web3.utils.fromWei(bnBalance.toString(), 'ether');
+        let celoBalance = fromWei(currentBalance)
 
         if (amount.toString() >= celoBalance)
             throw new Error('Amount exceeds balance');

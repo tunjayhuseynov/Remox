@@ -2,11 +2,11 @@ import { CeloProvider } from '@celo-tools/celo-ethers-wrapper';
 import { useContractKit } from '@celo-tools/use-contractkit';
 import { StableToken } from '@celo/contractkit';
 import { ChainId, Fetcher, Fraction, JSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
-import { utils } from 'ethers';
 import { getAddress } from 'ethers/lib/utils';
 import { DashboardContext } from 'pages/dashboard/layout';
 import { useContext, useState } from 'react';
 import { AltCoins, Coins } from 'types';
+import { fromWei, toWei } from 'utils/ray';
 
 export default function useSwap() {
     const { kit, address } = useContractKit()
@@ -94,9 +94,9 @@ export default function useSwap() {
 
             const pair = await Fetcher.fetchPairData(output, input, provider);
             const route = new Route([pair], input);
-            const amountIn = utils.parseUnits(amount, 'ether');
+            const amountIn = toWei(amount)
             // Trade.bestTradeExactIn(pair,new TokenAmount(input, amountIn.toString()),output)
-            const trade = new Trade(route, new TokenAmount(input, amountIn.toString()), TradeType.EXACT_INPUT); //
+            const trade = new Trade(route, new TokenAmount(input, amountIn), TradeType.EXACT_INPUT); //
 
             const ubeRouter = Router.swapCallParameters(trade, {
                 feeOnTransfer: false,
@@ -136,8 +136,8 @@ export default function useSwap() {
             let minimumAmountOut = "0";
 
             if (parseFloat(amount) > 0) {
-                const amountIn = utils.parseUnits(amount, 'ether');
-                const trade = new Trade(route, new TokenAmount(input, amountIn.toString()), TradeType.EXACT_INPUT); //
+                const amountIn = toWei(amount)
+                const trade = new Trade(route, new TokenAmount(input, amountIn), TradeType.EXACT_INPUT); //
 
 
                 const BASE_FEE = new Percent(JSBI.BigInt(30), JSBI.BigInt(10000))
@@ -167,15 +167,15 @@ export default function useSwap() {
                 feeAmount = feeAmount.toSignificant(4)
                 const amountOut = trade.minimumAmountOut(new Percent(slippage.toString(), '1000'));
                 minimumAmountOut = amountOut.raw.toString();
-                minimumAmountOut = kit.web3.utils.fromWei(minimumAmountOut, 'ether');
+                minimumAmountOut = fromWei(minimumAmountOut);
             }
 
-            const oneCoin = utils.parseUnits('1', 'ether');
-            const tradeOne = new Trade(route, new TokenAmount(input, oneCoin.toString()), TradeType.EXACT_INPUT); //
+            const oneCoin = toWei(1);
+            const tradeOne = new Trade(route, new TokenAmount(input, oneCoin), TradeType.EXACT_INPUT); //
 
             const amountOutOne = tradeOne.minimumAmountOut(new Percent(slippage, '1000'));
             let minimumAmountOutOne = amountOutOne.raw.toString();
-            minimumAmountOutOne = kit.web3.utils.fromWei(minimumAmountOutOne, 'ether');
+            minimumAmountOutOne = fromWei(minimumAmountOutOne);
 
             setLoading(false)
             return { minimumAmountOut, oneTokenValue: minimumAmountOutOne, feeAmount: feeAmount };

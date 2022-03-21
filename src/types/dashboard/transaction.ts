@@ -10,7 +10,13 @@ export enum TransactionType {
 export enum TransactionDirection {
     In,
     Out,
-    Swap
+    Swap,
+    AutomationIn,
+    AutomationOut,
+    Borrow,
+    Deposit,
+    Withdraw,
+    Repay
 }
 
 export enum TransactionStatus{

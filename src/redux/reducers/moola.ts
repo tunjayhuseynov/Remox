@@ -4,9 +4,9 @@ import type { RootState } from '../store'
 
 
 const initialState: { 
-    data: MoolaUserComponentData[]
+    data: MoolaUserComponentData[],
 } = {
-    data: []
+    data: [],
 }
 
 export const moolaSlice = createSlice({
@@ -15,7 +15,7 @@ export const moolaSlice = createSlice({
     reducers: {
         updateData: (state, action: PayloadAction<MoolaUserComponentData[]>) => {
             state.data = action.payload
-        }
+        },
     },
 })
 

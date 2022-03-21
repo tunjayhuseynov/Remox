@@ -54,8 +54,6 @@ export function FirestoreWrite<DataType>() {
 }
 
 
-
-
 export function useFirestoreRead<DataType>(collection: string, document: string) {
     const [data, setData] = useState<DataType>();
 

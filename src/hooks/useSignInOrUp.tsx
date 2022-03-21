@@ -7,8 +7,6 @@ import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite } from "../API/useFirebase";
 import { useContractKit } from "@celo-tools/use-contractkit";
-import { toTransactionObject } from "@celo/connect";
-import { toWei } from "web3-utils";
 import useTags from "API/useTags";
 
 

@@ -17,6 +17,7 @@ import Form from "pages/dashboard/requests/form";
 import DynamicPayroll from "pages/dashboard/payroll/dynamic";
 import TagsSetting from "pages/dashboard/settings/tags";
 import DynamicLendBorrow from "pages/dashboard/lend&borrow/dynamic";
+import { ToastContainer } from "react-toastify";
 
 const MassPay = lazy(() => import("pages/masspay"))
 const Automations = lazy(() => import("pages/dashboard/automations"));
@@ -59,6 +60,7 @@ function App() {
 
   return (
     <div>
+      <ToastContainer />
       <Suspense fallback={<div className="h-screen w-full flex justify-center items-center"><ClipLoader /></div>}>
         <Routes>
           <Route path="/" element={

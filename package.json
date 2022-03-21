@@ -36,6 +36,7 @@
     "bignumber.js": "^9.0.2",
     "bn.js": "^5.2.0",
     "chroma-js": "^2.4.2",
+    "cra-bundle-analyzer": "^0.1.1",
     "crypto-js": "^4.1.1",
     "d3-fetch": "^3.0.1",
     "date-and-time": "^2.1.0",
@@ -78,7 +79,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "tailwind": "npx tailwindcss -i ./src/index.css -o ./src/dist/index.css --watch"
+    "tailwind": "npx tailwindcss -i ./src/index.css -o ./src/dist/index.css --minify --watch"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -100,5 +101,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "webpack-bundle-analyzer": "^4.5.0"
   }
 }

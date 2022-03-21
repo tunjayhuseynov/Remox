@@ -1,23 +1,22 @@
 import dateFormat from "dateformat";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import Web3 from "web3";
+import Accordion from "../../../components/accordion";
+import { TransactionDirection, TransactionStatus, AltCoins, Coins, CoinsName } from "../../../types";
+import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import TransactionItem from "../../../components/transactionItem";
 import { useAppSelector } from "../../../redux/hooks";
 import { selectStorage } from "../../../redux/reducers/storage";
-import { AltCoins, Coins, CoinsName, TransactionDirection } from "../../../types";
-import { TransactionStatus } from "../../../types/dashboard/transaction";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import useMultisig from "../../../hooks/useMultisig";
 import { selectMultisig, selectMultisigTransactions } from "../../../redux/reducers/multisig";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import Accordion from "../../../components/accordion";
-import useTransactionProcess, { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "../../../hooks/useTransactionProcess";
-import { fromWei } from "web3-utils";
+import useTransactionProcess from "../../../hooks/useTransactionProcess";
 import { HiDownload } from 'react-icons/hi'
 import { selectTags } from "redux/reducers/tags";
+import { fromWei } from "utils/ray";
 
 const Transactions = () => {
     const storage = useAppSelector(selectStorage);
@@ -28,7 +27,7 @@ const Transactions = () => {
     const { pathname } = useLocation()
     const tags = useAppSelector(selectTags)
 
-    let page : string;
+    let page: string;
     if (pathname.includes("/pending")) {
         page = "pending"
     } else if (pathname.includes("/rejected")) {
@@ -59,36 +58,7 @@ const Transactions = () => {
     }, [list])
     const TransactionGenerator = useMemo(() => new Promise<JSX.Element[]>((resolve, reject) => {
         if (!list) return <></>
-        const result = list.map((transaction, index) => {
-            const direction = transaction.rawData.from.toLowerCase() === selectedAccount.toLowerCase()
-            const isSwap = transaction.id === ERC20MethodIds.swap
-            const isBatch = transaction.id === ERC20MethodIds.batchRequest
-            const TXs: IFormattedTransaction[] = [];
-            if (isBatch) {
-                const groupBatch = _((transaction as IBatchRequest).payments).groupBy("to").value()
-                Object.entries(groupBatch).forEach(([key, value]) => {
-                    let tx: IBatchRequest = {
-                        method: transaction.method,
-                        id: transaction.id,
-                        hash: transaction.hash,
-                        rawData: transaction.rawData,
-                        payments: value,
-                        tags: transaction.tags,
-                    }
-                    TXs.push(tx)
-                })
-            } else {
-                TXs.push(transaction)
-            }
-            const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
-            return <Fragment key={transaction.rawData.hash}>
-                <Accordion grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[38%,31%,15%,6%]"} direction={isSwap ? TransactionDirection.Swap : direction ? TransactionDirection.Out : TransactionDirection.In} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
-                    <div>
-                        {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
-                    </div>
-                </Accordion>
-            </Fragment>
-        })
+        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[38%,31%,15%,6%]"))
 
         resolve(result)
     }), [transactions, tags])
@@ -133,10 +103,10 @@ const Transactions = () => {
                                     let feeToken = Object.entries(CoinsName).find(s => s[0] === tx.tokenSymbol)?.[1]
                                     return {
                                         'Sent From:': tx.from,
-                                        'Amount:': parseFloat(Web3.utils.fromWei(tx.value.toString(), 'ether')).toFixed(4) + ` ${feeToken ? Coins[feeToken].name : "Unknown"}`,
+                                        'Amount:': parseFloat(fromWei(tx.value.toString())).toFixed(4) + ` ${feeToken ? Coins[feeToken].name : "Unknown"}`,
                                         'To:': tx.to,
                                         'Date': dateFormat(new Date(parseInt(tx.timeStamp) * 1e3), "mediumDate"),
-                                        "Gas": `${fromWei((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString(), "ether")} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
+                                        "Gas": `${fromWei((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString())} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
                                         "Block Number": tx.blockNumber,
                                         "Transaction Hash": tx.hash,
                                         "Block Hash": tx.blockHash,
@@ -193,7 +163,7 @@ const Transactions = () => {
                                     </div> : <div className="text-center py-3">No Transaction Yet</div>}
                             </div>
                         }
-                        {page === "completed" && ( list && transactionVisual ? transactionVisual : <div className="text-center py-2"><ClipLoader /></div>)}
+                        {page === "completed" && (list && transactionVisual ? transactionVisual : <div className="text-center py-2"><ClipLoader /></div>)}
                     </div>
                 </div>
             </div>
@@ -203,3 +173,67 @@ const Transactions = () => {
 }
 
 export default Transactions;
+
+
+export const ProcessAccordion = (transaction: IFormattedTransaction, account: string, grid: string) => {
+    const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
+    const isBatch = transaction.id === ERC20MethodIds.batchRequest
+    const TXs: IFormattedTransaction[] = [];
+    if (isBatch) {
+        const groupBatch = _((transaction as IBatchRequest).payments).groupBy("to").value()
+        Object.entries(groupBatch).forEach(([key, value]) => {
+            let tx: IBatchRequest = {
+                method: transaction.method,
+                id: transaction.id,
+                hash: transaction.hash,
+                rawData: transaction.rawData,
+                payments: value
+            }
+            TXs.push(tx)
+        })
+    } else {
+        TXs.push(transaction)
+    }
+    const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
+    let directionType;
+    switch (transaction.id) {
+        case ERC20MethodIds.swap:
+            directionType = TransactionDirection.Swap
+            break;
+        case ERC20MethodIds.automatedTransfer:
+            directionType = direction ? TransactionDirection.AutomationOut : TransactionDirection.AutomationIn
+            break;
+        case ERC20MethodIds.batchRequest:
+        case ERC20MethodIds.transferFrom:
+        case ERC20MethodIds.noInput:
+        case ERC20MethodIds.transferWithComment:
+        case ERC20MethodIds.transfer:
+            directionType = direction ? TransactionDirection.Out : TransactionDirection.In
+            break;
+        case ERC20MethodIds.moolaBorrow:
+            directionType = TransactionDirection.Borrow;
+            break;
+        case ERC20MethodIds.moolaDeposit:
+            directionType = TransactionDirection.Deposit;
+            break;
+        case ERC20MethodIds.moolaRepay:
+            directionType = TransactionDirection.Repay;
+            break;
+        case ERC20MethodIds.moolaWithdraw:
+            directionType = TransactionDirection.Withdraw;
+            break;
+        default:
+            break;
+    }
+    if (isBatch) {
+        console.log(directionType)
+    }
+
+    return <Fragment key={transaction.rawData.hash}>
+        <Accordion grid={grid} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
+            <div>
+                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
+            </div>
+        </Accordion>
+    </Fragment>
+}

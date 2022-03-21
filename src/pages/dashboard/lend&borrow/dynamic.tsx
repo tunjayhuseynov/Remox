@@ -13,12 +13,10 @@ const DynamicLendBorrow = ({ type }: { type: "lend" | "borrow" }) => {
         initLoading
     } = useMoola()
 
-    const dispatch = useDispatch()
 
     useEffect(() => {
         (async () => {
-            let data = await InitializeUser()
-            dispatch(updateData(data))
+            await InitializeUser()
         })()
     }, [])
 

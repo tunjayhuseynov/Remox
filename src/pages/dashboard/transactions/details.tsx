@@ -11,20 +11,22 @@ import { AddressReducer } from 'utils'
 import _ from "lodash";
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import { useTransactionProcess } from "hooks";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
-import { fromWei } from "web3-utils";
+import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { selectTags } from "redux/reducers/tags";
 import { useSelector } from "react-redux";
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
 import useTags, { Tag } from "API/useTags";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { fromWei } from "utils/ray";
+import useGelato from "API/useGelato";
 
 const Details = () => {
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const currencies = useAppSelector(SelectCurrencies)
 
     const [transactions] = useTransactionProcess()
+    const { getDetails } = useGelato()
 
     const tags = useSelector(selectTags)
     const dark = useSelector(selectDarkMode)
@@ -47,42 +49,70 @@ const Details = () => {
     const [tx, setTx] = useState<IFormattedTransaction>()
 
     useEffect(() => {
-        if (transactions) {
-            const txFind = transactions.find(s => s.hash.toLowerCase() === params.id)
-            if (txFind) {
-                const isBatch = txFind.id === ERC20MethodIds.batchRequest;
-                const isSwap = txFind.id === ERC20MethodIds.swap;
-                let paidTo, totalAmount, walletAddress;
-                let fee = `${fromWei((parseInt(txFind.rawData.gasUsed) * parseInt(txFind.rawData.gasPrice)).toString(), "ether")} ${!isBatch && txFind.rawData.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`;
-                let date = dateFormat(new Date(parseInt(txFind.rawData.timeStamp) * 1e3), "dd/mm/yyyy hh:MM:ss")
+        (
+            async () => {
+                if (transactions) {
+                    const txFind = transactions.find(s => s.hash.toLowerCase() === params.id)
+                    if (txFind) {
+                        const isBatch = txFind.id === ERC20MethodIds.batchRequest;
+                        const isSwap = txFind.id === ERC20MethodIds.swap;
+                        const isAutomated = txFind.id === ERC20MethodIds.automatedTransfer;
+                        let paidTo, totalAmount, walletAddress;
+                        let fee = `${fromWei((parseInt(txFind.rawData.gasUsed) * parseInt(txFind.rawData.gasPrice)).toString())} ${!isBatch && txFind.rawData.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`;
+                        let date = dateFormat(new Date(parseInt(txFind.rawData.timeStamp) * 1e3), "dd/mm/yyyy hh:MM:ss")
 
-                if (isBatch) {
-                    const batch = txFind as IBatchRequest
-                    paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
-                    totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromWei(c.amount, 'ether')) * (currencies[c.coinAddress.name]?.price ?? 1)) + a, 0).toPrecision(4)} USD`
-                    walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
-                } else if (isSwap) {
-                    const swap = txFind as ISwap
-                    paidTo = "Swap"
-                    totalAmount = `${fromWei(swap.amountIn, 'ether')} ${swap.coinIn.name} -> ${parseFloat(fromWei(swap.amountOutMin, 'ether')).toPrecision(4)} ${swap.coinOutMin.name}`
-                    walletAddress = ["Ubeswap"]
-                } else {
-                    const single = txFind as ITransfer
-                    paidTo = "1 person"
-                    totalAmount = `${(parseFloat(fromWei(single.amount, 'ether')) * (currencies[single.rawData.tokenSymbol]?.price ?? 1)).toPrecision(4)} USD`
-                    walletAddress = single.to.toLowerCase() === selectedAccount.toLowerCase() ? [single.rawData.from] : [single.to]
+                        if (isBatch) {
+                            const batch = txFind as IBatchRequest
+                            paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
+                            totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromWei(c.amount)) * (currencies[c.coinAddress.name]?.price ?? 1)) + a, 0).toPrecision(4)} USD`
+                            walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
+                        } else if (isSwap) {
+                            const swap = txFind as ISwap
+                            paidTo = "Swap"
+                            totalAmount = `${fromWei(swap.amountIn)} ${swap.coinIn.name} -> ${parseFloat(fromWei(swap.amountOutMin)).toPrecision(4)} ${swap.coinOutMin.name}`
+                            walletAddress = ["Ubeswap"]
+                        } else if (isAutomated) {
+                            const data = txFind as IAutomationTransfer
+                            const details = await getDetails(data.taskId)
+                            const reader = InputReader(details[1], data.rawData, tags)
+
+                            if (reader) {
+                                if (reader.id === ERC20MethodIds.batchRequest) {
+                                    const batch = reader as IBatchRequest
+                                    paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
+                                    totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromWei(c.amount)) * (currencies[c.coinAddress.name]?.price ?? 1)) + a, 0).toPrecision(4)} USD`
+                                    walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
+                                    setInfo({
+                                        date,
+                                        fee,
+                                        paidTo,
+                                        totalAmount,
+                                        walletAddress
+                                    })
+                                }
+                            }
+
+                            return;
+                        }
+                        else {
+                            const single = txFind as ITransfer
+                            paidTo = "1 person"
+                            totalAmount = `${(parseFloat(fromWei(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
+                            walletAddress = single.to.toLowerCase() === selectedAccount.toLowerCase() ? [single.rawData.from] : [single.to]
+                        }
+
+                        setInfo({
+                            date,
+                            fee,
+                            paidTo,
+                            totalAmount,
+                            walletAddress
+                        })
+                        setTx(txFind)
+                    } else setNotFound(true)
                 }
-
-                setInfo({
-                    date,
-                    fee,
-                    paidTo,
-                    totalAmount,
-                    walletAddress
-                })
-                setTx(txFind)
-            } else setNotFound(true)
-        }
+            }
+        )()
     }, [transactions, params.id])
 
     type SelectType = { value: string, label: string, color: string, transactions: string[], isDefault: boolean }

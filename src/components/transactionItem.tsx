@@ -1,19 +1,22 @@
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer, ITransferComment } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer, ITransferComment } from "hooks/useTransactionProcess";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
-import transactions from "redux/reducers/transactions";
-import { Coins } from "types";
-import { fromWei } from 'web3-utils'
 import { AddressReducer } from "../utils";
 import Button from "components/button";
+import useGelato from "API/useGelato";
+import { selectTags } from "redux/reducers/tags";
+import { fromWei } from "utils/ray";
 
 const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedTransaction, isMultiple?: boolean }) => {
 
     const [detect, setDetect] = useState(true);
     const divRef = useRef<HTMLDivElement>(null)
     const selectedAccount = useSelector(SelectSelectedAccount)
+    const { getDetails } = useGelato()
+    const tags = useSelector(selectTags);
+    const [Transaction, setTransaction] = useState(transaction);
 
     useEffect(() => {
         if (divRef.current && window.innerWidth / divRef.current.clientWidth > 2) {
@@ -22,28 +25,52 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     }, [])
 
 
-    const isSwap = transaction.id === ERC20MethodIds.swap;
-    const isComment = transaction.id === ERC20MethodIds.transferWithComment;
-    let peer = transaction.rawData.from.toLowerCase() === selectedAccount.toLowerCase() ? transaction.rawData.to : transaction.rawData.from;
-    let swapData;
+    const isSwap = Transaction.id === ERC20MethodIds.swap;
+    const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
+    const isAutomation = Transaction.id === ERC20MethodIds.automatedTransfer;
+    const isTransfer = [
+        ERC20MethodIds.transfer, ERC20MethodIds.transferFrom, 
+        ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit,
+        ERC20MethodIds.moolaWithdraw, ERC20MethodIds.moolaRepay
+    ].indexOf(Transaction.id) > -1;
+    let peer = Transaction.rawData.from.toLowerCase() === selectedAccount.toLowerCase() ? Transaction.rawData.to : Transaction.rawData.from;
+    let SwapData;
     let TransferData;
     let MultipleData;
     let Comment;
 
     if (isComment) {
-        Comment = (transaction as ITransferComment).comment
+        Comment = (Transaction as ITransferComment).comment
     }
-    if (!isSwap && !isMultiple) {
-        TransferData = transaction as ITransfer
+    if (isTransfer && !isMultiple) {
+        TransferData = Transaction as ITransfer
     }
     if (isSwap && !isMultiple) {
-        swapData = transaction as ISwap
+        SwapData = Transaction as ISwap
     }
 
     if (isMultiple) {
-        MultipleData = transaction as IBatchRequest
+        MultipleData = Transaction as IBatchRequest
         peer = MultipleData.payments[0].to
     }
+
+    useEffect(() => {
+        if (isAutomation) {
+            (
+                async () => {
+                    const data = Transaction as IAutomationTransfer
+                    const details = await getDetails(data.taskId)
+                    const reader = InputReader(details[1], Transaction.rawData, tags)
+                    const formattedTx = {
+                        rawData: data.rawData,
+                        hash: data.hash,
+                        ...reader
+                    } as IFormattedTransaction
+                    setTransaction(formattedTx)
+                }
+            )()
+        }
+    }, [])
 
     return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,32.3%,10.7%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-4 `}>
         <div className="flex space-x-3 overflow-hidden">
@@ -63,22 +90,22 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
         </div>
         <div className="text-base">
             <div>
-                {!isSwap && TransferData && <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
+                {!isSwap && TransferData && !isMultiple && <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                     <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
                         <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                         </div>
                         <span>
-                            {parseFloat(fromWei(TransferData.amount, 'ether')).toFixed(2)}
+                            {parseFloat(fromWei(TransferData.amount)).toFixed(2)}
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
-                        {Coins[TransferData.rawData.tokenSymbol as keyof Coins] ?
+                        {TransferData.coin ?
                             <>
                                 <div>
-                                    <img src={Coins[TransferData.rawData.tokenSymbol as keyof Coins]?.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={TransferData.coin.coinUrl} className="rounded-full w-[18px] h-[18x]" />
                                 </div>
                                 <div>
-                                    {Coins[TransferData.rawData.tokenSymbol as keyof Coins]?.name ?? "Unknown Coin"}
+                                    {TransferData.coin.name ?? "Unknown Coin"}
                                 </div>
                             </>
                             : <div>Unknown Coin</div>
@@ -93,7 +120,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                             <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(payment.amount, 'ether')).toFixed(2)}
+                                {parseFloat(fromWei(payment.amount)).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
@@ -108,22 +135,22 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         </div>
                     </div>
                 })}
-                {isSwap && swapData && <div className="flex flex-col">
+                {isSwap && SwapData && <div className="flex flex-col">
                     <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                         <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
                             <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(swapData.amountIn, 'ether')).toFixed(2)}
+                                {parseFloat(fromWei(SwapData.amountIn)).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
-                            {swapData.coinIn ? <>
+                            {SwapData.coinIn ? <>
                                 <div>
-                                    <img src={swapData.coinIn.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={SwapData.coinIn.coinUrl} className="rounded-full w-[18px] h-[18x]" />
                                 </div>
                                 <div>
-                                    {swapData.coinIn.name}
+                                    {SwapData.coinIn.name}
                                 </div>
                             </> :
                                 <div>Unknown Coin</div>
@@ -140,16 +167,16 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                             <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(swapData.amountOutMin, 'ether')).toFixed(2)}
+                                {parseFloat(fromWei(SwapData.amountOutMin)).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
-                            {swapData.coinOutMin ? <>
+                            {SwapData.coinOutMin ? <>
                                 <div>
-                                    <img src={swapData.coinOutMin.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={SwapData.coinOutMin.coinUrl} className="rounded-full w-[18px] h-[18x]" />
                                 </div>
                                 <div>
-                                    {swapData.coinOutMin.name}
+                                    {SwapData.coinOutMin.name}
                                 </div>
 
                             </> : <div>Unknown Coin</div>}
@@ -160,7 +187,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
         </div>
         {detect &&
             <div className="flex flex-col space-y-3">
-                {transaction.tags && transaction.tags.map((tag, index) => {
+                {Transaction.tags && Transaction.tags.map((tag, index) => {
                     return <div key={tag.id} className="flex space-x-3">
                         <div className="w-[18px] h-[18px] rounded-full" style={{ backgroundColor: tag.color }}></div>
                         <div>{tag.name}</div>
@@ -168,7 +195,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 })}
             </div>}
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-            <Link to={`/dashboard/transactions/${transaction.rawData.hash}`}> <Button version="second" className="px-8 py-2" >View Details</Button></Link>
+            <Link to={`/dashboard/transactions/${Transaction.rawData.hash}`}> <Button version="second" className="px-8 py-2" >View Details</Button></Link>
         </div>
     </div>
 }
