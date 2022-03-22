@@ -69,7 +69,7 @@ const Sidebar = () => {
 
 
 
-    return <div className="flex flex-col gap-14 pl-4 lg:pl-10">
+    return <div className="flex flex-col  justify-between pb-4 pl-4 lg:pl-10">
         <div>
             <Siderbarlist />
         </div>

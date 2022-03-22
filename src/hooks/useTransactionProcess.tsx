@@ -173,6 +173,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
             from: transaction.from,
             to: transaction.to,
             amount: transaction.value.toString(),
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.transferWithComment)) {
@@ -181,6 +182,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
             method: "transferWithComment",
             id: ERC20MethodIds.transferWithComment,
             to: "0x" + input.slice(len, len + 64).substring(24),
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             comment: hexToUtf8("0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)),
             tags: theTags

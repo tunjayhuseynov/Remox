@@ -11,8 +11,8 @@ import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice
 
 
 const Navbar = () => {
-    
-   
+
+
     const storage = useAppSelector(selectStorage)
     const menuBar = useAppSelector(selectToggle)
     const dispatch = useAppDispatch()
@@ -43,13 +43,13 @@ const Navbar = () => {
                 <input type="text" placeholder={'Search'} className="flex-grow bg-transparent outline-none " />
             </div> */}
         </div>
-        <div className="actions hidden md:flex items-center justify-evenly md:col-span-2">
+        <div className="actions hidden md:flex items-center justify-end space-x-40 md:col-span-2 pr-20">
             <div className="flex space-x-5 items-center justify-center">
                 <div className="w-12 h-12 bg-gray-50 dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
                     <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" />
                 </div>
-                {storage ? selectedAccount !== storage.accountAddress ?  <Visitcard name={'Multisig'} address={selectedAccount} />: "": ""}
-                {storage ? <Visitcard name={"You"} address={selectedAccount} /> : <ClipLoader />}
+                {storage && selectedAccount !== storage.accountAddress && <Visitcard name={'Multisig'} address={selectedAccount} />}
+                {storage && selectedAccount === storage.accountAddress && <Visitcard name={"You"} address={selectedAccount} />}
             </div>
             <div className="relative">
                 <NotificationCointainer />
