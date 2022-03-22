@@ -71,13 +71,13 @@ const Sidebar = () => {
 
     return <>
         <div className="hidden md:block md:col-span-2 w-[275px] flex-none fixed h-full">
-            <div className="flex flex-col  justify-between pb-4 pl-4 lg:pl-10">
+            <div className="flex flex-col  justify-between pb-4 pl-4 lg:pl-10 h-full">
                 <div>
                     <Siderbarlist />
                 </div>
 
-                <div className="flex items-center gap-5 mt-10 mb-2 absolute bottom-[30%]">
-                    <Dropdown className="min-w-[170px]" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
+                <div className="flex items-center gap-5 mt-10 mb-2 bottom-[30%] absolute">
+                    <Dropdown className="min-w-[170px] " list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address) {
                             setItem(w)
                             dispatch(changeAccount(w.address))

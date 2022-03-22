@@ -33,7 +33,7 @@ export default function Dashboard() {
       }
     </AnimatePresence>
     <div className="flex flex-col min-h-screen overflow-hidden">
-      <div className="fixed w-full pt-6 pb-3 bg-white dark:bg-dark z-50"><Navbar></Navbar></div>
+      <div className="fixed w-full pt-6 pb-3 bg-light dark:bg-dark z-50"><Navbar></Navbar></div>
       <div className="flex space-x-11 pt-40 flex-shrink flex-grow relative">
         <Sidebar />
         <div className="col-span-11 md:col-span-8 flex-grow pr-20 overflow-hidden pl-[275px]">

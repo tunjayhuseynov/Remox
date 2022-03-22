@@ -25,7 +25,10 @@ html{
   color: white;
   background-color: #252525;
 }
-
+.light{
+  color:black;
+  background-color:#f9f9f9;
+}
 .dark .shadow-custom{
   box-shadow: 0px 2px 7px 0px #1C1C1C;
 }
