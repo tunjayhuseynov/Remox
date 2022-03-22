@@ -21,7 +21,7 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
         setOpen(!isOpen)
     }
     return <div>
-        <div className="flex space-x-1 items-center bg-greylish bg-opacity-10 rounded-xl px-3 my-3 cursor-pointer" onClick={click}>
+        <div className="flex space-x-1 items-center bg-white dark:bg-darkSecond rounded-xl px-3 my-3 cursor-pointer" onClick={click}>
             <div >
                 <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
             </div>

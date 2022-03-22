@@ -10,7 +10,7 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
 
     const isLending = type === "lend"
     return (
-        <div className={`rounded-xl shadow-custom px-10 pb-10 pt-10`}>
+        <div className={`rounded-xl shadow-custom px-10 pb-10 pt-10 bg-white dark:bg-darkSecond`}>
             <div className='flex flex-col space-y-3'>
                 <div className='flex flex-col gap-20'>
                     <div className="grid grid-cols-2 text-center">

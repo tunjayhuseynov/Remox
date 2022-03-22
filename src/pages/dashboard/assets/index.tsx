@@ -71,7 +71,7 @@ const Assets = () => {
                     <div className="hidden sm:block">24h</div>
                     <div className="text-sm sm:text-base">% Assets</div>
                 </div>
-                <div className="pb-5 px-2 sm:px-8 shadow-custom rounded-xl">
+                <div className="pb-5 px-2 sm:px-8 shadow-custom rounded-xl bg-white dark:bg-darkSecond">
                     {Object.entries(selectBalance).map(([key, item]: [string, IBalanceItem | undefined], index) => {
                         if (!item && index == 0) return <div key={index} className="flex justify-center py-1"> <ClipLoader /></div>
                         if (!item) return <Fragment key={index}></Fragment>

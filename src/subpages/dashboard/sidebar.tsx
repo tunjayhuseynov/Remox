@@ -77,13 +77,13 @@ const Sidebar = () => {
                 </div>
 
                 <div className="flex items-center gap-5 mt-10 mb-2 bottom-[30%] absolute">
-                    <Dropdown className="min-w-[170px] " list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
+                    <Dropdown className="min-w-[170px] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address) {
                             setItem(w)
                             dispatch(changeAccount(w.address))
                         }
                     }} />
-                    <span onClick={() => {
+                    <span className="rotate-180" onClick={() => {
                         dispatch(setMenu(false))
                         dispatch(removeTransactions())
                         dispatch(removeStorage())
