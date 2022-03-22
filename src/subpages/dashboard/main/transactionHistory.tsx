@@ -1,10 +1,7 @@
-import TransactionItem from "../../../components/transactionItem";
 import { Link } from "react-router-dom";
 import _ from "lodash";
 // import { TransactionHook, TransactionHookByDateInOut } from '../../../hooks/useTransactionProcess'
-import { Fragment } from "react";
-import { TransactionDirection, TransactionStatus } from "../../../types";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useAppSelector } from "redux/hooks";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import Button from "components/button";

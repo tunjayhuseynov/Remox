@@ -16,8 +16,9 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import useTransactionProcess from "../../../hooks/useTransactionProcess";
 import { HiDownload } from 'react-icons/hi'
 import { selectTags } from "redux/reducers/tags";
-import {WalletDropdown} from "../../../components/general/walletdropdown"
+import { WalletDropdown } from "../../../components/general/walletdropdown"
 import { fromWei } from "utils/ray";
+import AnimatedTabBar from "components/animatedTabBar";
 
 
 const Transactions = () => {
@@ -60,12 +61,27 @@ const Transactions = () => {
     }, [list])
     const TransactionGenerator = useMemo(() => new Promise<JSX.Element[]>((resolve, reject) => {
         if (!list) return <></>
-        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[38%,31%,15%,6%]"))
+        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]"))
 
         resolve(result)
     }), [transactions, tags])
 
     const path = '/dashboard/transactions'
+
+    const data = [
+        {
+            to: `/dashboard/transactions/pending`,
+            text: "Pending Transactions"
+        },
+        {
+            to: `/dashboard/transactions`,
+            text: "Completed Transactions"
+        },
+        {
+            to: `/dashboard/transactions/rejected`,
+            text: "Rejected Transactions"
+        }
+    ]
 
     return <>
         <div>
@@ -73,33 +89,21 @@ const Transactions = () => {
                 <div className="flex justify-between">
                     <div className="text-2xl font-bold tracking-wider">Transactions</div>
                 </div>
-                {isMultisig &&
-                    <div className="flex pl-10 w-full relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10">
-                        <NavLink to={path + "/pending"} className={({ isActive }) => isActive ? 'text-primary border-b-[3px] border-primary z-50 mx-5' : 'mx-5'}>
-                            <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
-                                <span>Pending Transactions</span>
-                            </div>
-                        </NavLink>
-                        <NavLink to={path} end className={({ isActive }) => `mx-5 ${isActive && "text-primary border-b-[3px] border-primary z-50"}`}>
-                            <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
-                                Completed Transactions
-                            </div>
-                        </NavLink>
-                        <NavLink to={path + "/rejected"} className={({ isActive }) => isActive ? 'text-primary border-b-[3px] border-primary z-50 mx-5' : 'mx-5'}>
-                            <div className="flex gap-x-3 pb-3 font-semibold tracking-wider">
-                                <span>Rejected Transactions</span>
-                            </div>
-                        </NavLink>
-                    </div>
-                }
+                <div className="flex pl-5 pt-2 w-full ">
+                    {isMultisig &&
+                        <AnimatedTabBar data={data} />
+                    }
+                </div>
                 <div className="py-5">
                     <div className="w-full pt-4 pb-3 rounded-xl">
-                        <div id="header" className="grid grid-cols-[25%,45%,30%] sm:grid-cols-[39%,30%,11%,10%,10%] border-b border-black pb-3 " >
+                        <div id="header" className="grid grid-cols-[25%,45%,30%] sm:grid-cols-[30%,25%,15%,15%,15%] border-b border-black pb-3 " >
                             <div className="sm:hidden text-xs font-medium pt-2">Recipient/Sender</div>
                             <div className="hidden sm:block text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Your Confirmation" : "Recipient/Sender"}</div>
                             <div className="text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Action" : "Paid Amount"}</div>
                             <div className="font-medium hidden md:block pt-2">{page !== "completed" ? "Signatures" : "Details"}</div>
-                            <WalletDropdown />
+                            <div>
+                                {!isMultisig && <WalletDropdown list={[{name: ""}]}/>}
+                            </div>
                             {!isMultisig && <> <div className="place-self-end ">
                                 {list && <CSVLink className="font-normal px-2 sm:px-5 py-2 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex items-center justify-center xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
                                     let tx = w.rawData
@@ -133,8 +137,8 @@ const Transactions = () => {
                                                 return acc + w;
                                             }, '')
 
-                                            return <Accordion key={(w.id?.toString() ?? Math.random().toString()) + w.data} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[38%,31%,15%,6%]"} dataCount={1} method={method} status={w.executed ? TransactionStatus.Completed : w.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}>
-                                                <div className="pl-5 grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[38%,31%,15%,6%] min-h-[75px] py-6 items-center">
+                                            return <Accordion key={(w.id?.toString() ?? Math.random().toString()) + w.data} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,45.5%]"} dataCount={1} method={method} status={w.executed ? TransactionStatus.Completed : w.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}>
+                                                <div className="pl-5 grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[28.5%,26%,25%,20.5%] min-h-[75px] py-6 items-center">
                                                     <div>
                                                         {w.executed ? <div className="text-white bg-green-500 border-2 border-green-500 rounded-xl px-3 py-1 text-center text-xs w-[125px]">Submitted</div> : null}
                                                         {w.executed ? null : w.confirmations.includes(storage!.accountAddress) ? <div className="text-white bg-primary border-2 border-primary rounded-xl px-3 py-1 text-center text-xs max-w-[175px]">You've Confirmed</div> : <div className="border-2 text-center border-primary  px-3 py-1 rounded-xl text-xs max-w-[175px]">You've not confirmed yet</div>}
@@ -154,7 +158,7 @@ const Transactions = () => {
                                                         {w.confirmations.length} <span className="font-medium">out of</span> {w.method?.toLowerCase().includes("transfer") ? multisigSelector?.sign : multisigSelector?.internalSign}
                                                     </div>
                                                     <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-                                                        <Link to={`/dashboard/multisig/${w.id}`}><div className={`text-primary px-6 max-h-[80px] border-2 border-primary rounded-xl py-2 hover:bg-primary hover:text-white`}>View Details</div></Link>
+                                                        <Link to={`/dashboard/multisig/${w.id}`}><div className={`text-primary px-6 max-h-[80px] w-full border-2 border-primary rounded-xl py-2 hover:bg-primary hover:text-white`}>View Details</div></Link>
                                                     </div>
                                                 </div>
                                             </Accordion>

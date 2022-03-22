@@ -5,7 +5,7 @@ import { MouseEventHandler } from 'react'
 import { CoinsURL } from '../../types/coins'
 import { ClipLoader } from 'react-spinners'
 import useModalSideExit from '../../hooks/useModalSideExit'
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 const variants = {
     close: {
@@ -14,7 +14,7 @@ const variants = {
             staggerChildren: 0,
             duration: 0
         }
-    }, 
+    },
     open: {
         height: "auto",
         transition: {
@@ -41,7 +41,7 @@ const Viewer = ({ displayName, name, address, coinUrl, className, disableAddress
     }, '')}</div>}
 </div>
 
-const Dropdown = ({ selected, list,toTop=false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false, parentClass = '', childClass = '', displayName, onChange }: { disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
+const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false, parentClass = '', childClass = '', displayName, onChange }: { disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
     const [isOpen, setOpen] = useState(false)
     const liRef = useRef<HTMLLIElement>()
     const [liHeight, setLiHeight] = useState(0)
@@ -63,7 +63,7 @@ const Dropdown = ({ selected, list,toTop=false, nameActivation = false, onSelect
                     <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                 </div>}
             </div>
-            {<motion.div variants={variants} initial={"close"} animate={isOpen ? "open" : "close"} ref={customRef} className={`absolute left-0 ${toTop ? "top-0 -translate-y-full" : "bottom-0 translate-y-full"} translate-y-full z-10 w-full overflow-hidden`}>
+            {<motion.div variants={variants} initial={"close"} animate={isOpen ? "open" : "close"} ref={customRef} className={`absolute left-0 ${toTop ? "top-0 -translate-y-full" : "bottom-0 translate-y-full"} z-10 w-full overflow-hidden`}>
                 <ul id="ala" className="flex flex-col overflow-y-auto " style={list.length > 5 ?
                     { height: window.outerWidth > 768 ? `${liHeight * 5}px` : `${liHeight * 3}px` }
                     :

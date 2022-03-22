@@ -75,21 +75,33 @@ const Details = () => {
                             const data = txFind as IAutomationTransfer
                             const details = await getDetails(data.taskId)
                             const reader = InputReader(details[1], data.rawData, tags)
-
                             if (reader) {
                                 if (reader.id === ERC20MethodIds.batchRequest) {
                                     const batch = reader as IBatchRequest
                                     paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
                                     totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromWei(c.amount)) * (currencies[c.coinAddress.name]?.price ?? 1)) + a, 0).toPrecision(4)} USD`
                                     walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
-                                    setInfo({
-                                        date,
-                                        fee,
-                                        paidTo,
-                                        totalAmount,
-                                        walletAddress
-                                    })
+
+                                } else if (reader.id === ERC20MethodIds.swap) {
+                                    const swap = reader as ISwap
+                                    paidTo = "Swap"
+                                    totalAmount = `${fromWei(swap.amountIn)} ${swap.coinIn.name} -> ${parseFloat(fromWei(swap.amountOutMin)).toPrecision(4)} ${swap.coinOutMin.name}`
+                                    walletAddress = ["Ubeswap"]
+                                } else {
+                                    const single = reader as ITransfer
+                                    paidTo = "1 person"
+                                    totalAmount = `${(parseFloat(fromWei(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
+                                    walletAddress = single.to.toLowerCase() === selectedAccount.toLowerCase() ? [single.rawData.from] : [single.to]
                                 }
+
+                                setInfo({
+                                    date,
+                                    fee,
+                                    paidTo,
+                                    totalAmount,
+                                    walletAddress
+                                })
+                                setTx(txFind)
                             }
 
                             return;

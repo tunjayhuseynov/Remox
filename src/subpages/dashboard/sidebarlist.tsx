@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button"
 
-const Li = ({ children, onClick, className }: { children?: Array<any>, onClick?: () => void, className?: string }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-light text-[12.2px] 2xl:text-[13px] 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`}>
+const Li = ({ children, onClick, className }: { children?: Array<any>, onClick?: () => void, className?: string }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-light text-[12.2px] 2xl:text-lg 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`}>
     <div className="flex gap-3">{children}</div>
 </li>
 

@@ -22,7 +22,7 @@ const Insight = () => {
                         <button onClick={() => setSelectedDate(30)} className={`${selectedDate === 30 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style} `}>30 Days</button>
                         <button onClick={() => setSelectedDate(90)} className={`${selectedDate === 90 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style}`}>90 Days</button>
                         <button onClick={() => setSelectedDate(365)} className={`${selectedDate === 365 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style}`}>1 Year</button>
-                        <WalletDropdown/>
+                        <WalletDropdown list={[{name: ""}]}/>
                     </div>
                 </div>
                 <div className="grid grid-cols-3 pt-10 pb-10 gap-x-28 gap-y-10">

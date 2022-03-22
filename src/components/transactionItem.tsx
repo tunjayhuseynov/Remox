@@ -17,13 +17,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     const { getDetails } = useGelato()
     const tags = useSelector(selectTags);
     const [Transaction, setTransaction] = useState(transaction);
-
-    useEffect(() => {
-        if (divRef.current && window.innerWidth / divRef.current.clientWidth > 2) {
-            setDetect(false)
-        }
-    }, [])
-
+    const [IsMultiple, setIsMultiple] = useState(isMultiple);
 
     const isSwap = Transaction.id === ERC20MethodIds.swap;
     const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
@@ -42,19 +36,22 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     if (isComment) {
         Comment = (Transaction as ITransferComment).comment
     }
-    if (isTransfer && !isMultiple) {
+    if (isTransfer && !IsMultiple) {
         TransferData = Transaction as ITransfer
     }
-    if (isSwap && !isMultiple) {
+    if (isSwap && !IsMultiple) {
         SwapData = Transaction as ISwap
     }
 
-    if (isMultiple) {
+    if (IsMultiple) {
         MultipleData = Transaction as IBatchRequest
         peer = MultipleData.payments[0].to
     }
 
     useEffect(() => {
+        if (divRef.current && window.innerWidth / divRef.current.clientWidth > 2) {
+            setDetect(false)
+        }
         if (isAutomation) {
             (
                 async () => {
@@ -66,6 +63,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         hash: data.hash,
                         ...reader
                     } as IFormattedTransaction
+                    if(reader && reader.id === ERC20MethodIds.batchRequest) setIsMultiple(true)
                     setTransaction(formattedTx)
                 }
             )()
@@ -74,7 +72,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
 
     return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,32.3%,10.7%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-4 `}>
         <div className="flex space-x-3 overflow-hidden">
-            <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} ${!isSwap && !isMultiple && 'pt-3'} justify-center`}>
+            <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} ${!isSwap && !IsMultiple && 'pt-3'} justify-center`}>
                 <div className={`bg-greylish bg-opacity-10 ${detect ? "w-[45px] h-[45px] text-lg" : "w-[25px] h-[25px] text-xs"} flex items-center justify-center rounded-full font-bold `}>
                     {!isSwap ? <span> {isComment ? (Comment as string).slice(0, 2) : "Un"} </span> : <span>S</span>}
                 </div>
@@ -90,7 +88,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
         </div>
         <div className="text-base">
             <div>
-                {!isSwap && TransferData && !isMultiple && <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
+                {!isSwap && TransferData && !IsMultiple && <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                     <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
                         <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                         </div>

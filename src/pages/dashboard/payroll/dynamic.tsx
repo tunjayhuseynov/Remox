@@ -1,12 +1,12 @@
 import Button from 'components/button';
-import { Fragment, useEffect, useState, useMemo } from 'react';
+import { Fragment, useState, useMemo } from 'react';
 import TeamContainer from 'subpages/dashboard/payroll/teamContainer'
 import { ClipLoader } from 'react-spinners';
 import { SelectBalances } from 'redux/reducers/currencies';
 import { Coins } from 'types';
 import { useNavigate } from 'react-router-dom'
 import { selectContributors } from 'redux/reducers/contributors';
-import { DateInterval, ExecutionType, IMember, IuseContributor } from 'API/useContributors';
+import { DateInterval, ExecutionType, IMember } from 'API/useContributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
@@ -19,9 +19,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
 
     const history = useNavigate()
 
-
     const balance = useAppSelector(SelectBalances)
-
 
     const totalPrice: { [name: string]: number } = useMemo(() => {
         if (contributors && balance.CELO) {

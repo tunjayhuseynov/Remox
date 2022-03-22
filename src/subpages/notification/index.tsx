@@ -4,10 +4,9 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { generate } from "shortid";
-import { fromWei } from "web3-utils";
+import { fromWei } from "utils/ray";
 import useTransactionProcess, { ERC20MethodIds } from "../../hooks/useTransactionProcess";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { changeNotificationSeen } from "../../redux/reducers/notificationSlice";
 import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
 
@@ -63,7 +62,7 @@ const NotificationCointainer = () => {
                 <div className="flex flex-col min-h-[325px] sm:min-h-[auto] justify-center sm:justify-between sm:items-stretch items-center">
                     {
                         list && list.slice(0, 5).map((transaction) => {
-                            const amountUSD = transaction.id !== ERC20MethodIds.swap ? (currencies[transaction.rawData.tokenSymbol]?.price ?? 0) * parseFloat(parseFloat(fromWei(transaction.rawData.value, 'ether')).toFixed(4)) : -1
+                            const amountUSD = transaction.id !== ERC20MethodIds.swap ? (currencies[transaction.rawData.tokenSymbol]?.price ?? 0) * parseFloat(parseFloat(fromWei(transaction.rawData.value)).toFixed(4)) : -1
                             const direction = transaction.rawData.input.startsWith("0x38ed1739") ? TransactionDirection.Swap : transaction.rawData.from.trim().toLowerCase() === selectedAccount.trim().toLowerCase() ? TransactionDirection.Out : TransactionDirection.In
                             const type = transaction.id === ERC20MethodIds.swap ? TransactionType.Swap : transaction.id === ERC20MethodIds.batchRequest ? TransactionType.MassPayment : TransactionType.IncomingPayment
                             const surplus = direction === TransactionDirection.In ? '+' : '-'
