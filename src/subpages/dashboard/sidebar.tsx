@@ -16,7 +16,7 @@ import { removeStorage } from '../../redux/reducers/storage'
 import { setMenu } from '../../redux/reducers/toggles'
 import { removeTransactions } from '../../redux/reducers/transactions'
 import { useContractKit } from '@celo-tools/use-contractkit'
-import { useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { BiLogOut } from 'react-icons/bi'
 import { RiFlaskLine } from 'react-icons/ri';
 
@@ -69,27 +69,32 @@ const Sidebar = () => {
 
 
 
-    return <div className="flex flex-col  justify-between pb-4 pl-4 lg:pl-10">
-        <div>
-            <Siderbarlist />
+    return <>
+        <div className="hidden md:block md:col-span-2 w-[275px] flex-none fixed h-full">
+            <div className="flex flex-col  justify-between pb-4 pl-4 lg:pl-10 fixed">
+                <div>
+                    <Siderbarlist />
+                </div>
+
+                <div className="flex items-center gap-5 mt-10 mb-2">
+                    <Dropdown className="min-w-[170px]" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
+                        if (w.address) {
+                            setItem(w)
+                            dispatch(changeAccount(w.address))
+                        }
+                    }} />
+                    <span onClick={() => {
+                        dispatch(setMenu(false))
+                        dispatch(removeTransactions())
+                        dispatch(removeStorage())
+                        destroy()
+                        navigator('/')
+                    }}><LogoutSVG />
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <div className="flex items-center gap-5 mt-10 mb-2">
-            <Dropdown className="min-w-[170px]" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
-                if (w.address) {
-                    setItem(w)
-                    dispatch(changeAccount(w.address))
-                }
-            }} />
-            <span onClick={() => {
-                dispatch(setMenu(false))
-                dispatch(removeTransactions())
-                dispatch(removeStorage())
-                destroy() 
-                navigator('/')
-            }}><LogoutSVG />
-            </span>
-        </div>  
         {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
             <div className="flex flex-col gap-8 mt-[-2rem]">
                 <div className="text-center font-semibold pt-4 text-xl">Multi-Signature Account</div>
@@ -105,7 +110,7 @@ const Sidebar = () => {
                 }}>
                     <span>Import Multisig Account</span>
                 </div>
-                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false) } className=" w-[30%] px-4 py-2">Cancel</Button></div>
+                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false)} className=" w-[30%] px-4 py-2">Cancel</Button></div>
             </div>
         </Modal>}
         {isImportModal && <Modal onDisable={setImportModal} disableX={true}>
@@ -120,7 +125,7 @@ const Sidebar = () => {
                     <input ref={importInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig Address" />
                 </div>
                 <div className="flex justify-center gap-5">
-                <Button className="px-10 py-2" version="second" onClick={() => setImportModal(false)}>
+                    <Button className="px-10 py-2" version="second" onClick={() => setImportModal(false)}>
                         Cancel
                     </Button>
                     <Button className="px-10 py-2" onClick={importClick} isLoading={isLoading}>
@@ -136,8 +141,7 @@ const Sidebar = () => {
         }
         {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
         {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
-    </div>
-
+    </>
 }
 
 const LogoutSVG = ({ active = false }) => <BiLogOut className="w-[24px] h-[24px] cursor-pointer" />

@@ -6,12 +6,14 @@ import { selectStorage } from '../../redux/reducers/storage';
 import Button from '../../components/button';
 import useMultisig from 'API/useMultisig';
 import { AddressReducer } from "../../utils";
-import {useRef, useState, Dispatch} from "react";
+import { useRef, useState, Dispatch } from "react";
+import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 
 export default function Create({ setCreateModal }: { setCreateModal: Dispatch<boolean> }) {
 
     const { createMultisigAccount, isLoading } = useMultisig()
     const storage = useSelector(selectStorage)
+    const selectedAddress = useSelector(SelectSelectedAccount)
 
     const addressRef = useRef<HTMLInputElement>(null)
     const nameRef = useRef<HTMLInputElement>(null)
@@ -24,9 +26,9 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
     const dispatch = useDispatch()
 
     const addOwner = () => {
-           if(addressRef?.current?.value && nameRef.current?.value){
-                setOwners([...owners, { name: nameRef.current.value, address: addressRef.current.value }])
-           }
+        if (addressRef.current?.value && nameRef.current?.value) {
+            setOwners([...owners, { name: nameRef.current.value, address: addressRef.current.value }])
+        }
     }
 
     const createClick = async () => {
@@ -60,12 +62,12 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                 <div className="flex gap-5">
                     <div className={` w-[25%]`}>
                         <div className="w-full mb-4" >
-                            <input ref={nameRef}  type="text" className="border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" placeholder="Name" />
+                            <input ref={nameRef} type="text" className="border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" placeholder="Name" />
                         </div>
                     </div>
                     <div className={` w-[75%]`}>
                         <div className="w-full mb-4">
-                            <input ref={addressRef}  type="text" className="border p-3 rounded-md w-full  outline-none  dark:bg-darkSecond" placeholder="0xabc..." />
+                            <input ref={addressRef} type="text" className="border p-3 rounded-md w-full  outline-none  dark:bg-darkSecond" placeholder="0xabc..." />
                         </div>
                     </div>
                 </div>
@@ -76,8 +78,8 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
             <div className="flex flex-col space-y-8 ">
                 <div className="flex gap-5 flex-col ">
                     <span className="text-greylish opacity-3">Added Owners</span>
-                    <div className="border flex p-3 ">
-                        <span className="text-dark w-[25px] h-[25px] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center">YA</span>
+                    <div className="border flex p-3">
+                        <span className="w-[25px] h-[25px] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                         <div className="grid grid-col">
                             <h3>Your Account</h3>
                             <p className="opacity-80">{AddressReducer(storage!.accountAddress)}</p>
@@ -85,7 +87,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                     </div>
                     {owners.map((w) => {
                         return <div className="border flex p-3" >
-                            <span className="text-dark w-[25px] h-[25px] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center">YA</span>
+                            <span className="w-[25px] h-[25px] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                             <div className="grid grid-col">
                                 <h3>{w.name}</h3>
                                 <p className="opacity-80">{w.address}</p>
@@ -97,13 +99,15 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                     <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
                     <div className="w-ful flex justify-start items-center">
                         <input type="text" className="border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
-                        <p className="text-greylish w-[30%]">out of {sign} owners</p>
+                        <p className="text-greylish w-[30%]">out of {owners.length} owners</p>
                     </div>
                 </div>
                 <div>
                     <span className="text-greylish opacity-35">Signatures required to change MultiSig properties</span>
-                    <input type="text" className="border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" value={internalSign} onChange={(e) => { if (!isNaN(+e.target.value)) setInternalSign(+e.target.value || undefined) }} required />
-
+                    <div className="w-ful flex justify-start items-center">
+                        <input type="text" className="border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={internalSign} onChange={(e) => { if (!isNaN(+e.target.value)) setInternalSign(+e.target.value || undefined) }} required />
+                        <p className="text-greylish w-[30%]">out of {owners.length} owners</p>
+                    </div>
                 </div>
             </div>
             <div className="flex items-center justify-center gap-5">

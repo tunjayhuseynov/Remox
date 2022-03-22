@@ -32,10 +32,10 @@ export default function Dashboard() {
         </MobileMenu>
       }
     </AnimatePresence>
-    <div className="flex flex-col space-y-40 min-h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen overflow-hidden">
       <div className="fixed w-full pt-6 pb-3 bg-white dark:bg-dark z-50"><Navbar></Navbar></div>
-      <div className="flex space-x-11 flex-shrink flex-grow">
-        <div className="hidden md:block md:col-span-2 w-[275px] flex-none fixed"><Sidebar /></div>
+      <div className="flex space-x-11 pt-40 flex-shrink flex-grow relative">
+        <Sidebar />
         <div className="col-span-11 md:col-span-8 flex-grow pr-20 overflow-hidden pl-[275px]">
           <Suspense fallback={<div className="h-full w-full flex justify-center items-center"><ClipLoader /></div>}>
             <Outlet />
@@ -43,5 +43,6 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+
   </>
 }

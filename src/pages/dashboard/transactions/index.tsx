@@ -102,7 +102,7 @@ const Transactions = () => {
                             <div className="text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Action" : "Paid Amount"}</div>
                             <div className="font-medium hidden md:block pt-2">{page !== "completed" ? "Signatures" : "Details"}</div>
                             <div>
-                                {!isMultisig && <WalletDropdown />}
+                                {!isMultisig && <WalletDropdown list={[{name: ""}]}/>}
                             </div>
                             {!isMultisig && <> <div className="place-self-end ">
                                 {list && <CSVLink className="font-normal px-2 sm:px-5 py-2 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex items-center justify-center xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
