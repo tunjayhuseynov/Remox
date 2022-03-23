@@ -13,7 +13,7 @@ const variants = {
     }
 }
 
-const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-cols-[37%,33%,30%]", method }: { method?: string, children: JSX.Element, date?: string, dataCount: number, status: TransactionStatus, direction?: TransactionDirection, grid?: string }) => {
+const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-cols-[37%,33%,30%]", method,color }: { method?: string, children: JSX.Element, date?: string, dataCount: number, status: TransactionStatus, direction?: TransactionDirection, grid?: string,color?:string }) => {
 
     const [isOpen, setOpen] = useState(false)
 
@@ -21,7 +21,7 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
         setOpen(!isOpen)
     }
     return <div>
-        <div className="flex space-x-1 items-center bg-white dark:bg-darkSecond rounded-xl px-3 my-3 cursor-pointer" onClick={click}>
+        <div className={`flex space-x-1 items-center ${color}  rounded-xl px-3 my-3 cursor-pointer`} onClick={click}>
             <div >
                 <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
             </div>

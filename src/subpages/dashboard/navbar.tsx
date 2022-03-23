@@ -8,6 +8,7 @@ import { SelectSelectedAccount } from '../../redux/reducers/selectedAccount';
 import Visitcard from '../../components/visitcard';
 import "index.css"
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import Module from "module";
 
 
 const Navbar = () => {
@@ -46,7 +47,8 @@ const Navbar = () => {
         <div className="actions hidden md:flex items-center justify-evenly ">
             <div className="flex space-x-5 items-center justify-center">
                 <div className="w-12 h-12 bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
-                    <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" />
+                    {/* <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" /> */}
+                    <img src={ !dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-[18px] h-[18px]" alt='dark' />
                 </div>
                 {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}
                 {storage ? <Visitcard name={"You"} address={selectedAccount} /> : <ClipLoader />}

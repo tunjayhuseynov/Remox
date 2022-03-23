@@ -9,6 +9,7 @@ import useTransactionProcess, { ERC20MethodIds } from "../../hooks/useTransactio
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
+import { motion } from "framer-motion";
 
 
 enum Status {
@@ -52,7 +53,7 @@ const NotificationCointainer = () => {
 
         </div>}
         {openNotify &&
-            <div ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
+            <motion.div initial={ {x: "100%"}} animate={{x:15}} transition={{ type: "spring",stiffness:450,damping:30} } ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] pr-3 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
                 <div className="flex justify-between py-6 px-5 text-center border-t-2 border-b-2 dark:border-greylish dark:bg-darkSecond">
                 <p className="text-greylish opacity-45 text-center text-xl flex items-center">Action Bar</p>
                 { <button onClick={() => setNotify(false)} className="text-center">
@@ -73,7 +74,7 @@ const NotificationCointainer = () => {
                     }
                     {(!list || !Object.values(list).length) && <div>No notification yet. We'll notify you</div>}
                 </div>
-            </div>
+            </motion.div>
         }
     </>
 }
