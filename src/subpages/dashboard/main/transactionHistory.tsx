@@ -13,7 +13,7 @@ const TransactionHistory = ({ transactions }: { transactions: IFormattedTransact
     const selectedAccount = useAppSelector(SelectSelectedAccount)
 
 
-    return <div className="flex flex-col shadow-custom dark:bg-darkSecond max-h-full px-5 pt-5 pb-4 rounded-xl">
+    return <div className="flex flex-col shadow-custom bg-white dark:bg-darkSecond max-h-full px-5 pt-5 pb-4 rounded-xl">
         <div className="flex justify-between">
             <div className="font-semibold text-lg tracking-wide">Recent Transactions</div>
             <div><Link to="/dashboard/transactions" >

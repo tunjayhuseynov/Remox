@@ -25,7 +25,7 @@ const Contributors = () => {
     const [addMemberModal, setAddMemberModal] = useState(false)
 
     return <div>
-        <div className="flex sm:justify-between pb-5 space-x-3 md:space-x-0">
+        <div className="flex sm:justify-between pb-5 space-x-3 md:space-x-0 ">
             <div className="grid grid-cols-2 md:grid-cols-3 sm:gap-10 gap-1 col-span-4">
                 <Button className="text-xs sm:text-base !py-2 !px-6" onClick={() => setAddTeamModal(true)}>Add Team</Button>
                 <Button className="text-xs sm:text-base !py-2 !px-6" onClick={() => setAddMemberModal(true)}>Add Person</Button>
@@ -34,8 +34,8 @@ const Contributors = () => {
                 Export
             </button> */}
         </div>
-        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] rounded-xl bg-greylish bg-opacity-10 dark:bg-greylish  sm:mb-5 px-5" >
+        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] rounded-xl bg-greylish bg-opacity-10 dark:bg-darkSecond  sm:mb-5 px-5" >
                 <div className="font-normal py-3">Name</div>
                 <div className="font-normal py-3 hidden lg:block">Team</div>
                 <div className="font-normal py-3">Amount</div>

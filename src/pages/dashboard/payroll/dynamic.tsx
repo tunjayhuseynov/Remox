@@ -109,9 +109,9 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
         }
     }, [contributors, balance])
 
-    return <>
-        <div className="rounded-xl shadow-custom px-10 pb-10 pt-6">
-            <div className='flex flex-col space-y-3'>
+    return <div className="flex flex-col space-y-4">
+        <div className="rounded-xl shadow-custom px-10 pb-10 pt-6 bg-white dark:bg-darkSecond ">
+            <div className='flex flex-col space-y-3 '>
                 <div className='flex space-x-2'>
                     <div className='text-greylish opacity-90'>Total payout per month:</div>
                     {totalPrice ? <div className='text-greylish'>
@@ -171,8 +171,8 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                 </div>
             </div>
         </div>
-        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,20%,1fr] rounded-xl bg-greylish bg-opacity-10 dark:bg-greylish  sm:mb-5 px-5 " >
+        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,20%,1fr] rounded-xl bg-greylish bg-opacity-10 dark:bg-darkSecond  sm:mb-5 px-5 " >
                 <div className="font-normal py-3">Name</div>
                 <div className="font-normal py-3 hidden lg:block">Amount</div>
                 <div className="font-normal py-3">Frequency</div>
@@ -183,5 +183,5 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                 {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} /></Fragment> : undefined)}
             </div>
         </div>
-    </>
+    </div>
 }

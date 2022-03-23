@@ -52,7 +52,7 @@ const NotificationCointainer = () => {
 
         </div>}
         {openNotify &&
-            <div ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] overflow-y-scroll overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
+            <div ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
                 <div className="flex justify-between py-6 px-5 text-center border-t-2 border-b-2 dark:border-greylish dark:bg-darkSecond">
                 <p className="text-greylish opacity-45 text-center text-xl flex items-center">Action Bar</p>
                 { <button onClick={() => setNotify(false)} className="text-center">
@@ -83,18 +83,18 @@ export default NotificationCointainer;
 
 const NotificationItem = ({ status, title, body, link }: { status: Status, title: TransactionType, body: string, link: string }) => {
 
-    return <div className="grid grid-cols-[10%,70%,20%] min-h-[90px] border-b-2 dark:border-greylish dark:bg-darkSecond items-center px-3 py-2">
+    return <div className="grid grid-cols-[15%,70%,15%] min-h-[90px] border-b-2 dark:border-greylish dark:bg-darkSecond items-center px-3 py-2">
         <div>
             {
-                status === Status.OK && <div className="w-[15px] h-[15px] rounded-full bg-primary"></div>
+                status === Status.OK && <div className="w-[10px] h-[10px] rounded-full bg-primary"></div>
             }
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col px-3">
             <div className="text-xl pb-1">{title}</div>
-            <div className="opacity-50 pr-12">{body}</div>
+            <div className="opacity-50">{body}</div>
         </div>
         <Link to={link}>
-            <div className={'text-primary flex items-center justify-center'}>
+            <div className={'text-primary flex items-center justify-center '}>
                 View
             </div>
         </Link>

@@ -45,7 +45,7 @@ const Navbar = () => {
         </div>
         <div className="actions hidden md:flex items-center justify-evenly ">
             <div className="flex space-x-5 items-center justify-center">
-                <div className="w-12 h-12 bg-gray-50 dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
+                <div className="w-12 h-12 bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
                     <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" />
                 </div>
                 {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}

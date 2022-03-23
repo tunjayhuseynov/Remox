@@ -13,7 +13,7 @@ const Modal = ({ children, onDisable, title, className, disableX = false }: { ch
             top: `${window.scrollY}px`,
         }}>
         </div>
-        <div className={`z-[101] absolute ${className} overflow-auto max-h-[95vh] max-w-[90vw] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-dark w-[90%] sm:w-[60%] lg:w-auto lg:min-w-[33%] shadow-custom rounded-xl z-50`} style={{ top: `${window.scrollY + (window.innerHeight / 2)}px` }}>
+        <div className={`z-[101] absolute ${className} overflow-auto max-h-[95vh] max-w-[90vw] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-dark w-[90%] sm:w-[60%] lg:w-auto lg:min-w-[33%] shadow-custom rounded-xl z-[101]`} style={{ top: `${window.scrollY + (window.innerHeight / 2)}px` }}>
             <div className="relative px-5 py-10">
                 {children}
                 {!(!title) && <div className="absolute right-full top-2 font-bold translate-x-[105%] w-1/2">

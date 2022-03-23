@@ -26,7 +26,7 @@ const Sidebarlist = () => {
             <div className="w-[68%] border my-4"></div>
             <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AutomationsSVG active={isActive} darkMode={darkMode}  />Automations</Li>}</NavLink>
             <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SettingSVG active={isActive} darkMode={darkMode}  />Settings</Li>}</NavLink>
-            <Link to="/dashboard/pay"><Button className="px-10 py-2 ml-4  min-w-[60%]">Send</Button></Link>
+            <Link to="/dashboard/pay"><Button className="px-10 py-1 ml-4  min-w-[60%]">Send</Button></Link>
         </ul>
     </>
 }

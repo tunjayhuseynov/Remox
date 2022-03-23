@@ -126,7 +126,7 @@ const Statistic = () => {
                 <div className="text-base text-greylish">Total Balance</div>
                 <div className="text-base text-greylish opacity-70">24h</div>
             </div>
-            <div className="flex justify-between shadow-custom dark:bg-darkSecond rounded-xl px-8 py-8">
+            <div className="flex justify-between shadow-custom bg-white dark:bg-darkSecond rounded-xl px-8 py-8">
                 <div className="text-4xl">
                     {(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <ClipLoader />}
                 </div>
@@ -142,7 +142,7 @@ const Statistic = () => {
             <div className="flex justify-between sm:pl-4">
                 <div className="text-greylish text-sm sm:text-base">Money in (c.m.)</div>
             </div>
-            <div className="flex justify-between shadow-custom dark:bg-darkSecond rounded-xl px-8 py-4">
+            <div className="flex justify-between shadow-custom bg-white dark:bg-darkSecond rounded-xl px-8 py-4">
                 <div className="text-xl sm:text-2xl opacity-80">
                     {lastIn !== undefined && transactions !== undefined && balance !== undefined ? `+ $${lastIn?.toFixed(2)}` : <ClipLoader />}
                 </div>
@@ -153,7 +153,7 @@ const Statistic = () => {
             <div className="flex justify-between sm:pl-4">
                 <div className="text-greylish text-sm sm:text-base">Money out (c.m.)</div>
             </div>
-            <div className="flex justify-between shadow-custom dark:bg-darkSecond rounded-xl px-8 py-4">
+            <div className="flex justify-between shadow-custom bg-white dark:bg-darkSecond rounded-xl px-8 py-4">
                 <div className="text-greylish opacity-80 text-xl sm:text-2xl">
                     {lastOut !== undefined && transactions !== undefined && balance !== undefined ? `- $${lastOut?.toFixed(2)}` : <ClipLoader />}
                 </div>

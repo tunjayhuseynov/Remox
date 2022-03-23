@@ -89,13 +89,13 @@ const Transactions = () => {
                 <div className="flex justify-between">
                     <div className="text-2xl font-bold tracking-wider">Transactions</div>
                 </div>
-                <div className="flex pl-5 pt-2 w-full ">
-                    {isMultisig &&
+                {isMultisig && <>
+                <div className="flex pl-5 pt-2 pb-2 w-full ">
                         <AnimatedTabBar data={data} />
-                    }
                 </div>
-                <div className="py-5">
-                    <div className="w-full pt-4 pb-3 rounded-xl">
+                </> }
+                <div className="pb-5">
+                    <div className="w-full pt-2 pb-3 rounded-xl">
                         <div id="header" className="grid grid-cols-[25%,45%,30%] sm:grid-cols-[30%,25%,15%,15%,15%] border-b border-black pb-3 " >
                             <div className="sm:hidden text-xs font-medium pt-2">Recipient/Sender</div>
                             <div className="hidden sm:block text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Your Confirmation" : "Recipient/Sender"}</div>
