@@ -7,7 +7,7 @@ import { AddressReducer } from "../utils";
 import Button from "components/button";
 import useGelato from "API/useGelato";
 import { selectTags } from "redux/reducers/tags";
-import { fromWei } from "utils/ray";
+import { BN, fromWei } from "utils/ray";
 
 const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedTransaction, isMultiple?: boolean }) => {
 
@@ -23,7 +23,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
     const isAutomation = Transaction.id === ERC20MethodIds.automatedTransfer;
     const isTransfer = [
-        ERC20MethodIds.transfer, ERC20MethodIds.transferFrom, 
+        ERC20MethodIds.transfer, ERC20MethodIds.transferFrom,
         ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit,
         ERC20MethodIds.moolaWithdraw, ERC20MethodIds.moolaRepay
     ].indexOf(Transaction.id) > -1;
@@ -58,17 +58,19 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                     const data = Transaction as IAutomationTransfer
                     const details = await getDetails(data.taskId)
                     const reader = InputReader(details[1], Transaction.rawData, tags)
+                    console.log(reader?.id)
+                    if (reader && reader.id === ERC20MethodIds.moolaRepay) console.log(reader)
                     const formattedTx = {
                         rawData: data.rawData,
                         hash: data.hash,
                         ...reader
                     } as IFormattedTransaction
-                    if(reader && reader.id === ERC20MethodIds.batchRequest) setIsMultiple(true)
+                    if (reader && reader.id === ERC20MethodIds.batchRequest) setIsMultiple(true)
                     setTransaction(formattedTx)
                 }
             )()
         }
-    }, [])
+    }, [transaction])
 
     return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,32.3%,10.7%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-4 `}>
         <div className="flex space-x-3 overflow-hidden">
@@ -93,7 +95,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
                         </div>
                         <span>
-                            {parseFloat(fromWei(TransferData.amount)).toFixed(2)}
+                            {BN(fromWei(TransferData.amount)).toFixed(2)}
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
