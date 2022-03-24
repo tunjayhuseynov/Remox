@@ -15,6 +15,7 @@ export default function useProfile() {
     profile = {
       address: data!.address,
       id: data!.id,
+      multiwallets: data.multiwallets,
       name: decryptMessage(data!.name, storage!.encryptedMessageToken),
       surname: decryptMessage(data!.surname, storage!.encryptedMessageToken),
       companyName: decryptMessage(data!.companyName, storage!.encryptedMessageToken),

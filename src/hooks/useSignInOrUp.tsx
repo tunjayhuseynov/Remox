@@ -5,13 +5,14 @@ import { auth, IUser } from "../firebase";
 import { changeAccount } from "../redux/reducers/selectedAccount";
 import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
-import { FirestoreRead, FirestoreWrite } from "../API/useFirebase";
-import { useContractKit } from "@celo-tools/use-contractkit";
+import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../API/useFirebase";
 import useTags from "API/useTags";
+import { useContractKit } from "@celo-tools/use-contractkit";
 
 
 export default function useSignInOrUp() {
-    const { kit } = useContractKit()
+    const { walletType } = useContractKit()
+    const { search } = useFirestoreSearchField<IUser>()
     const [error, setError] = useState<{ errorCode: string, errorMessage: string }>();
     const [user, setUser] = useState<User>();
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -22,7 +23,8 @@ export default function useSignInOrUp() {
     const executeSign = async (address: string, password: string, dataForSignUp?: IUser) => {
         setLoading(true)
         try {
-            const token = await hashing(address, password)
+            const dbUser = await search('users', 'address', address, "array-contains")
+            const token = await hashing((dbUser?.[0].address[0] ?? address), password)
             const encryptedMessageToken = await hashing(password, token)
             let userCredential;
             if (!dataForSignUp) {
@@ -38,7 +40,13 @@ export default function useSignInOrUp() {
 
                 await FirestoreWrite<IUser>().createDoc('users', user.uid, {
                     id: user.uid,
-                    address: address,
+                    address: [address],
+                    multiwallets: [
+                        {
+                            name: walletType,
+                            address: address
+                        }
+                    ],
                     companyName: encryptMessage(dataForSignUp.companyName, encryptedMessageToken),
                     name: encryptMessage(dataForSignUp.name, encryptedMessageToken),
                     surname: encryptMessage(dataForSignUp.surname, encryptedMessageToken),
@@ -63,6 +71,16 @@ export default function useSignInOrUp() {
                 const incomingData = await FirestoreRead<IUser>("users", user!.uid)
                 if (!incomingData) {
                     throw new Error("No Data In Users")
+                }
+                if (!incomingData.multiwallets) {
+                    await FirestoreWrite<Pick<IUser, "multiwallets">>().updateDoc("users", user!.uid, {
+                        multiwallets: [
+                            {
+                                name: walletType,
+                                address: address
+                            }
+                        ]
+                    })
                 }
                 await checkTag()
                 dispatch(setStorage({

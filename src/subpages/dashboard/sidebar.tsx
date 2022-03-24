@@ -18,13 +18,14 @@ import { removeTransactions } from '../../redux/reducers/transactions'
 import { useContractKit } from '@celo-tools/use-contractkit'
 import { useNavigate } from 'react-router-dom'
 import { BiLogOut } from 'react-icons/bi'
-import { RiFlaskLine } from 'react-icons/ri';
+import useMultiWallet from 'hooks/useMultiWallet';
 
 const Sidebar = () => {
 
     const { destroy } = useContractKit()
     const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useNavigate()
+    const { addWallet, data: wallets, walletType, walletSwitch } = useMultiWallet()
 
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
@@ -40,7 +41,7 @@ const Sidebar = () => {
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
 
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: storage!.accountAddress === selectedAccount ? "Wallet" : "Multisig", address: selectedAccount })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: walletType, address: selectedAccount })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -56,18 +57,15 @@ const Sidebar = () => {
         }
     }
 
-    const [list, setList] = useState<DropDownItem[]>([
-        { name: storage!.companyName || "Remox", address: storage!.accountAddress },
-        { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } },
-    ])
+    const [list, setList] = useState<DropDownItem[]>([])
 
     useEffect(() => {
-        if (data) {
-            setList([list[0], ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }])
+        if (data && wallets) {
+            const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
+            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
+            setList([...wallets.map(s => ({ name: s.name, address: s.address, onClick: async () => { walletSwitch(s.name).catch(e => console.error(e)); setItem({ name: s.name, address: s.address }) } })), ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), wallet, multi])
         }
-    }, [data])
-
-
+    }, [data, wallets])
 
     return <>
         <div className="hidden md:block md:col-span-2 w-[275px] flex-none fixed pt-32">
@@ -144,6 +142,6 @@ const Sidebar = () => {
     </>
 }
 
-const LogoutSVG = ({ active = false }) => <BiLogOut className="w-[24px] h-[24px] cursor-pointer" />
+const LogoutSVG = () => <BiLogOut className="w-[24px] h-[24px] cursor-pointer" />
 
 export default Sidebar;

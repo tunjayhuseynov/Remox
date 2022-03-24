@@ -62,7 +62,7 @@ export function useFirestoreRead<DataType>(collection: string, document: string)
             setData(doc.data() as DataType | undefined)
         });
     }
- 
+
     useEffect(() => {
         const unsub = readDoc(collection, document);
         return () => unsub();
@@ -98,10 +98,10 @@ export function useFirestoreReadMultiple<DataType>(collectionName: string, first
 export function useFirestoreSearchField<DataType>() {
     const [isLoading, setLoading] = useState(false)
 
-    const search = async (collectionName: string, field: string, searching: string) => {
+    const search = async (collectionName: string, field: string, searching: string | string[], indicator: "==" | "in" | "array-contains") => {
         setLoading(true)
         const ref = collection(db, collectionName);
-        const q = query(ref, where(field, "==", searching));
+        const q = query(ref, where(field, indicator, searching));
         const docSnap = await getDocs(q);
         setLoading(false)
         if (docSnap.docs.length > 0) {

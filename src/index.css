@@ -34,3 +34,7 @@ html{
 .dark .shadow-custom{
   box-shadow: 0px 2px 7px 0px #1C1C1C;
 }
+
+.ReactModal__Overlay.ReactModal__Overlay--after-open{
+  z-index: 100;
+}

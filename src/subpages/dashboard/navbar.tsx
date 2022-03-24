@@ -49,7 +49,7 @@ const Navbar = () => {
                     <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" />
                 </div>
                 {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}
-                {storage ? <Visitcard name={"You"} address={selectedAccount} /> : <ClipLoader />}
+                {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}
                 <div className="relative">
                     <NotificationCointainer />
                 </div>

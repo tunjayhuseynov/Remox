@@ -11,7 +11,7 @@ import { ToastRun } from "utils/toast";
 
 export default function CreateAccount() {
 
-    const { address } = useContractKit();
+    const { address, walletType } = useContractKit();
     const { executeSign, isLoading } = useSignInOrUp()
     const { user } = useAuth(address);
     const navigate = useNavigate()
@@ -30,7 +30,7 @@ export default function CreateAccount() {
         const target = e.target as HTMLFormElement
         if (target["password"].value !== target["repeatPassword"].value) {
             ToastRun(<div className="dark:text-white"><strong>Passwords don't match</strong></div>)
-            return 
+            return
         }
 
         const inputData = {
@@ -42,8 +42,9 @@ export default function CreateAccount() {
 
         try {
             const user = await executeSign(address, inputData.password, {
-                address: address,
+                address: [address],
                 id: "placeholder",
+                multiwallets: [{name: walletType, address: address}],
                 companyName: inputData.companyName,
                 name: inputData.name,
                 surname: inputData.surname,

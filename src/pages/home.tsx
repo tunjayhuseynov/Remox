@@ -43,7 +43,7 @@ const Home = () => {
                                 kit.defaultAccount = accounts[0]
                                 const connector = ctx.connector;
                                 connector.type = WalletTypes.PrivateKey;
-                                search("users", 'address', accounts[0])
+                                search("users", 'address', accounts[0], "array-contains")
                                     .then(user => {
                                         dispatch(changePrivateToken(key[0]))
                                         setState("setConnector", connector)
@@ -55,7 +55,7 @@ const Home = () => {
                 }
             }
             else if (address) {
-                search("users", 'address', address)
+                search("users", 'address', address, "array-contains")
                     .then(user => {
                         if (user) {
                             navigate('/unlock')
