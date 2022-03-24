@@ -13,6 +13,7 @@ import { useModalSideExit } from 'hooks';
 import useMultisig from "hooks/useMultisig";
 import Button from "components/button";
 import useSwap from "API/useSwap";
+import {motion, AnimatePresence} from "framer-motion"
 
 const Swap = () => {
     const [token1, setToken1] = useState<DropDownItem>(Coins.cUSD)
@@ -123,7 +124,8 @@ const Swap = () => {
                     <div className="font-bold text-xl pb-2">Swap</div>
                     <div className="relative">
                         <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
-                        {isSetting && <div ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[250px] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
+                        <AnimatePresence>
+                        {isSetting && <motion.div initial={ {opacity:0}} animate={{opacity:1}} exit={{opacity:0}}  ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[250px] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
                             <div className="flex flex-col space-y-4">
                                 <div className="font-bold text-xl">Transaction Settings</div>
                                 <div className="flex flex-col space-y-3">
@@ -174,7 +176,8 @@ const Swap = () => {
                                 </div>
 
                             </div>
-                        </div>}
+                        </motion.div>}
+                        </AnimatePresence>
                     </div>
                 </div>
                 <div className="bg-greylish bg-opacity-10 min-h-[100px] items-center flex justify-between rounded-md py-3 px-3">
