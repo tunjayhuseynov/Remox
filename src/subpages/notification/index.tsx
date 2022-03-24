@@ -9,6 +9,7 @@ import useTransactionProcess, { ERC20MethodIds } from "../../hooks/useTransactio
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
+import {motion, AnimatePresence} from "framer-motion"
 
 
 enum Status {
@@ -51,8 +52,9 @@ const NotificationCointainer = () => {
         {list && new Date(profile?.seenTime ?? 0) < new Date(parseInt((list && list.length > 0 ? list[0]?.rawData.timeStamp : "0")) * 1e3) && <div className="absolute w-[10px] h-[10px] bg-primary rounded-full -top-1 -right-1">
 
         </div>}
+        <AnimatePresence>
         {openNotify &&
-            <div ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
+            <motion.div initial={ {x: "100%",opacity:0.5}} animate={{x:15,opacity:1}} exit={{x:"100%",opacity:0.5}} transition={{ type: "spring",stiffness:400,damping:30} } ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] pr-3 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
                 <div className="flex justify-between py-6 px-5 text-center border-t-2 border-b-2 dark:border-greylish dark:bg-darkSecond">
                 <p className="text-greylish opacity-45 text-center text-xl flex items-center">Action Bar</p>
                 { <button onClick={() => setNotify(false)} className="text-center">
@@ -70,11 +72,12 @@ const NotificationCointainer = () => {
                                 <NotificationItem key={generate()} status={Status.OK} title={type} body={  amountUSD !== -1 ? "Orkhan has rejected a " + `${surplus} ${amountUSD.toFixed(2)} $` + " payment about 12 hours ago" : ''} link={`/dashboard/transactions/${transaction.rawData.hash}`} />
                             </Fragment>
                         })
-                    }
+                    }              
                     {(!list || !Object.values(list).length) && <div>No notification yet. We'll notify you</div>}
                 </div>
-            </div>
+            </motion.div>
         }
+        </AnimatePresence>
     </>
 }
 

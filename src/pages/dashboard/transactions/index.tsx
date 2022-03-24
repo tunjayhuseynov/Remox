@@ -61,8 +61,7 @@ const Transactions = () => {
     }, [list])
     const TransactionGenerator = useMemo(() => new Promise<JSX.Element[]>((resolve, reject) => {
         if (!list) return <></>
-        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]"))
-
+        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]","bg-white dark:bg-darkSecond"))
         resolve(result)
     }), [transactions, tags])
 
@@ -183,7 +182,7 @@ const Transactions = () => {
 export default Transactions;
 
 
-export const ProcessAccordion = (transaction: IFormattedTransaction, account: string, grid: string) => {
+export const ProcessAccordion = (transaction: IFormattedTransaction, account: string, grid: string, color:string) => {
     const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
     const isBatch = transaction.id === ERC20MethodIds.batchRequest
     const TXs: IFormattedTransaction[] = [];
@@ -235,7 +234,7 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, account: st
     }
 
     return <Fragment key={transaction.rawData.hash}>
-        <Accordion grid={grid} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
+        <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
             <div>
                 {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
             </div>
