@@ -55,7 +55,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
         <>
             <div className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[60%,35%,1fr] border-b border-black py-3 px-5" >
                 <div className="flex space-x-3 items-center">
-                    <div className="w-[18px] h-[18px] rounded-full" style={{
+                    <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{
                         backgroundColor: tag.color,
                     }}></div>
                     <div>
@@ -93,7 +93,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
                                 <label className="text-greylish bg-opacity-50"></label>
                                 <div className="flex space-x-3 border border-greylish rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
                                     <div className="py-2 pl-3">
-                                        <div className="w-[18px] h-[18px] rounded-full" style={{
+                                        <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{
                                             backgroundColor: color,
                                         }}>
 
@@ -111,10 +111,10 @@ export default function TagItem({ tag }: { tag: Tag }) {
                             </div>
                         </div>
                         <div className="flex justify-center gap-16">
-                            <Button type="submit" version="second" onClick={() => setEditModal(false)} className="px-8">
+                            <Button type="submit" version="second" onClick={() => setEditModal(false)} className="!px-8">
                                 Go back
                             </Button>
-                            <Button type="submit" onClick={UpdateTag} className="px-8 py-3" isLoading={isLoading} >
+                            <Button type="submit" onClick={UpdateTag} className="!px-8 !py-3" isLoading={isLoading} >
                                 Save
                             </Button>
                         </div>

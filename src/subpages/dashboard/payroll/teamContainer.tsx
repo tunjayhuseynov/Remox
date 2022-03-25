@@ -10,7 +10,7 @@ const TeamContainer = (props: IuseContributor & { memberState: [IMember[], React
     return <>
         <div className="col-span-4 flex space-x-3 py-4 pt-4 sm:pt-6 pb-1 px-5 items-center justify-start">
             <div>
-                <input type="checkbox" className="relative cursor-pointer w-[20px] h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                <input type="checkbox" className="relative cursor-pointer w-[1.25rem] h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     const members = [...props.memberState[0]]
                     if (e.target.checked) {
                         props.members?.forEach(m => {

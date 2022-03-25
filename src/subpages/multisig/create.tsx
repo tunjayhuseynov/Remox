@@ -79,7 +79,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                 <div className="flex gap-5 flex-col ">
                     <span className="text-greylish opacity-3">Added Owners</span>
                     <div className="border flex p-3">
-                        <span className="w-[25px] h-[25px] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
+                        <span className="w-[1.563rem] h-[1.563rem] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                         <div className="grid grid-col">
                             <h3>Your Account</h3>
                             <p className="opacity-80">{AddressReducer(storage!.accountAddress)}</p>
@@ -87,7 +87,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                     </div>
                     {owners.map((w) => {
                         return <div className="border flex p-3" >
-                            <span className="w-[25px] h-[25px] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
+                            <span className="w-[1.563rem] h-[1.563rem] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                             <div className="grid grid-col">
                                 <h3>{w.name}</h3>
                                 <p className="opacity-80">{w.address}</p>
@@ -111,10 +111,10 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                 </div>
             </div>
             <div className="flex items-center justify-center gap-5">
-                <Button className="px-10 py-2" version="second" onClick={() => setCreateModal(false)}>
+                <Button className="!px-10 !py-2" version="second" onClick={() => setCreateModal(false)}>
                     Cancel
                 </Button>
-                <Button className="px-10 py-2" onClick={createClick} isLoading={isLoading}>
+                <Button className="!px-10 !py-2" onClick={createClick} isLoading={isLoading}>
                     Create
                 </Button>
             </div>

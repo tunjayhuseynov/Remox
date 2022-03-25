@@ -24,8 +24,8 @@ export default function Card({ box, type }: { box: MoolaUserComponentData, type:
                         </div>
                     </div>
                     <div className={`flex items-center justify-center ${box.walletBalance !== 0 ? "gap-10" : ""} `}>
-                        {((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)) ? <Button onClick={() => { setLeftModal(true) }} version="second" className=" bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Withdraw Funds" : "Repay Funds"}</Button> : undefined}
-                        <Button onClick={() => { setRightModal(true) }} className=" bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Deposits Funds" : "Borrow Funds"}</Button>
+                        {((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)) ? <Button onClick={() => { setLeftModal(true) }} version="second" className=" bg-primary !px-3 !py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Withdraw Funds" : "Repay Funds"}</Button> : undefined}
+                        <Button onClick={() => { setRightModal(true) }} className=" bg-primary !px-3 !py-2 text-white flex items-center justify-center rounded-lg" >{isLending ? "Deposits Funds" : "Borrow Funds"}</Button>
                     </div>
                     <div className="flex items-center justify-center">
                         <p>{isLending ? `Deposit ${box.currency.name} to begin earing fees` : "Take out a crypto backet loan against your lending balance"}</p>

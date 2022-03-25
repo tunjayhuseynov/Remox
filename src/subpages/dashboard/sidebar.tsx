@@ -18,13 +18,14 @@ import { removeTransactions } from '../../redux/reducers/transactions'
 import { useContractKit } from '@celo-tools/use-contractkit'
 import { useNavigate } from 'react-router-dom'
 import { BiLogOut } from 'react-icons/bi'
-import { RiFlaskLine } from 'react-icons/ri';
+import useMultiWallet from 'hooks/useMultiWallet';
 
 const Sidebar = () => {
 
     const { destroy } = useContractKit()
     const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useNavigate()
+    const { addWallet, data: wallets, walletType, walletSwitch } = useMultiWallet()
 
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
@@ -40,7 +41,7 @@ const Sidebar = () => {
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
 
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: storage!.accountAddress === selectedAccount ? "Wallet" : "Multisig", address: selectedAccount })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: walletType, address: selectedAccount })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -56,28 +57,25 @@ const Sidebar = () => {
         }
     }
 
-    const [list, setList] = useState<DropDownItem[]>([
-        { name: storage!.companyName || "Remox", address: storage!.accountAddress },
-        { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } },
-    ])
+    const [list, setList] = useState<DropDownItem[]>([])
 
     useEffect(() => {
-        if (data) {
-            setList([list[0], ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }])
+        if (data && wallets) {
+            const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
+            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
+            setList([...wallets.map(s => ({ name: s.name, address: s.address, onClick: async () => { walletSwitch(s.name).catch(e => console.error(e)); setItem({ name: s.name, address: s.address }) } })), ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), wallet, multi])
         }
-    }, [data])
-
-
+    }, [data, wallets])
 
     return <>
-        <div className="hidden md:block md:col-span-2 w-[275px] flex-none fixed pt-32">
+        <div className="hidden md:block md:col-span-2 w-[17.188rem] flex-none fixed pt-32">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div>
                     <Siderbarlist />
                 </div>
 
-                <div className="flex items-center gap-5 mt-10 mb-2">
-                    <Dropdown className="min-w-[170px] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
+                <div className="flex items-center gap-5 mt-20 mb-2">
+                    <Dropdown className="min-w-[10.625rem] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address) {
                             setItem(w)
                             dispatch(changeAccount(w.address))
@@ -110,7 +108,7 @@ const Sidebar = () => {
                 }}>
                     <span>Import Multisig Account</span>
                 </div>
-                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false)} className=" w-[30%] px-4 py-2">Cancel</Button></div>
+                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false)} className=" w-[30%] !px-4 !py-2">Cancel</Button></div>
             </div>
         </Modal>}
         {isImportModal && <Modal onDisable={setImportModal} disableX={true}>
@@ -125,10 +123,10 @@ const Sidebar = () => {
                     <input ref={importInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig Address" />
                 </div>
                 <div className="flex justify-center gap-5">
-                    <Button className="px-10 py-2" version="second" onClick={() => setImportModal(false)}>
+                    <Button className="!px-10 !py-2" version="second" onClick={() => setImportModal(false)}>
                         Cancel
                     </Button>
-                    <Button className="px-10 py-2" onClick={importClick} isLoading={isLoading}>
+                    <Button className="!px-10 !py-2" onClick={importClick} isLoading={isLoading}>
                         Import
                     </Button>
                 </div>
@@ -144,6 +142,6 @@ const Sidebar = () => {
     </>
 }
 
-const LogoutSVG = ({ active = false }) => <BiLogOut className="w-[24px] h-[24px] cursor-pointer" />
+const LogoutSVG = () => <BiLogOut className="w-[1.5rem] h-[1.5rem] cursor-pointer" />
 
 export default Sidebar;

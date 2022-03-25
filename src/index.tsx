@@ -10,10 +10,12 @@ import store from './redux/store';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-toastify/dist/ReactToastify.css';
 import { BaseUrl } from 'utils/const';
+import { CeloContract } from '@celo/contractkit';
 
 render(
   <StrictMode>
     <ContractKitProvider
+      feeCurrency={CeloContract.GoldToken}
       dapp={{
         name: 'Remox DAO',
         icon: `${BaseUrl}/favicon.png`,

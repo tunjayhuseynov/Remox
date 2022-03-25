@@ -8,7 +8,7 @@ const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMem
     return <>
         <div className="pl-[2px] items-start">
             <div className="flex space-x-3 items-center">
-                <input type="checkbox" checked={(props.member.execution === ExecutionType.auto && new Date(props.member.paymantDate).getTime() < new Date().getTime()) || props.memberState[0].some(s => s.id === props.member.id)} className="relative cursor-pointer max-w-[20px] max-h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                <input type="checkbox" checked={(props.member.execution === ExecutionType.auto && new Date(props.member.paymantDate).getTime() < new Date().getTime()) || props.memberState[0].some(s => s.id === props.member.id)} className="relative cursor-pointer max-w-[1.25rem] max-h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     const members = [...props.memberState[0]]
                     if (e.target.checked) {
                         if (!members.some(s => s.id === props.member.id)) {
@@ -60,7 +60,7 @@ const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMem
                     {dateFormat(new Date(props.member.paymantDate), `dd mmmm yyyy`)}
                 </div>
                 {new Date().getTime() > new Date(props.member.paymantDate).getTime() && <div title="Late Payment">
-                    <img src="/icons/warningmark.svg" className="max-w-[20px] max-h-[20px]" alt="" />
+                    <img src="/icons/warningmark.svg" className="max-w-[1.25rem] max-h-[1.25rem]" alt="" />
                 </div>}
             </>}
         </div>

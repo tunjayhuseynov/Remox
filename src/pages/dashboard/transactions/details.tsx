@@ -235,11 +235,11 @@ const Details = () => {
                     {TransactionDetailInput("Total Amount", info.totalAmount)}
                     {TransactionDetailInput("Transaction Fee", `${info.fee}`)}
                     {TransactionDetailInput("Created Date & Time", info.date)}
-                    {TransactionDetailInput("Status", <div className="flex items-center gap-x-2"><div className="bg-green-400 h-[10px] w-[10px] rounded-full"></div>Completed</div>)}
+                    {TransactionDetailInput("Status", <div className="flex items-center gap-x-2"><div className="bg-green-400 h-[0.625rem] w-[0.625rem] rounded-full"></div>Completed</div>)}
                     {info.walletAddress.length === 1 ?
                         TransactionDetailInput("Wallet Address", `${AddressReducer(info.walletAddress[0])}`, undefined, () => window.navigator.clipboard.writeText(info.walletAddress[0]))
                         :
-                        <Dropdown displayName="Wallet Address" className="h-[75px] bg-greylish bg-opacity-10" nameActivation={true} selected={{ name: "Choose to copy an address", coinUrl: CoinsURL.None }}
+                        <Dropdown displayName="Wallet Address" className="h-[4.688rem] bg-greylish bg-opacity-10" nameActivation={true} selected={{ name: "Choose to copy an address", coinUrl: CoinsURL.None }}
                             onSelect={(w: DropDownItem) => {
                                 if (w.name) window.navigator.clipboard.writeText(w.name)
                             }}
@@ -277,7 +277,7 @@ export default Details;
 
 const TransactionDetailInput = (title: string, children: JSX.Element | JSX.Element[] | string, url?: string, onClick?: () => void) => {
 
-    return <div className="bg-greylish bg-opacity-10 flex flex-col px-4 py-3 rounded-xl min-h-[75px]">
+    return <div className="bg-greylish bg-opacity-10 flex flex-col px-4 py-3 rounded-xl min-h-[4.688rem]">
         <div className="text-sm text-greylish opacity-80">
             {title}
         </div>

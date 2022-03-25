@@ -72,10 +72,10 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
         }
     }, [transaction])
 
-    return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,32.3%,10.7%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-4 `}>
+    return <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[36%,32.3%,10.7%,20%] pl-5' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-4 `}>
         <div className="flex space-x-3 overflow-hidden">
             <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} ${!isSwap && !IsMultiple && 'pt-3'} justify-center`}>
-                <div className={`bg-greylish bg-opacity-10 ${detect ? "w-[45px] h-[45px] text-lg" : "w-[25px] h-[25px] text-xs"} flex items-center justify-center rounded-full font-bold `}>
+                <div className={`bg-greylish bg-opacity-10 ${detect ? "w-[2.813rem] h-[2.813rem] text-lg" : "w-[1.563rem] h-[1.563rem] text-xs"} flex items-center justify-center rounded-full font-bold `}>
                     {!isSwap ? <span> {isComment ? (Comment as string).slice(0, 2) : "Un"} </span> : <span>S</span>}
                 </div>
             </div>
@@ -92,7 +92,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
             <div>
                 {!isSwap && TransferData && !IsMultiple && <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                     <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                        <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
+                        <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                         </div>
                         <span>
                             {BN(fromWei(TransferData.amount)).toFixed(2)}
@@ -102,7 +102,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         {TransferData.coin ?
                             <>
                                 <div>
-                                    <img src={TransferData.coin.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={TransferData.coin.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
                                     {TransferData.coin.name ?? "Unknown Coin"}
@@ -117,7 +117,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
 
                     return <div key={index} className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                         <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                            <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
+                            <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
                                 {parseFloat(fromWei(payment.amount)).toFixed(2)}
@@ -126,7 +126,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
                             {payment.coinAddress ? <>
                                 <div>
-                                    <img src={payment.coinAddress.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={payment.coinAddress.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
                                     {payment.coinAddress.name}
@@ -138,7 +138,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 {isSwap && SwapData && <div className="flex flex-col">
                     <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                         <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                            <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
+                            <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
                                 {parseFloat(fromWei(SwapData.amountIn)).toFixed(2)}
@@ -147,7 +147,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
                             {SwapData.coinIn ? <>
                                 <div>
-                                    <img src={SwapData.coinIn.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={SwapData.coinIn.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
                                     {SwapData.coinIn.name}
@@ -159,12 +159,12 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                     </div>
                     <div className="mx-7">
                         <div className="py-1 rounded-lg -translate-x-[4px]">
-                            <img src="/icons/arrowdown.svg" alt="" className="w-[18px] h-[18px] dark:invert dark:brightness-0" />
+                            <img src="/icons/arrowdown.svg" alt="" className="w-[1.125rem] h-[1.125rem] dark:invert dark:brightness-0" />
                         </div>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center mx-7 space-x-4`}>
                         <div className={`grid ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                            <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
+                            <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
                                 {parseFloat(fromWei(SwapData.amountOutMin)).toFixed(2)}
@@ -173,7 +173,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
                             {SwapData.coinOutMin ? <>
                                 <div>
-                                    <img src={SwapData.coinOutMin.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={SwapData.coinOutMin.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
                                     {SwapData.coinOutMin.name}
@@ -189,7 +189,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
             <div className="flex flex-col space-y-3">
                 {Transaction.tags && Transaction.tags.map((tag, index) => {
                     return <div key={tag.id} className="flex space-x-3">
-                        <div className="w-[18px] h-[18px] rounded-full" style={{ backgroundColor: tag.color }}></div>
+                        <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{ backgroundColor: tag.color }}></div>
                         <div>{tag.name}</div>
                     </div>
                 })}

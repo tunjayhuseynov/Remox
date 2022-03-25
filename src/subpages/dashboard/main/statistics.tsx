@@ -122,7 +122,7 @@ const Statistic = () => {
 
     return <>
         <div className="col-span-2 flex flex-col">
-            <div className="flex justify-between pl-4 h-[30px]">
+            <div className="flex justify-between pl-4 h-[1.875rem]">
                 <div className="text-base text-greylish">Total Balance</div>
                 <div className="text-base text-greylish opacity-70">24h</div>
             </div>

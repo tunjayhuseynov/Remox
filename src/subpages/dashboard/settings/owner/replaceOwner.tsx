@@ -29,7 +29,7 @@ const ReplaceOwner = ({ onDisable, ownerAddress }: { onDisable: React.Dispatch<b
         </div>
         <div className="flex justify-center">
             <div className="grid grid-cols-1 gap-5 w-[30%] ">
-                <Button className="px-3 py-2" isLoading={isLoading} onClick={async () => {
+                <Button className="!px-3 !py-2" isLoading={isLoading} onClick={async () => {
                     if (address) {
                         try {
                             await replaceOwner(ownerAddress, address)

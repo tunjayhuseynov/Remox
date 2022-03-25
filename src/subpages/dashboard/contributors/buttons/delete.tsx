@@ -12,8 +12,8 @@ const Delete = ({ name, onCurrentModal, onDelete, onSuccess }: { name: string, o
             Delete {name}?
         </div>
         <div className="flex justify-center items-center space-x-4">
-            <Button version="second" className="border-2 border-red-500 hover:bg-red-500 text-red-500 w-[80px] h-[27px] px-1 py-0" onClick={() => onCurrentModal(false)}>Close</Button>
-            <Button className="bg-red-500 hover:bg-red-500 hover:text-white border-red-500 text-white w-[80px] h-[27px] px-1 py-0" onClick={async () => {
+            <Button version="second" className="border-2 border-red-500 hover:bg-red-500 text-red-500 w-[5rem] h-[1.688rem] !px-1 !py-0" onClick={() => onCurrentModal(false)}>Close</Button>
+            <Button className="bg-red-500 hover:bg-red-500 hover:text-white border-red-500 text-white w-[5rem] h-[1.688rem] !px-1 !py-0" onClick={async () => {
                 setLoading(true);
                 try {
                     await onDelete()

@@ -35,7 +35,7 @@ const Navbar = () => {
                 <Hamburger toggled={menuBar.mobileMenu} hideOutline={true} />
             </div>
         </div>
-        <div className="h-[50px] flex justify-center md:justify-start items-center  lg:pl-6">
+        <div className="h-[3.125rem] flex justify-center md:justify-start items-center  lg:pl-6">
             <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
         </div>
         <div className="search col-span-3 hidden md:block">
@@ -48,10 +48,10 @@ const Navbar = () => {
             <div className="flex space-x-5 items-center justify-center">
                 <div className="w-12 h-12 bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
                     {/* <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" /> */}
-                    <img src={ !dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-[18px] h-[18px]" alt='dark' />
+                    <img src={ !dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-[1.125rem] h-[1.125rem]" alt='dark' />
                 </div>
                 {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}
-                {storage ? <Visitcard name={"You"} address={selectedAccount} /> : <ClipLoader />}
+                {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}
                 <div className="relative">
                     <NotificationCointainer />
                 </div>

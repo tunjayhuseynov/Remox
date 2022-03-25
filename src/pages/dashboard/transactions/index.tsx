@@ -236,7 +236,7 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, account: st
     return <Fragment key={transaction.rawData.hash}>
         <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
             <div>
-                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}`} transaction={s} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
+                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
             </div>
         </Accordion>
     </Fragment>

@@ -11,7 +11,7 @@ import { ToastRun } from "utils/toast";
 
 export default function CreateAccount() {
 
-    const { address } = useContractKit();
+    const { address, walletType } = useContractKit();
     const { executeSign, isLoading } = useSignInOrUp()
     const { user } = useAuth(address);
     const navigate = useNavigate()
@@ -30,7 +30,7 @@ export default function CreateAccount() {
         const target = e.target as HTMLFormElement
         if (target["password"].value !== target["repeatPassword"].value) {
             ToastRun(<div className="dark:text-white"><strong>Passwords don't match</strong></div>)
-            return 
+            return
         }
 
         const inputData = {
@@ -42,8 +42,9 @@ export default function CreateAccount() {
 
         try {
             const user = await executeSign(address, inputData.password, {
-                address: address,
+                address: [address],
                 id: "placeholder",
+                multiwallets: [{name: walletType, address: address}],
                 companyName: inputData.companyName,
                 name: inputData.name,
                 surname: inputData.surname,
@@ -58,12 +59,12 @@ export default function CreateAccount() {
     }
 
     return <div className="h-screen w-full">
-        <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
+        <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
-        <form className="py-[100px] sm:py-0 sm:h-full" onSubmit={create}>
+        <form className="py-[6.25rem] sm:py-0 sm:h-full" onSubmit={create}>
             <section className="flex flex-col items-center h-full justify-center gap-8">
                 <div className="flex flex-col gap-4">
                     <div className="text-xl sm:text-3xl text-primary dark:text-white text-center">Set Account Details</div>

@@ -43,7 +43,7 @@ const Home = () => {
                                 kit.defaultAccount = accounts[0]
                                 const connector = ctx.connector;
                                 connector.type = WalletTypes.PrivateKey;
-                                search("users", 'address', accounts[0])
+                                search("users", 'address', accounts[0], "array-contains")
                                     .then(user => {
                                         dispatch(changePrivateToken(key[0]))
                                         setState("setConnector", connector)
@@ -55,7 +55,7 @@ const Home = () => {
                 }
             }
             else if (address) {
-                search("users", 'address', address)
+                search("users", 'address', address, "array-contains")
                     .then(user => {
                         if (user) {
                             navigate('/unlock')
@@ -72,8 +72,8 @@ const Home = () => {
 
     return <>
         <section className="flex justify-center items-center w-full h-screen">
-            <div className="w-[800px] h-[600px] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
-                <div className="w-[200px] sm:w-[400px] flex flex-col items-center justify-center gap-10">
+            <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
+                <div className="w-[12.5rem] sm:w-[25rem] flex flex-col items-center justify-center gap-10">
                     <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
                     <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
                 </div>

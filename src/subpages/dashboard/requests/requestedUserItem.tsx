@@ -58,11 +58,11 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
         setModal(false)
     }
 
-    return <div ref={divRef} className={`border-b border-greylish grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[30%,25%,25%,20%]' : 'grid-cols-[27%,48%,25%]'} min-h-[75px] py-6 `}>
+    return <div ref={divRef} className={`border-b border-greylish grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[30%,25%,25%,20%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
         <div className="flex space-x-3 overflow-hidden">
             <div className="flex items-center">
                 {!payment && request.status === RequestStatus.approved &&
-                    <input type="checkbox" checked={selected.some(s => s.id === request.id)} className="relative cursor-pointer w-[15px] h-[15px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                    <input type="checkbox" checked={selected.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                         const requests = [...selected]
                         if (e.target.checked) {
                             if (!requests.some(s => s.id === request.id)) {
@@ -76,7 +76,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                 {!payment && request.status === RequestStatus.rejected && <img src="/icons/request/close.png" />}
             </div>
             <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} justify-center`}>
-                <div className={` ${request.status !== RequestStatus.rejected ? "bg-greylish bg-opacity-10" : "bg-red-300 text-black"}  ${detect ? "w-[45px] h-[45px] text-lg" : "w-[25px] h-[25px] text-xs"} flex items-center justify-center rounded-full font-bold `}>
+                <div className={` ${request.status !== RequestStatus.rejected ? "bg-greylish bg-opacity-10" : "bg-red-300 text-black"}  ${detect ? "w-[2.813rem] h-[2.813rem] text-lg" : "w-[1.563rem] h-[1.563rem] text-xs"} flex items-center justify-center rounded-full font-bold `}>
                     {<span> {request.name ? request.name.slice(0, 2) : "Un"} </span>}
                 </div>
             </div>
@@ -93,7 +93,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
             <div className="flex flex-col space-y-2">
                 <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center space-x-4`}>
                     <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                        <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
+                        <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                         </div>
                         <span>
                             {parseFloat(request.amount).toFixed(2)}
@@ -103,7 +103,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         {Coins[request.currency as keyof Coins] ?
                             <>
                                 <div>
-                                    <img src={Coins[request.currency as keyof Coins]?.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                    <img src={Coins[request.currency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
                                     {Coins[request.currency as keyof Coins]?.name ?? "Unknown Coin"}
@@ -116,7 +116,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                 {!!request.secondaryAmount && !!request.secondaryCurrency &&
                     <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center space-x-4`}>
                         <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                            <div className="w-[10px] h-[10px] rounded-full bg-primary self-center">
+                            <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
                                 {parseFloat(request.secondaryAmount).toFixed(2)}
@@ -126,7 +126,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                             {Coins[request.secondaryCurrency as keyof Coins] ?
                                 <>
                                     <div>
-                                        <img src={Coins[request.secondaryCurrency as keyof Coins]?.coinUrl} className="rounded-full w-[18px] h-[18x]" />
+                                        <img src={Coins[request.secondaryCurrency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                     </div>
                                     <div>
                                         {Coins[request.secondaryCurrency as keyof Coins]?.name ?? "Unknown Coin"}
@@ -149,7 +149,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
             </div>
         </div>
         <div className="flex justify-end cursor-pointer items-center md:pr-0 ">
-            {request.status !== RequestStatus.rejected && !payment && <div onClick={() => setModal(true)} className={`text-primary text-center ${detect ? "px-6 max-h-[80px] min-w-[10rem] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white "} rounded-xl py-2 transition-colors duration-300`}>View Details</div>}
+            {request.status !== RequestStatus.rejected && !payment && <div onClick={() => setModal(true)} className={`text-primary text-center ${detect ? "px-6 max-h-[5rem] min-w-[10rem] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white "} rounded-xl py-2 transition-colors duration-300`}>View Details</div>}
         </div>
         {modal &&
             <Modal onDisable={setModal}>
@@ -163,9 +163,9 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                 Status
                             </div>
                             <div className="font-semibold flex gap-x-3">
-                                {request.status === RequestStatus.pending && <div className="bg-primary w-[10px] h-[10px] rounded-full self-center"></div>}
-                                {request.status === RequestStatus.approved && <div className="bg-green-500 w-[10px] h-[10px] rounded-full self-center"></div>}
-                                {request.status === RequestStatus.rejected && <div className="bg-red-500 w-[10px] h-[10px] rounded-full self-center"></div>}
+                                {request.status === RequestStatus.pending && <div className="bg-primary w-[0.625rem] h-[0.625rem] rounded-full self-center"></div>}
+                                {request.status === RequestStatus.approved && <div className="bg-green-500 w-[0.625rem] h-[0.625rem] rounded-full self-center"></div>}
+                                {request.status === RequestStatus.rejected && <div className="bg-red-500 w-[0.625rem] h-[0.625rem] rounded-full self-center"></div>}
                                 {request?.status}
                             </div>
                         </div>
@@ -202,7 +202,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                             {request?.amount}
                                         </div>
                                         <div className="flex gap-x-2 items-center">
-                                            {request?.currency ? <img src={Coins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[20px] h-[20px]" /> : ""}
+                                            {request?.currency ? <img src={Coins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
                                             {request?.currency ? Coins[request.currency as keyof Coins].name : ""}
                                         </div>
                                     </div>
@@ -215,7 +215,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                                 {request?.secondaryAmount}
                                             </div>
                                             <div className="flex gap-x-2 items-center">
-                                                {request?.secondaryCurrency ? <img src={Coins[request.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[20px] h-[20px]" /> : ""}
+                                                {request?.secondaryCurrency ? <img src={Coins[request.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
                                                 {request?.secondaryCurrency ? Coins[request.secondaryCurrency as keyof Coins].name : ""}
                                             </div>
                                         </div>
@@ -271,11 +271,11 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         }
                     </div>
                     <div className="flex justify-center pt-5 sm:pt-0">
-                        <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[200px] sm:w-[400px] justify-center gap-5">
+                        <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-[25rem] justify-center gap-5">
                             {request.status == RequestStatus.pending &&
                                 <>
                                     <Button version="second" className="border-red-500 text-red-500 hover:!bg-red-500 dark:hover:!bg-red-500" isLoading={isLoading} onClick={Reject}>Reject</Button>
-                                    <Button type="submit" className="bg-primary px-0 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading} onClick={Approve}>Approve Request</Button>
+                                    <Button type="submit" className="bg-primary px-0 !py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading} onClick={Approve}>Approve Request</Button>
                                 </>
                             }
                         </div>

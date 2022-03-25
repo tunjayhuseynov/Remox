@@ -21,7 +21,7 @@ const RequestItem = (props: { request: IRequest, requestState: [IRequest[], Reac
     return <>
         <div className="pl-[2px] items-start" ref={divRef}>
             <div className="flex space-x-3 items-center">
-                <input type="checkbox" checked={props.requestState[0].some(s => s.id === props.request.id)} className="relative cursor-pointer max-w-[20px] max-h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                <input type="checkbox" checked={props.requestState[0].some(s => s.id === props.request.id)} className="relative cursor-pointer max-w-[1.25rem] max-h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     const request = [...props.requestState[0]]
                     if (e.target.checked) {
                         if (!request.some(s => s.id === props.request.id)) {
@@ -71,7 +71,7 @@ const RequestItem = (props: { request: IRequest, requestState: [IRequest[], Reac
             </>}
         </div>
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-            <Link to={`/dashboard/requests/${props.request.id}`}><div className={`text-primary  ${detect ? "px-6 max-h-[80px] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white"} rounded-xl py-2 transition-colors duration-300`}>View Details</div></Link>
+            <Link to={`/dashboard/requests/${props.request.id}`}><div className={`text-primary  ${detect ? "px-6 max-h-[5rem] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white"} rounded-xl py-2 transition-colors duration-300`}>View Details</div></Link>
         </div>
     </>
 }

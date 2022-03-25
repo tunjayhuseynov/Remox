@@ -29,7 +29,7 @@ const RemoveOwner = ({ name, address, onDisable }: { name: string, address: stri
         </div>
         <div className="flex justify-center">
             <div className="grid grid-cols-1 gap-5 w-[35%] ">
-                <Button className="px-3 py-2 bg-red-500 hover:text-red-500 hover:bg-white hover:border-red-500" isLoading={isLoading} onClick={async () => {
+                <Button className="!px-3 !py-2 bg-red-500 hover:text-red-500 hover:bg-white hover:border-red-500" isLoading={isLoading} onClick={async () => {
                     try {
                         await removeOwner(address)
                         refetch()

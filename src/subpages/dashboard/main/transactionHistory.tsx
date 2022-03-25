@@ -17,7 +17,7 @@ const TransactionHistory = ({ transactions }: { transactions: IFormattedTransact
         <div className="flex justify-between">
             <div className="font-semibold text-lg tracking-wide">Recent Transactions</div>
             <div><Link to="/dashboard/transactions" >
-                <Button version="second" className="px-10 py-2">
+                <Button version="second" className="px-10 !py-2">
                     View All
                 </Button>
             </Link></div>

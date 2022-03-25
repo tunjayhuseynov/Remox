@@ -84,14 +84,14 @@ const MultisigTransaction = () => {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-y-5">
                 {owners?.map((w, i, arr) =>
-                    <div key={w} className="flex flex-col   gap-4 items-center justify-center w-[120px]" title={w}>
-                        <div className={`w-[35px] shadow-custom h-[35px] relative ${w.toLowerCase() === storage!.accountAddress.toLowerCase() ? "bg-[#3EBE11]" : ""} ${i !== 0 ? "before:-translate-x-full before:absolute before:top-1/2 before:w-full before:h-[2px] before:bg-black" : ""} ${i !== arr.length - 1 ? "after:translate-x-[70%] after:absolute after:top-1/2 after:w-[150%] after:h-[2px] after:bg-black " : ""} rounded-full ${transactionData?.confirmations.includes(w) ? "bg-[#0055FF]" : "bg-[#E90D0D]"}`}></div>
-                        <div className="truncate max-w-[120px] font-semibold">
+                    <div key={w} className="flex flex-col   gap-4 items-center justify-center w-[7.5rem]" title={w}>
+                        <div className={`w-[2.188rem] shadow-custom h-[2.188rem] relative ${w.toLowerCase() === storage!.accountAddress.toLowerCase() ? "bg-[#3EBE11]" : ""} ${i !== 0 ? "before:-translate-x-full before:absolute before:top-1/2 before:w-full before:h-[0.125rem] before:bg-black" : ""} ${i !== arr.length - 1 ? "after:translate-x-[70%] after:absolute after:top-1/2 after:w-[150%] after:h-[0.125rem] after:bg-black " : ""} rounded-full ${transactionData?.confirmations.includes(w) ? "bg-[#0055FF]" : "bg-[#E90D0D]"}`}></div>
+                        <div className="truncate max-w-[7.5rem] font-semibold">
                             {w.toLowerCase() !== storage!.accountAddress.toLowerCase() ? w.split('').reduce((a, c, i, arr) => {
                                 return i < 6 || (arr.length - i) < 3 ? a + c : a.split('.').length - 1 < 6 ? a + '.' : a
                             }, '') : "You"}
                         </div>
-                        <div className="h-[25px]">
+                        <div className="h-[1.563rem]">
                             {w.toLowerCase() !== storage!.accountAddress.toLowerCase() ? transactionData?.confirmations.includes(w) ? "Approved" : "Pending" : ""}
                         </div>
                     </div>
@@ -116,7 +116,7 @@ const MultisigTransaction = () => {
                     }</div> : null}
                     {filterData.valueOfTransfer ? <div className="flex space-x-3 items-center pt-3">
                         <div>
-                            <img src={(Object.values(Coins).find((s: AltCoins) => s.contractAddress.toLowerCase() === transactionData?.destination.toLowerCase()) as AltCoins).coinUrl} alt="" className='w-[25px] h-[25px]' />
+                            <img src={(Object.values(Coins).find((s: AltCoins) => s.contractAddress.toLowerCase() === transactionData?.destination.toLowerCase()) as AltCoins).coinUrl} alt="" className='w-[1.563rem] h-[1.563rem]' />
                         </div>
                         <div>{filterData.valueOfTransfer}</div>
                     </div> : null}
@@ -127,12 +127,12 @@ const MultisigTransaction = () => {
             </div>
             <div className="flex justify-center space-x-5">
                 <div>
-                    <Button version="second" className="px-5 py-2 w-[125px]" onClick={() => history(-1)}>
+                    <Button version="second" className="px-5 !py-2 w-[7.813rem]" onClick={() => history(-1)}>
                         Back
                     </Button>
                 </div>
                 {transactionData?.executed ? <div className='px-5 text-primary font-semibold'>Already Executed</div> : <div>
-                    <Button onClick={submitAction} isLoading={isLoading} className={`${!transactionData?.confirmations.includes(storage!.accountAddress) ? "bg-[#2D5EFF] border-[#2D5EFF] hover:border-primary" : "bg-[#EF2727] border-[#EF2727]"} border-2 text-white px-5 py-2 rounded-xl w-[125px]`}>
+                    <Button onClick={submitAction} isLoading={isLoading} className={`${!transactionData?.confirmations.includes(storage!.accountAddress) ? "bg-[#2D5EFF] border-[#2D5EFF] hover:border-primary" : "bg-[#EF2727] border-[#EF2727]"} border-2 text-white px-5 !py-2 rounded-xl w-[7.813rem]`}>
                         {!transactionData?.confirmations.includes(storage!.accountAddress) ? "Approve" : "Revoke"}
                     </Button>
                 </div>}

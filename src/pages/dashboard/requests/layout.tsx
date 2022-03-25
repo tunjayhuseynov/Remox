@@ -38,7 +38,7 @@ export default function RequestLayout() {
             <div className="flex justify-between">
                 <div className="text-2xl font-bold tracking-wider">Requests</div>
                 <div>
-                    <Button className="py-1 px-4 font-semibold tracking-wider flex items-center" onClick={() => setModalVisible(true)}>
+                    <Button className="!py-1 px-4 font-semibold tracking-wider flex items-center" onClick={() => setModalVisible(true)}>
                         <>
                             <div className="pr-3">
                                 <BsShare />

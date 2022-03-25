@@ -73,7 +73,7 @@ const TeamInput = (props: (IMember | IRequest) & { index: number, selectedId: st
 
     return <>
         <div className="flex items-center">
-            <input checked={props.selectedId.some(w => w === props.id)} className="relative cursor-pointer w-[20px] h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full dark:text-white checked:before:bg-primary checked:before:block dark:bg-darkSecond" type="checkbox" onChange={(e) => {
+            <input checked={props.selectedId.some(w => w === props.id)} className="relative cursor-pointer w-[1.25rem] h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full dark:text-white checked:before:bg-primary checked:before:block dark:bg-darkSecond" type="checkbox" onChange={(e) => {
                 updateTick({ tick: e.target.checked })
             }} />
             <h2 className={`text-black px-3 py-1 name__${props.index} text-sm dark:text-white`}>{props.name}</h2>

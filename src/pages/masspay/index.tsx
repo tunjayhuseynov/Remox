@@ -209,7 +209,7 @@ const MassPay = () => {
                                 <span className="text-left text-sm font-semibold">Tags</span>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 sm:gap-x-10">
                                     {tags.length > 0 && <div className="flex space-x-3 border rounded-lg items-center px-2 py-3 dark:border-darkSecond">
-                                        <div className="w-[18px] h-[18px] rounded-full" style={{ backgroundColor: tags.find(s => s.name == "Payroll")?.color }}></div>
+                                        <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{ backgroundColor: tags.find(s => s.name == "Payroll")?.color }}></div>
                                         <div>Payroll</div>
                                     </div>}
                                     {tags.length === 0 && <div>No tag yet</div>}
@@ -219,7 +219,7 @@ const MassPay = () => {
                                 <div className="flex justify-between py-4 items-center">
                                     <span className="text-left font-semibold">Team Details</span>
                                     <div className="flex space-x-2 items-center">
-                                        <input type="checkbox" className="relative cursor-pointer w-[20px] h-[20px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                                        <input type="checkbox" className="relative cursor-pointer w-[1.25rem] h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                                             if (e.target.checked) setSelectedId(resMember.map(w => w.id))
                                             else setSelectedId([])
                                         }} />
@@ -255,7 +255,7 @@ const MassPay = () => {
                             </div>
                         </div>
                             <div className="flex justify-center">
-                                <div className="flex flex-col-reverse sm:grid sm:grid-cols-2 w-[400px] justify-center gap-5">
+                                <div className="flex flex-col-reverse sm:grid sm:grid-cols-2 w-[25rem] justify-center gap-5">
                                     <Button version="second" onClick={() => router("/dashboard")}>Close</Button>
                                     <Button type="submit" isLoading={isPaying}>Pay</Button>
                                 </div>

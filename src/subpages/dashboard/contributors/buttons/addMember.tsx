@@ -164,10 +164,10 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                     <div className="font-bold">Personal Details</div>
                     <div className="grid grid-cols-2 gap-x-10">
                         <div>
-                            <input type="text" name="firstName" placeholder="First Name" className="border-2 pl-2 rounded-md outline-none h-[42px] w-full dark:bg-darkSecond" required />
+                            <input type="text" name="firstName" placeholder="First Name" className="border-2 pl-2 rounded-md outline-none h-[2.625rem] w-full dark:bg-darkSecond" required />
                         </div>
                         <div>
-                            <input type="text" name="lastName" placeholder="Last Name" className="border-2 pl-2 rounded-md outline-none h-[42px] w-full dark:bg-darkSecond" required />
+                            <input type="text" name="lastName" placeholder="Last Name" className="border-2 pl-2 rounded-md outline-none h-[2.625rem] w-full dark:bg-darkSecond" required />
                         </div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                 <div className="flex flex-col space-y-4">
                     <div className="font-bold">Wallet Address</div>
                     <div>
-                        <input type="text" name="walletAddress" className="h-[42px] w-full rounded-lg border-2 pl-2 outline-none dark:bg-darkSecond" placeholder="Wallet Address" required />
+                        <input type="text" name="walletAddress" className="h-[2.625rem] w-full rounded-lg border-2 pl-2 outline-none dark:bg-darkSecond" placeholder="Wallet Address" required />
                     </div>
                 </div>
                 <div className="flex flex-col space-y-4">
