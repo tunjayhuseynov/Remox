@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button"
 
-const Li = ({ children, onClick, className }: { children?: Array<any>, onClick?: () => void, className?: string }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-light text-[12.2px] 2xl:text-lg 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`}>
+const Li = ({ children, onClick, className }: { children?: Array<any>, onClick?: () => void, className?: string }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-light text-[0.813rem] 2xl:text-lg 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`}>
     <div className="flex gap-3 items-center">{children}</div>
 </li>
 
@@ -23,35 +23,35 @@ const Sidebarlist = () => {
             <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><InsightSVG active={isActive} darkMode={darkMode}  />Insights</Li>}</NavLink>
             <NavLink to="/dashboard/swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SwapSVG active={isActive} darkMode={darkMode}  />Swap</Li>}</NavLink>
             <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><BorrowSVG active={isActive} darkMode={darkMode}  />Lend - Borrow</Li>}</NavLink>
-            <div className="w-[68%] border my-4"></div>
+            <div className="w-full border my-4"></div>
             <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AutomationsSVG active={isActive} darkMode={darkMode}  />Automations</Li>}</NavLink>
             <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SettingSVG active={isActive} darkMode={darkMode}  />Settings</Li>}</NavLink>
-            <Link to="/dashboard/pay"><Button className="px-10 py-1 ml-4  min-w-[60%]">Send</Button></Link>
+            <Link to="/dashboard/pay"><Button className="!px-10 !py-2 ml-4  min-w-[55%]">Send</Button></Link>
         </ul>
     </>
 }
 
-const DashboardSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/dashboard_active.png' : darkMode ? '/icons/sidebar/dashboard_white.png' : '/icons/sidebar/dashboard.png'} alt='Dashboard' />
+const DashboardSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/dashboard_active.png' : darkMode ? '/icons/sidebar/dashboard_white.png' : '/icons/sidebar/dashboard.png'} alt='Dashboard' />
 
-const AutomationsSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/refresh_active.png' : darkMode ? '/icons/sidebar/refresh_white.png' : '/icons/sidebar/refresh.png'} alt="Payroll" />
+const AutomationsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/refresh_active.png' : darkMode ? '/icons/sidebar/refresh_white.png' : '/icons/sidebar/refresh.png'} alt="Payroll" />
 
-const PayrollSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/payroll_active.png' : darkMode ? '/icons/sidebar/payroll_white.png' : '/icons/sidebar/payroll.png'} alt="Payroll" />
+const PayrollSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/payroll_active.png' : darkMode ? '/icons/sidebar/payroll_white.png' : '/icons/sidebar/payroll.png'} alt="Payroll" />
 
-const RequestsSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? "/icons/sidebar/requests_active.png" : darkMode ? '/icons/sidebar/requests_white.png' : '/icons/sidebar/requests.png'} alt="Requests" />
+const RequestsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? "/icons/sidebar/requests_active.png" : darkMode ? '/icons/sidebar/requests_white.png' : '/icons/sidebar/requests.png'} alt="Requests" />
 
-const TransactionsSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? "/icons/sidebar/transaction_active.png" : darkMode ? '/icons/sidebar/transaction_white.png' : '/icons/sidebar/transaction.png'} alt="Transaction" />
+const TransactionsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? "/icons/sidebar/transaction_active.png" : darkMode ? '/icons/sidebar/transaction_white.png' : '/icons/sidebar/transaction.png'} alt="Transaction" />
 
-const SwapSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/swap_active.png' : darkMode ? '/icons/sidebar/swap_white.png' : '/icons/sidebar/swap.png'} alt="Swap" />
+const SwapSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/swap_active.png' : darkMode ? '/icons/sidebar/swap_white.png' : '/icons/sidebar/swap.png'} alt="Swap" />
 
-const BorrowSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/borrow_active.png' : darkMode ? '/icons/sidebar/borrow_white.png' : '/icons/sidebar/borrow.png'} alt="Swap" />
+const BorrowSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/borrow_active.png' : darkMode ? '/icons/sidebar/borrow_white.png' : '/icons/sidebar/borrow.png'} alt="Swap" />
 
-const AssetsSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/managment_active.png' : darkMode ? '/icons/sidebar/managment_white.png' : '/icons/sidebar/managment.png'} alt="Asset" />
+const AssetsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/managment_active.png' : darkMode ? '/icons/sidebar/managment_white.png' : '/icons/sidebar/managment.png'} alt="Asset" />
 
-const TeamsSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/team_active.png' : darkMode ? '/icons/sidebar/team_white.png' : '/icons/sidebar/team.png'} alt="Teams" />
+const TeamsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/team_active.png' : darkMode ? '/icons/sidebar/team_white.png' : '/icons/sidebar/team.png'} alt="Teams" />
 
-const SettingSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? '/icons/sidebar/settings_active.png' : darkMode ? '/icons/sidebar/settings_white.png' : '/icons/sidebar/settings.png'} alt="" />
+const SettingSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? '/icons/sidebar/settings_active.png' : darkMode ? '/icons/sidebar/settings_white.png' : '/icons/sidebar/settings.png'} alt="" />
 
-const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-[17px] h-[17px]`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
+const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.063rem] h-[1.063rem]`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
 
 
 

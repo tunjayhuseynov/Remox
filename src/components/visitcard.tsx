@@ -10,7 +10,7 @@ const Visitcard = ({ name, address }: { name: string, address: string }) => {
 
 
     return <>
-        <div ref={setDivRef} className="px-4 min-w-[125px] py-2 grid grid-cols-[80%,20%] gap-x-1 bg-white shadow dark:bg-darkSecond rounded-xl relative items-center">
+        <div ref={setDivRef} className="px-4 min-w-[7.813rem] py-2 grid grid-cols-[80%,20%] gap-x-1 bg-white shadow dark:bg-darkSecond rounded-xl relative items-center">
             <div className="flex flex-col">
                 <h3 className="text-lg">{name}</h3>
                 <p className="text-xs" >{AddressReducer(address)}</p>
@@ -22,7 +22,7 @@ const Visitcard = ({ name, address }: { name: string, address: string }) => {
                     setTooltip(false)
                 }, 300)
             }}>
-                <img src={'/icons/copy.svg'} alt="copy" className="w-[12px] h-[12px]" />
+                <img src={'/icons/copy.svg'} alt="copy" className="w-[0.75rem] h-[0.75rem]" />
             </div>
         </div>
         <Copied tooltip={tooltip} triggerRef={divRef} />

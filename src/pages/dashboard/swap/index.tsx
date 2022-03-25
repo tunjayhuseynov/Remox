@@ -13,6 +13,7 @@ import { useModalSideExit } from 'hooks';
 import useMultisig from "hooks/useMultisig";
 import Button from "components/button";
 import useSwap from "API/useSwap";
+import {motion, AnimatePresence} from "framer-motion"
 
 const Swap = () => {
     const [token1, setToken1] = useState<DropDownItem>(Coins.cUSD)
@@ -123,7 +124,8 @@ const Swap = () => {
                     <div className="font-bold text-xl pb-2">Swap</div>
                     <div className="relative">
                         <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
-                        {isSetting && <div ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[250px] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
+                        <AnimatePresence>
+                        {isSetting && <motion.div initial={ {opacity:0}} animate={{opacity:1}} exit={{opacity:0}}  ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
                             <div className="flex flex-col space-y-4">
                                 <div className="font-bold text-xl">Transaction Settings</div>
                                 <div className="flex flex-col space-y-3">
@@ -136,7 +138,7 @@ const Swap = () => {
                                             setSlippageArr(arr)
                                         }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : ""} px-4 py-2 bg-greylish bg-opacity-10 cursor-pointer rounded-xl`}>{item.label}</div>)}
                                         <div className="bg-greylish bg-opacity-10 rounded-xl flex items-center pl-3 pr-5 space-x-1">
-                                            <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[50px] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
+                                            <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
                                                 const value = (event.target as HTMLInputElement).value
                                                 if (parseFloat(value) >= 0) {
                                                     setSlippageArr(slippageArr.map((item, index) => {
@@ -168,17 +170,18 @@ const Swap = () => {
                                             if (value) {
                                                 setDeadline(parseFloat(value))
                                             } else setDeadline(1.5)
-                                        }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[100px] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
+                                        }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
                                         <div>minutes</div>
                                     </div>
                                 </div>
 
                             </div>
-                        </div>}
+                        </motion.div>}
+                        </AnimatePresence>
                     </div>
                 </div>
-                <div className="bg-greylish bg-opacity-10 min-h-[100px] items-center flex justify-between rounded-md py-3 px-3">
-                    <div className="flex flex-col space-y-2 w-[130px]">
+                <div className="bg-greylish bg-opacity-10 min-h-[6.25rem] items-center flex justify-between rounded-md py-3 px-3">
+                    <div className="flex flex-col space-y-2 w-[8.125rem]">
                         <div>
                             <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
                                 if (w.name === token2.name) {
@@ -187,7 +190,7 @@ const Swap = () => {
                             }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
                         </div>
                         <div>
-                            <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[130px]" placeholder="0" min="0" step="any" />
+                            <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2 items-end ">
@@ -223,8 +226,8 @@ const Swap = () => {
                         <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
                     </div>
                 </div>
-                <div className="flex min-h-[100px] bg-greylish bg-opacity-10 justify-between rounded-md py-3 px-3">
-                    <div className="flex flex-col space-y-2 w-[130px]">
+                <div className="flex min-h-[6.25rem] bg-greylish bg-opacity-10 justify-between rounded-md py-3 px-3">
+                    <div className="flex flex-col space-y-2 w-[8.125rem]">
                         <div>
                             <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
                                 if (w.name === token1.name) {
@@ -238,7 +241,7 @@ const Swap = () => {
                                     <div className="font-bold text-2xl text-center outline-none unvisibleArrow">
                                         {parseFloat(appAmount).toFixed(2)}
                                     </div>
-                                </> : <div className="text-center"><ClipLoader size="24px" /></div>)
+                                </> : <div className="text-center"><ClipLoader size="1.5rem" /></div>)
                             }
                         </div>
                     </div>
@@ -271,7 +274,7 @@ const Swap = () => {
                 <div className="flex flex-col py-2 pb-10 space-y-7 border-b-2 px-5">
                     <div className="grid grid-cols-[7%,73%,20%] items-center">
                         <div>
-                            <img src={`${token1.coinUrl}`} alt="" className="w-[20px[ h-[20px]" />
+                            <img src={`${token1.coinUrl}`} alt="" className="w-[1.25rem] h-[1.25rem]" />
                         </div>
                         <div className="font-bold">
                             {token1Amount}
@@ -287,7 +290,7 @@ const Swap = () => {
                     </div>
                     <div className="grid grid-cols-[7%,73%,20%] items-center">
                         <div>
-                            <img src={`${token2.coinUrl}`} className="w-[20px[ h-[20px]" alt="" />
+                            <img src={`${token2.coinUrl}`} className="w-[1.25rem] h-[1.25rem]" alt="" />
                         </div>
                         <div className="font-bold">
                             {parseFloat(appAmount).toFixed(2)}

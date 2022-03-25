@@ -68,14 +68,14 @@ const Sidebar = () => {
     }, [data, wallets])
 
     return <>
-        <div className="hidden md:block md:col-span-2 w-[275px] flex-none fixed pt-32">
+        <div className="hidden md:block md:col-span-2 w-[17.188rem] flex-none fixed pt-32">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div>
                     <Siderbarlist />
                 </div>
 
-                <div className="flex items-center gap-5 mt-10 mb-2">
-                    <Dropdown className="min-w-[170px] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
+                <div className="flex items-center gap-5 mt-20 mb-2">
+                    <Dropdown className="min-w-[10.625rem] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address) {
                             setItem(w)
                             dispatch(changeAccount(w.address))
@@ -108,7 +108,7 @@ const Sidebar = () => {
                 }}>
                     <span>Import Multisig Account</span>
                 </div>
-                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false)} className=" w-[30%] px-4 py-2">Cancel</Button></div>
+                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false)} className=" w-[30%] !px-4 !py-2">Cancel</Button></div>
             </div>
         </Modal>}
         {isImportModal && <Modal onDisable={setImportModal} disableX={true}>
@@ -123,10 +123,10 @@ const Sidebar = () => {
                     <input ref={importInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig Address" />
                 </div>
                 <div className="flex justify-center gap-5">
-                    <Button className="px-10 py-2" version="second" onClick={() => setImportModal(false)}>
+                    <Button className="!px-10 !py-2" version="second" onClick={() => setImportModal(false)}>
                         Cancel
                     </Button>
-                    <Button className="px-10 py-2" onClick={importClick} isLoading={isLoading}>
+                    <Button className="!px-10 !py-2" onClick={importClick} isLoading={isLoading}>
                         Import
                     </Button>
                 </div>
@@ -142,6 +142,6 @@ const Sidebar = () => {
     </>
 }
 
-const LogoutSVG = () => <BiLogOut className="w-[24px] h-[24px] cursor-pointer" />
+const LogoutSVG = () => <BiLogOut className="w-[1.5rem] h-[1.5rem] cursor-pointer" />
 
 export default Sidebar;

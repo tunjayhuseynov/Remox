@@ -17,7 +17,7 @@ export default function Upload({ setFile }: { setFile: Dispatch<File> }) {
     ));
 
     return <section>
-        <div {...getRootProps({ className: 'h-[150px] border border-dashed flex justify-center items-center' })}>
+        <div {...getRootProps({ className: 'h-[9.375rem] border border-dashed flex justify-center items-center' })}>
             <input {...getInputProps()} />
             {files.length > 0 ?
                 <aside>

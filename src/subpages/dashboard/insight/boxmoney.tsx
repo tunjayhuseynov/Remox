@@ -177,7 +177,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             tagList: inTags,
             tags: <>
                 {inTags.map(tag => {
-                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
+                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
             </>
         },
@@ -189,7 +189,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             tagList: outTags,
             tags: <>
                 {outTags.map(tag => {
-                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[10px] h-[10px] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
+                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
             </>
         },

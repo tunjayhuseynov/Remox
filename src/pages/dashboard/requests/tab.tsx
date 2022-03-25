@@ -162,9 +162,9 @@ export default function TabPage() {
               </div>
             }
             <div className="grid grid-cols-[30%,25%,25%,20%] border-b border-greylish pb-4 font-semibold tracking-wide items-center">
-              <div className="flex items-center space-x-2 min-h-[50px]">
+              <div className="flex items-center space-x-2 min-h-[3.125rem]">
                 {page === RequestStatus.approved &&
-                  <input type="checkbox" className="relative cursor-pointer w-[15px] h-[15px] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                  <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     const requests = [...selected]
                     if (e.target.checked) {
                       penders?.forEach(m => {
@@ -183,7 +183,7 @@ export default function TabPage() {
               <div>Request date</div>
               <div className="flex justify-end items-center">
                 {page === RequestStatus.approved && selected.length > 0 &&
-                  <Button className="py-2 px-0 font-semibold tracking-wide min-w-[10rem]" onClick={() => {
+                  <Button className="!py-2 px-0 font-semibold tracking-wide min-w-[10rem]" onClick={() => {
                     setModal(true)
                   }}>
                     Pay selected

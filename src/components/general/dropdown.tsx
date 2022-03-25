@@ -32,11 +32,11 @@ const Viewer = ({ displayName, name, address, coinUrl, className, disableAddress
             {displayName}
         </div>}
         <div className="text-left flex space-x-2 items-center">
-            {coinUrl && <div><img src={coinUrl} className={coinUrl ? `w-[20px] h-[20px]` : ''} alt="" /></div>}
+            {coinUrl && <div><img src={coinUrl} className={coinUrl ? `w-[1.25rem] h-[1.25rem]` : ''} alt="" /></div>}
             <div className={`${className ?? ''} font-normal truncate`} title={name}>{name}</div>
         </div>
     </div>
-    {!disableAddressDisplay && <div className={`text-left text-[10px] text-gray-500`}>{!address?.startsWith('0x') ? address : address.split('').reduce((a, c, i, arr) => {
+    {!disableAddressDisplay && <div className={`text-left text-[0.625rem] text-gray-500`}>{!address?.startsWith('0x') ? address : address.split('').reduce((a, c, i, arr) => {
         return i < 10 || (arr.length - i) < 4 ? a + c : a.split('.').length - 1 < 6 ? a + '.' : a
     }, '')}</div>}
 </div>

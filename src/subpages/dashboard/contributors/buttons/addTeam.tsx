@@ -35,7 +35,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             {error && <div className="text-red-600"> Something went wrong</div>}
         </div>
         <div className="flex justify-center">
-            <Button onClick={create} isLoading={isLoading} className="px-14 py-2 font-light">
+            <Button onClick={create} isLoading={isLoading} className="px-14 !py-2 font-light">
                 Add Team
             </Button>
         </div>

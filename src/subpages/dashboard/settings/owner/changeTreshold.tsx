@@ -44,7 +44,7 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
         </div>
         <div className="flex justify-center">
             <div className="grid grid-cols-1 gap-5 w-[30%] ">
-                <Button className="px-3 py-2" isLoading={isLoading} onClick={async () => {
+                <Button className="!px-3 !py-2" isLoading={isLoading} onClick={async () => {
                     if (sign.name && internalSign.name) {
                         try {
                             await changeSigns(

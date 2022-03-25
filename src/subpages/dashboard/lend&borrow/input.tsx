@@ -15,7 +15,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
     }, [])
 
     return <>
-        <div className="sm:h-[40px] sm:w-full md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid  grid-cols-[50%,50%]">
+        <div className="sm:h-[2.5rem] sm:w-full md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid  grid-cols-[50%,50%]">
             <input className="outline-none unvisibleArrow pl-2  dark:bg-darkSecond dark:text-white" placeholder="Amount" value={amount === -1 ? '' : amount} type="number" name={`amount__${0}`} onChange={(e) => {
                 if (e.target.value === '') return setAmount(-1)
                 const amnt = Number(e.target.value)

@@ -14,7 +14,7 @@ const Main = () => {
             </div>
         </div>
         <div className=" w-1/2">
-            <div id="transaction" className=" pt-[30px]">
+            <div id="transaction" className=" pt-[1.875rem]">
                 {transactions ? <TransactionHistory transactions={transactions} /> : <div className="flex justify-center"> <ClipLoader /></div>}
             </div>
         </div>

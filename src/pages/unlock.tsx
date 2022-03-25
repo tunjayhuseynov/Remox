@@ -69,14 +69,14 @@ const Unlock = () => {
                 }} ref={inputRef} type="password" autoComplete='new-password' autoFocus className="bg-greylish dark:bg-darkSecond bg-opacity-10 px-3 py-3 rounded-lg outline-none w-full" /></div>
                 {incorrrect && <div className="text-red-600 text-center">Password is Incorrect</div>}
                 <div className="grid grid-cols-2 justify-center gap-x-5">
-                    <Button version='second' className="px-5 py-2 w-32" onClick={() => {
+                    <Button version='second' className="px-5 !py-2 w-32" onClick={() => {
                         dispatch(setMenu(false))
                         dispatch(removeTransactions())
                         dispatch(removeStorage())
                         destroy()
                         router('/')
                     }}>Logout</Button>
-                    <Button onClick={Submit} className="px-5 py-2 w-32" isLoading={isLoading}>Login</Button>
+                    <Button onClick={Submit} className="px-5 !py-2 w-32" isLoading={isLoading}>Login</Button>
                 </div>
             </div>
         </section>

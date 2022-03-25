@@ -50,7 +50,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
                             <div>{selectedBalance[1].amount.toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
-                            <img src={selectedCoin.coinUrl} alt="" className="w-[20px] h-[20px] rounded-full" />
+                            <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
                             <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
                         </div>
                     </div>
@@ -60,7 +60,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
                             <div>-{parseFloat(coin.amount).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
-                            <img src={selectedCoin.coinUrl} alt="" className="w-[20px] h-[20px] rounded-full" />
+                            <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
                             <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
                             <div>{(selectedBalance[1].amount - parseFloat(coin.amount)).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
-                            <img src={selectedCoin.coinUrl} alt="" className="w-[20px] h-[20px] rounded-full" />
+                            <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
                             <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
                         </div>
                     </div>

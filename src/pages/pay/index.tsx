@@ -330,14 +330,14 @@ const Pay = () => {
                             </div>
                             <div className="py-5 sm:py-0 grid grid-cols-[65%,35%] gap-16">
                                 <div className="flex space-x-5">
-                                    <Button version="second" className="min-w-[200px] text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
+                                    <Button version="second" className="min-w-[12.5rem] text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                         setIndex(index + 1)
                                     }}>
                                         + Add More
                                     </Button>
                                     <Button version="second" onClick={() => {
                                         fileInput.current?.click()
-                                    }} className="min-w-[200px] text-left !px-6 font-semibold tracking-wide shadow-none">
+                                    }} className="min-w-[12.5rem] text-left !px-6 font-semibold tracking-wide shadow-none">
                                         Import CSV file
                                     </Button>
                                 </div>
@@ -355,7 +355,7 @@ const Pay = () => {
                             </div>
                         </div>
                         <div className="flex justify-center pt-5 sm:pt-0">
-                            <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[200px] sm:w-[400px] justify-center gap-5">
+                            <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-[25rem] justify-center gap-5">
                                 <Button version="second" onClick={() => router("/dashboard")}>Close</Button>
                                 <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isPaying}>Pay</Button>
                             </div>

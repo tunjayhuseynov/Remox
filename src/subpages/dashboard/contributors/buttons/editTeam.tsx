@@ -14,7 +14,7 @@ const EditTeam = (props: IuseContributor & { onCurrentModal: Dispatch<boolean> }
     const dispatch = useAppDispatch()
 
 
-    return <div className="grid grid-rows-[25%,25%,50%] grid-cols-[80%] items-center justify-center h-[200px]">
+    return <div className="grid grid-rows-[25%,25%,50%] grid-cols-[80%] items-center justify-center h-[12.5rem]">
         <div className="text-center self-end font-light">
             Team Name
         </div>

@@ -36,7 +36,7 @@ export default function Dashboard() {
       <div className="fixed w-full pt-6 pb-3 bg-light dark:bg-dark z-50"><Navbar></Navbar></div>
       <div className="flex space-x-11 flex-shrink flex-grow relative">
         <Sidebar />
-        <div className="col-span-11 md:col-span-8 flex-grow pr-20 overflow-hidden pl-[275px] pt-32">
+        <div className="col-span-11 md:col-span-8 flex-grow pr-20 overflow-hidden pl-[17.188rem] pt-32">
           <Suspense fallback={<div className="h-full w-full flex justify-center items-center"><ClipLoader /></div>}>
             <Outlet />
           </Suspense>

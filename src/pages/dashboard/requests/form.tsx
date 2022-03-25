@@ -124,8 +124,8 @@ export default function Form() {
 
   return <>
     <ToastContainer />
-    <header className="flex justify-start h-[75px] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
-      <div onClick={() => router('/dashboard')} className="w-[100px] h-[20px] sm:w-full sm:h-[30px]" >
+    <header className="flex justify-start h-[4.688rem] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
+      <div onClick={() => router('/dashboard')} className="w-[6.25rem] h-[1.25rem] sm:w-full sm:h-[1.875rem]" >
         <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
       </div>
     </header>
@@ -166,7 +166,7 @@ export default function Form() {
                         Request Type
                       </div>
                       <div>
-                        <input type="text" name="requestType" placeholder="Request type" className="mb-0 sm:w-full sm:h-[45px] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+                        <input type="text" name="requestType" placeholder="Request type" className="mb-0 sm:w-full sm:h-[2.813rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -174,7 +174,7 @@ export default function Form() {
                         Name of service
                       </div>
                       <div>
-                        <input type="text" name="nameService" placeholder="Name of service" className="mb-0 sm:w-full sm:h-[45px]  border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+                        <input type="text" name="nameService" placeholder="Name of service" className="mb-0 sm:w-full sm:h-[2.813rem]  border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -182,7 +182,7 @@ export default function Form() {
                         Date of service
                       </div>
                       <div>
-                        <DatePicker className="mb-0 sm:w-full sm:h-[45px]  bg-red-500 border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
+                        <DatePicker className="mb-0 sm:w-full sm:h-[2.813rem]  bg-red-500 border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -190,7 +190,7 @@ export default function Form() {
                         Attach link (optional)
                       </div>
                       <div>
-                        <input type="text" name="attachLink" placeholder="Attach link" className="mb-0 sm:w-full sm:h-[45px] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" />
+                        <input type="text" name="attachLink" placeholder="Attach link" className="mb-0 sm:w-full sm:h-[2.813rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" />
                       </div>
                     </div>
                   </div>
@@ -203,9 +203,9 @@ export default function Form() {
                 </div>
               </div>
               <div className="flex justify-center pt-5 sm:pt-0">
-                <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[400px] sm: justify-center sm:gap-5">
-                  <Button version="second" className="w-[150px] sm:w-full" onClick={() => router("/dashboard")}>Close</Button>
-                  <Button type="submit" className=" w-[150px] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >Request</Button>
+                <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[25rem] sm: justify-center sm:gap-5">
+                  <Button version="second" className="w-[9.375rem] sm:w-full" onClick={() => router("/dashboard")}>Close</Button>
+                  <Button type="submit" className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >Request</Button>
                 </div>
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function Form() {
                           {result?.amount}
                         </div>
                         <div className="flex gap-x-2 items-center">
-                          {result?.currency ? <img src={Coins[result.currency as keyof Coins].coinUrl} className="rounded-xl w-[20px] h-[20px]" /> : ""}
+                          {result?.currency ? <img src={Coins[result.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
                           {result?.currency ? Coins[result.currency as keyof Coins].name : ""}
                         </div>
                       </div>
@@ -259,7 +259,7 @@ export default function Form() {
                             {result?.secondaryAmount}
                           </div>
                           <div className="flex gap-x-2 items-center">
-                            {result?.secondaryCurrency ? <img src={Coins[result.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[20px] h-[20px]" /> : ""}
+                            {result?.secondaryCurrency ? <img src={Coins[result.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
                             {result?.secondaryCurrency ? Coins[result.secondaryCurrency as keyof Coins].name : ""}
                           </div>
                         </div>
@@ -315,9 +315,9 @@ export default function Form() {
                 }
               </div>
               <div className="flex justify-center pt-5 sm:pt-0">
-                <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[400px] sm:justify-center sm:gap-5">
-                  <Button version="second" onClick={() => setModal(false)} className="w-[150px] sm:w-full" >Back</Button>
-                  <Button type="submit" className=" w-[150px] sm:w-full bg-primary px-0 py-2 text-white flex items-center justify-center rounded-lg" isLoading={loading} onClick={Send}>Confirm & Submit</Button>
+                <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[25rem] sm:justify-center sm:gap-5">
+                  <Button version="second" onClick={() => setModal(false)} className="w-[9.375rem] sm:w-full" >Back</Button>
+                  <Button type="submit" className=" w-[9.375rem] sm:w-full bg-primary px-0 !py-2 text-white flex items-center justify-center rounded-lg" isLoading={loading} onClick={Send}>Confirm & Submit</Button>
                 </div>
               </div>
             </div>

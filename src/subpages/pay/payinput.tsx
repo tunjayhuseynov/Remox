@@ -20,9 +20,9 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
     }, [])
 
     return <>
-        <input className="col-span-4 sm:h-[48px] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={name[index]} type="text" name={`name__${index}`} onChange={(e) => { name[index] = e.target.value; name[index + 1] = e.target.value }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
-        <input className="col-span-4 sm:h-[48px] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Address" defaultValue={address[index]} type="text" name={`address__${index}`} onChange={(e) => { address[index] = e.target.value; address[index + 1] = e.target.value }} required /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
-        <div className={`col-span-4 sm:h-[48px] md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+        <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={name[index]} type="text" name={`name__${index}`} onChange={(e) => { name[index] = e.target.value; name[index + 1] = e.target.value }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
+        <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Address" defaultValue={address[index]} type="text" name={`address__${index}`} onChange={(e) => { address[index] = e.target.value; address[index + 1] = e.target.value }} required /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
+        <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
             <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={amount[index]} type="number" name={`amount__${index}`} onChange={(e) => {
                 amount[index] = e.target.value;
                 const arr = [...amountState]
@@ -30,7 +30,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 setAmount(arr)
             }} required step={'any'} min={0} />
             {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="sm:h-[48px] border-transparent text-sm border-none" onSelect={val => {
+            {!selectedWallet ? <ClipLoader /> : <Dropdown className="sm:h-[3rem] border-transparent text-sm border-none" onSelect={val => {
                 const wallet = [...selectedWallet];
                 wallet[index] = val;
                 setWallet(wallet)

@@ -129,7 +129,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                                     <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
                                     <div className="font-semibold text-xl">{Coins[currency as keyof typeof Coins].name}</div>
                                     <div>
-                                        <img src={Coins[currency as keyof typeof Coins].coinUrl} className="w-[25px] h-[25px] rounded-full" alt="" />
+                                        <img src={Coins[currency as keyof typeof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
                                     </div>
                                     <div className="absolute right-2 -bottom-6 text-sm text-greylish opacity-75 text-right">
                                         {(amount * (balance[Coins[currency as keyof typeof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
@@ -138,7 +138,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                             }) : <div className="flex py-1 justify-center"><ClipLoader /></div>
                         }
                     </div>
-                    <div className="h-[55px]">
+                    <div className="h-[3.438rem]">
                         {memberState[0].length > 0 && <Button onClick={() => {
                             const arr = [...memberState[0]]
 

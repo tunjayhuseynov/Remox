@@ -30,13 +30,13 @@ const Automations = () => {
             <div className='flex flex-col space-y-3'>
                 <div className="flex justify-between py-2">
                     <div className="flex items-center">
-                        <span className="bg-primary rounded-full w-[10px] h-[10px] "></span>
+                        <span className="bg-primary rounded-full w-[0.625rem] h-[0.625rem] "></span>
                         <p className="tracking-wider text-gray-500 text-lg ml-2">Selected {memberState[0].length} out of {teams.reduce((a, c) => a + c.members.length, 0)} automations</p>
 
                     </div>
                     {
                         memberState[0].length > 0 && <div className="flex">
-                            <img src="/icons/trashicon.svg" width="15px" height="15px" alt="" />
+                            <img src="/icons/trashicon.svg" width="0.938rem" height="0.938rem" alt="" />
                             <button className="text-blue-500 tracking-wider hover text-lg ml-2" onClick={() => setAddStopModal(true)}>Stop Automations</button>
                         </div>
                     }
@@ -45,7 +45,7 @@ const Automations = () => {
         </div>
         <div className="px-3 py-5 shadow-custom">
             <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[3%,17%,20%,20%,40%,1fr] border-b border-black sm:pb-5 px-5" >
-                <input type="checkbox" className="self-center cursor-pointer w-[18px] h-[18px] checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                <input type="checkbox" className="self-center cursor-pointer w-[1.125rem] h-[1.125rem] checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     if (e.target.checked) {
                         memberState[1](teams.reduce<IMember[]>((a, c) => a.concat(c.members), []))
                     } else {
