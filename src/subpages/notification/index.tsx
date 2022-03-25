@@ -54,14 +54,14 @@ const NotificationCointainer = () => {
         </div>}
         <AnimatePresence>
         {openNotify &&
-            <motion.div initial={ {x: "100%",opacity:0.5}} animate={{x:15,opacity:1}} exit={{x:"100%",opacity:0.5}} transition={{ type: "spring",stiffness:400,damping:30} } ref={divRef} className=" z-40 fixed shadow-custom w-[22.5rem] h-[100vh] pr-3 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
+            <motion.div initial={ {x: "100%",opacity:0.5}} animate={{x:15,opacity:1}} exit={{x:"100%",opacity:0.5}} transition={{ type: "spring",stiffness:400,damping:30} } ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] pr-3 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
                 <div className="flex justify-between py-6 px-5 text-center border-t-2 border-b-2 dark:border-greylish dark:bg-darkSecond">
                 <p className="text-greylish opacity-45 text-center text-xl flex items-center">Action Bar</p>
                 { <button onClick={() => setNotify(false)} className="text-center">
                     <img src="/icons/navbar/cross.png" className="w-[1.563rem] h-[1.563rem]" alt="" />
                 </button>}
                 </div>
-                <div className="flex flex-col min-h-[20.313rem] sm:min-h-[auto] justify-center sm:justify-between sm:items-stretch items-center">
+                <div className="flex flex-col min-h-[325px] sm:min-h-[auto] justify-center sm:justify-between sm:items-stretch items-center">
                     {
                         list && list.slice(0, 5).map((transaction) => {
                             const amountUSD = transaction.id !== ERC20MethodIds.swap ? (currencies[transaction.rawData.tokenSymbol]?.price ?? 0) * parseFloat(parseFloat(fromWei(transaction.rawData.value)).toFixed(4)) : -1
