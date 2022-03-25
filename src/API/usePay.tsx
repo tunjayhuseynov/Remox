@@ -72,7 +72,7 @@ export default function usePay() {
             for (let index = 0; index < approveArr.length; index++) {
                 await allow(approveArr[index].coin.contractAddress, Contracts.Gelato.address, approveArr[index].amount.toString())
             }
-            await createTask(task.interval, Contracts.BatchRequest.address, abi);
+            await createTask(Math.floor(new Date().getTime() / 1e3), task.interval, Contracts.BatchRequest.address, abi);
         }
         if (tags && tags.length > 0) {
             for (const tag of tags) {
@@ -118,7 +118,7 @@ export default function usePay() {
                 let celotx = await GenerateTx({ coin, amount, recipient, comment });
                 const abi = celotx.txo.encodeABI()
                 await allow((coin as AltCoins).contractAddress, Contracts.Gelato.address, kit.web3.utils.toWei(amount.toString(), 'ether'))
-                await createTask(task.interval, coin.contractAddress, abi);
+                await createTask(Math.floor(new Date().getTime() / 1e3), task.interval, coin.contractAddress, abi);
             }
             await refetch()
 
