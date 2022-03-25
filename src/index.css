@@ -10,6 +10,12 @@ input[class~="unvisibleArrow"]::-webkit-inner-spin-button {
   margin: 0;
 }
 
+@media only screen and (max-width: 1367px) {
+  html {
+    font-size: 12px;
+  }
+}
+
 html{
   font-family: 'Roboto', sans-serif;
   /* transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, border;
