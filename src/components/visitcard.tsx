@@ -22,7 +22,7 @@ const Visitcard = ({ name, address }: { name: string, address: string }) => {
                     setTooltip(false)
                 }, 300)
             }}>
-                <img src={'/icons/copy.svg'} alt="copy" className="w-[0.75rem] h-[0.75rem]" />
+                <img src={'/icons/copy.svg'} alt="copy" className="w-3 h-3" />
             </div>
         </div>
         <Copied tooltip={tooltip} triggerRef={divRef} />

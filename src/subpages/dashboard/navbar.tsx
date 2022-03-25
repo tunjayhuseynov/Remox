@@ -29,29 +29,31 @@ const Navbar = () => {
         }
     }
 
-    return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr,1fr,1fr,1fr] gap-12 pl-4 pr-20">
+    return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr,1fr,1fr] gap-12 pl-4 pr-20">
         <div className="md:hidden ">
             <div className="inline-block" onClick={() => dispatch(setMenu(!menuBar.mobileMenu))}>
                 <Hamburger toggled={menuBar.mobileMenu} hideOutline={true} />
             </div>
         </div>
-        <div className="h-[3.125rem] flex justify-center md:justify-start items-center  lg:pl-6">
+        <div className="h-[50px] flex justify-center md:justify-start items-center  lg:pl-6">
             <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
         </div>
-        <div className="search col-span-3 hidden md:block">
+        <div className="search col-span-2 hidden md:block">
             {/* <div className="w-full h-12 shadow backdrop-blur bg-gray-50 dark:bg-darkSecond rounded-lg flex items-center pl-3 gap-3">
                 <BsSearch />
                 <input type="text" placeholder={'Search'} className="flex-grow bg-transparent outline-none " />
             </div> */}
         </div>
-        <div className="actions hidden md:flex items-center justify-evenly ">
-            <div className="flex space-x-5 items-center justify-center">
-                <div className="h-14 p-3 w-14 bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
+        <div className="actions hidden md:flex items-center justify-evenly place-self-end">
+            <div className="grid grid-cols-[20%,60%,20%] gap-x-5 items-center justify-center">
+                <div className="h-full aspect-square bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
                     {/* <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" /> */}
-                    <img src={ !dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-5 h-5" alt='dark' />
+                    <img src={!dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-5 h-5" alt='dark' />
                 </div>
-                {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}
-                {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}
+                <div>
+                    {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}
+                    {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}
+                </div>
                 <div className="relative">
                     <NotificationCointainer />
                 </div>

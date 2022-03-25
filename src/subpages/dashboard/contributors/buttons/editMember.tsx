@@ -179,7 +179,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         }
 
                         const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-                        hash = await createTask(selectedFrequency!.type as DateInterval, Contracts.BatchRequest.address, encodeAbi)
+                        hash = await createTask(Math.floor((startDate.getTime() + 600000) / 1e3), selectedFrequency!.type as DateInterval, Contracts.BatchRequest.address, encodeAbi)
                     }
                 }
 

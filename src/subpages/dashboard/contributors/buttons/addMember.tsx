@@ -114,7 +114,7 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                         }
 
                         const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-                        hash = await createTask(interval, Contracts.BatchRequest.address, encodeAbi)
+                        hash = await createTask(Math.floor((startDate.getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
                     }
 
                     let sent: IMember = {
