@@ -46,9 +46,9 @@ const Navbar = () => {
         </div>
         <div className="actions hidden md:flex items-center justify-evenly ">
             <div className="flex space-x-5 items-center justify-center">
-                <div className="w-12 h-12 bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
+                <div className="h-14 p-3 w-14 bg-white dark:bg-darkSecond flex items-center justify-center rounded-xl cursor-pointer" onClick={darkMode}>
                     {/* <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" /> */}
-                    <img src={ !dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-[1.125rem] h-[1.125rem]" alt='dark' />
+                    <img src={ !dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-5 h-5" alt='dark' />
                 </div>
                 {storage ? selectedAccount !== storage.accountAddress ? <Visitcard name={'Multisig'} address={selectedAccount} /> : "" : ""}
                 {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}

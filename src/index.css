@@ -17,6 +17,12 @@ html{
   transition-timing-function: ease-in-out; */
 }
 
+@media only screen and (max-width: 1367px) {
+  html {
+    font-size: 12px;
+  }
+}
+
 .copiedDark::before, .copiedDark::after{
   border-color: transparent transparent #1C1C1C transparent!important;
 }
