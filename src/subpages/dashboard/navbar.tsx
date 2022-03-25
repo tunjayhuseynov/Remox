@@ -44,7 +44,7 @@ const Navbar = () => {
                 <input type="text" placeholder={'Search'} className="flex-grow bg-transparent outline-none " />
             </div> 
         </div> */}
-        <div className="actions hidden md:flex  justify-evenly place-self-end">
+        <div className="actions hidden md:flex place-self-end">
             <div className="flex space-x-5 items-center justify-center">
                 <div className="h-full aspect-square bg-white dark:bg-darkSecond flex justify-center rounded-xl cursor-pointer" onClick={darkMode}>
                     {/* <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" /> */}
