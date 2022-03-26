@@ -26,11 +26,11 @@ const Input = ({ title, name, type = "text", validation, limit = 0, required = f
         </div>
         {type === "password" ? <div className="flex flex-col mb-4 space-y-1 w-full">
             <div className="text-left text-greylish dark:text-white">{'Repeat Password'}</div>
-            <div className={`${className} flex items-center gap-3 w-full`}>
+            <div className={`${className} flex items-center gap-3 w-full relative`}>
                 <input type={type} name={'repeatPassword'} autoComplete='new-password' className="bg-greylish dark:bg-darkSecond bg-opacity-10 h-[2.188rem] rounded-lg w-full px-1" onChange={(e) => {
                     setRepeatPassword(e.target.value);
                 }} required />
-                {repeatPassword && password && <div>
+                {repeatPassword && password && <div className="absolute right-[1%]">
                     {repeatPassword === password ? <MdDone className="text-green-600 " /> : <VscError className="text-red-600" />}
                 </div>}
             </div>
