@@ -6,13 +6,14 @@ const TeamContainer = (props: IuseContributor & { memberState: [IMember[], React
 
     const [num, setNum] = useState(3)
 
+    const filterMembers = props.members.filter(s => s.taskId)
     return <>
         <div className="col-span-4 flex space-x-3 py-2 pt-4 sm:pt-6 pb-1 px-5 items-center justify-start">
             <div className="font-semibold text-[1.5rem] overflow-hidden whitespace-nowrap">
                 <div>{props.name}</div>
             </div>
         </div>
-        {props.members && props.members.slice(0, num).map(w =>
+        {filterMembers.slice(0, num).map(w =>
             <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
                 <TeamItem teamName={props.name} member={w} memberState={props.memberState} />
             </div>

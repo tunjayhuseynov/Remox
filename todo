@@ -4,7 +4,6 @@ Paying with comment (need to talk with Orxan)
 Error handling for useContractKit
 Add Member, give warning if team not selected
 Create Account Show Error
-Search Bar
 New Notification bar , react toastify
 All Coin List 
 Create stats for admins
@@ -21,6 +20,8 @@ Attach link, confirm that it is link
 Request from Company, not from Remox (but Company is Optinal, Sorus Orxandan)
 Pay Someone wallet resets after balance fetched
 
+Remove End payment in manual member payment
+
 Multisig add owner name when create a new one
 Multisig give error in create modal when inputs are not fit to requirements
 Multisig Name Update
@@ -28,6 +29,9 @@ Multisig user name update
 Multisig Pending Complated
 Notification BatchRequest Adaptation
 Add Multisig Action which are complated to useTransactionProcess
+
+Switch Wallet - Handle Bug when switch to locked wallet
+Switch Wallet - Add Alfrojase access to Wallet
 
 
 **//** Done **//**

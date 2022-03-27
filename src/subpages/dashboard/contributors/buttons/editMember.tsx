@@ -21,6 +21,7 @@ import { Contracts } from "API/Contracts/Contracts";
 import usePay, { PaymentInput } from "API/usePay";
 import date from 'date-and-time'
 import { SelectBalances } from 'redux/reducers/currencies';
+import { ToastRun } from "utils/toast";
 
 const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const dispatch = useDispatch()
@@ -82,11 +83,11 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
 
         if (memberName && amount && address && selectedWallet && selectedTeam) {
             if (!selectedWallet.name) {
-                alert("Please, choose a Celo wallet")
+                ToastRun(<>Please, choose a Celo wallet</>)
                 return
             }
             if (!selectedTeam.id) {
-                alert("Please, choose a team")
+                ToastRun(<>Please, choose a team</>)
                 return
             }
             const memberNameValue = (memberName as HTMLInputElement).value
@@ -146,42 +147,6 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         await cancelTask(props.taskId as string)
                     }
                 }
-                else {
-                    if (selectedExecution) {
-                        const interval = selectedFrequency!.type as DateInterval
-                        const days = date.subtract(startDate, endDate).toDays();
-                        const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
-                        let realMoney = Number(amountValue) * realDays
-                        if (selectedType) {
-                            realMoney *= (balance[Coins[selectedWallet.name].name]?.tokenPrice ?? 1)
-                        }
-
-                        await allow(Coins[selectedWallet.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                        const paymentList: PaymentInput[] = []
-
-                        paymentList.push({
-                            coin: Coins[selectedWallet.name],
-                            recipient: addressValue.trim(),
-                            amount: amountValue.trim()
-                        })
-
-                        if (amountValue2 && selectedWallet2.name) {
-                            let realMoney = Number(amountValue2) * realDays
-                            if (selectedType) {
-                                realMoney *= (balance[Coins[selectedWallet2.name].name]?.tokenPrice ?? 1)
-                            }
-                            await allow(Coins[selectedWallet2.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                            paymentList.push({
-                                coin: Coins[selectedWallet2.name],
-                                recipient: addressValue.trim(),
-                                amount: amountValue2.trim()
-                            })
-                        }
-
-                        const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-                        hash = await createTask(Math.floor((startDate.getTime() + 600000) / 1e3), selectedFrequency!.type as DateInterval, Contracts.BatchRequest.address, encodeAbi)
-                    }
-                }
 
 
                 let newMember: IMember = {
@@ -199,7 +164,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                 }
 
                 if (hash) newMember.taskId = hash
-                else if (!hash && props.taskId) newMember.taskId = ""
+                else if (!hash && props.taskId) newMember.taskId = null
 
                 if (amountValue2 && selectedWallet2 && selectedWallet2.name) {
                     newMember = {
@@ -275,7 +240,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                     {secondActive ?
                         <div className="col-span-2 flex flex-col space-y-4 w-2/3">
                             <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                                <input type="number" defaultValue={member.secondaryAmount} name="amount2" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
+                                <input type="number" defaultValue={(member.secondaryAmount ?? 0)} name="amount2" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
                                 {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
                                 {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(Coins)} />}
 

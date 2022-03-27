@@ -8,17 +8,18 @@ import { SelectSelectedAccount } from '../../redux/reducers/selectedAccount';
 import Visitcard from '../../components/visitcard';
 import "index.css"
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
-import Module from "module";
+import useMultiWallet from "hooks/useMultiWallet";
 
 
 const Navbar = () => {
-
 
     const storage = useAppSelector(selectStorage)
     const menuBar = useAppSelector(selectToggle)
     const dispatch = useAppDispatch()
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const dark = useAppSelector(selectDarkMode)
+    const { data } = useMultiWallet()
+
     const darkMode = () => {
         const mode = localStorage.getItem('darkMode')
         if (mode === 'true') {
@@ -44,15 +45,15 @@ const Navbar = () => {
                 <input type="text" placeholder={'Search'} className="flex-grow bg-transparent outline-none " />
             </div> 
         </div> */}
-        <div className="actions hidden md:flex place-self-end">
-            <div className="flex space-x-5 items-center justify-center">
-                <div className="h-full aspect-square bg-white dark:bg-darkSecond flex justify-center rounded-xl cursor-pointer" onClick={darkMode}>
+        <div className="hidden md:block place-self-end">
+            <div className="flex gap-x-5">
+                <div className="h-[3.75rem] w-[3.75rem] bg-white dark:bg-darkSecond rounded-xl cursor-pointer flex items-center justify-center" onClick={darkMode}>
                     {/* <img src="/icons/navbar/dark.svg" className="dark:brightness-0 dark:invert" /> */}
                     <img src={!dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-6 h-6 self-center" alt='dark' />
                 </div>
-                {storage && selectedAccount !== storage.accountAddress && <Visitcard name={'Multisig'} address={selectedAccount} />}
+                {storage && selectedAccount !== storage.accountAddress && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase()) && <Visitcard name={'Multisig'} address={selectedAccount} />}
                 {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}
-                <div className="relative">
+                <div className="relative self-center">
                     <NotificationCointainer />
                 </div>
             </div>

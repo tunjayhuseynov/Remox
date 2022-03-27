@@ -107,8 +107,6 @@ export default function TagsSetting() {
                     </div>
                 </Modal>
             }
-            {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-            {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
         </>
     )
 }

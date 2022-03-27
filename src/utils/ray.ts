@@ -13,6 +13,7 @@ export function toWei(num: Num) {
 	return BN(num).times(etherSize).toString();
 }
 
+
 export function fromWei(num: Num) {
     return BN(num).div(etherSize).toFixed(4)
 }

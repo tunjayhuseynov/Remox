@@ -5,6 +5,7 @@ import EditTeam from './buttons/editTeam'
 import TeamItem from "./teamItem";
 import { IuseContributor } from "API/useContributors";
 import useContributors from "hooks/useContributors";
+import useGelato from "API/useGelato";
 
 
 const TeamContainer = (props: IuseContributor) => {
@@ -13,10 +14,18 @@ const TeamContainer = (props: IuseContributor) => {
 
     const [editModal, setEditModal] = useState(false)
 
+    const { cancelTask } = useGelato()
+
     const [num, setNum] = useState(3)
 
     const DeleteTeam = async () => {
         try {
+            for (let index = 0; index < props.members.length; index++) {
+                const element = props.members[index];
+                if (element.taskId) {
+                    await cancelTask(element.taskId as string)
+                }
+            }
             await removeTeam(props.id)
             //setDeleteModal(false)
         } catch (error) {

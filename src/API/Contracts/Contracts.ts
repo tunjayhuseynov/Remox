@@ -4,7 +4,7 @@ export const Contracts = {
 		name: 'RemoxBatchRequest'
 	},
     Gelato: {
-        address: '0x9e60044AfAC6Ed3dc6cf715b18DeaBDC417BE96E',
+        address: '0x88FAcCc7D0C4148A73D2cC626e8192F4ba95F1C7',
         name: 'RemoxGelato'
     },
     MoolaProxy: {

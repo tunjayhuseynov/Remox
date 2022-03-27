@@ -1,5 +1,5 @@
 import { AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import NotificationCointainer from "../../subpages/notification";
@@ -11,10 +11,16 @@ import Navbar from "../../subpages/dashboard/navbar";
 import Sidebar from "../../subpages/dashboard/sidebar";
 import Sidebarlist from "../../subpages/dashboard/sidebarlist";
 import { Suspense } from "react";
+import { changeError, changeSuccess, selectError, selectSuccess } from "redux/reducers/notificationSlice";
+import Success from "components/general/success";
+import Error from "components/general/error";
 
 export default function Dashboard() {
   const toggle = useSelector(selectToggle)
   const storage = useSelector(selectStorage)
+  const isSuccess = useSelector(selectSuccess)
+  const isError = useSelector(selectError)
+  const dispatch = useDispatch()
 
   return <>
     <AnimatePresence>
@@ -43,6 +49,11 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-
+    {(isSuccess || isError) &&
+      <div className="fixed left-0 top-0 w-screen h-screen">
+        {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
+        {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
+      </div>
+    }
   </>
 }

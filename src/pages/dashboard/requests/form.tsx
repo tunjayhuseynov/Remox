@@ -324,8 +324,6 @@ export default function Form() {
           </Modal>
         }
       </form>
-      {isSuccess && <Success onClose={(val) => dispatch(changeSuccess({ activate: val, text: '' }))} onAction={() => { console.log("Success Modal Closed") }} />}
-      {isError && <Error onClose={(val) => dispatch(changeError({ activate: val, text: '' }))} />}
     </div>
   </>
 }

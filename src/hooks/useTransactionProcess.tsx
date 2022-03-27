@@ -106,7 +106,18 @@ const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], G
 
 export const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
     const theTags = tags.filter(s => s.transactions.includes(transaction.hash.toLowerCase()))
-    if (input.startsWith(ERC20MethodIds.transferFrom)) {
+    if (input === null || input === ERC20MethodIds.noInput) {
+        return {
+            method: "noInput",
+            id: ERC20MethodIds.transferFrom,
+            from: transaction.from,
+            to: transaction.to,
+            amount: transaction.value.toString(),
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
+            tags: theTags
+        }
+    }
+    else if (input.startsWith(ERC20MethodIds.transferFrom)) {
         const len = ERC20MethodIds.transferFrom.length
         return {
             method: "transferFrom",
@@ -164,16 +175,6 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
             method: "batchRequest",
             id: ERC20MethodIds.batchRequest,
             payments: coins,
-            tags: theTags
-        }
-    } else if (input === ERC20MethodIds.noInput) {
-        return {
-            method: "noInput",
-            id: ERC20MethodIds.transferFrom,
-            from: transaction.from,
-            to: transaction.to,
-            amount: transaction.value.toString(),
-            coin: Coins[transaction.tokenSymbol as keyof Coins],
             tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.transferWithComment)) {

@@ -36,9 +36,9 @@ export interface IMember {
   interval: DateInterval,
   usdBase: boolean,
   secondaryCurrency?: CoinsName,
-  secondaryAmount?: string,
+  secondaryAmount?: string | null,
   secondaryUsdBase?: boolean,
-  taskId?: string,
+  taskId?: string | null,
 }
 
 export default function useContributors() {

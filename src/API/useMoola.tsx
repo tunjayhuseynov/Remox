@@ -19,6 +19,9 @@ export enum InterestRateMode {
     Variable = "2"
 }
 
+export const MoolaType = (type: string) => type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
+
+
 export default function useMoola() {
     const { kit, address } = useContractKit()
     const contractRef = useRef<string>()
