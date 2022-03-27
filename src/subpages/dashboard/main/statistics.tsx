@@ -172,7 +172,7 @@ const Statistic = () => {
         </div>
         {
             balance && allInOne !== undefined ?
-                <div className="flex flex-col gap-5 overflow-hidden col-span-2 sm:col-span-1">
+                <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1">
                     {allInOne.map((item, index) => {
                         return <CoinItem key={item.coins.contractAddress} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
                     })}

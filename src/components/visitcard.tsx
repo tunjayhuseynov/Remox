@@ -10,7 +10,7 @@ const Visitcard = ({ name, address }: { name: string, address: string }) => {
 
 
     return <>
-        <div ref={setDivRef} className="px-4 min-w-[7.815rem] py-2 grid grid-cols-[80%,20%] gap-x-1 bg-white shadow dark:bg-darkSecond rounded-xl relative items-center">
+        <div ref={setDivRef} className="px-4 min-w-[11rem] py-2 grid grid-cols-[80%,20%] gap-x-1 bg-white shadow dark:bg-darkSecond rounded-xl relative items-center">
             <div className="flex flex-col">
                 <h3 className="text-lg">{name}</h3>
                 <p className="text-xs" >{AddressReducer(address)}</p>
