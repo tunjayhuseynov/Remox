@@ -3,6 +3,7 @@ import { RootState } from "../store";
 
 export interface IStorage {
     accountAddress: string,
+    allAccounts: string[],
     token: string,
     uid: string,
     encryptedMessageToken: string,

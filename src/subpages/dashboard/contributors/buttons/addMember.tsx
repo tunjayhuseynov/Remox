@@ -20,8 +20,10 @@ import { Contracts } from "API/Contracts/Contracts";
 import usePay, { PaymentInput } from "API/usePay";
 import date from 'date-and-time'
 import { SelectBalances } from "redux/reducers/currencies";
+import { ToastRun } from "utils/toast";
 
-const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
+
+export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const { kit } = useContractKit()
     const storage = useAppSelector(selectStorage)
 
@@ -65,11 +67,11 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
 
         if (firstNameValue && lastNameValue && walletAddressValue && amountValue) {
             if (!Object.values(Coins).includes(selectedWallet as AltCoins)) {
-                alert("Please, choose a wallet")
+                ToastRun(<>Please, choose a Celo wallet</>)
                 return
             }
             if (selected === { name: "Select Team", coinUrl: CoinsURL.None }) {
-                alert("Please, choose a team")
+                ToastRun(<>Please, choose a team</>)
                 return
             }
 
@@ -80,41 +82,6 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                     if (walletAddressValue.trim().startsWith("0x")) {
                         const isAddressExist = kit.web3.utils.isAddress(walletAddressValue.trim());
                         if (!isAddressExist) throw new Error("There is not any wallet belong this address");
-                    }
-                    let hash;
-                    if (selectedExecution) {
-                        const interval = selectedFrequency!.type as DateInterval
-                        const days = Math.abs(date.subtract(startDate, endDate).toDays());
-                        const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
-                        let realMoney = Number(amountValue) * realDays
-
-                        if (selectedType) {
-                            realMoney *= (balance[Coins[selectedWallet.name].name]?.tokenPrice ?? 1)
-                        }
-                        await allow(Coins[selectedWallet.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                        const paymentList: PaymentInput[] = []
-
-                        paymentList.push({
-                            coin: Coins[selectedWallet.name],
-                            recipient: walletAddressValue.trim(),
-                            amount: amountValue.trim()
-                        })
-
-                        if (amountValue2 && selectedWallet2.name) {
-                            let realMoney = Number(amountValue2) * realDays
-                            if (selectedType) {
-                                realMoney *= (balance[Coins[selectedWallet2.name].name]?.tokenPrice ?? 1)
-                            }
-                            await allow(Coins[selectedWallet2.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                            paymentList.push({
-                                coin: Coins[selectedWallet2.name],
-                                recipient: walletAddressValue.trim(),
-                                amount: amountValue2.trim()
-                            })
-                        }
-
-                        const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-                        hash = await createTask(Math.floor((startDate.getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
                     }
 
                     let sent: IMember = {
@@ -130,8 +97,6 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                         paymantDate: startDate!.toISOString(),
                         paymantEndDate: endDate!.toISOString(),
                     }
-
-                    if (hash) sent.taskId = hash
 
                     if (amountValue2 && selectedWallet2.name) {
                         sent = {
@@ -262,5 +227,3 @@ const AddMemberModal = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
         </form>
     </>
 }
-
-export default AddMemberModal;

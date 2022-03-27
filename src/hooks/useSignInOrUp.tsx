@@ -59,6 +59,7 @@ export default function useSignInOrUp() {
                 await checkTag()
                 dispatch(setStorage({
                     accountAddress: address,
+                    allAccounts: [address],
                     token: token,
                     uid: user.uid,
                     companyName: dataForSignUp?.companyName,
@@ -85,6 +86,7 @@ export default function useSignInOrUp() {
                 await checkTag()
                 dispatch(setStorage({
                     accountAddress: address,
+                    allAccounts: incomingData.address,
                     token: token,
                     uid: user!.uid,
                     contractAddress: incomingData.contractAddress,

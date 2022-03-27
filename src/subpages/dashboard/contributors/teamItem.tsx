@@ -7,15 +7,20 @@ import Avatar from "../../../components/avatar";
 import Delete from './buttons/delete'
 import { IMember } from "API/useContributors";
 import useContributors from "hooks/useContributors";
+import useGelato from "API/useGelato";
 
 const TeamItem = (props: IMember & { teamName: string }) => {
     const { removeMember } = useContributors()
     const [modalVisible, setModalVisible] = useState(false)
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
+    const { cancelTask } = useGelato()
 
     const onDelete = async () => {
         try {
+            if (props.taskId) {
+                await cancelTask(props.taskId as string)
+            }
             await removeMember(props.teamId, props.id)
         } catch (error) {
             throw error

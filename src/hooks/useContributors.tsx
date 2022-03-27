@@ -71,6 +71,7 @@ export default function useContributors() {
     }
 
     const editMember = async (teamId: string, memberId: string, updatedMember: IMember) => {
+        console.log(updatedMember)
         setLoading(true)
         await FirestoreRead<IuseContributor>("contributors", teamId).then(async (team) => {
             if (team) {

@@ -1,11 +1,7 @@
-import { Fragment, useEffect, useState, useMemo } from 'react';
-import Success from 'components/general/success';
-import { useAppSelector, useAppDispatch } from 'redux/hooks'
-import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/reducers/notificationSlice'
-import Error from 'components/general/error';
-import _ from 'lodash';
+import { Fragment, useState } from 'react';
+import { useAppSelector } from 'redux/hooks'
 import { selectContributors } from 'redux/reducers/contributors';
-import { DateInterval, ExecutionType, IMember, IuseContributor } from 'API/useContributors';
+import { ExecutionType, IMember } from 'API/useContributors';
 import AddStopModal from 'subpages/dashboard/automations/buttons/addStop';
 import Modal from 'components/general/modal';
 import TeamContainer from 'subpages/dashboard/automations/teamContainer'
@@ -13,10 +9,7 @@ import TeamContainer from 'subpages/dashboard/automations/teamContainer'
 
 const Automations = () => {
 
-    const teams = useAppSelector(selectContributors).contributors.map(s => ({ ...s, members: s.members.filter(m => m.execution === ExecutionType.auto) }))
-    const isSuccess = useAppSelector(selectSuccess)
-    const isError = useAppSelector(selectError)
-    const dispatch = useAppDispatch()
+    const teams = useAppSelector(selectContributors).contributors.map(s => ({ ...s, members: s.members.filter(m => m.execution === ExecutionType.auto && m.taskId) }))
     const [addStopModal, setAddStopModal] = useState(false)
 
     const memberState = useState<IMember[]>([])
@@ -59,7 +52,7 @@ const Automations = () => {
             </div>
             <div className="w-full  pt-4 pb-6 rounded-xl">
                 <div>
-                    {teams.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} /></Fragment> : undefined)}
+                    {teams.map(w => w && w.members && w.members.filter(s => s.taskId).length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} /></Fragment> : undefined)}
                 </div>
                 {teams.length === 0 && <div className="text-center text-gray-500 text-lg">No automations found</div>}
             </div>
@@ -68,9 +61,6 @@ const Automations = () => {
             <Modal onDisable={setAddStopModal} className='!min-w-[75vw]'>
                 <AddStopModal onDisable={setAddStopModal} memberState={memberState[0]} />
             </Modal>}
-        {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-        {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
-
     </div>
 }
 

@@ -1,4 +1,4 @@
-import { IMember, IuseContributor } from "API/useContributors";
+import { ExecutionType, IMember, IuseContributor } from "API/useContributors";
 import { useState } from "react";
 import TeamItem from "../payroll/teamItem";
 
@@ -14,7 +14,7 @@ const TeamContainer = (props: IuseContributor & { memberState: [IMember[], React
                     const members = [...props.memberState[0]]
                     if (e.target.checked) {
                         props.members?.forEach(m => {
-                            if (!members.some(x => x.id === m.id)) {
+                            if (!members.some(x => x.id === m.id) && !m.taskId) {
                                 members.push(m)
                             }
                         })

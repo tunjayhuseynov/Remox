@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaUserComponentData } from "API/useMoola";
+import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaType, MoolaUserComponentData } from "API/useMoola";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { fromWei, printRayRate } from "utils/ray";
@@ -96,7 +96,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 }
                 await refresh()
 
-                let text = type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
+                let text = MoolaType(type)
                 dispatch(changeSuccess({ activate: true, text: dynamicText(text, amountState.toLocaleString(), wallets[0].name, hash) }))
                 setModal(false)
             }

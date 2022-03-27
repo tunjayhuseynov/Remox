@@ -1,5 +1,5 @@
 import { IoIosArrowDown } from 'react-icons/io'
-import { Dispatch, forwardRef, useEffect, useRef, useState } from 'react'
+import { Dispatch, forwardRef, useEffect, useRef, useState, createRef, useMemo } from 'react'
 import { DropDownItem } from '../../types/dropdown'
 import { MouseEventHandler } from 'react'
 import { CoinsURL } from '../../types/coins'
@@ -24,7 +24,7 @@ const variants = {
     }
 }
 
-const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string }>(({ children, onClick, className }, ref) => <li ref={ref} onClick={onClick} className={`${className} text-left border dark:border-darkSecond last:rounded-b-xl first:rounded-t-xl px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li>)
+const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string, style?: React.CSSProperties | undefined }>(({ children, onClick, className, style }, ref) => <li ref={ref} style={style} onClick={onClick} className={`${className} text-left border dark:border-darkSecond last:rounded-b-xl first:rounded-t-xl px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li>)
 
 const Viewer = ({ displayName, name, address, coinUrl, className, disableAddressDisplay }: { displayName?: string, name: string, address?: string, coinUrl?: CoinsURL, className?: string, disableAddressDisplay?: boolean }) => <div className="flex flex-col">
     <div className="flex flex-col">
@@ -43,13 +43,13 @@ const Viewer = ({ displayName, name, address, coinUrl, className, disableAddress
 
 const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false, parentClass = '', childClass = '', displayName, onChange }: { disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
     const [isOpen, setOpen] = useState(false)
-    const liRef = useRef<HTMLLIElement>()
-    const [liHeight, setLiHeight] = useState(0)
+    const liArrRef = useRef<(HTMLLIElement | null)[]>([])
+    const [liHeights, setLiHeights] = useState<Array<number>>([])
     const customRef = useModalSideExit(isOpen, setOpen)
 
     useEffect(() => {
-        if (liRef.current && liHeight === 0) {
-            setLiHeight(liRef.current.offsetHeight)
+        if (liArrRef.current.length > 0 && liHeights.length === 0) {
+            setLiHeights(liArrRef.current.map(i => i?.offsetHeight ?? 0))
         }
     })
 
@@ -65,7 +65,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
             </div>
             {<motion.div variants={variants} initial={"close"} animate={isOpen ? "open" : "close"} ref={customRef} className={`absolute left-0 ${toTop ? "top-0 -translate-y-full" : "bottom-0 translate-y-full"} z-10 w-full overflow-hidden`}>
                 <ul id="ala" className="flex flex-col overflow-y-auto " style={list.length > 5 ?
-                    { height: window.outerWidth > 768 ? `${liHeight * 5}px` : `${liHeight * 3}px` }
+                    { height: window.outerWidth > 768 ? `${liHeights.slice(0, 5).reduce((a, c) => a + c, 0)}px` : `${liHeights.slice(0, 3).reduce((a, c) => a + c, 0)}px` }
                     :
                     { height: 'auto' }
                 }>
@@ -79,11 +79,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
                         }
 
                     })?.map((w: DropDownItem, i) => {
-                        const obj: { ref?: any } = {}
-                        if (i === 0) {
-                            obj.ref = liRef
-                        }
-                        return <Li {...obj} key={w.name} className={childClass} onClick={() => {
+                        return <Li ref={(ref) => { liArrRef.current[i] = ref }} key={w.name + i} className={childClass} onClick={() => {
                             if (w.onClick) {
                                 w.onClick()
                                 setOpen(false)

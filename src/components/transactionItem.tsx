@@ -58,7 +58,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                     const data = Transaction as IAutomationTransfer
                     const details = await getDetails(data.taskId)
                     const reader = InputReader(details[1], Transaction.rawData, tags)
-                    console.log(reader?.id)
+            
                     if (reader && reader.id === ERC20MethodIds.moolaRepay) console.log(reader)
                     const formattedTx = {
                         rawData: data.rawData,

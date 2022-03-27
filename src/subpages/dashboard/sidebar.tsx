@@ -64,7 +64,10 @@ const Sidebar = () => {
         if (data && wallets) {
             const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
             const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
-            setList([...wallets.map(s => ({ name: WordSplitter(s.name), address: s.address, onClick: async () => { walletSwitch(s.name).catch(e => console.error(e)); setItem({ name: WordSplitter(s.name), address: s.address }) } })), ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), wallet, multi])
+            setList([
+                ...wallets.map(s => ({ name: WordSplitter(s.name), address: s.address, onClick: async () => { walletSwitch(s.name).catch(e => console.error(e)); setItem({ name: WordSplitter(s.name), address: s.address }) } })), 
+                ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), wallet, multi
+            ])
         }
     }, [data, wallets])
 
@@ -138,8 +141,8 @@ const Sidebar = () => {
                 <Create setCreateModal={setCreateModal} />
             </Modal>
         }
-        {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-        {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
+        {/* {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
+        {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />} */}
     </>
 }
 

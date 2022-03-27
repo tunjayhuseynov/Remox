@@ -1,22 +1,38 @@
-import { IMember } from "API/useContributors";
+import { ExecutionType, IMember } from "API/useContributors";
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
 import Button from "components/button";
-import { useAppDispatch } from 'redux/hooks';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import TeamItem from "./stopItem";
 import useGelato from "API/useGelato";
 import useContributors from "hooks/useContributors";
+import { encryptMessage } from "utils/hashing";
+import { selectStorage } from "redux/reducers/storage";
 
 
 const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<boolean>, memberState: IMember[] }) => {
 
     const dispatch = useAppDispatch()
     const { cancelTask, loading } = useGelato()
-    const { removeMember, isLoading } = useContributors()
+    const { removeMember, isLoading, editMember } = useContributors()
+    const storage = useAppSelector(selectStorage)
+
     const create = async () => {
         try {
             for (const member of memberState) {
                 await cancelTask(member.taskId!)
-                await removeMember(member.teamId, member.id)
+                let mem = {...member}
+                mem.name = encryptMessage(`${mem.name}`, storage?.encryptedMessageToken)
+                mem.address = encryptMessage(mem.address, storage?.encryptedMessageToken)
+                mem.amount = encryptMessage(mem.amount, storage?.encryptedMessageToken)
+                if (mem.secondaryAmount) {
+                    mem.secondaryAmount = encryptMessage(mem.secondaryAmount, storage?.encryptedMessageToken)
+                }
+
+                await editMember(mem.teamId, mem.id, {
+                    ...mem,
+                    taskId: null,
+                    execution: ExecutionType.auto
+                })
             }
 
             dispatch(changeSuccess({ activate: true, text: "Automations has been successfully stopped" }))

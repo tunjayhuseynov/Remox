@@ -95,8 +95,8 @@ const TeamInput = (props: (IMember | IRequest) & { index: number, selectedId: st
         <div className="hidden sm:block"></div>
         <div></div>
         <div></div>
-        {props.secondaryCurrency && selectedWallet2 ? <div className={`col-span-2 sm:col-span-1 border dark:bg-darkSecond dark:border-darkSecond text-black py-1 rounded-md grid ${props.usdBase ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={props?.secondaryAmount} type="number" name={`amount__${props.index}`} onChange={(e) => {
+        {props.secondaryCurrency && props.secondaryAmount && selectedWallet2 ? <div className={`col-span-2 sm:col-span-1 border dark:bg-darkSecond dark:border-darkSecond text-black py-1 rounded-md grid ${props.usdBase ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={props.secondaryAmount} type="number" name={`amount__${props.index}`} onChange={(e) => {
                 updateValue({ val: e.target.value, wallet: false, is2: true })
             }} step={'any'} min={0} />
             {props.usdBase && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}

@@ -4,7 +4,13 @@ export enum TransactionType {
     QuickTransfer = "Quick Transfer",
     IncomingPayment = "Incoming Payment",
     MassPayment = "Mass Payment",
-    Swap = "Swap"
+    Swap = "Swap",
+    AutomationPayout = "Automation Payment",
+    Borrow = "Borrow",
+    Deposit = "Deposit",
+    Repay = "Repay",
+    Withdraw = "Withdraw",
+    Unknown = "Unknown"
 }
 
 export enum TransactionDirection {

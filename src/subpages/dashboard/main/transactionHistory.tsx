@@ -30,7 +30,6 @@ const TransactionHistory = ({ transactions }: { transactions: IFormattedTransact
 }
 
 
-
 export default TransactionHistory;
 
 

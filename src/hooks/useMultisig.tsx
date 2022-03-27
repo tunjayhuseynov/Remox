@@ -4,11 +4,13 @@ import { selectMultisigTransactions, setTransactions } from "../redux/reducers/m
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from "../redux/reducers/storage"
 import useFetchMultisig from '../API/useMultisig'
+import useMultiWallet from "./useMultiWallet"
 
 const useMultisig = () => {
     let selectedAccount = useSelector(SelectSelectedAccount)
     const storage = useSelector(selectStorage)
     const multiSlice = useSelector(selectMultisigTransactions)
+    const { data } = useMultiWallet()
 
     const [owners, setOwners] = useState<string[]>()
     const [signAndInternal, setSignAndInternal] = useState<{
@@ -18,7 +20,7 @@ const useMultisig = () => {
 
     const { transactions, FetchTransactions, isLoading, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useFetchMultisig()
 
-    const isMultisig = selectedAccount.toLowerCase() !== storage!.accountAddress.toLowerCase()
+    const isMultisig = selectedAccount.toLowerCase() !== storage!.accountAddress.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
 
     const dispatch = useDispatch()
 

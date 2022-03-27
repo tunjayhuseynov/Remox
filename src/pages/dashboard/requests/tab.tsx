@@ -224,7 +224,5 @@ export default function TabPage() {
           }
         </>
     }
-    {isSuccess && <Success onClose={setSuccess} onAction={() => { console.log("Success!") }} />}
-    {isError && <Error onClose={(val) => dispatch(changeError({ activate: false, text: '' }))} />}
   </>
 }

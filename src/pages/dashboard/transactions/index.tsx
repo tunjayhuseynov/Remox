@@ -9,7 +9,7 @@ import { useAppSelector } from "../../../redux/hooks";
 import { selectStorage } from "../../../redux/reducers/storage";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
-import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
+import { changeAccount, SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import useMultisig from "../../../hooks/useMultisig";
 import { selectMultisig, selectMultisigTransactions } from "../../../redux/reducers/multisig";
 import { Link, NavLink, useLocation } from "react-router-dom";
@@ -19,6 +19,8 @@ import { selectTags } from "redux/reducers/tags";
 import { WalletDropdown } from "../../../components/general/walletdropdown"
 import { fromWei } from "utils/ray";
 import AnimatedTabBar from "components/animatedTabBar";
+import { TransactionDirectionDeclare } from "utils";
+import { useDispatch } from "react-redux";
 
 
 const Transactions = () => {
@@ -41,6 +43,20 @@ const Transactions = () => {
 
     const [transactionVisual, setVisual] = useState<JSX.Element | JSX.Element[]>()
 
+    const [oldAccount] = useState(selectedAccount)
+    const [changedAccount, setChangedAccount] = useState<string>(selectedAccount)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (oldAccount.toLowerCase() !== changedAccount.toLowerCase()) {
+            dispatch(changeAccount(changedAccount))
+        }
+
+        return () => {
+            dispatch(changeAccount(oldAccount))
+        }
+    }, [changedAccount])
+
     useEffect(() => {
         if (isMultisig) {
             const interval = setInterval(() => {
@@ -61,7 +77,7 @@ const Transactions = () => {
     }, [list])
     const TransactionGenerator = useMemo(() => new Promise<JSX.Element[]>((resolve, reject) => {
         if (!list) return <></>
-        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]","bg-white dark:bg-darkSecond"))
+        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]", "bg-white dark:bg-darkSecond"))
         resolve(result)
     }), [transactions, tags])
 
@@ -89,10 +105,10 @@ const Transactions = () => {
                     <div className="text-2xl font-bold tracking-wider">Transactions</div>
                 </div>
                 {isMultisig && <>
-                <div className="flex pl-5 pt-2 pb-2 w-full ">
+                    <div className="flex pl-5 pt-2 pb-2 w-full ">
                         <AnimatedTabBar data={data} />
-                </div>
-                </> }
+                    </div>
+                </>}
                 <div className="pb-5">
                     <div className="w-full pt-2 pb-3 rounded-xl">
                         <div id="header" className="grid grid-cols-[25%,45%,30%] sm:grid-cols-[30%,25%,15%,15%,15%] border-b border-black pb-3 " >
@@ -100,9 +116,11 @@ const Transactions = () => {
                             <div className="hidden sm:block text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Your Confirmation" : "Recipient/Sender"}</div>
                             <div className="text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Action" : "Paid Amount"}</div>
                             <div className="font-medium hidden md:block pt-2">{page !== "completed" ? "Signatures" : "Details"}</div>
-                            <div>
-                                {!isMultisig && <WalletDropdown list={[{name: ""}]}/>}
-                            </div>
+                            {!isMultisig && <div>
+                                <WalletDropdown selected={selectedAccount} onChange={(name, address) => {
+                                    setChangedAccount(address)
+                                }} />
+                            </div>}
                             {!isMultisig && <> <div className="place-self-end ">
                                 {list && <CSVLink className="font-normal px-2 sm:px-5 py-2 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex items-center justify-center xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
                                     let tx = w.rawData
@@ -182,8 +200,7 @@ const Transactions = () => {
 export default Transactions;
 
 
-export const ProcessAccordion = (transaction: IFormattedTransaction, account: string, grid: string, color:string) => {
-    const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
+export const ProcessAccordion = (transaction: IFormattedTransaction, account: string, grid: string, color: string) => {
     const isBatch = transaction.id === ERC20MethodIds.batchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
@@ -202,36 +219,7 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, account: st
         TXs.push(transaction)
     }
     const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
-    let directionType;
-    switch (transaction.id) {
-        case ERC20MethodIds.swap:
-            directionType = TransactionDirection.Swap
-            break;
-        case ERC20MethodIds.automatedTransfer:
-            directionType = direction ? TransactionDirection.AutomationOut : TransactionDirection.AutomationIn
-            break;
-        case ERC20MethodIds.batchRequest:
-        case ERC20MethodIds.transferFrom:
-        case ERC20MethodIds.noInput:
-        case ERC20MethodIds.transferWithComment:
-        case ERC20MethodIds.transfer:
-            directionType = direction ? TransactionDirection.Out : TransactionDirection.In
-            break;
-        case ERC20MethodIds.moolaBorrow:
-            directionType = TransactionDirection.Borrow;
-            break;
-        case ERC20MethodIds.moolaDeposit:
-            directionType = TransactionDirection.Deposit;
-            break;
-        case ERC20MethodIds.moolaRepay:
-            directionType = TransactionDirection.Repay;
-            break;
-        case ERC20MethodIds.moolaWithdraw:
-            directionType = TransactionDirection.Withdraw;
-            break;
-        default:
-            break;
-    }
+    let directionType = TransactionDirectionDeclare(transaction, account);
 
     return <Fragment key={transaction.rawData.hash}>
         <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>

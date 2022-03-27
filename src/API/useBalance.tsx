@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { deleteBalance } from 'redux/reducers/currencies';
 import { AltCoins, Coins } from 'types';
 import usePoof from 'hooks/usePoof'
-import { etherSize, fromWei } from 'utils/ray';
+import { fromWei } from 'utils/ray';
 
 export default function useBalance(address: string) {
     const { kit, walletType } = useContractKit()
