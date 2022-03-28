@@ -16,7 +16,7 @@ const Automations = () => {
 
 
     return <div className="flex flex-col space-y-3">
-        <div className="text-2xl font-bold pl-10 pb-4">
+        <div className="text-2xl font-bold pb-4">
             Active Automations
         </div>
         <div className="px-10 pb-2 pt-2">
