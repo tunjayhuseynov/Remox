@@ -247,7 +247,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
             </div>
         </div>
         <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,20%,1fr] rounded-xl bg-greylish bg-opacity-10 dark:bg-darkSecond  sm:mb-5 px-5 " >
+            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,20%,1fr] rounded-xl bg-light  dark:bg-dark  sm:mb-5 px-5 " >
                 <div className="font-normal py-3">Name</div>
                 <div className="font-normal py-3 hidden lg:block">Amount</div>
                 <div className="font-normal py-3">Frequency</div>

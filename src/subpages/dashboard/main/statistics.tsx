@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { ClipLoader } from "react-spinners";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
 import { AltCoins, Coins, CoinsName } from '../../../types/coins';
@@ -7,6 +7,12 @@ import CoinItem from './coinitem';
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, ITransfer } from "hooks/useTransactionProcess";
 import { fromWei } from "web3-utils";
+import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
+import { Doughnut, Chart } from 'react-chartjs-2';
+
+ChartJs.register(
+    Tooltip, Title, ArcElement, Legend
+);
 
 interface Balance {
     amount: number,
@@ -17,6 +23,22 @@ interface Balance {
 }
 
 const Statistic = () => {
+    const [data, setData] = useState({
+        datasets: [{
+            data: [0],
+            backgroundColor: [""],
+            borderWidth: 0,
+            hoverOffset: 0,
+        },
+        ],
+        labels: [
+            ''
+        ],
+    });
+
+    const chartjs = useRef<ChartJs>(null)
+
+    const [selectcoin, setSelectcoin] = useState<string>("")
     const selectedAccount = useAppSelector(SelectSelectedAccount)
 
     const [transactions] = useTransactionProcess()
@@ -36,29 +58,7 @@ const Statistic = () => {
 
     const all = balanceRedux
 
-    const chart = useMemo(() => {
-        let deg = 0;
-        let res = Object.values(all).sort((a, b) => b.percent - a.percent).reduce((a: string, c: IBalanceItem, index: number, arr) => {
-            if (c.percent) {
-                if (index === 0) {
-                    deg = Math.ceil(c.percent * 3.6) + deg;
-                    a += `${c.coins.color} ${0}deg ${deg}deg,`
-                }
-                else {
-                    a += `${c.coins.color} ${deg}deg `
-                    deg = Math.ceil(c.percent * 3.6) + deg;
-                    a += `${deg}deg,`
-                }
-            }
-            return a;
-        }, "conic-gradient(")
-        res = res !== "conic-gradient(" ? res.substring(0, res.length - 1) : res
-        res += ')'
 
-        if (res === "conic-gradient()") return `conic-gradient(#FF774E 0deg 360deg)`
-
-        return res
-    }, [balanceRedux])
 
     const percent = useMemo(() => {
         if (currencies && balanceRedux && balanceRedux.CELO) {
@@ -120,6 +120,45 @@ const Statistic = () => {
         }
     }, [transactions, currencies])
 
+    useEffect(() => {
+        if (allInOne !== undefined) {
+            const label: string[] = []
+            const amount: number[] = []
+            const color: string[] = []
+            for (let i = 0; i < allInOne.length; i++) {
+                label.push(allInOne[i].coins.name)
+                amount.push(parseFloat(((allInOne[i].tokenPrice ?? 0) * allInOne[i].amount).toFixed(2)))
+                color.push(allInOne[i].coins.color)
+            }
+            setData(
+                {
+                    datasets: [{
+                        data: amount,
+                        backgroundColor: color,
+                        borderWidth: 0,
+                        hoverOffset: 10,
+                    },
+                    ],
+                    labels: label,
+                },
+            )
+        }
+    }, [allInOne])
+
+    const options = {
+        responsive: true,
+        layout: {
+            padding: 10,
+        },
+        plugins: {
+            tooltip: {
+                enabled: false
+            },
+            legend: {
+                display: false,
+            },
+        }
+    };
     return <>
         <div className="col-span-2 flex flex-col">
             <div className="flex justify-between pl-4 h-[1.875rem]">
@@ -160,21 +199,23 @@ const Statistic = () => {
             </div>
         </div>
 
-        <div className="sm:flex flex-col hidden">
+        <div className="sm:flex flex-col hidden relative">
             <div>Asset</div>
-            <div className="h-full">
-                {Object.values(balanceRedux).length > 0 ? <div className="aspect-square  rounded-full relative" style={{
-                    background: chart
-                }}>
-                    <div className="w-[50%] h-[50%] bg-white dark:bg-dark  left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
-                </div> : null}
+            <div className="h-full w-full">
+                <Chart type="doughnut" data={data} options={options} ref={chartjs} />
             </div>
         </div>
         {
             balance && allInOne !== undefined ?
                 <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1">
                     {allInOne.map((item, index) => {
-                        return <CoinItem key={item.coins.contractAddress} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
+                        return <CoinItem key={item.coins.contractAddress} setSelectcoin={setSelectcoin} onClick={() => {
+                            setSelectcoin(item.coins.name);
+                            if (chartjs.current) {
+                                chartjs.current.setActiveElements([{ datasetIndex: 0, index: index }])
+                                chartjs.current.update()
+                            }
+                        }} selectcoin={selectcoin} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
                     })}
                 </div> : <ClipLoader />
         }</>

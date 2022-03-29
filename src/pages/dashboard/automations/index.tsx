@@ -36,8 +36,8 @@ const Automations = () => {
                 </div>
             </div>
         </div>
-        <div className="px-3 py-5 shadow-custom">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[3%,17%,20%,20%,40%,1fr] border-b border-black sm:pb-5 px-5" >
+        <div className="px-3 py-5 shadow-custom bg-white dark:bg-darkSecond">
+            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[3%,17%,20%,20%,40%,1fr] rounded-xl bg-light  dark:bg-dark  sm:mb-4 px-5" >
                 <input type="checkbox" className="self-center cursor-pointer w-[1.125rem] h-[1.125rem] checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     if (e.target.checked) {
                         memberState[1](teams.reduce<IMember[]>((a, c) => a.concat(c.members), []))
@@ -45,10 +45,10 @@ const Automations = () => {
                         memberState[1]([])
                     }
                 }} />
-                <div className="font-normal">Name</div>
-                <div className="font-normal hidden lg:block">Amount</div>
-                <div className="font-normal">Frequency</div>
-                <div className="font-normal">Next Payment</div>
+                <div className="font-normal py-3">Name</div>
+                <div className="font-normal py-3 hidden lg:block">Amount</div>
+                <div className="font-normal py-3">Frequency</div>
+                <div className="font-normal py-3">Next Payment</div>
             </div>
             <div className="w-full  pt-4 pb-6 rounded-xl">
                 <div>
