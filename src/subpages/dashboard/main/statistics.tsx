@@ -8,7 +8,9 @@ import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, ITransfer } from "hooks/useTransactionProcess";
 import { fromWei } from "web3-utils";
 import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
-import { Doughnut, Chart } from 'react-chartjs-2';
+// import { Doughnut, Chart } from 'react-chartjs-2';
+import Chartjs from "components/general/chart";
+import useModalSideExit from 'hooks/useModalSideExit'
 
 ChartJs.register(
     Tooltip, Title, ArcElement, Legend
@@ -36,9 +38,11 @@ const Statistic = () => {
         ],
     });
 
+
     const chartjs = useRef<ChartJs>(null)
 
     const [selectcoin, setSelectcoin] = useState<string>("")
+    const customRef = useModalSideExit<string>(selectcoin, setSelectcoin, "")
     const selectedAccount = useAppSelector(SelectSelectedAccount)
 
     const [transactions] = useTransactionProcess()
@@ -77,6 +81,24 @@ const Statistic = () => {
             return (per / indexable)
         }
     }, [balanceRedux])
+
+
+    const UpdateChartAnimation = (index?: number) => {
+        if (chartjs.current) {
+            if (index || index === 0) {
+                chartjs.current.setActiveElements([{ datasetIndex: 0, index: index }])
+            } else {
+                chartjs.current.setActiveElements([])
+            }
+            chartjs.current.update()
+        }
+    }
+
+    useEffect(() => {
+        if (!selectcoin) {
+            UpdateChartAnimation()
+        }
+    }, [selectcoin])
 
 
     useEffect(() => {
@@ -127,38 +149,26 @@ const Statistic = () => {
             const color: string[] = []
             for (let i = 0; i < allInOne.length; i++) {
                 label.push(allInOne[i].coins.name)
-                amount.push(parseFloat(((allInOne[i].tokenPrice ?? 0) * allInOne[i].amount).toFixed(2)))
                 color.push(allInOne[i].coins.color)
+                if (parseFloat(((allInOne[i].tokenPrice ?? 0) * allInOne[i].amount).toFixed(2)) !== 0) {
+                    amount.push(parseFloat(((allInOne[i].tokenPrice ?? 0) * allInOne[i].amount).toFixed(2)))
+                }
             }
             setData(
                 {
                     datasets: [{
-                        data: amount,
-                        backgroundColor: color,
+                        data: amount.length > 0 ? amount : [100],
+                        backgroundColor: amount.length > 0 ? color : ["#FF7348"],
                         borderWidth: 0,
-                        hoverOffset: 10,
+                        hoverOffset: 15,
                     },
                     ],
-                    labels: label,
+                    labels: amount.length > 0 ? label : ['data'],
                 },
             )
         }
     }, [allInOne])
 
-    const options = {
-        responsive: true,
-        layout: {
-            padding: 10,
-        },
-        plugins: {
-            tooltip: {
-                enabled: false
-            },
-            legend: {
-                display: false,
-            },
-        }
-    };
     return <>
         <div className="col-span-2 flex flex-col">
             <div className="flex justify-between pl-4 h-[1.875rem]">
@@ -202,19 +212,16 @@ const Statistic = () => {
         <div className="sm:flex flex-col hidden relative">
             <div>Asset</div>
             <div className="h-full w-full">
-                <Chart type="doughnut" data={data} options={options} ref={chartjs} />
+                <Chartjs data={data} ref={chartjs} />
             </div>
         </div>
         {
             balance && allInOne !== undefined ?
-                <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1">
+                <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1 py-2 px-4" ref={customRef}>
                     {allInOne.map((item, index) => {
                         return <CoinItem key={item.coins.contractAddress} setSelectcoin={setSelectcoin} onClick={() => {
-                            setSelectcoin(item.coins.name);
-                            if (chartjs.current) {
-                                chartjs.current.setActiveElements([{ datasetIndex: 0, index: index }])
-                                chartjs.current.update()
-                            }
+                            setSelectcoin(item.coins.name)
+                            UpdateChartAnimation(index)
                         }} selectcoin={selectcoin} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
                     })}
                 </div> : <ClipLoader />

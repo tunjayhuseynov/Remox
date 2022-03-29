@@ -8,7 +8,7 @@ import { WordSplitter } from "utils";
 
 export const WalletDropdown = ({ selected, onChange }: { selected: string, onChange: (walletName: string, walletAddress: string) => void }) => {
     const [isOpen, setOpen] = useState(false)
-    const divRef = useModalSideExit(isOpen, setOpen)
+    const divRef = useModalSideExit<boolean>(isOpen, setOpen,false)
     const { data } = useMultiWallet()
     const [checked, setChecked] = useState<{
         name: WalletTypes;

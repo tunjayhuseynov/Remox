@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
 import { useAppSelector } from '../../../redux/hooks';
 import { selectTags } from "redux/reducers/tags";
@@ -10,11 +10,42 @@ import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from 
 import { fromWei } from "web3-utils";
 import { CoinsName } from "types";
 import date from 'date-and-time'
+import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
+import Chartjs from "components/general/chart";
+import useModalSideExit from 'hooks/useModalSideExit'
 
 type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
 type STag = Array<ATag>
 
 const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
+    const [data, setData] = useState({
+        datasets: [{
+            data: [0],
+            backgroundColor: [""],
+            borderWidth: 0,
+            hoverOffset: 0,
+        },],
+        labels: [
+            ''
+        ],});
+    const [data2, setData2] = useState({
+        datasets: [{
+            data: [0],
+            backgroundColor: [""],
+            borderWidth: 0,
+            hoverOffset: 0,
+        },],
+        labels: [
+            ''
+        ],});
+    const chartjs = useRef<ChartJs>(null)
+    const chartjs2 = useRef<ChartJs>(null)
+
+    const [selectcoin, setSelectcoin] = useState<string>("")
+    const [selectcoin2, setSelectcoin2] = useState<string>("")
+
+    const customRef = useModalSideExit<string>(selectcoin, setSelectcoin, "")
+    const customRef2 = useModalSideExit<string>(selectcoin2, setSelectcoin2, "")
 
     const selectedAccount = useSelector(SelectSelectedAccount)
     const currencies = useSelector(SelectCurrencies)
@@ -64,8 +95,6 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                                     amount += (Number(fromWei(transfer.amount, "ether")) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                                 })
                             }
-
-
                             if (tx.rawData.from.toLowerCase() === selectedAccount.toLowerCase()) {
                                 newOutTag.txs.push(tx)
                                 newOutTag.totalAmount += amount
@@ -79,7 +108,6 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                 inATag.push(newInTag)
                 outATag.push(newOutTag)
             })
-
             setInTags(inATag)
             setOutTags(outATag)
         }
@@ -119,81 +147,124 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
         }
     }, [transactions, currencies, selectedDate])
 
-    const inChart = useMemo(() => {
+    useEffect(() => {
         if (lastIn !== undefined) {
-            let grad = "conic-gradient("
-            let startDeg = 0;
-            inTags.forEach(tag => {
-                if(lastIn !== 0){
-                    let calc = tag.totalAmount;
-                    const deg = Math.floor(3.6 * ((calc * 100) / lastIn))
-                    grad += `${tag.color} ${startDeg}deg ${startDeg + deg}deg,`
-                    startDeg += deg;
-                }
-            })
-            if (startDeg < 360) {
-                grad += `#FF7348 ${startDeg}deg 360deg`
+            const label: string[] = [];
+            const amount: number[] = [];
+            const color: string[] = [];
+            for (var i = 0; i < inTags.length; i++) {
+                label.push(inTags[i].name)
+                color.push(inTags[i].color)
+                if (inTags[i].totalAmount !== 0) { amount.push(inTags[i].totalAmount) }
             }
-            if (grad[grad.length - 1] === ',') {
-                grad = grad.slice(0, -1)
-            }
-            grad += ')'
-
-            return grad
+            setData(
+                {
+                    datasets: [{
+                        data: amount.length > 0 ? amount : [100],
+                        backgroundColor: amount.length > 0 ? color : ["#FF7348"],
+                        borderWidth: 0,
+                        hoverOffset: 10,
+                    },
+                    ],
+                    labels: amount.length > 0 ? label : ['data'],
+                },
+            )
         }
     }, [inTags, lastIn])
 
-    const outChart = useMemo(() => {
+    useEffect(() => {
         if (lastOut !== undefined) {
-            let grad = "conic-gradient(" 
-            let startDeg = 0;
-            outTags.forEach(tag => {
-                if(lastOut !== 0){
-                    let calc = tag.totalAmount; 
-                    const deg = Math.floor(3.6 * ((calc * 100) / lastOut))
-                    grad += `${tag.color} ${startDeg}deg ${startDeg + deg}deg,`
-                    startDeg = deg;
-                }
-            })
-            if (startDeg < 360) {
-                grad += `#FF7348 ${startDeg}deg 360deg`
+            const label: string[] = [];
+            const amount: number[] = [];
+            const color: string[] = [];
+            for (var i = 0; i < outTags.length; i++) {
+                label.push(outTags[i].name)
+                color.push(outTags[i].color)
+                if (outTags[i].totalAmount !== 0) { amount.push(outTags[i].totalAmount) }
             }
-            if (grad[grad.length - 1] === ',') {
-                grad = grad.slice(0, -1)
-            }
-            grad += ')'
-
-            return grad
+            setData2(
+                {
+                    datasets: [{
+                        data: amount.length > 0 ? amount : [100],
+                        backgroundColor: amount.length > 0 ? color : ["#FF7348"],
+                        borderWidth: 0,
+                        hoverOffset: 15,
+                    },
+                    ],
+                    labels: amount.length > 0 ? label : ['data'],
+                },
+            )
         }
     }, [outTags, lastOut])
+    const UpdateChartAnimation = (index?: number) => {
+        if (chartjs.current) {
+            if (index || index === 0) {
+                chartjs.current.setActiveElements([{ datasetIndex: 0, index: index }])
+            } else {
+                chartjs.current.setActiveElements([])
+            }
+            chartjs.current.update()
+        }
+    }
 
+    const UpdateChartAnimation2 = (index?: number) => {
+        if (chartjs2.current) {
+            if (index || index === 0) {
+                chartjs2.current.setActiveElements([{ datasetIndex: 0, index: index }])
+            } else {
+                chartjs2.current.setActiveElements([])
+            }
+            chartjs2.current.update()
+        }
+    }
+
+    useEffect(() => {
+        if (!selectcoin) {
+            UpdateChartAnimation()
+        }
+        if (!selectcoin2) {
+            UpdateChartAnimation2()
+        }
+    }, [selectcoin,selectcoin2])
 
     const boxmoneydata = [
         {
             id: 1,
             header: "Money in",
             headermoney: lastIn?.toFixed(2),
-            chart: inChart,
+            chart: <Chartjs data={data} ref={chartjs} />,
             tagList: inTags,
-            tags: <>
-                {inTags.map(tag => {
-                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
+            tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
+                {inTags.map((tag, index) => {
+                    return <div key={tag.id} className={`flex ${selectcoin === tag.id && "shadow-[3px_3px_10px_3px_#dad8d8]"} p-[2px] space-x-3 justify-between cursor-pointer`} onClick={() => {
+                        setSelectcoin(tag.id)
+                        if (chartjs.current && tag.totalAmount !== 0) {
+                            UpdateChartAnimation(index)
+                        }
+
+                    }}><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
-            </>
+            </div>
         },
         {
             id: 2,
             header: "Money out",
             headermoney: lastOut?.toFixed(2),
-            chart: outChart,
+            chart: <Chartjs data={data2} ref={chartjs2} />,
             tagList: outTags,
-            tags: <>
-                {outTags.map(tag => {
-                    return <div key={tag.id} className="flex space-x-3 justify-between"><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
+            tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef2} >
+                {outTags.map((tag, index) => {
+                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && "shadow-[3px_3px_10px_3px_#dad8d8]"} p-[2px] space-x-3 justify-between cursor-pointer`} onClick={() => {
+                        setSelectcoin2(tag.id)
+                        if (chartjs2.current && tag.totalAmount !== 0) {
+                            UpdateChartAnimation2(index)
+                        }
+                    }}><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
-            </>
+            </div>
         },
     ]
+
     return <>
         {boxmoneydata.map((a) => {
             return <div key={a.id} className="mb-10">
@@ -201,15 +272,13 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                 <div className="grid grid-cols-2 gap-x-10 px-8 py-5 bg-white dark:bg-darkSecond  drop-shadow-xl rounded-xl">
                     <div className="flex flex-col">
                         <div className="flex flex-col"><h1 className="font-bold text-4xl ">$ {a.headermoney}</h1><p className="text-gray-500  pt-2 text-sm">Total {a.header}</p></div>
-                        <div className="flex flex-col gap-4 pt-3 ">
+                        <div>
                             {a.tags}
                         </div>
                     </div>
-                     <div className="aspect-square rounded-full relative" style={{
-                        background: a.chart
-                    }}>
-                        <div className="w-[50%] h-[50%] bg-white dark:bg-darkSecond  left-1/2 top-1/2 absolute -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
-                    </div> 
+                    <div className="h-full w-full" >
+                        {a.chart}
+                    </div>
                 </div>
             </div>
         })}
