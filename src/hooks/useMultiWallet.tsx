@@ -58,66 +58,65 @@ export default function useMultiWallet() {
             await actionAfterConnectorSet(connector)
             return connector;
         } catch (error: any) {
-        console.error(error)
+            console.error(error)
             throw new Error(error.message)
         }
     }
 
     const walletSwitch = async (type: WalletTypes, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
+        let connector;
+        let lastConnection = WalletFinder(walletType, { index: index, privateKey: privateKey });
         try {
-            let connector;
-            switch (type) {
-                case WalletTypes.MetaMask:
-                    connector = await initConnector(new MetaMaskConnector(Mainnet, CeloContract.GoldToken))
-                    break;
-                case WalletTypes.PrivateKey:
-                    connector = await initConnector(new PrivateKeyConnector(Mainnet, (privateKey ?? ""), CeloContract.GoldToken))
-                    break;
-                case WalletTypes.CeloExtensionWallet:
-                    connector = await initConnector(new CeloExtensionWalletConnector(Mainnet, CeloContract.GoldToken))
-                    break;
-                case WalletTypes.Ledger:
-                    connector = await initConnector(new LedgerConnector(Mainnet, (index ?? 0), CeloContract.GoldToken))
-                    break;
-                case WalletTypes.WalletConnect:
-                    connector = await initConnector(new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
-                        connect: {
-                            chainId: Mainnet.chainId
-                        },
-                    }, isAndroid))
-                    break;
-                case WalletTypes.CeloWallet:
-                    connector = await initConnector(new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
-                        connect: {
-                            chainId: Mainnet.chainId
-                        },
-                    }, false, undefined, 1))
-                    break;
-                case WalletTypes.CeloDance:
-                    connector = await initConnector(new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
-                        connect: {
-                            chainId: Mainnet.chainId
-                        },
-                    }, isMobile, getDeepLink, 1))
-                    break;
-                case WalletTypes.Valora:
-                    connector = await initConnector(new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
-                        connect: {
-                            chainId: Mainnet.chainId
-                        },
-                    }, isMobile, getDeepLink, 1))
-                    break;
-                default:
-                    console.error("None of the wallets are supported")
-                    break;
-            }
+            connector = WalletFinder(type, { index: index, privateKey: privateKey })
+
+            await initConnector(connector)
 
             if (connector) {
                 await actionAfterConnectorSet(connector)
             }
         } catch (error: any) {
             console.error(error)
+            await initConnector(lastConnection)
             throw new Error(error.message)
+        }
+    }
+
+    const WalletFinder = (type: WalletTypes, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
+        switch (type) {
+            case WalletTypes.MetaMask:
+                return new MetaMaskConnector(Mainnet, CeloContract.GoldToken)
+            case WalletTypes.PrivateKey:
+                return new PrivateKeyConnector(Mainnet, (privateKey ?? ""), CeloContract.GoldToken)
+            case WalletTypes.CeloExtensionWallet:
+                return new CeloExtensionWalletConnector(Mainnet, CeloContract.GoldToken)
+            case WalletTypes.Ledger:
+                return new LedgerConnector(Mainnet, (index ?? 0), CeloContract.GoldToken)
+            case WalletTypes.WalletConnect:
+                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                    connect: {
+                        chainId: Mainnet.chainId
+                    },
+                }, isAndroid)
+            case WalletTypes.CeloWallet:
+                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                    connect: {
+                        chainId: Mainnet.chainId
+                    },
+                }, false, undefined, 1)
+            case WalletTypes.CeloDance:
+                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                    connect: {
+                        chainId: Mainnet.chainId
+                    },
+                }, isMobile, getDeepLink, 1)
+            case WalletTypes.Valora:
+                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                    connect: {
+                        chainId: Mainnet.chainId
+                    },
+                }, isMobile, getDeepLink, 1)
+            default:
+                throw new Error("None of the wallets are supported")
         }
     }
 

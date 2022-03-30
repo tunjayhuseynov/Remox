@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { selectStorage } from "./redux/reducers/storage";
 import { selectUnlock } from "./redux/reducers/unlock";
-import { lazy, Suspense, useEffect, useLayoutEffect } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
 import { ClipLoader } from "react-spinners";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 
@@ -69,7 +69,9 @@ function App() {
             </LockIfUserIn>
           } />
           <Route path="/create-account" element={<CreateAccount />} />
-          <Route path="/unlock" element={<Unlock />} />
+          <Route path="/unlock" element={
+            (!!address) ? <Unlock /> : <Navigate to={'/'} replace />
+          } />
           <Route path={'/requests/:id'} element={
             <Form />} />
           <Route path="/dashboard" element={

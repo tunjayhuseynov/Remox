@@ -29,12 +29,6 @@
             },
             {
                 "indexed": false,
-                "internalType": "bytes32",
-                "name": "taskId",
-                "type": "bytes32"
-            },
-            {
-                "indexed": false,
                 "internalType": "bool",
                 "name": "callSuccess",
                 "type": "bool"
@@ -296,11 +290,6 @@
                 "type": "bytes32"
             },
             {
-                "internalType": "bool",
-                "name": "_useTaskTreasuryFunds",
-                "type": "bool"
-            },
-            {
                 "internalType": "uint256",
                 "name": "_txFee",
                 "type": "uint256"
@@ -314,11 +303,6 @@
                 "internalType": "bool",
                 "name": "_revertOnFailure",
                 "type": "bool"
-            },
-            {
-                "internalType": "address",
-                "name": "_taskCreator",
-                "type": "address"
             }
         ],
         "name": "exec",

@@ -16,6 +16,12 @@ input[class~="unvisibleArrow"]::-webkit-inner-spin-button {
   }
 }
 
+@media only screen and (max-height: 768px) and (min-width: 1439px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 html{
   font-family: 'Roboto', sans-serif;
   /* transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, border;

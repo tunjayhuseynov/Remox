@@ -65,7 +65,14 @@ const Sidebar = () => {
             const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
             const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
             setList([
-                ...wallets.map(s => ({ name: WordSplitter(s.name), address: s.address, onClick: async () => { walletSwitch(s.name).catch(e => console.error(e)); setItem({ name: WordSplitter(s.name), address: s.address }) } })), 
+                ...wallets.map(s => ({ name: WordSplitter(s.name), address: s.address, onClick: async () => { 
+                    try {
+                        await walletSwitch(s.name)
+                    } catch (error: any) {
+                        console.error(error)
+                    } 
+                    setItem({ name: WordSplitter(s.name), address: s.address })
+                 } })), 
                 ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), wallet, multi
             ])
         }
@@ -78,7 +85,7 @@ const Sidebar = () => {
                     <Siderbarlist />
                 </div>
 
-                <div className="flex items-center gap-5 mt-16 mb-2">
+                <div className="absolute -bottom-[15%] flex items-center gap-5 ">
                     <Dropdown className="min-w-[12.5rem] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address) {
                             setItem(w)
