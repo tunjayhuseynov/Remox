@@ -99,7 +99,7 @@ const Swap = () => {
         }
     }, [token1, token2, token1Amount, slippageArr])
 
-    const settingRef = useModalSideExit(isSetting, setSetting)
+    const settingRef = useModalSideExit<boolean>(isSetting, setSetting,false)
 
 
     const changeSwap = () => {

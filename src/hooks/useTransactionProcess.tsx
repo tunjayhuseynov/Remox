@@ -67,12 +67,12 @@ export interface IBatchRequest extends IFormattedTransaction {
     }[]
 }
 
-const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], GetTransactions] | [] => {
+const useTransactionProcess = (txs?: GetTransactions): [IFormattedTransaction[], GetTransactions] | [] => {
     const transactions = useSelector(SelectTransactions);
     const tags = useSelector(selectTags);
     return useMemo(() => {
         if (transactions) {
-            let result: Transactions[] = [...transactions.result]
+            let result: Transactions[] = txs ? [...txs.result] : [...transactions.result]
 
             const FormattedTransaction: IFormattedTransaction[] = []
 
@@ -97,10 +97,10 @@ const useTransactionProcess = (groupByDate = false): [IFormattedTransaction[], G
                 }
             })
 
-            return [FormattedTransaction, transactions];
+            return [FormattedTransaction, (txs ?? transactions)];
         };
         return []
-    }, [transactions, tags])
+    }, [transactions, tags, txs])
 }
 
 

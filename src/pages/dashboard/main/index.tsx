@@ -4,7 +4,7 @@ import Statistics from '../../../subpages/dashboard/main/statistics'
 import useTransactionProcess from '../../../hooks/useTransactionProcess';
 
 const Main = () => {
-    const [transactions] = useTransactionProcess(true)
+    const [transactions] = useTransactionProcess()
 
 
     return <main className="flex gap-5 flex-col xl:flex-row">

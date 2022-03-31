@@ -45,7 +45,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
     const [isOpen, setOpen] = useState(false)
     const liArrRef = useRef<(HTMLLIElement | null)[]>([])
     const [liHeights, setLiHeights] = useState<Array<number>>([])
-    const customRef = useModalSideExit(isOpen, setOpen)
+    const customRef = useModalSideExit<boolean>(isOpen, setOpen, false)
 
     useEffect(() => {
         if (liArrRef.current.length > 0 && liHeights.length === 0) {

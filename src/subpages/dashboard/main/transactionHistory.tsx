@@ -23,7 +23,7 @@ const TransactionHistory = ({ transactions }: { transactions: IFormattedTransact
             </Link></div>
         </div>
         <div className="grid grid-cols-1 pt-5">
-            {transactions && transactions.slice(0, 7).map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,50%,25%] lg:grid-cols-[]", "bg-light dark:bg-dark"))}
+            {transactions && transactions.slice(0, 7).map((transaction, index) => ProcessAccordion(transaction, [selectedAccount], "grid-cols-[25%,50%,25%] lg:grid-cols-[]", "bg-light dark:bg-dark"))}
         </div>
     </div>
 

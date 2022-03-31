@@ -14,9 +14,9 @@ export const WordSplitter = (word: string) => {
 	}, '');
 };
 
-export const TransactionDirectionDeclare = (transaction: IFormattedTransaction, account: string) => {
+export const TransactionDirectionDeclare = (transaction: IFormattedTransaction, accounts: string[]) => {
     let directionType;
-    const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
+    const direction = accounts.some(a=>a.toLowerCase() === transaction.rawData.from.toLowerCase()) 
 	switch (transaction.id) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionDirection.Swap;

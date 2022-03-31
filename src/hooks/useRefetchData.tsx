@@ -16,6 +16,7 @@ import useRequestHook from 'hooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
 import { useListenTags } from 'API/useTags'
 import { setTags } from 'redux/reducers/tags'
+import useCalculation from './useCalculation'
 
 interface Balance {
     [name: string]: string;
@@ -35,6 +36,8 @@ const useRefetchData = () => {
     const tagData = useListenTags()
 
     const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
+
+    const { AllPrices, TotalBalance } = useCalculation(fetchedBalance, fetchedCurrencies)
 
     useEffect(() => {
         if (data) {
@@ -75,45 +78,9 @@ const useRefetchData = () => {
                 let balance = fetchedBalance as { [name: string]: string; } | undefined;
 
                 if (balance) {
-                    balance = balance as Balance;
 
-                    const total = fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
-
-                    const arrPrices = fetchedCurrencies.map(c => {
-                        const amount = parseFloat((balance?.[c.name]) ?? "0");
-                        const price = c.price * amount;
-                        return {
-                            coins: Coins[c.name as unknown as keyof Coins],
-                            per_24: c?.percent_24,
-                            price,
-                            amount,
-                            percent: (price * 100) / total,
-                            tokenPrice: c.price
-                        }
-                    })
-
-                    const prices = fetchedCurrencies.sort((a, b) => {
-                        const aa = Coins[a.name as unknown as keyof Coins]
-                        const bb = Coins[b.name as unknown as keyof Coins]
-                        if(aa.type !== bb.type && aa.type === TokenType.GoldToken) return -1
-                        if(aa.type !== bb.type && aa.type === TokenType.StableToken && bb.type === TokenType.Altcoin) return -1
-                        if(aa.type !== bb.type && aa.type === TokenType.Altcoin) return 1
-                        return 0
-                    }).reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
-                        const amount = parseFloat((balance?.[c.name]) ?? "0");
-                        const price = c.price * amount;
-                        a[c.name] = {
-                            coins: Coins[c.name as unknown as keyof Coins],
-                            per_24: c?.percent_24,
-                            price,
-                            amount,
-                            percent: (price * 100) / total,
-                            tokenPrice: c.price
-                        }
-                        return a;
-                    }, {})
-
-                    const totalBalance: number = arrPrices.reduce((acc, curr) => acc + (curr.amount * curr.tokenPrice), 0)
+                    const prices = AllPrices()
+                    const totalBalance = TotalBalance()
 
                     dispatch(updateTotalBalance(totalBalance))
 

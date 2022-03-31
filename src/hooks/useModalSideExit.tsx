@@ -1,11 +1,11 @@
 import { Dispatch, useCallback, useEffect, useRef } from "react"
 
 
-const useModalSideExit = (isSetting: boolean, setSetting: Dispatch<boolean>) => {
+const useModalSideExit = <Type extends {}>(isSetting: Type, setSetting: Dispatch<Type>, defaultValue: Type) => {
     const settingRef = useRef<HTMLDivElement>(null)
     const click = useCallback((e) => {
         if (isSetting && settingRef.current && !settingRef.current.contains(e.target)) {
-            setSetting(false)
+            setSetting(defaultValue)
         }
     }, [isSetting])
 

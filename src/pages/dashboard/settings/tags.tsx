@@ -23,7 +23,7 @@ export default function TagsSetting() {
     const [colorPicker, setColorPicker] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
     const [color, setColor] = useState('')
-    const ref = useModalSideExit(colorPicker, setColorPicker)
+    const ref = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
 
     const { createTag, isLoading } = useTags()
 

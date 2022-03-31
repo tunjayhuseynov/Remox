@@ -6,7 +6,7 @@ import { AltCoins, Coins } from 'types';
 import usePoof from 'hooks/usePoof'
 import { fromWei } from 'utils/ray';
 
-export default function useBalance(address: string) {
+export default function useBalance(address: string | string[]) {
     const { kit, walletType } = useContractKit()
     const { balance, pastEvents } = usePoof(1, walletType === "PrivateKey")
     const [fetchedBalance, setFetchedBalance] = useState<{ [name: string]: string }>()
@@ -15,7 +15,7 @@ export default function useBalance(address: string) {
 
     useEffect(() => {
         fetchBalance()
-    }, [])
+    }, [address])
 
     useEffect(() => {
         dispatch(deleteBalance)
@@ -23,9 +23,33 @@ export default function useBalance(address: string) {
 
     const fetchBalance = async () => {
         if (!kit.defaultAccount) return null;
+
         try {
-            let balances: { [name: string]: string } = {};
             setLoading(true)
+            let balances: { [name: string]: string } = {};
+
+            if (typeof address !== "string") {
+
+                for (const addressItem of address) {
+                    for (const i of Object.values(Coins)) {
+                        const item = i as AltCoins
+                        const ethers = await kit.contracts.getErc20(item.contractAddress);
+                        let balance = await ethers.balanceOf(addressItem);
+                        let altcoinBalance = fromWei(balance)
+
+                        if (!balances[item.name]) {
+                            balances = Object.assign(balances, { [item.name]: altcoinBalance })
+                        } else {
+                            balances[item.name] = `${Number(balances[item.name]) + Number(altcoinBalance)}`
+                        }
+                    }
+                }
+
+                setFetchedBalance({ ...balances })
+                setLoading(false)
+                return { ...balances };
+            }
+
 
             let cEUR, cREAL, CELO, cUSD;
             if (walletType === "PrivateKey") {

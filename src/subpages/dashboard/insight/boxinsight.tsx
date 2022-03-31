@@ -4,22 +4,32 @@ import { useEffect, useMemo, useState } from "react";
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import { CoinsName } from '../../../types/coins';
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
-import { useTransactionProcess } from 'hooks';
+import { useCalculation, useTransaction, useTransactionProcess } from 'hooks';
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from 'hooks/useTransactionProcess';
 import date from 'date-and-time'
 import { fromWei } from 'utils/ray';
+import useBalance from 'API/useBalance';
+import { GetTransactions, Transactions } from 'types/sdk';
+import useCurrency from 'API/useCurrency';
+import { useSelector } from 'react-redux';
 
-const Boxinsight = ({ selectedDate }: { selectedDate: number }) => {
+const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) => {
 
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
-    const [transactions] = useTransactionProcess()
-    const currencies = useAppSelector(SelectCurrencies)
     const balanceRedux = useAppSelector(SelectBalances)
-    let totalBalance = useAppSelector(SelectTotalBalance)
+    
+    const { fetchedBalance } = useBalance(selectedAccounts)
+    const fetchedCurrencies = useCurrency()
+    const { list: transactions } = useTransaction(selectedAccounts)
+    
+    const { AllPrices, TotalBalance } = useCalculation(fetchedBalance, fetchedCurrencies)
+    const currencies = AllPrices()
+    const totalBalance = TotalBalance()
 
 
     const [lastIn, setIn] = useState<number>(0)
     const [lastOut, setOut] = useState<number>(0);
+
+
 
     const averageSpending = useMemo(() => {
         if (transactions && transactions.length > 0) {
@@ -33,7 +43,7 @@ const Boxinsight = ({ selectedDate }: { selectedDate: number }) => {
                     timeIndex = Number(transaction.rawData.timeStamp);
                     oldest = transaction;
                 }
-                if (transaction.rawData.from.toLowerCase() === selectedAccount.toLowerCase()) {
+                if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase())) {
                     if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                         const tx = transaction as ITransfer;
                         average += (Number(fromWei(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
@@ -78,9 +88,9 @@ const Boxinsight = ({ selectedDate }: { selectedDate: number }) => {
             const currencObj2: IBalanceItem[] = Object.values(balanceRedux)
 
             let indexable = 0;
-            const per = currencObj.reduce((a, c: ICurrencyInternal, index) => {
+            const per = currencObj.reduce((a, c, index) => {
                 if (currencObj2[index].amount > 0) {
-                    a += c.percent_24
+                    a += c.per_24
                     indexable++
                 }
                 return a;
@@ -111,7 +121,7 @@ const Boxinsight = ({ selectedDate }: { selectedDate: number }) => {
                             calc += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
-                    if (t.rawData.from.toLowerCase() === selectedAccount.toLowerCase()) {
+                    if (selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase())) {
                         myout += calc
                     } else {
                         myin += calc

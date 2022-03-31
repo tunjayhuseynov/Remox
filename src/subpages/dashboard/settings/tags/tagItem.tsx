@@ -18,7 +18,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
     const dispatch = useDispatch()
 
     const inputRef = useRef<HTMLInputElement>(null)
-    const ref = useModalSideExit(colorPicker, setColorPicker)
+    const ref = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
 
     const colorHandler = (color: { hex: string }) => {
         setColor(color.hex)

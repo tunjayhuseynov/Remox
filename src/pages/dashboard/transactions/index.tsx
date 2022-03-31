@@ -20,7 +20,8 @@ import { WalletDropdown } from "../../../components/general/walletdropdown"
 import { fromWei } from "utils/ray";
 import AnimatedTabBar from "components/animatedTabBar";
 import { TransactionDirectionDeclare } from "utils";
-import { useDispatch } from "react-redux";
+import { useTransaction } from "hooks";
+import useMultiWallet from "hooks/useMultiWallet";
 
 
 const Transactions = () => {
@@ -39,23 +40,12 @@ const Transactions = () => {
         page = "rejected"
     } else page = "completed"
 
-    const [list, transactions] = useTransactionProcess(true)
 
     const [transactionVisual, setVisual] = useState<JSX.Element | JSX.Element[]>()
+    const { data: wallets } = useMultiWallet()
+    const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
 
-    const [oldAccount] = useState(selectedAccount)
-    const [changedAccount, setChangedAccount] = useState<string>(selectedAccount)
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        if (oldAccount.toLowerCase() !== changedAccount.toLowerCase()) {
-            dispatch(changeAccount(changedAccount))
-        }
-
-        return () => {
-            dispatch(changeAccount(oldAccount))
-        }
-    }, [changedAccount])
+    const { list } = useTransaction(changedAccount)
 
     useEffect(() => {
         if (isMultisig) {
@@ -77,9 +67,9 @@ const Transactions = () => {
     }, [list])
     const TransactionGenerator = useMemo(() => new Promise<JSX.Element[]>((resolve, reject) => {
         if (!list) return <></>
-        const result = list.map((transaction, index) => ProcessAccordion(transaction, selectedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]", "bg-white dark:bg-darkSecond"))
+        const result = list.map((transaction, index) => ProcessAccordion(transaction, changedAccount, "grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,25.5%,10%,10%]", "bg-white dark:bg-darkSecond"))
         resolve(result)
-    }), [transactions, tags])
+    }), [list, tags])
 
     const path = '/dashboard/transactions'
 
@@ -117,8 +107,8 @@ const Transactions = () => {
                             <div className="text-xs sm:text-base font-medium pt-2">{page !== "completed" ? "Action" : "Paid Amount"}</div>
                             <div className="font-medium hidden md:block pt-2">{page !== "completed" ? "Signatures" : "Details"}</div>
                             {!isMultisig && <div>
-                                <WalletDropdown selected={selectedAccount} onChange={(name, address) => {
-                                    setChangedAccount(address)
+                                <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
+                                    setChangedAccount([...wallets.map((wallet) => wallet.address)])
                                 }} />
                             </div>}
                             {!isMultisig && <> <div className="place-self-end ">
@@ -200,7 +190,7 @@ const Transactions = () => {
 export default Transactions;
 
 
-export const ProcessAccordion = (transaction: IFormattedTransaction, account: string, grid: string, color: string) => {
+export const ProcessAccordion = (transaction: IFormattedTransaction, accounts: string[], grid: string, color: string) => {
     const isBatch = transaction.id === ERC20MethodIds.batchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
@@ -219,7 +209,7 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, account: st
         TXs.push(transaction)
     }
     const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
-    let directionType = TransactionDirectionDeclare(transaction, account);
+    let directionType = TransactionDirectionDeclare(transaction, accounts);
 
     return <Fragment key={transaction.rawData.hash}>
         <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
