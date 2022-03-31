@@ -2,7 +2,6 @@ import useContributors from 'API/useContributors'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectContributors, setContributors } from 'redux/reducers/contributors'
-import { setTimeout } from 'timers'
 import useBalance from '../API/useBalance'
 import useCurrency from '../API/useCurrency'
 import { useLazyGetTransactionsQuery } from '../redux/api'
@@ -10,7 +9,6 @@ import { updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../r
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from '../redux/reducers/storage'
 import { SelectTransactions, setTransactions } from '../redux/reducers/transactions'
-import { AltCoins, Coins, TokenType } from '../types/coins'
 import useRequest from 'API/useRequest'
 import useRequestHook from 'hooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
@@ -48,11 +46,12 @@ const useRefetchData = () => {
     }, [data])
 
     useEffect(() => {
-        if (transactionData && transactionData.result.length > 0 && !transactionFetching) {
+        console.log(transactionData)
+        if (transactionData && transactionData.result && transactionData.result.length > 0 && !transactionFetching) {
             if (transactionStore?.result[0]?.hash !== transactionData.result[0]?.hash || transactionStore?.result[transactionStore.result.length - 1]?.hash !== transactionData.result[transactionData.result.length - 1]?.hash) {
                 dispatch(setTransactions(transactionData))
             }
-        } else if (transactionData && transactionData.result.length === 0) dispatch(setTransactions(transactionData))
+        } else if (transactionData && transactionData.result && transactionData.result.length === 0) dispatch(setTransactions(transactionData))
     }, [transactionData, transactionFetching])
 
     useEffect(() => {
@@ -111,7 +110,7 @@ const useRefetchData = () => {
     }
 
     useEffect(() => {
-        const execution = () => transactionTrigger(selectedAccount).unwrap().catch(() => { transactionTrigger(selectedAccount).unwrap().catch((error) => { console.error(error) }) })
+        const execution = () => transactionTrigger(selectedAccount).unwrap().catch(() => { transactionTrigger(selectedAccount).unwrap().catch((error: any) => { console.error(error) }) })
         execution()
         let timer = setInterval(() => {
             execution()

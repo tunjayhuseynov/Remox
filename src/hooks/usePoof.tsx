@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import { SelectPrivateToken } from 'redux/reducers/selectedAccount'
 import { PoofCoinsName } from 'types'
 const Poof = import('@poofcash/poof-v2-kit') //{ getProofDeps, PoofKit, getPastEvents }
-const snarkjs = require('@poofcash/snarkjs')
+// const snarkjs = require('@poofcash/snarkjs')
 const PoofArtifact = import("../API/ABI/Poof.json")
 
 export default function usePoof(provingSystem: number, isPoof: boolean = true) {
@@ -33,7 +33,7 @@ export default function usePoof(provingSystem: number, isPoof: boolean = true) {
                 try {
                     const customPoof = await poof;
                     if (!customPoof) throw new Error("Poof is not initialized");
-                    customPoof.initialize(() => snarkjs);
+                    // customPoof.initialize(() => snarkjs);
                     await init(provingSystem)
                 } catch (error: any) {
                     console.error(error.message)

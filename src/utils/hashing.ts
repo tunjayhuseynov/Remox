@@ -1,5 +1,6 @@
 import { AES, enc } from 'crypto-js';
-const Hash = require('ipfs-only-hash');
+//@ts-ignore
+import Hash from "ipfs-only-hash"
 
 export const hashing = async (...rest: string[]) => {
 	return await Hash.of(rest.reduce((acc, cur) => acc + cur));

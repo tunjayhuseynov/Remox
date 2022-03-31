@@ -6,8 +6,10 @@ import { changeAccount } from "../redux/reducers/selectedAccount";
 import { selectStorage, setStorage } from "../redux/reducers/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'API/useFirebase';
-import { IUser } from 'firebase';
+import { IUser } from 'Firebase';
 import { getAuth } from 'firebase/auth';
+import useWalletKit from './useWalletKit';
+import { WalletName } from '@solana/wallet-adapter-base';
 
 
 export enum WalletIds {
@@ -22,14 +24,14 @@ const getDeepLink = (uri: string) => {
 };
 
 export default function useMultiWallet() {
-    const { connect, walletType } = useContractKit()
+    const { Connect, blockchain, Wallet } = useWalletKit()
     const { initConnector } = useContractKitInternal()
     const dispatch = useDispatch()
     const storage = useSelector(selectStorage)
     const user = getAuth()
     const data = useFirestoreRead<IUser>('users', user.currentUser!.uid).data?.multiwallets;
 
-    const actionAfterConnectorSet = async (connector: Connector) => {
+    const actionAfterConnectorSet = async (connector: Connector | void) => {
         const incomingData = await FirestoreRead<IUser>("users", user!.currentUser!.uid)
         if (!incomingData) {
             throw new Error("No Data In Users")
@@ -40,7 +42,7 @@ export default function useMultiWallet() {
                 const arr = [...incomingData.address, connector.account]
                 await FirestoreWrite<Pick<IUser, "address" | "multiwallets">>().updateDoc("users", user!.currentUser!.uid, {
                     address: arr,
-                    multiwallets: [...incomingData.multiwallets, { name: connector.type, address: connector.account }]
+                    multiwallets: [...incomingData.multiwallets, { name: connector.type, address: connector.account, blockchain }]
                 })
             }
             dispatch(setStorage({
@@ -54,7 +56,7 @@ export default function useMultiWallet() {
 
     const addWallet = async () => {
         try {
-            const connector = await connect()
+            const connector = await Connect()
             await actionAfterConnectorSet(connector)
             return connector;
         } catch (error: any) {
@@ -63,9 +65,10 @@ export default function useMultiWallet() {
         }
     }
 
-    const walletSwitch = async (type: WalletTypes, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
+    const walletSwitch = async (type: string, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
         let connector;
-        let lastConnection = WalletFinder(walletType, { index: index, privateKey: privateKey });
+        let lastConnection;
+        if (Wallet) lastConnection = WalletFinder(Wallet, { index: index, privateKey: privateKey });
         try {
             connector = WalletFinder(type, { index: index, privateKey: privateKey })
 
@@ -76,12 +79,12 @@ export default function useMultiWallet() {
             }
         } catch (error: any) {
             console.error(error)
-            await initConnector(lastConnection)
+            if (lastConnection) await initConnector(lastConnection)
             throw new Error(error.message)
         }
     }
 
-    const WalletFinder = (type: WalletTypes, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
+    const WalletFinder = (type: string, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
         switch (type) {
             case WalletTypes.MetaMask:
                 return new MetaMaskConnector(Mainnet, CeloContract.GoldToken)
@@ -120,5 +123,5 @@ export default function useMultiWallet() {
         }
     }
 
-    return { walletSwitch, addWallet, data, walletType }
+    return { walletSwitch, addWallet, data, Wallet }
 }

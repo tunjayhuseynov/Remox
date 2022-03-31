@@ -4,7 +4,7 @@ import { useCallback, useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 import { selectStorage } from 'redux/reducers/storage';
-import { auth } from '../firebase';
+import { auth } from 'Firebase';
 import { FirestoreWrite, useFirestoreRead } from './useFirebase';
 import { setInternalSign, setSign } from "../redux/reducers/multisig"
 import { AltCoins, Coins } from 'types';

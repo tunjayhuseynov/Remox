@@ -16,13 +16,15 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
     WalletModalProvider,
     WalletDisconnectButton,
-    WalletMultiButton
+    WalletMultiButton,
+    useWalletModal
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 
 
 export default function Wallet({ children }: { children: JSX.Element }) {
     const SolNetwork = WalletAdapterNetwork.Mainnet;
+    
     const endpoint = useMemo(() => clusterApiUrl(SolNetwork), [SolNetwork]);
 
     const solWallets = useMemo(
@@ -42,8 +44,6 @@ export default function Wallet({ children }: { children: JSX.Element }) {
         <ConnectionProvider endpoint={endpoint}>
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
-                    <WalletMultiButton />
-                    <WalletDisconnectButton />
                     <ContractKitProvider
                         feeCurrency={CeloContract.GoldToken}
                         dapp={{

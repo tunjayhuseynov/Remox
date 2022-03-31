@@ -1,4 +1,4 @@
-import { auth, IUser } from 'firebase';
+import { auth, IUser } from 'Firebase';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectStorage } from 'redux/reducers/storage';

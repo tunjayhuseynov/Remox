@@ -26,7 +26,7 @@ const Sidebar = () => {
     const { destroy } = useContractKit()
     const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useNavigate()
-    const { addWallet, data: wallets, walletType, walletSwitch } = useMultiWallet()
+    const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
 
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
@@ -41,8 +41,7 @@ const Sidebar = () => {
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(walletType), address: selectedAccount })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), address: selectedAccount })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -63,7 +62,7 @@ const Sidebar = () => {
     useEffect(() => {
         if (data && wallets) {
             const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
-            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
+            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { if(s) setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
             setList([
                 ...wallets.map(s => ({ name: WordSplitter(s.name), address: s.address, onClick: async () => { 
                     try {

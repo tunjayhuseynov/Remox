@@ -105,7 +105,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
                                     amount += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                                 })
                             }
-                            if (selectedAccounts.some(s=>s.toLowerCase() === tx.rawData.from.toLowerCase())) {
+                            if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {
                                 newOutTag.txs.push(tx)
                                 newOutTag.totalAmount += amount
                             } else {
@@ -145,7 +145,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
                             calc += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
-                    if (selectedAccounts.some(s=>s.toLowerCase() === t.rawData.from.toLowerCase())) {
+                    if (selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase())) {
                         myout += calc
                     } else {
                         myin += calc
@@ -163,9 +163,11 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             const amount: number[] = [];
             const color: string[] = [];
             for (var i = 0; i < inTags.length; i++) {
-                label.push(inTags[i].name)
-                color.push(inTags[i].color)
-                if(inTags[i].totalAmount !== 0) { amount.push(inTags[i].totalAmount)}
+                if (inTags[i].totalAmount !== 0) {
+                    label[i] = (inTags[i].name)
+                    color[i] = (inTags[i].color)
+                    amount[i] = (inTags[i].totalAmount)
+                }
             }
             setData(
                 {
@@ -188,9 +190,11 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             const amount: number[] = [];
             const color: string[] = [];
             for (var i = 0; i < outTags.length; i++) {
-                label.push(outTags[i].name)
-                color.push(outTags[i].color)
-                if(outTags[i].totalAmount !== 0) { amount.push(outTags[i].totalAmount)}
+                if (outTags[i].totalAmount !== 0) {
+                    label[i] = (outTags[i].name)
+                    color[i] = (outTags[i].color)
+                    amount[i] = (outTags[i].totalAmount)
+                }
             }
             setData2(
                 {
@@ -246,7 +250,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
                 {inTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 &&  "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
+                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
                         setSelectcoin(tag.id)
                         if (chartjs.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation(index)

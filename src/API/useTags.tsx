@@ -1,6 +1,6 @@
 import { FirestoreWrite, FirestoreRead, useFirestoreRead } from 'API/useFirebase'
 import { useState } from 'react'
-import { auth } from '../firebase';
+import { auth } from 'Firebase';
 import { generate } from 'shortid'
 import { arrayUnion, arrayRemove } from 'firebase/firestore'
 

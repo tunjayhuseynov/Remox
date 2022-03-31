@@ -70,7 +70,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                 ToastRun(<>Please, choose a Celo wallet</>)
                 return
             }
-            if (selected === { name: "Select Team", coinUrl: CoinsURL.None }) {
+            if (selected.name === "Select Team") {
                 ToastRun(<>Please, choose a team</>)
                 return
             }

@@ -4,7 +4,7 @@ import { IoIosArrowDown } from 'react-icons/io';
 import useMultiWallet from "hooks/useMultiWallet";
 import { ClipLoader } from "react-spinners";
 import { WordSplitter } from "utils";
-import { IMultiwallet, IUser } from "firebase";
+import { IMultiwallet, IUser } from "Firebase";
 
 export const WalletDropdown = ({ selected, onChange }: { selected: string, onChange: (accounts: IMultiwallet[]) => void }) => {
     const [isOpen, setOpen] = useState(false)

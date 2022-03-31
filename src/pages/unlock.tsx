@@ -10,10 +10,11 @@ import { setMenu } from 'redux/reducers/toggles';
 import { removeTransactions } from 'redux/reducers/transactions';
 import { selectDarkMode } from 'redux/reducers/notificationSlice';
 import { ToastRun } from 'utils/toast';
+import { useWalletKit } from 'hooks';
 
 const Unlock = () => {
     const location = useLocation()
-    const { address, destroy, initialised } = useContractKit();
+    const { Address, Disconnect, Connected } = useWalletKit();
     const { executeSign, isLoading } = useSignInOrUp()
     const dispatch = useAppDispatch();
     const inputRef = useRef<HTMLInputElement>(null)
@@ -24,16 +25,16 @@ const Unlock = () => {
 
 
     const Submit = async () => {
-        if (!initialised && address) {
+        if (!Connected && Address) {
             dispatch(setMenu(false))
             dispatch(removeTransactions())
             ToastRun(<div className="dark:text-white"><strong>You've not signed into your wallet yet</strong> <br /> Please, sign in first</div>)
         }
-        if (inputRef.current && address && initialised) {
+        if (inputRef.current && Address && Connected) {
             setIncorrect(false);
 
             try {
-                await executeSign(address, inputRef.current.value)
+                await executeSign(Address, inputRef.current.value)
 
                 dispatch(setUnlock(true))
                 router(location.search && location.search.split("=")[1].includes("/dashboard") ? location.search.split("=")[1] : '/dashboard');
@@ -69,11 +70,11 @@ const Unlock = () => {
                 }} ref={inputRef} type="password" autoComplete='new-password' autoFocus className="bg-greylish dark:bg-darkSecond bg-opacity-10 px-3 py-3 rounded-lg outline-none w-full" /></div>
                 {incorrrect && <div className="text-red-600 text-center">Password is Incorrect</div>}
                 <div className="grid grid-cols-2 justify-center gap-x-5">
-                    <Button version='second' className="px-5 !py-2 w-32" onClick={() => {
+                    <Button version='second' className="px-5 !py-2 w-32" onClick={async () => {
                         dispatch(setMenu(false))
                         dispatch(removeTransactions())
                         dispatch(removeStorage())
-                        destroy()
+                        await Disconnect()
                         router('/')
                     }}>Logout</Button>
                     <Button onClick={Submit} className="px-5 !py-2 w-32" isLoading={isLoading}>Login</Button>
