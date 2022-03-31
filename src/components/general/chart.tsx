@@ -1,6 +1,6 @@
 import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
-import { Doughnut, Chart } from 'react-chartjs-2';
-import { forwardRef, ReactNode } from 'react'
+import {Chart } from 'react-chartjs-2';
+import { forwardRef} from 'react';
 
 ChartJs.register(
     Tooltip, Title, ArcElement, Legend
@@ -10,7 +10,9 @@ interface IDatatype {
         data: number[];
         backgroundColor: string[];
         borderWidth: number;
-        hoverOffset: number;
+        hoverOffset:number;
+        offset?: number;
+        spacing?:number;
     }[];
     labels: string[];
 }
@@ -32,9 +34,12 @@ const Chartjs = forwardRef<ChartJs | undefined, IProps>((props, ref) => {
                 enabled: false
             },
             legend: {
+                
                 display: false,
             },
-        }
+            
+        },
+        events:[],
     };
 
 

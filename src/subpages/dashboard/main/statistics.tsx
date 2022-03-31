@@ -8,9 +8,8 @@ import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, ITransfer } from "hooks/useTransactionProcess";
 import { fromWei } from "web3-utils";
 import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
-// import { Doughnut, Chart } from 'react-chartjs-2';
 import Chartjs from "components/general/chart";
-import useModalSideExit from 'hooks/useModalSideExit'
+import useModalSideExit from 'hooks/useModalSideExit';
 
 ChartJs.register(
     Tooltip, Title, ArcElement, Legend
@@ -22,7 +21,7 @@ interface Balance {
     percent: number,
     coins: AltCoins,
     tokenPrice: number | undefined
-}
+};
 
 const Statistic = () => {
     const [data, setData] = useState({
@@ -44,7 +43,6 @@ const Statistic = () => {
     const [selectcoin, setSelectcoin] = useState<string>("")
     const customRef = useModalSideExit<string>(selectcoin, setSelectcoin, "")
     const selectedAccount = useAppSelector(SelectSelectedAccount)
-
     const [transactions] = useTransactionProcess()
 
     const [lastIn, setIn] = useState<number>()
@@ -99,7 +97,6 @@ const Statistic = () => {
             UpdateChartAnimation()
         }
     }, [selectcoin])
-
 
     useEffect(() => {
         if (all) {
@@ -160,7 +157,7 @@ const Statistic = () => {
                         data: amount.length > 0 ? amount : [100],
                         backgroundColor: amount.length > 0 ? color : ["#FF7348"],
                         borderWidth: 0,
-                        hoverOffset: 15,
+                        hoverOffset:15,
                     },
                     ],
                     labels: amount.length > 0 ? label : ['data'],
@@ -212,12 +209,12 @@ const Statistic = () => {
         <div className="sm:flex flex-col hidden relative">
             <div>Asset</div>
             <div className="h-full w-full">
-                <Chartjs data={data} ref={chartjs} />
+                <Chartjs data={data} ref={chartjs}/>
             </div>
         </div>
         {
             balance && allInOne !== undefined ?
-                <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1 py-2 px-4" ref={customRef}>
+                <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1 px-4" ref={customRef}>
                     {allInOne.map((item, index) => {
                         return <CoinItem key={item.coins.contractAddress} setSelectcoin={setSelectcoin} onClick={() => {
                             setSelectcoin(item.coins.name)

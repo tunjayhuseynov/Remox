@@ -155,7 +155,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             for (var i = 0; i < inTags.length; i++) {
                 label.push(inTags[i].name)
                 color.push(inTags[i].color)
-                if (inTags[i].totalAmount !== 0) { amount.push(inTags[i].totalAmount) }
+                if(inTags[i].totalAmount !== 0) { amount.push(inTags[i].totalAmount)}
             }
             setData(
                 {
@@ -163,7 +163,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
                         data: amount.length > 0 ? amount : [100],
                         backgroundColor: amount.length > 0 ? color : ["#FF7348"],
                         borderWidth: 0,
-                        hoverOffset: 10,
+                        hoverOffset: 15,
                     },
                     ],
                     labels: amount.length > 0 ? label : ['data'],
@@ -180,7 +180,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             for (var i = 0; i < outTags.length; i++) {
                 label.push(outTags[i].name)
                 color.push(outTags[i].color)
-                if (outTags[i].totalAmount !== 0) { amount.push(outTags[i].totalAmount) }
+                if(outTags[i].totalAmount !== 0) { amount.push(outTags[i].totalAmount)}
             }
             setData2(
                 {
@@ -236,7 +236,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
                 {inTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin === tag.id && "shadow-[3px_3px_10px_3px_#dad8d8]"} p-[2px] space-x-3 justify-between cursor-pointer`} onClick={() => {
+                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 &&  "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
                         setSelectcoin(tag.id)
                         if (chartjs.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation(index)
@@ -254,7 +254,7 @@ const Boxmoney = ({ selectedDate }: { selectedDate: number }) => {
             tagList: outTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef2} >
                 {outTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && "shadow-[3px_3px_10px_3px_#dad8d8]"} p-[2px] space-x-3 justify-between cursor-pointer`} onClick={() => {
+                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
                         setSelectcoin2(tag.id)
                         if (chartjs2.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation2(index)
