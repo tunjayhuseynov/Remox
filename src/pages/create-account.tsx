@@ -4,14 +4,15 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Button from "../components/button";
 import Input from "../components/input";
 import useAuth from "../hooks/useAuth";
-import { useSignInOrUp } from "../hooks";
+import { useSignInOrUp, useWalletKit } from "../hooks";
 import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { ToastRun } from "utils/toast";
 
 export default function CreateAccount() {
 
-    const { address, walletType } = useContractKit();
+    const { Address, Wallet, blockchain } = useWalletKit();
+    const address = Address
     const { executeSign, isLoading } = useSignInOrUp()
     const { user } = useAuth(address);
     const navigate = useNavigate()
@@ -44,7 +45,7 @@ export default function CreateAccount() {
             const user = await executeSign(address, inputData.password, {
                 address: [address],
                 id: "placeholder",
-                multiwallets: [{name: walletType, address: address}],
+                multiwallets: [{name: Wallet ?? "", address: address, blockchain}],
                 companyName: inputData.companyName,
                 name: inputData.name,
                 surname: inputData.surname,

@@ -1,1 +1,1 @@
-export * from './user'
+export * from 'Firebase/types/user'

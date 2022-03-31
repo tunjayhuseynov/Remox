@@ -11,6 +11,7 @@ import Contributors from './reducers/contributors';
 import Requests from './reducers/requests';
 import Tags from './reducers/tags';
 import Moola from './reducers/moola';
+import Network from './reducers/network';
 import { BlockScoutApi } from './api';
 
 const store = configureStore({
@@ -26,6 +27,7 @@ const store = configureStore({
 		selectedAccount: SelectedAcount,
 		multisig: Multisig,
 		contributors: Contributors,
+		network: Network,
 		requests: Requests,
 		[BlockScoutApi.reducerPath]: BlockScoutApi.reducer
 	},

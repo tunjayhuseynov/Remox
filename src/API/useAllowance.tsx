@@ -1,6 +1,7 @@
 import { useContractKit } from '@celo-tools/use-contractkit'
 import { useState } from 'react'
 import BigNumber from 'bignumber.js'
+import { toWei } from 'utils/ray'
 
 export default function useAllowance() {
     const { kit, address } = useContractKit()
@@ -11,7 +12,7 @@ export default function useAllowance() {
         try {
             const tokenContract = await kit.contracts.getErc20(contract)
 
-            const amount = new BigNumber(kit.web3.utils.toWei(etherAmount, 'ether'))
+            const amount = new BigNumber(toWei(etherAmount))
 
             const allowance = await tokenContract.allowance(address!, spender)
 
@@ -32,7 +33,7 @@ export default function useAllowance() {
         try {
             const tokenContract = await kit.contracts.getErc20(contract)
 
-            const amount = new BigNumber(kit.web3.utils.toWei(etherAmount, 'ether'))
+            const amount = new BigNumber(toWei(etherAmount))
 
             const allowance = await tokenContract.allowance(address!, spender)
 

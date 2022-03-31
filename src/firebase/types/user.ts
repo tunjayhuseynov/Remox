@@ -1,8 +1,10 @@
 import { WalletTypes } from "@celo-tools/use-contractkit";
+import { BlockChainTypes } from "redux/reducers/network";
 
 export interface IMultiwallet{
-    name: WalletTypes, 
-    address: string
+    name: string; 
+    address: string,
+    blockchain: BlockChainTypes
 }
 
 export interface IUser{

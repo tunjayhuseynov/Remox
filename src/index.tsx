@@ -2,34 +2,24 @@ import { StrictMode } from 'react';
 import { render } from 'react-dom';
 import './dist/index.css';
 import App from './App';
-import { ContractKitProvider, Mainnet, Alfajores } from '@celo-tools/use-contractkit';
-import '@celo-tools/use-contractkit/lib/styles.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import Wallet from 'Wallet';
+import '@celo-tools/use-contractkit/lib/styles.css';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-toastify/dist/ReactToastify.css';
-import { BaseUrl } from 'utils/const';
-import { CeloContract } from '@celo/contractkit';
+require('@solana/wallet-adapter-react-ui/styles.css');
 
 render(
   <StrictMode>
-    <ContractKitProvider
-      feeCurrency={CeloContract.GoldToken}
-      dapp={{
-        name: 'Remox DAO',
-        icon: `${BaseUrl}/favicon.png`,
-        description: 'Remox - Contributor and Treasury Management Platform',
-        url: `${BaseUrl}`,
-      }}
-      networks={[Mainnet, Alfajores]}
-    >
+    <Wallet>
       <Provider store={store}>
         <BrowserRouter>
           <App />
         </BrowserRouter>
       </Provider>
-    </ContractKitProvider>
+    </Wallet>
   </StrictMode>,
   document.getElementById('root')
 );

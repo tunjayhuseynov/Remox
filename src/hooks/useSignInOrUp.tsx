@@ -7,11 +7,11 @@ import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../API/useFirebase";
 import useTags from "API/useTags";
-import { useContractKit } from "@celo-tools/use-contractkit";
+import useWalletKit from "./useWalletKit";
 
 
 export default function useSignInOrUp() {
-    const { walletType } = useContractKit()
+    const { Wallet, blockchain } = useWalletKit()
     const { search } = useFirestoreSearchField<IUser>()
     const [error, setError] = useState<{ errorCode: string, errorMessage: string }>();
     const [user, setUser] = useState<User>();
@@ -43,8 +43,9 @@ export default function useSignInOrUp() {
                     address: [address],
                     multiwallets: [
                         {
-                            name: walletType,
-                            address: address
+                            name: Wallet ?? "",
+                            address: address,
+                            blockchain: blockchain,
                         }
                     ],
                     companyName: encryptMessage(dataForSignUp.companyName, encryptedMessageToken),
@@ -77,8 +78,9 @@ export default function useSignInOrUp() {
                     await FirestoreWrite<Pick<IUser, "multiwallets">>().updateDoc("users", user!.uid, {
                         multiwallets: [
                             {
-                                name: walletType,
-                                address: address
+                                name: Wallet ?? "",
+                                address: address,
+                                blockchain
                             }
                         ]
                     })

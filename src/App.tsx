@@ -1,4 +1,4 @@
-import { useContractKit, localStorageKeys } from "@celo-tools/use-contractkit";
+import { localStorageKeys } from "@celo-tools/use-contractkit";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { selectStorage } from "./redux/reducers/storage";
@@ -18,6 +18,7 @@ import DynamicPayroll from "pages/dashboard/payroll/dynamic";
 import TagsSetting from "pages/dashboard/settings/tags";
 import DynamicLendBorrow from "pages/dashboard/lend&borrow/dynamic";
 import { ToastContainer } from "react-toastify";
+import { useWalletKit } from "hooks";
 
 const MassPay = lazy(() => import("pages/masspay"))
 const Automations = lazy(() => import("pages/dashboard/automations"));
@@ -40,7 +41,7 @@ const MultisigTransaction = lazy(() => import("pages/dashboard/multisig/transact
 
 
 function App() {
-  const { address, destroy } = useContractKit();
+  const { Address, Disconnect } = useWalletKit();
   const unlock = useSelector(selectUnlock)
   const storage = useSelector(selectStorage)
   const darkMode = useSelector(selectDarkMode)
@@ -54,10 +55,11 @@ function App() {
 
   useEffect(() => {
     if (localStorage.getItem(localStorageKeys.lastUsedWalletType) && localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
-      destroy().then(s => navigate('/'))
+      Disconnect().then(s => navigate('/'))
     }
   }, [])
 
+  const address = Address
   return (
     <div>
       <ToastContainer />

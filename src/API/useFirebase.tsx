@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { db } from '../firebase';
+import { db } from 'Firebase';
 import { onSnapshot, doc, setDoc, getDoc, collection, query, where, getDocs, WhereFilterOp, runTransaction, deleteDoc } from 'firebase/firestore';
 
 
-export async function FirestoreRead<DataType>(collection: string, document: string) {
+export async function FirestoreRead<DataType extends {}>(collection: string, document: string) {
     try {
         const docRef = doc(db, collection, document);
         const docSnap = await getDoc(docRef);
@@ -20,7 +20,7 @@ export async function FirestoreRead<DataType>(collection: string, document: stri
     }
 }
 
-export function FirestoreWrite<DataType>() {
+export function FirestoreWrite<DataType extends {}>() {
 
     const createDoc = async (collection: string, document: string, data: DataType) => {
         await setDoc(doc(db, collection, document), data);
@@ -71,7 +71,7 @@ export function useFirestoreRead<DataType>(collection: string, document: string)
     return { data };
 }
 
-export function useFirestoreReadMultiple<DataType>(collectionName: string, firstQuery: string, condition: WhereFilterOp, secondQuery: any) {
+export function useFirestoreReadMultiple<DataType extends {}>(collectionName: string, firstQuery: string, condition: WhereFilterOp, secondQuery: any) {
     const [data, setData] = useState<DataType[]>();
 
     const read = (collectionName: string, firstQuery: string, secondQuery: any, condition: WhereFilterOp) => {
@@ -95,7 +95,7 @@ export function useFirestoreReadMultiple<DataType>(collectionName: string, first
 
 
 
-export function useFirestoreSearchField<DataType>() {
+export function useFirestoreSearchField<DataType extends {}>() {
     const [isLoading, setLoading] = useState(false)
 
     const search = async (collectionName: string, field: string, searching: string | string[], indicator: "==" | "in" | "array-contains") => {
