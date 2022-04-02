@@ -250,7 +250,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
                 {inTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
+                    return <div key={tag.id} className={`flex ${selectcoin === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
                         setSelectcoin(tag.id)
                         if (chartjs.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation(index)

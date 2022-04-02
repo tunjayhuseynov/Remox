@@ -14,7 +14,7 @@ import { useWalletKit } from "hooks";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 
-const Home = () => {
+const Home = ({ type }: { type: "celo" | "solana" }) => {
     const { Connect, Address } = useWalletKit();
     const { search, isLoading } = useFirestoreSearchField<IUser>()
     const dark = useAppSelector(selectDarkMode)
@@ -22,7 +22,9 @@ const Home = () => {
     const dispatch = useAppDispatch()
     const [ctx, setState] = useContractKitContext()
 
-    const [selected, setSelected] = useState<DropDownItem>({ name: "Solana", address: "solana" })
+    const [selected, setSelected] = useState<DropDownItem>(
+        { name: type==="celo" ? type : "solana", address: type==="celo" ? type : "solana" }
+        )
 
     useEffect(() => {
         dispatch(updateBlockchain(selected.address! as BlockChainTypes))
@@ -88,8 +90,9 @@ const Home = () => {
                     <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
                     <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
                 </div>
-                <div className="flex flex-col gap-5">
-                    <Dropdown selected={selected} onSelect={setSelected} list={[{ name: "Solana", address: "solana" }, { name: "Celo", address: "celo" }]} />
+                <div className="flex flex-col items-center justify-center gap-5">
+                    <div className=" min-w-[80%] py-2  bg-light dark:bg-dark rounded-lg border border-primary flex items-center justify-center text-lg gap-2"><img src={`/icons/${type}.png`} alt="" className="w-[15px] h-[15px]" />{type==="celo" ? "Celo" : "Solana"}</div>
+                    {/* <Dropdown className={""} selected={selected} onSelect={setSelected} list={[{ name: "Solana", address: "solana" }, { name: "Celo", address: "celo" }]} /> */}
                     {<Button onClick={connectEvent} isLoading={isLoading}>{Address ? "Enter App" : "Connect to a wallet"}</Button>}
                 </div>
             </div>
