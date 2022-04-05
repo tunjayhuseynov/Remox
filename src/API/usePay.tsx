@@ -5,7 +5,7 @@ import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransacti
 import { StableTokenWrapper } from "@celo/contractkit/lib/wrappers/StableTokenWrapper";
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
-import { AltCoins, Coins, PoofAltCoins, PoofCoins, PoofCoinsName } from "types";
+import { AltCoins, CeloCoins, Coins, PoofAltCoins, PoofCoins, PoofCoinsName } from "types";
 import _ from 'lodash'
 import { DashboardContext } from "pages/dashboard/layout";
 import { useContext } from "react";
@@ -159,9 +159,9 @@ export default function usePay() {
 
         let token = await (
             async () => {
-                if (coin === Coins.CELO) {
+                if (coin === CeloCoins.CELO) {
                     return await kit.contracts.getGoldToken()
-                } else if (coin === Coins.cUSD || coin === Coins.cEUR || coin === Coins.cREAL) {
+                } else if (coin === CeloCoins.cUSD || coin === CeloCoins.cEUR || coin === CeloCoins.cREAL) {
                     return await kit.contracts.getStableToken((coin.name as unknown) as StableToken)
                 } else {
                     if (!comment) {

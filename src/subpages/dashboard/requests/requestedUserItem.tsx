@@ -2,7 +2,7 @@ import { IRequest, RequestStatus } from 'API/useRequest';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
-import { Coins } from 'types';
+import { CeloCoins, Coins } from 'types';
 import { AddressReducer } from 'utils';
 import dateFormat from 'dateformat';
 import Modal from 'components/general/modal';
@@ -100,13 +100,13 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
-                        {Coins[request.currency as keyof Coins] ?
+                        {CeloCoins[request.currency as keyof Coins] ?
                             <>
                                 <div>
-                                    <img src={Coins[request.currency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
+                                    <img src={CeloCoins[request.currency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
-                                    {Coins[request.currency as keyof Coins]?.name ?? "Unknown Coin"}
+                                    {CeloCoins[request.currency as keyof Coins]?.name ?? "Unknown Coin"}
                                 </div>
                             </>
                             : <div>Unknown Coin</div>
@@ -123,13 +123,13 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
-                            {Coins[request.secondaryCurrency as keyof Coins] ?
+                            {CeloCoins[request.secondaryCurrency as keyof Coins] ?
                                 <>
                                     <div>
-                                        <img src={Coins[request.secondaryCurrency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
+                                        <img src={CeloCoins[request.secondaryCurrency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                     </div>
                                     <div>
-                                        {Coins[request.secondaryCurrency as keyof Coins]?.name ?? "Unknown Coin"}
+                                        {CeloCoins[request.secondaryCurrency as keyof Coins]?.name ?? "Unknown Coin"}
                                     </div>
                                 </>
                                 : <div>Unknown Coin</div>
@@ -202,8 +202,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                             {request?.amount}
                                         </div>
                                         <div className="flex gap-x-2 items-center">
-                                            {request?.currency ? <img src={Coins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                                            {request?.currency ? Coins[request.currency as keyof Coins].name : ""}
+                                            {request?.currency ? <img src={CeloCoins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
+                                            {request?.currency ? CeloCoins[request.currency as keyof Coins].name : ""}
                                         </div>
                                     </div>
                                 </div>
@@ -215,8 +215,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                                 {request?.secondaryAmount}
                                             </div>
                                             <div className="flex gap-x-2 items-center">
-                                                {request?.secondaryCurrency ? <img src={Coins[request.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                                                {request?.secondaryCurrency ? Coins[request.secondaryCurrency as keyof Coins].name : ""}
+                                                {request?.secondaryCurrency ? <img src={CeloCoins[request.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
+                                                {request?.secondaryCurrency ? CeloCoins[request.secondaryCurrency as keyof Coins].name : ""}
                                             </div>
                                         </div>
                                     </div>

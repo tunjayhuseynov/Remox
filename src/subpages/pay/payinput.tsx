@@ -1,7 +1,7 @@
 import { Dispatch, useEffect, useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import { ClipLoader } from "react-spinners";
-import { Coins, PoofCoins } from "../../types/coins";
+import { CeloCoins, PoofCoins } from "../../types/coins/celoCoins";
 import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
@@ -13,7 +13,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
 
     useEffect(() => {
         if (!selectedWallet[index] && !selectedWallet[index + 1]) {
-            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl}))[0];
+            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl}))[0];
             setWallet([...selectedWallet, v, v])
         }
 
@@ -34,7 +34,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 const wallet = [...selectedWallet];
                 wallet[index] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
         <div className="hidden md:flex items-center">
@@ -63,7 +63,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 const wallet = [...selectedWallet];
                 wallet[index + 1] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
             :

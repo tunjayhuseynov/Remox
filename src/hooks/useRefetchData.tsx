@@ -15,10 +15,7 @@ import { addRequests } from 'redux/reducers/requests'
 import { useListenTags } from 'API/useTags'
 import { setTags } from 'redux/reducers/tags'
 import useCalculation from './useCalculation'
-
-interface Balance {
-    [name: string]: string;
-}
+import useWalletKit from './useWalletKit'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
@@ -33,7 +30,8 @@ const useRefetchData = () => {
     const { fetchBalance, fetchedBalance, isLoading: balanceLoading } = useBalance(selectedAccount)
     const tagData = useListenTags()
 
-    const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
+    const { GetTransactions, txs } = useWalletKit()
+    // const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
 
     const { AllPrices, TotalBalance } = useCalculation(fetchedBalance, fetchedCurrencies)
 
@@ -46,13 +44,12 @@ const useRefetchData = () => {
     }, [data])
 
     useEffect(() => {
-        console.log(transactionData)
-        if (transactionData && transactionData.result && transactionData.result.length > 0 && !transactionFetching) {
-            if (transactionStore?.result[0]?.hash !== transactionData.result[0]?.hash || transactionStore?.result[transactionStore.result.length - 1]?.hash !== transactionData.result[transactionData.result.length - 1]?.hash) {
-                dispatch(setTransactions(transactionData))
+        if (txs && txs.length > 0) {
+            if (transactionStore?.[0]?.hash !== txs[0]?.hash || transactionStore?.[transactionStore.length - 1]?.hash !== txs[txs.length - 1]?.hash) {
+                dispatch(setTransactions(txs))
             }
-        } else if (transactionData && transactionData.result && transactionData.result.length === 0) dispatch(setTransactions(transactionData))
-    }, [transactionData, transactionFetching])
+        } else if (txs && txs.length === 0) dispatch(setTransactions(txs))
+    }, [txs])
 
     useEffect(() => {
         if (contributors) {
@@ -94,7 +91,7 @@ const useRefetchData = () => {
 
     useEffect(() => {
         fetching()
-    }, [fetchedCurrencies])
+    }, [fetchedCurrencies, selectedAccount])
 
     const fetching = async () => {
         if (fetchedCurrencies && fetchedCurrencies.length > 0) {
@@ -110,10 +107,8 @@ const useRefetchData = () => {
     }
 
     useEffect(() => {
-        const execution = () => transactionTrigger(selectedAccount).unwrap().catch(() => { transactionTrigger(selectedAccount).unwrap().catch((error: any) => { console.error(error) }) })
-        execution()
         let timer = setInterval(() => {
-            execution()
+            GetTransactions()
         }, 10000)
 
         return () => { clearInterval(timer) }

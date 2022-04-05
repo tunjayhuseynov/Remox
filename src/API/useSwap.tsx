@@ -5,7 +5,7 @@ import { ChainId, Fetcher, Fraction, JSBI, Percent, Route, Router, TokenAmount, 
 import { getAddress } from 'ethers/lib/utils';
 import { DashboardContext } from 'pages/dashboard/layout';
 import { useContext, useState } from 'react';
-import { AltCoins, Coins } from 'types';
+import { AltCoins, CeloCoins } from 'types';
 import { fromWei, toWei } from 'utils/ray';
 
 export default function useSwap() {
@@ -27,8 +27,8 @@ export default function useSwap() {
             let outputAddress = outputCoin.contractAddress;
             const output = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(outputAddress), provider);
 
-            if (inputCoin == Coins.CELO) token = await kit.contracts.getGoldToken();
-            else if (inputCoin === Coins.cUSD || inputCoin === Coins.cEUR || inputCoin === Coins.cREAL)
+            if (inputCoin == CeloCoins.CELO) token = await kit.contracts.getGoldToken();
+            else if (inputCoin === CeloCoins.cUSD || inputCoin === CeloCoins.cEUR || inputCoin === CeloCoins.cREAL)
                 token = await kit.contracts.getStableToken((inputCoin.name as unknown) as StableToken);
             else {
                 let altToken = inputCoin.contractAddress;

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 
 const ray = '1000000000000000000000000000';
+const lamport = '1000000000'
 export const etherSize = '1000000000000000000';
 
 type Num = string | number | BigNumber;
@@ -13,6 +14,13 @@ export function toWei(num: Num) {
 	return BN(num).times(etherSize).toString();
 }
 
+export function toLamport(num: Num) {
+	return BN(num).times(lamport).toString();
+}
+
+export function fromLamport(num: Num) {
+	return BN(num).div(lamport).toFixed(4);
+}
 
 export function fromWei(num: Num) {
     return BN(num).div(etherSize).toFixed(4)

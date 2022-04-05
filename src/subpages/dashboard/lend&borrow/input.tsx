@@ -1,16 +1,17 @@
 import { Dispatch, useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { AltCoins, Coins, PoofCoins, TokenType } from "../../../types/coins";
+import { CeloCoins, PoofCoins } from "../../../types/coins/celoCoins";
 import { DropDownItem } from "../../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
+import { AltCoins, TokenType } from "types";
 
 
 const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, maxAmount }: { maxAmount?: number, customCurreny: string, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, amount: number, setAmount: Dispatch<number> }) => {
     const { walletType } = useContractKit()
 
     useEffect(() => {
-        const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
+        const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
         setWallet([...selectedWallet, v, v])
     }, [])
 
@@ -28,7 +29,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
                 const wallet = [...selectedWallet];
                 wallet[0] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[0] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : Coins).filter((s: AltCoins) => s.type !== TokenType.Altcoin).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[0] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
         </div>
         <div className="pt-1 text-xs col-span-2 truncate">max: {maxAmount} {selectedWallet?.[0]?.name}</div>
     </>

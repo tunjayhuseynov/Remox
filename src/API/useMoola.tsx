@@ -2,7 +2,7 @@ import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/reducers/moola";
-import { AltCoins, Coins, TokenType } from "types";
+import { AltCoins, CeloCoins, Coins, TokenType } from "types";
 import BigNumber from 'bignumber.js'
 import { BN, etherSize, fromWei, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
@@ -335,7 +335,7 @@ export default function useMoola() {
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
-            const coinList: AltCoins[] = Object.values(Coins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
+            const coinList: AltCoins[] = Object.values(CeloCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
             const userData: MoolaUserComponentData[] = [];
             for (let index = 0; index < coinList.length; index++) {
                 try {

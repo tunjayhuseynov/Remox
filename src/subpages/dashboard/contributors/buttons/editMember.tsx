@@ -2,7 +2,7 @@ import { Dispatch, SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ClipLoader } from "react-spinners";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
-import { Coins, CoinsURL, CoinsName } from "types/coins";
+import { CeloCoins as Coins } from "types/coins/celoCoins";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
@@ -22,6 +22,7 @@ import usePay, { PaymentInput } from "API/usePay";
 import date from 'date-and-time'
 import { SelectBalances } from 'redux/reducers/currencies';
 import { ToastRun } from "utils/toast";
+import { CoinsName, CoinsURL } from "types";
 
 const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const dispatch = useDispatch()

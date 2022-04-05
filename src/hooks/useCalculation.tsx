@@ -1,6 +1,6 @@
 import { IuseCurrency } from "API/useCurrency";
-import { useMemo } from "react";
-import { AltCoins, Coins, TokenType } from "types";
+import { useCallback, useMemo } from "react";
+import { AltCoins, CeloCoins, Coins, TokenType } from "types";
 
 interface Balance {
     [name: string]: string;
@@ -22,11 +22,11 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
         return fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0)
     }, [balance, fetchedCurrencies]);
 
-    const AllPrices = () => {
+    const AllPrices = useCallback(() => {
         if (!balance || !fetchedCurrencies) return {};
         return fetchedCurrencies.sort((a, b) => {
-            const aa = Coins[a.name as unknown as keyof Coins]
-            const bb = Coins[b.name as unknown as keyof Coins]
+            const aa = CeloCoins[a.name as unknown as keyof Coins]
+            const bb = CeloCoins[b.name as unknown as keyof Coins]
             if (aa.type !== bb.type && aa.type === TokenType.GoldToken) return -1
             if (aa.type !== bb.type && aa.type === TokenType.StableToken && bb.type === TokenType.Altcoin) return -1
             if (aa.type !== bb.type && aa.type === TokenType.Altcoin) return 1
@@ -35,7 +35,7 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
             const amount = parseFloat((balance?.[c.name]) ?? "0");
             const price = c.price * amount;
             a[c.name] = {
-                coins: Coins[c.name as unknown as keyof Coins],
+                coins: CeloCoins[c.name as unknown as keyof Coins],
                 per_24: c?.percent_24,
                 price,
                 amount,
@@ -44,9 +44,9 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
             }
             return a;
         }, {})
-    }
+    }, [balance, fetchedCurrencies])
 
-    const TotalBalance = () => {
+    const TotalBalance = useCallback(() => {
         if (!balance || !fetchedCurrencies) return 0;
         const total = fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
 
@@ -54,7 +54,7 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
             const amount = parseFloat((balance?.[c.name]) ?? "0");
             const price = c.price * amount;
             return {
-                coins: Coins[c.name as unknown as keyof Coins],
+                coins: CeloCoins[c.name as unknown as keyof Coins],
                 per_24: c?.percent_24,
                 price,
                 amount,
@@ -64,7 +64,7 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
         })
 
         return arrPrices.reduce((acc, curr) => acc + (curr.amount * curr.tokenPrice), 0)
-    }
+    }, [balance, fetchedCurrencies])
 
 
     return { TotalBalance, AllPrices }

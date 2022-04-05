@@ -23,9 +23,11 @@ import { clusterApiUrl } from '@solana/web3.js';
 
 
 export default function Wallet({ children }: { children: JSX.Element }) {
-    const SolNetwork = WalletAdapterNetwork.Mainnet;
+     const SolNetwork = WalletAdapterNetwork.Mainnet;
     
-    const endpoint = useMemo(() => clusterApiUrl(SolNetwork), [SolNetwork]);
+    // const endpoint = useMemo(() => clusterApiUrl(SolNetwork), [SolNetwork]);
+
+    const endpoint = "https://explorer-api.mainnet-beta.solana.com/"
 
     const solWallets = useMemo(
         () => [
@@ -41,7 +43,7 @@ export default function Wallet({ children }: { children: JSX.Element }) {
     );
 
     return (
-        <ConnectionProvider endpoint={endpoint}>
+        <ConnectionProvider endpoint={endpoint} >
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
                     <ContractKitProvider

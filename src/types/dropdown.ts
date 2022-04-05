@@ -1,4 +1,4 @@
-import { CoinsName, CoinsURL } from "./coins";
+import { CoinsURL } from "./coins";
 
 export type DropDownItem = DropDownPriceItem | DropDownAddressItem | DropDownOnlyCoin;
 

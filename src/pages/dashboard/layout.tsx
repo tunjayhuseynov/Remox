@@ -8,7 +8,7 @@ import { removeTransactions } from 'redux/reducers/transactions';
 import { useIdleTimer } from 'react-idle-timer'
 import { setUnlock } from 'redux/reducers/unlock';
 
-export const DashboardContext = createContext({})
+export const DashboardContext = createContext<{ refetch: () => void }>({ refetch: () => { } })
 
 
 export default function Layout() {
@@ -17,11 +17,11 @@ export default function Layout() {
     const dispatch = useAppDispatch()
     const selectedAccount = useAppSelector(SelectSelectedAccount)
 
-    useEffect(() => {
-        dispatch(removeTransactions())
-        dispatch(deleteBalance())
-        refetch()
-    }, [selectedAccount])
+    // useEffect(() => {
+    //     dispatch(removeTransactions())
+    //     dispatch(deleteBalance())
+    //     refetch()
+    // }, [selectedAccount])
 
     useIdleTimer({
         timeout: 1000 * 60 * 5,

@@ -7,7 +7,7 @@ import { selectStorage } from 'redux/reducers/storage';
 import { auth } from 'Firebase';
 import { FirestoreWrite, useFirestoreRead } from './useFirebase';
 import { setInternalSign, setSign } from "../redux/reducers/multisig"
-import { AltCoins, Coins } from 'types';
+import { AltCoins, CeloCoins, Coins } from 'types';
 import { StableToken } from '@celo/contractkit';
 import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper';
 import { DashboardContext } from 'pages/dashboard/layout';
@@ -376,8 +376,8 @@ export default function useMultisig() {
                 const { amount, recipient: toAddress, coin } = input[0]
                 let value = kit.web3.utils.toWei(amount, 'ether');
 
-                if (coin == Coins.CELO) token = await kit.contracts.getGoldToken()
-                else if (coin == Coins.cUSD || coin == Coins.cEUR) token = await kit.contracts.getStableToken(coin.name as unknown as StableToken)
+                if (coin == CeloCoins.CELO) token = await kit.contracts.getGoldToken()
+                else if (coin == CeloCoins.cUSD || coin == CeloCoins.cEUR) token = await kit.contracts.getStableToken(coin.name as unknown as StableToken)
                 else token = await kit.contracts.getErc20(coin.contractAddress)
 
                 const celoObj = token.transfer(toAddress, value);

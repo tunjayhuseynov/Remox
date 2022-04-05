@@ -1,37 +1,4 @@
-export enum CoinsURL {
-	CELO = '/icons/currencies/celoiconsquare.svg',
-	cUSD = '/icons/currencies/celodollar.svg',
-	cEUR = '/icons/currencies/ceur.png',
-	UBE = '/icons/currencies/ubeswap.png',
-	MOO = '/icons/currencies/moola.png',
-	MOBI = '/icons/currencies/mobius.png',
-	POOF = '/icons/currencies/poof.png',
-	cREAL = '/icons/currencies/creal.png',
-	PACT = '/icons/currencies/pact.png',
-	ARI = '/icons/currencies/ari.png',
-	mCELO = '/icons/currencies/mCELO.png',
-	mcUSD = '/icons/currencies/mcUSD.png',
-	mcEUR = '/icons/currencies/mcEUR.png',
-	mcREAL = '/icons/currencies/mcREAL.png',
-	None = ''
-}
-
-export enum CoinsName {
-	CELO = 'CELO',
-	cUSD = 'cUSD',
-	cEUR = 'cEUR',
-	cREAL = 'cREAL',
-	UBE = 'UBE',
-	MOO = 'MOO',
-	MOBI = 'MOBI',
-	POOF = 'POOF',
-	PACT = 'PACT',
-	ARI = 'ARI',
-	mCELO = 'mCELO',
-	mcUSD = 'mcUSD',
-	mcEUR = 'mcEUR',
-	mcREAL = 'mcREAL',
-}
+import { Coins, CoinsName, CoinsURL, TokenType } from ".";
 
 export enum PoofCoinsName {
 	CELO_V2 = 'CELO_v2',
@@ -42,32 +9,6 @@ export enum PoofCoinsName {
 	cUSD_V1 = 'cUSD_v1',
 	cEUR_V1 = 'cEUR_v1',
 	cREAL_V1 = 'cREAL_v1'
-}
-
-export enum StableTokens {
-	cUSD = 'cUSD',
-	cEUR = 'cEUR'
-}
-
-export enum AltcoinsList {
-	UBE = 'UBE',
-	MOO = 'MOO',
-	MOBI = 'MOBI',
-	POOF = 'POOF',
-	mCELO = 'mCELO',
-	mcUSD = 'mcUSD',
-	mcEUR = 'mcEUR',
-	mcREAL = 'mcREAL',
-}
-
-
-
-export enum CoinsResponse {}
-
-export enum TokenType {
-	GoldToken = 'GoldToken',
-	StableToken = 'StableToken',
-	Altcoin = 'Altcoin'
 }
 
 export const PoofCoins: PoofCoins = {
@@ -121,7 +62,7 @@ export const PoofCoins: PoofCoins = {
 	}
 };
 
-export const Coins: Coins = {
+export const CeloCoins: Coins = {
 	CELO: {
 		name: CoinsName.CELO,
 		coinUrl: CoinsURL.CELO,
@@ -222,9 +163,6 @@ export const Coins: Coins = {
 	}
 };
 
-export interface Coins {
-	[name: string]: AltCoins
-}
 export interface PoofCoins {
 	CELO_v2: PoofAltCoins;
 	cUSD_v2: PoofAltCoins;
@@ -236,13 +174,7 @@ export interface PoofCoins {
 	cREAL_v1: PoofAltCoins;
 }
 
-export interface AltCoins {
-	name: CoinsName;
-	coinUrl: CoinsURL;
-	type: TokenType;
-	contractAddress: string;
-	color: string;
-}
+
 export interface PoofAltCoins {
 	name: PoofCoinsName;
 	coinUrl: CoinsURL;

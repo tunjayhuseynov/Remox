@@ -14,13 +14,19 @@ const Insight = () => {
     const { data } = useMultiWallet()
     const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [account])
 
+    useEffect(() => {
+        if (data !== undefined) {
+            setSelectedAccounts(data.map(s => s.address))
+        }
+    }, [data])
+
     return (
         <div className="flex flex-col space-y-3">
             <div className="text-2xl font-bold tracking-widest pb-4">
                 Insights
             </div>
             <div className="pb-2 pt-2">
-                <div className="flex justify-end"> 
+                <div className="flex justify-end">
                     <div className="flex gap-7">
                         <button onClick={() => setSelectedDate(30)} className={`${selectedDate === 30 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style} `}>30 Days</button>
                         <button onClick={() => setSelectedDate(90)} className={`${selectedDate === 90 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style}`}>90 Days</button>

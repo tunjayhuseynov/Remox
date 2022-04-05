@@ -1,4 +1,4 @@
-import { CoinsName } from "../coins";
+import { CoinsName } from "types/coins"
 
 export interface GetTransactions{
     message: string,

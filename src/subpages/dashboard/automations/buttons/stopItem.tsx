@@ -1,4 +1,4 @@
-import { Coins } from "types/coins";
+import { CeloCoins as Coins } from "types";
 import Avatar from "components/avatar";
 import { DateInterval, IMember } from "API/useContributors";
 

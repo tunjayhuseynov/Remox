@@ -10,7 +10,7 @@ import CSV, { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import Input from "subpages/pay/payinput";
-import { Coins, PoofCoins, AltCoins } from "types/coins";
+import { CeloCoins, PoofCoins } from "types/coins/celoCoins";
 import { useAppDispatch } from "redux/hooks";
 import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
@@ -23,6 +23,7 @@ import chroma from 'chroma-js';
 import { Tag } from "API/useTags";
 import { selectTags } from "redux/reducers/tags";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
+import { AltCoins, Coins } from "types";
 
 const Pay = () => {
 
@@ -94,8 +95,8 @@ const Pay = () => {
 
                 amm.push(parseFloat(amount2 || "0"))
 
-                const a = { ...Coins[coin as keyof Coins], type: Coins[coin as keyof Coins].name };
-                const b = { ...Coins[coin2 as keyof Coins], type: Coins[coin2 as keyof Coins].name };
+                const a = { ...CeloCoins[coin as keyof Coins], type: CeloCoins[coin as keyof Coins].name };
+                const b = { ...CeloCoins[coin2 as keyof Coins], type: CeloCoins[coin2 as keyof Coins].name };
                 const wallet = [a, b];
                 wllt.push(...wallet)
                 setAmountState(amm)
@@ -153,11 +154,11 @@ const Pay = () => {
             }
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1) {
-                    await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : Coins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
+                    await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : Coins[result[0].tokenName as keyof Coins]) as AltCoins,
+                        coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins,
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true
@@ -167,11 +168,11 @@ const Pay = () => {
                 }
             } else {
                 if (result.length === 1) {
-                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: Coins[result[0].tokenName as keyof Coins] }])
+                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: CeloCoins[result[0].tokenName as keyof Coins] }])
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: Coins[w.tokenName as keyof Coins],
+                        coin: CeloCoins[w.tokenName as keyof Coins],
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Coins } from "types/coins";
+import { CeloCoins as Coins } from "types/coins/celoCoins";
 import Modal from "components/general/modal";
 import Profile from "subpages/dashboard/contributors/buttons/profile"
 import EditMember from "subpages/dashboard/contributors/buttons/editMember"

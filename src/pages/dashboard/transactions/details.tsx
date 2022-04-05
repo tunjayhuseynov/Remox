@@ -5,7 +5,6 @@ import { ClipLoader } from "react-spinners";
 import Dropdown from "../../../components/general/dropdown";
 import { useAppSelector } from "../../../redux/hooks";
 import { SelectCurrencies } from "../../../redux/reducers/currencies";
-import { CoinsURL } from "../../../types/coins";
 import { DropDownItem } from "../../../types/dropdown";
 import { AddressReducer } from 'utils'
 import _ from "lodash";
@@ -20,6 +19,7 @@ import useTags, { Tag } from "API/useTags";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { fromWei } from "utils/ray";
 import useGelato from "API/useGelato";
+import { CoinsURL } from "types";
 
 const Details = () => {
     const selectedAccount = useAppSelector(SelectSelectedAccount)

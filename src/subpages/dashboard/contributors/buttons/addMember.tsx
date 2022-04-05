@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
-import { AltCoins, Coins, CoinsName, CoinsURL } from "types/coins";
+import { CeloCoins as Coins } from "types/coins/celoCoins";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { ClipLoader } from "react-spinners";
@@ -21,6 +21,7 @@ import usePay, { PaymentInput } from "API/usePay";
 import date from 'date-and-time'
 import { SelectBalances } from "redux/reducers/currencies";
 import { ToastRun } from "utils/toast";
+import { AltCoins, CoinsName, CoinsURL } from "types";
 
 
 export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {

@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
 import { useAppSelector } from '../../../redux/hooks';
 import { selectTags } from "redux/reducers/tags";
 import { useCalculation, useTransaction, useTransactionProcess } from "hooks";
 import { Tag } from "API/useTags";
-import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { CoinsName } from "types";
 import date from 'date-and-time'
@@ -15,7 +12,6 @@ import useModalSideExit from 'hooks/useModalSideExit'
 import useBalance from "API/useBalance";
 import { fromWei } from "utils/ray";
 import useCurrency from "API/useCurrency";
-import { GetTransactions, Transactions } from "types/sdk";
 
 type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
 type STag = Array<ATag>
@@ -250,7 +246,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
                 {inTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
+                    return <div key={tag.id} className={`flex ${selectcoin === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
                         setSelectcoin(tag.id)
                         if (chartjs.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation(index)

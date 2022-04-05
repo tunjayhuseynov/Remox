@@ -26,6 +26,12 @@ Wallet Switch - Add Poofcash (Private Key) and Ledger Support
 
 Add custom hook for Multiwallet Transaction Process
 
+BE CAREFUL FOR CeloCoins
+
+Walllect Connect problem on MultiWallet
+Checkbox error on all wallets selection, not working on Opera
+Wrong calculation on Insight
+
 Multisig add owner name when create a new one
 Multisig give error in create modal when inputs are not fit to requirements
 Multisig Name Update

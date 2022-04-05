@@ -1,17 +1,13 @@
 import { useAppSelector } from '../../../redux/hooks';
 import { ClipLoader } from "react-spinners";
 import { useEffect, useMemo, useState } from "react";
-import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
-import { CoinsName } from '../../../types/coins';
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
 import { useCalculation, useTransaction, useTransactionProcess } from 'hooks';
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from 'hooks/useTransactionProcess';
 import date from 'date-and-time'
 import { fromWei } from 'utils/ray';
 import useBalance from 'API/useBalance';
-import { GetTransactions, Transactions } from 'types/sdk';
 import useCurrency from 'API/useCurrency';
-import { useSelector } from 'react-redux';
 
 const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) => {
 

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { AltCoins } from 'types';
 import { IuseCurrency } from '../../API/useCurrency';
-import { AltCoins } from '../../types/coins';
 import { RootState } from '../store';
 
 export interface ICurrencyInternal {
