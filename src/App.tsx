@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { selectStorage } from "./redux/reducers/storage";
 import { selectUnlock } from "./redux/reducers/unlock";
-import { lazy, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { ClipLoader } from "react-spinners";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 
@@ -45,7 +45,6 @@ function App() {
   const unlock = useSelector(selectUnlock)
   const storage = useSelector(selectStorage)
   const darkMode = useSelector(selectDarkMode)
-
   const navigate = useNavigate()
 
   useLayoutEffect(() => {
@@ -65,9 +64,14 @@ function App() {
       <ToastContainer />
       <Suspense fallback={<div className="h-screen w-full flex justify-center items-center"><ClipLoader /></div>}>
         <Routes>
-          <Route path="/" element={
+          <Route path="/celo" element={
             <LockIfUserIn unlock={unlock} storage={!!address && !!storage}>
-              <Home />
+              <Home type="celo" />
+            </LockIfUserIn>
+          } />
+          <Route path="/solana" element={
+            <LockIfUserIn unlock={unlock} storage={!!address && !!storage}>
+              <Home type="solana" />
             </LockIfUserIn>
           } />
           <Route path="/create-account" element={<CreateAccount />} />
