@@ -1,14 +1,14 @@
-import { CeloCoins as Coins } from "types/coins/celoCoins";
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
 import { IRequest } from "API/useRequest";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useWalletKit } from "hooks";
 
 const RequestItem = (props: { request: IRequest, requestState: [IRequest[], React.Dispatch<React.SetStateAction<IRequest[]>>] }) => {
 
     const [detect, setDetect] = useState(true);
+    const { GetCoins } =useWalletKit()
     const divRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -44,22 +44,22 @@ const RequestItem = (props: { request: IRequest, requestState: [IRequest[], Reac
         <div className="flex flex-col space-y-4">
             <div className=" pl-[2px] flex items-center justify-start gap-1">
                 <div>{props.request.amount}</div>
-                {props.request.usdBase ? <div>USD as {Coins[props.request.currency].name}</div> :
+                {props.request.usdBase ? <div>USD as {GetCoins[props.request.currency].name}</div> :
                     <div>
-                        {Coins[props.request.currency].name}
+                        {GetCoins[props.request.currency].name}
                     </div>}
                 <div>
-                    <img src={Coins[props.request.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
+                    <img src={GetCoins[props.request.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
                 </div>
             </div>
             {props.request.secondaryCurrency && <div className="pl-[2px] flex items-center justify-start gap-1">
                 <div>{props.request.secondaryAmount}</div>
-                {props.request.usdBase ? <div>USD as {Coins[props.request.secondaryCurrency].name}</div> :
+                {props.request.usdBase ? <div>USD as {GetCoins[props.request.secondaryCurrency].name}</div> :
                     <div>
-                        {Coins[props.request.secondaryCurrency].name}
+                        {GetCoins[props.request.secondaryCurrency].name}
                     </div>}
                 <div>
-                    <img src={Coins[props.request.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
+                    <img src={GetCoins[props.request.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
                 </div>
             </div>}
         </div>

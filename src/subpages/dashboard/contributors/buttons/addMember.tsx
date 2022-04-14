@@ -1,5 +1,4 @@
-import React, { SyntheticEvent, useEffect, useState } from "react";
-import { CeloCoins as Coins } from "types/coins/celoCoins";
+import React, { SyntheticEvent, useState } from "react";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { ClipLoader } from "react-spinners";
@@ -16,12 +15,11 @@ import { encryptMessage } from "utils/hashing";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import useAllowance from "API/useAllowance";
 import useGelato from "API/useGelato";
-import { Contracts } from "API/Contracts/Contracts";
-import usePay, { PaymentInput } from "API/usePay";
-import date from 'date-and-time'
+import useCeloPay, { PaymentInput } from "API/useCeloPay";
 import { SelectBalances } from "redux/reducers/currencies";
 import { ToastRun } from "utils/toast";
 import { AltCoins, CoinsName, CoinsURL } from "types";
+import { useWalletKit } from "hooks";
 
 
 export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
@@ -29,9 +27,10 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const storage = useAppSelector(selectStorage)
 
     const { allow, loading: allowLoading } = useAllowance()
-    const { GenerateBatchPay } = usePay()
+    const { GenerateBatchPay } = useCeloPay()
     const { createTask, loading } = useGelato()
     const balance = useAppSelector(SelectBalances)
+    const { GetCoins } = useWalletKit()
 
     const contributors = useAppSelector(selectContributors).contributors
     const { addMember, isLoading } = useContributors()
@@ -45,8 +44,8 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
 
     const [selected, setSelected] = useState<DropDownItem>(contributors.length > 0 ? { name: "Select Team", coinUrl: CoinsURL.None } : { name: "No Team", coinUrl: CoinsURL.None })
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({ name: "Monthly", type: DateInterval.monthly })
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>(Coins[CoinsName.CELO]);
-    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>(Coins[CoinsName.CELO]);
+    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>(GetCoins[CoinsName.CELO]);
+    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>(GetCoins[CoinsName.CELO]);
 
     const [selectedType, setSelectedType] = useState(false)
 
@@ -67,7 +66,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         const amountValue2 = (amount2 as HTMLInputElement)?.value
 
         if (firstNameValue && lastNameValue && walletAddressValue && amountValue) {
-            if (!Object.values(Coins).includes(selectedWallet as AltCoins)) {
+            if (!Object.values(GetCoins).includes(selectedWallet as AltCoins)) {
                 ToastRun(<>Please, choose a Celo wallet</>)
                 return
             }
@@ -171,7 +170,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                     <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                         <input type="number" name="amount" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
                         {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                        {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(Coins)} />}
+                        {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
 
                     </div>
                 </div>
@@ -180,7 +179,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                         <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                             <input type="number" name="amount2" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} />
                             {selectedType && <span className="text-xs self-center opacity-70 dark:text-white ">USD as</span>}
-                            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(Coins)} />}
+                            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
 
                         </div>
                     </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}

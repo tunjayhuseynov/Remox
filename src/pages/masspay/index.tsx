@@ -8,15 +8,14 @@ import { DropDownItem } from "types/dropdown";
 import { MultipleTransactionData } from "types/sdk";
 import { selectStorage } from "redux/reducers/storage";
 import TeamInput from "subpages/pay/teaminput";
-import { CeloCoins } from "types/coins/celoCoins";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectBalances } from "redux/reducers/currencies";
 import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
-import { useRefetchData } from "hooks";
+import { useRefetchData, useWalletKit } from "hooks";
 import Button from "components/button";
 import { DateInterval, IMember } from "API/useContributors";
-import usePay, { PaymentInput } from "API/usePay";
+import useCeloPay, { PaymentInput } from "API/useCeloPay";
 import useMultisig from "API/useMultisig";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
@@ -32,6 +31,7 @@ const MassPay = () => {
     const { state } = useLocation() as { state: { memberList?: IMember[] | IRequest[], request?: boolean } }
     const memberList = state?.memberList
     const { editMember } = useContributors()
+    const { GetCoins } = useWalletKit()
 
 
     const storage = useAppSelector(selectStorage)
@@ -46,7 +46,8 @@ const MassPay = () => {
 
     const [refetch] = useRefetchData()
 
-    const { BatchPay, Pay } = usePay()
+    // const { BatchPay, Pay } = usePay()
+    const { SendBatchTransaction, SendTransaction } = useWalletKit()
     const { submitTransaction } = useMultisig()
 
     const contributors = useAppSelector(selectContributors).contributors
@@ -87,8 +88,8 @@ const MassPay = () => {
         if (mems.length) {
             for (let index = 0; index < mems.length; index++) {
                 let amount;
-                if (mems[index].usdBase) {
-                    amount = (parseFloat(mems[index].amount) * (balance[CeloCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
+                if (mems[index].usdBase && GetCoins) {
+                    amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
                 } else {
                     amount = mems[index].amount
                 }
@@ -101,9 +102,9 @@ const MassPay = () => {
 
                 let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
 
-                if (secAmount && secCurrency) {
+                if (secAmount && secCurrency && GetCoins) {
                     if (mems[index].secondaryAmount) {
-                        secAmount = (parseFloat(secAmount) * (balance[CeloCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
+                        secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
                     }
 
                     result.push({
@@ -117,9 +118,10 @@ const MassPay = () => {
         setIsPaying(true)
 
         try {
-            if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
+            if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase() && GetCoins) {
                 if (result.length === 1) {
-                    await Pay({ coin: CeloCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
+                    // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
+                    await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
 
                     if (result[0].member && !state?.request) {
                         let member = { ...result[0].member! } as IMember;
@@ -135,15 +137,16 @@ const MassPay = () => {
                         await editMember(member.teamId, member.id, member)
                     }
                 }
-                else if (result.length > 1) {
+                else if (result.length > 1 && GetCoins) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: CeloCoins[w.tokenName as keyof Coins],
+                        coin: GetCoins[w.tokenName as keyof Coins],
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true
                     }))
 
-                    await BatchPay(arr, undefined, [tags.find(w => w.id === "Payroll")!])
+                    // await BatchPay(arr, undefined, [tags.find(w => w.id === "Payroll")!])
+                    await SendBatchTransaction(arr, undefined, [tags.find(w => w.id === "Payroll")!]);
 
                     for (let index = 0; index < result.length; index++) {
                         if (result[index].member && !state?.request) {
@@ -163,12 +166,12 @@ const MassPay = () => {
                     }
                 }
             } else {
-                if (result.length === 1) {
-                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: CeloCoins[result[0].tokenName as keyof Coins] }])
+                if (result.length === 1 && GetCoins) {
+                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
                 }
-                else if (result.length > 1) {
+                else if (result.length > 1 && GetCoins) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: CeloCoins[w.tokenName as keyof Coins],
+                        coin: GetCoins[w.tokenName as keyof Coins],
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true
@@ -238,15 +241,16 @@ const MassPay = () => {
                                 </div>
                             </div>
                             <span className="text-lg">Total: $ {Object.values(resMember.filter(s => selectedId.includes(s.id))).reduce((a, e, i) => {
+                                if(!GetCoins) return a;
                                 if (e.secondaryCurrency && e.secondaryAmount) {
                                     if (e.usdBase) {
                                         a += parseFloat(e.secondaryAmount)
                                     } else {
-                                        a += parseFloat(e.secondaryAmount) * (balance[CeloCoins[e.secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                                        a += parseFloat(e.secondaryAmount) * (balance[GetCoins[e.secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                                     }
                                 }
                                 if (e.usdBase) return a + parseFloat(e.amount);
-                                return a + parseFloat(e.amount) * (balance[CeloCoins[e.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1);
+                                return a + parseFloat(e.amount) * (balance[GetCoins[e.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1);
                             }, 0).toFixed(2)}</span>
                             <div className="flex flex-col space-y-3">
                                 <span className="text-left">Description (Optional)</span>

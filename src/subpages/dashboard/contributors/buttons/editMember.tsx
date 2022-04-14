@@ -2,7 +2,6 @@ import { Dispatch, SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ClipLoader } from "react-spinners";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
-import { CeloCoins as Coins } from "types/coins/celoCoins";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
@@ -14,25 +13,25 @@ import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/reducers/storage";
 import { encryptMessage } from "utils/hashing";
-import { useContractKit } from "@celo-tools/use-contractkit";
 import useAllowance from "API/useAllowance";
 import useGelato from "API/useGelato";
 import { Contracts } from "API/Contracts/Contracts";
-import usePay, { PaymentInput } from "API/usePay";
+import useCeloPay, { PaymentInput } from "API/useCeloPay";
 import date from 'date-and-time'
 import { SelectBalances } from 'redux/reducers/currencies';
 import { ToastRun } from "utils/toast";
 import { CoinsName, CoinsURL } from "types";
+import { useWalletKit } from "hooks";
 
 const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const dispatch = useDispatch()
-    const { kit } = useContractKit()
+    const { GetCoins } = useWalletKit()
 
     const storage = useAppSelector(selectStorage)
     const balance = useAppSelector(SelectBalances)
 
     const { allow, loading: allowLoading } = useAllowance()
-    const { GenerateBatchPay } = usePay()
+    const { GenerateBatchPay } = useCeloPay()
     const { updateAddress, updateCommand, updateTime, createTask, cancelTask, loading } = useGelato()
 
     const contributors = useAppSelector(selectContributors).contributors
@@ -48,8 +47,8 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const [selectedExecution, setSelectedExecution] = useState(props.execution === ExecutionType.auto)
 
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({ name: "Monthly", type: DateInterval.monthly })
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: Coins[props.currency].name, id: Coins[props.currency].name, coinUrl: Coins[props.currency].coinUrl });
-    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>({ name: Coins[props.currency].name, id: Coins[props.currency].name, coinUrl: Coins[props.currency].coinUrl });
+    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: GetCoins[props.currency].name, id: GetCoins[props.currency].name, coinUrl: GetCoins[props.currency].coinUrl });
+    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>({ name: GetCoins[props.currency].name, id: GetCoins[props.currency].name, coinUrl: GetCoins[props.currency].coinUrl });
 
     const [selectedType, setSelectedType] = useState(props.usdBase)
 
@@ -68,7 +67,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
             setEndDate(new Date(props.paymantEndDate))
         }
         if (props.secondaryCurrency) {
-            setSelectedWallet2({ name: Coins[props.secondaryCurrency].name, id: Coins[props.secondaryCurrency].name, coinUrl: Coins[props.secondaryCurrency].coinUrl })
+            setSelectedWallet2({ name: GetCoins[props.secondaryCurrency].name, id: GetCoins[props.secondaryCurrency].name, coinUrl: GetCoins[props.secondaryCurrency].coinUrl })
         }
     }, [])
 
@@ -95,10 +94,10 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
             const amountValue = (amount as HTMLInputElement).value
             const addressValue = (address as HTMLInputElement).value
             const amountValue2 = (amount2 as HTMLInputElement)?.value
-            if (addressValue.trim().startsWith("0x")) {
-                const isAddressExist = kit.web3.utils.isAddress(addressValue.trim());
-                if (!isAddressExist) throw new Error("There is not any wallet belong this address");
-            }
+            // if (addressValue.trim().startsWith("0x")) {
+            //     const isAddressExist = kit.web3.utils.isAddress(addressValue.trim());
+            //     if (!isAddressExist) throw new Error("There is not any wallet belong this address");
+            // }
 
             try {
                 let hash;
@@ -117,13 +116,13 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
                             let realMoney = Number(amountValue) * realDays
                             if (selectedType) {
-                                realMoney *= (balance[Coins[selectedWallet.name].name]?.tokenPrice ?? 1)
+                                realMoney *= (balance[GetCoins[selectedWallet.name].name]?.tokenPrice ?? 1)
                             }
-                            await allow(Coins[selectedWallet.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                            await allow(GetCoins[selectedWallet.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
                             const paymentList: PaymentInput[] = []
 
                             paymentList.push({
-                                coin: Coins[selectedWallet.name],
+                                coin: GetCoins[selectedWallet.name],
                                 recipient: addressValue.trim(),
                                 amount: amountValue.trim()
                             })
@@ -131,11 +130,11 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             if (amountValue2 && selectedWallet2.name) {
                                 let realMoney = Number(amountValue2) * realDays
                                 if (selectedType) {
-                                    realMoney *= (balance[Coins[selectedWallet2.name].name]?.tokenPrice ?? 1)
+                                    realMoney *= (balance[GetCoins[selectedWallet2.name].name]?.tokenPrice ?? 1)
                                 }
-                                await allow(Coins[selectedWallet2.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                                await allow(GetCoins[selectedWallet2.name].contractAddress, Contracts.Gelato.address, realMoney.toString())
                                 paymentList.push({
-                                    coin: Coins[selectedWallet2.name],
+                                    coin: GetCoins[selectedWallet2.name],
                                     recipient: addressValue.trim(),
                                     amount: amountValue2.trim()
                                 })
@@ -234,7 +233,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                             <input type="number" defaultValue={member.amount} name="amount" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
                             {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(Coins)} />}
+                            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
 
                         </div>
                     </div>
@@ -243,7 +242,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                                 <input type="number" defaultValue={(member.secondaryAmount ?? 0)} name="amount2" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
                                 {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                                {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(Coins)} />}
+                                {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
 
                             </div>
                         </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}

@@ -15,7 +15,7 @@ export function toWei(num: Num) {
 }
 
 export function toLamport(num: Num) {
-	return BN(num).times(lamport).toString();
+	return BN(num).times(lamport).toNumber();
 }
 
 export function fromLamport(num: Num) {

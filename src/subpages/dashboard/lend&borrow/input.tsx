@@ -1,17 +1,19 @@
 import { Dispatch, useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { CeloCoins, PoofCoins } from "../../../types/coins/celoCoins";
+import { PoofCoins } from "../../../types/coins/celoCoins";
 import { DropDownItem } from "../../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
 import { AltCoins, TokenType } from "types";
+import { useWalletKit } from "hooks";
 
 
 const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, maxAmount }: { maxAmount?: number, customCurreny: string, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, amount: number, setAmount: Dispatch<number> }) => {
     const { walletType } = useContractKit()
+    const { GetCoins } = useWalletKit()
 
     useEffect(() => {
-        const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
+        const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
         setWallet([...selectedWallet, v, v])
     }, [])
 

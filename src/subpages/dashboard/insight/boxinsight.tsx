@@ -18,8 +18,8 @@ const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, 
     const { list: transactions } = useTransaction(selectedAccounts)
     
     const { AllPrices, TotalBalance } = useCalculation(fetchedBalance, fetchedCurrencies)
-    const currencies = AllPrices()
-    const totalBalance = TotalBalance()
+    const currencies = AllPrices
+    const totalBalance = TotalBalance
 
 
     const [lastIn, setIn] = useState<number>(0)
@@ -39,7 +39,7 @@ const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, 
                     timeIndex = Number(transaction.rawData.timeStamp);
                     oldest = transaction;
                 }
-                if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase())) {
+                if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
                     if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                         const tx = transaction as ITransfer;
                         average += (Number(fromWei(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
@@ -102,7 +102,7 @@ const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, 
             let myout = 0;
             transactions.forEach(t => {
                 const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
-                if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate) {
+                if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate && currencies) {
                     let calc = 0;
                     if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                         const tx = t as ITransfer;

@@ -180,7 +180,7 @@ export default function Form() {
                         Date of service
                       </div>
                       <div>
-                        <DatePicker className="mb-0 sm:w-full sm:h-[2.813rem]  bg-red-500 border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
+                        <DatePicker className="mb-0 sm:w-full sm:h-[2.813rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} required />
                       </div>
                     </div>
                     <div className="flex flex-col space-y-2">

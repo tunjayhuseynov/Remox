@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { ClipLoader } from "react-spinners";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
-import { CeloCoins as Coins } from '../../../types/coins/celoCoins';
 import { useAppSelector } from '../../../redux/hooks';
 import CoinItem from './coinitem';
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
@@ -11,6 +10,7 @@ import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
 import Chartjs from "components/general/chart";
 import useModalSideExit from 'hooks/useModalSideExit';
 import { AltCoins, CoinsName } from "types";
+import { getElementAtEvent } from "react-chartjs-2";
 
 ChartJs.register(
     Tooltip, Title, ArcElement, Legend
@@ -59,9 +59,20 @@ const Statistic = () => {
 
     const balanceRedux = useAppSelector(SelectBalances)
 
-    const all = balanceRedux
-
-
+    const onHover = useCallback((ref, item, dispatch) => {
+        return (event: any) => {
+            const el = getElementAtEvent((ref as any).current as any, event)
+            if (el.length > 0 && el[0].index > 0) {
+                const index = el[0].index ?? 1;
+                dispatch(item[index].name);
+                (ref as any).current.setActiveElements([{ datasetIndex: 0, index: index }])
+            } else {
+                (ref as any).current.setActiveElements([])
+                dispatch("");
+            }
+            (ref as any).current.update()
+        }
+    }, [])
 
     const percent = useMemo(() => {
         if (currencies && balanceRedux && balanceRedux.CELO) {
@@ -100,10 +111,10 @@ const Statistic = () => {
     }, [selectcoin])
 
     useEffect(() => {
-        if (all) {
-            setAllInOne(Object.values(all).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString())).slice(0, 4))
+        if (balanceRedux) {
+            setAllInOne(Object.values(balanceRedux).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString())).slice(0, 4))
         }
-    }, [all, selectedAccount])
+    }, [balanceRedux, selectedAccount])
 
     useEffect(() => {
         if (transactions) {
@@ -111,7 +122,6 @@ const Statistic = () => {
             let myout = 0;
             transactions.forEach(t => {
                 let feeToken = Object.entries(CoinsName).find(w => w[0] === t.rawData.tokenSymbol)?.[1]
-                const coin = feeToken ? Coins[feeToken] : Coins.cUSD;
                 const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
                 if (tTime.getMonth() === new Date().getMonth()) {
                     let calc = 0;
@@ -210,7 +220,7 @@ const Statistic = () => {
         <div className="sm:flex flex-col hidden relative">
             <div>Asset</div>
             <div className="h-full w-full">
-                <Chartjs data={data} ref={chartjs} />
+                <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, allInOne, setSelectcoin)}/>
             </div>
         </div>
         {
@@ -222,7 +232,14 @@ const Statistic = () => {
                                 setSelectcoin(item.coins.name)
                                 UpdateChartAnimation(index)
                             }
-                        }} selectcoin={selectcoin} title={item.coins.name} coin={item.amount.toFixed(2)} usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} percent={(item.percent || 0).toFixed(1)} rate={item.per_24} img={item.coins.coinUrl} />
+                        }} 
+                        selectcoin={selectcoin} 
+                        title={item.coins.name} 
+                        coin={item.amount.toFixed(2)} 
+                        usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} 
+                        percent={(item.percent || 0).toFixed(1)} 
+                        rate={item.per_24} 
+                        img={item.coins.coinUrl} />
                     })}
                 </div> : <ClipLoader />
         }</>

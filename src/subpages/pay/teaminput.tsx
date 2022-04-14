@@ -1,21 +1,21 @@
 import { Dispatch, useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { CeloCoins as Coins } from "../../types/coins/celoCoins";
 import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { CoinsName } from "../../types";
 import { IMember } from "API/useContributors";
 import { IRequest } from "API/useRequest";
+import { useWalletKit } from "hooks";
 
 
 const TeamInput = (props: (IMember | IRequest) & { index: number, selectedId: string[], setSelectedId: Dispatch<string[]>, members: Array<(IMember | IRequest) & { selected: boolean }>, setMembers: Dispatch<Array<(IMember | IRequest) & { selected: boolean }>> }) => {
-
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: Coins[props.currency].name, coinUrl: Coins[props.currency].coinUrl })
+    const { GetCoins } = useWalletKit()
+    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>({ name: GetCoins[props.currency].name, coinUrl: GetCoins[props.currency].coinUrl })
     const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>()
 
     useEffect(() => {
         if (props.secondaryCurrency) {
-            setSelectedWallet2({ name: Coins[props.secondaryCurrency].name, coinUrl: Coins[props.secondaryCurrency].coinUrl })
+            setSelectedWallet2({ name: GetCoins[props.secondaryCurrency].name, coinUrl: GetCoins[props.secondaryCurrency].coinUrl })
         }
     }, [])
 
@@ -90,7 +90,7 @@ const TeamInput = (props: (IMember | IRequest) & { index: number, selectedId: st
                 updateValue({ val: e.target.value })
             }} required step={'any'} min={0} />
             {props.usdBase && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
         </div>
         <div className="hidden sm:block"></div>
         <div></div>
@@ -100,9 +100,9 @@ const TeamInput = (props: (IMember | IRequest) & { index: number, selectedId: st
                 updateValue({ val: e.target.value, wallet: false, is2: true })
             }} step={'any'} min={0} />
             {props.usdBase && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
         </div> : <div className="text-primary cursor-pointer text-sm" onClick={() => {
-            setSelectedWallet2({ name: Coins[CoinsName.CELO].name, coinUrl: Coins[CoinsName.CELO].coinUrl })
+            setSelectedWallet2({ name: GetCoins[CoinsName.CELO].name, coinUrl: GetCoins[CoinsName.CELO].coinUrl })
             updateValue({ val: '', wallet: true, is2: true, customWallet: CoinsName.CELO })
         }}> <span className="bg-greylish bg-opacity-5 font-semibold tracking-wide py-3 px-5 text-center rounded-xl">+ Add another token</span></div>}
         <div></div>

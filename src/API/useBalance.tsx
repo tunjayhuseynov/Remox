@@ -22,7 +22,6 @@ export default function useBalance(address: string | string[]) {
     const fetchBalance = useCallback(async () => {
         const Coins = GetCoins
         if (!Address || !Coins) return null;
-
         try {
             setLoading(true)
             let balances: { [name: string]: string } = {};
@@ -68,7 +67,6 @@ export default function useBalance(address: string | string[]) {
                     balances = Object.assign(balances, { [item.name]: altcoinBalance });
                 }
             }
-            console.log(balances)
             setFetchedBalance({ ...balances })
             setLoading(false)
             return { ...balances };

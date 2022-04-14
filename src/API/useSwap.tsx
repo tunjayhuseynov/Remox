@@ -42,7 +42,7 @@ export default function useSwap() {
 
             let approve = token.approve(
                 addressesMain.ubeswapRouter,
-                kit.web3.utils.toWei(amount, 'ether')
+                toWei(amount)
             );
 
             let sendFunc = await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("1", 'Gwei') });

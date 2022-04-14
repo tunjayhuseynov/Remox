@@ -1,23 +1,25 @@
 import { Dispatch, useEffect, useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import { ClipLoader } from "react-spinners";
-import { CeloCoins, PoofCoins } from "../../types/coins/celoCoins";
+import { PoofCoins } from "../../types/coins/celoCoins";
 import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
+import { useWalletKit } from "hooks";
 
 
 const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, overallIndex, amount, uniqueArr, isBasedOnDollar, setAmount, amountState }: { index: number, name: Array<string>, address: Array<string>, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, setIndex: Dispatch<number>, overallIndex: number, amount: Array<string>, uniqueArr: string[], isBasedOnDollar: boolean, setAmount: Dispatch<number[]>, amountState: number[] }) => {
     const { walletType } = useContractKit()
     const [anotherToken, setAnotherToken] = useState(false)
+    const { GetCoins } = useWalletKit()
 
     useEffect(() => {
-        if (!selectedWallet[index] && !selectedWallet[index + 1]) {
-            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl}))[0];
+        if (!selectedWallet[index] && !selectedWallet[index + 1] && GetCoins) {
+            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl}))[0];
             setWallet([...selectedWallet, v, v])
         }
 
-    }, [])
+    }, [GetCoins])
 
     return <>
         <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={name[index]} type="text" name={`name__${index}`} onChange={(e) => { name[index] = e.target.value; name[index + 1] = e.target.value }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
@@ -30,11 +32,11 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 setAmount(arr)
             }} required step={'any'} min={0} />
             {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="sm:h-[3rem] border-transparent text-sm border-none" onSelect={val => {
+            {!selectedWallet && !GetCoins ? <ClipLoader /> : <Dropdown className="sm:h-[3rem] border-transparent text-sm border-none" onSelect={val => {
                 const wallet = [...selectedWallet];
                 wallet[index] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
         <div className="hidden md:flex items-center">
@@ -59,11 +61,11 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
 
             }} step={'any'} min={0} />
             {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
+            {!selectedWallet && !GetCoins ? <ClipLoader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
                 const wallet = [...selectedWallet];
                 wallet[index + 1] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
             :

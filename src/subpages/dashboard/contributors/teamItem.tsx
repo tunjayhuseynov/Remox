@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { CeloCoins as Coins } from "types/coins/celoCoins";
 import Modal from "components/general/modal";
 import Profile from "subpages/dashboard/contributors/buttons/profile"
 import EditMember from "subpages/dashboard/contributors/buttons/editMember"
@@ -8,6 +7,7 @@ import Delete from './buttons/delete'
 import { IMember } from "API/useContributors";
 import useContributors from "hooks/useContributors";
 import useGelato from "API/useGelato";
+import { useWalletKit } from "hooks";
 
 const TeamItem = (props: IMember & { teamName: string }) => {
     const { removeMember } = useContributors()
@@ -15,6 +15,7 @@ const TeamItem = (props: IMember & { teamName: string }) => {
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const { cancelTask } = useGelato()
+    const { GetCoins } = useWalletKit()
 
     const onDelete = async () => {
         try {
@@ -42,22 +43,22 @@ const TeamItem = (props: IMember & { teamName: string }) => {
         <div className="flex flex-col space-y-4">
             <div className=" pl-[2px] flex items-center justify-start gap-1">
                 <div>{props.amount}</div>
-                {props.usdBase ? <div>USD as {Coins[props.currency].name}</div> :
+                {props.usdBase ? <div>USD as {GetCoins[props.currency].name}</div> :
                     <div>
-                        {Coins[props.currency].name}
+                        {GetCoins[props.currency].name}
                     </div>}
                 <div>
-                    <img src={Coins[props.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
+                    <img src={GetCoins[props.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
                 </div>
             </div>
             {props.secondaryCurrency && <div className="pl-[2px] flex items-center justify-start gap-1">
                 <div>{props.secondaryAmount}</div>
-                {props.secondaryUsdBase ? <div>USD as {Coins[props.secondaryCurrency].name}</div> :
+                {props.secondaryUsdBase ? <div>USD as {GetCoins[props.secondaryCurrency].name}</div> :
                     <div>
-                        {Coins[props.secondaryCurrency].name}
+                        {GetCoins[props.secondaryCurrency].name}
                     </div>}
                 <div>
-                    <img src={Coins[props.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
+                    <img src={GetCoins[props.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
                 </div>
             </div>}
         </div>

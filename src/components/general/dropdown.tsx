@@ -2,7 +2,7 @@ import { IoIosArrowDown } from 'react-icons/io'
 import { Dispatch, forwardRef, useEffect, useRef, useState, createRef, useMemo } from 'react'
 import { DropDownItem } from '../../types/dropdown'
 import { MouseEventHandler } from 'react'
-import { CoinsURL } from '../../types/coins/celoCoins'
+import { CoinsURL } from '../../types/coins'
 import { ClipLoader } from 'react-spinners'
 import useModalSideExit from '../../hooks/useModalSideExit'
 import { AnimatePresence, motion } from "framer-motion";

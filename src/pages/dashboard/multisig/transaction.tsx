@@ -5,11 +5,12 @@ import { SelectSelectedAccount } from "redux/reducers/selectedAccount"
 import { ClipLoader } from "react-spinners"
 import { selectStorage } from "redux/reducers/storage"
 import { useEffect, useState } from "react"
-import { AltCoins, CeloCoins as Coins } from "types"
+import { AltCoins } from "types"
 import { changeError, selectError } from "redux/reducers/notificationSlice"
 import Error from "components/general/error"
 import Button from "components/button"
 import { selectMultisigTransactions } from "redux/reducers/multisig"
+import { useWalletKit } from "hooks"
 
 const MultisigTransaction = () => {
     const history = useNavigate()
@@ -19,6 +20,7 @@ const MultisigTransaction = () => {
     const selectMultisig = useSelector(selectMultisigTransactions)
     const { signAndInternal: signData, owners, refetch: refreshMultisig, confirmTransaction, revokeTransaction, isLoading } = useMultisig()
     const transactionData = selectMultisig?.find(t => t.id === parseInt(id!))
+    const { GetCoins } = useWalletKit()
 
     const isError = useSelector(selectError)
     const dispatch = useDispatch()
@@ -114,9 +116,9 @@ const MultisigTransaction = () => {
                             return acc + w;
                         }, '')
                     }</div> : null}
-                    {filterData.valueOfTransfer ? <div className="flex space-x-3 items-center pt-3">
+                    {filterData.valueOfTransfer && GetCoins ? <div className="flex space-x-3 items-center pt-3">
                         <div>
-                            <img src={(Object.values(Coins).find((s: AltCoins) => s.contractAddress.toLowerCase() === transactionData?.destination.toLowerCase()) as AltCoins).coinUrl} alt="" className='w-[1.563rem] h-[1.563rem]' />
+                            <img src={(Object.values(GetCoins).find((s: AltCoins) => s.contractAddress.toLowerCase() === transactionData?.destination.toLowerCase()) as AltCoins).coinUrl} alt="" className='w-[1.563rem] h-[1.563rem]' />
                         </div>
                         <div>{filterData.valueOfTransfer}</div>
                     </div> : null}

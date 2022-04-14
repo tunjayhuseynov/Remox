@@ -1,10 +1,9 @@
 import useContributors from 'API/useContributors'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectContributors, setContributors } from 'redux/reducers/contributors'
+import { setContributors } from 'redux/reducers/contributors'
 import useBalance from '../API/useBalance'
 import useCurrency from '../API/useCurrency'
-import { useLazyGetTransactionsQuery } from '../redux/api'
 import { updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/reducers/currencies'
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from '../redux/reducers/storage'
@@ -75,8 +74,8 @@ const useRefetchData = () => {
 
                 if (balance) {
 
-                    const prices = AllPrices()
-                    const totalBalance = TotalBalance()
+                    const prices = AllPrices
+                    const totalBalance = TotalBalance
 
                     dispatch(updateTotalBalance(totalBalance))
 

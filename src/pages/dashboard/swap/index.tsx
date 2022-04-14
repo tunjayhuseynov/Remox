@@ -1,5 +1,4 @@
 import Dropdown from "components/general/dropdown";
-import { CeloCoins } from "types/coins/celoCoins";
 import { Coins, DropDownItem } from 'types'
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,16 +8,17 @@ import Success from "components/general/success";
 import Error from "components/general/error";
 import { ClipLoader } from "react-spinners";
 import Modal from "components/general/modal";
-import { useModalSideExit } from 'hooks';
+import { useModalSideExit, useWalletKit } from 'hooks';
 import useMultisig from "hooks/useMultisig";
 import Button from "components/button";
 import useSwap from "API/useSwap";
-import {motion, AnimatePresence} from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 const Swap = () => {
-    const [token1, setToken1] = useState<DropDownItem>(CeloCoins.cUSD)
+    const { GetCoins } = useWalletKit()
+    const [token1, setToken1] = useState<DropDownItem>(Object.values(GetCoins)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<DropDownItem>(CeloCoins.CELO)
+    const [token2, setToken2] = useState<DropDownItem>(Object.values(GetCoins)[1])
 
     const { isMultisig } = useMultisig()
 
@@ -52,8 +52,8 @@ const Swap = () => {
         if (token1.name && token2.name) {
             try {
                 const data = await MinmumAmountOut(
-                    CeloCoins[token1.name as keyof Coins],
-                    CeloCoins[token2.name as keyof Coins],
+                    GetCoins[token1.name as keyof Coins],
+                    GetCoins[token2.name as keyof Coins],
                     (value || (token1Amount ?? 0)).toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
@@ -72,8 +72,8 @@ const Swap = () => {
         if (token1.name && token2.name && token1Amount && token1Amount > 0) {
             try {
                 const data = await Exchange(
-                    CeloCoins[token1.name as keyof Coins],
-                    CeloCoins[token2.name as keyof Coins],
+                    GetCoins[token1.name as keyof Coins],
+                    GetCoins[token2.name as keyof Coins],
                     token1Amount.toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
@@ -99,7 +99,7 @@ const Swap = () => {
         }
     }, [token1, token2, token1Amount, slippageArr])
 
-    const settingRef = useModalSideExit<boolean>(isSetting, setSetting,false)
+    const settingRef = useModalSideExit<boolean>(isSetting, setSetting, false)
 
 
     const changeSwap = () => {
@@ -125,58 +125,58 @@ const Swap = () => {
                     <div className="relative">
                         <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
                         <AnimatePresence>
-                        {isSetting && <motion.div initial={ {opacity:0}} animate={{opacity:1}} exit={{opacity:0}}  ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
-                            <div className="flex flex-col space-y-4">
-                                <div className="font-bold text-xl">Transaction Settings</div>
-                                <div className="flex flex-col space-y-3">
-                                    <div className="text-xl">Slippage tolerance</div>
-                                    <div className="flex space-x-1 px-2">
-                                        {slippageArr.filter(s => !s.invisible).map((item, index) => <div key={index} onClick={() => {
-                                            const arr = [...slippageArr]
-                                            arr.forEach(i => i.selected = false)
-                                            arr[index].selected = true
-                                            setSlippageArr(arr)
-                                        }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : ""} px-4 py-2 bg-greylish bg-opacity-10 cursor-pointer rounded-xl`}>{item.label}</div>)}
-                                        <div className="bg-greylish bg-opacity-10 rounded-xl flex items-center pl-3 pr-5 space-x-1">
-                                            <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
-                                                const value = (event.target as HTMLInputElement).value
-                                                if (parseFloat(value) >= 0) {
-                                                    setSlippageArr(slippageArr.map((item, index) => {
-                                                        if (index === slippageArr.length - 1) {
-                                                            item.selected = true
-                                                            item.value = Math.max(0, Math.min(100, parseFloat(value)))
-                                                        } else item.selected = false
-                                                        return item
-                                                    }))
-                                                } else if (!value || value === "0") {
-                                                    setSlippageArr(slippageArr.map((item, index) => {
-                                                        if (index === slippageArr.length - 1) {
-                                                            item.selected = false
-                                                            item.value = 0
-                                                        } else if (index == 1) { item.selected = true } else item.selected = false
-                                                        return item
-                                                    }))
-                                                }
-                                            }} />
-                                            <span>%</span>
+                            {isSetting && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
+                                <div className="flex flex-col space-y-4">
+                                    <div className="font-bold text-xl">Transaction Settings</div>
+                                    <div className="flex flex-col space-y-3">
+                                        <div className="text-xl">Slippage tolerance</div>
+                                        <div className="flex space-x-1 px-2">
+                                            {slippageArr.filter(s => !s.invisible).map((item, index) => <div key={index} onClick={() => {
+                                                const arr = [...slippageArr]
+                                                arr.forEach(i => i.selected = false)
+                                                arr[index].selected = true
+                                                setSlippageArr(arr)
+                                            }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : ""} px-4 py-2 bg-greylish bg-opacity-10 cursor-pointer rounded-xl`}>{item.label}</div>)}
+                                            <div className="bg-greylish bg-opacity-10 rounded-xl flex items-center pl-3 pr-5 space-x-1">
+                                                <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
+                                                    const value = (event.target as HTMLInputElement).value
+                                                    if (parseFloat(value) >= 0) {
+                                                        setSlippageArr(slippageArr.map((item, index) => {
+                                                            if (index === slippageArr.length - 1) {
+                                                                item.selected = true
+                                                                item.value = Math.max(0, Math.min(100, parseFloat(value)))
+                                                            } else item.selected = false
+                                                            return item
+                                                        }))
+                                                    } else if (!value || value === "0") {
+                                                        setSlippageArr(slippageArr.map((item, index) => {
+                                                            if (index === slippageArr.length - 1) {
+                                                                item.selected = false
+                                                                item.value = 0
+                                                            } else if (index == 1) { item.selected = true } else item.selected = false
+                                                            return item
+                                                        }))
+                                                    }
+                                                }} />
+                                                <span>%</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex flex-col space-y-3">
-                                    <div className="text-xl">Transaction deadline</div>
-                                    <div className="flex space-x-1 px-2 items-center">
-                                        <input type="number" value={deadline === 1.5 ? undefined : deadline} onChange={(event) => {
-                                            const value = (event.target as HTMLInputElement).value
-                                            if (value) {
-                                                setDeadline(parseFloat(value))
-                                            } else setDeadline(1.5)
-                                        }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
-                                        <div>minutes</div>
+                                    <div className="flex flex-col space-y-3">
+                                        <div className="text-xl">Transaction deadline</div>
+                                        <div className="flex space-x-1 px-2 items-center">
+                                            <input type="number" value={deadline === 1.5 ? undefined : deadline} onChange={(event) => {
+                                                const value = (event.target as HTMLInputElement).value
+                                                if (value) {
+                                                    setDeadline(parseFloat(value))
+                                                } else setDeadline(1.5)
+                                            }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
+                                            <div>minutes</div>
+                                        </div>
                                     </div>
-                                </div>
 
-                            </div>
-                        </motion.div>}
+                                </div>
+                            </motion.div>}
                         </AnimatePresence>
                     </div>
                 </div>
@@ -187,7 +187,7 @@ const Swap = () => {
                                 if (w.name === token2.name) {
                                     setToken2(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
                         </div>
                         <div>
                             <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
@@ -233,7 +233,7 @@ const Swap = () => {
                                 if (w.name === token1.name) {
                                     setToken1(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
                         </div>
                         <div>
                             {!(!token1Amount) && (!isLoading ?

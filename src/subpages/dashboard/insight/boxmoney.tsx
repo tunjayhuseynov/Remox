@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useAppSelector } from '../../../redux/hooks';
 import { selectTags } from "redux/reducers/tags";
 import { useCalculation, useTransaction, useTransactionProcess } from "hooks";
@@ -12,6 +12,7 @@ import useModalSideExit from 'hooks/useModalSideExit'
 import useBalance from "API/useBalance";
 import { fromWei } from "utils/ray";
 import useCurrency from "API/useCurrency";
+import { getElementAtEvent } from "react-chartjs-2";
 
 type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
 type STag = Array<ATag>
@@ -43,17 +44,33 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
     const chartjs = useRef<ChartJs>(null)
     const chartjs2 = useRef<ChartJs>(null)
 
-    const [selectcoin, setSelectcoin] = useState<string>("")
-    const [selectcoin2, setSelectcoin2] = useState<string>("")
+    const [selectedCoin, setSelectedCoin] = useState<string>("")
+    const [selectedCoin2, setSelectedCoin2] = useState<string>("")
 
-    const customRef = useModalSideExit<string>(selectcoin, setSelectcoin, "")
-    const customRef2 = useModalSideExit<string>(selectcoin2, setSelectcoin2, "")
+    const onHover = useCallback((ref, item, dispatch) => {
+        return (event: any) => {
+            const el = getElementAtEvent((ref as any).current as any, event)
+            if (el.length > 0 && el[0].index > 0) {
+                const index = el[0].index ?? 1;
+                dispatch(item[index].id);
+                (ref as any).current.setActiveElements([{ datasetIndex: 0, index: index }])
+            } else {
+                (ref as any).current.setActiveElements([])
+                dispatch("");
+            }
+            (ref as any).current.update()
+        }
+    }, [])
+
+
+    const customRef = useModalSideExit<string>(selectedCoin, setSelectedCoin, "")
+    const customRef2 = useModalSideExit<string>(selectedCoin2, setSelectedCoin2, "")
 
     const { fetchedBalance } = useBalance(selectedAccounts)
     const fetchedCurrencies = useCurrency()
     const { AllPrices } = useCalculation(fetchedBalance, fetchedCurrencies)
 
-    const currencies = AllPrices()
+    const currencies = AllPrices
 
     const { list: transactions } = useTransaction(selectedAccounts)
 
@@ -83,8 +100,8 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
                     totalAmount: 0
                 }
                 tag.transactions.forEach(transaction => {
-                    const tx = transactions!.find(s => s.rawData.hash.toLowerCase() === transaction.toLowerCase())
-                    if (tx) {
+                    const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.toLowerCase())
+                    if (tx && currencies) {
                         const tTime = new Date(parseInt(tx.rawData.timeStamp) * 1e3)
                         if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate) {
                             let amount = 0;
@@ -126,7 +143,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             transactions.forEach(t => {
                 let feeToken = Object.entries(CoinsName).find(w => w[0] === t.rawData.tokenSymbol)?.[1]
                 const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
-                if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate) {
+                if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate && currencies) {
                     let calc = 0;
                     if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                         const tx = t as ITransfer;
@@ -229,29 +246,32 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
     }
 
     useEffect(() => {
-        if (!selectcoin) {
+        if (!selectedCoin) {
             UpdateChartAnimation()
         }
-        if (!selectcoin2) {
+        if (!selectedCoin2) {
             UpdateChartAnimation2()
         }
-    }, [selectcoin, selectcoin2])
+    }, [selectedCoin, selectedCoin2])
 
     const boxmoneydata = [
         {
             id: 1,
             header: "Money in",
             headermoney: lastIn?.toFixed(2),
-            chart: <Chartjs data={data} ref={chartjs} />,
+            chart: <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, inTags, setSelectedCoin)} />,
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
                 {inTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
-                        setSelectcoin(tag.id)
+                    return <div key={tag.id} className={`flex ${selectedCoin === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onMouseOver={() => {
+                        setSelectedCoin(tag.id)
                         if (chartjs.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation(index)
                         }
 
+                    }} onMouseLeave={() => {
+                        UpdateChartAnimation()
+                        setSelectedCoin("")
                     }}><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
             </div>
@@ -260,15 +280,18 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             id: 2,
             header: "Money out",
             headermoney: lastOut?.toFixed(2),
-            chart: <Chartjs data={data2} ref={chartjs2} />,
+            chart: <Chartjs data={data2} ref={chartjs2} onClickEvent={onHover(chartjs2, outTags, setSelectedCoin2)} />,
             tagList: outTags,
             tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef2} >
                 {outTags.map((tag, index) => {
-                    return <div key={tag.id} className={`flex ${selectcoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onClick={() => {
-                        setSelectcoin2(tag.id)
+                    return <div key={tag.id} className={`flex ${selectedCoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onMouseOver={() => {
+                        setSelectedCoin2(tag.id)
                         if (chartjs2.current && tag.totalAmount !== 0) {
                             UpdateChartAnimation2(index)
                         }
+                    }} onMouseLeave={() => {
+                        UpdateChartAnimation2()
+                        setSelectedCoin2("")
                     }}><div className="flex items-center"><div className="w-[0.625rem] h-[0.625rem] rounded-full " style={{ backgroundColor: tag.color }}></div><p className="font-bold pl-2 truncate">{tag.name}</p></div><p className="text-gray-500 font-bold">$ {tag.totalAmount.toFixed(2)}</p></div>
                 })}
             </div>

@@ -16,7 +16,7 @@ import { changeError, selectDarkMode, selectError } from "redux/reducers/notific
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IBalanceItem, SelectBalances } from "redux/reducers/currencies";
 import Button from "components/button";
-import usePay, { PaymentInput } from "API/usePay";
+import useCeloPay, { PaymentInput } from "API/useCeloPay";
 import useMultisig from 'API/useMultisig'
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
@@ -24,6 +24,7 @@ import { Tag } from "API/useTags";
 import { selectTags } from "redux/reducers/tags";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
 import { AltCoins, Coins } from "types";
+import { useWalletKit } from "hooks";
 
 const Pay = () => {
 
@@ -33,10 +34,12 @@ const Pay = () => {
     const isError = useSelector(selectError)
     const dispatch = useAppDispatch()
     const router = useNavigate();
+    const { GetCoins } = useWalletKit()
 
     const balance = useSelector(SelectBalances)
 
-    const { BatchPay, Pay } = usePay()
+    // const { BatchPay, Pay } = usePay()
+    const { SendTransaction, SendBatchTransaction } = useWalletKit()
     const { submitTransaction } = useMultisig()
 
     const [index, setIndex] = useState(1)
@@ -74,7 +77,7 @@ const Pay = () => {
 
 
     useEffect(() => {
-        if (csvImport.length > 0) {
+        if (csvImport.length > 0 && GetCoins) {
             const list = csvImport.filter(w => w.address && w.amount && w.coin)
             reset()
             let ind = 0;
@@ -95,8 +98,8 @@ const Pay = () => {
 
                 amm.push(parseFloat(amount2 || "0"))
 
-                const a = { ...CeloCoins[coin as keyof Coins], type: CeloCoins[coin as keyof Coins].name };
-                const b = { ...CeloCoins[coin2 as keyof Coins], type: CeloCoins[coin2 as keyof Coins].name };
+                const a = { ...GetCoins[coin as keyof Coins], type: GetCoins[coin as keyof Coins].name };
+                const b = { ...GetCoins[coin2 as keyof Coins], type: GetCoins[coin2 as keyof Coins].name };
                 const wallet = [a, b];
                 wllt.push(...wallet)
                 setAmountState(amm)
@@ -111,14 +114,14 @@ const Pay = () => {
 
 
     useEffect(() => {
-        if (balance && balance.CELO) {
+        if (balance && Object.keys(balance).length > 0) {
             const coins = Object.values(balance).map((coin: IBalanceItem) => ({
                 name: `${coin.amount.toFixed(3)} ${coin.coins.name}`,
                 type: coin.coins.name.toString(),
                 amount: coin.amount.toString(),
                 coinUrl: coin.coins.coinUrl,
             }))
-            const v = { name: coins[0].name.split(' ')[1], coinUrl: coins[0].coinUrl}
+            const v = { name: coins[0].name.split(' ')[1], coinUrl: coins[0].coinUrl }
             if (isPrivate) {
                 const v = { name: PoofCoins.CELO_v2.name, coinUrl: PoofCoins.CELO_v2.coinUrl, type: PoofCoins.CELO_v2.type }
                 setWallets([{ ...v }, { ...v }])
@@ -152,27 +155,30 @@ const Pay = () => {
                     })
                 }
             }
+            if(!GetCoins) return
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1) {
-                    await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
+                    // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
+                    await SendTransaction({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : GetCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins,
+                        coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : GetCoins[result[0].tokenName as keyof Coins]) as AltCoins,
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true
                     }))
 
-                    await BatchPay(arr, undefined, selectedTags)
+                    // await BatchPay(arr, undefined, selectedTags)
+                    await SendBatchTransaction(arr, undefined, selectedTags)
                 }
             } else {
                 if (result.length === 1) {
-                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: CeloCoins[result[0].tokenName as keyof Coins] }])
+                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: CeloCoins[w.tokenName as keyof Coins],
+                        coin: GetCoins[w.tokenName as keyof Coins],
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true

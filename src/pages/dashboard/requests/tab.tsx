@@ -1,13 +1,11 @@
 import { FirestoreWrite } from "API/useFirebase"
 import useMultisig from "API/useMultisig"
-import usePay, { PaymentInput } from "API/usePay"
+import useCeloPay, { PaymentInput } from "API/useCeloPay"
 import { IRequest, RequestStatus } from "API/useRequest"
 import Button from "components/button"
-import Error from "components/general/error"
 import Modal from "components/general/modal"
-import Success from "components/general/success"
 import { arrayRemove, FieldValue } from "firebase/firestore"
-import { useRefetchData } from "hooks"
+import { useWalletKit } from "hooks"
 import useRequest from "hooks/useRequest"
 import { useContext, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -22,7 +20,7 @@ import { selectStorage } from "redux/reducers/storage"
 import RequestedUserItem from "subpages/dashboard/requests/requestedUserItem"
 import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "subpages/dashboard/requests/totalAmount"
-import { CeloCoins, Coins } from "types"
+import { Coins } from "types"
 import { MultipleTransactionData } from "types/sdk"
 import { DashboardContext } from "../layout"
 
@@ -34,7 +32,8 @@ export default function TabPage() {
   const [isPaying, setIsPaying] = useState(false)
   const { submitTransaction } = useMultisig()
   const { genLoading } = useRequest()
-  const { BatchPay, Pay } = usePay()
+  // const { BatchPay, Pay } = usePay()
+  const { SendBatchTransaction, SendTransaction } = useWalletKit()
   const dispatch = useDispatch()
   const isError = useAppSelector(selectError)
   const [isSuccess, setSuccess] = useState(false)
@@ -56,6 +55,7 @@ export default function TabPage() {
   const balance = useAppSelector(SelectBalances)
   const storage = useAppSelector(selectStorage)
   const selectedAccount = useAppSelector(SelectSelectedAccount)
+  const { GetCoins } = useWalletKit()
 
 
   const Submit = async () => {
@@ -67,7 +67,7 @@ export default function TabPage() {
       for (let index = 0; index < mems.length; index++) {
         let amount;
         if (mems[index].usdBase) {
-          amount = (parseFloat(mems[index].amount) * (balance[CeloCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
+          amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
         } else {
           amount = mems[index].amount
         }
@@ -82,7 +82,7 @@ export default function TabPage() {
 
         if (secAmount && secCurrency) {
           if (mems[index].secondaryAmount) {
-            secAmount = (parseFloat(secAmount) * (balance[CeloCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
+            secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
           }
 
           result.push({
@@ -98,25 +98,27 @@ export default function TabPage() {
     try {
       if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
         if (result.length === 1) {
-          await Pay({ coin: CeloCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+          // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+          await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
         }
         else if (result.length > 1) {
           const arr: Array<PaymentInput> = result.map(w => ({
-            coin: CeloCoins[w.tokenName as keyof Coins],
+            coin: GetCoins[w.tokenName as keyof Coins],
             recipient: w.toAddress,
             amount: w.amount,
             from: true
           }))
 
-          await BatchPay(arr)
+          // await BatchPay(arr)
+          await SendBatchTransaction(arr)
         }
       } else {
         if (result.length === 1) {
-          await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: CeloCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
+          await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: GetCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
         }
         else if (result.length > 1) {
           const arr: Array<PaymentInput> = result.map(w => ({
-            coin: CeloCoins[w.tokenName as keyof Coins],
+            coin: GetCoins[w.tokenName as keyof Coins],
             recipient: w.toAddress,
             amount: w.amount,
             from: true

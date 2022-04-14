@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { db } from 'Firebase';
+import { db } from 'firebase';
 import { onSnapshot, doc, setDoc, getDoc, collection, query, where, getDocs, WhereFilterOp, runTransaction, deleteDoc } from 'firebase/firestore';
 
 
@@ -71,11 +71,11 @@ export function useFirestoreRead<DataType>(collection: string, document: string)
     return { data };
 }
 
-export function useFirestoreReadMultiple<DataType extends {}>(collectionName: string, firstQuery: string, condition: WhereFilterOp, secondQuery: any) {
+export function useFirestoreReadMultiple<DataType extends {}>(collectionName: string, queries: {firstQuery: string, condition: WhereFilterOp, secondQuery: any}[]) {
     const [data, setData] = useState<DataType[]>();
 
-    const read = (collectionName: string, firstQuery: string, secondQuery: any, condition: WhereFilterOp) => {
-        const q = query(collection(db, collectionName), where(firstQuery, condition, secondQuery));
+    const read = () => {
+        const q = query(collection(db, collectionName), ...queries.map(s=>where(s.firstQuery, s.condition, s.secondQuery)));
         return onSnapshot(q, (querySnapshot) => {
             const data: DataType[] = [];
             querySnapshot.forEach((doc) => {
@@ -86,7 +86,7 @@ export function useFirestoreReadMultiple<DataType extends {}>(collectionName: st
     }
 
     useEffect(() => {
-        const unsub = read(collectionName, firstQuery, secondQuery, condition);
+        const unsub = read();
         return () => unsub();
     }, [])
 

@@ -4,10 +4,11 @@ import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { GetTransactions, Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
-import { AltCoins, CeloCoins, Coins } from 'types';
+import { AltCoins, Coins } from 'types';
 import { Tag } from 'API/useTags';
 import { selectTags } from 'redux/reducers/tags';
 import { fromWei } from 'utils/ray';
+import useWalletKit from './useWalletKit';
 
 
 export const ERC20MethodIds = {
@@ -70,8 +71,9 @@ export interface IBatchRequest extends IFormattedTransaction {
 const useTransactionProcess = (txs?: Transactions[]): [IFormattedTransaction[], Transactions[]] | [] => {
     const transactions = useSelector(SelectTransactions);
     const tags = useSelector(selectTags);
+    const { GetCoins } = useWalletKit()
     return useMemo(() => {
-        if (transactions) {
+        if (transactions && GetCoins) {
             let result: Transactions[] = txs ? [...txs] : [...transactions]
 
             const FormattedTransaction: IFormattedTransaction[] = []
@@ -86,7 +88,7 @@ const useTransactionProcess = (txs?: Transactions[]): [IFormattedTransaction[], 
 
             uniqueHashs.forEach((transaction: Transactions) => {
                 const input = transaction.input;
-                const formatted = InputReader(input, transaction, tags);
+                const formatted = InputReader(input, transaction, tags, GetCoins);
 
                 if (formatted) {
                     FormattedTransaction.push({
@@ -104,7 +106,7 @@ const useTransactionProcess = (txs?: Transactions[]): [IFormattedTransaction[], 
 }
 
 
-export const InputReader = (input: string, transaction: Transactions, tags: Tag[]) => {
+export const InputReader = (input: string, transaction: Transactions, tags: Tag[], Coins: Coins) => {
     const theTags = tags.filter(s => s.transactions.includes(transaction.hash.toLowerCase()))
     if (input === null || input === ERC20MethodIds.noInput) {
         return {
@@ -113,7 +115,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
             from: transaction.from,
             to: transaction.to,
             amount: transaction.value.toString(),
-            coin: CeloCoins[transaction.tokenSymbol as keyof Coins],
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             tags: theTags
         }
     }
@@ -122,7 +124,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
         return {
             method: "transferFrom",
             id: ERC20MethodIds.transferFrom,
-            coin: CeloCoins[transaction.tokenSymbol as keyof Coins],
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             from: "0x" + input.slice(len, len + 64).substring(24),
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64 + 64 + 64, len + 64 + 64 + 64 + 64)).toString(),
@@ -133,14 +135,14 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
         return {
             method: "transfer",
             id: ERC20MethodIds.transfer,
-            coin: CeloCoins[transaction.tokenSymbol as keyof Coins],
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             to: "0x" + input.slice(len, len + 64).substring(24),
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             tags: theTags
         }
     } else if (input.startsWith(ERC20MethodIds.swap)) {
         const len = ERC20MethodIds.swap.length;
-        const coins: AltCoins[] = Object.values(CeloCoins)
+        const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "swap",
             id: ERC20MethodIds.swap,
@@ -157,7 +159,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
 
         let indexable = 0;
         for (let index = 0; index < splitted.length - 1; index++) {
-            coins.push({ coinAddress: Object.values(CeloCoins).find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(330 + indexable, 330 + indexable + 64).substring(24).toLowerCase())! })
+            coins.push({ coinAddress: Object.values(Coins).find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(330 + indexable, 330 + indexable + 64).substring(24).toLowerCase())! })
             indexable += 64;
         }
         for (let index = 1; index < splitted.length; index++) {
@@ -183,7 +185,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
             method: "transferWithComment",
             id: ERC20MethodIds.transferWithComment,
             to: "0x" + input.slice(len, len + 64).substring(24),
-            coin: CeloCoins[transaction.tokenSymbol as keyof Coins],
+            coin: Coins[transaction.tokenSymbol as keyof Coins],
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             comment: hexToUtf8("0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)),
             tags: theTags
@@ -201,7 +203,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
     }
     else if (input.startsWith(ERC20MethodIds.moolaBorrow)) {
         const len = ERC20MethodIds.moolaBorrow.length
-        const coins: AltCoins[] = Object.values(CeloCoins)
+        const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaBorrow",
             id: ERC20MethodIds.moolaBorrow,
@@ -213,7 +215,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
     }
     else if (input.startsWith(ERC20MethodIds.moolaDeposit)) {
         const len = ERC20MethodIds.moolaDeposit.length
-        const coins: AltCoins[] = Object.values(CeloCoins)
+        const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaDeposit",
             id: ERC20MethodIds.moolaDeposit,
@@ -225,7 +227,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
     }
     else if (input.startsWith(ERC20MethodIds.moolaWithdraw)) {
         const len = ERC20MethodIds.moolaWithdraw.length
-        const coins: AltCoins[] = Object.values(CeloCoins)
+        const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaWithdraw",
             id: ERC20MethodIds.moolaWithdraw,
@@ -237,7 +239,7 @@ export const InputReader = (input: string, transaction: Transactions, tags: Tag[
     }
     else if (input.startsWith(ERC20MethodIds.moolaRepay)) {
         const len = ERC20MethodIds.moolaRepay.length
-        const coins: AltCoins[] = Object.values(CeloCoins)
+        const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaWithdraw",
             id: ERC20MethodIds.moolaRepay,

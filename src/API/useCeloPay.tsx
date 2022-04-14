@@ -34,7 +34,7 @@ export interface Task {
     interval: DateInterval | "instant",
 }
 
-export default function usePay() {
+export default function useCeloPay() {
     const { kit, address, walletType } = useContractKit()
     const { createTask, getTaskIDs } = useGelato()
     const { allow } = useAllowance()
@@ -103,7 +103,7 @@ export default function usePay() {
     const Pay = async ({ coin, amount, recipient, comment }: PaymentInput, task?: Task, tags?: Tag[]) => {
         try {
             if (Object.values(PoofCoins).find((s: PoofAltCoins) => s.name === coin.name)) {
-                const amountWei = kit.web3.utils.toWei(amount.toString(), 'ether');
+                const amountWei = toWei(amount.toString());
                 if(Poof){
                     await Poof.transfer(coin.name as unknown as PoofCoinsName, amountWei, recipient)
                 }
@@ -112,12 +112,12 @@ export default function usePay() {
 
             let celotx = await GenerateTx({ coin, amount, recipient, comment });
 
-            let txSend = await celotx.send({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei'), gas: 300000 })
+            let txSend = await celotx.send({ from: address!, gasPrice: toWei("0.5"), gas: 300000 })
             let celoReceipt = await txSend.waitReceipt();
             if (task) {
                 let celotx = await GenerateTx({ coin, amount, recipient, comment });
                 const abi = celotx.txo.encodeABI()
-                await allow((coin as AltCoins).contractAddress, Contracts.Gelato.address, kit.web3.utils.toWei(amount.toString(), 'ether'))
+                await allow((coin as AltCoins).contractAddress, Contracts.Gelato.address, toWei(amount.toString()))
                 await createTask(Math.floor(new Date().getTime() / 1e3), task.interval, coin.contractAddress, abi);
             }
             await refetch()
@@ -139,7 +139,7 @@ export default function usePay() {
     }
 
     const GenerateTx = async ({ coin, amount, recipient, comment, from = false }: PaymentInput) => {
-        const amountWei = kit.web3.utils.toWei(amount.toString(), 'ether');
+        const amountWei = toWei(amount.toString());
 
         let nomContract = new kit.web3.eth.Contract(
             (await nomAbi).abi as AbiItem[],

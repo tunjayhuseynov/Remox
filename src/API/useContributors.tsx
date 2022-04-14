@@ -43,7 +43,13 @@ export interface IMember {
 
 export default function useContributors() {
   const storage = useSelector(selectStorage)
-  const { data } = useFirestoreReadMultiple<IuseContributor>("contributors", "userId", "==", storage?.uid);
+  const { data } = useFirestoreReadMultiple<IuseContributor>("contributors", [
+    {
+      firstQuery: "userId",
+      condition: "==",
+      secondQuery: storage?.uid
+    }
+  ]);
 
 
   return data;

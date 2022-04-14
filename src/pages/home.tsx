@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/button";
 import { useContractKit, PROVIDERS, localStorageKeys, useContractKitContext, WalletTypes } from "@celo-tools/use-contractkit";
 import { useFirestoreSearchField } from "../API/useFirebase";
-import { IUser } from "../Firebase";
+import { IUser } from "Firebase";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { useAppSelector, useAppDispatch } from "redux/hooks";
 import { useEffect, useState } from "react";

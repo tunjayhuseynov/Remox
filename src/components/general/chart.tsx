@@ -1,6 +1,6 @@
 import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
-import {Chart } from 'react-chartjs-2';
-import { forwardRef} from 'react';
+import { Chart, getDatasetAtEvent, getElementAtEvent } from 'react-chartjs-2';
+import { Dispatch, forwardRef, useCallback, useRef } from 'react';
 
 ChartJs.register(
     Tooltip, Title, ArcElement, Legend
@@ -10,20 +10,20 @@ interface IDatatype {
         data: number[];
         backgroundColor: string[];
         borderWidth: number;
-        hoverOffset:number;
+        hoverOffset: number;
         offset?: number;
-        spacing?:number;
+        spacing?: number;
     }[];
-    labels: string[];
+    labels: string[],
 }
 
 interface IProps {
     data: IDatatype;
+    onClickEvent: (event: any)=> void
 }
 
 
 const Chartjs = forwardRef<ChartJs | undefined, IProps>((props, ref) => {
-
     const options = {
         responsive: true,
         layout: {
@@ -34,16 +34,15 @@ const Chartjs = forwardRef<ChartJs | undefined, IProps>((props, ref) => {
                 enabled: false
             },
             legend: {
-                
                 display: false,
             },
-            
         },
-        events:[],
+        events: [],
     };
 
 
-    return <Chart type="doughnut" data={props.data} options={options} ref={ref} />
+    
+    return <Chart type="doughnut" data={props.data} options={options} ref={ref} onMouseMove={props.onClickEvent} />
 })
 
 export default Chartjs;

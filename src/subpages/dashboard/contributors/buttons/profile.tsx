@@ -1,12 +1,13 @@
 import { Dispatch } from "react";
-import { CeloCoins as Coins } from "types/coins/celoCoins";
 import Avatar from 'components/avatar'
 import Button from "components/button";
 import { IMember } from "API/useContributors";
 import { useNavigate } from "react-router-dom";
+import { useWalletKit } from "hooks";
 
 const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<boolean>, onCurrentModal: Dispatch<boolean>, onEditModal: Dispatch<boolean>, member: IMember }) => {
     const navigate = useNavigate()
+    const { GetCoins } = useWalletKit()
     return <>
         <div>
             <div className="text-xl font-bold pb-3">
@@ -42,7 +43,7 @@ const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<bo
                                 {props.amount}
                             </div>
                             <div>
-                                <img width="20" height="20" src={Coins[props.currency].coinUrl} alt="" className="rounded-full" />
+                                <img width="20" height="20" src={GetCoins[props.currency].coinUrl} alt="" className="rounded-full" />
                             </div>
                         </div>
                         {props.secondaryCurrency && <div className="flex space-x-2 items-center">
@@ -50,7 +51,7 @@ const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<bo
                                 {props.secondaryAmount}
                             </div>
                             <div>
-                                <img width="20" height="20" src={Coins[props.secondaryCurrency].coinUrl} alt="" className="rounded-full" />
+                                <img width="20" height="20" src={GetCoins[props.secondaryCurrency].coinUrl} alt="" className="rounded-full" />
                             </div>
                         </div>}
                     </div>

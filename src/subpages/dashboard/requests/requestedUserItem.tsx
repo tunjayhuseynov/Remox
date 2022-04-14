@@ -2,7 +2,7 @@ import { IRequest, RequestStatus } from 'API/useRequest';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
-import { CeloCoins, Coins } from 'types';
+import { Coins } from 'types';
 import { AddressReducer } from 'utils';
 import dateFormat from 'dateformat';
 import Modal from 'components/general/modal';
@@ -11,6 +11,7 @@ import useRequest from 'hooks/useRequest';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
 import { SelectCurrencies } from 'redux/reducers/currencies';
+import { useWalletKit } from 'hooks';
 
 
 const RequestedUserItem = ({ request, selected, setSelected, payment }: { request: IRequest, selected: IRequest[], setSelected: Dispatch<IRequest[]>, payment?: boolean }) => {
@@ -23,6 +24,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
     const { approveRequest, rejectRequest } = useRequest()
     const selectedAccount = useSelector(SelectSelectedAccount)
     const currency = useSelector(SelectCurrencies)
+    const { GetCoins } = useWalletKit()
 
     useEffect(() => {
         if (divRef.current && window.innerWidth / divRef.current.clientWidth > 3) {
@@ -100,13 +102,13 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
-                        {CeloCoins[request.currency as keyof Coins] ?
+                        {GetCoins && GetCoins[request.currency as keyof Coins] ?
                             <>
                                 <div>
-                                    <img src={CeloCoins[request.currency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
+                                    <img src={GetCoins[request.currency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                 </div>
                                 <div>
-                                    {CeloCoins[request.currency as keyof Coins]?.name ?? "Unknown Coin"}
+                                    {GetCoins[request.currency as keyof Coins]?.name ?? "Unknown Coin"}
                                 </div>
                             </>
                             : <div>Unknown Coin</div>
@@ -123,13 +125,13 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
-                            {CeloCoins[request.secondaryCurrency as keyof Coins] ?
+                            {GetCoins && GetCoins[request.secondaryCurrency as keyof Coins] ?
                                 <>
                                     <div>
-                                        <img src={CeloCoins[request.secondaryCurrency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
+                                        <img src={GetCoins[request.secondaryCurrency as keyof Coins]?.coinUrl} className="rounded-full w-[1.125rem] h-[1.125rem]" />
                                     </div>
                                     <div>
-                                        {CeloCoins[request.secondaryCurrency as keyof Coins]?.name ?? "Unknown Coin"}
+                                        {GetCoins[request.secondaryCurrency as keyof Coins]?.name ?? "Unknown Coin"}
                                     </div>
                                 </>
                                 : <div>Unknown Coin</div>
@@ -202,8 +204,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                             {request?.amount}
                                         </div>
                                         <div className="flex gap-x-2 items-center">
-                                            {request?.currency ? <img src={CeloCoins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                                            {request?.currency ? CeloCoins[request.currency as keyof Coins].name : ""}
+                                            {request?.currency && GetCoins ? <img src={GetCoins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
+                                            {request?.currency  && GetCoins? GetCoins[request.currency as keyof Coins].name : ""}
                                         </div>
                                     </div>
                                 </div>
@@ -215,8 +217,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                                 {request?.secondaryAmount}
                                             </div>
                                             <div className="flex gap-x-2 items-center">
-                                                {request?.secondaryCurrency ? <img src={CeloCoins[request.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                                                {request?.secondaryCurrency ? CeloCoins[request.secondaryCurrency as keyof Coins].name : ""}
+                                                {request?.secondaryCurrency && GetCoins? <img src={GetCoins[request.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
+                                                {request?.secondaryCurrency && GetCoins? GetCoins[request.secondaryCurrency as keyof Coins].name : ""}
                                             </div>
                                         </div>
                                     </div>

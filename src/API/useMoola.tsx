@@ -2,13 +2,14 @@ import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/reducers/moola";
-import { AltCoins, CeloCoins, Coins, TokenType } from "types";
+import { AltCoins, Coins, TokenType } from "types";
 import BigNumber from 'bignumber.js'
 import { BN, etherSize, fromWei, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
 import { SelectCurrencies } from 'redux/reducers/currencies'
+import { useWalletKit } from "hooks";
 const MoolaProxy = import("./ABI/MoolaProxy.json")
 const Moola = import("./ABI/Moola.json")
 const MoolaData = import("./ABI/MoolaData.json")
@@ -29,6 +30,7 @@ export default function useMoola() {
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
+    const { GetCoins } = useWalletKit()
 
     const dispatch = useDispatch()
     const MoolaUserData = useSelector(selectMoolaData)
@@ -335,7 +337,8 @@ export default function useMoola() {
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
-            const coinList: AltCoins[] = Object.values(CeloCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
+            if (!GetCoins) return
+            const coinList: AltCoins[] = Object.values(GetCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
             const userData: MoolaUserComponentData[] = [];
             for (let index = 0; index < coinList.length; index++) {
                 try {

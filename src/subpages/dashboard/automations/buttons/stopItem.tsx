@@ -1,9 +1,9 @@
-import { CeloCoins as Coins } from "types";
 import Avatar from "components/avatar";
 import { DateInterval, IMember } from "API/useContributors";
+import { useWalletKit } from "hooks";
 
 const TeamItem = (props: { member: IMember, memberState: IMember[] }) => {
-
+    const { GetCoins } = useWalletKit()
     return <>
         <div className="pl-4 items-start">
             <div className="flex space-x-3 items-center">
@@ -18,22 +18,22 @@ const TeamItem = (props: { member: IMember, memberState: IMember[] }) => {
         <div className="flex flex-col space-y-4">
             <div className=" pl-[2px] flex items-center justify-start gap-1">
                 <div>
-                    <img src={Coins[props.member.currency].coinUrl} width="15" height="15" alt="" className="rounded-full" />
+                    <img src={GetCoins[props.member.currency].coinUrl} width="15" height="15" alt="" className="rounded-full" />
                 </div>
                 <div>{props.member.amount}</div>
-                {props.member.usdBase ? <div>USD as {Coins[props.member.currency].name}</div> :
+                {props.member.usdBase ? <div>USD as {GetCoins[props.member.currency].name}</div> :
                     <div className="text-base">
-                        {Coins[props.member.currency].name}
+                        {GetCoins[props.member.currency].name}
                     </div>}
             </div>
             {props.member.secondaryCurrency && <div className=" pl-[2px] flex items-center justify-start gap-1">
                 <div>
-                    <img src={Coins[props.member.secondaryCurrency].coinUrl} width="15" height="15" alt="" className="rounded-full" />
+                    <img src={GetCoins[props.member.secondaryCurrency].coinUrl} width="15" height="15" alt="" className="rounded-full" />
                 </div>
                 <div>{props.member.secondaryAmount}</div>
-                {props.member.usdBase ? <div>USD as {Coins[props.member.secondaryCurrency].name}</div> :
+                {props.member.usdBase ? <div>USD as {GetCoins[props.member.secondaryCurrency].name}</div> :
                     <div>
-                        {Coins[props.member.secondaryCurrency].name}
+                        {GetCoins[props.member.secondaryCurrency].name}
                     </div>}
             </div>}
         </div>

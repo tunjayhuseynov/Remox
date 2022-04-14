@@ -51,22 +51,6 @@ export const CurrencySlice = createSlice({
 				return a;
 			}, {});
 		},
-		updateBalance: (state: ICurrency, action) => {
-			if (!action.payload) return;
-			const [ celo, cusd, ceur, ube, moo, mobi, poof, creal, pact, ari ]: ICurrencyInternal[] = action.payload;
-			state.celoCoins = {
-				CELO: { ...state.celoCoins.CELO, current_balance: celo.current_balance },
-				cUSD: { ...state.celoCoins.cUSD, current_balance: cusd.current_balance },
-				cEUR: { ...state.celoCoins.cEUR, current_balance: ceur.current_balance },
-				cREAL: { ...state.celoCoins.cREAL, current_balance: creal.current_balance },
-				UBE: { ...state.celoCoins.UBE, current_balance: ube.current_balance },
-				MOO: { ...state.celoCoins.MOO, current_balance: moo.current_balance },
-				MOBI: { ...state.celoCoins.MOBI, current_balance: mobi.current_balance },
-				POOF: { ...state.celoCoins.POOF, current_balance: poof.current_balance },
-				PACT: { ...state.celoCoins.PACT, current_balance: pact.current_balance },
-				ARI: { ...state.celoCoins.ARI, current_balance: ari.current_balance }
-			};
-		},
 		updateTotalBalance: (state: ICurrency, action: { payload: number | undefined }) => {
 			state.totalBalance = action.payload;
 		},

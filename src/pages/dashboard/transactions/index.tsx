@@ -2,7 +2,7 @@ import dateFormat from "dateformat";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import Accordion from "../../../components/accordion";
-import { TransactionDirection, TransactionStatus, AltCoins, Coins, CoinsName, CeloCoins } from "../../../types";
+import { TransactionDirection, TransactionStatus, AltCoins, Coins, CoinsName } from "../../../types";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import TransactionItem from "../../../components/transactionItem";
 import { useAppSelector } from "../../../redux/hooks";
@@ -20,7 +20,7 @@ import { WalletDropdown } from "../../../components/general/walletdropdown"
 import { fromWei } from "utils/ray";
 import AnimatedTabBar from "components/animatedTabBar";
 import { TransactionDirectionDeclare } from "utils";
-import { useTransaction } from "hooks";
+import { useTransaction, useWalletKit } from "hooks";
 import useMultiWallet from "hooks/useMultiWallet";
 
 
@@ -32,6 +32,7 @@ const Transactions = () => {
     const { refetch, isMultisig } = useMultisig()
     const { pathname } = useLocation()
     const tags = useAppSelector(selectTags)
+    const { GetCoins } = useWalletKit()
 
     let page: string;
     if (pathname.includes("/pending")) {
@@ -117,7 +118,7 @@ const Transactions = () => {
                                     let feeToken = Object.entries(CoinsName).find(s => s[0] === tx.tokenSymbol)?.[1]
                                     return {
                                         'Sent From:': tx.from,
-                                        'Amount:': parseFloat(fromWei(tx.value.toString())).toFixed(4) + ` ${feeToken ? CeloCoins[feeToken].name : "Unknown"}`,
+                                        'Amount:': parseFloat(fromWei(tx.value.toString())).toFixed(4) + ` ${feeToken && GetCoins ? GetCoins[feeToken].name : "Unknown"}`,
                                         'To:': tx.to,
                                         'Date': dateFormat(new Date(parseInt(tx.timeStamp) * 1e3), "mediumDate"),
                                         "Gas": `${fromWei((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString())} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
@@ -157,7 +158,7 @@ const Transactions = () => {
                                                     </div>
                                                 </div> */}
                                                         {w.owner ? <div className="truncate pr-10  text-base">{w.method?.toLowerCase().includes('transfer') ? 'To' : 'Owner'}: {w.owner}</div> : null}
-                                                        {w.valueOfTransfer ? <div className="truncate pr-10  text-base">Value: {w.valueOfTransfer} {(Object.values(CeloCoins).find((s: AltCoins) => s.contractAddress.toLowerCase() === w.destination.toLowerCase()) as AltCoins)?.name}</div> : null}
+                                                        {w.valueOfTransfer && GetCoins? <div className="truncate pr-10  text-base">Value: {w.valueOfTransfer} {(Object.values(GetCoins).find((s: AltCoins) => s.contractAddress.toLowerCase() === w.destination.toLowerCase()) as AltCoins)?.name}</div> : null}
                                                         {w.newOwner ? <div className="truncate pr-10  text-base">New Owner: {w.newOwner}</div> : null}
                                                         {w.requiredCount ? <div className="truncate pr-10  text-base">New Signature Threshold: {+w.requiredCount}</div> : null}
                                                     </div>

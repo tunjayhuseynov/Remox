@@ -2,14 +2,16 @@ import { IRequest } from "API/useRequest";
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies } from "redux/reducers/currencies";
-import { AltCoins, CeloCoins, Coins } from "types";
+import { AltCoins, Coins } from "types";
 import _ from 'lodash'
 import { generate } from "shortid";
+import { useWalletKit } from "hooks";
 
 export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
 
     const currency = useSelector(SelectCurrencies)
     const balance = useSelector(SelectBalances)
+    const { GetCoins } = useWalletKit()
 
     const cleanList: IRequest[] = []
 
@@ -39,7 +41,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
         {list.map((coin, index) => {
             const selectedCurrency = Object.entries(currency).find(c => c[0] === coin.currency) as [string, ICurrencyInternal] | undefined
             const selectedBalance = Object.entries(balance).find(c => c[0] === coin.currency) as [string, IBalanceItem] | undefined
-            const selectedCoin = Object.values(CeloCoins).find(c => c.name === coin.currency) as AltCoins | undefined
+            const selectedCoin = Object.values(GetCoins).find(c => c.name === coin.currency) as AltCoins | undefined
 
             if (!selectedCurrency || !selectedCoin || !selectedBalance || !selectedBalance[1]) return <Fragment key={index}></Fragment>
             return <Fragment key={generate()}>

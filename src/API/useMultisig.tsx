@@ -1,6 +1,6 @@
 import { useContractKit } from '@celo-tools/use-contractkit';
 import { toTransactionObject } from '@celo/connect';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 import { selectStorage } from 'redux/reducers/storage';
@@ -11,11 +11,12 @@ import { AltCoins, CeloCoins, Coins } from 'types';
 import { StableToken } from '@celo/contractkit';
 import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper';
 import { DashboardContext } from 'pages/dashboard/layout';
-import usePay, { PaymentInput } from './usePay';
+import useCeloPay, { PaymentInput } from './useCeloPay';
 import { Contracts } from './Contracts/Contracts';
 import { fromWei } from 'utils/ray';
-const multiProxy = import("./ABI/MultisigProxy.json")
-const multisigContract = import("./ABI/Multisig.json")
+
+import { GokiSDK } from '@gokiprotocol/client'
+import { useWalletKit } from 'hooks';
 
 export enum MethodIds {
     "0x173825d9" = 'removeOwner',
@@ -48,7 +49,9 @@ export default function useMultisig() {
     const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser!.uid)
     const [transactions, setTransactions] = useState<Transaction[]>()
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
-    const { GenerateBatchPay } = usePay()
+    const { GenerateBatchPay } = useCeloPay()
+    const { CreateMultisigAccount } = useWalletKit()
+
 
     const dispatch = useDispatch()
 
@@ -122,42 +125,8 @@ export default function useMultisig() {
             if (Number(sign) > owners.length + 1 || Number(internalSign) > owners.length + 1) {
                 throw new Error("Minimum sign count must be greater than the number of owners");
             }
-            const { abi: proxyABI, bytecode: proxyBytecode } = await multiProxy
-            const { abi: multiSigABI, bytecode: multiSigBytecode } = await multisigContract
-            const tx0 = toTransactionObject(
-                kit.connection,
-                (new kit.web3.eth.Contract(proxyABI as any)).deploy({ data: proxyBytecode }) as any)
 
-            const tx1 = toTransactionObject(
-                kit.connection,
-                (new kit.web3.eth.Contract(multiSigABI as any)).deploy({ data: multiSigBytecode }) as any)
-
-            const res0 = await tx0.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-            const res1 = await tx1.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-            if (!res0.contractAddress || !res1.contractAddress) {
-                throw new Error("MultiSig deploy failure");
-            }
-            const proxyAddress = res0.contractAddress
-            const multiSigAddress = res1.contractAddress
-
-            new Promise(resolve => setTimeout(resolve, 500))
-            const initializerAbi = multiSigABI.find((abi) => abi.type === 'function' && abi.name === 'initialize')
-            const callData = kit.web3.eth.abi.encodeFunctionCall(
-                initializerAbi as any,
-                [[address, ...owners] as any, sign as any, internalSign as any]
-            )
-
-            const proxy = new kit.web3.eth.Contract(proxyABI as any, proxyAddress)
-            const txInit = toTransactionObject(
-                kit.connection,
-                proxy.methods._setAndInitializeImplementation(multiSigAddress, callData)
-            )
-            const txChangeOwner = toTransactionObject(
-                kit.connection,
-                proxy.methods._transferOwnership(proxyAddress)
-            )
-            await txInit.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-            await txChangeOwner.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const proxyAddress = await CreateMultisigAccount(owners, name, sign, internalSign)
 
             if (data) {
                 await FirestoreWrite().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: proxyAddress }] })

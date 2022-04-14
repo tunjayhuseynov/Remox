@@ -85,7 +85,7 @@ const Sidebar = () => {
                 </div>
 
                 <div className="absolute -bottom-[15%] flex items-center gap-5 ">
-                    <Dropdown className="min-w-[12.5rem] bg-white dark:bg-darkSecond" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
+                    <Dropdown className="min-w-[12.5rem] max-w-[13rem] bg-white dark:bg-darkSecond truncate" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address) {
                             setItem(w)
                             dispatch(changeAccount(w.address))
