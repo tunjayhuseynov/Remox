@@ -64,7 +64,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
                 </div>}
             </div>
             {<motion.div variants={variants} initial={"close"} animate={isOpen ? "open" : "close"} ref={customRef} className={`absolute left-0 ${toTop ? "top-0 -translate-y-full" : "bottom-0 translate-y-full"} z-10 w-full overflow-hidden`}>
-                <ul id="ala" className="flex flex-col overflow-y-auto " style={list.length > 5 ?
+                <ul id="ala" className="flex flex-col overflow-y-auto" style={list.length > 5 ?
                     { height: window.outerWidth > 768 ? `${liHeights.slice(0, 5).reduce((a, c) => a + c, 0)}px` : `${liHeights.slice(0, 3).reduce((a, c) => a + c, 0)}px` }
                     :
                     { height: 'auto' }

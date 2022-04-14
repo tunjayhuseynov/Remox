@@ -1,6 +1,7 @@
+import React from "react"
 import { localStorageKeys } from "@celo-tools/use-contractkit";
 import { useSelector } from "react-redux";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate,useLocation } from "react-router-dom";
 import { selectStorage } from "./redux/reducers/storage";
 import { selectUnlock } from "./redux/reducers/unlock";
 import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react'
@@ -58,22 +59,25 @@ function App() {
     }
   }, [])
 
+  function useQuery() {
+    const { search } = useLocation();
+  
+    return React.useMemo(() => new URLSearchParams(search), [search]);
+  }
+  let query = useQuery();
+
   const address = Address
   return (
     <div>
       <ToastContainer />
       <Suspense fallback={<div className="h-screen w-full flex justify-center items-center"><ClipLoader /></div>}>
         <Routes>
-          <Route path="/celo" element={
+          <Route path="/" element={
             <LockIfUserIn unlock={unlock} storage={!!address && !!storage}>
-              <Home type="celo" />
+              <Home blockchain={query.get("blockchain")} />
             </LockIfUserIn>
           } />
-          <Route path="/solana" element={
-            <LockIfUserIn unlock={unlock} storage={!!address && !!storage}>
-              <Home type="solana" />
-            </LockIfUserIn>
-          } />
+         
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/unlock" element={
             (!!address) ? <Unlock /> : <Navigate to={'/'} replace />

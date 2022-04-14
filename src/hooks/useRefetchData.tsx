@@ -46,7 +46,6 @@ const useRefetchData = () => {
     }, [data])
 
     useEffect(() => {
-        console.log(transactionData)
         if (transactionData && transactionData.result && transactionData.result.length > 0 && !transactionFetching) {
             if (transactionStore?.result[0]?.hash !== transactionData.result[0]?.hash || transactionStore?.result[transactionStore.result.length - 1]?.hash !== transactionData.result[transactionData.result.length - 1]?.hash) {
                 dispatch(setTransactions(transactionData))

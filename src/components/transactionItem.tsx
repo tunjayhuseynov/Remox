@@ -195,7 +195,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 })}
             </div>}
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-            <Link to={`/dashboard/transactions/${Transaction.rawData.hash}`}> <Button version="second" className="px-8 py-2" >View Details</Button></Link>
+            <Link to={`/dashboard/transactions/${Transaction.rawData.hash}`}> <Button version="second" className="px-6 py-2" >View Details</Button></Link>
         </div>
     </div>
 }

@@ -8,29 +8,38 @@ import { useAppSelector, useAppDispatch } from "redux/hooks";
 import { useEffect, useState } from "react";
 import { changePrivateToken } from "redux/reducers/selectedAccount";
 import Dropdown from "components/general/dropdown";
-import { DropDownItem } from "types";
+import { CoinsURL, DropDownItem } from "types";
 import { BlockChainTypes, updateBlockchain } from "redux/reducers/network";
 import { useWalletKit } from "hooks";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { IoIosArrowDown } from 'react-icons/io';
+import { newBlockchainParameters } from "@celo/contractkit/lib/generated/BlockchainParameters";
 
 
-const Home = ({ type }: { type: "celo" | "solana" }) => {
+const Home = ({ blockchain }: { blockchain: string | null }) => {
     const { Connect, Address } = useWalletKit();
     const { search, isLoading } = useFirestoreSearchField<IUser>()
     const dark = useAppSelector(selectDarkMode)
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const [ctx, setState] = useContractKitContext()
+    // const [isOpen, setOpen] = useState(false)
+    // const [value, setValue] = useState<string>()
+
+       
 
     const [selected, setSelected] = useState<DropDownItem>(
-        { name: type==="celo" ? type : "solana", address: type==="celo" ? type : "solana" }
-        )
+        { name: blockchain ?? "celo" , address:blockchain ?? "celo",coinUrl: CoinsURL.CELO }
+    )
 
     useEffect(() => {
         dispatch(updateBlockchain(selected.address! as BlockChainTypes))
-        if(selected.address){
+        if (selected.address) {
             localStorage.setItem("blockchain", selected.address)
         }
+        // if (blockchain){
+        //     setValue(blockchain) 
+        //    }
     }, [selected])
 
     useEffect(() => {
@@ -90,10 +99,9 @@ const Home = ({ type }: { type: "celo" | "solana" }) => {
                     <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
                     <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
                 </div>
-                <div className="flex flex-col items-center justify-center gap-5">
-                    <div className=" min-w-[80%] py-2  bg-light dark:bg-dark rounded-lg border border-primary flex items-center justify-center text-lg gap-2"><img src={`/icons/${type}.png`} alt="" className="w-[15px] h-[15px]" />{type==="celo" ? "Celo" : "Solana"}</div>
-                    {/* <Dropdown className={""} selected={selected} onSelect={setSelected} list={[{ name: "Solana", address: "solana" }, { name: "Celo", address: "celo" }]} /> */}
-                    {<Button onClick={connectEvent} isLoading={isLoading}>{Address ? "Enter App" : "Connect to a wallet"}</Button>}
+                <div className="flex flex-col items-center justify-center gap-14">
+                    <Dropdown className={" border !border-primary"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected}  list={[{ name: "Solana", address: "solana",coinUrl:  CoinsURL.CELO}, { name: "Celo", address: "celo",coinUrl:  CoinsURL.CELO  }]} />
+                    {<Button  onClick={connectEvent} isLoading={isLoading}>{Address ? "Enter App" : "Connect to a wallet"}</Button>}
                 </div>
             </div>
         </section>
