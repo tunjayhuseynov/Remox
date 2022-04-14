@@ -1,13 +1,11 @@
 import Button from "components/button";
-import Error from "components/general/error";
-import Success from "components/general/success";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { changeError, changeSuccess, selectDarkMode, selectError, selectSuccess } from "redux/reducers/notificationSlice";
 import Input from "subpages/pay/payinput";
 import { generate } from 'shortid'
-import { Coins, CoinsName, DropDownItem } from "types";
+import { CeloCoins, Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import DatePicker from "react-datepicker";
@@ -246,8 +244,8 @@ export default function Form() {
                           {result?.amount}
                         </div>
                         <div className="flex gap-x-2 items-center">
-                          {result?.currency ? <img src={Coins[result.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                          {result?.currency ? Coins[result.currency as keyof Coins].name : ""}
+                          {result?.currency ? <img src={CeloCoins[result.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
+                          {result?.currency ? CeloCoins[result.currency as keyof Coins].name : ""}
                         </div>
                       </div>
                     </div>
@@ -259,8 +257,8 @@ export default function Form() {
                             {result?.secondaryAmount}
                           </div>
                           <div className="flex gap-x-2 items-center">
-                            {result?.secondaryCurrency ? <img src={Coins[result.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                            {result?.secondaryCurrency ? Coins[result.secondaryCurrency as keyof Coins].name : ""}
+                            {result?.secondaryCurrency ? <img src={CeloCoins[result.secondaryCurrency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
+                            {result?.secondaryCurrency ? CeloCoins[result.secondaryCurrency as keyof Coins].name : ""}
                           </div>
                         </div>
                       </div>

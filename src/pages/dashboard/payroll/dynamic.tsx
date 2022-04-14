@@ -3,7 +3,7 @@ import { Fragment, useState, useMemo } from 'react';
 import TeamContainer from 'subpages/dashboard/payroll/teamContainer'
 import { ClipLoader } from 'react-spinners';
 import { SelectBalances } from 'redux/reducers/currencies';
-import { Coins } from 'types';
+import { CeloCoins, Coins } from 'types';
 import { useNavigate } from 'react-router-dom'
 import { selectContributors } from 'redux/reducers/contributors';
 import { DateInterval, ExecutionType, IMember } from 'API/useContributors';
@@ -56,7 +56,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                     }
                     let amount = parseFloat(curr.amount)
                     if (curr.usdBase) {
-                        amount /= (balance[Coins[curr.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                        amount /= (balance[CeloCoins[curr.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                     }
 
                     if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
@@ -91,7 +91,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                     }
                     let amount = (parseFloat(curr!.secondaryAmount!))
                     if (curr.secondaryUsdBase) {
-                        amount /= (balance[Coins[curr.secondaryCurrency! as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                        amount /= (balance[CeloCoins[curr.secondaryCurrency! as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                     }
                     if (curr.interval === DateInterval.weekly) {
                         amount *= Math.floor((31 - new Date().getDate()) / 7)
@@ -136,7 +136,7 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                     <div className='text-greylish opacity-90'>Total payout per month:</div>
                     {totalPrice ? <div className='text-greylish'>
                         {Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
-                            a += amount * (balance[Coins[currency as keyof typeof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                            a += amount * (balance[CeloCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                             return a;
                         }, 0).toFixed(2)} USD
                     </div> : <div><ClipLoader /></div>}
@@ -147,12 +147,12 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                             Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {
                                 return <div key={currency} className="flex space-x-2 relative h-fit">
                                     <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
-                                    <div className="font-semibold text-xl">{Coins[currency as keyof typeof Coins].name}</div>
+                                    <div className="font-semibold text-xl">{CeloCoins[currency as keyof Coins].name}</div>
                                     <div>
-                                        <img src={Coins[currency as keyof typeof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
+                                        <img src={CeloCoins[currency as keyof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
                                     </div>
                                     <div className="absolute right-2 -bottom-6 text-sm text-greylish opacity-75 text-right">
-                                        {(amount * (balance[Coins[currency as keyof typeof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
+                                        {(amount * (balance[CeloCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
                                     </div>
                                 </div>
                             }) : <div className="flex py-1 justify-center"><ClipLoader /></div>
@@ -197,13 +197,13 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                                         let realMoney = Number(curr.amount) * realDays
 
                                         if (curr.usdBase) {
-                                            realMoney *= (balance[Coins[curr.currency].name]?.tokenPrice ?? 1)
+                                            realMoney *= (balance[CeloCoins[curr.currency].name]?.tokenPrice ?? 1)
                                         }
-                                        await allow(Coins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                                        await allow(CeloCoins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
                                         const paymentList: PaymentInput[] = []
 
                                         paymentList.push({
-                                            coin: Coins[curr.currency],
+                                            coin: CeloCoins[curr.currency],
                                             recipient: curr.address.trim(),
                                             amount: curr.amount.trim()
                                         })
@@ -211,11 +211,11 @@ export default function DynamicPayroll({ type }: { type: "manual" | "auto" }) {
                                         if (curr.secondaryAmount && curr.secondaryCurrency) {
                                             let realMoney = Number(curr.secondaryAmount) * realDays
                                             if (curr.usdBase) {
-                                                realMoney *= (balance[Coins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
+                                                realMoney *= (balance[CeloCoins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
                                             }
-                                            await allow(Coins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                                            await allow(CeloCoins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
                                             paymentList.push({
-                                                coin: Coins[curr.secondaryCurrency],
+                                                coin: CeloCoins[curr.secondaryCurrency],
                                                 recipient: curr.address.trim(),
                                                 amount: curr.secondaryAmount.trim()
                                             })

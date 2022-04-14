@@ -1,13 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { GetTransactions } from '../../types/sdk/blockscout';
+import { Transactions } from '../../types/sdk/blockscout';
 import { RootState } from '../store';
 
 interface InitialTransaction {
-	transactions: GetTransactions | null;
+	transactions: Transactions[];
 }
 
 const initialState: InitialTransaction = {
-	transactions: null
+	transactions: []
 };
 
 export const TransactionAPI = createSlice({
@@ -18,7 +18,7 @@ export const TransactionAPI = createSlice({
 			state.transactions = action.payload;
 		},
 		removeTransactions: (state) => {
-			state.transactions = null;
+			state.transactions = [];
 		}
 	}
 });

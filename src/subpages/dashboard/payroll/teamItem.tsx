@@ -1,7 +1,7 @@
-import { Coins } from "types/coins";
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
 import { DateInterval, ExecutionType, IMember } from "API/useContributors";
+import { CeloCoins } from "types";
 
 const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {
 
@@ -31,22 +31,22 @@ const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMem
         <div className="flex flex-col space-y-4">
             <div className=" pl-[2px] flex items-center justify-start gap-1">
                 <div>{props.member.amount}</div>
-                {props.member.usdBase ? <div>USD as {Coins[props.member.currency].name}</div> :
+                {props.member.usdBase ? <div>USD as {CeloCoins[props.member.currency].name}</div> :
                     <div>
-                        {Coins[props.member.currency].name}
+                        {CeloCoins[props.member.currency].name}
                     </div>}
                 <div>
-                    <img src={Coins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
+                    <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
                 </div>
             </div>
             {props.member.secondaryCurrency && <div className="pl-[2px] flex items-center justify-start gap-1">
                 <div>{props.member.secondaryAmount}</div>
-                {props.member.secondaryUsdBase ? <div>USD as {Coins[props.member.secondaryCurrency].name}</div> :
+                {props.member.secondaryUsdBase ? <div>USD as {CeloCoins[props.member.secondaryCurrency].name}</div> :
                     <div>
-                        {Coins[props.member.secondaryCurrency].name}
+                        {CeloCoins[props.member.secondaryCurrency].name}
                     </div>}
                 <div>
-                    <img src={Coins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
+                    <img src={CeloCoins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" />
                 </div>
             </div>}
         </div>

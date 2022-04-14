@@ -1,6 +1,6 @@
 import { Dispatch, useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { Coins } from "../../types/coins";
+import { CeloCoins as Coins } from "../../types/coins/celoCoins";
 import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { CoinsName } from "../../types";

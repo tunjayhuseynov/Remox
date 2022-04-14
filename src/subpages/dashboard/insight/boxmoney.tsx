@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
 import { useAppSelector } from '../../../redux/hooks';
 import { selectTags } from "redux/reducers/tags";
 import { useCalculation, useTransaction, useTransactionProcess } from "hooks";
 import { Tag } from "API/useTags";
-import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { CoinsName } from "types";
 import date from 'date-and-time'
@@ -15,7 +12,6 @@ import useModalSideExit from 'hooks/useModalSideExit'
 import useBalance from "API/useBalance";
 import { fromWei } from "utils/ray";
 import useCurrency from "API/useCurrency";
-import { GetTransactions, Transactions } from "types/sdk";
 
 type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
 type STag = Array<ATag>

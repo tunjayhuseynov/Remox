@@ -1,41 +1,38 @@
 import { useContractKit } from '@celo-tools/use-contractkit';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { deleteBalance } from 'redux/reducers/currencies';
 import { AltCoins, Coins } from 'types';
 import usePoof from 'hooks/usePoof'
-import { fromWei } from 'utils/ray';
+import { useWalletKit } from 'hooks';
 
 export default function useBalance(address: string | string[]) {
-    const { kit, walletType } = useContractKit()
+    const { GetBalance, Address, GetCoins } = useWalletKit()
+    const { walletType } = useContractKit()
     const { balance, pastEvents } = usePoof(1, walletType === "PrivateKey")
     const [fetchedBalance, setFetchedBalance] = useState<{ [name: string]: string }>()
     const [isLoading, setLoading] = useState(false)
     const dispatch = useDispatch()
 
     useEffect(() => {
+        dispatch(deleteBalance)
         fetchBalance()
     }, [address])
 
-    useEffect(() => {
-        dispatch(deleteBalance)
-    }, [address])
-
-    const fetchBalance = async () => {
-        if (!kit.defaultAccount) return null;
+    const fetchBalance = useCallback(async () => {
+        const Coins = GetCoins
+        if (!Address || !Coins) return null;
 
         try {
             setLoading(true)
             let balances: { [name: string]: string } = {};
-
             if (typeof address !== "string") {
-
                 for (const addressItem of address) {
                     for (const i of Object.values(Coins)) {
                         const item = i as AltCoins
-                        const ethers = await kit.contracts.getErc20(item.contractAddress);
-                        let balance = await ethers.balanceOf(addressItem);
-                        let altcoinBalance = fromWei(balance)
+                        // const ethers = await kit.contracts.getErc20(item.contractAddress);
+                        // let balance = await ethers.balanceOf(addressItem);
+                        let altcoinBalance = await GetBalance(item, addressItem)
 
                         if (!balances[item.name]) {
                             balances = Object.assign(balances, { [item.name]: altcoinBalance })
@@ -64,13 +61,14 @@ export default function useBalance(address: string | string[]) {
             } else {
                 for (const i of Object.values(Coins)) {
                     const item = i as AltCoins
-                    const ethers = await kit.contracts.getErc20(item.contractAddress);
-                    let balance = await ethers.balanceOf(address);
-                    let altcoinBalance = fromWei(balance)
+                    // const ethers = await kit.contracts.getErc20(item.contractAddress);
+                    // let balance = await ethers.balanceOf(address);
+                    let altcoinBalance = await GetBalance(item)
 
                     balances = Object.assign(balances, { [item.name]: altcoinBalance });
                 }
             }
+            console.log(balances)
             setFetchedBalance({ ...balances })
             setLoading(false)
             return { ...balances };
@@ -79,7 +77,7 @@ export default function useBalance(address: string | string[]) {
             setLoading(false)
             throw new Error("Error fetching balance");
         }
-    }
+    }, [address])
 
     return { fetchBalance, fetchedBalance, isLoading };
 }

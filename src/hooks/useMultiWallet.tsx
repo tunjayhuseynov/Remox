@@ -50,7 +50,6 @@ export default function useMultiWallet() {
                 accountAddress: connector.account,
             }))
             dispatch(changeAccount(connector.account))
-            console.log(connector.account)
         }
     }
 
@@ -79,7 +78,6 @@ export default function useMultiWallet() {
             }
         } catch (error: any) {
             console.error(error)
-            if (lastConnection) await initConnector(lastConnection)
             throw new Error(error.message)
         }
     }

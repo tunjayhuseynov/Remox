@@ -1,6 +1,6 @@
 import Dropdown from "components/general/dropdown";
-import { Coins } from "types/coins";
-import { DropDownItem } from 'types'
+import { CeloCoins } from "types/coins/celoCoins";
+import { Coins, DropDownItem } from 'types'
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectBalances } from "redux/reducers/currencies";
@@ -16,9 +16,9 @@ import useSwap from "API/useSwap";
 import {motion, AnimatePresence} from "framer-motion"
 
 const Swap = () => {
-    const [token1, setToken1] = useState<DropDownItem>(Coins.cUSD)
+    const [token1, setToken1] = useState<DropDownItem>(CeloCoins.cUSD)
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<DropDownItem>(Coins.CELO)
+    const [token2, setToken2] = useState<DropDownItem>(CeloCoins.CELO)
 
     const { isMultisig } = useMultisig()
 
@@ -52,8 +52,8 @@ const Swap = () => {
         if (token1.name && token2.name) {
             try {
                 const data = await MinmumAmountOut(
-                    Coins[token1.name as keyof Coins],
-                    Coins[token2.name as keyof Coins],
+                    CeloCoins[token1.name as keyof Coins],
+                    CeloCoins[token2.name as keyof Coins],
                     (value || (token1Amount ?? 0)).toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
@@ -72,8 +72,8 @@ const Swap = () => {
         if (token1.name && token2.name && token1Amount && token1Amount > 0) {
             try {
                 const data = await Exchange(
-                    Coins[token1.name as keyof Coins],
-                    Coins[token2.name as keyof Coins],
+                    CeloCoins[token1.name as keyof Coins],
+                    CeloCoins[token2.name as keyof Coins],
                     token1Amount.toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
@@ -187,7 +187,7 @@ const Swap = () => {
                                 if (w.name === token2.name) {
                                     setToken2(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
                         </div>
                         <div>
                             <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
@@ -233,7 +233,7 @@ const Swap = () => {
                                 if (w.name === token1.name) {
                                     setToken1(selected)
                                 }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(Coins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
+                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
                         </div>
                         <div>
                             {!(!token1Amount) && (!isLoading ?

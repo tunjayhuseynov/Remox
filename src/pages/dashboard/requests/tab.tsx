@@ -9,7 +9,7 @@ import Success from "components/general/success"
 import { arrayRemove, FieldValue } from "firebase/firestore"
 import { useRefetchData } from "hooks"
 import useRequest from "hooks/useRequest"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useLocation } from "react-router-dom"
 import { ClipLoader } from "react-spinners"
@@ -22,8 +22,9 @@ import { selectStorage } from "redux/reducers/storage"
 import RequestedUserItem from "subpages/dashboard/requests/requestedUserItem"
 import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "subpages/dashboard/requests/totalAmount"
-import { Coins } from "types"
+import { CeloCoins, Coins } from "types"
 import { MultipleTransactionData } from "types/sdk"
+import { DashboardContext } from "../layout"
 
 export default function TabPage() {
 
@@ -37,7 +38,7 @@ export default function TabPage() {
   const dispatch = useDispatch()
   const isError = useAppSelector(selectError)
   const [isSuccess, setSuccess] = useState(false)
-  const [refetch] = useRefetchData()
+  const { refetch } = useContext<{ refetch: () => void }>(DashboardContext)
 
   let page;
   if (pathname.split("/").length === 3) {
@@ -66,7 +67,7 @@ export default function TabPage() {
       for (let index = 0; index < mems.length; index++) {
         let amount;
         if (mems[index].usdBase) {
-          amount = (parseFloat(mems[index].amount) * (balance[Coins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
+          amount = (parseFloat(mems[index].amount) * (balance[CeloCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
         } else {
           amount = mems[index].amount
         }
@@ -81,7 +82,7 @@ export default function TabPage() {
 
         if (secAmount && secCurrency) {
           if (mems[index].secondaryAmount) {
-            secAmount = (parseFloat(secAmount) * (balance[Coins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
+            secAmount = (parseFloat(secAmount) * (balance[CeloCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
           }
 
           result.push({
@@ -97,11 +98,11 @@ export default function TabPage() {
     try {
       if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
         if (result.length === 1) {
-          await Pay({ coin: Coins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+          await Pay({ coin: CeloCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
         }
         else if (result.length > 1) {
           const arr: Array<PaymentInput> = result.map(w => ({
-            coin: Coins[w.tokenName as keyof Coins],
+            coin: CeloCoins[w.tokenName as keyof Coins],
             recipient: w.toAddress,
             amount: w.amount,
             from: true
@@ -111,11 +112,11 @@ export default function TabPage() {
         }
       } else {
         if (result.length === 1) {
-          await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: Coins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
+          await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: CeloCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
         }
         else if (result.length > 1) {
           const arr: Array<PaymentInput> = result.map(w => ({
-            coin: Coins[w.tokenName as keyof Coins],
+            coin: CeloCoins[w.tokenName as keyof Coins],
             recipient: w.toAddress,
             amount: w.amount,
             from: true

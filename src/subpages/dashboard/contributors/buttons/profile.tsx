@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import { Coins } from "types/coins";
+import { CeloCoins as Coins } from "types/coins/celoCoins";
 import Avatar from 'components/avatar'
 import Button from "components/button";
 import { IMember } from "API/useContributors";

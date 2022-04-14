@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLazyGetTransactionsQuery } from "redux/api"
-import { GetTransactions } from "types/sdk";
+import { GetTransactions, Transactions } from "types/sdk";
 import useTransactionProcess from "./useTransactionProcess";
 
 export default function useTransaction(accounts: string[]) {
@@ -18,17 +18,17 @@ export default function useTransaction(accounts: string[]) {
         return list;
     }
 
-    const [txs, setTxs] = useState<GetTransactions>()
+    const [txs, setTxs] = useState<Transactions[]>()
     const [list, transactions] = useTransactionProcess(txs)
 
     useEffect(() => {
         (
             async () => {
                 const txs = await MultipleTransaction()
-                setTxs({ message: "MultipleTransaction", result: txs.reduce((a, c) => Object.assign(a, c.result), []) })
+                setTxs(txs.reduce((a, c) => Object.assign(a, c.result), []))
             }
         )()
     }, [accounts])
 
-    return { MultipleTransaction, list }
+    return { MultipleTransaction, list, transactionData, transactionFetching }
 }

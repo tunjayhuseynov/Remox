@@ -1,5 +1,5 @@
 import Input from "subpages/dashboard/lend&borrow/input";
-import { DropDownItem } from "types";
+import { CeloCoins, DropDownItem } from "types";
 import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
@@ -7,7 +7,6 @@ import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
 import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaType, MoolaUserComponentData } from "API/useMoola";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
-import { fromWei, printRayRate } from "utils/ray";
 import { Coins } from 'types'
 import { ClipLoader } from "react-spinners";
 
@@ -42,7 +41,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
             if (wallets[0]?.name) {
                 try {
                     setCoinLoading(true)
-                    const coin = Coins[wallets[0].name as unknown as keyof Coins]
+                    const coin = CeloCoins[wallets[0].name as unknown as keyof Coins]
                     let userData = await getSingleInitialUserData(coin)
                     setComponentData(userData)
                    
@@ -58,7 +57,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
     useEffect(() => {
         (async () => {
             if (amountState && wallets[0]) {
-                const info = await getBorrowInfo(amountState, Coins[wallets[0].name as keyof Coins])
+                const info = await getBorrowInfo(amountState, CeloCoins[wallets[0].name as keyof Coins])
                 console.log(info)
                 setStatus(info)
             }
