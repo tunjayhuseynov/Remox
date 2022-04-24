@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Dropdown from "components/general/dropdown";
-import useMultisig from "hooks/useMultisig";
+import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import { DropDownItem } from "types";
 import Button from "components/button";
@@ -10,7 +10,7 @@ import { ClipLoader } from "react-spinners";
 
 const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
 
-    const { signAndInternal, isMultisig, owners, isLoading, changeSigns, refetch } = useMultisig()
+    const { signAndInternal, isMultisig, owners, isLoading, changeSigns, refetch } = useMultisigProcess()
 
     const [sign, setSign] = useState<DropDownItem>({ name: (signAndInternal?.sign.toString() ?? "1"), address: '' })
     const [internalSign, setInternalSign] = useState<DropDownItem>({ name: (signAndInternal?.internalSigns.toString() ?? "1"), address: '' })

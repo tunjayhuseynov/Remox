@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import { useParams, useNavigate } from "react-router-dom"
-import useMultisig from 'hooks/useMultisig'
+import useMultisigProcess from 'hooks/useMultisigProcess'
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount"
 import { ClipLoader } from "react-spinners"
 import { selectStorage } from "redux/reducers/storage"
@@ -18,7 +18,7 @@ const MultisigTransaction = () => {
     const selectedAddress = useSelector(SelectSelectedAccount)
     const storage = useSelector(selectStorage)
     const selectMultisig = useSelector(selectMultisigTransactions)
-    const { signAndInternal: signData, owners, refetch: refreshMultisig, confirmTransaction, revokeTransaction, isLoading } = useMultisig()
+    const { signAndInternal: signData, owners, refetch: refreshMultisig, confirmTransaction, revokeTransaction, isLoading } = useMultisigProcess()
     const transactionData = selectMultisig?.find(t => t.id === parseInt(id!))
     const { GetCoins } = useWalletKit()
 

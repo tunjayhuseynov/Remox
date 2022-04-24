@@ -28,6 +28,8 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
     const addOwner = () => {
         if (addressRef.current?.value && nameRef.current?.value) {
             setOwners([...owners, { name: nameRef.current.value, address: addressRef.current.value }])
+            nameRef.current.value = ""
+            addressRef.current.value = ""
         }
     }
 
@@ -90,7 +92,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                             <span className="w-[1.563rem] h-[1.563rem] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                             <div className="grid grid-col">
                                 <h3>{w.name}</h3>
-                                <p className="opacity-80">{w.address}</p>
+                                <p className="opacity-80">{AddressReducer(w.address)}</p>
                             </div>
                         </div>
                     })}

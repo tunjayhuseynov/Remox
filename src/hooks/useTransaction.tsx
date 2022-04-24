@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLazyGetTransactionsQuery } from "redux/api"
 import { GetTransactions, Transactions } from "types/sdk";
 import useTransactionProcess from "./useTransactionProcess";
-import useWalletKit from "./useWalletKit";
+import useWalletKit from "./walletSDK/useWalletKit";
 
 export default function useTransaction(accounts: string[]) {
     const { GetTransactions } = useWalletKit()

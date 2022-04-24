@@ -1,5 +1,5 @@
+import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
-import { render } from 'react-dom';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -10,7 +10,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import 'react-toastify/dist/ReactToastify.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-render(
+const root = createRoot(
+  document.getElementById('root')!
+);
+
+root.render(
   <StrictMode>
     <Wallet>
       <Provider store={store}>
@@ -19,6 +23,5 @@ render(
         </BrowserRouter>
       </Provider>
     </Wallet>
-  </StrictMode>,
-  document.getElementById('root')
-);
+  </StrictMode>
+)

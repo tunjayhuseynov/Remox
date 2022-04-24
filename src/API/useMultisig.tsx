@@ -46,11 +46,11 @@ export default function useMultisig() {
     const storage = useSelector(selectStorage)
     const { kit, address } = useContractKit()
     const [isLoading, setLoading] = useState(false)
-    const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser!.uid)
+    const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser?.uid ?? "")
     const [transactions, setTransactions] = useState<Transaction[]>()
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
     const { GenerateBatchPay } = useCeloPay()
-    const { CreateMultisigAccount } = useWalletKit()
+
 
 
     const dispatch = useDispatch()
@@ -263,7 +263,7 @@ export default function useMultisig() {
         }
     }, [isMultisig])
 
-    const addOwner = useCallback(async (newOwner) => {
+    const addOwner = useCallback(async (newOwner: string) => {
         if (isMultisig) {
             setLoading(true)
             try {

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import useMultisig from "hooks/useMultisig";
+import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 
 
 const ReplaceOwner = ({ onDisable, ownerAddress }: { onDisable: React.Dispatch<boolean>, ownerAddress: string }) => {
 
-    const { replaceOwner, isLoading, refetch } = useMultisig()
+    const { replaceOwner, isLoading, refetch } = useMultisigProcess()
 
     const dispatch = useDispatch()
 

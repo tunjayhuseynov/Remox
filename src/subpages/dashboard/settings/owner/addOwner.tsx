@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import useMultisig from "hooks/useMultisig";
+import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Avatar from "components/avatar";
 import Button from "components/button";
@@ -8,7 +8,7 @@ import Button from "components/button";
 
 const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
 
-    const { signAndInternal, owners, addOwner, isLoading, refetch } = useMultisig()
+    const { signAndInternal, owners, addOwner, isLoading, refetch } = useMultisigProcess()
 
     const [pageIndex, setPageIndex] = useState(0);
 

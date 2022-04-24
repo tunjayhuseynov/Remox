@@ -11,7 +11,7 @@ import { selectStorage } from '../../redux/reducers/storage';
 import { DropDownItem } from '../../types';
 import Create from '../multisig/create';
 import Button from '../../components/button';
-import useMultisig from '../../API/useMultisig';
+import useMultisig from 'hooks/walletSDK/useMultisig';
 import { removeStorage } from '../../redux/reducers/storage'
 import { setMenu } from '../../redux/reducers/toggles'
 import { removeTransactions } from '../../redux/reducers/transactions'
@@ -24,7 +24,7 @@ import { WordSplitter } from 'utils';
 const Sidebar = () => {
 
     const { destroy } = useContractKit()
-    const { data, importMultisigAccount, isLoading } = useMultisig()
+    const { data, importMultisigAccount, isLoading } = useMultisig("solana")
     const navigator = useNavigate()
     const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
 

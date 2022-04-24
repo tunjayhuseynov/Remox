@@ -23,7 +23,7 @@ export default function TagsSetting() {
     const [colorPicker, setColorPicker] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
     const [color, setColor] = useState('')
-    const ref = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
+    const [ref, exceptRef] = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
 
     const { createTag, isLoading } = useTags()
 
@@ -85,14 +85,14 @@ export default function TagsSetting() {
 
                                         </div>
                                     </div>
-                                    <div className="border-l border-greylish px-2 py-2 ">
+                                    <div className="border-l border-greylish px-2 py-2 " ref={exceptRef}>
                                         <AiOutlineDown />
+                                    </div>
                                         {colorPicker &&
                                             <div className="absolute -bottom-3 left-0 translate-y-full z-50" ref={ref}>
                                                 <TwitterPicker onChange={colorHandler} />
                                             </div>
                                         }
-                                    </div>
                                 </div>
                             </div>
                         </div>

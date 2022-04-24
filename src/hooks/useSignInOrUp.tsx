@@ -7,7 +7,7 @@ import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../API/useFirebase";
 import useTags from "API/useTags";
-import useWalletKit from "./useWalletKit";
+import useWalletKit from "./walletSDK/useWalletKit";
 
 
 export default function useSignInOrUp() {

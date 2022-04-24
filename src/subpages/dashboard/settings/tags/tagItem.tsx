@@ -18,7 +18,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
     const dispatch = useDispatch()
 
     const inputRef = useRef<HTMLInputElement>(null)
-    const ref = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
+    const [ref, exceptRef] = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
 
     const colorHandler = (color: { hex: string }) => {
         setColor(color.hex)
@@ -99,14 +99,14 @@ export default function TagItem({ tag }: { tag: Tag }) {
 
                                         </div>
                                     </div>
-                                    <div className="border-l border-greylish px-2 py-2 ">
+                                    <div className="border-l border-greylish px-2 py-2 " ref={exceptRef}>
                                         <AiOutlineDown />
+                                    </div>
                                         {colorPicker &&
                                             <div className="absolute -bottom-3 left-0 translate-y-full z-50" ref={ref}>
                                                 <TwitterPicker onChange={colorHandler} />
                                             </div>
                                         }
-                                    </div>
                                 </div>
                             </div>
                         </div>

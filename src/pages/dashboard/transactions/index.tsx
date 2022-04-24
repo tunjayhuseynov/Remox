@@ -10,7 +10,7 @@ import { selectStorage } from "../../../redux/reducers/storage";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
 import { changeAccount, SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
-import useMultisig from "../../../hooks/useMultisig";
+import useMultisigProcess from "../../../hooks/useMultisigProcess";
 import { selectMultisig, selectMultisigTransactions } from "../../../redux/reducers/multisig";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import useTransactionProcess from "../../../hooks/useTransactionProcess";
@@ -29,7 +29,7 @@ const Transactions = () => {
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const multisigData = useAppSelector(selectMultisigTransactions)
     const multisigSelector = useAppSelector(selectMultisig)
-    const { refetch, isMultisig } = useMultisig()
+    const { refetch, isMultisig } = useMultisigProcess()
     const { pathname } = useLocation()
     const tags = useAppSelector(selectTags)
     const { GetCoins } = useWalletKit()

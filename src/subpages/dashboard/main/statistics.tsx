@@ -42,7 +42,7 @@ const Statistic = () => {
     const chartjs = useRef<ChartJs>(null)
 
     const [selectcoin, setSelectcoin] = useState<string>("")
-    const customRef = useModalSideExit<string>(selectcoin, setSelectcoin, "")
+    const [customRef] = useModalSideExit<string>(selectcoin, setSelectcoin, "")
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const [transactions] = useTransactionProcess()
 
@@ -59,7 +59,7 @@ const Statistic = () => {
 
     const balanceRedux = useAppSelector(SelectBalances)
 
-    const onHover = useCallback((ref, item, dispatch) => {
+    const onHover = useCallback((ref: any, item: any, dispatch: any) => {
         return (event: any) => {
             const el = getElementAtEvent((ref as any).current as any, event)
             if (el.length > 0 && el[0].index > 0) {
@@ -220,7 +220,7 @@ const Statistic = () => {
         <div className="sm:flex flex-col hidden relative">
             <div>Asset</div>
             <div className="h-full w-full">
-                <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, allInOne, setSelectcoin)}/>
+                <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, allInOne, setSelectcoin)} />
             </div>
         </div>
         {
@@ -232,14 +232,14 @@ const Statistic = () => {
                                 setSelectcoin(item.coins.name)
                                 UpdateChartAnimation(index)
                             }
-                        }} 
-                        selectcoin={selectcoin} 
-                        title={item.coins.name} 
-                        coin={item.amount.toFixed(2)} 
-                        usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)} 
-                        percent={(item.percent || 0).toFixed(1)} 
-                        rate={item.per_24} 
-                        img={item.coins.coinUrl} />
+                        }}
+                            selectcoin={selectcoin}
+                            title={item.coins.name}
+                            coin={item.amount.toFixed(2)}
+                            usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)}
+                            percent={(item.percent || 0).toFixed(1)}
+                            rate={item.per_24}
+                            img={item.coins.coinUrl} />
                     })}
                 </div> : <ClipLoader />
         }</>

@@ -8,7 +8,6 @@ import { CoinsName } from "types";
 import date from 'date-and-time'
 import { Chart as ChartJs } from 'chart.js';
 import Chartjs from "components/general/chart";
-import useModalSideExit from 'hooks/useModalSideExit'
 import useBalance from "API/useBalance";
 import { fromWei } from "utils/ray";
 import useCurrency from "API/useCurrency";
@@ -47,7 +46,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
     const [selectedCoin, setSelectedCoin] = useState<string>("")
     const [selectedCoin2, setSelectedCoin2] = useState<string>("")
 
-    const onHover = useCallback((ref, item, dispatch) => {
+    const onHover = useCallback((ref: any, item: any, dispatch: any) => {
         return (event: any) => {
             const el = getElementAtEvent((ref as any).current as any, event)
             if (el.length > 0 && el[0].index > 0) {
@@ -62,9 +61,6 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
         }
     }, [])
 
-
-    const customRef = useModalSideExit<string>(selectedCoin, setSelectedCoin, "")
-    const customRef2 = useModalSideExit<string>(selectedCoin2, setSelectedCoin2, "")
 
     const { fetchedBalance } = useBalance(selectedAccounts)
     const fetchedCurrencies = useCurrency()
@@ -261,7 +257,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             headermoney: lastIn?.toFixed(2),
             chart: <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, inTags, setSelectedCoin)} />,
             tagList: inTags,
-            tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef}>
+            tags: <div className="flex flex-col gap-3 pt-2 ">
                 {inTags.map((tag, index) => {
                     return <div key={tag.id} className={`flex ${selectedCoin === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onMouseOver={() => {
                         setSelectedCoin(tag.id)
@@ -282,7 +278,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             headermoney: lastOut?.toFixed(2),
             chart: <Chartjs data={data2} ref={chartjs2} onClickEvent={onHover(chartjs2, outTags, setSelectedCoin2)} />,
             tagList: outTags,
-            tags: <div className="flex flex-col gap-3 pt-2 " ref={customRef2} >
+            tags: <div className="flex flex-col gap-3 pt-2 "  >
                 {outTags.map((tag, index) => {
                     return <div key={tag.id} className={`flex ${selectedCoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onMouseOver={() => {
                         setSelectedCoin2(tag.id)

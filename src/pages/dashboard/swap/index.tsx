@@ -9,7 +9,7 @@ import Error from "components/general/error";
 import { ClipLoader } from "react-spinners";
 import Modal from "components/general/modal";
 import { useModalSideExit, useWalletKit } from 'hooks';
-import useMultisig from "hooks/useMultisig";
+import useMultisigProcess from "hooks/useMultisigProcess";
 import Button from "components/button";
 import useSwap from "API/useSwap";
 import { motion, AnimatePresence } from "framer-motion"
@@ -20,7 +20,7 @@ const Swap = () => {
     const [token1Amount, setToken1Amount] = useState<number>()
     const [token2, setToken2] = useState<DropDownItem>(Object.values(GetCoins)[1])
 
-    const { isMultisig } = useMultisig()
+    const { isMultisig } = useMultisigProcess()
 
     const token1Input = useRef<HTMLInputElement>(null)
 
@@ -99,7 +99,7 @@ const Swap = () => {
         }
     }, [token1, token2, token1Amount, slippageArr])
 
-    const settingRef = useModalSideExit<boolean>(isSetting, setSetting, false)
+    const [settingRef, exceptRef] = useModalSideExit<boolean>(isSetting, setSetting, false)
 
 
     const changeSwap = () => {
@@ -123,7 +123,9 @@ const Swap = () => {
                 <div className="flex justify-between">
                     <div className="font-bold text-xl pb-2">Swap</div>
                     <div className="relative">
-                        <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
+                        <div ref={exceptRef}>
+                            <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
+                        </div>
                         <AnimatePresence>
                             {isSetting && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
                                 <div className="flex flex-col space-y-4">

@@ -45,7 +45,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
     const [isOpen, setOpen] = useState(false)
     const liArrRef = useRef<(HTMLLIElement | null)[]>([])
     const [liHeights, setLiHeights] = useState<Array<number>>([])
-    const customRef = useModalSideExit<boolean>(isOpen, setOpen, false)
+    const [customRef, expectRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
 
     useEffect(() => {
         if (liArrRef.current.length > 0 && liHeights.length === 0) {
@@ -55,7 +55,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
 
     return (
         <div className={`relative ${parentClass} `}>
-            <div onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
+            <div ref={expectRef} onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
                 {!loader ? <div className="truncate">
                     {Viewer({ name: selected.name, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
                 </div> : <ClipLoader />}
@@ -64,7 +64,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
                 </div>}
             </div>
             {<motion.div variants={variants} initial={"close"} animate={isOpen ? "open" : "close"} ref={customRef} className={`absolute left-0 ${toTop ? "top-0 -translate-y-full" : "bottom-0 translate-y-full"} z-10 w-full overflow-hidden`}>
-                <ul id="ala" className="flex flex-col overflow-y-auto " style={list.length > 5 ?
+                <ul id="ala" className="flex flex-col overflow-y-auto" style={list.length > 5 ?
                     { height: window.outerWidth > 768 ? `${liHeights.slice(0, 5).reduce((a, c) => a + c, 0)}px` : `${liHeights.slice(0, 3).reduce((a, c) => a + c, 0)}px` }
                     :
                     { height: 'auto' }

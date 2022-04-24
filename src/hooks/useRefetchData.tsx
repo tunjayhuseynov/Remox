@@ -14,7 +14,7 @@ import { addRequests } from 'redux/reducers/requests'
 import { useListenTags } from 'API/useTags'
 import { setTags } from 'redux/reducers/tags'
 import useCalculation from './useCalculation'
-import useWalletKit from './useWalletKit'
+import useWalletKit from './walletSDK/useWalletKit'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()

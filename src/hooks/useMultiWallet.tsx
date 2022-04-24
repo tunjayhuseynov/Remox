@@ -8,7 +8,7 @@ import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'API/useFirebase';
 import { IUser } from 'Firebase';
 import { getAuth } from 'firebase/auth';
-import useWalletKit from './useWalletKit';
+import useWalletKit from './walletSDK/useWalletKit';
 import { WalletName } from '@solana/wallet-adapter-base';
 
 

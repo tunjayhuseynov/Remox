@@ -163,7 +163,7 @@ const Pay = () => {
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : GetCoins[result[0].tokenName as keyof Coins]) as AltCoins,
+                        coin: (isPrivate ? PoofCoins[w.tokenName as keyof PoofCoins] : GetCoins[w.tokenName as keyof Coins]) as AltCoins,
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true

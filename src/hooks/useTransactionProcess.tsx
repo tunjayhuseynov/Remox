@@ -8,7 +8,7 @@ import { AltCoins, Coins } from 'types';
 import { Tag } from 'API/useTags';
 import { selectTags } from 'redux/reducers/tags';
 import { fromWei } from 'utils/ray';
-import useWalletKit from './useWalletKit';
+import useWalletKit from './walletSDK/useWalletKit';
 
 
 export const ERC20MethodIds = {

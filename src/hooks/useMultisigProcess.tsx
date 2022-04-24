@@ -4,9 +4,10 @@ import { selectMultisigTransactions, setTransactions } from "../redux/reducers/m
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from "../redux/reducers/storage"
 import useFetchMultisig from '../API/useMultisig'
+import useMultisigner from 'hooks/walletSDK/useMultisig'
 import useMultiWallet from "./useMultiWallet"
 
-const useMultisig = () => {
+const useMultisigProcess = () => {
     let selectedAccount = useSelector(SelectSelectedAccount)
     const storage = useSelector(selectStorage)
     const multiSlice = useSelector(selectMultisigTransactions)
@@ -17,16 +18,17 @@ const useMultisig = () => {
         sign: number;
         internalSigns: number;
     }>()
+    
 
-    const { transactions, FetchTransactions, isLoading, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useFetchMultisig()
+    const { transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useMultisigner("solana")
 
     const isMultisig = selectedAccount.toLowerCase() !== storage!.accountAddress.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
-
     const dispatch = useDispatch()
 
     const fetchTxs = useCallback((disabledTransactionDispatch = false, skip = 0, take = 10) => {
         if (!disabledTransactionDispatch) dispatch(setTransactions([]))
         FetchTransactions(selectedAccount, skip, take)
+        
     }, [isMultisig, selectedAccount])
 
     useEffect(() => {
@@ -41,11 +43,13 @@ const useMultisig = () => {
 
     useEffect(() => {
         if (isMultisig) {
+            console.log("getSignAndInternal")
+            // getTransaction("", "1")
             getOwners().then((owners) => setOwners(owners))
             fetchTxs()
             getSignAndInternal().then((signAndInternal) => setSignAndInternal(signAndInternal))
         }
-    }, [selectedAccount])
+    }, [selectedAccount, isMultisig])
 
     const refetch = (disabledTransactionDispatch = false, skip = 0, take = 10) => {
         fetchTxs(disabledTransactionDispatch, skip, take)
@@ -56,7 +60,7 @@ const useMultisig = () => {
 
 
 
-    return { transactions, isMultisig, isLoading, fetchTxs, refetch, owners, signAndInternal, addOwner, replaceOwner, changeSigns, removeOwner, confirmTransaction, revokeTransaction }
+    return { transactions, isMultisig, isLoading: false, fetchTxs, refetch, owners, signAndInternal, addOwner, replaceOwner, changeSigns, removeOwner, confirmTransaction, revokeTransaction }
 }
 
-export default useMultisig;
+export default useMultisigProcess;

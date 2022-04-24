@@ -1,7 +1,7 @@
 import { IuseCurrency } from "API/useCurrency";
 import { useCallback, useMemo } from "react";
 import { AltCoins, Coins, TokenType } from "types";
-import useWalletKit from "./useWalletKit";
+import useWalletKit from "./walletSDK/useWalletKit";
 
 interface Balance {
     [name: string]: string;
