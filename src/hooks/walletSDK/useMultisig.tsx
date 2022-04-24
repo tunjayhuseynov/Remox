@@ -241,6 +241,12 @@ export default function useMultisig(blockchain: BlockchainType) {
         await txInit.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
         await txChangeOwner.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
 
+        if (data) {
+            await FirestoreWrite().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: proxyAddress }] })
+        } else {
+            await FirestoreWrite().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: proxyAddress }] })
+        }
+        
         return proxyAddress;
     }, [blockchain])
 

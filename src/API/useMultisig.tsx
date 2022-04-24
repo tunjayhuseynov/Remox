@@ -126,7 +126,7 @@ export default function useMultisig() {
                 throw new Error("Minimum sign count must be greater than the number of owners");
             }
 
-            const proxyAddress = await CreateMultisigAccount(owners, name, sign, internalSign)
+            const proxyAddress = "" // await CreateMultisigAccount(owners, name, sign, internalSign)
 
             if (data) {
                 await FirestoreWrite().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: proxyAddress }] })
