@@ -47,16 +47,19 @@ export default function useBalance(address: string | string[]) {
             }
 
 
-            let cEUR, cREAL, CELO, cUSD;
             if (walletType === "PrivateKey") {
-                await Promise.all([pastEvents("CELO_v2"), pastEvents("cUSD_v2"), pastEvents("cEUR_v2"), pastEvents("cREAL_v2")])
-                const values = await Promise.all([balance("CELO_v2"), balance("cUSD_v2"), balance("cEUR_v2"), balance("cREAL_v2")])
-                CELO = values[0]
-                cUSD = values[1]
-                cEUR = values[2]
-                cREAL = values[3]
+                let cEUR_v2, cREAL_v2, CELO_v2, cUSD_v2, cEUR_v1, CELO_v1, cUSD_v1;
+                await Promise.all([pastEvents("CELO_v2"), pastEvents("cUSD_v2"), pastEvents("cEUR_v2"), pastEvents("cREAL_v2"), pastEvents("CELO_v1"), pastEvents("cUSD_v1"), pastEvents("cEUR_v1")])
+                const values = await Promise.all([balance("CELO_v2"), balance("cUSD_v2"), balance("cEUR_v2"), balance("cREAL_v2"), balance("CELO_v1"), balance("cUSD_v1"), balance("cEUR_v1")])
+                CELO_v2 = values[0]
+                cUSD_v2 = values[1]
+                cEUR_v2 = values[2]
+                cREAL_v2 = values[3]
+                CELO_v1 = values[4]
+                cUSD_v1 = values[5]
+                cEUR_v1 = values[6]
 
-                balances = { CELO, cEUR, cUSD, cREAL }
+                balances = { CELO_v2, cEUR_v2, cUSD_v2, cREAL_v2, cEUR_v1, cUSD_v1, CELO_v1 }
             } else {
                 for (const i of Object.values(Coins)) {
                     const item = i as AltCoins

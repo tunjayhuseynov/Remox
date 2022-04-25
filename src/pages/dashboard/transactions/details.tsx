@@ -9,7 +9,7 @@ import { DropDownItem } from "../../../types/dropdown";
 import { AddressReducer } from 'utils'
 import _ from "lodash";
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
-import { useTransactionProcess } from "hooks";
+import { useTransactionProcess, useWalletKit } from "hooks";
 import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { selectTags } from "redux/reducers/tags";
 import { useSelector } from "react-redux";
@@ -27,6 +27,7 @@ const Details = () => {
 
     const [transactions] = useTransactionProcess()
     const { getDetails } = useGelato()
+    const { GetCoins } = useWalletKit()
 
     const tags = useSelector(selectTags)
     const dark = useSelector(selectDarkMode)
@@ -74,7 +75,7 @@ const Details = () => {
                         } else if (isAutomated) {
                             const data = txFind as IAutomationTransfer
                             const details = await getDetails(data.taskId)
-                            const reader = InputReader(details[1], data.rawData, tags)
+                            const reader = InputReader(details[1], data.rawData, tags, GetCoins)
                             if (reader) {
                                 if (reader.id === ERC20MethodIds.batchRequest) {
                                     const batch = reader as IBatchRequest

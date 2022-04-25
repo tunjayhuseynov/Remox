@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, User } from "firebase/auth";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { auth, IUser } from "firebase";
+import { auth, IUser } from "firebaseConfig";
 import { changeAccount } from "../redux/reducers/selectedAccount";
 import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";

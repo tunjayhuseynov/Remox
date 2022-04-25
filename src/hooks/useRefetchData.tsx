@@ -1,5 +1,5 @@
 import useContributors from 'API/useContributors'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setContributors } from 'redux/reducers/contributors'
 import useBalance from '../API/useBalance'
@@ -15,6 +15,7 @@ import { useListenTags } from 'API/useTags'
 import { setTags } from 'redux/reducers/tags'
 import useCalculation from './useCalculation'
 import useWalletKit from './walletSDK/useWalletKit'
+import { Transactions } from 'types/sdk'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
@@ -29,7 +30,8 @@ const useRefetchData = () => {
     const { fetchBalance, fetchedBalance, isLoading: balanceLoading } = useBalance(selectedAccount)
     const tagData = useListenTags()
 
-    const { GetTransactions, txs } = useWalletKit()
+    const { GetTransactions } = useWalletKit()
+    const [txs, setTxs] = useState<Transactions[]>([])
     // const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
 
     const { AllPrices, TotalBalance } = useCalculation(fetchedBalance, fetchedCurrencies)
@@ -107,7 +109,7 @@ const useRefetchData = () => {
 
     useEffect(() => {
         let timer = setInterval(() => {
-            GetTransactions()
+            GetTransactions().then((txs) => {setTxs(txs)})
         }, 10000)
 
         return () => { clearInterval(timer) }

@@ -37,7 +37,7 @@ const NotificationCointainer = () => {
         }
     }, [openNotify])
 
-    const click = useCallback((e) => {
+    const click = useCallback((e: any) => {
         if (openNotify && divRef.current && !divRef.current.contains(e.target)) {
             setNotify(false)
         }

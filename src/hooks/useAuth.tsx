@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IUser } from 'Firebase';
+import { IUser } from 'firebaseConfig';
 import { useFirestoreSearchField } from '../API/useFirebase';
 
 export default function useAuth(address: string | null) {

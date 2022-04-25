@@ -8,6 +8,7 @@ import Button from "components/button";
 import useGelato from "API/useGelato";
 import { selectTags } from "redux/reducers/tags";
 import { BN, fromWei } from "utils/ray";
+import { useWalletKit } from "hooks";
 
 const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedTransaction, isMultiple?: boolean }) => {
 
@@ -18,6 +19,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     const tags = useSelector(selectTags);
     const [Transaction, setTransaction] = useState(transaction);
     const [IsMultiple, setIsMultiple] = useState(isMultiple);
+    const { GetCoins } = useWalletKit()
 
     const isSwap = Transaction.id === ERC20MethodIds.swap;
     const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
@@ -57,8 +59,8 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 async () => {
                     const data = Transaction as IAutomationTransfer
                     const details = await getDetails(data.taskId)
-                    const reader = InputReader(details[1], Transaction.rawData, tags)
-            
+                    const reader = InputReader(details[1], Transaction.rawData, tags, GetCoins)
+
                     if (reader && reader.id === ERC20MethodIds.moolaRepay) console.log(reader)
                     const formattedTx = {
                         rawData: data.rawData,

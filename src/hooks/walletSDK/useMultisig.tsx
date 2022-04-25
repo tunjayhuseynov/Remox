@@ -9,7 +9,7 @@ import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "API/useFirebase";
-import { auth } from 'Firebase';
+import { auth } from 'firebaseConfig';
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
@@ -113,6 +113,7 @@ export default function useMultisig(blockchain: BlockchainType) {
                     for (let index = 0; index < wallet.data.numTransactions.toNumber(); index++) {
                         const transaction = await wallet.fetchTransactionByIndex(index);
                         console.log(transaction)
+                       
                         // obj = {
                         //     destination: transaction.destination,
                         //     data: transaction.data,

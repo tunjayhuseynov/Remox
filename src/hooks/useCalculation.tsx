@@ -26,7 +26,7 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
 
     const AllPrices = useMemo(() => {
         if (balance && fetchedCurrencies && GetCoins) {
-            return fetchedCurrencies.sort((a, b) => {
+            return fetchedCurrencies.filter(s => GetCoins[s.name as unknown as keyof Coins]).sort((a, b) => {
                 const aa = GetCoins[a.name as unknown as keyof Coins]
                 const bb = GetCoins[b.name as unknown as keyof Coins]
                 if (aa && bb) {
@@ -54,9 +54,9 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
 
     const TotalBalance = useMemo(() => {
         if (balance && fetchedCurrencies && GetCoins) {
-            const total = fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
+            const total = fetchedCurrencies.filter(s => GetCoins[s.name as unknown as keyof Coins]).reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
 
-            const arrPrices = fetchedCurrencies.map(c => {
+            const arrPrices = fetchedCurrencies.filter(s => GetCoins[s.name as unknown as keyof Coins]).map(c => {
                 const amount = parseFloat((balance?.[c.name]) ?? "0");
                 const price = c.price * amount;
                 return {

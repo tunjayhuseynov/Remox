@@ -1,4 +1,4 @@
-import { useContractKit } from '@celo-tools/use-contractkit'
+import { useContractKit, useContractKitContext, localStorageKeys, WalletTypes } from '@celo-tools/use-contractkit'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
@@ -6,7 +6,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetTransactionsQuery } from 'redux/api';
 import { BlockChainTypes, selectBlockchain, updateBlockchain } from 'redux/reducers/network';
-import { AltCoins, CeloCoins, CoinsName, SolanaCoins, TokenType } from 'types';
+import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
 import { Transactions } from 'types/sdk';
 import { fromLamport, fromWei, toLamport } from 'utils/ray';
 import { ERC20MethodIds } from '../useTransactionProcess';
@@ -16,6 +16,9 @@ import { Tag } from 'API/useTags';
 import * as spl from 'easy-spl'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import useMultisig from './useMultisig';
+import { useFirestoreSearchField } from 'API/useFirebase';
+import { IUser } from 'firebaseConfig/types';
+import { changePrivateToken } from 'redux/reducers/selectedAccount';
 
 
 
@@ -35,8 +38,12 @@ export default function useWalletKit() {
 
     const [transactionTrigger] = useLazyGetTransactionsQuery()
 
+    const { search, isLoading } = useFirestoreSearchField<IUser>()
+
     //Celo
     const { address, destroy, kit, walletType, connect, initialised } = useContractKit()
+    const [ctx, setState] = useContractKitContext()
+
 
     //solana
     const { connection } = useConnection();
@@ -49,6 +56,9 @@ export default function useWalletKit() {
 
     const GetCoins = useMemo(() => {
         if (blockchain === "celo") {
+            if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
+                return PoofCoins
+            }
             return CeloCoins;
         }
 
@@ -174,7 +184,30 @@ export default function useWalletKit() {
             setVisible(true);
             return undefined;
         }
-        return await connect();
+        let connection = await connect();
+        if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
+            const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
+            if (str) {
+                const key = JSON.parse(str)
+
+                if (key[0] !== "GoldToken") {
+                    kit.addAccount(key[0])
+                    const accounts = kit.getWallet()?.getAccounts()
+                    if (accounts) {
+                        kit.defaultAccount = accounts[0]
+                        const connector = ctx.connector;
+                        connector.type = WalletTypes.PrivateKey;
+                        search("users", 'address', accounts[0], "array-contains")
+                            .then(user => {
+                                dispatch(changePrivateToken(key[0]))
+                                setState("setConnector", connector)
+                                setState("setAddress", accounts[0])
+                            })
+                    }
+                }
+            }
+        }
+        return connection;
         //throw new Error("Blockchain not supported")
     }, [blockchain])
 

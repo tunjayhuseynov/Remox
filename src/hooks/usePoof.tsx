@@ -1,10 +1,11 @@
 import { useContractKit } from '@celo-tools/use-contractkit'
-import { AbiItem } from 'API/ABI/AbiItem'
+import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { SelectPrivateToken } from 'redux/reducers/selectedAccount'
 import { PoofCoinsName } from 'types'
-import snarkjs from '@poofcash/snarkjs'
+import * as snarkjs from '@poofcash/snarkjs'
+import { fromWei } from 'utils/ray'
 const Poof = import('@poofcash/poof-v2-kit') //{ getProofDeps, PoofKit, getPastEvents }
 const PoofArtifact = import("../API/ABI/Poof.json")
 
@@ -71,16 +72,16 @@ export default function usePoof(provingSystem: number, isPoof: boolean = true) {
             const debt = kit.web3.utils.toBN(0)
             const res = await customPoof.withdraw(pk, currency, amountIn, debt, recipient, mainRelayer)
 
-            // const txo = res;
-            // const params = {
-            //     from: address!,
-            //     to: poolMatch.poolAddress,
-            //     data: txo.encodeABI(),
-            //     gasPrice: kit.web3.utils.toWei('0.5', 'gwei'),
-            // };
-            // // const gas = await web3.eth.estimateGas(params);
-            // const tx = await kit.web3.eth.sendTransaction({ ...params, gas: 1.7e6 });
-            // console.log(`Transaction: ${tx.transactionHash}`);
+            const txo = res;
+            const params = {
+                from: address!,
+                to: poolMatch.poolAddress,
+                data: txo.encodeABI(),
+                gasPrice: kit.web3.utils.toWei('0.5', 'gwei'),
+            };
+            // const gas = await web3.eth.estimateGas(params);
+            const tx = await kit.web3.eth.sendTransaction({ ...params, gas: 1.7e6 });
+            console.log(`Transaction: ${tx.transactionHash}`);
 
         } catch (error: any) {
             console.error(error.message)
@@ -88,26 +89,32 @@ export default function usePoof(provingSystem: number, isPoof: boolean = true) {
         }
     }
 
-    const balance = async (currency: "CELO_v2" | "cUSD_v2" | "cEUR_v2" | "cREAL_v2" | "CELO_v1" | "cUSD_v1" | "cEUR_v1" | "cREAL_v1") => {
+    const balance = async (currency: "CELO_v2" | "cUSD_v2" | "cEUR_v2" | "cREAL_v2" | "CELO_v1" | "cUSD_v1" | "cEUR_v1") => {
         const customPoof = await poof;
         if (!customPoof) throw new Error("Poof is not initialized");
+        
         const account = await customPoof.getLatestAccount(pk.toLowerCase(), currency, Events.current[currency])
         const unitPerUnderlying = await customPoof.unitPerUnderlying(currency);
-
-        return account ? kit.web3.utils.fromWei(account.amount.div(unitPerUnderlying)) : "0"
+        console.log(account, Events.current[currency])
+        return account ? fromWei(account.amount.div(unitPerUnderlying).toString()): "0"
     }
 
-    const pastEvents = async (currency: "CELO_v2" | "cUSD_v2" | "cEUR_v2" | "cREAL_v2" | "CELO_v1" | "cUSD_v1" | "cEUR_v1" | "cREAL_v1") => {
-        const customPoof = await poof;
-        if (!customPoof) throw new Error("Poof is not initialized");
-        const poolMatch = await customPoof.poolMatch(currency);
-        const poofik = new kit.web3.eth.Contract(
-            (await PoofArtifact).abi as AbiItem[],
-            poolMatch.poolAddress
-        ) as any;
-        const events = await (await Poof).getPastEvents(poofik, "NewAccount", poolMatch.creationBlock, await kit.web3.eth.getBlockNumber())
-        Events.current[currency] = events
-        return events
+    const pastEvents = async (currency: "CELO_v2" | "cUSD_v2" | "cEUR_v2" | "cREAL_v2" | "CELO_v1" | "cUSD_v1" | "cEUR_v1") => {
+        // const customPoof = await poof;
+        // if (!customPoof) throw new Error("Poof is not initialized");
+        // const poolMatch = await customPoof.poolMatch(currency);
+        // const poofik = new kit.web3.eth.Contract(
+        //     (await PoofArtifact).abi as AbiItem[],
+        //     poolMatch.poolAddress
+        // ) as any;
+        // const events = await (await Poof).getPastEvents(poofik, "NewAccount", poolMatch.creationBlock, await kit.web3.eth.getBlockNumber())
+        const events = await axios.get("https://us-central1-remox-dao.cloudfunctions.net/poofcash", {
+            params: {
+                currency
+            }
+        })
+        Events.current[currency] = events.data
+        return events.data
     }
 
     const init = async (provingSystem: number) => {

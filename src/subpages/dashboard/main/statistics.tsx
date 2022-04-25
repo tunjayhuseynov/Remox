@@ -227,7 +227,8 @@ const Statistic = () => {
             balance && allInOne !== undefined ?
                 <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1 px-4" ref={customRef}>
                     {allInOne.map((item, index) => {
-                        return <CoinItem key={item.coins.contractAddress} setSelectcoin={setSelectcoin} onClick={() => {
+                        console.log(item)
+                        return <CoinItem key={item.coins.contractAddress+item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
                             if (item.amount) {
                                 setSelectcoin(item.coins.name)
                                 UpdateChartAnimation(index)

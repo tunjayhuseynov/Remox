@@ -60,7 +60,7 @@ const MultisigTransaction = () => {
 
         } else {
             try {
-                await revokeTransaction(selectedAddress, parseInt(id!))
+                await revokeTransaction(selectedAddress, id!)
                 refreshMultisig()
             } catch (error: any) {
                 console.error(error)

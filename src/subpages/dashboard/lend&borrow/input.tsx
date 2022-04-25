@@ -31,7 +31,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
                 const wallet = [...selectedWallet];
                 wallet[0] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[0] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : CeloCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[0] ?? Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
         </div>
         <div className="pt-1 text-xs col-span-2 truncate">max: {maxAmount} {selectedWallet?.[0]?.name}</div>
     </>

@@ -47,7 +47,7 @@ export default function useCeloPay() {
 
     const BatchPay = async (inputArr: PaymentInput[], task?: Task, tags?: Tag[]) => {
 
-        if (Object.values(PoofCoins).find((s: PoofAltCoins) => (s.name as string) === (inputArr[0].coin.name as string))) {
+        if (Object.values(PoofCoins).find((s: AltCoins) => (s.name as string) === (inputArr[0].coin.name as string))) {
             for (let index = 0; index < inputArr.length; index++) {
                 const amountWei = toWei(inputArr[index].amount)
                 if(Poof){
@@ -102,7 +102,7 @@ export default function useCeloPay() {
 
     const Pay = async ({ coin, amount, recipient, comment }: PaymentInput, task?: Task, tags?: Tag[]) => {
         try {
-            if (Object.values(PoofCoins).find((s: PoofAltCoins) => s.name === coin.name)) {
+            if (Object.values(PoofCoins).find((s: AltCoins) => s.name === coin.name)) {
                 const amountWei = toWei(amount.toString());
                 if(Poof){
                     await Poof.transfer(coin.name as unknown as PoofCoinsName, amountWei, recipient)
