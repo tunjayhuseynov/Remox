@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useAppSelector } from '../../../redux/hooks';
 import { selectTags } from "redux/reducers/tags";
-import { useCalculation, useTransaction, useTransactionProcess } from "hooks";
+import { useCalculation, useTransaction, useTransactionProcess, useWalletKit } from "hooks";
 import { Tag } from "API/useTags";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { CoinsName } from "types";
@@ -9,7 +9,6 @@ import date from 'date-and-time'
 import { Chart as ChartJs } from 'chart.js';
 import Chartjs from "components/general/chart";
 import useBalance from "API/useBalance";
-import { fromWei } from "utils/ray";
 import useCurrency from "API/useCurrency";
 import { getElementAtEvent } from "react-chartjs-2";
 
@@ -40,6 +39,9 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
         ],
     });
 
+
+    const { fromMinScale } = useWalletKit()
+
     const chartjs = useRef<ChartJs>(null)
     const chartjs2 = useRef<ChartJs>(null)
 
@@ -49,7 +51,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
     const onHover = useCallback((ref: any, item: any, dispatch: any) => {
         return (event: any) => {
             const el = getElementAtEvent((ref as any).current as any, event)
-            if (el.length > 0 && el[0].index > 0) {
+            if (el.length > 0 && el[0].index >= 0) {
                 const index = el[0].index ?? 1;
                 dispatch(item[index].id);
                 (ref as any).current.setActiveElements([{ datasetIndex: 0, index: index }])
@@ -103,15 +105,15 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
                             let amount = 0;
                             if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
                                 const txm = tx as ITransfer;
-                                amount += (Number(fromWei(txm.amount)) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
+                                amount += (Number(fromMinScale(txm.amount)) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
                             }
                             if (tx.id === ERC20MethodIds.noInput) {
-                                amount += (Number(fromWei(tx.rawData.value)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                                amount += (Number(fromMinScale(tx.rawData.value)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                             }
                             if (tx.id === ERC20MethodIds.batchRequest) {
                                 const txm = tx as IBatchRequest;
                                 txm.payments.forEach(transfer => {
-                                    amount += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                                    amount += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                                 })
                             }
                             if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {
@@ -143,15 +145,15 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
                     let calc = 0;
                     if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                         const tx = t as ITransfer;
-                        calc += (Number(fromWei(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                        calc += (Number(fromMinScale(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (t.id === ERC20MethodIds.noInput) {
-                        calc += (Number(fromWei(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
+                        calc += (Number(fromMinScale(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (t.id === ERC20MethodIds.batchRequest) {
                         const tx = t as IBatchRequest;
                         tx.payments.forEach(transfer => {
-                            calc += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                            calc += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
                     if (selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase())) {

@@ -17,7 +17,6 @@ import useTransactionProcess from "../../../hooks/useTransactionProcess";
 import { HiDownload } from 'react-icons/hi'
 import { selectTags } from "redux/reducers/tags";
 import { WalletDropdown } from "../../../components/general/walletdropdown"
-import { fromWei } from "utils/ray";
 import AnimatedTabBar from "components/animatedTabBar";
 import { TransactionDirectionDeclare } from "utils";
 import { useTransaction, useWalletKit } from "hooks";
@@ -32,7 +31,7 @@ const Transactions = () => {
     const { refetch, isMultisig } = useMultisigProcess()
     const { pathname } = useLocation()
     const tags = useAppSelector(selectTags)
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, fromMinScale } = useWalletKit()
 
     let page: string;
     if (pathname.includes("/pending")) {
@@ -118,10 +117,10 @@ const Transactions = () => {
                                     let feeToken = Object.entries(CoinsName).find(s => s[0] === tx.tokenSymbol)?.[1]
                                     return {
                                         'Sent From:': tx.from,
-                                        'Amount:': parseFloat(fromWei(tx.value.toString())).toFixed(4) + ` ${feeToken && GetCoins ? GetCoins[feeToken].name : "Unknown"}`,
+                                        'Amount:': parseFloat(fromMinScale(tx.value.toString())).toFixed(4) + ` ${feeToken && GetCoins ? GetCoins[feeToken].name : "Unknown"}`,
                                         'To:': tx.to,
                                         'Date': dateFormat(new Date(parseInt(tx.timeStamp) * 1e3), "mediumDate"),
-                                        "Gas": `${fromWei((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString())} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
+                                        "Gas": `${fromMinScale((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString())} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
                                         "Block Number": tx.blockNumber,
                                         "Transaction Hash": tx.hash,
                                         "Block Hash": tx.blockHash,

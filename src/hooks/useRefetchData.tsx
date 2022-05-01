@@ -16,6 +16,7 @@ import { setTags } from 'redux/reducers/tags'
 import useCalculation from './useCalculation'
 import useWalletKit from './walletSDK/useWalletKit'
 import { Transactions } from 'types/sdk'
+import { Coins } from 'types'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
@@ -30,7 +31,7 @@ const useRefetchData = () => {
     const { fetchBalance, fetchedBalance, isLoading: balanceLoading } = useBalance(selectedAccount)
     const tagData = useListenTags()
 
-    const { GetTransactions } = useWalletKit()
+    const { GetTransactions, GetCoins } = useWalletKit()
     const [txs, setTxs] = useState<Transactions[]>([])
     // const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
 
@@ -109,7 +110,7 @@ const useRefetchData = () => {
 
     useEffect(() => {
         let timer = setInterval(() => {
-            GetTransactions().then((txs) => {setTxs(txs)})
+            GetTransactions().then((txs) => { setTxs(txs) })
         }, 10000)
 
         return () => { clearInterval(timer) }

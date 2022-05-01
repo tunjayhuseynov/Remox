@@ -5,12 +5,12 @@ import { useAppSelector } from '../../../redux/hooks';
 import CoinItem from './coinitem';
 import { SelectSelectedAccount } from "../../../redux/reducers/selectedAccount";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, ITransfer } from "hooks/useTransactionProcess";
-import { fromWei } from "web3-utils";
 import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
 import Chartjs from "components/general/chart";
 import useModalSideExit from 'hooks/useModalSideExit';
 import { AltCoins, CoinsName } from "types";
 import { getElementAtEvent } from "react-chartjs-2";
+import { useWalletKit } from "hooks";
 
 ChartJs.register(
     Tooltip, Title, ArcElement, Legend
@@ -38,7 +38,7 @@ const Statistic = () => {
         ],
     });
 
-
+    const { fromMinScale } = useWalletKit()
     const chartjs = useRef<ChartJs>(null)
 
     const [selectcoin, setSelectcoin] = useState<string>("")
@@ -62,7 +62,7 @@ const Statistic = () => {
     const onHover = useCallback((ref: any, item: any, dispatch: any) => {
         return (event: any) => {
             const el = getElementAtEvent((ref as any).current as any, event)
-            if (el.length > 0 && el[0].index > 0) {
+            if (el.length > 0 && el[0].index >= 0) {
                 const index = el[0].index ?? 1;
                 dispatch(item[index].name);
                 (ref as any).current.setActiveElements([{ datasetIndex: 0, index: index }])
@@ -78,7 +78,6 @@ const Statistic = () => {
         if (currencies && balanceRedux && balanceRedux.CELO) {
             const currencObj = Object.values(currencies)
             const currencObj2: IBalanceItem[] = Object.values(balanceRedux)
-
             let indexable = 0;
             const per = currencObj.reduce((a, c: ICurrencyInternal, index) => {
                 if (currencObj2[index].amount > 0) {
@@ -127,15 +126,15 @@ const Statistic = () => {
                     let calc = 0;
                     if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                         const tx = t as ITransfer;
-                        calc += (Number(fromWei(tx.amount, "ether")) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                        calc += (Number(fromMinScale(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (t.id === ERC20MethodIds.noInput) {
-                        calc += (Number(fromWei(t.rawData.value, "ether")) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
+                        calc += (Number(fromMinScale(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (t.id === ERC20MethodIds.batchRequest) {
                         const tx = t as IBatchRequest;
                         tx.payments.forEach(transfer => {
-                            calc += (Number(fromWei(transfer.amount, "ether")) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                            calc += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
                     if (t.rawData.from.toLowerCase() === selectedAccount.toLowerCase()) {
@@ -227,8 +226,7 @@ const Statistic = () => {
             balance && allInOne !== undefined ?
                 <div className="flex flex-col gap-9 overflow-hidden col-span-2 sm:col-span-1 px-4" ref={customRef}>
                     {allInOne.map((item, index) => {
-                        console.log(item)
-                        return <CoinItem key={item.coins.contractAddress+item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
+                        return <CoinItem key={item.coins.contractAddress + item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
                             if (item.amount) {
                                 setSelectcoin(item.coins.name)
                                 UpdateChartAnimation(index)

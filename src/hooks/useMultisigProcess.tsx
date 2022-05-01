@@ -43,7 +43,6 @@ const useMultisigProcess = () => {
 
     useEffect(() => {
         if (isMultisig) {
-            console.log("getSignAndInternal")
             // getTransaction("", "1")
             getOwners().then((owners) => setOwners(owners))
             fetchTxs()

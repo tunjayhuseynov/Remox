@@ -13,7 +13,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
     const { GetCoins } = useWalletKit()
 
     useEffect(() => {
-        const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
+        const v = Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
         setWallet([...selectedWallet, v, v])
     }, [])
 

@@ -1,4 +1,5 @@
 import React from "react"
+import "./dist/index.css"
 import { localStorageKeys } from "@celo-tools/use-contractkit";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate,useLocation } from "react-router-dom";

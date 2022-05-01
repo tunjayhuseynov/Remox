@@ -58,7 +58,6 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         (async () => {
             if (amountState && wallets[0]) {
                 const info = await getBorrowInfo(amountState, CeloCoins[wallets[0].name as keyof Coins])
-                console.log(info)
                 setStatus(info)
             }
         })()

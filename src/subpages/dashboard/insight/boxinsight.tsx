@@ -2,21 +2,22 @@ import { useAppSelector } from '../../../redux/hooks';
 import { ClipLoader } from "react-spinners";
 import { useEffect, useMemo, useState } from "react";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies, SelectTotalBalance } from '../../../redux/reducers/currencies';
-import { useCalculation, useTransaction, useTransactionProcess } from 'hooks';
+import { useCalculation, useTransaction, useTransactionProcess, useWalletKit } from 'hooks';
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from 'hooks/useTransactionProcess';
 import date from 'date-and-time'
-import { fromWei } from 'utils/ray';
 import useBalance from 'API/useBalance';
 import useCurrency from 'API/useCurrency';
 
 const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) => {
 
     const balanceRedux = useAppSelector(SelectBalances)
-    
+
+    const { fromMinScale } = useWalletKit()
+
     const { fetchedBalance } = useBalance(selectedAccounts)
     const fetchedCurrencies = useCurrency()
     const { list: transactions } = useTransaction(selectedAccounts)
-    
+
     const { AllPrices, TotalBalance } = useCalculation(fetchedBalance, fetchedCurrencies)
     const currencies = AllPrices
     const totalBalance = TotalBalance
@@ -42,15 +43,15 @@ const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, 
                 if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
                     if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                         const tx = transaction as ITransfer;
-                        average += (Number(fromWei(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                        average += (Number(fromMinScale(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (transaction.id === ERC20MethodIds.noInput) {
-                        average += (Number(fromWei(transaction.rawData.value)) * Number(currencies[transaction.rawData.tokenSymbol]?.price ?? 1));
+                        average += (Number(fromMinScale(transaction.rawData.value)) * Number(currencies[transaction.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (transaction.id === ERC20MethodIds.batchRequest) {
                         const tx = transaction as IBatchRequest;
                         tx.payments.forEach(transfer => {
-                            average += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                            average += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
                 }
@@ -106,15 +107,15 @@ const Boxinsight = ({ selectedDate, selectedAccounts }: { selectedDate: number, 
                     let calc = 0;
                     if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                         const tx = t as ITransfer;
-                        calc += (Number(fromWei(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                        calc += (Number(fromMinScale(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (t.id === ERC20MethodIds.noInput) {
-                        calc += (Number(fromWei(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
+                        calc += (Number(fromMinScale(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (t.id === ERC20MethodIds.batchRequest) {
                         const tx = t as IBatchRequest;
                         tx.payments.forEach(transfer => {
-                            calc += (Number(fromWei(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                            calc += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
                     if (selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase())) {

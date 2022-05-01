@@ -14,7 +14,7 @@ import { useWalletKit } from 'hooks';
 
 const Unlock = () => {
     const location = useLocation()
-    const { Address, Disconnect, Connected } = useWalletKit();
+    const { Address, Disconnect, Connected, setBlockchainAuto } = useWalletKit();
     const { executeSign, isLoading } = useSignInOrUp()
     const dispatch = useAppDispatch();
     const inputRef = useRef<HTMLInputElement>(null)
@@ -35,7 +35,7 @@ const Unlock = () => {
 
             try {
                 await executeSign(Address, inputRef.current.value)
-
+                setBlockchainAuto()
                 dispatch(setUnlock(true))
                 router(location.search && location.search.split("=")[1].includes("/dashboard") ? location.search.split("=")[1] : '/dashboard');
             } catch (error) {

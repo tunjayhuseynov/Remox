@@ -7,7 +7,6 @@ import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
 import { Tag } from 'API/useTags';
 import { selectTags } from 'redux/reducers/tags';
-import { fromWei } from 'utils/ray';
 import useWalletKit from './walletSDK/useWalletKit';
 
 
@@ -71,7 +70,7 @@ export interface IBatchRequest extends IFormattedTransaction {
 const useTransactionProcess = (txs?: Transactions[]): [IFormattedTransaction[], Transactions[]] | [] => {
     const transactions = useSelector(SelectTransactions);
     const tags = useSelector(selectTags);
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, fromMinScale } = useWalletKit()
     return useMemo(() => {
         if (transactions && GetCoins) {
             let result: Transactions[] = txs ? [...txs] : [...transactions]
@@ -80,7 +79,7 @@ const useTransactionProcess = (txs?: Transactions[]): [IFormattedTransaction[], 
 
             const groupedHash = _(result).groupBy("hash").value();
             const uniqueHashs = Object.values(groupedHash).reduce((acc: Transactions[], value: Transactions[]) => {
-                const best = _(value).maxBy((o) => parseFloat(fromWei(o.value)));
+                const best = _(value).maxBy((o) => parseFloat(fromMinScale(o.value)));
                 if (best) acc.push(best)
 
                 return acc;

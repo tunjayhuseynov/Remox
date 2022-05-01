@@ -1,4 +1,5 @@
 import { useWalletKit } from "hooks";
+import { Coins } from "types";
 import { useFirestoreReadMultiple } from "./useFirebase";
 
 export interface IuseCurrency {
@@ -8,8 +9,11 @@ export interface IuseCurrency {
 }
 
 export default function useCurrency() {
-    const { Collection } = useWalletKit()
+    const { Collection, GetCoins } = useWalletKit()
     const { data } = useFirestoreReadMultiple<IuseCurrency>(Collection, [{ condition: ">", firstQuery: "price", secondQuery: 0 }])
 
+    if (data) {
+        return data.filter(s => GetCoins[s.name as unknown as keyof Coins])
+    }
     return data;
 }

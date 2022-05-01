@@ -1,4 +1,4 @@
-import { useContractKit, useContractKitContext, localStorageKeys, WalletTypes } from '@celo-tools/use-contractkit'
+import { useContractKit, useContractKitContext, localStorageKeys, WalletTypes, PROVIDERS } from '@celo-tools/use-contractkit'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
@@ -54,6 +54,24 @@ export default function useWalletKit() {
         dispatch(updateBlockchain(bc))
     }
 
+    const setBlockchainAuto = () => {
+        if (address) {
+            localStorage.setItem('blockchain', "celo")
+            dispatch(updateBlockchain("celo"))
+        } else if (publicKey) {
+            localStorage.setItem('blockchain', "solana")
+            dispatch(updateBlockchain("solana"))
+        }
+    }
+
+    const fromMinScale = useMemo(() => {
+        if (blockchain === "celo") {
+            return fromWei
+        }
+
+        return fromLamport;
+    }, [blockchain])
+
     const GetCoins = useMemo(() => {
         if (blockchain === "celo") {
             if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
@@ -84,7 +102,7 @@ export default function useWalletKit() {
                             to = (arr[index] as any)["parsed"]["info"]["destination"] ?? ""
                             if ((arr[index] as any)["parsed"]["info"]?.["mint"]) {
                                 token = Object.values(SolanaCoins).find(c => c.contractAddress.toLowerCase() === (arr[index] as any)["parsed"]["info"]["mint"]?.toLowerCase())?.name ?? CoinsName.noCoin
-                                amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]?.uiAmount
+                                amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]?.amount
                             } else {
                                 token = CoinsName.SOL
                                 amount = (arr[index] as any)["parsed"]["info"]["lamports"] ?? "0"
@@ -116,7 +134,6 @@ export default function useWalletKit() {
                     txsList.push(parsedTx)
                 }
             }
-            console.log(txsList)
 
             return txsList
         }
@@ -137,13 +154,13 @@ export default function useWalletKit() {
                 if (publicKey) {
                     let lamports;
                     if (item.type === TokenType.GoldToken) {
-                        lamports = await connection.getBalance(publicKey)
+                        lamports = fromLamport(await connection.getBalance(publicKey))
                     } else {
-                        const tok = await connection.getTokenAccountsByOwner(publicKey, { mint: new PublicKey(item.contractAddress) })
+                        const tok = await spl.mint.getBalance(connection, new PublicKey(item.contractAddress), publicKey)
                         // lamports = await connection.getTokenAccountsByOwner(publicKey, {programId: new PublicKey(item.contractAddress)})
-                        lamports = tok.value.length > 0 ? tok.value[0].account.lamports : 0
+                        lamports = tok ?? 0
                     }
-                    return fromLamport(lamports)
+                    return lamports
                 }
                 return 0;
             }
@@ -179,35 +196,38 @@ export default function useWalletKit() {
     }, [blockchain])
 
     const Connect = useCallback(async () => {
-        if (blockchain === 'solana') {
-            console.log(blockchain)
-            setVisible(true);
-            return undefined;
-        }
-        let connection = await connect();
-        if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
-            const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
-            if (str) {
-                const key = JSON.parse(str)
+        try {
+            if (blockchain === 'solana') {
+                setVisible(true);
+                return undefined;
+            }
 
-                if (key[0] !== "GoldToken") {
-                    kit.addAccount(key[0])
-                    const accounts = kit.getWallet()?.getAccounts()
-                    if (accounts) {
-                        kit.defaultAccount = accounts[0]
-                        const connector = ctx.connector;
-                        connector.type = WalletTypes.PrivateKey;
-                        search("users", 'address', accounts[0], "array-contains")
-                            .then(user => {
-                                dispatch(changePrivateToken(key[0]))
-                                setState("setConnector", connector)
-                                setState("setAddress", accounts[0])
-                            })
+            let connection = await connect();
+            if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
+                const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
+                if (str) {
+                    const key = JSON.parse(str)
+
+                    if (key[0] !== "GoldToken") {
+                        kit.addAccount(key[0])
+                        const accounts = kit.getWallet()?.getAccounts()
+                        if (accounts) {
+                            kit.defaultAccount = accounts[0]
+                            const connector = ctx.connector;
+                            connector.type = WalletTypes.PrivateKey;
+                            await search("users", 'address', accounts[0], "array-contains")
+
+                            dispatch(changePrivateToken(key[0]))
+                            setState("setConnector", connector)
+                            setState("setAddress", accounts[0])
+                        }
                     }
                 }
             }
+            return connection;
+        } catch (error) {
+            console.error(error)
         }
-        return connection;
         //throw new Error("Blockchain not supported")
     }, [blockchain])
 
@@ -294,6 +314,7 @@ export default function useWalletKit() {
         Address, Disconnect, GetBalance, blockchain,
         Wallet, setBlockchain, Connect, Connected,
         GetCoins, GetTransactions, SendTransaction,
-        SendBatchTransaction, Collection
+        SendBatchTransaction, Collection, setBlockchainAuto,
+        fromMinScale
     }
 }

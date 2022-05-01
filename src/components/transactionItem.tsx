@@ -1,5 +1,5 @@
 import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer, ITransferComment } from "hooks/useTransactionProcess";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
@@ -7,7 +7,7 @@ import { AddressReducer } from "../utils";
 import Button from "components/button";
 import useGelato from "API/useGelato";
 import { selectTags } from "redux/reducers/tags";
-import { BN, fromWei } from "utils/ray";
+import { BN } from "utils/ray";
 import { useWalletKit } from "hooks";
 
 const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedTransaction, isMultiple?: boolean }) => {
@@ -19,7 +19,8 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     const tags = useSelector(selectTags);
     const [Transaction, setTransaction] = useState(transaction);
     const [IsMultiple, setIsMultiple] = useState(isMultiple);
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, fromMinScale } = useWalletKit()
+    
 
     const isSwap = Transaction.id === ERC20MethodIds.swap;
     const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
@@ -97,7 +98,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                         <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                         </div>
                         <span>
-                            {BN(fromWei(TransferData.amount)).toFixed(2)}
+                            {BN(fromMinScale(TransferData.amount)).toFixed(2)}
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
@@ -122,7 +123,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                             <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(payment.amount)).toFixed(2)}
+                                {parseFloat(fromMinScale(payment.amount)).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
@@ -143,7 +144,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                             <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(SwapData.amountIn)).toFixed(2)}
+                                {parseFloat(fromMinScale(SwapData.amountIn)).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
@@ -169,7 +170,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                             <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(fromWei(SwapData.amountOutMin)).toFixed(2)}
+                                {parseFloat(fromMinScale(SwapData.amountOutMin)).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>

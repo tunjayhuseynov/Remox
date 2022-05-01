@@ -9,13 +9,12 @@ import { useWalletKit } from "hooks";
 
 
 const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, overallIndex, amount, uniqueArr, isBasedOnDollar, setAmount, amountState }: { index: number, name: Array<string>, address: Array<string>, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, setIndex: Dispatch<number>, overallIndex: number, amount: Array<string>, uniqueArr: string[], isBasedOnDollar: boolean, setAmount: Dispatch<number[]>, amountState: number[] }) => {
-    const { walletType } = useContractKit()
     const [anotherToken, setAnotherToken] = useState(false)
     const { GetCoins } = useWalletKit()
 
     useEffect(() => {
         if (!selectedWallet[index] && !selectedWallet[index + 1] && GetCoins) {
-            const v = Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl}))[0];
+            const v = Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0];
             setWallet([...selectedWallet, v, v])
         }
 
@@ -36,7 +35,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 const wallet = [...selectedWallet];
                 wallet[index] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
         <div className="hidden md:flex items-center">
@@ -65,7 +64,7 @@ const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, over
                 const wallet = [...selectedWallet];
                 wallet[index + 1] = val;
                 setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(walletType === WalletTypes.PrivateKey ? PoofCoins : GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
             :

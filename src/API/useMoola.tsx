@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/reducers/moola";
 import { AltCoins, Coins, TokenType } from "types";
 import BigNumber from 'bignumber.js'
-import { BN, etherSize, fromWei, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
+import { BN, etherSize, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
@@ -30,7 +30,8 @@ export default function useMoola() {
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, fromMinScale } = useWalletKit()
+
 
     const dispatch = useDispatch()
     const MoolaUserData = useSelector(selectMoolaData)
@@ -250,13 +251,13 @@ export default function useMoola() {
             const element = currency;
             const contract = await kit.contracts.getErc20(element.contractAddress)
             const weiBalance = await contract.balanceOf(address!)
-            const balance = fromWei(weiBalance)
+            const balance = fromMinScale(weiBalance)
             const price = currencies[element.name].price
             const celoPerToken = await getPrice(element.contractAddress)
             const data = await getUserAccountData(element.contractAddress)
             const coinData = await getReserveData(element.contractAddress)
-            const lendingBalance = fromWei(data.currentATokenBalance)
-            const loanBalance = parseFloat(fromWei(data.currentStableDebt)) + parseFloat(fromWei(data.currentVariableDebt))
+            const lendingBalance = fromMinScale(data.currentATokenBalance)
+            const loanBalance = parseFloat(fromMinScale(data.currentStableDebt)) + parseFloat(fromMinScale(data.currentVariableDebt))
             const maxBorrow = await getBorrowLimit(address!)
 
 
@@ -291,7 +292,6 @@ export default function useMoola() {
                 deposit: BN(userData.userData.currentATokenBalance),
                 lt: userData.coinData.liquidityRate
             }))
-        console.log(collaterals)
 
         const debtList = collaterals.filter(d => !d.debt.eq(0)).map((c) => c.currency.name)
         const colList = collaterals.filter(d => !d.deposit.eq(0)).map((c) => c.currency.name)
@@ -312,15 +312,12 @@ export default function useMoola() {
                 lt: deposit.eq(0) ? 0 : BN(deposit).multipliedBy(item.lt)
             }
         })
-        console.log("Bases: :", bases)
 
         const collateralLTSum = bases.reduce((acc, c) => acc.plus(c.lt), BN(0))
         const averageLiquidationThreshold = BN(collateralLTSum).dividedBy(collateralSum).multipliedBy(100)
 
         const totalDeposit = bases.reduce((a, c) => a.plus(c.celoBaseDeposit), BN(0))
         const totalDebt = bases.reduce((a, c) => a.plus(c.celoBaseDebt), BN(0))
-        console.log("Total Deposit: ", totalDeposit.toString())
-        console.log("Total Debt: ", totalDebt.toString())
         return {
             ltv: BN(totalDebt).dividedBy(totalDeposit).multipliedBy(100).toFixed(2, 2),
             debt: debtSum.div(etherSize).toFixed(4, 2),

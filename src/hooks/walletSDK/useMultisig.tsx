@@ -5,7 +5,7 @@ import { GokiSDK } from '@gokiprotocol/client'
 import { toBN } from 'web3-utils';
 import * as anchor from "@project-serum/anchor";
 import { SolanaProvider } from "@saberhq/solana-contrib";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { PACKET_DATA_SIZE, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "API/useFirebase";
@@ -15,13 +15,15 @@ import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import { useDispatch } from "react-redux";
 import { setInternalSign, setSign } from "redux/reducers/multisig";
-import { CeloCoins } from "types";
 import useCeloPay, { PaymentInput } from "API/useCeloPay";
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import { Contracts } from "API/Contracts/Contracts";
 import { fromWei, toLamport } from "utils/ray";
 import * as spl from 'easy-spl'
-import { StableToken } from "@celo/contractkit";
+import * as BufferLayout from '@solana/buffer-layout'
+import * as borsh from '@project-serum/borsh';
+import { MintLayout } from "@solana/spl-token";
+
 
 const multiProxy = import("API/ABI/MultisigProxy.json");
 const multisigContract = import("API/ABI/Multisig.json")
@@ -107,13 +109,44 @@ export default function useMultisig(blockchain: BlockchainType) {
             console.log("Fetching transactions")
             if (blockchain === 'solana') {
                 const sdk = await initSolana()
+
                 const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                 if (wallet.data) {
-                    console.log("Wallet data", wallet.data.numTransactions.toNumber())
-                    for (let index = 0; index < wallet.data.numTransactions.toNumber(); index++) {
-                        const transaction = await wallet.fetchTransactionByIndex(index);
-                        console.log(transaction)
-                       
+                    const sings = await connection.getConfirmedSignaturesForAddress2(wallet.key, { limit: 1000 })
+                    const txs = await connection.getParsedTransactions(sings.map(s => s.signature))
+                    const sec = await wallet.fetchTransactionByIndex(1)
+                    const data = sec?.instructions[0].data
+                    console.log(data)
+                    console.log(sdk.programs.SmartWallet.idl)
+
+                    // const struct = borsh.struct([
+                    //     borsh.publicKey("programId"),
+                    //     borsh.vec(TXAccountMeta.layout(), "keys"),
+                    //     borsh.vecU8("data"),
+                    // ])
+
+
+                    // console.log(struct.decode(sec?.instructions[0] as any))
+
+                    // const instructionTypeLayout = BufferLayout.u32('instruction');
+                    // const typeIndex = instructionTypeLayout.decode(sec?.instructions[0].data as any);
+
+                    // let type: SmartWalletIDL | undefined;
+                    // console.log(typeIndex)
+
+                    // const TransferInstructionLayout = BufferLayout.struct<any>([
+                    //     BufferLayout.u8('bump'),
+                    //     BufferLayout.u8('maxOwners'),
+                    // ]);
+                    // const instructionData = TransferInstructionLayout.decode(sec?.instructions[0].data as any);
+                    // console.log(instructionData)
+
+
+                    for (let index = 0; index < txs.length; index++) {
+                        const tx = txs[index]
+                        console.log(tx)
+
+
                         // obj = {
                         //     destination: transaction.destination,
                         //     data: transaction.data,
@@ -247,7 +280,7 @@ export default function useMultisig(blockchain: BlockchainType) {
         } else {
             await FirestoreWrite().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: proxyAddress }] })
         }
-        
+
         return proxyAddress;
     }, [blockchain])
 
@@ -561,9 +594,7 @@ export default function useMultisig(blockchain: BlockchainType) {
                 const { amount, recipient: toAddress, coin } = input[0]
                 let value = kit.web3.utils.toWei(amount, 'ether');
 
-                if (coin == CeloCoins.CELO) token = await kit.contracts.getGoldToken()
-                else if (coin == CeloCoins.cUSD || coin == CeloCoins.cEUR) token = await kit.contracts.getStableToken(coin.name as unknown as StableToken)
-                else token = await kit.contracts.getErc20(coin.contractAddress)
+                token = await kit.contracts.getErc20(coin.contractAddress)
 
                 const celoObj = token.transfer(toAddress, value);
                 const txs = toTransactionObject(
@@ -751,5 +782,151 @@ export default function useMultisig(blockchain: BlockchainType) {
         getSignAndInternal, removeOwner, changeSigns, addOwner, getOwners, replaceOwner,
         submitTransaction, revokeTransaction, confirmTransaction, executeTransaction,
         getTransaction, FetchTransactions, transactions, data, isLoading
+    }
+}
+
+
+export interface TXAccountMetaFields {
+    pubkey: PublicKey
+    isSigner: boolean
+    isWritable: boolean
+}
+
+export interface TXAccountMetaJSON {
+    pubkey: string
+    isSigner: boolean
+    isWritable: boolean
+}
+
+export class TXAccountMeta {
+    readonly pubkey: PublicKey
+    readonly isSigner: boolean
+    readonly isWritable: boolean
+
+    constructor(fields: TXAccountMetaFields) {
+        this.pubkey = fields.pubkey
+        this.isSigner = fields.isSigner
+        this.isWritable = fields.isWritable
+    }
+
+    static layout(property?: string) {
+        return borsh.struct(
+            [
+                borsh.publicKey("pubkey"),
+                borsh.bool("isSigner"),
+                borsh.bool("isWritable"),
+            ],
+            property
+        )
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static fromDecoded(obj: any) {
+        return new TXAccountMeta({
+            pubkey: obj.pubkey,
+            isSigner: obj.isSigner,
+            isWritable: obj.isWritable,
+        })
+    }
+
+    static toEncodable(fields: TXAccountMetaFields) {
+        return {
+            pubkey: fields.pubkey,
+            isSigner: fields.isSigner,
+            isWritable: fields.isWritable,
+        }
+    }
+
+    toJSON(): TXAccountMetaJSON {
+        return {
+            pubkey: this.pubkey.toString(),
+            isSigner: this.isSigner,
+            isWritable: this.isWritable,
+        }
+    }
+
+    static fromJSON(obj: TXAccountMetaJSON): TXAccountMeta {
+        return new TXAccountMeta({
+            pubkey: new PublicKey(obj.pubkey),
+            isSigner: obj.isSigner,
+            isWritable: obj.isWritable,
+        })
+    }
+
+    toEncodable() {
+        return TXAccountMeta.toEncodable(this)
+    }
+}
+
+
+export interface TXInstructionFields {
+    programId: PublicKey
+    keys: Array<TXAccountMetaFields>
+    data: Array<number>
+}
+
+export interface TXInstructionJSON {
+    programId: string
+    keys: Array<TXAccountMetaJSON>
+    data: Array<number>
+}
+
+export class TXInstruction {
+    readonly programId: PublicKey
+    readonly keys: Array<TXAccountMeta>
+    readonly data: Array<number>
+
+    constructor(fields: TXInstructionFields) {
+        this.programId = fields.programId
+        this.keys = fields.keys.map((item) => new TXAccountMeta({ ...item }))
+        this.data = fields.data
+    }
+
+    static layout(property?: string) {
+        return borsh.struct(
+            [
+                borsh.publicKey("programId"),
+                borsh.vec(TXAccountMeta.layout(), "keys"),
+                borsh.vecU8("data"),
+            ],
+            property
+        )
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static fromDecoded(obj: any) {
+        return new TXInstruction({
+            programId: obj.programId,
+            keys: obj.keys.map((item: any) => TXAccountMeta.fromDecoded(item)),
+            data: Array.from(obj.data),
+        })
+    }
+
+    static toEncodable(fields: TXInstructionFields) {
+        return {
+            programId: fields.programId,
+            keys: fields.keys.map((item) => TXAccountMeta.toEncodable(item)),
+            data: Buffer.from(fields.data),
+        }
+    }
+
+    toJSON(): TXInstructionJSON {
+        return {
+            programId: this.programId.toString(),
+            keys: this.keys.map((item) => item.toJSON()),
+            data: this.data,
+        }
+    }
+
+    static fromJSON(obj: TXInstructionJSON): TXInstruction {
+        return new TXInstruction({
+            programId: new PublicKey(obj.programId),
+            keys: obj.keys.map((item) => TXAccountMeta.fromJSON(item)),
+            data: obj.data,
+        })
+    }
+
+    toEncodable() {
+        return TXInstruction.toEncodable(this)
     }
 }

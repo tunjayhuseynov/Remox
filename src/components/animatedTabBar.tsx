@@ -15,7 +15,7 @@ export default function AnimatedTabBar({ data }: { data: { to: string, text: str
                     const lastWord = alltext.pop()
                     const finalText = alltext.join(" ")
                     return <NavLink key={i} to={`${item.to}`} end className={'mx-5'}>
-                        <motion.div layoutId={"underline"} className={`tiflex gap-x-3 pb-3 font-semibold tracking-widertle relative ${i === selected ? "selected" : ""}`} onClick={() => setSelected(i)} >
+                        <motion.div className={`tiflex gap-x-3 pb-3 font-semibold tracking-widertle relative ${i === selected ? "selected" : ""}`} onClick={() => setSelected(i)} >
                             {isMultiword && <span>{`${finalText} `}</span>}
                             <span className="relative">
                                 {i === selected && (<motion.span className="absolute w-full h-[3px] bg-primary rounded-[2px] bottom-[-0.625rem]" layoutId="underline" />)}

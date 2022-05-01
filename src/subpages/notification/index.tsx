@@ -12,6 +12,7 @@ import { TransactionDirection, TransactionType } from "../../types";
 import { motion, AnimatePresence } from "framer-motion"
 import { TransactionTypeDeclare } from "utils";
 import { MoolaType } from "API/useMoola";
+import { useModalSideExit } from "hooks";
 
 
 enum Status {
@@ -28,7 +29,7 @@ const NotificationCointainer = () => {
     const { UpdateSeenTime } = useProfile()
     const currencies = useAppSelector((state: RootState) => state.currencyandbalance.celoCoins);
 
-    const divRef = useRef<HTMLDivElement>(null)
+    // const divRef = useRef<HTMLDivElement>(null)
     const selectedAccount = useAppSelector(SelectSelectedAccount);
 
     useEffect(() => {
@@ -43,11 +44,13 @@ const NotificationCointainer = () => {
         }
     }, [openNotify])
 
-    useEffect(() => {
-        window.addEventListener('click', click)
+    const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
 
-        return () => window.removeEventListener('click', click)
-    }, [click, divRef])
+    // useEffect(() => {
+    //     window.addEventListener('click', click)
+
+    //     return () => window.removeEventListener('click', click)
+    // }, [click, divRef])
 
     const NormalTransaction = (tx: IFormattedTransaction, type: string) => {
         if ([ERC20MethodIds.transfer, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.noInput].includes(tx.id)) {
@@ -55,17 +58,17 @@ const NotificationCointainer = () => {
 
             return `${tx.rawData.to === selectedAccount ? "Received" : "Sent"} ${transaction.coin.name} ${fromWei(transaction.amount)}`
         }
-        if(ERC20MethodIds.swap === tx.id){
+        if (ERC20MethodIds.swap === tx.id) {
             const transaction = tx as ISwap;
             return `Swapped from ${transaction.coinIn.name} ${fromWei(transaction.amountIn)} to ${transaction.coinOutMin.name} ${fromWei(transaction.amountOutMin)}`
         }
 
-        if([ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit, ERC20MethodIds.moolaRepay, ERC20MethodIds.moolaWithdraw].includes(tx.id)){
+        if ([ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit, ERC20MethodIds.moolaRepay, ERC20MethodIds.moolaWithdraw].includes(tx.id)) {
             const transaction = tx as ITransfer;
             return `${MoolaType(type.toLowerCase())} ${transaction.coin.name} ${fromWei(transaction.amount)}`
         }
 
-        if(ERC20MethodIds.batchRequest === tx.id){
+        if (ERC20MethodIds.batchRequest === tx.id) {
             const transaction = tx as IBatchRequest;
 
             return `${tx.rawData.to === selectedAccount ? "Received" : "Sent"} ${transaction.payments.length} transactions`
@@ -75,7 +78,9 @@ const NotificationCointainer = () => {
     }
 
     return <>
-        <IoMdNotificationsOutline className={openNotify ? "text-primary text-3xl cursor-pointer" : "text-3xl cursor-pointer transition hover:text-primary hover:transition"} onClick={() => { setNotify(!openNotify) }} />
+        <div ref={exceptRef} onClick={() => { setNotify(!openNotify) }}>
+            <IoMdNotificationsOutline className={openNotify ? "text-primary text-3xl cursor-pointer" : "text-3xl cursor-pointer transition hover:text-primary hover:transition"} />
+        </div>
         {list && new Date(profile?.seenTime ?? 0) < new Date(parseInt((list && list.length > 0 ? list[0]?.rawData.timeStamp : "0")) * 1e3) && <div className="absolute w-[0.625rem] h-[0.625rem] bg-primary rounded-full -top-1 -right-1">
 
         </div>}

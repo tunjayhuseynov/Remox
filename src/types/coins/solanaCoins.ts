@@ -13,35 +13,35 @@ export const SolanaCoins: Coins = {
 		coinUrl: CoinsURL.SBR,
 		type: TokenType.StableToken,
 		contractAddress: 'Saber2gLauYim4Mvftnrasomsv6NvAuncvMEZwcLpD1',
-		color: "#638BC5"
+		color: "#6C67EF"
 	},
 	ZBC: {
 		name: CoinsName.ZBC,
 		coinUrl: CoinsURL.ZBC,
 		type: TokenType.StableToken,
 		contractAddress: 'zebeczgi5fSEtbpfQKVZKCJ3WgYXxjkMUkNNx7fLKAF',
-		color: "#638BC5"
+		color: "#F7E060"
 	},
 	USDC: {
 		name: CoinsName.USDC,
 		coinUrl: CoinsURL.USDC,
 		type: TokenType.StableToken,
 		contractAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-		color: "#638BC5"
+		color: "#2674C9"
 	},
 	USDT: {
 		name: CoinsName.USDT,
 		coinUrl: CoinsURL.USDT,
 		type: TokenType.StableToken,
 		contractAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
-		color: "#638BC5"
+		color: "#17B38E"
 	},
 	wSOL: {
 		name: CoinsName.wSOL,
 		coinUrl: CoinsURL.wSOL,
 		type: TokenType.StableToken,
 		contractAddress: 'So11111111111111111111111111111111111111112',
-		color: "#638BC5"
+		color: "#4D5589"
 	},
 	soETH: {
 		name: CoinsName.soETH,

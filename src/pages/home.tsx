@@ -1,19 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../components/button";
-import { useContractKit, PROVIDERS, localStorageKeys, useContractKitContext, WalletTypes } from "@celo-tools/use-contractkit";
+import { PROVIDERS, useContractKitContext } from "@celo-tools/use-contractkit";
 import { useFirestoreSearchField } from "../API/useFirebase";
 import { IUser } from "firebaseConfig";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { useAppSelector, useAppDispatch } from "redux/hooks";
 import { useEffect, useState } from "react";
-import { changePrivateToken } from "redux/reducers/selectedAccount";
 import Dropdown from "components/general/dropdown";
 import { CoinsURL, DropDownItem } from "types";
 import { BlockChainTypes, updateBlockchain } from "redux/reducers/network";
 import { useWalletKit } from "hooks";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { IoIosArrowDown } from 'react-icons/io';
-import { newBlockchainParameters } from "@celo/contractkit/lib/generated/BlockchainParameters";
 
 
 const Home = ({ blockchain }: { blockchain: string | null }) => {
@@ -22,9 +18,6 @@ const Home = ({ blockchain }: { blockchain: string | null }) => {
     const dark = useAppSelector(selectDarkMode)
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const [ctx, setState] = useContractKitContext()
-    // const [isOpen, setOpen] = useState(false)
-    // const [value, setValue] = useState<string>()
 
 
 
@@ -37,9 +30,7 @@ const Home = ({ blockchain }: { blockchain: string | null }) => {
         if (selected.address) {
             localStorage.setItem("blockchain", selected.address)
         }
-        // if (blockchain){
-        //     setValue(blockchain) 
-        //    }
+
     }, [selected])
 
     useEffect(() => {
@@ -53,28 +44,6 @@ const Home = ({ blockchain }: { blockchain: string | null }) => {
         try {
             if (!Address) {
                 await Connect()
-                // if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
-                //     const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
-                //     if (str) {
-                //         const key = JSON.parse(str)
-
-                //         if (key[0] !== "GoldToken") {
-                //             kit.addAccount(key[0])
-                //             const accounts = kit.getWallet()?.getAccounts()
-                //             if (accounts) {
-                //                 kit.defaultAccount = accounts[0]
-                //                 const connector = ctx.connector;
-                //                 connector.type = WalletTypes.PrivateKey;
-                //                 search("users", 'address', accounts[0], "array-contains")
-                //                     .then(user => {
-                //                         dispatch(changePrivateToken(key[0]))
-                //                         setState("setConnector", connector)
-                //                         setState("setAddress", accounts[0])
-                //                     })
-                //             }
-                //         }
-                //     }
-                // }
             }
             else if (Address) {
                 search("users", 'address', Address, "array-contains")

@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { SelectPrivateToken } from 'redux/reducers/selectedAccount'
 import { PoofCoinsName } from 'types'
-import * as snarkjs from '@poofcash/snarkjs'
 import { fromWei } from 'utils/ray'
+// const snarkjs = require('@poofcash/snarkjs')
 const Poof = import('@poofcash/poof-v2-kit') //{ getProofDeps, PoofKit, getPastEvents }
 const PoofArtifact = import("../API/ABI/Poof.json")
 
@@ -34,7 +34,7 @@ export default function usePoof(provingSystem: number, isPoof: boolean = true) {
                 try {
                     const customPoof = await poof;
                     if (!customPoof) throw new Error("Poof is not initialized");
-                    customPoof.initialize(() => snarkjs);
+                    // customPoof.initialize(() => snarkjs);
                     await init(provingSystem)
                 } catch (error: any) {
                     console.error(error.message)
@@ -81,7 +81,6 @@ export default function usePoof(provingSystem: number, isPoof: boolean = true) {
             };
             // const gas = await web3.eth.estimateGas(params);
             const tx = await kit.web3.eth.sendTransaction({ ...params, gas: 1.7e6 });
-            console.log(`Transaction: ${tx.transactionHash}`);
 
         } catch (error: any) {
             console.error(error.message)
@@ -95,7 +94,6 @@ export default function usePoof(provingSystem: number, isPoof: boolean = true) {
         
         const account = await customPoof.getLatestAccount(pk.toLowerCase(), currency, Events.current[currency])
         const unitPerUnderlying = await customPoof.unitPerUnderlying(currency);
-        console.log(account, Events.current[currency])
         return account ? fromWei(account.amount.div(unitPerUnderlying).toString()): "0"
     }
 

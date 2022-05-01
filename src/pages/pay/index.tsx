@@ -17,7 +17,7 @@ import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IBalanceItem, SelectBalances } from "redux/reducers/currencies";
 import Button from "components/button";
 import useCeloPay, { PaymentInput } from "API/useCeloPay";
-import useMultisig from 'API/useMultisig'
+import useMultisig from 'hooks/walletSDK/useMultisig'
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
 import { Tag } from "API/useTags";
@@ -34,13 +34,12 @@ const Pay = () => {
     const isError = useSelector(selectError)
     const dispatch = useAppDispatch()
     const router = useNavigate();
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, blockchain, SendTransaction, SendBatchTransaction  } = useWalletKit()
 
     const balance = useSelector(SelectBalances)
 
     // const { BatchPay, Pay } = usePay()
-    const { SendTransaction, SendBatchTransaction } = useWalletKit()
-    const { submitTransaction } = useMultisig()
+    const { submitTransaction } = useMultisig(blockchain)
 
     const [index, setIndex] = useState(1)
     const [isPaying, setIsPaying] = useState(false)
@@ -72,9 +71,6 @@ const Pay = () => {
         uniqueRef.current = []
         setWallets([])
     }
-
-    const isPrivate = WalletTypes.PrivateKey === walletType;
-
 
     useEffect(() => {
         if (csvImport.length > 0 && GetCoins) {
@@ -122,12 +118,8 @@ const Pay = () => {
                 coinUrl: coin.coins.coinUrl,
             }))
             const v = { name: coins[0].name.split(' ')[1], coinUrl: coins[0].coinUrl }
-            if (isPrivate) {
-                const v = { name: PoofCoins.CELO_v2.name, coinUrl: PoofCoins.CELO_v2.coinUrl, type: PoofCoins.CELO_v2.type }
-                setWallets([{ ...v }, { ...v }])
-            } else {
-                setWallets([{ ...v }, { ...v }])
-            }
+            setWallets([{ ...v }, { ...v }])
+
         }
     }, [balance])
 
@@ -159,11 +151,11 @@ const Pay = () => {
             if (storage!.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1) {
                     // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
-                    await SendTransaction({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : GetCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
+                    await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins] as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: (isPrivate ? PoofCoins[w.tokenName as keyof PoofCoins] : GetCoins[w.tokenName as keyof Coins]) as AltCoins,
+                        coin: (GetCoins[w.tokenName as keyof Coins]) as AltCoins,
                         recipient: w.toAddress,
                         amount: w.amount,
                         from: true

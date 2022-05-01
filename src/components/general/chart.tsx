@@ -1,9 +1,9 @@
-import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend } from 'chart.js';
-import { Chart, getDatasetAtEvent, getElementAtEvent } from 'react-chartjs-2';
-import { Dispatch, forwardRef, useCallback, useRef } from 'react';
+import { Chart as ChartJs, Tooltip, Title, ArcElement, Legend, DoughnutController } from 'chart.js';
+import { Chart } from 'react-chartjs-2';
+import { forwardRef} from 'react';
 
 ChartJs.register(
-    Tooltip, Title, ArcElement, Legend
+    Tooltip, Title, ArcElement, Legend, DoughnutController
 );
 interface IDatatype {
     datasets: {

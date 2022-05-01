@@ -89,7 +89,7 @@ const Assets = () => {
                             percent = prevCoin.percent !== item.percent ? prevCoin.percent < item.percent ? 1 : -1 : 0;
                         }
 
-                        return <div key={generate()} className="grid grid-cols-[35%,25%,20%,20%] sm:grid-cols-[25%,15%,15%,20%,12.5%,12.5%] border-b border-black py-5" >
+                        return <div key={index} className="grid grid-cols-[35%,25%,20%,20%] sm:grid-cols-[25%,15%,15%,20%,12.5%,12.5%] border-b border-black py-5" >
                             <div className="flex space-x-3 items-center">
                                 <div><img src={item?.coins?.coinUrl} width={30} height={30} alt="" /></div>
                                 <div>{item?.coins?.name} </div>
