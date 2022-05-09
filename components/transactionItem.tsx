@@ -1,14 +1,15 @@
 import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer, ITransferComment } from "hooks/useTransactionProcess";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { AddressReducer } from "../utils";
 import Button from "components/button";
-import useGelato from "API/useGelato";
+import useGelato from "apiHooks/useGelato";
 import { selectTags } from "redux/reducers/tags";
 import { BN } from "utils/ray";
 import { useWalletKit } from "hooks";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedTransaction, isMultiple?: boolean }) => {
 
@@ -20,7 +21,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
     const [Transaction, setTransaction] = useState(transaction);
     const [IsMultiple, setIsMultiple] = useState(isMultiple);
     const { GetCoins, fromMinScale } = useWalletKit()
-    
+    const router = useRouter()
 
     const isSwap = Transaction.id === ERC20MethodIds.swap;
     const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
@@ -198,7 +199,7 @@ const TransactionItem = ({ transaction, isMultiple }: { transaction: IFormattedT
                 })}
             </div>}
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-            <Link to={`/dashboard/transactions/${Transaction.rawData.hash}`}> <Button version="second" className="px-6 py-2" >View Details</Button></Link>
+            <Button version="second" className="px-6 py-2" onClick={() => router.push(`/dashboard/transactions/details/${Transaction.rawData.hash}`)} >View Details</Button>
         </div>
     </div>
 }

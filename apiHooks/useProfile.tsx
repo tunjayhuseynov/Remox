@@ -11,16 +11,17 @@ export default function useProfile() {
 
   let { data } = useFirestoreRead<IUser>('users', auth.currentUser!.uid)
   let profile: IUser | undefined;
-  if (data) {
+  if (data && storage) {
     profile = {
       address: data!.address,
       id: data!.id,
       multiwallets: data.multiwallets,
-      name: decryptMessage(data!.name, storage!.encryptedMessageToken),
-      surname: decryptMessage(data!.surname, storage!.encryptedMessageToken),
-      companyName: decryptMessage(data!.companyName, storage!.encryptedMessageToken),
+      name: decryptMessage(data!.name, storage.encryptedMessageToken),
+      surname: decryptMessage(data!.surname, storage.encryptedMessageToken),
+      companyName: decryptMessage(data!.companyName, storage.encryptedMessageToken),
       seenTime: data?.seenTime ?? 0,
-      timestamp: data!.timestamp
+      timestamp: data!.timestamp,
+      blockchain: data?.blockchain ?? 'celo',
     }
   }
 

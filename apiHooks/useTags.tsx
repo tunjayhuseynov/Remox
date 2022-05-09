@@ -1,8 +1,11 @@
-import { FirestoreWrite, FirestoreRead, useFirestoreRead } from 'API/useFirebase'
+import { FirestoreWrite, FirestoreRead, useFirestoreRead } from 'apiHooks/useFirebase'
 import { useState } from 'react'
 import { auth } from 'firebaseConfig';
 import { generate } from 'shortid'
 import { arrayUnion, arrayRemove } from 'firebase/firestore'
+import { useSelector } from 'react-redux';
+import { addTag, removeTag, SelectParsedTransactions } from 'redux/reducers/transactions';
+import { useDispatch } from 'react-redux';
 
 export interface Tag {
     id: string;
@@ -19,6 +22,8 @@ export function useListenTags() {
 }
 
 export default function useTags() {
+    const txs = useSelector(SelectParsedTransactions)
+    const dispatch = useDispatch()
     const [isLoading, setLoading] = useState(false)
 
     const checkTag = async () => {
@@ -132,6 +137,9 @@ export default function useTags() {
                     tags: arrayUnion(tag)
                 })
             }
+            if (tag) {
+                dispatch(addTag({ transactionId, tag }))
+            }
             setLoading(false)
         } catch (error: any) {
             console.error(error)
@@ -154,6 +162,9 @@ export default function useTags() {
                 await FirestoreWrite<{ tags: any }>().updateDoc('tags', auth.currentUser!.uid, {
                     tags: arrayUnion(tag)
                 })
+            }
+            if (tag) {
+                dispatch(removeTag({ transactionId, tag }))
             }
             setLoading(false)
         } catch (error: any) {

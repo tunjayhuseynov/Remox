@@ -3,9 +3,9 @@ import Modal from "../../../components/general/modal";
 import Delete from "./buttons/delete";
 import EditTeam from './buttons/editTeam'
 import TeamItem from "./teamItem";
-import { IuseContributor } from "API/useContributors";
+import { IuseContributor } from "apiHooks/useContributors";
 import useContributors from "hooks/useContributors";
-import useGelato from "API/useGelato";
+import useGelato from "apiHooks/useGelato";
 
 
 const TeamContainer = (props: IuseContributor) => {

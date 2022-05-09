@@ -5,8 +5,8 @@ import { auth, IUser } from "firebaseConfig";
 import { changeAccount } from "../redux/reducers/selectedAccount";
 import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
-import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../API/useFirebase";
-import useTags from "API/useTags";
+import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../apiHooks/useFirebase";
+import useTags from "apiHooks/useTags";
 import useWalletKit from "./walletSDK/useWalletKit";
 
 
@@ -52,7 +52,8 @@ export default function useSignInOrUp() {
                     name: encryptMessage(dataForSignUp.name, encryptedMessageToken),
                     surname: encryptMessage(dataForSignUp.surname, encryptedMessageToken),
                     seenTime: new Date().getTime(),
-                    timestamp: Math.floor(new Date().getTime() / 1e3)
+                    timestamp: Math.floor(new Date().getTime() / 1e3), 
+                    blockchain: blockchain,
                 })
                 await FirestoreWrite<{ addresses: { name: string, address: string }[] }>().createDoc('multisigs', user.uid, {
                     addresses: []
@@ -82,6 +83,18 @@ export default function useSignInOrUp() {
                                 address: address,
                                 blockchain
                             }
+                        ]
+                    })
+                }
+                if (!incomingData.blockchain) {
+                    await FirestoreWrite<Pick<IUser, "blockchain">>().updateDoc("users", user!.uid, {
+                        blockchain
+                    })
+                }
+                if (typeof incomingData.address === "string") {
+                    await FirestoreWrite<Pick<IUser, "address">>().updateDoc("users", user!.uid, {
+                        address: [
+                            incomingData.address
                         ]
                     })
                 }

@@ -1,24 +1,23 @@
 import { useRouter } from "next/router"
 import Button from "components/button";
-import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
-import { changeError, changeSuccess, selectDarkMode, selectError, selectSuccess } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess, selectDarkMode } from "redux/reducers/notificationSlice";
 import Input from "subpages/pay/payinput";
-import { generate } from 'shortid'
 import { CeloCoins, Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import DatePicker from "react-datepicker";
 import Modal from "components/general/modal";
 import dateFormat from "dateformat";
-import { IRequest } from "API/useRequest";
+import { IRequest } from "apiHooks/useRequest";
 import { isAddress } from "web3-utils";
 import { toast, ToastContainer } from 'react-toastify';
-import useCurrency from "API/useCurrency";
+import useCurrency from "apiHooks/useCurrency";
 import { updateAllCurrencies } from 'redux/reducers/currencies'
 import { SelectCurrencies } from 'redux/reducers/currencies';
 import { TotalUSDAmount } from "subpages/dashboard/requests/totalAmount";
+import { SelectInputs } from "redux/reducers/payinput";
 
 const RequestId = () => {
     const { id } = useRouter().query as { id: string }
@@ -29,24 +28,18 @@ const RequestId = () => {
 
     const dark = useSelector(selectDarkMode)
     const currency = useSelector(SelectCurrencies)
+    const MyInput = useSelector(SelectInputs)[0]
+    
     const dispatch = useDispatch()
-    const router = useNavigate();
+    const router = useRouter();
 
     const [modal, setModal] = useState(false)
 
-    const [index, setIndex] = useState(1)
     const [file, setFile] = useState<File>()
 
     const [selectedType, setSelectedType] = useState(false)
 
     const [startDate, setStartDate] = useState<Date>(new Date());
-
-    const [amountState, setAmountState] = useState<number[]>([])
-    const uniqueRef = useRef<string[]>([generate(), generate()])
-    const nameRef = useRef<Array<string>>([])
-    const addressRef = useRef<Array<string>>([])
-    const [wallets, setWallets] = useState<DropDownItem[]>([])
-    const amountRef = useRef<Array<string>>([])
 
     const [result, setResult] = useState<Omit<Omit<Omit<IRequest, "id">, "status">, "timestamp">>()
 
@@ -64,10 +57,10 @@ const RequestId = () => {
         const serviceName = nameService.value
         const link = attachLink.value
 
-        const amount = amountRef.current.length > 0 ? amountRef.current[0] : null
-        const name = nameRef.current.length > 0 ? nameRef.current[0] : null
-        const address = addressRef.current.length > 0 ? addressRef.current[0] : null
-        const wallet = wallets.length > 0 ? wallets[0] : null
+        const amount = MyInput.amount
+        const name = MyInput.name
+        const address = MyInput.address
+        const wallet = MyInput.wallet
         if (!isAddress(address ?? "") && !address?.includes('.nom')) {
             toast.error(<div className="dark:text-white"><strong>Address is invalid</strong> <br /> Please, use valid address or Nomspace name</div>, {
                 position: "top-right",
@@ -85,15 +78,15 @@ const RequestId = () => {
         if (request && serviceName && startDate && amount && address && wallet && wallet.name) {
             setResult({
                 address,
-                amount,
+                amount: amount.toFixed(4),
                 currency: wallet.name as CoinsName,
                 name: name ?? "",
                 requestType: request,
                 nameOfService: serviceName,
                 serviceDate: startDate.getTime(),
                 attachLink: link ?? "",
-                secondaryAmount: amountRef.current?.length > 1 ? amountRef.current[1] : undefined,
-                secondaryCurrency: wallets.length > 1 ? (wallets[1].name as CoinsName) : undefined,
+                secondaryAmount: MyInput.amount2 ? MyInput.amount2.toFixed(4) : undefined,
+                secondaryCurrency: MyInput.wallet2?.name as CoinsName | undefined,
                 usdBase: selectedType,
                 uploadedLink: file?.name ?? undefined
             })
@@ -121,7 +114,7 @@ const RequestId = () => {
     return <>
         <ToastContainer />
         <header className="flex justify-start h-[4.688rem] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
-            <div onClick={() => router('/dashboard')} className="w-[6.25rem] h-[1.25rem] sm:w-full sm:h-[1.875rem]" >
+            <div onClick={() => router.push('/dashboard')} className="w-[6.25rem] h-[1.25rem] sm:w-full sm:h-[1.875rem]" >
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
@@ -152,7 +145,7 @@ const RequestId = () => {
                                     </div>
                                 </div>
                                 <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                                    <Input amountState={amountState} setAmount={setAmountState} setIndex={setIndex} overallIndex={index} uniqueArr={uniqueRef.current} index={0} name={nameRef.current} address={addressRef.current} amount={amountRef.current} selectedWallet={wallets} setWallet={setWallets} isBasedOnDollar={selectedType} />
+                                    <Input incomingIndex={MyInput.index}/>
                                 </div>
                                 <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                                     <span className="text-left text-xl font-semibold tracking-wide">Details</span>
@@ -200,7 +193,7 @@ const RequestId = () => {
                             </div>
                             <div className="flex justify-center pt-5 sm:pt-0">
                                 <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[25rem] sm: justify-center sm:gap-5">
-                                    <Button version="second" className="w-[9.375rem] sm:w-full" onClick={() => router("/dashboard")}>Close</Button>
+                                    <Button version="second" className="w-[9.375rem] sm:w-full" onClick={() => router.push("/dashboard")}>Close</Button>
                                     <Button type="submit" className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" >Request</Button>
                                 </div>
                             </div>

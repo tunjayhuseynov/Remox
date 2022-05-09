@@ -1,4 +1,3 @@
-import ClipLoader from "react-spinners/ClipLoader";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectStorage } from 'redux/reducers/storage';
 import { Squash as Hamburger } from 'hamburger-react'
@@ -8,6 +7,7 @@ import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
 import Visitcard from 'components/visitcard';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import useMultiWallet from "hooks/useMultiWallet";
+import Loader from 'components/Loader';
 
 
 const Navbar = () => {
@@ -51,7 +51,7 @@ const Navbar = () => {
                     <img src={!dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-6 h-6 self-center" alt='dark' />
                 </div>
                 {storage && selectedAccount !== storage.accountAddress && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase()) && <Visitcard name={'Multisig'} address={selectedAccount} />}
-                {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <ClipLoader />}
+                {storage ? <Visitcard name={"You"} address={storage.accountAddress} /> : <Loader />}
                 <div className="relative self-center">
                     <NotificationCointainer />
                 </div>

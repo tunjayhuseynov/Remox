@@ -1,4 +1,4 @@
-import useTags, { Tag } from "API/useTags";
+import useTags, { Tag } from "apiHooks/useTags";
 import Button from "components/button";
 import Modal from "components/general/modal";
 import { useModalSideExit } from "hooks";

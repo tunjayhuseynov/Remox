@@ -1,70 +1,78 @@
 import { Dispatch, useEffect, useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
-import { ClipLoader } from "react-spinners";
-import { PoofCoins } from "../../types/coins/celoCoins";
 import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
-import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
 import { useWalletKit } from "hooks";
+import { useDispatch } from "react-redux";
+import { addPayInput, changePayInput, removePayInput, SelectInputAmount, SelectIsBaseOnDollar } from "redux/reducers/payinput";
+import { generate } from "shortid";
+import { useSelector } from "react-redux";
+import Loader from "components/Loader";
 
 
-const Input = ({ index, name, address, selectedWallet, setWallet, setIndex, overallIndex, amount, uniqueArr, isBasedOnDollar, setAmount, amountState }: { index: number, name: Array<string>, address: Array<string>, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, setIndex: Dispatch<number>, overallIndex: number, amount: Array<string>, uniqueArr: string[], isBasedOnDollar: boolean, setAmount: Dispatch<number[]>, amountState: number[] }) => {
-    const [anotherToken, setAnotherToken] = useState(false)
+const Input = ({ incomingIndex }: { incomingIndex: string }) => {
     const { GetCoins } = useWalletKit()
+    const dispatch = useDispatch()
 
-    useEffect(() => {
-        if (!selectedWallet[index] && !selectedWallet[index + 1] && GetCoins) {
-            const v = Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0];
-            setWallet([...selectedWallet, v, v])
-        }
+    const isBasedOnDollar = useSelector(SelectIsBaseOnDollar)
+    const inputAmounts = useSelector(SelectInputAmount)
 
-    }, [GetCoins])
+    const [index] = useState<string>(incomingIndex)
+    const [name, setName] = useState<string>("")
+    const [address, setAddress] = useState<string>("")
+    const [amount, setAmount] = useState<number>()
+    const [wallet, setWallet] = useState<DropDownItem>({
+        name: Object.values(GetCoins)[0].name,
+        coinUrl: Object.values(GetCoins)[0].coinUrl
+    })
+
+    const [amount2, setAmount2] = useState<number>()
+    const [wallet2, setWallet2] = useState<DropDownItem>()
+
+    const [anotherToken, setAnotherToken] = useState(false)
+
+    useEffect(()=>{
+        dispatch(changePayInput({
+            index, 
+            name,
+            address,
+            amount,
+            wallet,
+            amount2,
+            wallet2,
+        }))
+    }, [name, address, amount, wallet, amount2, wallet2])
 
     return <>
-        <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={name[index]} type="text" name={`name__${index}`} onChange={(e) => { name[index] = e.target.value; name[index + 1] = e.target.value }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
-        <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Address" defaultValue={address[index]} type="text" name={`address__${index}`} onChange={(e) => { address[index] = e.target.value; address[index + 1] = e.target.value }} required /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
+        <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={name} type="text" name={`name__${index}`} onChange={(e) => { setName(e.target.value) }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
+        <input className="col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond px-3 py-1 rounded-md dark:bg-darkSecond" placeholder="Address" defaultValue={address} type="text" name={`address__${index}`} onChange={(e) => { setAddress(e.target.value) }} required /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
         <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={amount[index]} type="number" name={`amount__${index}`} onChange={(e) => {
-                amount[index] = e.target.value;
-                const arr = [...amountState]
-                arr[index] = Number(e.target.value)
-                setAmount(arr)
+            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={amount} type="number" name={`amount__${index}`} onChange={(e) => {
+                setAmount(Number(e.target.value))
             }} required step={'any'} min={0} />
             {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet && !GetCoins ? <ClipLoader /> : <Dropdown className="sm:h-[3rem] border-transparent text-sm border-none" onSelect={val => {
-                const wallet = [...selectedWallet];
-                wallet[index] = val;
-                setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index] ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            {!wallet && !GetCoins ? <Loader /> : <Dropdown className="sm:h-[3rem] border-transparent text-sm border-none" onSelect={val => {
+                setWallet(val)
+            }} nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
         <div className="hidden md:flex items-center">
-            {overallIndex > 1 && <BsFillTrashFill className="text-red-500 cursor-pointer" onClick={() => {
-                name.splice(index, 2);
-                address.splice(index, 2);
-                amount.splice(index, 2);
-                uniqueArr.splice(index, 2);
-                setWallet([...selectedWallet.filter((s, t) => t !== index && t !== index + 1)]);
-                setIndex(overallIndex - 1)
+            {inputAmounts > 1 && <BsFillTrashFill className="text-red-500 cursor-pointer" onClick={() => {
+                dispatch(removePayInput(index))
                 //setRefreshPage(generate())
             }} />}
         </div>
         <div className="hidden md:block"></div>
         <div className="hidden md:block"></div>
-        {amount[index + 1] || anotherToken ? <div className={`col-span-4 md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={amount[index + 1]} type="number" name={`amount__${index + 1}`} onChange={(e) => {
-                amount[index + 1] = e.target.value
-                const arr = [...amountState]
-                arr[index + 1] = Number(e.target.value)
-                setAmount(arr)
+        {amount2 || anotherToken ? <div className={`col-span-4 md:col-span-1 border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+            <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Amount" defaultValue={amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
+                setAmount2(Number(e.target.value))
 
             }} step={'any'} min={0} />
             {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-            {!selectedWallet && !GetCoins ? <ClipLoader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
-                const wallet = [...selectedWallet];
-                wallet[index + 1] = val;
-                setWallet(wallet)
-            }} nameActivation={true} selected={selectedWallet[index + 1] ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+            {!wallet2 && !GetCoins ? <Loader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
+                setWallet2(val)
+            }} nameActivation={true} selected={wallet2 ?? Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
 
         </div>
             :

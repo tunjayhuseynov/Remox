@@ -1,4 +1,4 @@
-import { useFirestoreSearchField } from 'API/useFirebase';
+import { useFirestoreSearchField } from 'apiHooks/useFirebase';
 import { IUser } from 'firebaseConfig';
 import { PROVIDERS } from "@celo-tools/use-contractkit";
 import { useWalletKit } from 'hooks'
@@ -19,7 +19,8 @@ const Home = () => {
   const dispatch = useAppDispatch()
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
-
+  const [address, setAddress] = useState<string | null>(null)
+  useEffect(() => setAddress(Address), [Address])
 
   const [selected, setSelected] = useState<DropDownItem>(
     { name: blockchain?.split("").reduce((a, c, i) => { if (i === 0) { return a.toUpperCase() + c } return a + c }, '') ?? "Celo", address: blockchain ?? "celo", coinUrl: blockchain === "celo" || !blockchain ? CoinsURL.CELO : CoinsURL.SOL }
@@ -30,7 +31,6 @@ const Home = () => {
     if (selected.address) {
       localStorage.setItem("blockchain", selected.address)
     }
-
   }, [selected])
 
   useEffect(() => {
@@ -42,11 +42,11 @@ const Home = () => {
 
   const connectEvent = async () => {
     try {
-      if (!Address) {
+      if (!address) {
         await Connect()
       }
-      else if (Address) {
-        search("users", 'address', Address, "array-contains")
+      else if (address) {
+        search("users", 'address', address, "array-contains")
           .then(user => {
             if (user) {
               navigate.push('/unlock')
@@ -70,7 +70,7 @@ const Home = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
           <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected} list={[{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]} />
-          {<Button onClick={connectEvent} isLoading={isLoading}>{Address ? "Enter App" : "Connect to a wallet"}</Button>}
+          {<Button onClick={connectEvent} isLoading={isLoading}>{address ? "Enter App" : "Connect to a wallet"}</Button>}
         </div>
       </div>
     </section>
@@ -79,5 +79,6 @@ const Home = () => {
 }
 
 Home.disableLayout = true
+Home.disableGuard = true
 
 export default Home

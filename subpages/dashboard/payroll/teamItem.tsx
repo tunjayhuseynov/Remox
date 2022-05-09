@@ -1,6 +1,6 @@
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
-import { DateInterval, ExecutionType, IMember } from "API/useContributors";
+import { DateInterval, ExecutionType, IMember } from "apiHooks/useContributors";
 import { CeloCoins } from "types";
 
 const TeamItem = (props: { member: IMember, teamName: string, memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {

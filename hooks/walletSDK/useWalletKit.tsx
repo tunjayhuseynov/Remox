@@ -10,19 +10,18 @@ import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } fro
 import { Transactions } from 'types/sdk';
 import { fromLamport, fromWei, toLamport } from 'utils/ray';
 import { ERC20MethodIds } from '../useTransactionProcess';
-import useCeloPay, { PaymentInput, Task } from 'API/useCeloPay'
-import { Tag } from 'API/useTags';
+import useCeloPay, { PaymentInput, Task } from 'apiHooks/useCeloPay'
+import { Tag } from 'apiHooks/useTags';
 
 import * as spl from 'easy-spl'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import useMultisig from './useMultisig';
-import { useFirestoreSearchField } from 'API/useFirebase';
+import { useFirestoreSearchField } from 'apiHooks/useFirebase';
 import { IUser } from 'firebaseConfig/types';
 import { changePrivateToken } from 'redux/reducers/selectedAccount';
 
 
 
-enum CollectionName {
+export enum CollectionName {
     Celo = "currencies",
     Solana = "solanaCurrencies"
 }
@@ -236,7 +235,7 @@ export default function useWalletKit() {
             return wallet.adapter.name
         }
         return walletType
-    }, [blockchain])
+    }, [blockchain, walletType, wallet])
 
     const Collection = useMemo(() => {
         if (blockchain === 'celo') {
@@ -305,9 +304,6 @@ export default function useWalletKit() {
         }
         return
     }, [blockchain, publicKey, address])
-
-
-
 
 
     return {

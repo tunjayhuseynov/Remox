@@ -1,4 +1,4 @@
-import { IRequest } from "API/useRequest";
+import { IRequest } from "apiHooks/useRequest";
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies } from "redux/reducers/currencies";

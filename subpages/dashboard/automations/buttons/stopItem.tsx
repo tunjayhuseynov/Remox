@@ -1,5 +1,5 @@
 import Avatar from "components/avatar";
-import { DateInterval, IMember } from "API/useContributors";
+import { DateInterval, IMember } from "apiHooks/useContributors";
 import { useWalletKit } from "hooks";
 
 const TeamItem = (props: { member: IMember, memberState: IMember[] }) => {

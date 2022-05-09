@@ -1,27 +1,27 @@
 import { Dispatch, SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { ClipLoader } from "react-spinners";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "components/button";
-import { DateInterval, ExecutionType, IMember } from "API/useContributors";
+import { DateInterval, ExecutionType, IMember } from "apiHooks/useContributors";
 import { useAppSelector } from "redux/hooks";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/reducers/storage";
 import { encryptMessage } from "utils/hashing";
-import useAllowance from "API/useAllowance";
-import useGelato from "API/useGelato";
-import { Contracts } from "API/Contracts/Contracts";
-import useCeloPay, { PaymentInput } from "API/useCeloPay";
+import useAllowance from "apiHooks/useAllowance";
+import useGelato from "apiHooks/useGelato";
+import { Contracts } from "apiHooks/Contracts/Contracts";
+import useCeloPay, { PaymentInput } from "apiHooks/useCeloPay";
 import date from 'date-and-time'
 import { SelectBalances } from 'redux/reducers/currencies';
 import { ToastRun } from "utils/toast";
 import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
+import Loader from "components/Loader";
 
 const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
     const dispatch = useDispatch()
@@ -233,7 +233,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                         <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                             <input type="number" defaultValue={member.amount} name="amount" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
                             {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
+                            {!selectedWallet ? <Loader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
 
                         </div>
                     </div>
@@ -242,7 +242,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                             <div className={`border text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                                 <input type="number" defaultValue={(member.secondaryAmount ?? 0)} name="amount2" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" required step={'any'} min={0} />
                                 {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                                {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
+                                {!selectedWallet ? <Loader /> : <Dropdown className="border-transparent text-sm dark:text-white" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
 
                             </div>
                         </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}
@@ -291,7 +291,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> }) => {
                     </div>
                 </div>
             </form>
-                : <div className="flex justify-center"> <ClipLoader /></div>}
+                : <div className="flex justify-center"> <Loader /></div>}
         </div>
     </>
 }

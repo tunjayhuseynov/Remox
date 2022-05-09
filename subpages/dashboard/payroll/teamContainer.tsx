@@ -1,4 +1,4 @@
-import { ExecutionType, IMember, IuseContributor } from "API/useContributors";
+import { ExecutionType, IMember, IuseContributor } from "apiHooks/useContributors";
 import { useState } from "react";
 import TeamItem from "../payroll/teamItem";
 

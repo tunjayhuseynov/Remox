@@ -17,13 +17,13 @@ import {
     WalletModalProvider,
 } from '@solana/wallet-adapter-react-ui';
 
-
+export const SolanaEnpoint = "https://explorer-api.mainnet-beta.solana.com/"
 export default function Wallet({ children }: { children: JSX.Element }) {
     const SolNetwork = WalletAdapterNetwork.Mainnet;
 
     // const endpoint = useMemo(() => clusterApiUrl(SolNetwork), [SolNetwork]);
 
-    const endpoint = "https://explorer-api.mainnet-beta.solana.com/" //"https://solana-api.projectserum.com"
+     //"https://solana-api.projectserum.com"
 
     const solWallets = useMemo(
         () => [
@@ -39,7 +39,7 @@ export default function Wallet({ children }: { children: JSX.Element }) {
     );
 
     return (
-        <ConnectionProvider endpoint={endpoint} >
+        <ConnectionProvider endpoint={SolanaEnpoint} >
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
                     <ContractKitProvider

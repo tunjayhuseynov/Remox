@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IUser } from 'firebaseConfig';
-import { useFirestoreSearchField } from '../API/useFirebase';
+import { useFirestoreSearchField } from '../apiHooks/useFirebase';
 
 export default function useAuth(address: string | null) {
     const { search, isLoading } = useFirestoreSearchField<IUser>()

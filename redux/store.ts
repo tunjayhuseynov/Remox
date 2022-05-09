@@ -12,7 +12,10 @@ import Requests from './reducers/requests';
 import Tags from './reducers/tags';
 import Moola from './reducers/moola';
 import Network from './reducers/network';
-import { BlockScoutApi } from './api';
+import Masspay from './reducers/masspay';
+import Stats from './reducers/accountstats';
+import PayInputs from './reducers/payinput';
+import { BlockScoutApi, RemoxApi } from './api';
 
 const store = configureStore({
 	reducer: {
@@ -29,10 +32,14 @@ const store = configureStore({
 		contributors: Contributors,
 		network: Network,
 		requests: Requests,
-		[BlockScoutApi.reducerPath]: BlockScoutApi.reducer
+		masspay: Masspay,
+		accountstats: Stats,
+		payInputs: PayInputs,
+		[RemoxApi.reducerPath]: RemoxApi.reducer,
+		[BlockScoutApi.reducerPath]: BlockScoutApi.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware({ serializableCheck: false }).concat(BlockScoutApi.middleware)
+		getDefaultMiddleware({ serializableCheck: false }).concat(BlockScoutApi.middleware, RemoxApi.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;

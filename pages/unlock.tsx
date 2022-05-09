@@ -82,4 +82,5 @@ const Unlock = () => {
     </>
 }
 Unlock.disableLayout = true
+Unlock.disableGuard = true
 export default Unlock

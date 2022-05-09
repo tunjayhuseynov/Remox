@@ -1,13 +1,16 @@
 import { Dispatch } from "react";
 import Avatar from 'components/avatar'
 import Button from "components/button";
-import { IMember } from "API/useContributors";
-import { useNavigate } from "react-router-dom";
+import { IMember } from "apiHooks/useContributors";
 import { useWalletKit } from "hooks";
+import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
+import { setMemberList } from "redux/reducers/masspay";
 
 const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<boolean>, onCurrentModal: Dispatch<boolean>, onEditModal: Dispatch<boolean>, member: IMember }) => {
-    const navigate = useNavigate()
+    const router = useRouter()
     const { GetCoins } = useWalletKit()
+    const dispatch = useDispatch()
     return <>
         <div>
             <div className="text-xl font-bold pb-3">
@@ -70,7 +73,10 @@ const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<bo
             <div className="flex justify-center items-center pt-10">
                 <div className="grid grid-cols-2 gap-y-3 gap-x-5 justify-center">
                     <div className="col-span-2">
-                        <Button className="px-6 py-3 w-full" onClick={() => navigate({ pathname: '/dashboard/masspayout' }, { state: { memberList: [props.member] } })}>
+                        <Button className="px-6 py-3 w-full" onClick={() => {
+                            dispatch(setMemberList({ data: [props.member], request: false }))
+                            router.push({ pathname: '/dashboard/masspayout' })
+                        }}>
                             Pay Now
                         </Button>
                     </div>

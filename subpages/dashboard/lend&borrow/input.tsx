@@ -1,11 +1,11 @@
 import { Dispatch, useEffect, useState } from "react";
-import { ClipLoader } from "react-spinners";
 import { PoofCoins } from "../../../types/coins/celoCoins";
 import { DropDownItem } from "../../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
 import { AltCoins, TokenType } from "types";
 import { useWalletKit } from "hooks";
+import Loader from "components/Loader";
 
 
 const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, maxAmount }: { maxAmount?: number, customCurreny: string, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, amount: number, setAmount: Dispatch<number> }) => {
@@ -27,7 +27,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
                 }
                 else setAmount(amnt)
             }} required step={'any'} />
-            {!selectedWallet ? <ClipLoader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
+            {!selectedWallet ? <Loader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
                 const wallet = [...selectedWallet];
                 wallet[0] = val;
                 setWallet(wallet)

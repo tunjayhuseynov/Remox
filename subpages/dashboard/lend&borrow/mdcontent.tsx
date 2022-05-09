@@ -4,11 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaType, MoolaUserComponentData } from "API/useMoola";
+import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaType, MoolaUserComponentData } from "apiHooks/useMoola";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { Coins } from 'types'
-import { ClipLoader } from "react-spinners";
+import Loader from "components/Loader";
 
 const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borrow" | "deposit", setModal: React.Dispatch<React.SetStateAction<boolean>>, box: MoolaUserComponentData }) => {
     const [selectedType, setSelectedType] = useState(true)
@@ -181,7 +181,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                         <div className="flex justify-between space-x-2"><p>Loan Terms:</p><span className="opacity-80">{selectedType ? "Variable" : "Stable"}</span></div>
                     </div>
                 </div>
-            </div> : <div className="flex items-center justify-center"><ClipLoader /></div>)
+            </div> : <div className="flex items-center justify-center"><Loader /></div>)
             }
         </div>
         <div className="flex justify-center pt-5 sm:pt-10">

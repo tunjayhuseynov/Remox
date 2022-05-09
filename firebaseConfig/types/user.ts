@@ -16,5 +16,6 @@ export interface IUser{
     companyName?: string;
     contractAddress?: string;
     seenTime: number;
+    blockchain: BlockChainTypes;
     timestamp: number;
 }

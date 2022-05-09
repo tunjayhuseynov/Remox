@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { SelectTransactions } from '../redux/reducers/transactions';
+import { SelectParsedTransactions, SelectTransactions } from '../redux/reducers/transactions';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { GetTransactions, Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
-import { Tag } from 'API/useTags';
+import { Tag } from 'apiHooks/useTags';
 import { selectTags } from 'redux/reducers/tags';
 import useWalletKit from './walletSDK/useWalletKit';
 
@@ -67,41 +67,17 @@ export interface IBatchRequest extends IFormattedTransaction {
     }[]
 }
 
-const useTransactionProcess = (txs?: Transactions[]): [IFormattedTransaction[], Transactions[]] | [] => {
-    const transactions = useSelector(SelectTransactions);
+const useTransactionProcess = (): [IFormattedTransaction[]] | [] => {
+    const transactions = useSelector(SelectParsedTransactions);
     const tags = useSelector(selectTags);
-    const { GetCoins, fromMinScale } = useWalletKit()
+    const { GetCoins } = useWalletKit()
     return useMemo(() => {
         if (transactions && GetCoins) {
-            let result: Transactions[] = txs ? [...txs] : [...transactions]
-
-            const FormattedTransaction: IFormattedTransaction[] = []
-
-            const groupedHash = _(result).groupBy("hash").value();
-            const uniqueHashs = Object.values(groupedHash).reduce((acc: Transactions[], value: Transactions[]) => {
-                const best = _(value).maxBy((o) => parseFloat(fromMinScale(o.value)));
-                if (best) acc.push(best)
-
-                return acc;
-            }, [])
-
-            uniqueHashs.forEach((transaction: Transactions) => {
-                const input = transaction.input;
-                const formatted = InputReader(input, transaction, tags, GetCoins);
-
-                if (formatted) {
-                    FormattedTransaction.push({
-                        rawData: transaction,
-                        hash: transaction.hash,
-                        ...formatted
-                    })
-                }
-            })
-
-            return [FormattedTransaction, (txs ?? transactions)];
+            const FormattedTransaction = transactions;
+            return [FormattedTransaction];
         };
         return []
-    }, [transactions, tags, txs])
+    }, [transactions, tags])
 }
 
 

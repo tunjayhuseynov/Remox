@@ -7,7 +7,7 @@ import { PoofCoinsName } from 'types'
 import { fromWei } from 'utils/ray'
 // const snarkjs = require('@poofcash/snarkjs')
 const Poof = import('@poofcash/poof-v2-kit') //{ getProofDeps, PoofKit, getPastEvents }
-const PoofArtifact = import("../API/ABI/Poof.json")
+const PoofArtifact = import("../apiHooks/ABI/Poof.json")
 
 export default function usePoof(provingSystem: number, isPoof: boolean = true) {
     const { kit, address } = useContractKit()

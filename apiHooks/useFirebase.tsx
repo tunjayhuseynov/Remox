@@ -71,11 +71,11 @@ export function useFirestoreRead<DataType>(collection: string, document: string)
     return { data };
 }
 
-export function useFirestoreReadMultiple<DataType extends {}>(collectionName: string, queries: {firstQuery: string, condition: WhereFilterOp, secondQuery: any}[]) {
+export function useFirestoreReadMultiple<DataType extends {}>(collectionName: string, queries: { firstQuery: string, condition: WhereFilterOp, secondQuery: any }[]) {
     const [data, setData] = useState<DataType[]>();
 
     const read = () => {
-        const q = query(collection(db, collectionName), ...queries.map(s=>where(s.firstQuery, s.condition, s.secondQuery)));
+        const q = query(collection(db, collectionName), ...queries.map(s => where(s.firstQuery, s.condition, s.secondQuery)));
         return onSnapshot(q, (querySnapshot) => {
             const data: DataType[] = [];
             querySnapshot.forEach((doc) => {
@@ -91,6 +91,16 @@ export function useFirestoreReadMultiple<DataType extends {}>(collectionName: st
     }, [])
 
     return { data };
+}
+
+export async function FirestoreReadMultiple<DataType extends {}>(collectionName: string, queries: { firstQuery: string, condition: WhereFilterOp, secondQuery: any }[]) {
+    const q = query(collection(db, collectionName), ...queries.map(s => where(s.firstQuery, s.condition, s.secondQuery)));
+    const querySnapshot = await getDocs(q);
+    const data: DataType[] = [];
+    querySnapshot.forEach((doc) => {
+        data.push(doc.data() as DataType);
+    });
+    return data;
 }
 
 

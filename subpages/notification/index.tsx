@@ -1,7 +1,6 @@
-import useProfile from "API/useProfile";
+import useProfile from "apiHooks/useProfile";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { Link } from "react-router-dom";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { generate } from "shortid";
 import { fromWei } from "utils/ray";
@@ -11,8 +10,9 @@ import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
 import { motion, AnimatePresence } from "framer-motion"
 import { TransactionTypeDeclare } from "utils";
-import { MoolaType } from "API/useMoola";
+import { MoolaType } from "apiHooks/useMoola";
 import { useModalSideExit } from "hooks";
+import Link from "next/link";
 
 
 enum Status {
@@ -24,10 +24,9 @@ enum Status {
 const NotificationCointainer = () => {
 
     const [list] = useTransactionProcess()
-    const { profile } = useProfile()
+    const { profile, UpdateSeenTime } = useProfile()
     const [openNotify, setNotify] = useState(false)
-    const { UpdateSeenTime } = useProfile()
-    const currencies = useAppSelector((state: RootState) => state.currencyandbalance.celoCoins);
+    // const currencies = useAppSelector((state: RootState) => state.currencyandbalance.celoCoins);
 
     // const divRef = useRef<HTMLDivElement>(null)
     const selectedAccount = useAppSelector(SelectSelectedAccount);
@@ -38,11 +37,11 @@ const NotificationCointainer = () => {
         }
     }, [openNotify])
 
-    const click = useCallback((e: any) => {
-        if (openNotify && divRef.current && !divRef.current.contains(e.target)) {
-            setNotify(false)
-        }
-    }, [openNotify])
+    // const click = useCallback((e: any) => {
+    //     if (openNotify && divRef.current && !divRef.current.contains(e.target)) {
+    //         setNotify(false)
+    //     }
+    // }, [openNotify])
 
     const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
 
@@ -127,7 +126,7 @@ const NotificationItem = ({ status, title, body, link }: { status: Status, title
             <div className="text-xl pb-1">{title}</div>
             <div className="opacity-50">{body}</div>
         </div>
-        <Link to={link}>
+        <Link href={link}>
             <div className={'text-primary flex items-center justify-center '}>
                 View
             </div>

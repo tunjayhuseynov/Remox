@@ -1,10 +1,9 @@
-import { useNavigate, NavLink, Link } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { useContractKit } from '@celo-tools/use-contractkit'
 import { useSelector } from "react-redux";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button"
 import { useWalletKit } from 'hooks';
+import { useRouter } from 'next/router';
+import Link from "next/link";
 
 const Li = ({ children, onClick, className }: { children?: Array<any>, onClick?: () => void, className?: string }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-light text-[0.98rem] 2xl:text-lg 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`}>
     <div className="flex gap-3 items-center">{children}</div>
@@ -13,6 +12,7 @@ const Li = ({ children, onClick, className }: { children?: Array<any>, onClick?:
 const Sidebarlist = () => {
     const darkMode = useSelector(selectDarkMode)
     const { blockchain } = useWalletKit()
+    const router = useRouter()
 
     return <>
         <ul>
@@ -30,9 +30,22 @@ const Sidebarlist = () => {
             <div className="w-full border my-4"></div>
             {blockchain !== 'solana' && <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AutomationsSVG active={isActive} darkMode={darkMode} />Automations</Li>}</NavLink>}
             <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SettingSVG active={isActive} darkMode={darkMode} />Settings</Li>}</NavLink>
-            <Link to="/dashboard/pay"><Button className="px-10 !py-1 ml-4  min-w-[70%]">Send</Button></Link>
+            <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => router.push("/dashboard/pay")}>Send</Button>
         </ul>
     </>
+}
+
+const NavLink = ({ children, to, className, end = false }: { end?: boolean, to: string, className: ({ isActive }: { isActive: boolean }) => string, children: ({ isActive }: { isActive: boolean }) => JSX.Element }) => {
+    const router = useRouter()
+    const path = router.pathname
+
+    return <a href="placeholder" className={className({ isActive: end ? path === to : path.includes(to) })} onClick={(e) => {
+        e.preventDefault()
+        router.push(to)
+    }}>
+        {children({ isActive: end ? path === to : path.includes(to) })}
+    </a>
+
 }
 
 const DashboardSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.60rem] h-[1.60rem]`} src={active ? '/icons/sidebar/dashboard_active.png' : darkMode ? '/icons/sidebar/dashboard_white.png' : '/icons/sidebar/dashboard.png'} alt='Dashboard' />

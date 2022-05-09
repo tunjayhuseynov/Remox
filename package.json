@@ -10,6 +10,7 @@
     "tailwind": "npx tailwindcss -i ./styles/globals.css -o ./dist/index.css --minify --watch"
   },
   "dependencies": {
+    "@types/chroma-js": "^2.1.3",
     "assert": "^2.0.0",
     "autoprefixer": "^10.4.5",
     "https-browserify": "^1.0.0",
@@ -22,13 +23,14 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "tailwindcss": "^3.0.24",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "zebecprotocol-sdk": "https://github.com/tunjayhuseynov/zebec-sdk-multisig.git"
   },
   "devDependencies": {
     "@celo-tools/celo-ethers-wrapper": "^0.1.0",
-    "@celo-tools/use-contractkit": "^3.0.1",
-    "@celo/connect": "^1.5.2",
-    "@celo/contractkit": "^1.5.2",
+    "@celo-tools/use-contractkit": "^3.1.0",
+    "@celo/connect": "^2.0.0",
+    "@celo/contractkit": "^2.0.0",
     "@celo/contracts": "^0.0.8",
     "@gokiprotocol/client": "^0.10.1",
     "@poofcash/poof-v2-kit": "^0.3.0-i",
@@ -63,7 +65,7 @@
     "@types/shortid": "^0.0.29",
     "@types/uuid": "^8.3.4",
     "@ubeswap/sdk": "^2.1.1",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "bignumber.js": "^9.0.2",
     "bn.js": "^5.2.0",
     "borsh": "^0.7.0",
@@ -93,7 +95,6 @@
     "react-idle-timer": "^4.6.4",
     "react-popper-tooltip": "^4.3.1",
     "react-redux": "^8.0.0",
-    "react-router-dom": "6",
     "react-select": "^5.2.2",
     "react-spinners": "^0.11.0",
     "react-toastify": "^8.1.1",

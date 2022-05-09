@@ -1,32 +1,30 @@
 import { useCallback, useState } from "react";
-import { BlockchainType } from "./useWalletKit";
 import { toTransactionObject } from '@celo/connect';
 import { GokiSDK } from '@gokiprotocol/client'
-import { toBN } from 'web3-utils';
 import * as anchor from "@project-serum/anchor";
 import { SolanaProvider } from "@saberhq/solana-contrib";
-import { PACKET_DATA_SIZE, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { PACKET_DATA_SIZE, PublicKey } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "API/useFirebase";
+import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "apiHooks/useFirebase";
 import { auth } from 'firebaseConfig';
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import { useDispatch } from "react-redux";
-import { setInternalSign, setSign } from "redux/reducers/multisig";
-import useCeloPay, { PaymentInput } from "API/useCeloPay";
+import multisig, { setInternalSign, setSign } from "redux/reducers/multisig";
+import useCeloPay, { PaymentInput } from "apiHooks/useCeloPay";
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
-import { Contracts } from "API/Contracts/Contracts";
+import { Contracts } from "apiHooks/Contracts/Contracts";
 import { fromWei, toLamport } from "utils/ray";
-import * as spl from 'easy-spl'
-import * as BufferLayout from '@solana/buffer-layout'
 import * as borsh from '@project-serum/borsh';
-import { MintLayout } from "@solana/spl-token";
+import { deserialize } from 'borsh'
+import { selectBlockchain } from "redux/reducers/network";
+import { createVault } from 'zebecprotocol-sdk'
+import { SetWhiteListSchema, WhiteList } from 'zebecprotocol-sdk/multisig/native/schema'
 
-
-const multiProxy = import("API/ABI/MultisigProxy.json");
-const multisigContract = import("API/ABI/Multisig.json")
+const multiProxy = import("apiHooks/ABI/MultisigProxy.json");
+const multisigContract = import("apiHooks/ABI/Multisig.json")
 
 export interface TransactionMultisig {
     destination: string,
@@ -51,22 +49,38 @@ export enum MethodIds {
     "0xba51a6df" = 'changeRequirement'
 }
 
+export type SolanaMultisigData = {
+    pda: string,
+    multisig: string,
+    signature: string,
+}
 
-export default function useMultisig(blockchain: BlockchainType) {
+export type CeloMultisigData = string;
+
+export type MultisigAddressType = {
+    name: string,
+    address: CeloMultisigData | SolanaMultisigData,
+    blockchain: string
+}
+
+export type MultisigType = {
+    addresses: MultisigAddressType[]
+}
+
+export default function useMultisig() {
 
 
     let selectedAccount = useSelector(SelectSelectedAccount)
+    const blockchain = useSelector(selectBlockchain)
     const storage = useSelector(selectStorage)
     const [isLoading, setLoading] = useState(false)
 
     const dispatch = useDispatch()
     const [transactions, setTransactions] = useState<TransactionMultisig[]>()
 
-    const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser?.uid ?? "")
+    const { data } = useFirestoreRead<MultisigType>("multisigs", auth.currentUser?.uid ?? "")
 
-
-
-    const isMultisig = selectedAccount.toLowerCase() !== storage!.accountAddress.toLowerCase()
+    const isMultisig = selectedAccount.toLowerCase() !== storage?.accountAddress.toLowerCase()
 
     //Celo
     const { address, kit } = useContractKit()
@@ -75,9 +89,9 @@ export default function useMultisig(blockchain: BlockchainType) {
 
     //solana
     const { connection } = useConnection();
-    const { publicKey, signTransaction, signAllTransactions } = useWallet();
+    const { publicKey, signTransaction, signAllTransactions, sendTransaction } = useWallet();
 
-    const initSolana = async () => {
+    const initGokiSolana = async () => {
         if (!publicKey || !signAllTransactions || !signTransaction) throw new Error("Wallet not initialized");
         const anchorProvider = new anchor.AnchorProvider(connection, {
             publicKey,
@@ -108,63 +122,8 @@ export default function useMultisig(blockchain: BlockchainType) {
         try {
             console.log("Fetching transactions")
             if (blockchain === 'solana') {
-                const sdk = await initSolana()
 
-                const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
-                if (wallet.data) {
-                    const sings = await connection.getConfirmedSignaturesForAddress2(wallet.key, { limit: 1000 })
-                    const txs = await connection.getParsedTransactions(sings.map(s => s.signature))
-                    const sec = await wallet.fetchTransactionByIndex(1)
-                    const data = sec?.instructions[0].data
-                    console.log(data)
-                    console.log(sdk.programs.SmartWallet.idl)
-
-                    // const struct = borsh.struct([
-                    //     borsh.publicKey("programId"),
-                    //     borsh.vec(TXAccountMeta.layout(), "keys"),
-                    //     borsh.vecU8("data"),
-                    // ])
-
-
-                    // console.log(struct.decode(sec?.instructions[0] as any))
-
-                    // const instructionTypeLayout = BufferLayout.u32('instruction');
-                    // const typeIndex = instructionTypeLayout.decode(sec?.instructions[0].data as any);
-
-                    // let type: SmartWalletIDL | undefined;
-                    // console.log(typeIndex)
-
-                    // const TransferInstructionLayout = BufferLayout.struct<any>([
-                    //     BufferLayout.u8('bump'),
-                    //     BufferLayout.u8('maxOwners'),
-                    // ]);
-                    // const instructionData = TransferInstructionLayout.decode(sec?.instructions[0].data as any);
-                    // console.log(instructionData)
-
-
-                    for (let index = 0; index < txs.length; index++) {
-                        const tx = txs[index]
-                        console.log(tx)
-
-
-                        // obj = {
-                        //     destination: transaction.destination,
-                        //     data: transaction.data,
-                        //     executed: transaction.executed,
-                        //     confirmations: transaction.confirmations,
-                        //     value: transaction.value,
-                        //     id: transaction.id,
-                        //     requiredCount: transaction.requiredCount,
-                        //     owner: transaction.owner,
-                        //     newOwner: transaction.newOwner,
-                        //     valueOfTransfer: transaction.valueOfTransfer,
-                        //     method: transaction.method
-                        // }
-                        // transactionArray.push(obj)
-                    }
-                    return
-                }
-
+                return []
                 throw new Error("Wallet not initialized")
             }
 
@@ -224,61 +183,73 @@ export default function useMultisig(blockchain: BlockchainType) {
 
 
 
-    const CreateMultisigAccount = useCallback(async (owners: string[], name: string, sign: string, internalSign: string) => {
-        const sdk = await initSolana();
-
+    const createMultisigAccount = useCallback(async (owners: string[], name: string, sign: string, internalSign: string) => {
+        // const sdk = await initSolana();
+        let proxyAddress;
         if (blockchain === 'solana') {
 
-            const wlt = await sdk.newSmartWallet({
-                owners: owners.map(o => new PublicKey(o)),
-                numOwners: owners.length,
-                threshold: toBN(sign)
-            })
+            const input = {
+                sender: publicKey?.toBase58(),
+                owners: [publicKey?.toBase58(), ...owners].map(x => ({ wallet_address: x })),
+                min_confirmation_required: Number(sign),
+            };
+            const { data } = await createVault(input, sendTransaction, connection);
 
-            return wlt.smartWalletWrapper.key.toBase58()
-        }
+            proxyAddress = {
+                pda: data.Vault_pda,
+                multisig: data.multisig_vault,
+                signature: data.transactionhash
+            }
+            // GOKI
+            // const wlt = await sdk.newSmartWallet({
+            //     owners: owners.map(o => new PublicKey(o)),
+            //     numOwners: owners.length,
+            //     threshold: toBN(sign)
+            // })
 
-        const { abi: proxyABI, bytecode: proxyBytecode } = await multiProxy
-        const { abi: multiSigABI, bytecode: multiSigBytecode } = await multisigContract
-        const tx0 = toTransactionObject(
-            kit.connection,
-            (new kit.web3.eth.Contract(proxyABI as any)).deploy({ data: proxyBytecode }) as any)
-
-        const tx1 = toTransactionObject(
-            kit.connection,
-            (new kit.web3.eth.Contract(multiSigABI as any)).deploy({ data: multiSigBytecode }) as any)
-
-        const res0 = await tx0.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-        const res1 = await tx1.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-        if (!res0.contractAddress || !res1.contractAddress) {
-            throw new Error("MultiSig deploy failure");
-        }
-        const proxyAddress = res0.contractAddress
-        const multiSigAddress = res1.contractAddress
-
-        new Promise(resolve => setTimeout(resolve, 500))
-        const initializerAbi = multiSigABI.find((abi) => abi.type === 'function' && abi.name === 'initialize')
-        const callData = kit.web3.eth.abi.encodeFunctionCall(
-            initializerAbi as any,
-            [[address, ...owners] as any, sign as any, internalSign as any]
-        )
-
-        const proxy = new kit.web3.eth.Contract(proxyABI as any, proxyAddress)
-        const txInit = toTransactionObject(
-            kit.connection,
-            proxy.methods._setAndInitializeImplementation(multiSigAddress, callData)
-        )
-        const txChangeOwner = toTransactionObject(
-            kit.connection,
-            proxy.methods._transferOwnership(proxyAddress)
-        )
-        await txInit.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-        await txChangeOwner.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
-
-        if (data) {
-            await FirestoreWrite().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: proxyAddress }] })
+            // return wlt.smartWalletWrapper.key.toBase58()
         } else {
-            await FirestoreWrite().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: proxyAddress }] })
+            const { abi: proxyABI, bytecode: proxyBytecode } = await multiProxy
+            const { abi: multiSigABI, bytecode: multiSigBytecode } = await multisigContract
+            const tx0 = toTransactionObject(
+                kit.connection,
+                (new kit.web3.eth.Contract(proxyABI as any)).deploy({ data: proxyBytecode }) as any)
+
+            const tx1 = toTransactionObject(
+                kit.connection,
+                (new kit.web3.eth.Contract(multiSigABI as any)).deploy({ data: multiSigBytecode }) as any)
+
+            const res0 = await tx0.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res1 = await tx1.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            if (!res0.contractAddress || !res1.contractAddress) {
+                throw new Error("MultiSig deploy failure");
+            }
+            proxyAddress = res0.contractAddress
+            const multiSigAddress = res1.contractAddress
+
+            new Promise(resolve => setTimeout(resolve, 500))
+            const initializerAbi = multiSigABI.find((abi) => abi.type === 'function' && abi.name === 'initialize')
+            const callData = kit.web3.eth.abi.encodeFunctionCall(
+                initializerAbi as any,
+                [[address, ...owners] as any, sign as any, internalSign as any]
+            )
+
+            const proxy = new kit.web3.eth.Contract(proxyABI as any, proxyAddress)
+            const txInit = toTransactionObject(
+                kit.connection,
+                proxy.methods._setAndInitializeImplementation(multiSigAddress, callData)
+            )
+            const txChangeOwner = toTransactionObject(
+                kit.connection,
+                proxy.methods._transferOwnership(proxyAddress)
+            )
+            await txInit.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            await txChangeOwner.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+        }
+        if (data) {
+            await FirestoreWrite<MultisigType>().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: proxyAddress, blockchain: blockchain }] })
+        } else {
+            await FirestoreWrite<MultisigType>().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: proxyAddress, blockchain: blockchain }] })
         }
 
         return proxyAddress;
@@ -288,33 +259,37 @@ export default function useMultisig(blockchain: BlockchainType) {
         try {
 
             if (blockchain === 'solana') {
-                const sdk = await initSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(contractAddress));
 
-                if (wallet.data) {
-                    for (let index = 0; index < wallet.data.owners.length; index++) {
-                        const w = wallet.data.owners[index];
-                        if (w.toBase58().toLowerCase() === publicKey?.toBase58().toLowerCase()) break;
-                        if (index === wallet.data.owners.length - 1) {
-                            throw new Error("You are not an owner in this multisig address")
-                        }
-                    }
-                }
 
+                // GOKI
+                // const sdk = await initSolana();
+                // const wallet = await sdk.loadSmartWallet(new PublicKey(contractAddress));
+
+                // if (wallet.data) {
+                //     for (let index = 0; index < wallet.data.owners.length; index++) {
+                //         const w = wallet.data.owners[index];
+                //         if (w.toBase58().toLowerCase() === publicKey?.toBase58().toLowerCase()) break;
+                //         if (index === wallet.data.owners.length - 1) {
+                //             throw new Error("You are not an owner in this multisig address")
+                //         }
+                //     }
+                // }
+                if (data?.addresses.some(s => (s.address as SolanaMultisigData).multisig.toLocaleLowerCase() === contractAddress.toLocaleLowerCase())) throw new Error("This address already exist");
             } else if (blockchain === 'celo') {
                 const multiSig = await kit.contracts.getMultiSig(contractAddress);
 
                 const isOwner = await multiSig.isowner(kit.defaultAccount!)
                 if (!isOwner) throw new Error("You are not an owner in this multisig address");
+                if (data?.addresses.some(s => (s.address as string).toLocaleLowerCase() === contractAddress.toLocaleLowerCase())) throw new Error("This address already exist");
             }
 
 
-            if (data?.addresses.some(s => s.address.toLocaleLowerCase() === contractAddress.toLocaleLowerCase())) throw new Error("This address already exist");
+
 
             if (data) {
-                await FirestoreWrite().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: contractAddress }] })
+                await FirestoreWrite<MultisigType>().updateDoc("multisigs", auth.currentUser!.uid, { addresses: [...data?.addresses, { name: name, address: contractAddress, blockchain }] })
             } else {
-                await FirestoreWrite().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: contractAddress }] })
+                await FirestoreWrite<MultisigType>().createDoc("multisigs", auth.currentUser!.uid, { addresses: [{ name: name, address: contractAddress, blockchain }] })
             }
             return true
         } catch (e: any) {
@@ -326,13 +301,26 @@ export default function useMultisig(blockchain: BlockchainType) {
         if (isMultisig) {
             try {
                 if (blockchain === 'solana') {
-                    const sdk = await initSolana();
-                    const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
-                    if (wallet.data) {
-                        dispatch(setSign(wallet.data.threshold.toNumber()))
-                        dispatch(setInternalSign(wallet.data.threshold.toNumber()))
-                        return { sign: wallet.data.threshold.toNumber(), internalSigns: wallet.data.threshold.toNumber() }
+
+                    const multisigData = data?.addresses.find(s => (s.address as SolanaMultisigData).multisig.toLowerCase() === selectedAccount?.toLowerCase())
+                    if (multisigData) {
+                        const address = multisigData.address as SolanaMultisigData
+                        const tx = await connection.getTransaction(address.signature)
+                        const txData = tx?.transaction.message.instructions[0].data
+                        if (txData) {
+                           const parsedData = deserialize(SetWhiteListSchema, WhiteList, Buffer.from(txData))
+                           console.log(parsedData)
+                        }
                     }
+
+                    // Goki
+                    // const sdk = await initSolana();
+                    // const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
+                    // if (wallet.data) {
+                    //     dispatch(setSign(wallet.data.threshold.toNumber()))
+                    //     dispatch(setInternalSign(wallet.data.threshold.toNumber()))
+                    //     return { sign: wallet.data.threshold.toNumber(), internalSigns: wallet.data.threshold.toNumber() }
+                    // }
                     throw new Error("Wallet has no data")
                 }
                 else if (blockchain === "celo") {
@@ -356,7 +344,7 @@ export default function useMultisig(blockchain: BlockchainType) {
         if (isMultisig) {
             try {
                 if (blockchain === 'solana') {
-                    const sdk = await initSolana();
+                    const sdk = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                     if (wallet.data) {
                         const tx = await wallet.setOwners(wallet.data.owners.filter(o => o.toBase58().toLowerCase() !== ownerAddress.toLowerCase()))
@@ -395,7 +383,7 @@ export default function useMultisig(blockchain: BlockchainType) {
         if (isMultisig) {
             try {
                 if (blockchain === 'solana') {
-                    const sdk = await initSolana();
+                    const sdk = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                     if (wallet.data) {
                         const tx = await wallet.changeThreshold(sign)
@@ -452,7 +440,7 @@ export default function useMultisig(blockchain: BlockchainType) {
             try {
 
                 if (blockchain === 'solana') {
-                    const sdk = await initSolana();
+                    const sdk = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                     if (wallet.data) {
                         const owners = await wallet.setOwners(wallet.data.owners.concat([new PublicKey(newOwner)]))
@@ -495,12 +483,24 @@ export default function useMultisig(blockchain: BlockchainType) {
         if (isMultisig) {
             try {
                 if (blockchain === 'solana') {
-                    const sdk = await initSolana();
-                    const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
-                    if (wallet.data) {
-                        const owners = await wallet.data.owners.map(s => s.toBase58())
-                        return owners
+
+                    const multisigData = data?.addresses.find(s => (s.address as SolanaMultisigData).multisig.toLowerCase() === selectedAccount?.toLowerCase())
+                    if (multisigData) {
+                        const address = multisigData.address as SolanaMultisigData
+                        const tx = await connection.getTransaction(address.signature)
+                        const txData = tx?.transaction.message.instructions[0].data
+                        if (txData) {
+                           const parsedData = deserialize(SetWhiteListSchema, WhiteList, Buffer.from(txData))
+                           console.log(parsedData)
+                        }
                     }
+
+                    // const sdk = await initGokiSolana();
+                    // const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
+                    // if (wallet.data) {
+                    //     const owners = await wallet.data.owners.map(s => s.toBase58())
+                    //     return owners
+                    // }
                     throw new Error("Wallet has no data")
                 }
                 const multiSig = await kit.contracts.getMultiSig(selectedAccount); // MultiSig Address with Celo Kit
@@ -517,7 +517,7 @@ export default function useMultisig(blockchain: BlockchainType) {
                 selectedAccount = selectedAccount.toLowerCase()
 
                 if (blockchain === 'solana') {
-                    const sdk = await initSolana();
+                    const sdk = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                     if (wallet.data) {
                         const owners = await wallet.data.owners.map(s => s.toBase58())
@@ -561,31 +561,47 @@ export default function useMultisig(blockchain: BlockchainType) {
         let token;
         try {
             if (blockchain === 'solana') {
-                const sdk = await initSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
-                if (wallet.data) {
-                    const txs = new Transaction()
-                    for (let index = 0; index < input.length; index++) {
-                        const { amount, coin, recipient } = input[index];
 
-                        if (coin.contractAddress && publicKey && signAllTransactions && signTransaction) {
-                            const tx = await spl.token.transferTokenInstructions(connection, new PublicKey(coin.contractAddress), new PublicKey(selectedAccount), new PublicKey(recipient), Number(amount))
-                            txs.add(...tx)
-                            continue
-                        }
+                const data = await connection.getAccountInfo(new PublicKey("6EJZA92sTqxcUKy6WAzrv73vXhVmMt9mrhEyLMoKojsF"))
+                console.log(data?.owner.toBase58())
 
-                        let params: any = {
-                            fromPubkey: new PublicKey(selectedAccount),
-                            toPubkey: new PublicKey(recipient),
-                            lamports: toLamport(amount),
-                        };
-                        txs.add(SystemProgram.transfer(params))
-                    }
-                    const pending = await wallet.newTransaction({ instructions: txs.instructions })
-                    await pending.tx.confirm()
-                    return { message: "sucess" }
-                }
-                throw new Error("Wallet has no data")
+                return { message: "sucess" }
+
+                // const data = {
+                //     sender: publicKey?.toBase58(),
+                //     amount: input[0].amount,
+                //     receiver: input[0].recipient,
+                //     vault_pda: "DAMKbiGiyfne6Kvw9wMRWk4M6D1cr7BiggCP5H9sJXik",
+                //   };
+                //   const response = await instantSendNative(data);
+                //   console.log(response);
+
+
+                // const sdk = await initSolana();
+                // const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
+                // if (wallet.data) {
+                //     const txs = new Transaction()
+                //     for (let index = 0; index < input.length; index++) {
+                //         const { amount, coin, recipient } = input[index];
+
+                //         if (coin.contractAddress && publicKey && signAllTransactions && signTransaction) {
+                //             const tx = await spl.token.transferTokenInstructions(connection, new PublicKey(coin.contractAddress), new PublicKey(selectedAccount), new PublicKey(recipient), Number(amount))
+                //             txs.add(...tx)
+                //             continue
+                //         }
+
+                //         let params: any = {
+                //             fromPubkey: new PublicKey(selectedAccount),
+                //             toPubkey: new PublicKey(recipient),
+                //             lamports: toLamport(amount),
+                //         };
+                //         txs.add(SystemProgram.transfer(params))
+                //     }
+                //     const pending = await wallet.newTransaction({ instructions: txs.instructions })
+                //     await pending.tx.confirm()
+                //     return { message: "sucess" }
+                // }
+                // throw new Error("Wallet has no data")
             }
 
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
@@ -621,7 +637,7 @@ export default function useMultisig(blockchain: BlockchainType) {
     const revokeTransaction = async (multisigAddress: string, transactionId: string) => {
         try {
             if (blockchain === 'solana') {
-                const sdk = await initSolana();
+                const sdk = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                 if (wallet.data) {
                     const tx = await wallet.approveTransaction(new PublicKey(transactionId), publicKey!)
@@ -650,7 +666,7 @@ export default function useMultisig(blockchain: BlockchainType) {
     const confirmTransaction = async (multisigAddress: string, transactionId: string | number) => {
         try {
             if (blockchain === 'solana') {
-                const sdk = await initSolana();
+                const sdk = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                 if (wallet.data) {
                     const tx = await wallet.approveTransaction(new PublicKey(transactionId), publicKey!)
@@ -679,7 +695,7 @@ export default function useMultisig(blockchain: BlockchainType) {
     const executeTransaction = async (multisigAddress: string, transactionId: string | number) => {
         try {
             if (blockchain === 'solana') {
-                const sdk = await initSolana();
+                const sdk = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                 if (wallet.data) {
                     const tx = await wallet.executeTransaction({ transactionKey: new PublicKey(transactionId), owner: publicKey! })
@@ -710,7 +726,7 @@ export default function useMultisig(blockchain: BlockchainType) {
             let txResult: TransactionMultisig;
             if (blockchain === 'solana') {
 
-                const sdk = await initSolana();
+                const sdk = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
                 if (wallet.data && wallet.data.owners) {
                     const tx = await wallet.fetchTransactionByIndex(Number(transactionId))
@@ -778,7 +794,7 @@ export default function useMultisig(blockchain: BlockchainType) {
     }
 
     return {
-        CreateMultisigAccount, importMultisigAccount,
+        createMultisigAccount, importMultisigAccount,
         getSignAndInternal, removeOwner, changeSigns, addOwner, getOwners, replaceOwner,
         submitTransaction, revokeTransaction, confirmTransaction, executeTransaction,
         getTransaction, FetchTransactions, transactions, data, isLoading

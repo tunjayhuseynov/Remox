@@ -1,9 +1,9 @@
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
-import { IRequest } from "API/useRequest";
-import { Link } from "react-router-dom";
+import { IRequest } from "apiHooks/useRequest";
 import { useEffect, useRef, useState } from "react";
 import { useWalletKit } from "hooks";
+import Link from "next/link";
 
 const RequestItem = (props: { request: IRequest, requestState: [IRequest[], React.Dispatch<React.SetStateAction<IRequest[]>>] }) => {
 
@@ -71,7 +71,7 @@ const RequestItem = (props: { request: IRequest, requestState: [IRequest[], Reac
             </>}
         </div>
         <div className="flex justify-end cursor-pointer items-start md:pr-0 ">
-            <Link to={`/dashboard/requests/${props.request.id}`}><div className={`text-primary  ${detect ? "px-6 max-h-[5rem] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white"} rounded-xl py-2 transition-colors duration-300`}>View Details</div></Link>
+            <Link href={`/dashboard/requests/${props.request.id}`}><div className={`text-primary  ${detect ? "px-6 max-h-[5rem] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white"} rounded-xl py-2 transition-colors duration-300`}>View Details</div></Link>
         </div>
     </>
 }

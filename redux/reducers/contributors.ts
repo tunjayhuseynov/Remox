@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IuseContributor } from 'API/useContributors';
+import { IuseContributor } from 'apiHooks/useContributors';
 import { decryptMessage } from 'utils/hashing';
 import { RootState } from '../store';
 
-const initialState: { contributors: IuseContributor[]; isFetched: boolean } = {
+const initialState: { contributors: IuseContributor[]; isFetched: boolean;  } = {
 	contributors: [],
-	isFetched: false
+	isFetched: false,
 };
 
 export const contributorSlice = createSlice({

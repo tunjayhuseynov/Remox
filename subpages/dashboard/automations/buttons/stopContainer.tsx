@@ -1,4 +1,4 @@
-import { IMember, IuseContributor } from "API/useContributors";
+import { IMember, IuseContributor } from "apiHooks/useContributors";
 import { useState } from "react";
 import TeamItem from "./stopItem";
 

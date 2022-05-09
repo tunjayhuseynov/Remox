@@ -1,6 +1,6 @@
-import { FirestoreRead, FirestoreWrite } from "../API/useFirebase";
+import { FirestoreRead, FirestoreWrite } from "../apiHooks/useFirebase";
 import { v4 as uuidv4 } from 'uuid'
-import { IMember, IuseContributor } from "API/useContributors";
+import { IMember, IuseContributor } from "apiHooks/useContributors";
 import { auth } from "firebaseConfig";
 import { useState } from "react";
 import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore";

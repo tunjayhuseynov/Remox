@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeError, changeSuccess } from '../../redux/reducers/notificationSlice';
 import { selectStorage } from '../../redux/reducers/storage';
 import Button from '../../components/button';
-import useMultisig from 'API/useMultisig';
+import useMultisig from 'hooks/walletSDK/useMultisig';
 import { AddressReducer } from "../../utils";
 import { useRef, useState, Dispatch } from "react";
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
@@ -84,7 +84,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                         <span className="w-[1.563rem] h-[1.563rem] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                         <div className="grid grid-col">
                             <h3>Your Account</h3>
-                            <p className="opacity-80">{AddressReducer(storage!.accountAddress)}</p>
+                            <p className="opacity-80">{AddressReducer(storage?.accountAddress ?? "")}</p>
                         </div>
                     </div>
                     {owners.map((w) => {

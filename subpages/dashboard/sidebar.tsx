@@ -1,31 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Dropdown from '../../components/general/dropdown';
+import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
-import Modal from '../../components/general/modal';
-import { changeError, changeSuccess, selectError, selectSuccess } from '../../redux/reducers/notificationSlice';
-import { changeAccount, SelectSelectedAccount } from '../../redux/reducers/selectedAccount';
-import { selectStorage } from '../../redux/reducers/storage';
-import { DropDownItem } from '../../types';
+import Modal from 'components/general/modal';
+import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
+import { changeAccount, SelectSelectedAccount } from 'redux/reducers/selectedAccount';
+import { DropDownItem } from 'types';
 import Create from '../multisig/create';
-import Button from '../../components/button';
-import useMultisig from 'hooks/walletSDK/useMultisig';
-import { removeStorage } from '../../redux/reducers/storage'
-import { setMenu } from '../../redux/reducers/toggles'
-import { removeTransactions } from '../../redux/reducers/transactions'
-import { useContractKit, WalletTypes } from '@celo-tools/use-contractkit'
+import Button from 'components/button';
+import useMultisig, { SolanaMultisigData } from 'hooks/walletSDK/useMultisig';
+import { removeStorage } from 'redux/reducers/storage'
+import { setMenu } from 'redux/reducers/toggles'
+import { removeTransactions } from 'redux/reducers/transactions'
 import { BiLogOut } from 'react-icons/bi'
 import useMultiWallet from 'hooks/useMultiWallet';
 import { WordSplitter } from 'utils';
 import { useRouter } from 'next/router';
+import { useWalletKit } from 'hooks';
 
 const Sidebar = () => {
 
-    const { destroy } = useContractKit()
-    const { data, importMultisigAccount, isLoading } = useMultisig("solana")
+    const { Disconnect, blockchain } = useWalletKit()
+    const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useRouter()
     const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
-
     const selectedAccount = useSelector(SelectSelectedAccount)
 
     const dispatch = useDispatch()
@@ -57,23 +55,31 @@ const Sidebar = () => {
     useEffect(() => {
         if (data && wallets) {
             const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
-            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { if(s) setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
+            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { if (s) setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
+            let parsedData;
+            if (blockchain === 'solana') {
+                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e.address as SolanaMultisigData).multisig }))
+            } else {
+                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e.address as string) }))
+            }
             setList([
-                ...wallets.map(s => ({ name: WordSplitter(s.name), address: s.address, onClick: async () => { 
-                    try {
-                        await walletSwitch(s.name)
-                    } catch (error: any) {
-                        console.error(error)
-                    } 
-                    setItem({ name: WordSplitter(s.name), address: s.address })
-                 } })), 
-                ...data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: e.address })), wallet, multi
+                ...wallets.map(s => ({
+                    name: WordSplitter(s.name), address: s.address, onClick: async () => {
+                        try {
+                            await walletSwitch(s.name)
+                        } catch (error: any) {
+                            console.error(error)
+                        }
+                        setItem({ name: WordSplitter(s.name), address: s.address })
+                    }
+                })),
+                ...parsedData, wallet, multi
             ])
         }
     }, [data, wallets])
 
     return <>
-        <div className="hidden md:block md:col-span-2 w-[17.188rem] flex-none fixed pt-32">
+        <div className="hidden md:block md:col-span-2 w-[17.188rem] flex-none fixed pt-32 z-50">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div>
                     <Siderbarlist />
@@ -90,7 +96,7 @@ const Sidebar = () => {
                         dispatch(setMenu(false))
                         dispatch(removeTransactions())
                         dispatch(removeStorage())
-                        destroy()
+                        Disconnect()
                         navigator.push('/')
                     }}><LogoutSVG />
                     </span>

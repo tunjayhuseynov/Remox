@@ -2,20 +2,30 @@ import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useAppSelector } from '../../../redux/hooks';
 import { selectTags } from "redux/reducers/tags";
 import { useCalculation, useTransaction, useTransactionProcess, useWalletKit } from "hooks";
-import { Tag } from "API/useTags";
+import { Tag } from "apiHooks/useTags";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { CoinsName } from "types";
 import date from 'date-and-time'
 import { Chart as ChartJs } from 'chart.js';
 import Chartjs from "components/general/chart";
-import useBalance from "API/useBalance";
-import useCurrency from "API/useCurrency";
+import useBalance from "apiHooks/useBalance";
+import useCurrency from "apiHooks/useCurrency";
 import { getElementAtEvent } from "react-chartjs-2";
+import useInsight from "apiHooks/useInsight";
 
-type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
+export type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
 type STag = Array<ATag>
 
-const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) => {
+const Boxmoney = ({ insight }: { insight: ReturnType<typeof useInsight> }) => {
+    const {
+        lastIn,
+        lastOut,
+        selectedAccounts,
+        selectedDate, 
+        accountInTag: inTags,
+        accountOutTag: outTags
+    } = insight;
+
     const [data, setData] = useState({
         datasets: [{
             data: [0],
@@ -74,102 +84,68 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
 
     let tags = useAppSelector(selectTags)
 
-    const [lastIn, setIn] = useState<number>()
-    const [lastOut, setOut] = useState<number>();
 
-    const [inTags, setInTags] = useState<STag>([])
-    const [outTags, setOutTags] = useState<STag>([])
+    // const [inTags, setInTags] = useState<STag>([])
+    // const [outTags, setOutTags] = useState<STag>([])
 
-    useEffect(() => {
-        if (transactions) {
-            let outATag: ATag[] = []
-            let inATag: ATag[] = []
-            tags.forEach((tag: Tag) => {
-                let newInTag: ATag;
-                let newOutTag: ATag;
-                newInTag = {
-                    ...tag,
-                    txs: [],
-                    totalAmount: 0
-                }
-                newOutTag = {
-                    ...tag,
-                    txs: [],
-                    totalAmount: 0
-                }
-                tag.transactions.forEach(transaction => {
-                    const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.toLowerCase())
-                    if (tx && currencies) {
-                        const tTime = new Date(parseInt(tx.rawData.timeStamp) * 1e3)
-                        if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate) {
-                            let amount = 0;
-                            if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
-                                const txm = tx as ITransfer;
-                                amount += (Number(fromMinScale(txm.amount)) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
-                            }
-                            if (tx.id === ERC20MethodIds.noInput) {
-                                amount += (Number(fromMinScale(tx.rawData.value)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
-                            }
-                            if (tx.id === ERC20MethodIds.batchRequest) {
-                                const txm = tx as IBatchRequest;
-                                txm.payments.forEach(transfer => {
-                                    amount += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
-                                })
-                            }
-                            if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {
-                                newOutTag.txs.push(tx)
-                                newOutTag.totalAmount += amount
-                            } else {
-                                newInTag.txs.push(tx)
-                                newInTag.totalAmount += amount
-                            }
-                        }
-                    }
-                })
-                inATag.push(newInTag)
-                outATag.push(newOutTag)
-            })
-            setInTags(inATag)
-            setOutTags(outATag)
-        }
-    }, [transactions, tags, selectedDate])
+    // useEffect(() => {
+    //     if (transactions) {
+    //         let outATag: ATag[] = []
+    //         let inATag: ATag[] = []
+    //         tags.forEach((tag: Tag) => {
+    //             let newInTag: ATag;
+    //             let newOutTag: ATag;
+    //             newInTag = {
+    //                 ...tag,
+    //                 txs: [],
+    //                 totalAmount: 0
+    //             }
+    //             newOutTag = {
+    //                 ...tag,
+    //                 txs: [],
+    //                 totalAmount: 0
+    //             }
+    //             tag.transactions.forEach(transaction => {
+    //                 const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.toLowerCase())
+    //                 if (tx && currencies) {
+    //                     const tTime = new Date(parseInt(tx.rawData.timeStamp) * 1e3)
+    //                     if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate) {
+    //                         let amount = 0;
+    //                         if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
+    //                             const txm = tx as ITransfer;
+    //                             amount += (Number(fromMinScale(txm.amount)) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
+    //                         }
+    //                         if (tx.id === ERC20MethodIds.noInput) {
+    //                             amount += (Number(fromMinScale(tx.rawData.value)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+    //                         }
+    //                         if (tx.id === ERC20MethodIds.batchRequest) {
+    //                             const txm = tx as IBatchRequest;
+    //                             txm.payments.forEach(transfer => {
+    //                                 amount += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+    //                             })
+    //                         }
+    //                         if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {
+    //                             newOutTag.txs.push(tx)
+    //                             newOutTag.totalAmount += amount
+    //                         } else {
+    //                             newInTag.txs.push(tx)
+    //                             newInTag.totalAmount += amount
+    //                         }
+    //                     }
+    //                 }
+    //             })
+    //             inATag.push(newInTag)
+    //             outATag.push(newOutTag)
+    //         })
+    //         setInTags(inATag)
+    //         setOutTags(outATag)
+    //     }
+    // }, [transactions, tags, selectedDate])
 
-    useEffect(() => {
-        if (transactions) {
-            let myin = 0;
-            let myout = 0;
-            transactions.forEach(t => {
-                let feeToken = Object.entries(CoinsName).find(w => w[0] === t.rawData.tokenSymbol)?.[1]
-                const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
-                if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate && currencies) {
-                    let calc = 0;
-                    if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
-                        const tx = t as ITransfer;
-                        calc += (Number(fromMinScale(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
-                    }
-                    if (t.id === ERC20MethodIds.noInput) {
-                        calc += (Number(fromMinScale(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1));
-                    }
-                    if (t.id === ERC20MethodIds.batchRequest) {
-                        const tx = t as IBatchRequest;
-                        tx.payments.forEach(transfer => {
-                            calc += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
-                        })
-                    }
-                    if (selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase())) {
-                        myout += calc
-                    } else {
-                        myin += calc
-                    }
-                }
-            })
-            setIn(myin)
-            setOut(myout)
-        }
-    }, [transactions, currencies, selectedDate])
+
 
     useEffect(() => {
-        if (lastIn !== undefined) {
+        if (lastIn !== undefined && inTags) {
             const label: string[] = [];
             const amount: number[] = [];
             const color: string[] = [];
@@ -196,7 +172,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
     }, [inTags, lastIn])
 
     useEffect(() => {
-        if (lastOut !== undefined) {
+        if (lastOut !== undefined && outTags) {
             const label: string[] = [];
             const amount: number[] = [];
             const color: string[] = [];
@@ -221,6 +197,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             )
         }
     }, [outTags, lastOut])
+
     const UpdateChartAnimation = (index?: number) => {
         if (chartjs.current) {
             if (index || index === 0) {
@@ -260,7 +237,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             chart: <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, inTags, setSelectedCoin)} />,
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 ">
-                {inTags.map((tag, index) => {
+                {inTags?.map((tag, index) => {
                     return <div key={tag.id} className={`flex ${selectedCoin === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onMouseOver={() => {
                         setSelectedCoin(tag.id)
                         if (chartjs.current && tag.totalAmount !== 0) {
@@ -281,7 +258,7 @@ const Boxmoney = ({ selectedDate, selectedAccounts }: { selectedDate: number, se
             chart: <Chartjs data={data2} ref={chartjs2} onClickEvent={onHover(chartjs2, outTags, setSelectedCoin2)} />,
             tagList: outTags,
             tags: <div className="flex flex-col gap-3 pt-2 "  >
-                {outTags.map((tag, index) => {
+                {outTags?.map((tag, index) => {
                     return <div key={tag.id} className={`flex ${selectedCoin2 === tag.id && tag.totalAmount !== 0 && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] rounded-xl"} p-[2px] px-2 space-x-3 justify-between cursor-pointer`} onMouseOver={() => {
                         setSelectedCoin2(tag.id)
                         if (chartjs2.current && tag.totalAmount !== 0) {

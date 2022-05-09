@@ -1,4 +1,4 @@
-import { IRequest } from "API/useRequest";
+import { IRequest } from "apiHooks/useRequest";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { ICoinMembers, ICurrencyInternal, SelectCurrencies, SelectTotalBalance } from "redux/reducers/currencies";

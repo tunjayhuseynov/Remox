@@ -1,9 +1,9 @@
-import { IuseCurrency } from "API/useCurrency";
+import { IuseCurrency } from "apiHooks/useCurrency";
 import { useCallback, useMemo } from "react";
 import { AltCoins, Coins, TokenType } from "types";
 import useWalletKit from "./walletSDK/useWalletKit";
 
-interface Balance {
+export interface Balance {
     [name: string]: string;
 }
 

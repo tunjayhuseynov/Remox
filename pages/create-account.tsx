@@ -47,7 +47,8 @@ const CreateAccount = () => {
         name: inputData.name,
         surname: inputData.surname,
         seenTime: new Date().getTime(),
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        blockchain,
       })
 
       navigate.push('/dashboard')
@@ -81,4 +82,5 @@ const CreateAccount = () => {
 }
 
 CreateAccount.disableLayout = true
+CreateAccount.disableGuard = true
 export default CreateAccount

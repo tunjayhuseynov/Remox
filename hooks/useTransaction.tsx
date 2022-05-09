@@ -1,35 +1,39 @@
+import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { useLazyGetTransactionsQuery } from "redux/api"
-import { GetTransactions, Transactions } from "types/sdk";
-import useTransactionProcess from "./useTransactionProcess";
+import { useLazyGetAccountTransactionsQuery } from "redux/api/remox";
+import { IFormattedTransaction } from "./useTransactionProcess";
 import useWalletKit from "./walletSDK/useWalletKit";
 
 export default function useTransaction(accounts: string[]) {
-    const { GetTransactions } = useWalletKit()
-    const [transactionTrigger, { data: transactionData, isFetching: transactionFetching }] = useLazyGetTransactionsQuery()
+    const { blockchain } = useWalletKit()
+    const auth = getAuth()
+    const [fetch] = useLazyGetAccountTransactionsQuery()
 
     const MultipleTransaction = async () => {
-        const list = []
-        for (let index = 0; index < accounts.length; index++) {
-            const element = accounts[index];
-            const txs = await GetTransactions(element)
-            list.push(txs)
+        try {
+            const txs = await fetch({ addresses: accounts, authId: auth.currentUser?.uid, blockchain }).unwrap()
+            return txs;
+        } catch (error) {
+            throw new Error(error as any)
         }
-
-        return list;
     }
 
-    const [txs, setTxs] = useState<Transactions[]>()
-    const [list, transactions] = useTransactionProcess(txs)
+    const [txs, setTxs] = useState<IFormattedTransaction[]>()
+
 
     useEffect(() => {
         (
             async () => {
-                const txs = await MultipleTransaction()
-                setTxs(txs.reduce((a, c) => Object.assign(a, c), []))
+                try {
+                    const txs = await MultipleTransaction()
+                    setTxs(txs)
+                } catch (error) {
+                    console.error(error)
+                    setTxs([])
+                }
             }
         )()
     }, [accounts])
 
-    return { MultipleTransaction, list, transactionData, transactionFetching }
+    return { MultipleTransaction, list: txs }
 }

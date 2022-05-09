@@ -1,5 +1,5 @@
-import { FirestoreRead, FirestoreWrite } from "API/useFirebase"
-import { IRequest, RequestStatus } from "API/useRequest"
+import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase"
+import { IRequest, RequestStatus } from "apiHooks/useRequest"
 import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore"
 import { useState } from "react"
 import { generate } from "shortid"

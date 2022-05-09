@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoolaUserComponentData } from 'API/useMoola';
+import { MoolaUserComponentData } from 'apiHooks/useMoola';
 import Button from 'components/button';
 import Modal from 'components/general/modal';
 import MdContent from './mdcontent';

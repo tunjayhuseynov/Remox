@@ -3,6 +3,7 @@ import { GetTransactions } from '../../types/sdk';
 
 
 export const BlockScoutApi = createApi({
+	reducerPath: "blockscoutapi",
 	baseQuery: fetchBaseQuery({
 		baseUrl: 'https://explorer.celo.org/api'
 	}),

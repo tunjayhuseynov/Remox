@@ -3,9 +3,9 @@ import { Dispatch, forwardRef, useEffect, useRef, useState, createRef, useMemo }
 import { DropDownItem } from '../../types/dropdown'
 import { MouseEventHandler } from 'react'
 import { CoinsURL } from '../../types/coins'
-import { ClipLoader } from 'react-spinners'
 import useModalSideExit from '../../hooks/useModalSideExit'
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
+import Loader from 'components/Loader'
 
 const variants = {
     close: {
@@ -58,7 +58,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
             <div ref={expectRef} onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
                 {!loader ? <div className="truncate">
                     {Viewer({ name: selected.name, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
-                </div> : <ClipLoader />}
+                </div> : <Loader />}
                 {list && list.length > 0 && <div>
                     <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                 </div>}

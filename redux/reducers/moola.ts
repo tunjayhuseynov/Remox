@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { MoolaUserComponentData } from 'API/useMoola'
+import { MoolaUserComponentData } from 'apiHooks/useMoola'
 import type { RootState } from '../store'
 
 

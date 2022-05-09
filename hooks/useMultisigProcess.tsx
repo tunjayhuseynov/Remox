@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { selectMultisigTransactions, setTransactions } from "../redux/reducers/multisig"
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from "../redux/reducers/storage"
-import useFetchMultisig from '../API/useMultisig'
 import useMultisigner from 'hooks/walletSDK/useMultisig'
 import useMultiWallet from "./useMultiWallet"
 
@@ -20,9 +19,9 @@ const useMultisigProcess = () => {
     }>()
     
 
-    const { transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useMultisigner("solana")
+    const { transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useMultisigner()
 
-    const isMultisig = selectedAccount.toLowerCase() !== storage!.accountAddress.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
+    const isMultisig = selectedAccount.toLowerCase() !== storage?.accountAddress.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
     const dispatch = useDispatch()
 
     const fetchTxs = useCallback((disabledTransactionDispatch = false, skip = 0, take = 10) => {

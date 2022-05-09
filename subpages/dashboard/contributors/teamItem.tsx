@@ -4,9 +4,9 @@ import Profile from "subpages/dashboard/contributors/buttons/profile"
 import EditMember from "subpages/dashboard/contributors/buttons/editMember"
 import Avatar from "../../../components/avatar";
 import Delete from './buttons/delete'
-import { IMember } from "API/useContributors";
+import { IMember } from "apiHooks/useContributors";
 import useContributors from "hooks/useContributors";
-import useGelato from "API/useGelato";
+import useGelato from "apiHooks/useGelato";
 import { useWalletKit } from "hooks";
 
 const TeamItem = (props: IMember & { teamName: string }) => {

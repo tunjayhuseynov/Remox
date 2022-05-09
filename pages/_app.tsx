@@ -13,9 +13,11 @@ import { NextPage } from 'next';
 import { ThemeProvider } from "next-themes";
 
 import App from 'layouts/App'
+import Guard from 'layouts/Guard';
 
 type NextPageWithLayout = NextPage & {
   disableLayout?: (page: ReactElement) => ReactNode
+  disableGuard?: (page: ReactElement) => ReactNode
 }
 
 type AppPropsWithLayout = AppProps & {
@@ -25,17 +27,25 @@ type AppPropsWithLayout = AppProps & {
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   const disableLayout = Component?.disableLayout ?? false
+  const disableGuard = Component?.disableGuard ?? false
   return <ThemeProvider enableSystem={false} attribute="class">
     <Provider store={store}>
       <Wallet>
         <App>
           {
-            disableLayout ?
+            disableGuard ?
               <Component {...pageProps} />
               :
-              <DashboardLayout>
-                <Component {...pageProps} />
-              </DashboardLayout>
+              <Guard>
+                {
+                  disableLayout ?
+                    <Component {...pageProps} /> :
+                    <DashboardLayout>
+                      <Component {...pageProps} />
+                    </DashboardLayout>
+
+                }
+              </Guard>
           }
         </App>
       </Wallet>

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { AltCoins } from 'types';
-import { IuseCurrency } from '../../API/useCurrency';
+import { IuseCurrency } from '../../apiHooks/useCurrency';
 import { RootState } from '../store';
 
 export interface ICurrencyInternal {
@@ -18,13 +18,14 @@ export interface IBalanceItem {
 	tokenPrice: number;
 }
 
-interface IBalanceMembers {
+export interface IBalanceMembers {
 	[name: string]: IBalanceItem;
 }
 
 interface ICurrency {
 	celoCoins: ICoinMembers;
 	balances: IBalanceMembers;
+	orderBalance: IBalanceItem[];
 	totalBalance: number | undefined;
 }
 
@@ -35,6 +36,7 @@ export interface ICoinMembers {
 const State: ICurrency = {
 	celoCoins: {},
 	balances: {},
+	orderBalance: [],
 	totalBalance: undefined
 };
 
@@ -64,13 +66,17 @@ export const CurrencySlice = createSlice({
 			state.balances = {
 				...action.payload
 			};
+		},
+		setOrderBalance: (state: ICurrency, action: { payload: IBalanceItem[] }) => {
+			state.orderBalance = action.payload;
 		}
 	}
 });
 
-export const { updateAllCurrencies, updateUserBalance, deleteBalance, updateTotalBalance } = CurrencySlice.actions;
+export const { updateAllCurrencies, updateUserBalance, deleteBalance, updateTotalBalance, setOrderBalance } = CurrencySlice.actions;
 
 export const SelectCurrencies = (state: RootState): ICoinMembers => state.currencyandbalance.celoCoins;
+export const SelectOrderBalance = (state: RootState): IBalanceItem[] => state.currencyandbalance.orderBalance;
 export const SelectBalances = (state: RootState): IBalanceMembers => state.currencyandbalance.balances;
 export const SelectTotalBalance = (state: RootState) => state.currencyandbalance.totalBalance;
 export const SelectCelo = (state: RootState) => state.currencyandbalance.celoCoins.CELO;

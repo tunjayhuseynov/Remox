@@ -1,9 +1,9 @@
-import { ExecutionType, IMember } from "API/useContributors";
+import { ExecutionType, IMember } from "apiHooks/useContributors";
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
 import Button from "components/button";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import TeamItem from "./stopItem";
-import useGelato from "API/useGelato";
+import useGelato from "apiHooks/useGelato";
 import useContributors from "hooks/useContributors";
 import { encryptMessage } from "utils/hashing";
 import { selectStorage } from "redux/reducers/storage";

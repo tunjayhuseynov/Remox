@@ -2,9 +2,9 @@ import React, { Dispatch, useEffect, useState } from "react";
 import useModalSideExit from '../../hooks/useModalSideExit';
 import { IoIosArrowDown } from 'react-icons/io';
 import useMultiWallet from "hooks/useMultiWallet";
-import { ClipLoader } from "react-spinners";
 import { WordSplitter } from "utils";
 import { IMultiwallet, IUser } from "firebaseConfig";
+import Loader from "components/Loader";
 
 export const WalletDropdown = ({ selected, onChange }: { selected: string, onChange: (accounts: IMultiwallet[]) => void }) => {
     const [isOpen, setOpen] = useState(false)
@@ -18,7 +18,7 @@ export const WalletDropdown = ({ selected, onChange }: { selected: string, onCha
         }
     }, [data])
 
-    if (!data) return <div> <ClipLoader /></div>
+    if (!data) return <div> <Loader /></div>
     const l = selectedAccounts.length;
     return <div className="relative">
         <div onClick={() => setOpen(!isOpen)} className="font-normal px-2 sm:px-5 py-2 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex space-x-1 items-center justify-center " ref={exceptRef}>

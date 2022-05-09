@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { TransactionDirection, TransactionStatus } from "../types";
 import dateFormat from 'dateformat';
+import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { TransactionDirectionDeclare } from "utils";
+import TransactionItem from "./transactionItem";
+import _ from "lodash";
 
 const variants = {
     close: {
@@ -59,3 +63,34 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
 }
 
 export default Accordion;
+
+
+export const ProcessAccordion = (transaction: IFormattedTransaction, accounts: string[], grid: string, color: string) => {
+    const isBatch = transaction.id === ERC20MethodIds.batchRequest
+    const TXs: IFormattedTransaction[] = [];
+    if (isBatch) {
+        const groupBatch = _((transaction as IBatchRequest).payments).groupBy("to").value()
+        Object.entries(groupBatch).forEach(([key, value]) => {
+            let tx: IBatchRequest = {
+                method: transaction.method,
+                id: transaction.id,
+                hash: transaction.hash,
+                rawData: transaction.rawData,
+                payments: value
+            }
+            TXs.push(tx)
+        })
+    } else {
+        TXs.push(transaction)
+    }
+    const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
+    let directionType = TransactionDirectionDeclare(transaction, accounts);
+
+    return <Fragment key={transaction.rawData.hash}>
+        <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
+            <div>
+                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
+            </div>
+        </Accordion>
+    </Fragment>
+}

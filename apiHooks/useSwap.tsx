@@ -3,7 +3,7 @@ import { useContractKit } from '@celo-tools/use-contractkit';
 import { StableToken } from '@celo/contractkit';
 import { ChainId, Fetcher, Fraction, JSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
 import { getAddress } from 'ethers/lib/utils';
-import { DashboardContext } from 'pages/dashboard/layout';
+import { DashboardContext } from 'layouts/dashboard';
 import { useContext, useState } from 'react';
 import { AltCoins, CeloCoins } from 'types';
 import { fromWei, toWei } from 'utils/ray';

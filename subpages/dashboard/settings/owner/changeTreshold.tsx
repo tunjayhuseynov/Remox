@@ -5,7 +5,7 @@ import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import { DropDownItem } from "types";
 import Button from "components/button";
-import { ClipLoader } from "react-spinners";
+import Loader from "components/Loader";
 
 
 const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
@@ -67,7 +67,7 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                 </Button>
             </div>
         </div>
-    </div> : <div> <ClipLoader /> </div>
+    </div> : <div> <Loader /> </div>
 }
 
 export default ChangeTreshold;
