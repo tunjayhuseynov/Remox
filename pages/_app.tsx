@@ -50,8 +50,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         </App>
       </Wallet>
     </Provider>
-  </ThemeProvider >
-
+  </ThemeProvider>
 }
 
 export default MyApp

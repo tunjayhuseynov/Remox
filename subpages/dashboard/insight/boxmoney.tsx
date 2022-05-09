@@ -1,27 +1,16 @@
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { useAppSelector } from '../../../redux/hooks';
-import { selectTags } from "redux/reducers/tags";
-import { useCalculation, useTransaction, useTransactionProcess, useWalletKit } from "hooks";
+import { useEffect, useState, useRef } from "react";
 import { Tag } from "apiHooks/useTags";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
-import { CoinsName } from "types";
-import date from 'date-and-time'
+import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { Chart as ChartJs } from 'chart.js';
 import Chartjs from "components/general/chart";
-import useBalance from "apiHooks/useBalance";
-import useCurrency from "apiHooks/useCurrency";
-import { getElementAtEvent } from "react-chartjs-2";
 import useInsight from "apiHooks/useInsight";
 
 export type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
-type STag = Array<ATag>
 
 const Boxmoney = ({ insight }: { insight: ReturnType<typeof useInsight> }) => {
     const {
         lastIn,
         lastOut,
-        selectedAccounts,
-        selectedDate, 
         accountInTag: inTags,
         accountOutTag: outTags
     } = insight;
@@ -49,100 +38,11 @@ const Boxmoney = ({ insight }: { insight: ReturnType<typeof useInsight> }) => {
         ],
     });
 
-
-    const { fromMinScale } = useWalletKit()
-
     const chartjs = useRef<ChartJs>(null)
     const chartjs2 = useRef<ChartJs>(null)
 
     const [selectedCoin, setSelectedCoin] = useState<string>("")
     const [selectedCoin2, setSelectedCoin2] = useState<string>("")
-
-    const onHover = useCallback((ref: any, item: any, dispatch: any) => {
-        return (event: any) => {
-            const el = getElementAtEvent((ref as any).current as any, event)
-            if (el.length > 0 && el[0].index >= 0) {
-                const index = el[0].index ?? 1;
-                dispatch(item[index].id);
-                (ref as any).current.setActiveElements([{ datasetIndex: 0, index: index }])
-            } else {
-                (ref as any).current.setActiveElements([])
-                dispatch("");
-            }
-            (ref as any).current.update()
-        }
-    }, [])
-
-
-    const { fetchedBalance } = useBalance(selectedAccounts)
-    const fetchedCurrencies = useCurrency()
-    const { AllPrices } = useCalculation(fetchedBalance, fetchedCurrencies)
-
-    const currencies = AllPrices
-
-    const { list: transactions } = useTransaction(selectedAccounts)
-
-    let tags = useAppSelector(selectTags)
-
-
-    // const [inTags, setInTags] = useState<STag>([])
-    // const [outTags, setOutTags] = useState<STag>([])
-
-    // useEffect(() => {
-    //     if (transactions) {
-    //         let outATag: ATag[] = []
-    //         let inATag: ATag[] = []
-    //         tags.forEach((tag: Tag) => {
-    //             let newInTag: ATag;
-    //             let newOutTag: ATag;
-    //             newInTag = {
-    //                 ...tag,
-    //                 txs: [],
-    //                 totalAmount: 0
-    //             }
-    //             newOutTag = {
-    //                 ...tag,
-    //                 txs: [],
-    //                 totalAmount: 0
-    //             }
-    //             tag.transactions.forEach(transaction => {
-    //                 const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.toLowerCase())
-    //                 if (tx && currencies) {
-    //                     const tTime = new Date(parseInt(tx.rawData.timeStamp) * 1e3)
-    //                     if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDate) {
-    //                         let amount = 0;
-    //                         if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
-    //                             const txm = tx as ITransfer;
-    //                             amount += (Number(fromMinScale(txm.amount)) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
-    //                         }
-    //                         if (tx.id === ERC20MethodIds.noInput) {
-    //                             amount += (Number(fromMinScale(tx.rawData.value)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
-    //                         }
-    //                         if (tx.id === ERC20MethodIds.batchRequest) {
-    //                             const txm = tx as IBatchRequest;
-    //                             txm.payments.forEach(transfer => {
-    //                                 amount += (Number(fromMinScale(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
-    //                             })
-    //                         }
-    //                         if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {
-    //                             newOutTag.txs.push(tx)
-    //                             newOutTag.totalAmount += amount
-    //                         } else {
-    //                             newInTag.txs.push(tx)
-    //                             newInTag.totalAmount += amount
-    //                         }
-    //                     }
-    //                 }
-    //             })
-    //             inATag.push(newInTag)
-    //             outATag.push(newOutTag)
-    //         })
-    //         setInTags(inATag)
-    //         setOutTags(outATag)
-    //     }
-    // }, [transactions, tags, selectedDate])
-
-
 
     useEffect(() => {
         if (lastIn !== undefined && inTags) {
@@ -234,7 +134,7 @@ const Boxmoney = ({ insight }: { insight: ReturnType<typeof useInsight> }) => {
             id: 1,
             header: "Money in",
             headermoney: lastIn?.toFixed(2),
-            chart: <Chartjs data={data} ref={chartjs} onClickEvent={onHover(chartjs, inTags, setSelectedCoin)} />,
+            chart: <Chartjs data={data} ref={chartjs} dispatch={setSelectedCoin} items={inTags as any} />,
             tagList: inTags,
             tags: <div className="flex flex-col gap-3 pt-2 ">
                 {inTags?.map((tag, index) => {
@@ -255,7 +155,7 @@ const Boxmoney = ({ insight }: { insight: ReturnType<typeof useInsight> }) => {
             id: 2,
             header: "Money out",
             headermoney: lastOut?.toFixed(2),
-            chart: <Chartjs data={data2} ref={chartjs2} onClickEvent={onHover(chartjs2, outTags, setSelectedCoin2)} />,
+            chart: <Chartjs data={data2} ref={chartjs2} dispatch={setSelectedCoin2} items={outTags as any} />,
             tagList: outTags,
             tags: <div className="flex flex-col gap-3 pt-2 "  >
                 {outTags?.map((tag, index) => {
