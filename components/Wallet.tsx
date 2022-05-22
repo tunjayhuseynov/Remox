@@ -1,5 +1,4 @@
 import { Alfajores, ContractKitProvider, Mainnet } from '@celo-tools/use-contractkit'
-import { CeloContract } from '@celo/contractkit'
 import { useMemo } from 'react';
 import { BaseUrl } from 'utils/const';
 import {
@@ -43,7 +42,7 @@ export default function Wallet({ children }: { children: JSX.Element }) {
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
                     <ContractKitProvider
-                        feeCurrency={CeloContract.GoldToken}
+                        feeCurrency={"GoldToken" as any}
                         dapp={{
                             name: 'Remox DAO',
                             icon: `${BaseUrl}/favicon.png`,

@@ -16,7 +16,7 @@ import { Contracts } from './Contracts/Contracts';
 import { fromWei } from 'utils/ray';
 
 
-export enum MethodIds {
+export enum MultisigMethodIds {
     "0x173825d9" = 'removeOwner',
     "0xe20056e6" = 'replaceOwner',
     "0x7065cb48" = 'addOwner',
@@ -88,7 +88,7 @@ export default function useMultisig() {
                 obj.valueOfTransfer = ""
 
                 let methodId = tx.data.slice(0, 10)
-                obj.method = MethodIds[methodId as keyof typeof MethodIds]
+                obj.method = MultisigMethodIds[methodId as keyof typeof MultisigMethodIds]
 
                 if (methodId == "0x2e6c3721" || methodId == "0xba51a6df") {
                     obj.requiredCount = tx.data.slice(tx.data.length - 2)
@@ -453,7 +453,7 @@ export default function useMultisig() {
             txResult.valueOfTransfer = ""
 
             let methodId = tx.data.slice(0, 10)
-            txResult.method = MethodIds[methodId as keyof typeof MethodIds]
+            txResult.method = MultisigMethodIds[methodId as keyof typeof MultisigMethodIds]
 
             if (methodId == "0x2e6c3721" || methodId == "0xba51a6df") {
                 txResult.requiredCount = tx.data.slice(tx.data.length - 2)

@@ -58,9 +58,9 @@ const Sidebar = () => {
             const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { if (s) setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
             let parsedData;
             if (blockchain === 'solana') {
-                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e.address as SolanaMultisigData).multisig }))
+                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e?.address as SolanaMultisigData)?.multisig }))
             } else {
-                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e.address as string) }))
+                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e?.address as string) }))
             }
             setList([
                 ...wallets.map(s => ({

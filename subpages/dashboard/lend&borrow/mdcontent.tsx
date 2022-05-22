@@ -4,13 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import useMoola, { InterestRateMode, MoolaBorrowStatus, MoolaType, MoolaUserComponentData } from "apiHooks/useMoola";
+import useLending, { InterestRateMode, LendingBorrowStatus, MoolaType, LendingUserComponentData } from "apiHooks/useLending";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { Coins } from 'types'
 import Loader from "components/Loader";
 
-const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borrow" | "deposit", setModal: React.Dispatch<React.SetStateAction<boolean>>, box: MoolaUserComponentData }) => {
+const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borrow" | "deposit", setModal: React.Dispatch<React.SetStateAction<boolean>>, box: LendingUserComponentData }) => {
     const [selectedType, setSelectedType] = useState(true)
     const [amountState, setAmountState] = useState<number>(-1)
     const [wallets, setWallets] = useState<DropDownItem[]>([])
@@ -21,7 +21,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
 
     const [componentData, setComponentData] = useState(box)
     const [coinLoading, setCoinLoading] = useState(true)
-    const [status, setStatus] = useState<MoolaBorrowStatus>()
+    const [status, setStatus] = useState<LendingBorrowStatus>()
 
     const maxAmount = type === "deposit" ? balances[componentData.currency.name].amount : type === "withdraw" ? componentData.lendingBalance : componentData.loanBalance
     const {
@@ -34,7 +34,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         refresh,
         getBorrowInfo,
         loading
-    } = useMoola()
+    } = useLending()
 
     useEffect(() => {
         (async () => {

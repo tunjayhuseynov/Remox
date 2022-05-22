@@ -1,6 +1,6 @@
 import Dropdown from "components/general/dropdown";
 import { Coins, DropDownItem } from 'types'
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectBalances } from "redux/reducers/currencies";
 import { changeError, changeSuccess, selectError, selectSuccess } from "redux/reducers/notificationSlice";
@@ -10,7 +10,7 @@ import Modal from "components/general/modal";
 import { useModalSideExit, useWalletKit } from 'hooks';
 import useMultisigProcess from "hooks/useMultisigProcess";
 import Button from "components/button";
-import useSwap from "apiHooks/useSwap";
+import useSwap from "hooks/walletSDK/useSwap";
 import { motion, AnimatePresence } from "framer-motion"
 import Loader from "components/Loader";
 
@@ -48,9 +48,11 @@ const Swap = () => {
 
     const { Exchange, MinmumAmountOut, isLoading } = useSwap()
 
-    const change = async (value?: number) => {
+    const change = useCallback(async (value?: number) => {
         if (token1.name && token2.name) {
             try {
+                console.log("Rendered")
+
                 const data = await MinmumAmountOut(
                     GetCoins[token1.name as keyof Coins],
                     GetCoins[token2.name as keyof Coins],
@@ -66,7 +68,7 @@ const Swap = () => {
             }
 
         }
-    }
+    }, [token1, token2, token1Amount, slippageArr, deadline])
 
     const startSwap = async () => {
         if (token1.name && token2.name && token1Amount && token1Amount > 0) {
@@ -89,7 +91,6 @@ const Swap = () => {
                 console.error(error)
                 dispatch(changeError({ activate: true }))
             }
-
         }
     }
 
@@ -241,7 +242,7 @@ const Swap = () => {
                             {!(!token1Amount) && (!isLoading ?
                                 <>
                                     <div className="font-bold text-2xl text-center outline-none unvisibleArrow">
-                                        {parseFloat(appAmount).toFixed(2)}
+                                        {parseFloat(appAmount).toFixed(4)}
                                     </div>
                                 </> : <div className="text-center"><Loader /></div>)
                             }
@@ -258,7 +259,7 @@ const Swap = () => {
             <div className="px-8 py-3 font-extralight text-sm">
                 <div className="flex justify-between">
                     <div>Rate:</div>
-                    <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+                    <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
                 </div>
                 <div className="flex justify-between">
                     <div>Fee:</div>
@@ -305,7 +306,7 @@ const Swap = () => {
                 <div className="flex flex-col px-5 text-xs space-y-1">
                     <div className="flex justify-between">
                         <div>Rate:</div>
-                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
                     </div>
                     <div className="flex justify-between">
                         <div>Fee:</div>

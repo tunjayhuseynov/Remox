@@ -305,7 +305,6 @@ const Pay = () => {
                                 <span className="self-center text-lg opacity-60">Total: ${MyInputs.reduce((a, e, i) => {
                                     if (!e.wallet?.name) return a;
                                     if (selectedType) return a + (e.amount ?? 0) + (e.amount2 ?? 0);
-                                    console.log(balance[e.wallet?.name as keyof typeof balance]?.tokenPrice)
                                     return a + ((e.amount ?? 0) * (balance[e.wallet?.name as keyof typeof balance]?.tokenPrice ?? 1)) + ((e.amount2 ?? 0) * (balance[e.wallet2?.name as keyof typeof balance]?.tokenPrice ?? 1));
                                 }, 0).toFixed(2)}</span>
                             </div>

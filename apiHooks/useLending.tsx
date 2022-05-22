@@ -10,6 +10,10 @@ import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
 import { SelectCurrencies } from 'redux/reducers/currencies'
 import { useWalletKit } from "hooks";
+import { VaultClient, VaultConfig } from '@castlefinance/vault-sdk'
+import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";
+
+
 const MoolaProxy = import("./ABI/MoolaProxy.json")
 const Moola = import("./ABI/Moola.json")
 const MoolaData = import("./ABI/MoolaData.json")
@@ -20,17 +24,19 @@ export enum InterestRateMode {
     Variable = "2"
 }
 
+
 export const MoolaType = (type: string) => type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
 
 
-export default function useMoola() {
+export default function useLending() {
     const { kit, address } = useContractKit()
     const contractRef = useRef<string>()
     const priceOracleRef = useRef<string>()
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
-    const { GetCoins, fromMinScale } = useWalletKit()
+    const { GetCoins, fromMinScale, blockchain } = useWalletKit()
+    const { Provider } = useSolanaProvider()
 
 
     const dispatch = useDispatch()
@@ -175,7 +181,7 @@ export default function useMoola() {
         }
     }
 
-    const getReserveData = async (asset: string): Promise<MoolaReserveData> => {
+    const getReserveData = async (asset: string): Promise<LendingReserveData> => {
         try {
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
@@ -222,7 +228,7 @@ export default function useMoola() {
         }
     }
 
-    const getUserAccountData = async (asset: string, walletAddress?: string): Promise<MoolaUserData> => {
+    const getUserAccountData = async (asset: string, walletAddress?: string): Promise<LendingUserData> => {
         try {
             const MoolaDataAbi = await MoolaData
 
@@ -283,7 +289,7 @@ export default function useMoola() {
         }
     }
 
-    const getBorrowInfo = async (borrowAmount: number, currency: AltCoins): Promise<MoolaBorrowStatus> => {
+    const getBorrowInfo = async (borrowAmount: number, currency: AltCoins): Promise<LendingBorrowStatus> => {
         const collaterals = MoolaUserData.map((userData) => (
             {
                 currency: userData.currency,
@@ -330,13 +336,33 @@ export default function useMoola() {
 
     const InitializeUser = async () => {
         try {
+            if (blockchain === "solana") {
+                setInitLaoding(true)
+                if (!Provider) throw new Error("No provider")
+                const configResponse = await fetch('https://api.castle.finance/configs')
+                const vaults = (await configResponse.json()) as any
+                const vault = vaults.find(
+                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+                )
+
+                const vaultClient = await VaultClient.load(
+                    Provider as any,
+                    vault.vault_id,
+                    vault.deploymentEnv
+                )
+
+                
+
+                return 
+            }
+
             if (moolaData.length === 0) setInitLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
             if (!GetCoins) return
             const coinList: AltCoins[] = Object.values(GetCoins).filter((s: AltCoins) => s.type !== TokenType.Altcoin);
-            const userData: MoolaUserComponentData[] = [];
+            const userData: LendingUserComponentData[] = [];
             for (let index = 0; index < coinList.length; index++) {
                 try {
                     const element = coinList[index];
@@ -363,7 +389,7 @@ export default function useMoola() {
     return { getContract, deposit, getPrice, withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading, getSingleInitialUserData, getBorrowInfo };
 }
 
-export interface MoolaUserData {
+export interface LendingUserData {
     currentATokenBalance: string,
     currentStableDebt: string,
     currentVariableDebt: string,
@@ -375,7 +401,7 @@ export interface MoolaUserData {
     usageAsCollateralEnabled: boolean,
 }
 
-export interface MoolaReserveConfig {
+export interface LendingReserveConfig {
     Decimals: number,
     LoanToValue: string,
     LiquidationThreshold: string,
@@ -388,7 +414,7 @@ export interface MoolaReserveConfig {
     Frozen: boolean,
 }
 
-export interface MoolaReserveData {
+export interface LendingReserveData {
     availableLiquidity: string,
     rawAvailableLiquidity: string,
     totalStableDebt: string,
@@ -401,11 +427,11 @@ export interface MoolaReserveData {
     liquidityIndex: string,
     variableBorrowIndex: string,
     lastUpdateTimestamp: string,
-    coinReserveConfig: MoolaReserveConfig
+    coinReserveConfig: LendingReserveConfig
 
 }
 
-export interface MoolaUserComponentData {
+export interface LendingUserComponentData {
     walletBalance: number,
     lendingBalance: number,
     availableBorrow: string,
@@ -414,11 +440,11 @@ export interface MoolaUserComponentData {
     currencyPrice: string,
     apy: number,
     averageStableBorrowRate: number,
-    userData: MoolaUserData,
-    coinData: MoolaReserveData,
+    userData: LendingUserData,
+    coinData: LendingReserveData,
 }
 
-export interface MoolaBorrowStatus {
+export interface LendingBorrowStatus {
     ltv: string,
     debt: string;
     debtList: string[];

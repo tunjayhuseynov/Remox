@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { MoolaUserComponentData } from 'apiHooks/useMoola'
+import { LendingUserComponentData } from 'apiHooks/useLending'
 import type { RootState } from '../store'
 
 
-const initialState: { 
-    data: MoolaUserComponentData[],
-} = {
+interface ILendingState {
+    data: LendingUserComponentData[],
+}
+
+const initialState: ILendingState = {
     data: [],
 }
 
@@ -13,7 +15,7 @@ export const moolaSlice = createSlice({
     name: 'moola',
     initialState,
     reducers: {
-        updateData: (state, action: PayloadAction<MoolaUserComponentData[]>) => {
+        updateData: (state: ILendingState, action: PayloadAction<LendingUserComponentData[]>) => {
             state.data = action.payload
         },
     },

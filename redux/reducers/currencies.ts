@@ -60,7 +60,7 @@ export const CurrencySlice = createSlice({
 			state.celoCoins = {};
 			state.balances = {};
 		},
-		updateUserBalance: (state: ICurrency, action) => {
+		updateUserBalance: (state: ICurrency, action: any) => {
 			if (!action.payload) return;
 
 			state.balances = {

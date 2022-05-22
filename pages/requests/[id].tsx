@@ -14,7 +14,7 @@ import { IRequest } from "apiHooks/useRequest";
 import { isAddress } from "web3-utils";
 import { toast, ToastContainer } from 'react-toastify';
 import useCurrency from "apiHooks/useCurrency";
-import { updateAllCurrencies } from 'redux/reducers/currencies'
+import { ICoinMembers, updateAllCurrencies } from 'redux/reducers/currencies'
 import { SelectCurrencies } from 'redux/reducers/currencies';
 import { TotalUSDAmount } from "subpages/dashboard/requests/totalAmount";
 import { SelectInputs } from "redux/reducers/payinput";
@@ -28,8 +28,10 @@ const RequestId = () => {
 
     const dark = useSelector(selectDarkMode)
     const currency = useSelector(SelectCurrencies)
+
+
     const MyInput = useSelector(SelectInputs)[0]
-    
+
     const dispatch = useDispatch()
     const router = useRouter();
 
@@ -47,7 +49,16 @@ const RequestId = () => {
         if (data) {
             dispatch(updateAllCurrencies(data))
         }
-    }, [data])
+    }, [])
+
+    const [currentCurrency, setCurrentCurrency] = useState<ICoinMembers>(currency)
+
+
+    useEffect(() => {
+        if (currency) {
+            setCurrentCurrency(currency)
+        }
+    }, [currency])
 
     const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -145,7 +156,7 @@ const RequestId = () => {
                                     </div>
                                 </div>
                                 <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                                    <Input incomingIndex={MyInput.index}/>
+                                    <Input incomingIndex={MyInput.index} />
                                 </div>
                                 <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                                     <span className="text-left text-xl font-semibold tracking-wide">Details</span>
@@ -261,7 +272,7 @@ const RequestId = () => {
                                         Total
                                     </div>
                                     <div>
-                                        {(result?.amount ? TotalUSDAmount([(result as IRequest)], currency).toFixed(2) : 0)} USD
+                                        {(result?.amount ? TotalUSDAmount([(result as IRequest)], currentCurrency).toFixed(2) : 0)} USD
                                     </div>
                                 </div>
                             </div>
