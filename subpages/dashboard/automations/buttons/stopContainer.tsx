@@ -13,7 +13,7 @@ const TeamContainer = ({ memberState }: { memberState: IMember[] }) => {
             <div className="font-normal">Frequency</div>
         </div>
         {memberState && memberState.slice(0, num).map(w =>
-            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[37%,33%,30%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
+            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[2%,20%,18%,15%,15%,15%,15%] py-6 border-b border-black pb-5 px-5 text-sm">
                 <TeamItem member={w} memberState={memberState} />
             </div>
         )}

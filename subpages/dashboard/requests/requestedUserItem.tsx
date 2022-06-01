@@ -14,7 +14,7 @@ import { SelectCurrencies } from 'redux/reducers/currencies';
 import { useWalletKit } from 'hooks';
 
 
-const RequestedUserItem = ({ request, selected, setSelected, payment }: { request: IRequest, selected: IRequest[], setSelected: Dispatch<IRequest[]>, payment?: boolean }) => {
+const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,setSelected2 }: { request: IRequest, selected: IRequest[], setSelected: Dispatch<IRequest[]>,selected2: IRequest[], setSelected2: Dispatch<IRequest[]>, payment?: boolean }) => {
 
     const [modal, setModal] = useState(false)
     const [isLoading, setLoading] = useState(false)
@@ -60,10 +60,10 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
         setModal(false)
     }
 
-    return <div ref={divRef} className={`border-b border-greylish grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[30%,25%,25%,20%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
+    return <div ref={divRef} className={`border-b border-greylish border-opacity-10 mx-1 grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[25%,20%,20%,20%,15%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
         <div className="flex space-x-3 overflow-hidden">
             <div className="flex items-center">
-                {!payment && request.status === RequestStatus.approved &&
+                {!payment && request.status === RequestStatus.approved ?
                     <input type="checkbox" checked={selected.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                         const requests = [...selected]
                         if (e.target.checked) {
@@ -74,7 +74,17 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         } else {
                             setSelected(requests.filter(m => m.id !== request.id))
                         }
-                    }} />}
+                    }} /> :request.status === RequestStatus.pending &&  <input type="checkbox" checked={selected2.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                        const requests2 = [...selected2]
+                        if (e.target.checked) {
+                            if (!requests2.some(s => s.id === request.id)) {
+                                requests2.push(request)
+                                setSelected2(requests2)
+                            }
+                        } else {
+                            setSelected2(requests2.filter(m => m.id !== request.id))
+                        }
+                    }} />  }
                 {!payment && request.status === RequestStatus.rejected && <img src="/icons/request/close.png" />}
             </div>
             <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} justify-center`}>
@@ -83,7 +93,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                 </div>
             </div>
             <div className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"} items-start `}>
-                <div className="text-greylish dark:text-white">
+                <div className="font-semibold  dark:text-white">
                     {<span> {request.name ? `${request.name}` : "Unknown"} </span>}
                 </div>
                 {request.address && <div className="text-sm text-greylish dark:text-white">
@@ -91,17 +101,24 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                 </div>}
             </div>
         </div>
+        <div>
+            <div className="flex h-full items-center justify-start">
+                {request.serviceDate && 
+                    <div className="text-greyish dark:text-white tracking-wide">
+                        {dateFormat(request.serviceDate, "mmmm dd, yyyy")}
+                    </div>
+                }
+            </div>
+        </div>
         <div className="flex items-center justify-start">
             <div className="flex flex-col space-y-2">
                 <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center space-x-4`}>
-                    <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 items-center`}>
-                        <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
-                        </div>
+                    <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-1 items-center`}>
                         <span>
                             {parseFloat(request.amount).toFixed(2)}
                         </span>
                     </div>
-                    <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
+                    <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
                         {GetCoins && GetCoins[request.currency as keyof Coins] ?
                             <>
                                 <div>
@@ -141,26 +158,18 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                     </div>}
             </div>
         </div>
-        <div>
-            <div className="flex h-full items-center justify-start">
-                {request.serviceDate && !payment &&
-                    <div className="text-greyish dark:text-white tracking-wide">
-                        {dateFormat(request.serviceDate, "mmmm dd, yyyy")}
-                    </div>
-                }
-            </div>
-        </div>
+        <div className="flex items-center justify-start">{request.requestType}</div>
         <div className="flex justify-end cursor-pointer items-center md:pr-0 ">
-            {request.status !== RequestStatus.rejected && !payment && <div onClick={() => setModal(true)} className={`text-primary text-center ${detect ? "px-6 max-h-[5rem] min-w-[10rem] border-2 border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white "} rounded-xl py-2 transition-colors duration-300`}>View Details</div>}
+            {request.status !== RequestStatus.rejected && !payment && <div onClick={() => setModal(true)} className={`text-primary text-center mr-7 ${detect ? "px-5 max-h-[5rem] min-w-[10rem] border-2 rounded-2xl border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white "}  py-1 transition-colors duration-300`}>View Details</div>}
         </div>
         {modal &&
-            <Modal onDisable={setModal}>
-                <div className="flex flex-col space-y-8 min-w-[50vw]">
+            <Modal onDisable={setModal} disableX={true}>
+                <div className="flex flex-col space-y-4 min-w-[30vw]">
                     <div className="font-semibold">
                         Overview
                     </div>
                     <div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between border-b border-greylish border-opacity-10 pb-6">
                             <div className="text-greylish">
                                 Status
                             </div>
@@ -173,12 +182,12 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         </div>
                     </div>
                     <div className="font-semibold">
-                        Depositing To
+                        Payee information
                     </div>
                     <div className="flex flex-col space-y-5">
                         {!!request?.name && <div className="flex justify-between">
                             <div className="text-greylish">
-                                Name
+                               Full Name
                             </div>
                             <div>
                                 {request?.name}
@@ -230,7 +239,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                                 Total
                             </div>
                             <div>
-                                {(request?.amount ? TotalUSDAmount([request], currency) : 0).toFixed(2)} USD
+                                {(request?.amount ? TotalUSDAmount([request], currency) : 0).toFixed(0)} 
                             </div>
                         </div>
                     </div>
@@ -264,10 +273,19 @@ const RequestedUserItem = ({ request, selected, setSelected, payment }: { reques
                         </div>
                         {!!request?.attachLink && <div className="flex justify-between">
                             <div className="text-greylish">
-                                Attach link
+                                Attach links <span className="text-black">(optional)</span>
                             </div>
                             <div>
                                 <a href={request?.attachLink} target="_blank" >{request?.attachLink}</a>
+                            </div>
+                        </div>
+                        }
+                        {!!request?.uploadedLink && <div className="flex justify-between">
+                            <div className="text-greylish">
+                                Upload Receipt or invoice <span className="text-black">(optional)</span>
+                            </div>
+                            <div>
+                                <a href={request?.uploadedLink} target="_blank" >{request?.uploadedLink}</a>
                             </div>
                         </div>
                         }

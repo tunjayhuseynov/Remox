@@ -6,17 +6,17 @@ import TeamItem from "./teamItem";
 import { IuseContributor } from "apiHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import useGelato from "apiHooks/useGelato";
+import { useAppSelector } from 'redux/hooks';
+import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 
-
-const TeamContainer = (props: IuseContributor) => {
+const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const { removeTeam } = useContributors()
-
     const [editModal, setEditModal] = useState(false)
-
     const { cancelTask } = useGelato()
-
-    const [num, setNum] = useState(3)
+    const [num, setNum] = useState(15)
+    const [details, setDetails] = useState(false)
+    const dark = useAppSelector(selectDarkMode)
 
     const DeleteTeam = async () => {
         try {
@@ -32,34 +32,46 @@ const TeamContainer = (props: IuseContributor) => {
             console.error(error)
         }
     }
+
     return <>
-        <div className="col-span-4 flex space-x-3 py-4 pt-4 sm:pt-14 pb-1 px-5 items-center justify-between">
-            <div className="font-semibold text-[1.5rem] overflow-hidden whitespace-nowrap">
+       {props.selectbar === "Team" && <div className=" flex px-5 py-5   min-w-[23.5rem] min-h-[12rem] items-start justify-between  bg-white dark:bg-darkSecond shadow rounded-lg">
+            <div className="flex flex-col justify-between w-full h-full">
+                <div className="flex items-start justify-between w-full">
+                <div className="font-semibold text-[1.5rem] overflow-hidden whitespace-nowrap">
                 <div>{props.name}</div>
             </div>
-            <div className="flex space-x-3">
-                <div className="cursor-pointer" onClick={() => setEditModal(true)}>
-                    <img src="/icons/editicon.svg" className="dark:invert dark:brightness-0" alt="" />
+            <div className="flex items-end justify-end">
+                <span onClick={() =>{setDetails(!details)}} className=" text-3xl flex items-center relative cursor-pointer  font-bold"><span className="rotate-90 text-primary">...</span>
+                {details && <div className="flex flex-col items- justify-start bg-white dark:bg-darkSecond  absolute right-6 -top-12  translate-y-full rounded-lg shadow-xl z-50 ">
+                <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex items-center min-w-[7rem] px-2 pr-6 py-1 gap-2" onClick={() => setEditModal(true)}>
+                    <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt=""  /> <span>Edit</span>
                 </div>
-                <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
-                    <img src="/icons/trashicon.svg" alt="" />
+                <div className="cursor-pointer  text-sm flex items-center  px-2 pr-6 w-full py-1 gap-2" onClick={() => setDeleteModal(true)}>
+                    <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-5 h-5"  alt="" /> <span>Delete</span>
+                </div>
+                    </div>}
+                </span>
+            </div>
+                </div>
+                <div className="flex items-start w-full">
+                    <div className="bg-primary rounded-full w-10 h-10 "></div>
                 </div>
             </div>
-        </div>
-        {props.members && props.members.slice(0, num).map(w =>
-            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,20%,1fr] py-6 border-b border-black pb-5 px-5 text-sm">
-                <TeamItem teamName={props.name} {...w} />
+        </div>}
+        {props.members && props.selectbar  !== "Team" &&   props.members.slice(0, num).map(w =>
+            <div key={w.id}>
+                <TeamItem teamName={props.name}  selectbar={props.selectbar} {...w} />
             </div>
         )}
-        {props.members && props.members.length > 3 && num !== 100 ? <button className="py-3 pb-5 px-5 font-bold text-primary" onClick={() => setNum(100)}>
+        {props.members && props.selectbar  !== "Team" &&  props.members.length > 15 && num !== 100 ? <button className="py-3 pb-5 px-5 font-bold text-primary" onClick={() => setNum(100)}>
             Show More
         </button> : null}
         {!props.members ? <div className="b-5 px-5 border-b border-black pb-5">No Team Member Yet</div> : undefined}
-        {deleteModal && <Modal onDisable={setDeleteModal}>
+        {deleteModal && <Modal onDisable={setDeleteModal} disableX={true} className={'!pt-2'}>
             <Delete name={props.name} onCurrentModal={setDeleteModal} onDelete={DeleteTeam} />
         </Modal>}
-        {editModal && <Modal onDisable={setEditModal}>
-            <EditTeam {...props} onCurrentModal={setEditModal} />
+        {editModal && <Modal onDisable={setEditModal} disableX={true} className={'!pt-2'}>
+            <EditTeam {...props} onCurrentModal={setEditModal}  />
         </Modal>}
     </>
 }

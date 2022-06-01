@@ -21,7 +21,7 @@ export const WalletDropdown = ({ selected, onChange }: { selected: string, onCha
     if (!data) return <div> <Loader /></div>
     const l = selectedAccounts.length;
     return <div className="relative">
-        <div onClick={() => setOpen(!isOpen)} className="font-normal px-2 sm:px-5 py-2 rounded-xl cursor-pointer bg-greylish bg-opacity-10 flex space-x-1 items-center justify-center " ref={exceptRef}>
+         <div onClick={() => setOpen(!isOpen)} className="font-normal px-2 sm:px-2 py-2  rounded-xl cursor-pointer bg-white dark:bg-darkSecond flex space-x-1 items-center justify-center " ref={exceptRef}>
             <span>{WordSplitter(`${l === data.length ? "All Wallets" : `${l} Wallet${l > 1 ? "s" : ""}`}` || "")}</span>
             <div>
                 <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />

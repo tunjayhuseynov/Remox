@@ -29,7 +29,8 @@ export const contributorSlice = createSlice({
 							secondaryAmount: member.secondaryAmount
 								? decryptMessage(member.secondaryAmount, action.payload.secretKey)
 								: null,
-							address: decryptMessage(member.address, action.payload.secretKey)
+							address: decryptMessage(member.address, action.payload.secretKey),
+							execution: decryptMessage(member.execution, action.payload.secretKey)
 						};
 					})
 				}));

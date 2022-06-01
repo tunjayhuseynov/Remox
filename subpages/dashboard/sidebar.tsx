@@ -9,14 +9,13 @@ import { DropDownItem } from 'types';
 import Create from '../multisig/create';
 import Button from 'components/button';
 import useMultisig, { SolanaMultisigData } from 'hooks/walletSDK/useMultisig';
-import { removeStorage } from 'redux/reducers/storage'
-import { setMenu } from 'redux/reducers/toggles'
-import { removeTransactions } from 'redux/reducers/transactions'
 import { BiLogOut } from 'react-icons/bi'
 import useMultiWallet from 'hooks/useMultiWallet';
 import { WordSplitter } from 'utils';
 import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
+import Pay from 'subpages/pay/pay';
+import Walletmodal from 'components/general/walletmodal';
 
 const Sidebar = () => {
 
@@ -31,10 +30,12 @@ const Sidebar = () => {
     const [isAccountModal, setAccountModal] = useState(false)
     const [isImportModal, setImportModal] = useState(false)
     const [isCreateModal, setCreateModal] = useState(false)
+    const [Modals, setModals] = useState(false)
+    const [walletModals, setWalletModals] = useState(false)
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), address: selectedAccount })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), address: selectedAccount, photo: "nftmonkey" })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -79,28 +80,27 @@ const Sidebar = () => {
     }, [data, wallets])
 
     return <>
-        <div className="hidden md:block md:col-span-2 w-[17.188rem] flex-none fixed pt-32 z-50">
+        {Modals && <Pay setModals={setModals} />}
+        {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={'!pt-5'}>
+                <Walletmodal  onDisable={setWalletModals}  setModals={setModals} />
+            </Modal>}
+        <div className="hidden md:block z-[1] md:col-span-2 w-[16.188rem] flex-none fixed pt-28">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
-                <div>
-                    <Siderbarlist />
-                </div>
-
-                <div className="absolute -bottom-[15%] flex items-center gap-5 ">
-                    <Dropdown className="min-w-[12.5rem] max-w-[13rem] bg-white dark:bg-darkSecond truncate" list={list} toTop={true} selected={selectedItem} onSelect={(w) => {
-                        if (w.address) {
+                <div className="absolute  flex items-center gap-5 ">
+                    <Dropdown className="min-w-[12.5rem] max-w-[13rem] bg-white dark:bg-darkSecond truncate" list={list} photo={true} selected={selectedItem} onSelect={(w) => {
+                        if (w.address && w.amount) {
                             setItem(w)
-                            dispatch(changeAccount(w.address))
+                            dispatch(changeAccount(w.amount ? w.amount : w.address))
                         }
                     }} />
-                    <span className="rotate-180" onClick={() => {
-                        dispatch(setMenu(false))
-                        dispatch(removeTransactions())
-                        dispatch(removeStorage())
-                        Disconnect()
-                        navigator.push('/')
-                    }}><LogoutSVG />
-                    </span>
                 </div>
+                <div>
+                    <Siderbarlist />
+                    <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => setWalletModals(true)}>Send</Button>
+
+
+                </div>
+
             </div>
         </div>
 
@@ -152,7 +152,5 @@ const Sidebar = () => {
         {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />} */}
     </>
 }
-
-const LogoutSVG = () => <BiLogOut className="w-[1.5rem] h-[1.5rem] cursor-pointer" />
 
 export default Sidebar;

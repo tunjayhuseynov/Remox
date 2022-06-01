@@ -26,7 +26,7 @@ const Insight = () => {
 
     return (
         <div className="flex flex-col space-y-3">
-            <div className="text-2xl font-bold tracking-widest pb-4">
+            <div className="text-3xl ml-[-1rem] font-bold  pb-4">
                 Insights
             </div>
             <div className="pb-2 pt-2">

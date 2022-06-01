@@ -11,7 +11,7 @@ import { useContext, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useAppSelector } from "redux/hooks"
 import { SelectBalances } from "redux/reducers/currencies"
-import { changeError, selectError } from "redux/reducers/notificationSlice"
+import { changeError, selectError, changeSuccess } from "redux/reducers/notificationSlice"
 import { SelectRequests } from "redux/reducers/requests"
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount"
 import { selectStorage } from "redux/reducers/storage"
@@ -22,12 +22,19 @@ import { Coins } from "types"
 import { MultipleTransactionData } from "types/sdk"
 import { DashboardContext } from "layouts/dashboard"
 import Loader from "components/Loader"
+import ModalRequestItem from "./modalRequestItem"
+import Walletmodal from "components/general/walletmodal"
 
 export default function DynamicRequest({ type }: { type: "approved" | "pending" | "rejected" }) {
 
 
+
+    const [aprovedActive, setAprovedActive] = useState(false);
     const [modal, setModal] = useState(false)
+    const [requestmodal, setRequestModal] = useState(false)
+    const [isLoading, setLoading] = useState(false)
     const [isPaying, setIsPaying] = useState(false)
+    const [walletModals, setWalletModals] = useState(false)
     const { submitTransaction } = useMultisig()
     const { genLoading } = useRequest()
     // const { BatchPay, Pay } = usePay()
@@ -48,13 +55,13 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
     let selector = useSelector(SelectRequests)
     const penders = page === RequestStatus.pending ? selector.pending : page === RequestStatus.approved ? selector.approved : selector.rejected
-
+    console.log(penders)
     const [selected, setSelected] = useState<IRequest[]>([]);
+    const [selected2, setSelected2] = useState<IRequest[]>([]);
     const balance = useAppSelector(SelectBalances)
     const storage = useAppSelector(selectStorage)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { GetCoins } = useWalletKit()
-
 
     const Submit = async () => {
         const result: Array<MultipleTransactionData & { member?: IRequest }> = []
@@ -143,75 +150,118 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
         setIsPaying(false);
     }
 
+
     return <>
+            {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={'!pt-5'}>
+                <Walletmodal  onDisable={setWalletModals}  setModals={setModal} />
+            </Modal>}
         {
             genLoading ? <div className="flex items-center justify-center"><Loader /></div> :
-                penders.length === 0 ? <div className="text-2xl font-bold text-center tracking-wider">No {page} requests found</div> : <>
+                penders.length === 0 ? <div className="text-3xl font-bold text-center tracking-wider">No {page} requests found</div> : <>
                     <div className="flex flex-col space-y-8">
-                        {page === RequestStatus.approved &&
-                            <div className="grid grid-cols-2 gap-x-10">
-                                <div className="flex flex-col space-y-3">
-                                    <span className="text-greylish font-semibold tracking-wide">Your Balance</span>
-                                    <div>
+                        {page === RequestStatus.approved && <>
+                            <div className="w-full flex flex-col  bg-white dark:bg-darkSecond shadow rounded-xl p-4">
+                                <div className="grid grid-cols-[20%,80%]  pb-2">
+                                    <div className="font-semibold text-lg text-greylish dark:text-white ">Total Treasury</div>
+                                    {selected.length > 0 && <div className="font-semibold text-lg text-greylish dark:text-white">Token Allucation</div>}
+                                </div>
+                                <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
+                                    <div className="flex flex-col items-start   mb-4">
                                         <TotalAmount coinList={selected} />
+
+                                    </div>
+                                    <>
+                                        <TokenBalance coinList={selected} />
+                                    </>
+                                </div>
+                            </div>
+                        </>
+                        }
+                        {requestmodal && <Modal onDisable={setRequestModal} className={"!w-[75%] !pt-4 px-8"} >
+                            <div className="text-2xl font-semibold py-2 pb-8">Pending Requests</div>
+                            <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+                                <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl bg-light  dark:bg-dark sm:mb-5 px-2 ">
+                                    <div className="text-base font-semibold">Name</div>
+                                    <div className="text-base font-semibold">Request date</div>
+                                    <div className="text-base font-semibold">Requested Amount</div>
+                                    <div className="text-base font-semibold">Requests Type</div>
+                                </div>
+                                {selected2.map(s => <ModalRequestItem key={s.id} request={s} setRequestModal={setRequestModal} aprovedActive={aprovedActive} />)}
+                            </div>
+                            <Button className={'w-full py-2 mt-5 text-2xl'} >Approve Requests</Button>
+                        </Modal>}
+                        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+                            <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-1   font-semibold tracking-wide items-center rounded-xl bg-light  dark:bg-dark sm:mb-5 px-1 ">
+                                <div className="flex items-center space-x-2 min-h-[2.125rem]">
+                                    {page === RequestStatus.approved ?
+                                        <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                                            const requests = [...selected]
+                                            if (e.target.checked) {
+                                                penders?.forEach(m => {
+                                                    if (!requests.some(x => x.id === m.id)) {
+                                                        requests.push(m)
+                                                    }
+                                                })
+                                                setSelected(requests)
+                                            } else {
+                                                setSelected(requests.filter(m => !requests?.some(x => x.id === m.id)))
+                                            }
+                                        }} /> : page === RequestStatus.pending && <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                                            const requests2 = [...selected2]
+                                            if (e.target.checked) {
+                                                penders?.forEach(m => {
+                                                    if (!requests2.some(x => x.id === m.id)) {
+                                                        requests2.push(m)
+                                                    }
+                                                })
+                                                setSelected2(requests2)
+                                            } else {
+                                                setSelected2(requests2.filter(m => !requests2?.some(x => x.id === m.id)))
+                                            }
+                                        }} />}
+                                    <span className="text-base font-bold">Name</span>
+                                </div>
+                                <div className="text-base font-bold">Request date</div>
+                                <div className="text-base font-bold">Requested Amount</div>
+                                <div className="text-base font-bold">Requests Type</div>
+                                {page === RequestStatus.pending && selected2.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setRequestModal(true) }}>Approve Selected</div>}
+                                {page === RequestStatus.approved && selected.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setWalletModals(true) }}>Pay selected</div>}
+
+                            </div>
+                            {penders.map(pender => <RequestedUserItem key={pender.id} request={pender} selected={selected} setSelected={setSelected} selected2={selected2} setSelected2={setSelected2} />)}
+                        </div>
+                    </div>
+                    {page === RequestStatus.approved && modal &&
+                        <Modal onDisable={setModal} className={"!pt-3"}>
+                            <div className="w-[70vw] px-10 flex flex-col space-y-8">
+                                <div className="flex flex-col">
+                                    <div className="text-2xl font-bold tracking-wide pt-1 pb-3">Approve Payments</div>
+                                    <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+                                        <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl bg-light  dark:bg-dark sm:mb-5 px-2 ">
+                                            <div className="text-base font-bold">Name</div>
+                                            <div className="text-base font-bold">Request date</div>
+                                            <div className="text-base font-bold">Requested Amount</div>
+                                            <div className="text-base font-bold">Requests Type</div>
+                                        </div>
+                                        {selected.map(w => <RequestedUserItem key={w.id} request={w} selected={selected} setSelected={setSelected} selected2={selected2} setSelected2={setSelected2} payment={true} />)}
+
                                     </div>
                                 </div>
                                 <div className="flex flex-col space-y-3">
-                                    <span className="text-greylish font-semibold tracking-wide">Your Balance's Token Amounts</span>
-                                    <TokenBalance coinList={selected} />
-                                </div>
-                            </div>
-                        }
-                        <div className="grid grid-cols-[30%,25%,25%,20%] border-b border-greylish pb-4 font-semibold tracking-wide items-center">
-                            <div className="flex items-center space-x-2 min-h-[3.125rem]">
-                                {page === RequestStatus.approved &&
-                                    <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
-                                        const requests = [...selected]
-                                        if (e.target.checked) {
-                                            penders?.forEach(m => {
-                                                if (!requests.some(x => x.id === m.id)) {
-                                                    requests.push(m)
-                                                }
-                                            })
-                                            setSelected(requests)
-                                        } else {
-                                            setSelected(requests.filter(m => !requests?.some(x => x.id === m.id)))
-                                        }
-                                    }} />}
-                                <span>Recipient</span>
-                            </div>
-                            <div>Requested Amount</div>
-                            <div>Request date</div>
-                            <div className="flex justify-end items-center">
-                                {page === RequestStatus.approved && selected.length > 0 &&
-                                    <Button className="!py-2 px-0 font-semibold tracking-wide min-w-[10rem]" onClick={() => {
-                                        setModal(true)
-                                    }}>
-                                        Pay selected
-                                    </Button>}
-                            </div>
-                        </div>
-                        {penders.map(pender => <RequestedUserItem key={pender.id} request={pender} selected={selected} setSelected={setSelected} />)}
-                    </div>
-                    {page === RequestStatus.approved && modal &&
-                        <Modal onDisable={setModal}>
-                            <div className="w-[70vw] px-10 flex flex-col space-y-10">
-                                <div className="flex flex-col">
-                                    <div className="text-2xl font-semibold tracking-wide">Confirm Payments</div>
-                                    {selected.map(w => <RequestedUserItem key={w.id} request={w} selected={selected} setSelected={setSelected} payment={true} />)}
-                                </div>
-                                <div className="flex flex-col space-y-3">
-                                    <div className="text-2xl font-semibold tracking-wide">Review Treasury Impacts</div>
-                                    <div className="grid grid-cols-2 gap-x-10">
-                                        <div className="flex flex-col space-y-3">
-                                            <span className="text-greylish font-semibold tracking-wide">In Estimated USD</span>
-                                            <div>
-                                                <TotalAmount coinList={selected} />
-                                            </div>
+                                    <div className="text-2xl font-bold tracking-wide">Review Treasury Impact</div>
+                                    <div className="w-full flex flex-col  bg-white shadow rounded-xl p-4">
+                                        <div className="grid grid-cols-[20%,80%]  pb-2">
+                                            <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
+                                            <div className="font-semibold text-lg text-greylish">Token Allocation</div>
                                         </div>
-                                        <div className="flex flex-col space-y-3">
-                                            <span className="text-greylish font-semibold tracking-wide">In Token Amounts</span>
-                                            <TokenBalance coinList={selected} />
+                                        <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
+                                            <div className="flex flex-col items-start mb-4">
+                                                <TotalAmount coinList={selected} />
+
+                                            </div>
+                                            <>
+                                                <TokenBalance coinList={selected} />
+                                            </>
                                         </div>
                                     </div>
                                 </div>

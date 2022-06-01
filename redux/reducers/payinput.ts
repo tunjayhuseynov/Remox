@@ -6,6 +6,7 @@ import type { RootState } from '../store'
 export interface IPayInput {
     index: string;
     name?: string;
+    surname?: string;
     address?: string;
     amount?: number;
     wallet?: DropDownItem;
@@ -40,6 +41,7 @@ const PayInputSlice = createSlice({
             const input = state.inputs.find(i => i.index === index);
             if (input) {
                 input.name = action.payload.name;
+                input.surname = action.payload.surname;
                 input.address = action.payload.address;
                 input.amount = action.payload.amount;
                 input.wallet = action.payload.wallet;
