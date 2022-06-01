@@ -10,7 +10,7 @@ import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
 import { motion, AnimatePresence } from "framer-motion"
 import { TransactionTypeDeclare } from "utils";
-import { MoolaType } from "apiHooks/useMoola";
+import { MoolaType } from "apiHooks/useLending";
 import { useModalSideExit } from "hooks";
 import Link from "next/link";
 

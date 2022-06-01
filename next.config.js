@@ -8,6 +8,7 @@ const nextConfig = {
       "crypto": require.resolve("crypto-browserify"),
       "fs": false,
       "net": false,
+      "path": false,
       "querystring": require.resolve("querystring-es3"),
       "stream": require.resolve("stream-browserify"),
       "assert": require.resolve("assert"),

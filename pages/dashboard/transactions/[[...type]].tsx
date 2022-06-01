@@ -33,17 +33,21 @@ const Transactions = () => {
     const multisigSelector = useAppSelector(selectMultisig)
     const { refetch, isMultisig } = useMultisigProcess()
     const router = useRouter()
-    const { pathname } = router.query as { pathname: string[] | undefined }
+    const { type } = router.query as { type: string[] | undefined }
     const tags = useAppSelector(selectTags)
     const { GetCoins, fromMinScale } = useWalletKit()
+<<<<<<< HEAD
     const darkMode = useSelector(selectDarkMode)
     const [isOpen, setOpen] = useState(false)
 
 
+=======
+ 
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
     let page: string;
-    if (pathname?.[0].includes("/pending")) {
+    if (type?.[0].includes("pending")) {
         page = "pending"
-    } else if (pathname?.[0].includes("/rejected")) {
+    } else if (type?.[0].includes("rejected")) {
         page = "rejected"
     } else page = "completed"
 

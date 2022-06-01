@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { MoolaUserComponentData } from 'apiHooks/useMoola';
+import { LendingUserComponentData } from 'apiHooks/useLending';
 import Button from 'components/button';
 import Modal from 'components/general/modal';
 import MdContent from './mdcontent';
 
-export default function Card({ box, type }: { box: MoolaUserComponentData, type: "lend" | "borrow" }) {
+export default function Card({ box, type }: { box: LendingUserComponentData, type: "lend" | "borrow" }) {
     const [leftModal, setLeftModal] = useState(false)
     const [rightModal, setRightModal] = useState(false)
 

@@ -1,4 +1,4 @@
-import useMoola, { MoolaUserComponentData } from "apiHooks/useMoola";
+import useLending, { LendingUserComponentData } from "apiHooks/useLending";
 import Loader from "components/Loader";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +11,7 @@ const DynamicLendBorrow = ({ type }: { type: "lend" | "borrow" }) => {
     const {
         InitializeUser,
         initLoading
-    } = useMoola()
+    } = useLending()
 
 
     useEffect(() => {

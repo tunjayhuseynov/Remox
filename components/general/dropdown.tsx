@@ -68,7 +68,11 @@ const Dropdown = ({ selected, list, toTop = false, photo = false, nameActivation
             </div>
             {<motion.div variants={variants} initial={"close"} animate={isOpen ? "open" : "close"} ref={customRef} className={`absolute left-0 ${toTop ? "top-0 -translate-y-full" : "bottom-0 translate-y-full"} z-10 w-full overflow-hidden`}>
                 <ul id="ala" className="flex flex-col overflow-y-auto" style={list.length > 5 ?
+<<<<<<< HEAD
                     { height: typeof window !== "undefined" && window.outerWidth  > 768 ? `${liHeights.slice(0, 5).reduce((a, c) => a + c, 0)}px` : `${liHeights.slice(0, 3).reduce((a, c) => a + c, 0)}px` }
+=======
+                    { height: typeof window !== "undefined" && window.outerWidth > 768 ? `${liHeights.slice(0, 5).reduce((a, c) => a + c, 0)}px` : `${liHeights.slice(0, 3).reduce((a, c) => a + c, 0)}px` }
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                     :
                     { height: 'auto' }
                 }>

@@ -1,20 +1,65 @@
 import { CeloProvider } from '@celo-tools/celo-ethers-wrapper';
 import { useContractKit } from '@celo-tools/use-contractkit';
-import { StableToken } from '@celo/contractkit';
 import { ChainId, Fetcher, Fraction, JSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
 import { getAddress } from 'ethers/lib/utils';
+import { useWalletKit } from 'hooks';
 import { DashboardContext } from 'layouts/dashboard';
 import { useContext, useState } from 'react';
-import { AltCoins, CeloCoins } from 'types';
+import { AltCoins } from 'types';
 import { fromWei, toWei } from 'utils/ray';
+import { Jupiter } from '@jup-ag/core'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
+
 
 export default function useSwap() {
+    const { blockchain } = useWalletKit()
     const { kit, address } = useContractKit()
+
+    const { connection } = useConnection();
+    const { publicKey, sendTransaction, disconnect, wallet, connect: solConnect, connected, signTransaction, signAllTransactions } = useWallet();
+
+
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
-    
+
     const [isLoading, setLoading] = useState(false)
 
     const Exchange = async (inputCoin: AltCoins, outputCoin: AltCoins, amount: string, slippage: string, deadline: number) => {
+        if (blockchain === 'solana') {
+            const jupiter = await Jupiter.load({
+                connection,
+                cluster: "mainnet-beta",
+                user: publicKey!, // or public key
+                // platformFeeAndAccounts:  NO_PLATFORM_FEE,
+                routeCacheDuration: 10_000, // Will not refetch data on computeRoutes for up to 10 seconds
+            });
+
+            const routes = await jupiter.computeRoutes({
+                inputMint: new PublicKey(inputCoin.contractAddress), // Mint address of the input token
+                outputMint: new PublicKey(outputCoin.contractAddress), // Mint address of the output token
+                inputAmount: parseFloat(amount) * (10 ** inputCoin.decimals!), // raw input amount of tokens
+                slippage: parseFloat(slippage), // The slippage in % terms
+                forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
+            })
+
+            const { execute } = await jupiter.exchange({
+                routeInfo: routes.routesInfos[0],
+                userPublicKey: publicKey!
+            })
+
+            const swapResult: any = await execute({
+                wallet: {
+                    sendTransaction,
+                    signTransaction: signTransaction as any,
+                    signAllTransactions: signAllTransactions as any,
+                }
+            });
+
+            return { hash: swapResult.txid }
+        }
+
+
         const provider = new CeloProvider('https://forno.celo.org')
 
         setLoading(true)
@@ -27,13 +72,7 @@ export default function useSwap() {
             let outputAddress = outputCoin.contractAddress;
             const output = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(outputAddress), provider);
 
-            if (inputCoin == CeloCoins.CELO) token = await kit.contracts.getGoldToken();
-            else if (inputCoin === CeloCoins.cUSD || inputCoin === CeloCoins.cEUR || inputCoin === CeloCoins.cREAL)
-                token = await kit.contracts.getStableToken((inputCoin.name as unknown) as StableToken);
-            else {
-                let altToken = inputCoin.contractAddress;
-                token = await kit.contracts.getErc20(altToken);
-            }
+            token = await kit.contracts.getErc20(inputAddress);
             const addressesMain = {
                 ubeswapFactory: '0x62d5b84bE28a183aBB507E125B384122D2C25fAE',
                 ubeswapRouter: '0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121',
@@ -118,11 +157,49 @@ export default function useSwap() {
     }
 
     const MinmumAmountOut = async (inputCoin: AltCoins, outputCoin: AltCoins, amount: string, slippage: string, deadline: number) => {
-        const provider = new CeloProvider('https://forno.celo.org')
-        setLoading(true)
-        let priceImpactWithoutFeePercent;
-        let feeAmount: any = 0;
         try {
+            setLoading(true)
+
+
+            if (blockchain === 'solana') {
+                const jupiter = await Jupiter.load({
+                    connection,
+                    cluster: "mainnet-beta",
+                    // user: publicKey!, // or public key
+                    //platformFeeAndAccounts:  NO_PLATFORM_FEE,
+                    routeCacheDuration: -1, // Will not refetch data on computeRoutes for up to 10 seconds
+                });
+                
+                let minOut = "0";
+                let fee;
+                if (parseFloat(amount) > 0) {
+                    const routes = await jupiter.computeRoutes({
+                        inputMint: new PublicKey(inputCoin.contractAddress), // Mint address of the input token
+                        outputMint: new PublicKey(outputCoin.contractAddress), // Mint address of the output token
+                        inputAmount: parseFloat(amount) * (10 ** inputCoin.decimals!), // raw input amount of tokens
+                        slippage: parseFloat(slippage), // The slippage in % terms
+                        forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
+                    })
+                    fee = (await routes.routesInfos[0].getDepositAndFee())?.totalFeeAndDeposits?.toString()
+                    minOut = new BigNumber(routes.routesInfos[0].outAmount).dividedBy(10 ** outputCoin.decimals!).toString()
+                }
+
+                const routeOne = await jupiter.computeRoutes({
+                    inputMint: new PublicKey(inputCoin.contractAddress), // Mint address of the input token
+                    outputMint: new PublicKey(outputCoin.contractAddress), // Mint address of the output token
+                    inputAmount: 1 * (10 ** inputCoin.decimals!), // raw input amount of tokens
+                    slippage: parseFloat(slippage), // The slippage in % terms
+                    forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
+                })
+
+                setLoading(false)
+                return { minimumAmountOut: minOut, oneTokenValue: new BigNumber(routeOne.routesInfos[0].outAmount.toString()).dividedBy(10 ** outputCoin.decimals!).toString(), feeAmount: fee ?? "0" }
+            }
+
+
+            const provider = new CeloProvider('https://forno.celo.org')
+            let priceImpactWithoutFeePercent;
+            let feeAmount: any = 0;
 
             let inputAddress = inputCoin.contractAddress;
             const input = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(inputAddress), provider);

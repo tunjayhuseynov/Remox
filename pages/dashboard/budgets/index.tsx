@@ -31,14 +31,14 @@ const Budgets = () => {
                     Budgets
                 </div>
             </div>
-            {!newBudget && <div className="text-primary cursor-pointer" onClick={() => { setExercise(true);  }} ><span className="rounded-full border border-primary px-[.3rem]">+</span> Create a new budgetary exercise</div>}
+            {!newBudget && <div className="text-primary cursor-pointer" onClick={() => { setExercise(true); }} ><span className="rounded-full border border-primary px-[.3rem]">+</span> Create a new budgetary exercise</div>}
             {
                 newModal2 && <Modal onDisable={setNewModal2} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewBudgets setNewBudget={setNewModal2}/>
+                    <NewBudgets setNewBudget={setNewModal2} />
                 </Modal>
             }
             {exercise && <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
-                <NewExercise setExercise={setExercise} setNewBudget={setNewBudget}  setSign={setSign} />
+                <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
             </Modal>}
             {sign && <>
                 <TotalValues />
@@ -68,9 +68,10 @@ const Budgets = () => {
                         <div className="text-primary border border-primary bg-red-100 text-sm px-1 py-1 rounded-sm cursor-pointer text-center max-w-[20%]">May 2022</div>
                     </div>
                     <div className="flex gap-5">
+                        {subBudgets ? <div className="text-white border flex  items-center gap-2 border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setSubBudgets(0) }}> <img src="/icons/left_arrow.png" className="w-3 h-3" alt="" />  Back </div> : ""}
                         <div className="text-primary border border-primary px-3 py-2 rounded-xl cursor-pointer">Current Month</div>
                         <div className="text-primary border border-primary bg-red-100 px-9 py-2 rounded-xl cursor-pointer">Overall</div>
-                        <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setNewModal2(true) }}>Add Budget</div>
+                        {!subBudgets && <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setNewModal2(true) }}>Add Budget</div>}
                     </div>
                 </div>
                 <div className={` ${subBudgets ? "w-full" : "grid grid-cols-2 gap-12"}  `}>

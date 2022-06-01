@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 
 const ray = '1000000000000000000000000000';
-const lamport = '1000000000'
+export const lamport = '1000000000'
 export const etherSize = '1000000000000000000';
 
 type Num = string | number | BigNumber;

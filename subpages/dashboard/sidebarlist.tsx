@@ -48,9 +48,14 @@ const Sidebarlist = () => {
             <NavLink to="/dashboard/transactions" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><TransactionsSVG active={isActive} darkMode={darkMode} />Transactions</Li>}</NavLink>
             <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AssetsSVG active={isActive} darkMode={darkMode} />Assets</Li>}</NavLink>
             <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><InsightSVG active={isActive} darkMode={darkMode} />Insights</Li>}</NavLink>
+<<<<<<< HEAD
             {blockchain !== 'solana' && <NavLink to="/dashboard/swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SwapSVG active={isActive} darkMode={darkMode} />Swap</Li>}</NavLink>}
             {blockchain !== 'solana' && <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><BorrowSVG active={isActive} darkMode={darkMode} />Lend/Borrow</Li>}</NavLink>}
             {blockchain !== 'solana' && <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AutomationsSVG active={isActive} darkMode={darkMode} />Recurring</Li>}</NavLink>}
+=======
+            <NavLink to="/dashboard/swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SwapSVG active={isActive} darkMode={darkMode} />Swap</Li>}</NavLink>
+            {blockchain !== 'solana' && <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><BorrowSVG active={isActive} darkMode={darkMode} />Lend - Borrow</Li>}</NavLink>}
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
             <div className="w-full border my-4"></div>
 
             <div className="flex gap-6 items-center justify-center pr-10 py-3 pb-6">

@@ -150,9 +150,14 @@ const RequestId = () => {
                                 <div className="flex flex-col space-y-5">
                                     <span className="text-left text-2xl font-semibold">Your Information</span>
                                 </div>
+<<<<<<< HEAD
 
                                 <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-cols-4 md:grid-cols-2 gap-y-10 sm:gap-10  ">
                                     <Input incomingIndex={MyInput.index} setSelectedType={setSelectedType} onChangeType={onChangeType} request={true}  />
+=======
+                                <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
+                                    <Input incomingIndex={MyInput.index} />
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                                 </div>
                                 <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                                     <span className="text-left text-2xl font-semibold tracking-wide">Details</span>
@@ -268,7 +273,11 @@ const RequestId = () => {
                                         Total
                                     </div>
                                     <div>
+<<<<<<< HEAD
                                         {(result?.amount ? TotalUSDAmount([(result as IRequest)], currentCurrency).toFixed(0) : result?.amount && CeloCoins[result.currency as keyof Coins].name === "cUSD" ? result?.amount : 0)} USD
+=======
+                                        {(result?.amount ? TotalUSDAmount([(result as IRequest)], currentCurrency).toFixed(2) : 0)} USD
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                                     </div>
                                 </div>
                             </div>
