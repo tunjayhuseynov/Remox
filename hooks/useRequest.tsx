@@ -14,7 +14,7 @@ export default function useRequest() {
         await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
             requests: arrayRemove(request)
         })
-        const req = {...request, status: RequestStatus.approved}
+        const req = { ...request, status: RequestStatus.approved }
         await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
             requests: arrayUnion(req)
         })
@@ -26,14 +26,14 @@ export default function useRequest() {
         await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
             requests: arrayRemove(request)
         })
-        const req = {...request, status: RequestStatus.rejected}
+        const req = { ...request, status: RequestStatus.rejected }
         await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
             requests: arrayUnion(req)
         })
         isLoading(false)
     }
 
-    const addRequest = async (documentId: string, params: Omit<Omit<Omit<IRequest, "id">, "status">, "timestamp">) => {
+    const addRequest = async (documentId: string, params: Omit<IRequest, "id" | "status" | "timestamp">) => {
         isLoading(true)
         const request: IRequest = {
             id: generate(),

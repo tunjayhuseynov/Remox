@@ -1,15 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../store'
 
-export type BlockChainTypes = "celo" | "solana" | ""
+export type BlockChainTypes = "celo" | "solana"
 
 const initialState: { 
     blockchain: BlockChainTypes,
 } = {
     blockchain: (()=>{
-        if(typeof window === 'undefined') return ""
+        if(typeof window === 'undefined') return "celo"
         return (localStorage.getItem('blockchain') as (BlockChainTypes | null))
-    })() || '',
+    })() || 'celo',
 }
 
 export const networkSlice = createSlice({

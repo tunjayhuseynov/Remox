@@ -14,7 +14,8 @@ export interface AltCoins {
 export enum TokenType {
 	GoldToken = 'GoldToken',
 	StableToken = 'StableToken',
-	Altcoin = 'Altcoin'
+	Altcoin = 'Altcoin',
+	YieldToken = "YieldToken",
 }
 
 export enum CoinsName {

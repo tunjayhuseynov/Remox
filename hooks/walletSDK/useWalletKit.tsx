@@ -18,6 +18,8 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useFirestoreSearchField } from 'apiHooks/useFirebase';
 import { IUser } from 'firebaseConfig/types';
 import { changePrivateToken } from 'redux/reducers/selectedAccount';
+import { TextDecoder, TextEncoder } from 'util';
+import { GetSignedMessage } from 'utils';
 
 
 
@@ -46,7 +48,7 @@ export default function useWalletKit() {
 
     //solana
     const { connection } = useConnection();
-    const { publicKey, sendTransaction, disconnect, wallet, connect: solConnect, connected, signTransaction, signAllTransactions } = useWallet();
+    const { publicKey, sendTransaction, signMessage, disconnect, wallet, connect: solConnect, connected, signTransaction, signAllTransactions } = useWallet();
 
 
     const setBlockchain = (bc: BlockChainTypes) => {
@@ -71,9 +73,26 @@ export default function useWalletKit() {
         return fromLamport;
     }, [blockchain])
 
+    const signMessageInWallet = async (nonce: number) => {
+        if (blockchain === "celo") {
+            const signature = await kit.web3.eth.personal.sign(GetSignedMessage(nonce), Address!, "");
+            return {
+                publicKey: Address!,
+                signature
+            }
+        }
+        const encodedMessage = new TextEncoder().encode(GetSignedMessage(nonce))
+        if (!signMessage) throw new Error("signMessage not found")
+        const signature = await signMessage(encodedMessage);
+        return {
+            publicKey: Address!,
+            signature: new TextDecoder().decode(signature)
+        }
+    }
+
     const GetCoins = useMemo(() => {
         if (blockchain === "celo") {
-            if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
+            if (typeof localStorage !== "undefined" && localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
                 return PoofCoins
             }
             return CeloCoins;
@@ -214,7 +233,13 @@ export default function useWalletKit() {
                             kit.defaultAccount = accounts[0]
                             const connector = ctx.connector;
                             connector.type = WalletTypes.PrivateKey;
-                            await search("users", 'address', accounts[0], "array-contains")
+                            await search("users", [
+                                {
+                                    field: 'address',
+                                    searching: accounts[0],
+                                    indicator: "array-contains"
+                                }
+                            ])
 
                             dispatch(changePrivateToken(key[0]))
                             setState("setConnector", connector)
@@ -311,6 +336,6 @@ export default function useWalletKit() {
         Wallet, setBlockchain, Connect, Connected,
         GetCoins, GetTransactions, SendTransaction,
         SendBatchTransaction, Collection, setBlockchainAuto,
-        fromMinScale
+        fromMinScale, signMessageInWallet
     }
 }

@@ -8,7 +8,11 @@ export default function useAuth(address: string | null) {
 
     useEffect(() => {
         if (address) {
-            search('users', 'address', address, "array-contains")
+            search('users', [{
+                field: 'address',
+                searching: address,
+                indicator: "array-contains"
+            }])
                 .then(user => {
                     if (user) {
                         setUser(user[0])

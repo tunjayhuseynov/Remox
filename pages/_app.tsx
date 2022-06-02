@@ -7,13 +7,14 @@ import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux'
 import Wallet from 'components/Wallet'
 import store from 'redux/store';
-import { ReactElement, ReactNode, useLayoutEffect } from 'react';
+import { ReactElement, ReactNode, useEffect, useLayoutEffect } from 'react';
 import DashboardLayout from 'layouts/dashboard';
 import { NextPage } from 'next';
 import { ThemeProvider } from "next-themes";
 
 import App from 'layouts/App'
 import Guard from 'layouts/Guard';
+import { UploadImageForUser } from 'hooks/singingProcess/utils';
 
 type NextPageWithLayout = NextPage & {
   disableLayout?: (page: ReactElement) => ReactNode

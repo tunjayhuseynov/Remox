@@ -16,7 +16,7 @@ import {
     WalletModalProvider,
 } from '@solana/wallet-adapter-react-ui';
 
-export const SolanaEnpoint = "https://explorer-api.mainnet-beta.solana.com/"
+export const SolanaEndpoint = "https://explorer-api.mainnet-beta.solana.com/"
 export default function Wallet({ children }: { children: JSX.Element }) {
     const SolNetwork = WalletAdapterNetwork.Mainnet;
 
@@ -38,7 +38,7 @@ export default function Wallet({ children }: { children: JSX.Element }) {
     );
 
     return (
-        <ConnectionProvider endpoint={SolanaEnpoint} >
+        <ConnectionProvider endpoint={SolanaEndpoint} >
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
                     <ContractKitProvider

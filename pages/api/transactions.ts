@@ -7,7 +7,7 @@ import * as solanaWeb3 from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Tag } from 'apiHooks/useTags';
 import _ from 'lodash';
-import { SolanaEnpoint } from 'components/Wallet';
+import { SolanaEndpoint } from 'components/Wallet';
 import { BlockchainType, CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
 import { FirestoreRead, FirestoreReadMultiple } from 'apiHooks/useFirebase';
 
@@ -51,7 +51,7 @@ const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType) 
   if (blockchain === "solana") {
     const txsList: Transactions[] = []
     // new PublicKey("So11111111111111111111111111111111111111112")
-    const connection = new solanaWeb3.Connection(SolanaEnpoint)
+    const connection = new solanaWeb3.Connection(SolanaEndpoint)
     const sings = await connection.getConfirmedSignaturesForAddress2(new solanaWeb3.PublicKey(address), { limit: 1000 })
     const txs = await connection.getParsedTransactions(sings.map(s => s.signature))
     const tokens = await connection.getTokenAccountsByOwner(new solanaWeb3.PublicKey(address), { programId: TOKEN_PROGRAM_ID })

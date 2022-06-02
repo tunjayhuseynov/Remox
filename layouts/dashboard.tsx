@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const { fetching, isAppLoaded } = useRefetchData()
 
     useIdleTimer({
-        timeout: 1000 * 60 * 5,
+        timeout: 1000 * 60 * 45,
         onIdle: () => dispatch(setUnlock(false)),
     })
 

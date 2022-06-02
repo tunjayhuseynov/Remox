@@ -16,7 +16,7 @@ const Lendborrow = () => {
             text: "Borrowing"
         }
     ]
-
+   
     return <div className="flex flex-col space-y-3">
         <div className="text-2xl font-bold">
             Lend - Borrow

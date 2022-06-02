@@ -14,9 +14,12 @@ export const WordSplitter = (word: string) => {
 	}, '');
 };
 
+export const GetTime = (date?: Date) => Math.round((date ?? new Date()).getTime() / 1000);
+export const GetSignedMessage = (nonce: number) => "Your nonce for signing is " + nonce
+
 export const TransactionDirectionDeclare = (transaction: IFormattedTransaction, accounts: string[]) => {
-    let directionType;
-    const direction = accounts.some(a=>a.toLowerCase() === transaction.rawData.from.toLowerCase()) 
+	let directionType;
+	const direction = accounts.some(a => a.toLowerCase() === transaction.rawData.from.toLowerCase())
 	switch (transaction.id) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionDirection.Swap;
@@ -46,12 +49,12 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction, 
 		default:
 			break;
 	}
-    return directionType
+	return directionType
 };
 
 export const TransactionTypeDeclare = (transaction: IFormattedTransaction, account: string) => {
-    let directionType;
-    const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
+	let directionType;
+	const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
 	switch (transaction.id) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionType.Swap;
@@ -60,8 +63,8 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 			directionType = TransactionType.AutomationPayout;
 			break;
 		case ERC20MethodIds.batchRequest:
-            directionType = TransactionType.MassPayment
-            break;
+			directionType = TransactionType.MassPayment
+			break;
 		case ERC20MethodIds.transferFrom:
 		case ERC20MethodIds.noInput:
 		case ERC20MethodIds.transferWithComment:
@@ -81,8 +84,8 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 			directionType = TransactionType.Withdraw;
 			break;
 		default:
-            directionType = TransactionType.Unknown;
+			directionType = TransactionType.Unknown;
 			break;
 	}
-    return directionType
+	return directionType
 };

@@ -43,7 +43,7 @@ const RequestId = () => {
 
     const [startDate, setStartDate] = useState<Date>(new Date());
 
-    const [result, setResult] = useState<Omit<Omit<Omit<IRequest, "id">, "status">, "timestamp">>()
+    const [result, setResult] = useState<Omit<IRequest, "id" | "status" | "timestamp">>()
 
     useEffect(() => {
         if (data) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from 'firebaseConfig';
 import { onSnapshot, doc, setDoc, getDoc, collection, query, where, getDocs, WhereFilterOp, runTransaction, deleteDoc } from 'firebase/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 
 export async function FirestoreRead<DataType extends {}>(collection: string, document: string) {
@@ -104,14 +105,14 @@ export async function FirestoreReadMultiple<DataType extends {}>(collectionName:
 }
 
 
-
+export type Indicator = "==" | "in" | "array-contains"
 export function useFirestoreSearchField<DataType extends {}>() {
     const [isLoading, setLoading] = useState(false)
 
-    const search = async (collectionName: string, field: string, searching: string | string[], indicator: "==" | "in" | "array-contains") => {
+    const search = async (collectionName: string, queries: { field: string, searching: string | string[], indicator: Indicator }[]) => {
         setLoading(true)
         const ref = collection(db, collectionName);
-        const q = query(ref, where(field, indicator, searching));
+        const q = query(ref, ...queries.map(s => where(s.field, s.indicator, s.searching)));
         const docSnap = await getDocs(q);
         setLoading(false)
         if (docSnap.docs.length > 0) {
@@ -125,4 +126,9 @@ export function useFirestoreSearchField<DataType extends {}>() {
     return { search, isLoading };
 }
 
-
+export const UploadImage = async (folder: string, image: File) => {
+    const storage = getStorage();
+    const reference = ref(storage, `${folder}/${image.name}`);
+    await uploadBytes(reference, image);
+    return await getDownloadURL(reference)
+}
