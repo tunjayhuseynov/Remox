@@ -42,7 +42,10 @@ export default function Wallet({ children }: { children: JSX.Element }) {
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
                     <ContractKitProvider
+<<<<<<< HEAD
+=======
                         feeCurrency={"GoldToken" as any}
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                         dapp={{
                             name: 'Remox DAO',
                             icon: `${BaseUrl}/favicon.png`,

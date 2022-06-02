@@ -7,6 +7,7 @@ interface BaseDropDown {
     name: string,
     feeName?: string,
     className?: string, 
+    photo?:string,
     id?: string,
     onClick?: () => void,
 }

@@ -19,11 +19,12 @@ const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<bo
     const create = async () => {
         try {
             for (const member of memberState) {
-                await cancelTask(member.taskId!)
-                let mem = {...member}
+                // await cancelTask(member.taskId!)
+                let mem = { ...member }
                 mem.name = encryptMessage(`${mem.name}`, storage?.encryptedMessageToken)
                 mem.address = encryptMessage(mem.address, storage?.encryptedMessageToken)
                 mem.amount = encryptMessage(mem.amount, storage?.encryptedMessageToken)
+                mem.execution = encryptMessage(mem.execution, storage?.encryptedMessageToken)
                 if (mem.secondaryAmount) {
                     mem.secondaryAmount = encryptMessage(mem.secondaryAmount, storage?.encryptedMessageToken)
                 }
@@ -45,29 +46,35 @@ const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<bo
     }
 
     return <>
-        <div className="flex flex-col space-y-8 pt-10">
-            <div className="header"><p className="tracking-wider text-gray-500 text-lg">The following automations will be stoped</p></div>
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[33%,33%,1fr] border-b border-black sm:pb-5 px-5" >
-                <div className="font-normal">Name</div>
-                <div className="font-normal hidden lg:block">Amount</div>
-                <div className="font-normal">Frequency</div>
-            </div>
-            <div>
-                {memberState && memberState.map(w =>
-                    <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[33%,33%,1fr] py-6 border-b border-black pb-5 text-sm">
-                        <TeamItem member={w} memberState={memberState} />
-                    </div>
-                )}
-            </div>
-            <div className="flex justify-center gap-16">
-                <Button type="submit" version="second" onClick={() => onDisable(false)} className="px-8">
-                    Go back
-                </Button>
-                <Button type="submit" onClick={create} className="px-8 py-3" isLoading={loading || isLoading}>
-                    Confirm
-                </Button>
-            </div>
+        <div className="flex flex-col space-y-8 px-10">
+            {memberState.length > 0 ? <>
+                <div className="text-2xl font-semibold py-2 ">Run Payroll</div>
+                <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+                    <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[2%,20%,18%,15%,15%,15%,15%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
+                        <div></div>
+                        <div className="font-normal py-3 ">Name</div>
+                        <div className="font-normal py-3">Start Date</div>
+                        <div className="font-normal py-3">End Date</div>
+                        <div className="font-normal py-3 ">Amount</div>
+                        <div className="font-normal py-3">Frequency</div>
+                        <div className="font-normal py-3">Labels</div>
 
+                    </div>
+                    <div>
+                        {memberState && memberState.map(w =>
+                            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[2%,20%,18%,15%,15%,15%,15%] py-6 border-b  pb-5 text-sm">
+                                <TeamItem member={w} memberState={memberState} />
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div>
+
+                </div>
+                <Button type="submit" onClick={create} className="w-[85%] self-center py-3 text-2xl !rounded-lg" isLoading={loading || isLoading}>
+                    Confirm and Cancel Payment
+                </Button>
+            </> : <div className="text-2xl font-semibold py-2 pb-8">No Team Member Yet</div>}
         </div>
     </>
 }

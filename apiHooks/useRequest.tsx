@@ -7,6 +7,7 @@ export interface IRequest {
     id: string;
     usdBase: boolean;
     name: string;
+    surname: string;
     address: string;
     amount: string;
     currency: CoinsName;

@@ -2,19 +2,19 @@ import { IRequest } from "apiHooks/useRequest";
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies } from "redux/reducers/currencies";
+import { IMember } from 'apiHooks/useContributors';
 import { AltCoins, Coins } from "types";
 import _ from 'lodash'
 import { generate } from "shortid";
 import { useWalletKit } from "hooks";
 
-export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
+export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
 
     const currency = useSelector(SelectCurrencies)
     const balance = useSelector(SelectBalances)
     const { GetCoins } = useWalletKit()
 
-    const cleanList: IRequest[] = []
-
+    const cleanList: IRequest[] | IMember[] = []
     coinList.forEach(item => {
         cleanList.push(item)
         if (item.secondaryAmount && item.secondaryCurrency) {
@@ -36,8 +36,8 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
         return res;
     }).value()
 
-    return <div className={`h-full grid ${coinList.length === 0 ? "grid-cols-1" : "grid-cols-2"} gap-5`}>
-        {coinList.length === 0 && <div className="self-center text-center w-full">No Selected Request Yet</div>}
+    return <>
+
         {list.map((coin, index) => {
             const selectedCurrency = Object.entries(currency).find(c => c[0] === coin.currency) as [string, ICurrencyInternal] | undefined
             const selectedBalance = Object.entries(balance).find(c => c[0] === coin.currency) as [string, IBalanceItem] | undefined
@@ -45,10 +45,9 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
 
             if (!selectedCurrency || !selectedCoin || !selectedBalance || !selectedBalance[1]) return <Fragment key={index}></Fragment>
             return <Fragment key={generate()}>
-                <div className="h-full shadow-custom p-5 rounded-xl w-full flex flex-col space-y-3">
-                    <div className="flex justify-between">
-                        <div className="flex space-x-3 items-center">
-                            <span className="w-2 h-2 rounded-full bg-primary"></span>
+                <div className="flex flex-col items-start justify-center text-center gap-2 mb-4">
+                    <div className="flex justify-between items-start">
+                        <div className="flex space-x-3 items-center pr-2">
                             <div>{selectedBalance[1].amount.toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
@@ -56,9 +55,8 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
                             <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
                         </div>
                     </div>
-                    <div className="flex justify-between pb-4 border-b border-greylish">
-                        <div className="flex space-x-3 items-center">
-                            <span className="w-2 h-2 rounded-full bg-primary"></span>
+                    <div className="flex  pb-4 border-b-2 border-greylish border-opacity-10 w-full items-start">
+                        <div className="flex space-x-3 items-start pr-2">
                             <div>-{parseFloat(coin.amount).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
@@ -66,9 +64,8 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
                             <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
                         </div>
                     </div>
-                    <div className="flex justify-between">
-                        <div className="flex space-x-3 items-center">
-                            <span className="w-2 h-2 rounded-full bg-primary"></span>
+                    <div className="flex justify-between items-start">
+                        <div className="flex space-x-3 items-center pr-2" >
                             <div>{(selectedBalance[1].amount - parseFloat(coin.amount)).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
@@ -79,5 +76,5 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] }) {
                 </div>
             </Fragment>
         })}
-    </div>;
+    </>;
 }

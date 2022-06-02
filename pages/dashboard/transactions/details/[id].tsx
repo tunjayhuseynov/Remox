@@ -40,6 +40,7 @@ const Details = () => {
         totalAmount: string,
         fee: string,
         date: string,
+        type:string,
         walletAddress: string[],
 
     }>()
@@ -59,9 +60,13 @@ const Details = () => {
                         const isBatch = txFind.id === ERC20MethodIds.batchRequest;
                         const isSwap = txFind.id === ERC20MethodIds.swap;
                         const isAutomated = txFind.id === ERC20MethodIds.automatedTransfer;
+                        const isTransfer = txFind.id === ERC20MethodIds.transfer;
+                        const isTransferFrom = txFind.id === ERC20MethodIds.transferFrom;
+
                         let paidTo, totalAmount, walletAddress;
                         let fee = `${fromMinScale((parseInt(txFind.rawData.gasUsed) * parseInt(txFind.rawData.gasPrice)).toString())} ${!isBatch && txFind.rawData.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`;
                         let date = dateFormat(new Date(parseInt(txFind.rawData.timeStamp) * 1e3), "dd/mm/yyyy hh:MM:ss")
+                        let type =  isSwap ? "Swap" : isAutomated ? "Automated" :  isTransfer ? "Send" :isTransferFrom ? "Require" : "Unknown"
 
                         if (isBatch) {
                             const batch = txFind as IBatchRequest
@@ -91,7 +96,6 @@ const Details = () => {
                                     walletAddress = ["Ubeswap"]
                                 } else {
                                     const single = reader as ITransfer
-                                    console.log(single)
                                     paidTo = "1 person"
                                     totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
                                     walletAddress = single.to.toLowerCase() === selectedAccount.toLowerCase() ? [data.rawData.from] : [single.to]
@@ -101,6 +105,7 @@ const Details = () => {
                                     date,
                                     fee,
                                     paidTo,
+                                    type,
                                     totalAmount,
                                     walletAddress
                                 })
@@ -120,6 +125,7 @@ const Details = () => {
                             date,
                             fee,
                             paidTo,
+                            type,
                             totalAmount,
                             walletAddress
                         })
@@ -209,7 +215,7 @@ const Details = () => {
     const onChange = async (value: any) => {
         setTagLoading(true)
         const selectedTags = value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault }))
-     
+
         const deletedTags = tx?.tags?.filter(s => !selectedTags.find((t: any) => t.id === s.id))
 
         if (selectedTags && selectedTags.length > 0) {
@@ -272,6 +278,7 @@ const Details = () => {
                         styles={colourStyles}
                         onChange={onChange}
                     />}
+                    {TransactionDetailInput("Type", info.type)}
                 </div> : <Loader />}
                 {notFound && <div>There is no such transaction belongs to your address</div>}
             </div>

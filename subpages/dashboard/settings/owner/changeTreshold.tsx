@@ -26,7 +26,7 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
         }
     }, [signAndInternal])
 
-    if (!isMultisig) return <div className="text-center">Select a MultiSig account</div>
+
 
     return owners ? <div className="-my-5 flex flex-col space-y-7">
         <div className="font-bold text-xl">Replace Owner</div>

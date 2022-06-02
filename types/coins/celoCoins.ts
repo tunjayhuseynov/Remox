@@ -136,28 +136,28 @@ export const CeloCoins: Coins = {
 	mCELO: {
 		name: CoinsName.mCELO,
 		coinUrl: CoinsURL.mCELO,
-		type: TokenType.Altcoin,
+		type: TokenType.YieldToken,
 		contractAddress: '0x7D00cd74FF385c955EA3d79e47BF06bD7386387D',
 		color: "#fbce5c"
 	},
 	mcUSD: {
 		name: CoinsName.mcUSD,
 		coinUrl: CoinsURL.mcUSD,
-		type: TokenType.Altcoin,
+		type: TokenType.YieldToken,
 		contractAddress: "0x918146359264C492BD6934071c6Bd31C854EDBc3",
 		color: "#46cd85"
 	},
 	mcEUR: {
 		name: CoinsName.mcEUR,
 		coinUrl: CoinsURL.mcEUR,
-		type: TokenType.Altcoin,
+		type: TokenType.YieldToken,
 		contractAddress: "0xE273Ad7ee11dCfAA87383aD5977EE1504aC07568",
 		color: "#040404"
 	},
 	mcREAL: {
 		name: CoinsName.mcREAL,
 		coinUrl: CoinsURL.mcREAL,
-		type: TokenType.Altcoin,
+		type: TokenType.YieldToken,
 		contractAddress: "0x9802d866fdE4563d088a6619F7CeF82C0B991A55",
 		color: "#e904a3"
 	}

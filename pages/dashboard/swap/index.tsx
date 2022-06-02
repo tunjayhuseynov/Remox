@@ -118,124 +118,140 @@ const Swap = () => {
 
     if (isMultisig) return <div className="text-center py-2">We are working on bringing Swap into MultiSig account. Please, select a wallet account until we finish it</div>
 
-    return <div className="flex items-center justify-center pt-12">
-        <div className="flex flex-col w-[80%]">
-            <div className="shadow-custom rounded-xl bg-white dark:bg-darkSecond pt-3 pb-10 px-3 flex flex-col space-y-1">
-                <div className="flex justify-between">
-                    <div className="font-bold text-xl pb-2">Swap</div>
-                    <div className="relative">
-                        <div ref={exceptRef}>
-                            <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
-                        </div>
-                        <AnimatePresence>
-                            {isSetting && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
-                                <div className="flex flex-col space-y-4">
-                                    <div className="font-bold text-xl">Transaction Settings</div>
-                                    <div className="flex flex-col space-y-3">
-                                        <div className="text-xl">Slippage tolerance</div>
-                                        <div className="flex space-x-1 px-2">
-                                            {slippageArr.filter(s => !s.invisible).map((item, index) => <div key={index} onClick={() => {
-                                                const arr = [...slippageArr]
-                                                arr.forEach(i => i.selected = false)
-                                                arr[index].selected = true
-                                                setSlippageArr(arr)
-                                            }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : ""} px-4 py-2 bg-greylish bg-opacity-10 cursor-pointer rounded-xl`}>{item.label}</div>)}
-                                            <div className="bg-greylish bg-opacity-10 rounded-xl flex items-center pl-3 pr-5 space-x-1">
-                                                <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
-                                                    const value = (event.target as HTMLInputElement).value
-                                                    if (parseFloat(value) >= 0) {
-                                                        setSlippageArr(slippageArr.map((item, index) => {
-                                                            if (index === slippageArr.length - 1) {
-                                                                item.selected = true
-                                                                item.value = Math.max(0, Math.min(100, parseFloat(value)))
-                                                            } else item.selected = false
-                                                            return item
-                                                        }))
-                                                    } else if (!value || value === "0") {
-                                                        setSlippageArr(slippageArr.map((item, index) => {
-                                                            if (index === slippageArr.length - 1) {
-                                                                item.selected = false
-                                                                item.value = 0
-                                                            } else if (index == 1) { item.selected = true } else item.selected = false
-                                                            return item
-                                                        }))
-                                                    }
-                                                }} />
-                                                <span>%</span>
+    return <>
+        <div className="flex justify-start">
+            <div className="text-3xl font-bold ">Swap</div>
+        </div>
+        <div className="flex items-center justify-center pt-12">
+            <div className="flex flex-col w-[50%]">
+                <div className="shadow-custom rounded-xl bg-white dark:bg-darkSecond pt-3 pb-10 px-3 flex flex-col space-y-1">
+                    <div className="flex justify-end    ">
+                        <div className="relative py-3">
+                            <div ref={exceptRef}>
+                                <img src="/icons/settings.svg" className="cursor-pointer dark:invert dark:brightness-0" onClick={() => setSetting(!isSetting)} />
+                            </div>
+                            <AnimatePresence>
+                                {isSetting && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
+                                    <div className="flex flex-col space-y-4">
+                                        <div className="font-bold text-xl">Transaction Settings</div>
+                                        <div className="flex flex-col space-y-3">
+                                            <div className="text-xl">Slippage tolerance</div>
+                                            <div className="flex space-x-1 px-2">
+                                                {slippageArr.filter(s => !s.invisible).map((item, index) => <div key={index} onClick={() => {
+                                                    const arr = [...slippageArr]
+                                                    arr.forEach(i => i.selected = false)
+                                                    arr[index].selected = true
+                                                    setSlippageArr(arr)
+                                                }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : ""} px-4 py-2 bg-greylish bg-opacity-10 cursor-pointer rounded-xl`}>{item.label}</div>)}
+                                                <div className="bg-greylish bg-opacity-10 rounded-xl flex items-center pl-3 pr-5 space-x-1">
+                                                    <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
+                                                        const value = (event.target as HTMLInputElement).value
+                                                        if (parseFloat(value) >= 0) {
+                                                            setSlippageArr(slippageArr.map((item, index) => {
+                                                                if (index === slippageArr.length - 1) {
+                                                                    item.selected = true
+                                                                    item.value = Math.max(0, Math.min(100, parseFloat(value)))
+                                                                } else item.selected = false
+                                                                return item
+                                                            }))
+                                                        } else if (!value || value === "0") {
+                                                            setSlippageArr(slippageArr.map((item, index) => {
+                                                                if (index === slippageArr.length - 1) {
+                                                                    item.selected = false
+                                                                    item.value = 0
+                                                                } else if (index == 1) { item.selected = true } else item.selected = false
+                                                                return item
+                                                            }))
+                                                        }
+                                                    }} />
+                                                    <span>%</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="flex flex-col space-y-3">
-                                        <div className="text-xl">Transaction deadline</div>
-                                        <div className="flex space-x-1 px-2 items-center">
-                                            <input type="number" value={deadline === 1.5 ? undefined : deadline} onChange={(event) => {
-                                                const value = (event.target as HTMLInputElement).value
-                                                if (value) {
-                                                    setDeadline(parseFloat(value))
-                                                } else setDeadline(1.5)
-                                            }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
-                                            <div>minutes</div>
+                                        <div className="flex flex-col space-y-3">
+                                            <div className="text-xl">Transaction deadline</div>
+                                            <div className="flex space-x-1 px-2 items-center">
+                                                <input type="number" value={deadline === 1.5 ? undefined : deadline} onChange={(event) => {
+                                                    const value = (event.target as HTMLInputElement).value
+                                                    if (value) {
+                                                        setDeadline(parseFloat(value))
+                                                    } else setDeadline(1.5)
+                                                }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
+                                                <div>minutes</div>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                </div>
-                            </motion.div>}
-                        </AnimatePresence>
-                    </div>
-                </div>
-                <div className="bg-greylish bg-opacity-10 min-h-[6.25rem] items-center flex justify-between rounded-md py-3 px-3">
-                    <div className="flex flex-col space-y-2 w-[8.125rem]">
-                        <div>
-                            <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
-                                if (w.name === token2.name) {
-                                    setToken2(selected)
-                                }
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
-                        </div>
-                        <div>
-                            <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
+                                    </div>
+                                </motion.div>}
+                            </AnimatePresence>
                         </div>
                     </div>
-                    <div className="flex flex-col space-y-2 items-end ">
-                        <div className="text-xl">
-                            Balance: {token1 && token1.name && balances[token1.name as keyof typeof balances] ? (balances[token1.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
+                    <div className="bg-greylish bg-opacity-10 min-h-[6.25rem] items-center flex justify-between rounded-md py-3 px-3">
+                        <div className="flex flex-col space-y-2 w-[8.125rem]">
+                            <div>
+                                <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
+                                    if (w.name === token2.name) {
+                                        setToken2(selected)
+                                    }
+                                }} parentClass=" bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-2 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
+                            </div>
+                            <div>
+                                <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
+                            </div>
                         </div>
-                        <div className="flex space-x-2">
-                            <button className="shadow-custom bg-white dark:bg-darkSecond px-5 py-2 rounded-xl text-xs" onClick={
-                                () => {
+                        <div className="flex flex-col space-y-2 items-end ">
+                            <div className="text-xl">
+                                Balance: {token1 && token1.name && balances[token1.name as keyof typeof balances] ? (balances[token1.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
+                            </div>
+                            <div className="flex space-x-2">
+                                <button className="shadow-custom bg-white dark:bg-darkSecond px-2 py-2 rounded-xl text-xs" onClick={
+                                    () => {
+                                        if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
+                                            const amount = balances[token1.name as keyof typeof balances]!.amount * 0.5
+                                            token1Input.current!.value = amount.toFixed(2)
+                                            setToken1Amount(amount)
+                                        }
+                                    }
+                                }>
+                                    50%
+                                </button>
+                                <button className="shadow-custom bg-white dark:bg-darkSecond px-2 py-2 rounded-xl text-xs" onClick={() => {
                                     if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
-                                        const amount = balances[token1.name as keyof typeof balances]!.amount * 0.5
+                                        const amount = balances[token1.name as keyof typeof balances]!.amount
                                         token1Input.current!.value = amount.toFixed(2)
                                         setToken1Amount(amount)
                                     }
-                                }
-                            }>
-                                50%
-                            </button>
-                            <button className="shadow-custom bg-white dark:bg-darkSecond px-5 py-2 rounded-xl text-xs" onClick={() => {
-                                if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
-                                    const amount = balances[token1.name as keyof typeof balances]!.amount
-                                    token1Input.current!.value = amount.toFixed(2)
-                                    setToken1Amount(amount)
-                                }
-                            }}>
-                                MAX
-                            </button>
+                                }}>
+                                    MAX
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex items-center justify-center">
-                    <div className="bg-greylish bg-opacity-10 my-2 px-3 py-1 rounded-lg cursor-pointer" onClick={changeSwap}>
-                        <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
+                    <div className="flex items-center justify-center">
+                        <div className="bg-greylish bg-opacity-10 my-2 px-3 py-1 rounded-lg cursor-pointer" onClick={changeSwap}>
+                            <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
+                        </div>
                     </div>
-                </div>
-                <div className="flex min-h-[6.25rem] bg-greylish bg-opacity-10 justify-between rounded-md py-3 px-3">
-                    <div className="flex flex-col space-y-2 w-[8.125rem]">
-                        <div>
-                            <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
-                                if (w.name === token1.name) {
-                                    setToken1(selected)
+                    <div className="flex min-h-[6.25rem] bg-greylish bg-opacity-10 justify-between rounded-md py-3 px-3">
+                        <div className="flex flex-col space-y-2 w-[8.125rem]">
+                            <div>
+                                <Dropdown onChange={(w: DropDownItem, selected: DropDownItem) => {
+                                    if (w.name === token1.name) {
+                                        setToken1(selected)
+                                    }
+                                }} parentClass=" bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-2 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
+                            </div>
+                            <div>
+                                {!(!token1Amount) && (!isLoading ?
+                                    <>
+                                        <div className="font-bold text-2xl text-center outline-none unvisibleArrow">
+                                            {parseFloat(appAmount).toFixed(2)}
+                                        </div>
+                                    </> : <div className="text-center"><Loader /></div>)
                                 }
+<<<<<<< HEAD
+                            </div>
+=======
                             }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
                         </div>
                         <div>
@@ -246,58 +262,82 @@ const Swap = () => {
                                     </div>
                                 </> : <div className="text-center"><Loader /></div>)
                             }
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                         </div>
-                    </div>
-                    <div className="flex flex-col items-end h-full">
-                        <div className="text-right text-xl outline-none unvisibleArrow">
-                            Balance: {token2 && token2.name && balances[token2.name as keyof typeof balances] ? (balances[token2.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
+                        <div className="flex flex-col items-end h-full">
+                            <div className="text-right text-xl outline-none unvisibleArrow">
+                                Balance: {token2 && token2.name && balances[token2.name as keyof typeof balances] ? (balances[token2.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
 
+                            </div>
                         </div>
                     </div>
                 </div>
+<<<<<<< HEAD
+                <div className="px-3 py-3 font-extralight text-sm">
+                    <div className="flex justify-between">
+                        <div>Rate:</div>
+                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div>Fee:</div>
+                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
+                    </div>
+=======
             </div>
             <div className="px-8 py-3 font-extralight text-sm">
                 <div className="flex justify-between">
                     <div>Rate:</div>
                     <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                 </div>
-                <div className="flex justify-between">
-                    <div>Fee:</div>
-                    <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
+                <div className="text-center ">
+                    <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
+                        Swap
+                    </Button>
                 </div>
             </div>
-            <div className="text-center mx-8">
-                <Button className="w-[70%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
-                    Swap
-                </Button>
-            </div>
-        </div>
-        {isOpen && <Modal onDisable={setOpen} title="Confirm Swap" className="lg:left-[55.5%]">
-            <div className="flex flex-col -mx-5 space-y-5">
-                <div className="flex flex-col py-2 pb-10 space-y-7 border-b-2 px-5">
-                    <div className="grid grid-cols-[7%,73%,20%] items-center">
-                        <div>
-                            <img src={`${token1.coinUrl}`} alt="" className="w-[1.25rem] h-[1.25rem]" />
+            {isOpen && <Modal onDisable={setOpen} title="Confirm Swap" className="lg:left-[55.5%]">
+                <div className="flex flex-col -mx-5 space-y-5">
+                    <div className="flex flex-col py-2 pb-10 space-y-7 border-b-2 px-5">
+                        <div className="grid grid-cols-[7%,73%,20%] items-center">
+                            <div>
+                                <img src={`${token1.coinUrl}`} alt="" className="w-[1.25rem] h-[1.25rem]" />
+                            </div>
+                            <div className="font-bold">
+                                {token1Amount}
+                            </div>
+                            <div className="text-right">
+                                {token1.name}
+                            </div>
                         </div>
-                        <div className="font-bold">
-                            {token1Amount}
+                        <div className="grid grid-cols-[7%,73%,20%] items-center">
+                            <div>
+                                <img src={`/icons/longdown.svg`} alt="" className="dark:invert dark:brightness-0" />
+                            </div>
                         </div>
-                        <div className="text-right">
-                            {token1.name}
+                        <div className="grid grid-cols-[7%,73%,20%] items-center">
+                            <div>
+                                <img src={`${token2.coinUrl}`} className="w-[1.25rem] h-[1.25rem]" alt="" />
+                            </div>
+                            <div className="font-bold">
+                                {parseFloat(appAmount).toFixed(2)}
+                            </div>
+                            <div className="text-right">
+                                {token2.name}
+                            </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-[7%,73%,20%] items-center">
-                        <div>
-                            <img src={`/icons/longdown.svg`} alt="" className="dark:invert dark:brightness-0" />
+                    <div className="flex flex-col px-5 text-xs space-y-1">
+                        <div className="flex justify-between">
+                            <div>Rate:</div>
+                            <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) : <div className="px-3"><Loader /></div>} {token2.name}</div>
                         </div>
-                    </div>
-                    <div className="grid grid-cols-[7%,73%,20%] items-center">
-                        <div>
-                            <img src={`${token2.coinUrl}`} className="w-[1.25rem] h-[1.25rem]" alt="" />
+                        <div className="flex justify-between">
+                            <div>Fee:</div>
+                            <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                         </div>
-                        <div className="font-bold">
-                            {parseFloat(appAmount).toFixed(2)}
-                        </div>
+<<<<<<< HEAD
+=======
                         <div className="text-right">
                             {token2.name}
                         </div>
@@ -307,20 +347,17 @@ const Swap = () => {
                     <div className="flex justify-between">
                         <div>Rate:</div>
                         <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+>>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                     </div>
-                    <div className="flex justify-between">
-                        <div>Fee:</div>
-                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
+                    <div className="flex justify-center">
+                        <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>
                     </div>
                 </div>
-                <div className="flex justify-center">
-                    <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>
-                </div>
-            </div>
-        </Modal>}
-        {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-        {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
-    </div>
+            </Modal>}
+            {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
+            {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
+        </div>
+    </>
 }
 
 export default Swap;

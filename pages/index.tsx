@@ -55,7 +55,7 @@ const Home = () => {
             if (user) {
               navigate.push('/unlock')
             } else {
-              navigate.push('/create-account')
+              navigate.push('/choose-type')
             }
 
           })

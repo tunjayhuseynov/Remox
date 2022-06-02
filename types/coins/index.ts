@@ -15,7 +15,7 @@ export enum TokenType {
 	GoldToken = 'GoldToken',
 	StableToken = 'StableToken',
 	Altcoin = 'Altcoin',
-	YieldToken = "YieldToken",
+	YieldToken = 'YieldToken',
 }
 
 export enum CoinsName {

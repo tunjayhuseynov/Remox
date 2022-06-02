@@ -32,7 +32,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
             addressRef.current.value = ""
         }
     }
-
+    console.log(sign && internalSign && owners.length + 1 >= sign && owners.length + 1 >= internalSign)
     const createClick = async () => {
         if (sign && internalSign && owners.length + 1 >= sign && owners.length + 1 >= internalSign) {
             try {
@@ -101,14 +101,14 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                     <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
                     <div className="w-ful flex justify-start items-center">
                         <input type="text" className="border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
-                        <p className="text-greylish w-[30%]">out of {owners.length} owners</p>
+                        <p className="text-greylish w-[30%]">out of {owners.length +1} owners</p>
                     </div>
                 </div>
                 <div>
                     <span className="text-greylish opacity-35">Signatures required to change MultiSig properties</span>
                     <div className="w-ful flex justify-start items-center">
                         <input type="text" className="border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={internalSign} onChange={(e) => { if (!isNaN(+e.target.value)) setInternalSign(+e.target.value || undefined) }} required />
-                        <p className="text-greylish w-[30%]">out of {owners.length} owners</p>
+                        <p className="text-greylish w-[30%]">out of {owners.length +1} owners</p>
                     </div>
                 </div>
             </div>

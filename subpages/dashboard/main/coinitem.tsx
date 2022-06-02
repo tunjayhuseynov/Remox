@@ -3,20 +3,21 @@ import { MouseEventHandler } from "react";
 
 
 const CoinItem = ({ title, coin, usd, percent, rate, img, setSelectcoin, selectcoin, onClick }: { title: string, coin: string, usd: string, percent: string, rate?: number, img: string, setSelectcoin: React.Dispatch<React.SetStateAction<string>>, selectcoin: string, onClick: MouseEventHandler }) => {
-    return <div className={`py-2 pl-2 gap-2 pr-5 flex  cursor-pointer ${selectcoin === title && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] dark:bg-[#292929]"}  bg-white dark:bg-darkSecond rounded-xl h-[3.75rem]`} onClick={onClick}>
-        <div className="w-[1.563rem] flex items-center justify-center">
-            <img width="25" height="25" src={img} alt="" className="rounded-xl" />
-        </div> 
-        <div className="flex-grow grid grid-cols-2 gap">
-            <div className="flex flex-col justify-between items-start">
-                <div className="font-semibold text-sm">{title}</div>
-                <div className="text-greylish text-sm font-normal">{`${coin}`}</div>
-                {/* <div className="text-greylish opacity-70 text-xs font-light">{percent}%</div> */}
-            </div>
-            <div className="flex flex-col justify-center items-end">
-                <div className="font-semibold  text-base">${usd}</div>
-                {/* <div className="text-greylish opacity-70 text-xs font-light">{`${title} ${coin}`}</div> */}
-            </div>
+    return <div className={`py-2 pl-2 gap-2 pr-5 flex items-center w-full cursor-pointer ${selectcoin === title && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] dark:bg-[#292929]"}  bg-white dark:bg-darkSecond rounded-xl`} onClick={onClick}>
+
+        <div className="flex justify-between w-full">
+    <div className="flex gap-1 items-center">
+    <div className="w-[1.563rem] flex items-center justify-center">
+            <img width="25" height="25" src={img} alt="" className="rounded-xl" /></div> 
+        <div className="font-semibold text-sm">{title}</div>
+    </div>
+    <div className=" font-normal">{`${coin}`}</div>
+    <div className=" font-light">{percent}%</div>
+                {/* <div className="font-semibold  text-base">${usd}</div> */}
+                
+
+                
+           {/* <div className="text-greylish opacity-70 text-xs font-light">{`${title} ${coin}`}</div> */}
             {/* <div className="flex flex-col justify-between items-end">
                 <div className="font-semibold text-gray-500 text-sm">{rate?.toFixed(2)}%</div>
                 <div className="text-greylish opacity-70 text-xs font-light">24h</div>

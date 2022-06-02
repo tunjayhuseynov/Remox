@@ -8,15 +8,19 @@ import { AiOutlineDown } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Delete from "subpages/dashboard/contributors/buttons/delete";
+import { useAppSelector } from 'redux/hooks';
+import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+
 
 export default function TagItem({ tag }: { tag: Tag }) {
-
+    const [modalVisible, setModalVisible] = useState(false)
+    const [details, setDetails] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [editModal, setEditModal] = useState(false)
     const [colorPicker, setColorPicker] = useState(false)
     const [color, setColor] = useState(tag.color)
     const dispatch = useDispatch()
-
+    const dark = useAppSelector(selectDarkMode)
     const inputRef = useRef<HTMLInputElement>(null)
     const [ref, exceptRef] = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
 
@@ -29,7 +33,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
     const DeleteTag = async () => {
         try {
             await deleteTag(tag)
-            //setDeleteModal(false)
+            setDeleteModal(false)
         } catch (error) {
             console.error(error)
         }
@@ -44,6 +48,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
                 transactions: tag.transactions,
                 isDefault: tag.isDefault
             })
+            setEditModal(false)
             dispatch(changeSuccess({ activate: true, text: "Successfully updated tag" }))
         } catch (error) {
             console.error(error)
@@ -53,53 +58,28 @@ export default function TagItem({ tag }: { tag: Tag }) {
 
     return (
         <>
-            <div className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[60%,35%,1fr] border-b border-black py-3 px-5" >
-                <div className="flex space-x-3 items-center">
-                    <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{
-                        backgroundColor: tag.color,
-                    }}></div>
-                    <div>
-                        {tag.name}
-                    </div>
-                </div>
-                <div className="text-primary text-semibold">
-                    {tag.transactions.length} {tag.transactions.length > 1 ? "Transactions" : "Transaction"}
-                </div>
-                {!tag.isDefault && <div className="flex space-x-3 justify-end">
-                    <div className="cursor-pointer" onClick={() => {
-                        setEditModal(true)
-                    }}>
-                        <img src="/icons/editSetting.svg" alt="" className="dark:invert dark:brightness-0" />
-                    </div>
-                    <div className="cursor-pointer" onClick={() => {
-                        setDeleteModal(true)
-                    }}>
-                        <img src="/icons/trashSetting.svg" alt="" />
-                    </div>
-                </div>}
-            </div>
-            {editModal &&
-                <Modal onDisable={setEditModal} className="lg:min-w-[auto] overflow-visible">
-                    <div className="flex flex-col space-y-12">
+                    {editModal &&
+                <Modal onDisable={setEditModal} disableX={true} className=" !pt-5 overflow-visible ">
+                    <div className="flex flex-col space-y-12 items-center">
                         <div className="font-semibold tracking-wider text-2xl">
                             Edit tag
                         </div>
-                        <div className="flex items-end space-x-24">
-                            <div className="flex flex-col space-y-3">
+                        <div className="flex items-end space-x-12">
+                            <div className="flex flex-col space-y-3 items">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
-                                <input type="text" className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-1" ref={inputRef} defaultValue={tag.name} />
+                                <input type="text" className="rounded-xl border  dark:bg-darkSecond px-5 py-2" ref={inputRef} defaultValue={tag.name} />
                             </div>
-                            <div className="flex flex-col space-y-3 ">
+                            <div className="flex flex-col  ">
                                 <label className="text-greylish bg-opacity-50"></label>
-                                <div className="flex space-x-3 border border-greylish rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
-                                    <div className="py-2 pl-3">
+                                <div className="flex space-x-3 border  rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
+                                    <div className="py-3 pl-3">
                                         <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{
                                             backgroundColor: color,
                                         }}>
 
                                         </div>
                                     </div>
-                                    <div className="border-l border-greylish px-2 py-2 " ref={exceptRef}>
+                                    <div className="border-l  px-2 py-2 " ref={exceptRef}>
                                         <AiOutlineDown />
                                     </div>
                                         {colorPicker &&
@@ -111,10 +91,10 @@ export default function TagItem({ tag }: { tag: Tag }) {
                             </div>
                         </div>
                         <div className="flex justify-center gap-16">
-                            <Button type="submit" version="second" onClick={() => setEditModal(false)} className="!px-8">
-                                Go back
+                            <Button type="submit" version="second" onClick={() => setEditModal(false)} className="!px-10 !py-2 !rounded-xl">
+                                Back
                             </Button>
-                            <Button type="submit" onClick={UpdateTag} className="!px-8 !py-3" isLoading={isLoading} >
+                            <Button type="submit" onClick={UpdateTag} className="!px-10 !py-2 !rounded-xl" isLoading={isLoading} >
                                 Save
                             </Button>
                         </div>
@@ -122,9 +102,39 @@ export default function TagItem({ tag }: { tag: Tag }) {
                 </Modal>
             }
             {deleteModal &&
-                <Modal onDisable={setDeleteModal}>
+                <Modal onDisable={setDeleteModal} disableX={true}>
                     <Delete name={`${tag.name} tag`} onCurrentModal={setDeleteModal} onDelete={DeleteTag} />
                 </Modal>}
+            <div className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[60%,35%,1fr] border-b  py-6 px-10 relative" >
+                <div className="flex space-x-3 items-center">
+                    <div className="w-[1.125rem] h-[1.125rem] rounded-full" style={{
+                        backgroundColor: tag.color,
+                    }}></div>
+                    <div className="font-semibold">
+                        {tag.name}
+                    </div>
+                </div>
+                 <div className="flex space-x-3 justify-end">
+                 <span onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold "><span className=" text-primary pb-4">...</span>
+                    {details && <div className="flex flex-col items-center bg-white absolute right-24 -bottom-3 w-[7rem]  rounded-lg shadow-xl z-50 ">
+                        <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full px-2  py-1 gap-3" onClick={() => {
+                            setEditModal(true)
+                            setModalVisible(false)
+                        }}>
+                            <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
+                        </div>
+                        <div className="cursor-pointer  text-sm flex w-full px-2 pr-6 py-1 gap-3" onClick={() => {
+                            setDeleteModal(true)
+                            setModalVisible(false)
+                        }}>
+                            <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Delete</span>
+                        </div>
+                    </div>}
+                </span>
+
+                </div>
+            </div>
+
         </>
     )
 }

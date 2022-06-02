@@ -24,9 +24,13 @@ export enum ExecutionType {
 }
 
 export interface IMember {
+  members: IMember;
   id: string;
   name: string,
+  first: string,
+  last: string,
   address: string,
+  compensation: string,
   currency: CoinsName,
   amount: string,
   teamId: string,

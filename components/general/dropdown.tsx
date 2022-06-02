@@ -24,6 +24,7 @@ const variants = {
     }
 }
 
+
 const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string, style?: React.CSSProperties | undefined }>(({ children, onClick, className, style }, ref) => <li ref={ref} style={style} onClick={onClick} className={`${className} text-left border dark:border-darkSecond last:rounded-b-xl first:rounded-t-xl px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li>)
 
 export const DropDownViewer = ({ parentClass, displayName, name, address, coinUrl, className, disableAddressDisplay }: { parentClass?: string, displayName?: string, name: string, address?: string, coinUrl?: CoinsURL, className?: string, disableAddressDisplay?: boolean }) => <>
@@ -41,8 +42,8 @@ export const DropDownViewer = ({ parentClass, displayName, name, address, coinUr
     }, '')}</div>}
 </>
 
-const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false, parentClass = '', childClass = '', displayName, onChange }: { disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
-    const [isOpen, setOpen] = useState(false)
+const Dropdown = ({ selected, list, toTop = false, photo = false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false, parentClass = '', childClass = '', displayName, onChange }: { disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean,photo?:boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
+    const [isOpen, setOpen] = useState(false) 
     const liArrRef = useRef<(HTMLLIElement | null)[]>([])
     const [liHeights, setLiHeights] = useState<Array<number>>([])
     const [customRef, expectRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
@@ -56,10 +57,11 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
     return (
         <div className={`relative ${parentClass} `}>
             <div ref={expectRef} onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
-                {!loader ? <div className="truncate">
+                {!loader ? <div className={`truncate flex items-center gap-2`}>
+                {photo && <img src={`/icons/${selected.photo ? selected.photo : ""}.png`} className={`rounded-full w-8 h-8 bg-light dark:bg-greylish`} /> }
                     {DropDownViewer({ name: selected.name, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
                 </div> : <Loader />}
-                {list && list.length > 0 && <div>
+                {list && list.length > 0 && <div className="ml-1">
                     <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                 </div>}
             </div>

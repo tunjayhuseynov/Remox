@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import OwnerSetting from "subpages/dashboard/settings/owner";
 import ProfileSetting from "subpages/dashboard/settings/profile";
 import TagsSetting from "subpages/dashboard/settings/tags";
+import WalletSetting from "subpages/dashboard/settings/wallet";
 
 
 const SettingLayout = () => {
@@ -14,28 +15,38 @@ const SettingLayout = () => {
     const data = [
         {
             to: `${path}`,
-            text: "Owner"
+            text: "General"
         },
         {
-            to: `${path}/tags`,
-            text: "Tags"
+            to: `${path}/Labels`,
+            text: "Labels"
         },
         {
-            to: `${path}/profile`,
-            text: "Profile"
+            to: `${path}/Wallets`,
+            text: "Wallets"
+        },
+        {
+            to: `${path}/Owners`,
+            text: "Owners"
         },
     ]
     return (
         <div>
-            <div className="w-full"> {/*relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10 */}
-                <div className="mx-5 grid grid-cols-3 w-[25%] gap-x-12 ">
-                    <AnimatedTabBar data={data} />
+            <div className="w-full">
+            <div className=" flex justify-between items-center w-full">
+                <div className="text-3xl font-bold pb-12">
+                    Settings
+                </div>
+            </div> {/*relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10 */}
+                <div className="flex  w-[90%] justify-between">
+                    <AnimatedTabBar data={data} className={'!text-2xl'} />
                 </div>
             </div>
-            <div className="px-10 py-5">
-                {type?.[0] === "profile" && <ProfileSetting />}
-                {type?.[0] === "tags" && <TagsSetting />}
-                {(!type || type[0] === "owner") && <OwnerSetting />}
+            <div className="">
+                {!type && <ProfileSetting />}
+                {type?.[0] === "Labels" && <TagsSetting />}
+                {type?.[0] === "Wallets" && <WalletSetting />}
+                {( type?.[0] === "Owners") && <OwnerSetting />}
             </div>
         </div>
     )

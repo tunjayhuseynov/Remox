@@ -8,7 +8,7 @@ export default function useRequest() {
 
     const [loading, isLoading] = useState(false)
     const [genLoading, setGenLoading] = useState(false)
-
+    
     const approveRequest = async (id: string, request: IRequest) => {
         isLoading(true)
         await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
@@ -39,6 +39,7 @@ export default function useRequest() {
             id: generate(),
             usdBase: params.usdBase,
             name: params.name,
+            surname:params.surname,
             address: params.address,
             amount: params.amount,
             currency: params.currency,

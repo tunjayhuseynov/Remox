@@ -1,7 +1,7 @@
 import { Dispatch, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone'
 
-export default function Upload({ setFile }: { setFile: Dispatch<File> }) {
+export default function Upload({ setFile,className }: { setFile: Dispatch<File>,className?:string }) {
     const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
     useEffect(() => {
@@ -17,7 +17,7 @@ export default function Upload({ setFile }: { setFile: Dispatch<File> }) {
     ));
 
     return <section>
-        <div {...getRootProps({ className: 'h-[9.375rem] border border-dashed flex justify-center items-center' })}>
+        <div {...getRootProps({ className: ` ${className} h-[11.375rem] border border-dashed flex justify-center items-center` })}>
             <input {...getInputProps()} />
             {files.length > 0 ?
                 <aside>
