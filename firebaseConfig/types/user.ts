@@ -70,7 +70,7 @@ export interface IOrganization {
     image: Image | null,
     name: string;
 
-    budget_execrises: IBudgetExercise[];
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
 
     created_date: number;
 }
@@ -102,12 +102,12 @@ export interface IIndividual {
     image: Image | null,
     addresses: string[];
     accounts: IAccount[];
-    budget_execrises: IBudgetExercise[];
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
 
     created_date: number;
 }
 
-export interface IRegisteredIndividual{
+export interface IRegisteredIndividual {
     id: string;
     address: string;
     nonce: number;

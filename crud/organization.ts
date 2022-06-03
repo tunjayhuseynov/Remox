@@ -1,6 +1,7 @@
 import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase"
 import { IAccount, IOrganization } from "firebaseConfig"
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account"
+import { Get_Budget_Exercise } from "./budget_exercise"
 import { Get_Individual } from "./individual"
 
 export const organizationCollectionName = "organizations"
@@ -15,8 +16,15 @@ export const Get_Organization = async (id: string) => {
         return accountData;
     })
 
+    const budgetExercises = organization.budget_execrises.map(async (budget_execrise) => {
+        const accountData = await Get_Budget_Exercise(budget_execrise.id)
+        if (!accountData) throw new Error("Account not found");
+        return accountData;
+    })
+
     const individual = await Get_Individual(organization.creator.id)
     organization.creator = individual;
+    organization.budget_execrises = await Promise.all(budgetExercises);
     organization.organizationAccounts = await Promise.all(accounts);
     return organization;
 }
