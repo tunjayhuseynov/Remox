@@ -2,22 +2,21 @@ import { useFirestoreSearchField } from "apiHooks/useFirebase";
 import axios from "axios";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, IUser } from "firebaseConfig";
-import useSign from "hooks/singingProcess/useSign";
+import { isOldUser } from "hooks/singingProcess/utils";
 import { hashing } from "utils/hashing";
 import useWalletKit from "./useWalletKit";
 
 export default function useOneClickSign() {
     const { signMessageInWallet, blockchain, Address } = useWalletKit()
-    const { isOldUser } = useSign(Address!, blockchain)
-    const { search } = useFirestoreSearchField<IUser>()
+    const { search } = useFirestoreSearchField()
 
     const requestSignFromWallet = async (nonce: number) => {
         return await signMessageInWallet(nonce)
     }
 
-    const processSigning = async (oldPassword?: string) => {
-        const isOld = await isOldUser;
-        const dbUser = await search('users', [{ field: 'address', searching: Address!, indicator: "array-contains" }])
+    const processSigning = async (address: string, oldPassword?: string) => {
+        const isOld = await isOldUser(address);
+        const dbUser = await search<IUser>('users', [{ field: 'address', searching: Address!, indicator: "array-contains" }])
 
         const reqParams: { publicKey: string, blockchain: string, id?: string, token?: string } = {
             publicKey: Address!,
@@ -33,7 +32,7 @@ export default function useOneClickSign() {
 
         const nonce = req.data;
         const sign = await requestSignFromWallet(parseInt(nonce))
- 
+
         let Token;
         let id;
 

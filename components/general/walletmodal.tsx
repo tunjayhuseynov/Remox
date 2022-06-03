@@ -13,7 +13,7 @@ import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import Paydropdown from "subpages/pay/paydropdown";
 
-function Walletmodal({onDisable,setModals}:{onDisable: React.Dispatch<boolean>,setModals: React.Dispatch<boolean>}) {
+function Walletmodal({ onDisable, setModals }: { onDisable: React.Dispatch<boolean>, setModals: React.Dispatch<boolean> }) {
     const { Disconnect, blockchain } = useWalletKit()
     const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useRouter()
@@ -23,8 +23,8 @@ function Walletmodal({onDisable,setModals}:{onDisable: React.Dispatch<boolean>,s
     const [list, setList] = useState<DropDownItem[]>([])
     const dispatch = useDispatch()
     const [isAccountModal, setAccountModal] = useState(false)
-     const [value, setValue] = useState('')
-      const [value2, setValue2] = useState('')
+    const [value, setValue] = useState('')
+    const [value2, setValue2] = useState('')
 
     useEffect(() => {
         if (data && wallets) {
@@ -54,14 +54,14 @@ function Walletmodal({onDisable,setModals}:{onDisable: React.Dispatch<boolean>,s
     const paymentname = ["Marketing", "Event"]
     const paymentname2 = ["Security", "Development"]
 
-  return <>
-    <div className="text-2xl font-semibold py-3 text-center">
-        Remox Pay
-    </div>
-    <div className=" px-12 flex flex-col gap-5 w-full">
-    <div className="flex flex-col gap-2 w-full">
-        <div className="text-greylish">Choose Wallet</div>
-        <div className="  flex items-center gap-5 w-full">
+    return <>
+        <div className="text-2xl font-semibold py-3 text-center">
+            Remox Pay
+        </div>
+        <div className=" px-12 flex flex-col gap-5 w-full">
+            <div className="flex flex-col gap-2 w-full">
+                <div className="text-greylish">Choose Wallet</div>
+                <div className="  flex items-center gap-5 w-full">
                     <Dropdown parentClass={'!w-full'} className=" !py-2 !rounded-md px-3 bg-white dark:bg-darkSecond truncate" list={list} photo={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address && w.amount) {
                             setItem(w)
@@ -69,21 +69,21 @@ function Walletmodal({onDisable,setModals}:{onDisable: React.Dispatch<boolean>,s
                         }
                     }} />
                 </div>
-    </div>
-    <div className="flex flex-col gap-2 w-full">
-        <div className="text-greylish">Choose Budget</div>
-        <Paydropdown   paymentname={paymentname}  value={value} setValue={setValue}  />
-    </div>
-    {value && <div className="flex flex-col gap-2 w-full">
-        <div className="text-greylish">Choose Subbudget</div>
-        <Paydropdown   paymentname={paymentname2}  value={value2} setValue={setValue2} />
-    </div>}
-    <div className="flex  self-center w-full pt-4 gap-4 max-w-[80%] xl:max-w-[55%]">
-          <Button version="second" className={'!py-2 px-9 rounded-xl'} onClick={() => {onDisable(false)}}>Close</Button>
-          <Button type="submit" className={'!py-2 px-10 rounded-xl'} onClick={() => {setModals(true); onDisable(false)}}>Next</Button>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+                <div className="text-greylish">Choose Budget</div>
+                <Paydropdown paymentname={paymentname} value={value} setValue={setValue} />
+            </div>
+            {value && <div className="flex flex-col gap-2 w-full">
+                <div className="text-greylish">Choose Subbudget</div>
+                <Paydropdown paymentname={paymentname2} value={value2} setValue={setValue2} />
+            </div>}
+            <div className="flex  self-center w-full pt-4 gap-4 max-w-[80%] xl:max-w-[55%]">
+                <Button version="second" className={'!py-2 px-9 rounded-xl'} onClick={() => { onDisable(false) }}>Close</Button>
+                <Button type="submit" className={'!py-2 px-10 rounded-xl'} onClick={() => { setModals(true); onDisable(false) }}>Next</Button>
+            </div>
         </div>
-    </div>
-  </>
+    </>
 }
 
 export default Walletmodal

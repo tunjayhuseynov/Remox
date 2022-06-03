@@ -10,9 +10,11 @@ import { BlockChainTypes, updateBlockchain } from 'redux/reducers/network';
 import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
+import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
+  const { processSigning } = useOneClickSign()
   const { search, isLoading } = useFirestoreSearchField<IUser>()
   const dark = useAppSelector(selectDarkMode)
   const navigate = useRouter()
@@ -20,6 +22,9 @@ const Home = () => {
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
   const [address, setAddress] = useState<string | null>(null)
+  const [Dark, setDark] = useState<boolean | null>(null)
+
+  useEffect(() => setDark(dark), [dark])
   useEffect(() => setAddress(Address), [Address])
 
   const [selected, setSelected] = useState<DropDownItem>(
@@ -46,19 +51,19 @@ const Home = () => {
         await Connect()
       }
       else if (address) {
-        search("users", [{
-          field: 'address', 
-          searching: address, 
+        const user = await search("users", [{
+          field: 'address',
+          searching: address,
           indicator: "array-contains"
         }])
-          .then(user => {
-            if (user) {
-              navigate.push('/unlock')
-            } else {
-              navigate.push('/choose-type')
-            }
 
-          })
+        if (user) {
+          navigate.push('/unlock')
+        } else {
+          await processSigning(address);
+          navigate.push('/choose-type')
+
+        }
       }
     } catch (error) {
       console.error(error)
@@ -69,7 +74,7 @@ const Home = () => {
     <section className="flex justify-center items-center w-full h-screen">
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
         <div className="w-[12.5rem] sm:w-[25rem] flex flex-col items-center justify-center gap-10">
-          <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
+          <img src={!Dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
           <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
@@ -79,7 +84,6 @@ const Home = () => {
       </div>
     </section>
   </>
-
 }
 
 Home.disableLayout = true

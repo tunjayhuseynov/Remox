@@ -1,22 +1,22 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { PublicKey, Connection } from "@solana/web3.js"
-import { Indicator, UploadImage, useFirestoreSearchField } from "apiHooks/useFirebase"
+import { FirestoreReadMultiple, Indicator, UploadImage, useFirestoreSearchField } from "apiHooks/useFirebase"
 import axios from "axios"
 import { SolanaEndpoint } from "components/Wallet"
 import { individualCollectionName } from "crud/individual"
 import { organizationCollectionName } from "crud/organization"
 import { ethers } from "ethers"
-import { IIndividual, Image } from "firebaseConfig"
+import { IIndividual, Image, IUser } from "firebaseConfig"
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
 import type { BlockChainTypes } from "redux/reducers/network"
 
 const isAddressExisting = async <Type extends {}>(collectionName: string, queries: { addressField: string, address: string, indicator?: Indicator }[]) => {
-    return await useFirestoreSearchField<Type>().search(collectionName, queries.map(s => ({ field: s.addressField, searching: s.address, indicator: (s?.indicator ?? "array-contains") })))
+    return await FirestoreReadMultiple<Type>(collectionName, queries.map(s => ({ secondQuery: s.addressField, firstQuery: s.address, condition: (s?.indicator ?? "array-contains") })))
 }
 
 const nftOwner = async (nft: string, blockchain: BlockChainTypes, tokenId?: number) => {
     if (blockchain === "celo") {
-        if(!tokenId) throw new Error("Token ID is required for Celo NFTs")
+        if (!tokenId) throw new Error("Token ID is required for Celo NFTs")
         const id = tokenId;
         const nftContract = new ethers.Contract(nft, [
             {
@@ -38,6 +38,11 @@ const nftOwner = async (nft: string, blockchain: BlockChainTypes, tokenId?: numb
     }
     throw new Error("No blockchain is selected")
 }
+export const isOldUser = async (address: string) => await isUserUsingOldVersion(address)
+
+export const isIndiviualRegistered = async (address: string) => await isIndividualExisting(address)
+
+export const isOrganisationRegistered = async (address: string, blockchain: BlockChainTypes) => await isOrganizationExisting(address, blockchain)
 
 export const isIndividualExisting = async (address: string) => {
     return !!(await isAddressExisting<IIndividual>(individualCollectionName, [{ addressField: "addresses", address }]))
@@ -62,7 +67,7 @@ export const UploadImageForUser = async (props: { image: Image | null, name: str
             props.image.imageUrl = await UploadImage(props.name, imageUrl);
         } else if (nftUrl && type === "nft") {
             if (blockchain === "celo") {
-                if(!tokenId) throw new Error("Token ID is required for Celo NFTs")
+                if (!tokenId) throw new Error("Token ID is required for Celo NFTs")
                 const id = tokenId;
                 const nft = new ethers.Contract(nftUrl, [
                     {

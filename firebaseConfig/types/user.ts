@@ -26,7 +26,7 @@ export interface IBudgetExercise {
     name: string;
     from: number;
     to: number;
-    budgets: IBudget[];
+    budgets: DocumentReference[] | IBudget[];
 
     created_at: number;
 }

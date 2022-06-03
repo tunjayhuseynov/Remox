@@ -106,10 +106,10 @@ export async function FirestoreReadMultiple<DataType extends {}>(collectionName:
 
 
 export type Indicator = "==" | "in" | "array-contains"
-export function useFirestoreSearchField<DataType extends {}>() {
+export function useFirestoreSearchField() {
     const [isLoading, setLoading] = useState(false)
 
-    const search = async (collectionName: string, queries: { field: string, searching: string | string[], indicator: Indicator }[]) => {
+    const search = async function<DataType>(collectionName: string, queries: { field: string, searching: string | string[], indicator: Indicator }[]) {
         setLoading(true)
         const ref = collection(db, collectionName);
         const q = query(ref, ...queries.map(s => where(s.field, s.indicator, s.searching)));

@@ -1,6 +1,6 @@
 import { Create_Individual } from "crud/individual";
 import { useMemo } from "react";
-import { isIndividualExisting, isOrganizationExisting, isUserUsingOldVersion, UploadImageForUser } from "./utils";
+import { isIndividualExisting, isIndiviualRegistered, isOrganisationRegistered, isOrganizationExisting, isUserUsingOldVersion, UploadImageForUser } from "./utils";
 import { process } from "uniqid"
 import { auth, IIndividual, IOrganization } from "firebaseConfig";
 import { Create_Organization } from "crud/organization";
@@ -8,18 +8,6 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { Get_Account_Ref } from "crud/account";
 
 export default function useSign(address: string, blockchain: BlockchainType) {
-
-    const isOldUser = useMemo(async () => {
-        return await isUserUsingOldVersion(address)
-    }, [address, blockchain])
-
-    const isIndiviualRegistered = useMemo(async () => {
-        return await isIndividualExisting(address)
-    }, [address, blockchain]);
-
-    const isOrganisationRegistered = useMemo(async () => {
-        return await isOrganizationExisting(address, blockchain)
-    }, [address, blockchain]);
 
     const RegisterIndividual = async (individual: Omit<IIndividual, "id" | "created_date" | "addresses" | "blockchain">) => {
         if (await isIndiviualRegistered) throw new Error("User already registered");
@@ -55,5 +43,5 @@ export default function useSign(address: string, blockchain: BlockchainType) {
     }
 
 
-    return { isOldUser, isIndiviualRegistered, isOrganisationRegistered, RegisterIndividual, RegisterOrganization, RegisterIndividualAndOrganization }
+    return { isIndiviualRegistered, isOrganisationRegistered, RegisterIndividual, RegisterOrganization, RegisterIndividualAndOrganization }
 }
