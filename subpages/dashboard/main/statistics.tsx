@@ -142,14 +142,17 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
         }
         <div className="flex flex-col gap-5 h-full w-full ">
             <div className="text-4xl font-semibold text-left">Welcome, Orkhan</div>
-            <div className="xl:relative">
-            <div className="xl:absolute  xl:-bottom-28 xl:left-16 flex flex-col gap-1">
-                <div className=" font-medium text-greylish">Total Treasury Value</div>
-                <div className="text-3xl font-semibold">$500.000</div>
+            <div className="bg-white rounded-lg shadow">
+            <div className="w-full px-12 pt-5 flex justify-between">
+            <div className="  flex flex-col gap-1">
+                <div className=" font-medium text-lg text-greylish text-opacity-40 tracking-wide">Total Treasury Value</div>
+                <div className="text-4xl font-semibold">$500.000</div>
             </div>
+            <div className="flex gap-3 pt-6"> <span className="hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide">1W</span><span className=" hover:text-primary cursor-pointer text-greylish  text-opacity-40 tracking-wide">1M</span><span className="text-greylish hover:text-primary cursor-pointer text-opacity-40 tracking-wide">3M</span><span className=" hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide">1Y</span></div>
             </div>
             {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
-                <div className="w-full flex items-center justify-center"><LineChart data={data} /></div>
+                <div className="w-full h-full flex items-center justify-center"><LineChart data={data} /></div>
+            </div>
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
                 <div className="flex justify-between w-full">
                     <div className="text-2xl font-semibold">Connected Wallets</div>

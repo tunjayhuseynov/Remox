@@ -46,12 +46,12 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
 
   return <>
     {data.map((item, index) => {
-      return  <div key={index} className=" w-1/2  xl:w-[85%] h-full xl:mx-5">
-            <div className="w-full shadow-custom px-7 py-3  rounded-xl bg-white dark:bg-darkSecond">
+      return  <div key={index} className=" w-1/2  xl:w-[85%] xl:mx-5">
+            <div className="w-full shadow-custom px-7 xl:px-5 py-3 rounded-xl bg-white dark:bg-darkSecond">
                 <div className="flex items-center  gap-7">
                     <div className="hidden lg:block w-7 h-7"><img src={`/icons/${item.icon}.png`} alt="" /></div>
                     <div className="flex flex-col gap-1 justify-start items-start">
-                        <div className="text-xl font-medium text-greylish dark:text-white">{item.header}</div>
+                        <div className="text-xl w-full font-medium text-greylish dark:text-white">{item.header}</div>
                         <div className="text-3xl font-bold">{item.value}</div>
                         <div className="text-primary flex items-center justify-center gap-4 cursor-pointer" onClick={() =>{router.push(`/${item.router}`)}} >View All <img className="w-4 h-4" src="/icons/next_primary.png" alt="" /></div>
                     </div>

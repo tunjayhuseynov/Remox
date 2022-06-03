@@ -24,7 +24,7 @@ input[class~="checkboxborder"] {
   }
 }
 
-@media only screen and (max-height: 768px) and (min-width: 1439px) {
+@media only screen and (max-height: 968px) and (min-width: 1439px) {
   html {
     font-size: 14px;
   }
