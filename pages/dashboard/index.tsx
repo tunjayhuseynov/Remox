@@ -8,7 +8,7 @@ import TransactionHistory from "subpages/dashboard/main/transactionHistory"
 export default function Dashboard() {
     const [transactions] = useTransactionProcess()
     
-    return <main className="flex gap-10 flex-col xl:flex-row">
+    return <main className="flex gap-7 flex-col xl:flex-row">
         <div className="w-full h-1/2 xl:w-[70%]">
             <div className=" max-h-full">
                 <Statistics transactions={transactions} />

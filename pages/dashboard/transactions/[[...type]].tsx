@@ -36,14 +36,10 @@ const Transactions = () => {
     const { type } = router.query as { type: string[] | undefined }
     const tags = useAppSelector(selectTags)
     const { GetCoins, fromMinScale } = useWalletKit()
-<<<<<<< HEAD
     const darkMode = useSelector(selectDarkMode)
     const [isOpen, setOpen] = useState(false)
 
 
-=======
- 
->>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
     let page: string;
     if (type?.[0].includes("pending")) {
         page = "pending"

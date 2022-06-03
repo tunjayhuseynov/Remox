@@ -54,7 +54,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                 <div className=" text-center w-full">
                     <div className="text-2xl font-bold">Add New Wallet</div>
                 </div>
-                <div className="flex justify-between w-[60%]  xl:w-[35%] py-7"><AnimatedTabBar data={data} setText={setText} setStream={setStream} /></div>
+                <div className="flex justify-between w-[60%]  xl:w-[38%] py-7"><AnimatedTabBar data={data} setText={setText} setStream={setStream} /></div>
 
                 {text === "Import Wallet" && <div className="flex flex-col w-[62%] gap-8">
                     <div className="flex flex-col gap-1">
