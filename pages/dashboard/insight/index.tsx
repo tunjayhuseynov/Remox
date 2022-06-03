@@ -7,15 +7,23 @@ import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import useMultiWallet from "hooks/useMultiWallet";
 import useInsight from "apiHooks/useInsight";
 import Loader from "components/Loader";
+import useMultisigProcess from "hooks/useMultisigProcess";
+import { useAppSelector } from "redux/hooks";
+import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { CSVLink } from "react-csv";
 
 const style = "py-2 bg-greylish bg-opacity-10 dark:bg-darkSecond px-5  rounded-xl hover:bg-gray-300 dark:hover:bg-greylish dark:focus:bg-greylish"
 
 const Insight = () => {
+    const darkMode = useSelector(selectDarkMode)
+    const [isOpen, setOpen] = useState(false)
+    const { data: wallets } = useMultiWallet()
+    const { refetch, isMultisig } = useMultisigProcess()
     const [selectedDate, setSelectedDate] = useState<number>(30)
-    const account = useSelector(SelectSelectedAccount)
+    const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { data } = useMultiWallet()
-    const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [account])
-
+    const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [selectedAccount])
+    const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
     useEffect(() => {
         if (data !== undefined) {
             setSelectedAccounts(data.map(s => s.address))
@@ -26,16 +34,30 @@ const Insight = () => {
 
     return (
         <div className="flex flex-col space-y-3">
-            <div className="text-3xl ml-[-1rem] font-bold  pb-4">
-                Insights
+            <div className="flex justify-between">
+            <div className="text-3xl font-bold">Insights</div>
+            <div className="flex gap-2">
+            {/* {!isMultisig && <div className="mr-3">
+                        <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
+                            setChangedAccount([...wallets.map((wallet) => wallet.address)])
+                        }} />
+                    </div>}
+                    {!isMultisig && <> <div className="">
+                         <CSVLink  data={''} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
+                            <div className={'hidden'}>Export</div>
+                            <img className={`w-[1.5rem] h-[1.5rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
+                        </CSVLink>
+                    </div></>} */}
             </div>
+        </div>
+        
             <div className="pb-2 pt-2">
                 <div className="flex justify-end">
                     <div className="flex gap-7">
                         <button onClick={() => setSelectedDate(30)} className={`${selectedDate === 30 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style} `}>30 Days</button>
                         <button onClick={() => setSelectedDate(90)} className={`${selectedDate === 90 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style}`}>90 Days</button>
                         <button onClick={() => setSelectedDate(365)} className={`${selectedDate === 365 ? '!bg-greylish !bg-opacity-40 dark:!bg-opacity-100' : ''} ${style}`}>1 Year</button>
-                        <WalletDropdown selected={account} onChange={(wallets) => {
+                        <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
                             setSelectedAccounts([...wallets.map(wallet => wallet.address)])
                         }} />
                     </div>

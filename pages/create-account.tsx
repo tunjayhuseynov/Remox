@@ -71,7 +71,7 @@ const CreateAccount = () => {
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
       <div>
-        <img src={!Dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
+        <img src={!Dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
       </div>
     </header>
     <form className="py-[6.25rem] sm:py-0 sm:h-full " onSubmit={create}>

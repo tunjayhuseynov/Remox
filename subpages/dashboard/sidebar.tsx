@@ -81,7 +81,7 @@ const Sidebar = () => {
 
     return <>
         {Modals && <Pay setModals={setModals} />}
-        {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={'!pt-5'}>
+        {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={''}>
                 <Walletmodal  onDisable={setWalletModals}  setModals={setModals} />
             </Modal>}
         <div className="hidden md:block z-[1] md:col-span-2 w-[16.188rem] flex-none fixed pt-28">

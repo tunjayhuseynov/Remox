@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import {useAppSelector } from '../../redux/hooks';
 import {selectDarkMode} from 'redux/reducers/notificationSlice';
+import ReactDOM, { createPortal } from 'react-dom';
 
 
 const Modal = ({ children, onDisable, title, className, disableX = false }: { children?: JSX.Element | JSX.Element[], onDisable: React.Dispatch<React.SetStateAction<boolean>>, title?: string, className?: string, disableX?: boolean }) => {
@@ -11,7 +12,7 @@ const Modal = ({ children, onDisable, title, className, disableX = false }: { ch
             document.querySelector('body')!.style.overflowY = ""
         }
     }, [])
-    return <>
+    return ReactDOM.createPortal(    <>
         <div className="w-full h-full !my-0 !ml-0 bg-white dark:bg-dark dark:bg-opacity-60  bg-opacity-60 absolute left-0 top-0 z-[98]" onClick={() => onDisable(false)} style={{
             top: `${window.scrollY}px`,
         }}>
@@ -27,7 +28,15 @@ const Modal = ({ children, onDisable, title, className, disableX = false }: { ch
                 </button>}
             </div>
         </div>
-    </>
+    </>,document.body)
 }
 
 export default Modal;
+
+function body(arg0: JSX.Element, body: any) {
+    throw new Error("Function not implemented.");
+}
+function domNode(arg0: JSX.Element, domNode: any) {
+    throw new Error("Function not implemented.");
+}
+
