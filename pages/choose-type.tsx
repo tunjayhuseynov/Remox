@@ -22,7 +22,7 @@ function ChooseType() {
 
   const createRouter = () => {
     if (organisation) {
-      navigate.push('/create-organisation')
+      navigate.push('/choose-account')
     } else if (individual) {
       navigate.push('/create-account')
     }

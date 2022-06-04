@@ -49,7 +49,7 @@ const Home = () => {
         search("users", 'address', address, "array-contains")
           .then(user => {
             if (user) {
-              navigate.push('/unlock')
+              navigate.push('/choose-type')
             } else {
               navigate.push('/choose-type')
             }
@@ -65,7 +65,7 @@ const Home = () => {
     <section className="flex justify-center items-center w-full h-screen">
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
         <div className="w-[12.5rem] sm:w-[25rem] flex flex-col items-center justify-center gap-10">
-          <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
+          <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
           <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
