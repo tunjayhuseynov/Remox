@@ -16,6 +16,7 @@ import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import Pay from 'subpages/pay/pay';
 import Walletmodal from 'components/general/walletmodal';
+import useNextSelector from 'hooks/useNextSelector';
 
 const Sidebar = () => {
 
@@ -23,7 +24,7 @@ const Sidebar = () => {
     const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useRouter()
     const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
-    const selectedAccount = useSelector(SelectSelectedAccount)
+    const selectedAccount = useNextSelector(SelectSelectedAccount)
 
     const dispatch = useDispatch()
 
@@ -35,7 +36,7 @@ const Sidebar = () => {
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), address: selectedAccount, photo: "nftmonkey" })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), address: selectedAccount ?? "", photo: "nftmonkey" })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -82,8 +83,8 @@ const Sidebar = () => {
     return <>
         {Modals && <Pay setModals={setModals} />}
         {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={''}>
-                <Walletmodal  onDisable={setWalletModals}  setModals={setModals} />
-            </Modal>}
+            <Walletmodal onDisable={setWalletModals} setModals={setModals} />
+        </Modal>}
         <div className="hidden md:block z-[1] md:col-span-2 w-[16.188rem] flex-none fixed pt-28">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">

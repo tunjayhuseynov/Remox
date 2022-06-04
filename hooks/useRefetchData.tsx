@@ -5,25 +5,25 @@ import { setContributors } from 'redux/reducers/contributors'
 import useCurrency from '../apiHooks/useCurrency'
 import { IBalanceMembers, setOrderBalance, updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/reducers/currencies'
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
-import { selectStorage } from '../redux/reducers/storage'
 import { SelectParsedTransactions, setParsedTransactions, setTransactions } from '../redux/reducers/transactions'
 import useRequest from 'apiHooks/useRequest'
-import useRequestHook from 'hooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
 import { useListenTags } from 'apiHooks/useTags'
 import { setTags } from 'redux/reducers/tags'
 import useWalletKit, { BlockchainType } from './walletSDK/useWalletKit'
 import { IFormattedTransaction } from './useTransactionProcess'
-import { getAuth } from 'firebase/auth'
 import useInsight from 'apiHooks/useInsight'
 import { setAccountStats } from 'redux/reducers/accountstats'
 import { useLazyGetAccountBalancePriceQuery, useLazyGetAccountTransactionsQuery } from 'redux/api'
+import { auth } from 'firebaseConfig'
+import useNextSelector from './useNextSelector'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
-    const storage = useSelector(selectStorage)
-    const selectedAccount = useSelector(SelectSelectedAccount)
-    const [accounts, setAccounts] = useState<string[]>([selectedAccount])
+
+    const selectedAccount = useNextSelector(SelectSelectedAccount)
+    const [accounts, setAccounts] = useState<string[]>(selectedAccount ? [selectedAccount] : [])
+    useEffect(() => setAccounts(selectedAccount ? [selectedAccount] : []), [selectedAccount])
 
     const [txsFetch] = useLazyGetAccountTransactionsQuery()
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
@@ -34,8 +34,7 @@ const useRefetchData = () => {
     // const { setGenLoading } = useRequestHook()
 
     const tagData = useListenTags()
-    const auth = getAuth()
-    const { Address, blockchain } = useWalletKit()
+    const { blockchain } = useWalletKit()
     const [txs, setTxs] = useState<IFormattedTransaction[]>([])
 
     const insight = useInsight({ selectedDate: 0, selectedAccounts: accounts })
@@ -43,11 +42,11 @@ const useRefetchData = () => {
     const [isTxDone, setTxDone] = useState<boolean>(false)
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
 
-    useEffect(() => {
-        if (selectedAccount) {
-            setAccounts([selectedAccount])
-        }
-    }, [selectedAccount])
+    // useEffect(() => {
+    //     if (selectedAccount) {
+    //         setAccounts([selectedAccount])
+    //     }
+    // }, [selectedAccount])
 
     useEffect(() => {
         if (!insight.isLoading) {
@@ -74,7 +73,7 @@ const useRefetchData = () => {
     useEffect(() => {
         if (contributors) {
             setTimeout(() => {
-                dispatch(setContributors({ data: contributors, secretKey: storage?.encryptedMessageToken }))
+                dispatch(setContributors({ data: contributors }))
             }, 1500)
         }
     }, [contributors])
@@ -88,15 +87,17 @@ const useRefetchData = () => {
     }, [tagData])
 
     useEffect(() => {
-        balanceFetch({ addresses: accounts, blockchain: blockchain }).unwrap().then(response => {
-            const prices = response.AllPrices
-            const totalBalance = response.TotalBalance
-            dispatch(updateTotalBalance(totalBalance))
-            dispatch(updateUserBalance(prices))
-            dispatch(setOrderBalance(Object.values(prices as IBalanceMembers).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString()))))
-            setBalanceDone(true)
-        })
-    }, [accounts])
+        if (selectedAccount) {
+            balanceFetch({ addresses: [selectedAccount], blockchain: blockchain }).unwrap().then(response => {
+                const prices = response.AllPrices
+                const totalBalance = response.TotalBalance
+                dispatch(updateTotalBalance(totalBalance))
+                dispatch(updateUserBalance(prices))
+                dispatch(setOrderBalance(Object.values(prices as IBalanceMembers).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString()))))
+                setBalanceDone(true)
+            })
+        }
+    }, [selectedAccount])
 
     useEffect(() => {
         fetching()
@@ -112,8 +113,8 @@ const useRefetchData = () => {
     }
 
     useEffect(() => {
-        if (Address) {
-            txsFetch({ addresses: accounts, blockchain: blockchain, authId: auth.currentUser?.uid }).unwrap().then((res) => {
+        if (selectedAccount) {
+            txsFetch({ addresses: [selectedAccount], blockchain: blockchain, authId: auth.currentUser?.uid }).unwrap().then((res) => {
                 setTxs(res)
             }).catch((error) => { console.error(error) })
         }

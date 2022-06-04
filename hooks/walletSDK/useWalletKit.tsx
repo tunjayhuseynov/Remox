@@ -20,6 +20,7 @@ import { IUser } from 'firebaseConfig/types';
 import { changePrivateToken } from 'redux/reducers/selectedAccount';
 import { TextDecoder, TextEncoder } from 'util';
 import { GetSignedMessage } from 'utils';
+import useNextSelector from 'hooks/useNextSelector';
 
 
 
@@ -31,7 +32,7 @@ export enum CollectionName {
 export type BlockchainType = "celo" | "solana"
 
 export default function useWalletKit() {
-    const blockchain = useSelector(selectBlockchain) as BlockchainType;
+    const blockchain = useNextSelector(selectBlockchain) as BlockchainType;
     const dispatch = useDispatch()
 
     const { setVisible } = useWalletModal();
@@ -39,7 +40,7 @@ export default function useWalletKit() {
 
     const [transactionTrigger] = useLazyGetTransactionsQuery()
 
-    const { search, isLoading } = useFirestoreSearchField<IUser>()
+    const { search, isLoading } = useFirestoreSearchField()
 
     //Celo
     const { address, destroy, kit, walletType, connect, initialised } = useContractKit()

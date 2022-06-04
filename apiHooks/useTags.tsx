@@ -16,13 +16,13 @@ export interface Tag {
 }
 
 export function useListenTags() {
-    const { data } = useFirestoreRead<{ tags: Tag[] }>("tags", auth.currentUser!.uid);
+    const { data } = useFirestoreRead<{ tags: Tag[] }>("tags", auth.currentUser?.uid ?? "0");
 
     return data;
 }
 
 export default function useTags() {
-    const txs = useSelector(SelectParsedTransactions)
+    // const txs = useSelector(SelectParsedTransactions)
     const dispatch = useDispatch()
     const [isLoading, setLoading] = useState(false)
 

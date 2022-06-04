@@ -5,39 +5,51 @@ import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
 import { useFirestoreSearchField } from 'apiHooks/useFirebase';
-import { IUser } from 'firebaseConfig';
+import { auth, IUser } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
+import { useSelector } from 'react-redux';
+import { SelectExisting } from 'redux/reducers/selectedAccount';
+import { useDispatch } from 'react-redux';
+import { setStorage } from 'redux/reducers/storage';
+import { Get_Individual } from 'crud/individual';
 
 
 function ChooseType() {
+  const [isOrganisation, setOrganisation] = useState(false)
+  const [isIndividual, setIndividual] = useState(false)
   const dark = useAppSelector(selectDarkMode)
-  const [organisation, setOrganisation] = useState(false)
-  const [individual, setIndividual] = useState(false)
   const navigate = useRouter()
-  const { search, isLoading } = useFirestoreSearchField<IUser>()
-  const { Connect, Address } = useWalletKit();
+  const { search } = useFirestoreSearchField()
+  const { Address } = useWalletKit();
+
+  const isUserExist = useSelector(SelectExisting)
+  const dispatch = useDispatch()
 
   const [address, setAddress] = useState<string | null>(null)
-  useEffect(() => setAddress(Address), [Address])
 
-  const createRouter = () => {
-    if (organisation) {
-      navigate.push('/create-organisation')
-    } else if (individual) {
-      navigate.push('/create-account')
-    }
-  }
-  const login = () => {
-    if (address) {
-      search("users", 'address', address, "array-contains")
-        .then(user => {
-          if (user) {
-            navigate.push('/unlock')
-          } else {
-            navigate.push('/create-account')
-          }
+  useEffect(() => {
+    if (Address) {
+      setAddress(Address)
+    } else navigate.push("/")
+  }, [Address])
 
-        })
+
+  const login = async () => {
+    if (isUserExist) {
+      const individual = await Get_Individual(auth.currentUser?.uid!)
+      if (isOrganisation) {
+
+
+      } else if (isIndividual) {
+        dispatch(setStorage({
+          ...individual,
+          uid: auth.currentUser?.uid!,
+          lastSignedProviderAddress: Address!,
+          signType: "individual",
+          organization: null
+        }))
+        navigate.push("/dashboard")
+      }
     }
   }
 
@@ -51,18 +63,18 @@ function ChooseType() {
       <div className="text-3xl font-bold">Choose Account Type</div>
       <div className="w-[40%] ">
         <div className="flex gap-8">
-          <div className={`${organisation && "border-2 !border-primary"} cursor-pointer  border dark:border-greylish w-1/2 bg-white dark:bg-darkSecond rounded-lg`} onClick={() => { setOrganisation(!organisation); setIndividual(false) }}>
-            <div className={`${organisation && "border-b-2 !border-primary"} flex items-center text-xl justify-center font-bold py-4 px-4 border-b dark:border-greylish`}>Organisation</div>
+          <div className={`${isOrganisation && "border-2 !border-primary"} cursor-pointer  border dark:border-greylish w-1/2 bg-white dark:bg-darkSecond rounded-lg`} onClick={() => { setOrganisation(!isOrganisation); setIndividual(false) }}>
+            <div className={`${isOrganisation && "border-b-2 !border-primary"} flex items-center text-xl justify-center font-bold py-4 px-4 border-b dark:border-greylish`}>Organisation</div>
             <div className="p-10 tracking-wider text-center text-lg font-bold pb-12">Manage Your organization's crypto finance in one place, from contributor payment to treasury managment</div>
           </div>
-          <div className={`${individual && "border-2 !border-primary"}  cursor-pointer border dark:border-greylish w-1/2 bg-white dark:bg-darkSecond rounded-lg`} onClick={() => { setIndividual(!individual); setOrganisation(false) }}>
-            <div className={`${individual && "border-b-2 !border-primary"} flex items-center text-xl font-bold  justify-center py-4 px-4 border-b dark:border-greylish`}>individual</div>
+          <div className={`${isIndividual && "border-2 !border-primary"}  cursor-pointer border dark:border-greylish w-1/2 bg-white dark:bg-darkSecond rounded-lg`} onClick={() => { setIndividual(!isIndividual); setOrganisation(false) }}>
+            <div className={`${isIndividual && "border-b-2 !border-primary"} flex items-center text-xl font-bold  justify-center py-4 px-4 border-b dark:border-greylish`}>individual</div>
             <div className="p-7 tracking-wider text-center text-lg  font-bold pb-12">Manage your personal crypto assets  in one place with ease.</div>
           </div>
         </div>
         <div className="flex gap-5 items-center justify-center  pt-7">
-          <Button version="second" className={'!py-2 !px-9 !rounded-xl'} onClick={createRouter}>Sign up</Button>
-          <Button version="second" className={'!py-2 !px-11 !rounded-xl'} onClick={login}>Login</Button>
+          {!isUserExist && <Button version="second" className={'!py-2 !px-9 !rounded-xl'} onClick={() => navigate.push(isOrganisation ? '/create-organisation' : '/create-account')}>Sign up</Button>}
+          {isUserExist && <Button version="second" className={'!py-2 !px-11 !rounded-xl'} onClick={login}>Login</Button>}
         </div>
       </div>
     </div>

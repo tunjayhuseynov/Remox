@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getAuth } from 'firebase/auth'
+import { auth } from 'firebaseConfig'
 import { useWalletKit } from 'hooks'
 import { useEffect, useState } from 'react'
 import { useLazyGetAccountSpendingQuery } from 'redux/api'
@@ -9,7 +10,6 @@ import { ATag } from 'subpages/dashboard/insight/boxmoney'
 
 export default function useInsight({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) {
     const { blockchain } = useWalletKit()
-    const auth = getAuth()
 
     const [isLoading, setLoading] = useState(false)
     const [totalBalance, setTotalBalance] = useState<number>(0)
@@ -24,33 +24,35 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
     const [spendingFetch] = useLazyGetAccountSpendingQuery()
 
     useEffect(() => {
-        setLoading(true)
-        spendingFetch({
-            addresses: selectedAccounts,
-            blockchain,
-            authId: auth.currentUser?.uid
-        }).unwrap().then(response => {
-            const {
-                AverageSpend,
-                AccountIn,
-                AccountOut,
-                AccountAge,
-                AccountTotalBalanceChangePercent,
-                TotalBalance,
-                AccountInTag,
-                AccountOutTag
-            } = response
+        if (selectedAccounts.length > 0) {
+            setLoading(true)
+            spendingFetch({
+                addresses: selectedAccounts,
+                blockchain,
+                authId: auth.currentUser?.uid
+            }).unwrap().then(response => {
+                const {
+                    AverageSpend,
+                    AccountIn,
+                    AccountOut,
+                    AccountAge,
+                    AccountTotalBalanceChangePercent,
+                    TotalBalance,
+                    AccountInTag,
+                    AccountOutTag
+                } = response
 
-            setTotalBalance(TotalBalance)
-            setAverageSpend(AverageSpend)
-            setAccountAge(AccountAge)
-            setIn(AccountIn)
-            setOut(AccountOut)
-            setAccountInTag(AccountInTag)
-            setAccountOutTag(AccountOutTag)
-            setTotalBalancePercentage(AccountTotalBalanceChangePercent)
-            setLoading(false)
-        })
+                setTotalBalance(TotalBalance)
+                setAverageSpend(AverageSpend)
+                setAccountAge(AccountAge)
+                setIn(AccountIn)
+                setOut(AccountOut)
+                setAccountInTag(AccountInTag)
+                setAccountOutTag(AccountOutTag)
+                setTotalBalancePercentage(AccountTotalBalanceChangePercent)
+                setLoading(false)
+            })
+        }
     }, [selectedAccounts])
 
     return {

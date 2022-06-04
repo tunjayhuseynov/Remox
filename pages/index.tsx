@@ -1,5 +1,5 @@
 import { useFirestoreSearchField } from 'apiHooks/useFirebase';
-import { IUser } from 'firebaseConfig';
+import { auth, IUser } from 'firebaseConfig';
 import { PROVIDERS } from "@celo-tools/use-contractkit";
 import { useWalletKit } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
@@ -11,11 +11,13 @@ import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
+import { changeAccount, changeExisting, } from 'redux/reducers/selectedAccount';
+import { isIndividualExisting } from 'hooks/singingProcess/utils';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
   const { processSigning } = useOneClickSign()
-  const { search, isLoading } = useFirestoreSearchField<IUser>()
+  const { search, isLoading } = useFirestoreSearchField()
   const dark = useAppSelector(selectDarkMode)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
@@ -51,7 +53,7 @@ const Home = () => {
         await Connect()
       }
       else if (address) {
-        const user = await search("users", [{
+        const user = await search<IUser>("users", [{
           field: 'address',
           searching: address,
           indicator: "array-contains"
@@ -61,8 +63,9 @@ const Home = () => {
           navigate.push('/unlock')
         } else {
           await processSigning(address);
+          dispatch(changeAccount(address))
+          dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
           navigate.push('/choose-type')
-
         }
       }
     } catch (error) {

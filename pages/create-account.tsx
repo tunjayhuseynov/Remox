@@ -1,4 +1,4 @@
-import {useState} from "react";
+import { useState } from "react";
 import Button from "components/button";
 import Input from "components/input";
 import { useAuth, useSignInOrUp, useWalletKit } from "hooks";
@@ -23,7 +23,7 @@ const CreateAccount = () => {
   const [file, setFile] = useState<File>()
 
   const list = useMemo<Array<{ title: string, type?: string, name: string }>>(() => [
-    { title: "Your Name", name: "userName" },{ title: "Your Address", name: "address",value: Address },
+    { title: "Your Name", name: "userName" }, { title: "Your Address", name: "address", value: Address },
     { title: "Password", name: "password", type: "password", limit: 6 },
   ], [])
 
@@ -66,8 +66,8 @@ const CreateAccount = () => {
 
   const paymentname = ["Upload Photo", "NFT"]
 
-  if (user || !address) navigate.push('/unlock')
 
+  if (user || !address) navigate.push('/unlock')
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
       <div>
@@ -81,19 +81,19 @@ const CreateAccount = () => {
           {/* <div className="text-greylish dark:text-primary tracking-wide font-light text-sm sm:text-lg text-center">This password encrypts your accounts on this device.</div> */}
         </div>
         <div className="flex flex-col px-3 items-center justify-center min-w-[25%]">
-        <div className="flex flex-col mb-4 space-y-1 w-full">
+          <div className="flex flex-col mb-4 space-y-1 w-full">
             <div className="text-xs text-left text-black  dark:text-white">Choose Profile Photo Type</div>
             <div className={` flex items-center gap-3 w-full`}>
-            <Paydropdown setSelectedType={setSelectedType}  paymentname={paymentname}  value={value} setValue={setValue} />
+              <Paydropdown setSelectedType={setSelectedType} paymentname={paymentname} value={value} setValue={setValue} />
             </div>
-        </div>
-        {value && <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className="text-xs text-left  dark:text-white">{value=== "NFT" ? "NFT Address" : "Your Photo"} </div>
+          </div>
+          {value && <div className="flex flex-col mb-4 space-y-1 w-full">
+            <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
             <div className={`  w-full border rounded-lg`}>
               {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
             </div>
-        </div>}
-          {list.map((w, i) => <Input key={i} {...w}  />)}
+          </div>}
+          {list.map((w, i) => <Input key={i} {...w} />)}
         </div>
         <div className="grid grid-rows-2 sm:grid-cols-2 gap-8 min-w-[23.5%]">
           <Button version="second" onClick={() => navigate.push('/choose-type')}>Back</Button>

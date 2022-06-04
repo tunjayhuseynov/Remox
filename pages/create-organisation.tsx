@@ -3,10 +3,9 @@ import Button from "components/button";
 import Input from "components/input";
 import { useAuth, useSignInOrUp, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { SyntheticEvent, useMemo } from "react";
+import { useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
-import { ToastRun } from "utils/toast";
 import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
 
@@ -27,45 +26,9 @@ const CreateOrganisation = () => {
     { title: "Password", name: "password", type: "password", limit: 6 },
   ], [])
 
-
-  //   const create = async (e: SyntheticEvent<HTMLFormElement>) => {
-  //     e.preventDefault()
-  //     const target = e.target as HTMLFormElement
-  //     if (target["password"].value !== target["repeatPassword"].value) {
-  //       ToastRun(<div className="dark:text-white"><strong>Passwords don't match</strong></div>)
-  //       return
-  //     }
-
-  //     const inputData = {
-  //       name: target["userName"].value,
-  //       surname: target["surname"].value,
-  //       companyName: target["companyName"].value,
-  //       password: target["password"].value,
-  //     }
-
-  //     try {
-  //       const user = await executeSign(address, inputData.password, {
-  //         address: [address],
-  //         id: "placeholder",
-  //         multiwallets: [{ name: Wallet ?? "", address: address, blockchain }],
-  //         companyName: inputData.companyName,
-  //         name: inputData.name,
-  //         surname: inputData.surname,
-  //         seenTime: new Date().getTime(),
-  //         timestamp: new Date().getTime(),
-  //         blockchain,
-  //       })
-
-  //       navigate.push('/dashboard')
-  //     } catch (error) {
-  //       console.error(error)
-  //     }
-  //   }
-
   const paymentname = ["Upload Photo", "NFT"]
   const paymentname2 = ["Upload Photo", "NFT"]
 
-  // if (user || !address)  navigate.push('/unlock')
 
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
