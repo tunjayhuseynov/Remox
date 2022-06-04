@@ -13,22 +13,24 @@ const ReactApexChart = dynamic(
   { ssr: false }
 );
 
-function LineChart({ data }: { data: any }) {
+function LineChart({ data,type }: { data: any,type:string }) {
 
 
   const series = [
     {
       name: "Cases",
       data: [
-        555,
-        12038,
-        69030,
-        88369,
-        167466,
-        932638,
-        2055423,
-        3343777,
         3845718,
+        5557415,
+        1203228,
+        6907340,
+        3343777,
+        8836549,
+        1674466,
+        9324638,
+        2055423,
+       
+        
       ],
 
     },
@@ -84,7 +86,7 @@ function LineChart({ data }: { data: any }) {
     <ReactApexChart
       options={options}
       series={series}
-      type="area"
+      type={type === 'area' ? 'area' : 'bar'}
       height={350}
       className={'w-full h-full'}
     />
