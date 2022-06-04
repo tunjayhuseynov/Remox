@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import useLending, { InterestRateMode, LendingBorrowStatus, MoolaType, LendingUserComponentData } from "apiHooks/useLending";
+import useLending, { InterestRateMode, LendingBorrowStatus, LendingType, LendingUserComponentData } from "apiHooks/useLending";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { Coins } from 'types'
@@ -44,7 +44,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                     const coin = CeloCoins[wallets[0].name as unknown as keyof Coins]
                     let userData = await getSingleInitialUserData(coin)
                     setComponentData(userData)
-                   
+
                     setTimeout(() => setCoinLoading(false), 550)
                 } catch (error: any) {
                     setTimeout(() => setCoinLoading(false), 550)
@@ -58,7 +58,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         (async () => {
             if (amountState && wallets[0]) {
                 const info = await getBorrowInfo(amountState, CeloCoins[wallets[0].name as keyof Coins])
-                setStatus(info)
+                if (info) setStatus(info)
             }
         })()
     }, [amountState])
@@ -94,7 +94,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 }
                 await refresh()
 
-                let text = MoolaType(type)
+                let text = LendingType(type)
                 dispatch(changeSuccess({ activate: true, text: dynamicText(text, amountState.toLocaleString(), wallets[0].name, hash) }))
                 setModal(false)
             }

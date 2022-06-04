@@ -8,6 +8,7 @@ import Card from "subpages/dashboard/lend&borrow/card";
 
 const DynamicLendBorrow = ({ type }: { type: "lend" | "borrow" }) => {
     const userData = useSelector(selectMoolaData)
+
     const {
         InitializeUser,
         initLoading
@@ -28,7 +29,7 @@ const DynamicLendBorrow = ({ type }: { type: "lend" | "borrow" }) => {
             data.length === 0 && defaultValue && <Card key={defaultValue.currency.contractAddress} box={defaultValue} type={type} />
         }
         {initLoading && <div className="flex items-center justify-center"><Loader /></div>}
-    </div >
+    </div>
 
 }
 

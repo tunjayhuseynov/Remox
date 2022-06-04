@@ -1,16 +1,16 @@
-import { useState, useRef, useEffect, SyntheticEvent, Fragment, Dispatch, SetStateAction } from "react";
+import { useState, useRef, useEffect, SyntheticEvent, Dispatch, SetStateAction } from "react";
 import shortid, { generate } from 'shortid'
 import Success from "components/general/success";
 import Error from "components/general/error";
 import { MultipleTransactionData } from "types/sdk";
-import CSV, { csvFormat } from 'utils/CSV'
+import { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import Input from "subpages/pay/payinput";
 import { useAppDispatch } from "redux/hooks";
 import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
-import { IBalanceItem, SelectBalances, SelectTotalBalance } from "redux/reducers/currencies";
+import { SelectBalances, SelectTotalBalance } from "redux/reducers/currencies";
 import Button from "components/button";
 import { PaymentInput } from "apiHooks/useCeloPay";
 import useMultisig from 'hooks/walletSDK/useMultisig'
@@ -24,7 +24,6 @@ import { useRouter } from "next/router";
 import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/reducers/payinput";
 import Modal from 'components/general/modal';
 import AnimatedTabBar from 'components/animatedTabBar';
-import { AiFillAlipaySquare } from "react-icons/ai";
 import { useAppSelector } from '../../redux/hooks';
 import Loader from "components/Loader";
 import Paydropdown from './paydropdown';
@@ -39,7 +38,6 @@ const Pay = ({ setModals }: { setModals: Dispatch<SetStateAction<boolean>> }) =>
     const [value2, setValue2] = useState('Days')
     const [text, setText] = useState('One-Time')
     const [stream, setStream] = useState(false)
-    const [minuswallet, setMinuswallet] = useState(null)
     const refminus = useRef<HTMLSpanElement>(null)
 
     const dispatch = useAppDispatch()

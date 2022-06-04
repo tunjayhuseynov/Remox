@@ -1,7 +1,7 @@
 import { Dispatch, useEffect, useState } from "react";
 import { PoofCoins } from "../../../types/coins/celoCoins";
 import { DropDownItem } from "../../../types/dropdown";
-import Dropdown from "components/general/dropdown";
+import Dropdown, { DropDownViewer } from "components/general/dropdown";
 import { useContractKit, WalletTypes } from "@celo-tools/use-contractkit";
 import { AltCoins, TokenType } from "types";
 import { useWalletKit } from "hooks";
@@ -9,8 +9,7 @@ import Loader from "components/Loader";
 
 
 const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, maxAmount }: { maxAmount?: number, customCurreny: string, selectedWallet: DropDownItem[], setWallet: Dispatch<DropDownItem[]>, amount: number, setAmount: Dispatch<number> }) => {
-    const { walletType } = useContractKit()
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, blockchain } = useWalletKit()
 
     useEffect(() => {
         const v = Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl })).find(s => s.name === customCurreny)!;
@@ -27,7 +26,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
                 }
                 else setAmount(amnt)
             }} required step={'any'} />
-            {!selectedWallet ? <Loader /> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
+            {!selectedWallet ? <Loader /> : blockchain === "solana" ? <DropDownViewer parentClass="items-start justify-center" name="USDC" coinUrl={GetCoins.USDC.coinUrl}/> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
                 const wallet = [...selectedWallet];
                 wallet[0] = val;
                 setWallet(wallet)

@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { SelectParsedTransactions, SelectTransactions } from '../redux/reducers/transactions';
-import _ from 'lodash';
 import { useSelector } from 'react-redux';
-import { GetTransactions, Transactions } from '../types/sdk';
+import { Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
 import { Tag } from 'apiHooks/useTags';

@@ -53,8 +53,8 @@ const CreateAccount = () => {
         companyName: inputData.companyName,
         name: inputData.name,
         surname: inputData.surname,
-        seenTime: new Date().getTime(),
-        timestamp: new Date().getTime(),
+        seenTime: Math.floor(new Date().getTime() / 1e3),
+        timestamp: Math.floor(new Date().getTime() / 1e3),
         blockchain,
       })
 

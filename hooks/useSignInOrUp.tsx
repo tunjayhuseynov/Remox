@@ -23,7 +23,7 @@ export default function useSignInOrUp() {
     const executeSign = async (address: string, password: string, dataForSignUp?: IUser) => {
         setLoading(true)
         try {
-            const dbUser = await search('users', 'address', address, "array-contains")
+            const dbUser = await search('users', [{ field: 'address', searching: address, indicator: "array-contains" }])
             const token = await hashing((dbUser?.[0].address[0] ?? address), password)
             const encryptedMessageToken = await hashing(password, token)
             let userCredential;
@@ -51,8 +51,8 @@ export default function useSignInOrUp() {
                     companyName: encryptMessage(dataForSignUp.companyName, encryptedMessageToken),
                     name: encryptMessage(dataForSignUp.name, encryptedMessageToken),
                     surname: encryptMessage(dataForSignUp.surname, encryptedMessageToken),
-                    seenTime: new Date().getTime(),
-                    timestamp: Math.floor(new Date().getTime() / 1e3), 
+                    seenTime: Math.floor(new Date().getTime() / 1e3),
+                    timestamp: Math.floor(new Date().getTime() / 1e3),
                     blockchain: blockchain,
                 })
                 await FirestoreWrite<{ addresses: { name: string, address: string }[] }>().createDoc('multisigs', user.uid, {

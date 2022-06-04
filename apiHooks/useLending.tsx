@@ -2,7 +2,7 @@ import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/reducers/moola";
-import { AltCoins, Coins, TokenType } from "types";
+import { AltCoins, Coins, SolanaCoins, TokenType } from "types";
 import BigNumber from 'bignumber.js'
 import { BN, etherSize, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
@@ -12,6 +12,7 @@ import { SelectCurrencies } from 'redux/reducers/currencies'
 import { useWalletKit } from "hooks";
 import { VaultClient, VaultConfig } from '@castlefinance/vault-sdk'
 import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";
+import { PublicKey } from "@solana/web3.js";
 
 
 const MoolaProxy = import("./ABI/MoolaProxy.json")
@@ -25,7 +26,7 @@ export enum InterestRateMode {
 }
 
 
-export const MoolaType = (type: string) => type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
+export const LendingType = (type: string) => type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
 
 
 export default function useLending() {
@@ -35,13 +36,12 @@ export default function useLending() {
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
-    const { GetCoins, fromMinScale, blockchain } = useWalletKit()
+    const { GetCoins, fromMinScale, blockchain, Address } = useWalletKit()
     const { Provider } = useSolanaProvider()
 
 
     const dispatch = useDispatch()
     const MoolaUserData = useSelector(selectMoolaData)
-    const moolaData = useSelector(selectMoolaData)
     const currencies = useSelector(SelectCurrencies)
 
     useEffect(() => {
@@ -92,6 +92,26 @@ export default function useLending() {
 
     const deposit = async (asset: string, amount: number | string, to?: string) => {
         try {
+            if (blockchain === 'solana') {
+                if (!Provider) throw new Error("No provider")
+
+                const configResponse = await fetch('https://api.castle.finance/configs')
+                const vaults = (await configResponse.json()) as any
+                const vault = vaults.find(
+                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+                )
+
+                const vaultClient = await VaultClient.load(
+                    Provider as any,
+                    vault.vault_id,
+                    vault.deploymentEnv
+                )
+                const reserve = await vaultClient.getUserReserveTokenAccount(new PublicKey(Address!));
+                await vaultClient.deposit(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount, reserve)
+
+                return
+            }
+
             setLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
@@ -116,6 +136,25 @@ export default function useLending() {
 
     const withdraw = async (asset: string, amount: number | string, to?: string) => {
         try {
+            if (blockchain === 'solana') {
+                if (!Provider) throw new Error("No provider")
+
+                const configResponse = await fetch('https://api.castle.finance/configs')
+                const vaults = (await configResponse.json()) as any
+                const vault = vaults.find(
+                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+                )
+
+                const vaultClient = await VaultClient.load(
+                    Provider as any,
+                    vault.vault_id,
+                    vault.deploymentEnv
+                )
+                
+                await vaultClient.withdraw(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount)
+
+                return
+            }
             setLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
@@ -251,6 +290,72 @@ export default function useLending() {
 
     const getSingleInitialUserData = async (currency: AltCoins) => {
         try {
+            if (blockchain === 'solana') {
+                if (!Provider) throw new Error("No provider")
+
+                const configResponse = await fetch('https://api.castle.finance/configs')
+                const vaults = (await configResponse.json()) as any
+                const vault = vaults.find(
+                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+                )
+
+                const vaultClient = await VaultClient.load(
+                    Provider as any,
+                    vault.vault_id,
+                    vault.deploymentEnv
+                )
+
+                let lendingUserData: LendingUserComponentData = {
+                    apy: (await vaultClient.getApy()).toNumber() * 100,
+                    availableBorrow: "0",
+                    averageStableBorrowRate: 0,
+                    currency: SolanaCoins.USDC,
+                    currencyPrice: currencies["USDC"].price.toString(),
+                    lendingBalance: (await vaultClient.getUserValue(new PublicKey(Address!))).getAmount(),
+                    loanBalance: 0,
+                    walletBalance: 0,
+                    userData: {
+                        currentATokenBalance: "0",
+                        currentStableDebt: "0",
+                        currentVariableDebt: "0",
+                        liquidityRate: "0",
+                        principalStableDebt: "0",
+                        scaledVariableDebt: "0",
+                        stableBorrowRate: "0",
+                        stableRateLastUpdated: "0",
+                        usageAsCollateralEnabled: false,
+                    },
+                    coinData: {
+                        availableLiquidity: "0",
+                        rawAvailableLiquidity: "0",
+                        totalStableDebt: "0",
+                        totalVariableDebt: "0",
+                        liquidityRate: "0",
+                        rawLiquidityRate: "0",
+                        variableBorrowRate: "0",
+                        stableBorrowRate: "0",
+                        averageStableBorrowRate: "0",
+                        liquidityIndex: "0",
+                        variableBorrowIndex: "0",
+                        lastUpdateTimestamp: "0",
+                        coinReserveConfig: {
+                            Decimals: 0,
+                            LoanToValue: "0",
+                            LiquidationThreshold: "0",
+                            LiquidationBonus: "0",
+                            ReserveFactor: "0",
+                            CollateralEnabled: false,
+                            BorrowingEnabled: false,
+                            StableEnabled: false,
+                            Active: false,
+                            Frozen: false,
+                        },
+                    }
+                };
+
+
+                return lendingUserData
+            }
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
@@ -289,7 +394,9 @@ export default function useLending() {
         }
     }
 
-    const getBorrowInfo = async (borrowAmount: number, currency: AltCoins): Promise<LendingBorrowStatus> => {
+    const getBorrowInfo = async (borrowAmount: number, currency: AltCoins): Promise<LendingBorrowStatus | null> => {
+        if (blockchain === 'solana') return null;
+
         const collaterals = MoolaUserData.map((userData) => (
             {
                 currency: userData.currency,
@@ -336,27 +443,19 @@ export default function useLending() {
 
     const InitializeUser = async () => {
         try {
-            if (blockchain === "solana") {
+            if (blockchain === 'solana') {
                 setInitLaoding(true)
-                if (!Provider) throw new Error("No provider")
-                const configResponse = await fetch('https://api.castle.finance/configs')
-                const vaults = (await configResponse.json()) as any
-                const vault = vaults.find(
-                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
-                )
 
-                const vaultClient = await VaultClient.load(
-                    Provider as any,
-                    vault.vault_id,
-                    vault.deploymentEnv
-                )
-
-                
-
-                return 
+                const data = await getSingleInitialUserData(SolanaCoins.USDC)
+                console.log(data)
+                setTimeout(() => {
+                    dispatch(updateData([data]))
+                }, 1000)
+                setInitLaoding(false)
+                return [data];
             }
 
-            if (moolaData.length === 0) setInitLaoding(true)
+            if (MoolaUserData.length === 0) setInitLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
@@ -374,7 +473,7 @@ export default function useLending() {
                     console.error(error.message)
                 }
             }
-            if (moolaData.length === 0) setInitLaoding(false)
+            if (MoolaUserData.length === 0) setInitLaoding(false)
             setTimeout(() => {
                 dispatch(updateData(userData))
             }, 1000)

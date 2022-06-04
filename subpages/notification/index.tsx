@@ -10,7 +10,7 @@ import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
 import { motion, AnimatePresence } from "framer-motion"
 import { TransactionTypeDeclare } from "utils";
-import { MoolaType } from "apiHooks/useLending";
+import { LendingType } from "apiHooks/useLending";
 import { useModalSideExit } from "hooks";
 import Link from "next/link";
 
@@ -64,7 +64,7 @@ const NotificationCointainer = () => {
 
         if ([ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit, ERC20MethodIds.moolaRepay, ERC20MethodIds.moolaWithdraw].includes(tx.id)) {
             const transaction = tx as ITransfer;
-            return `${MoolaType(type.toLowerCase())} ${transaction.coin.name} ${fromWei(transaction.amount)}`
+            return `${LendingType(type.toLowerCase())} ${transaction.coin.name} ${fromWei(transaction.amount)}`
         }
 
         if (ERC20MethodIds.batchRequest === tx.id) {

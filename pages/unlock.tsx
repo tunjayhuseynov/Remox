@@ -1,7 +1,9 @@
 import Button from "components/button";
 import { useSignInOrUp, useWalletKit } from "hooks";
+import useOneClickSign from "hooks/walletSDK/useOneClickSign";
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { removeStorage } from "redux/reducers/storage";
@@ -12,10 +14,14 @@ import { ToastRun } from "utils/toast";
 
 const Unlock = () => {
     const { Address, Disconnect, Connected, setBlockchainAuto } = useWalletKit();
-    const { executeSign, isLoading } = useSignInOrUp()
+    // const { executeSign, isLoading } = useSignInOrUp()
+    const { processSigning } = useOneClickSign()
     const dispatch = useAppDispatch();
     const inputRef = useRef<HTMLInputElement>(null)
-    const dark = useAppSelector(selectDarkMode)
+    const dark = useSelector(selectDarkMode)
+
+    const [Dark, setDark] = useState<boolean | null>(null)
+    useEffect(() => setDark(dark), [dark])
 
     const router = useRouter()
     const { search } = router.query as { search: string | undefined }
@@ -32,7 +38,8 @@ const Unlock = () => {
             setIncorrect(false);
 
             try {
-                await executeSign(Address, inputRef.current.value)
+                // await executeSign(Address, inputRef.current.value)
+                await processSigning(Address!, inputRef.current.value)
                 setBlockchainAuto()
                 dispatch(setUnlock(true))
                 router.push(search && search.split("=")[1].includes("/dashboard") ? search.split("=")[1] : '/dashboard');
@@ -50,7 +57,7 @@ const Unlock = () => {
     return <>
         <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
-                <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
+                <img src={!Dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
         <section className="flex flex-col justify-center items-center h-screen gap-16 min-w-[300px]">
@@ -75,7 +82,7 @@ const Unlock = () => {
                         await Disconnect()
                         router.push('/')
                     }}>Logout</Button>
-                    <Button onClick={Submit} className="px-5 !py-2 w-32" isLoading={isLoading}>Login</Button>
+                    <Button onClick={Submit} className="px-5 !py-2 w-32" isLoading={false}>Login</Button>
                 </div>
             </div>
         </section>
