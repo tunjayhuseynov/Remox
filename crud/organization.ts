@@ -1,7 +1,7 @@
 import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase"
-import { IAccount, IOrganization } from "firebaseConfig"
+import { IAccount, IBudgetExercise, IOrganization } from "firebaseConfig"
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account"
-import { Get_Budget_Exercise } from "./budget_exercise"
+import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise"
 import { Get_Individual } from "./individual"
 
 export const organizationCollectionName = "organizations"
@@ -43,6 +43,9 @@ export const Update_Organization = async (organization: IOrganization) => {
     for (let account of organization.organizationAccounts) {
         await Create_Account(account as IAccount);
         account = Get_Account_Ref(account.id);
+    }
+    for (let exercise of organization.budget_execrises) {
+        exercise = Get_Budget_Exercise_Ref(exercise.id);
     }
     await FirestoreWrite<IOrganization>().updateDoc(organizationCollectionName, organization.id, organization)
     return organization;

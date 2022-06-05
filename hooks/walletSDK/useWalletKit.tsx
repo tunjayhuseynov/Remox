@@ -74,7 +74,7 @@ export default function useWalletKit() {
         return fromLamport;
     }, [blockchain])
 
-    const signMessageInWallet = async (nonce: number) => {
+    const signMessageInWallet = useCallback(async (nonce: number) => {
         if (blockchain === "celo") {
             const signature = await kit.web3.eth.personal.sign(GetSignedMessage(nonce), Address!, "");
             return {
@@ -89,7 +89,7 @@ export default function useWalletKit() {
             publicKey: Address!,
             signature: new TextDecoder().decode(signature)
         }
-    }
+    }, [blockchain, kit])
 
     const GetCoins = useMemo(() => {
         if (blockchain === "celo") {

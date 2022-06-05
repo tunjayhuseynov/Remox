@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { SelectOrderBalance } from 'redux/reducers/currencies';
+import { IBalanceItem, SelectOrderBalance } from 'redux/reducers/currencies';
 import { useAppSelector } from 'redux/hooks';
 import CoinItem from './coinitem';
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
@@ -8,7 +8,7 @@ import { Chart as ChartJs } from 'chart.js';
 import Chartjs from "components/general/chart";
 import useModalSideExit from 'hooks/useModalSideExit';
 import { useSelector } from "react-redux";
-import { SelectAccountStats } from "redux/reducers/accountstats";
+import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import Loader from "components/Loader";
 import LineChart from "components/general/Linechart";
 import Button from "components/button";
@@ -18,19 +18,23 @@ import EditWallet from "./editWallet";
 import DeleteWallet from "./deleteWallet";
 import NewWalletModal from "./newWalletModal";
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import useNextSelector from "hooks/useNextSelector";
+import { selectStorage } from "redux/reducers/storage";
 
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
-    const orderBalance = useAppSelector(SelectOrderBalance)
+    const selectedAccount = useNextSelector(SelectSelectedAccount)
+    const orderBalance = useNextSelector(SelectOrderBalance)
+    const dark = useNextSelector(selectDarkMode)
+    const storage = useNextSelector(selectStorage)
+    const stats = useNextSelector(SelectRawStats)
 
     const [modalVisible, setModalVisible] = useState(false)
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [walletModal, setWalletModal] = useState(false)
     const [details, setDetails] = useState(false)
-    const dark = useAppSelector(selectDarkMode)
-    const [orderBalance4, setOrderBalance] = useState(orderBalance.slice(0, 3))
+    const [orderBalance4, setOrderBalance] = useState<IBalanceItem[]>([])
     const [selectcoin, setSelectcoin] = useState<string>("")
 
     // const [data, setData] = useState({
@@ -46,7 +50,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     //     ],
     // });
 
-    const [data, setData]= useState({})
+    const [data, setData] = useState({})
 
     const chartjs = useRef<ChartJs>(null)
 
@@ -54,14 +58,12 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
 
 
     useEffect(() => {
-        setOrderBalance(orderBalance.slice(0, 3))
+        setOrderBalance(orderBalance?.slice(0, 3) ?? [])
     }, [orderBalance])
 
     const {
         isLoading,
         totalBalance: balance,
-        lastIn,
-        lastOut,
         TotalBalancePercentage: percent
     } = useSelector(SelectAccountStats)
 
@@ -83,7 +85,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
         }
     }, [selectcoin])
 
- 
+
 
     // useEffect(() => {
     //     if (orderBalance4 !== undefined) {
@@ -115,7 +117,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
 
 
     return <>
-            {
+        {
             modalEditVisible && <Modal onDisable={setModalEditVisible} disableX={true} className={'!pt-4 !w-[43%]'}>
                 <EditWallet onDisable={setModalEditVisible} />
             </Modal>
@@ -125,28 +127,28 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 <DeleteWallet onDisable={setDeleteModal} />
             </Modal>
         }
-                {
+        {
             walletModal && <Modal onDisable={setWalletModal} disableX={true} className={'!pt-4 !z-[99] !w-[43%]'}>
                 <NewWalletModal onDisable={setWalletModal} />
             </Modal>
         }
         <div className="flex flex-col gap-5 h-full w-full ">
-            <div className="text-4xl font-semibold text-left">Welcome, Orkhan</div>
+            <div className="text-4xl font-semibold text-left">Welcome, {storage?.name ?? "Remox user"}</div>
             <div className="bg-white rounded-lg shadow">
-            <div className="w-full px-12 pt-5 flex justify-between">
-            <div className="  flex flex-col gap-1">
-                <div className=" font-medium text-lg text-greylish text-opacity-40 tracking-wide">Total Treasury Value</div>
-                <div className="text-4xl font-semibold">$500.000</div>
-            </div>
-            <div className="flex gap-3 pt-6"> <span className="hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide">1W</span><span className=" hover:text-primary cursor-pointer text-greylish  text-opacity-40 tracking-wide">1M</span><span className="text-greylish hover:text-primary cursor-pointer text-opacity-40 tracking-wide">3M</span><span className=" hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide">1Y</span></div>
-            </div>
-            {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
-                <div className="w-full h-full flex items-center justify-center"><LineChart data={data} type={'area'} /></div>
+                <div className="dark:bg-darkSecond  w-full px-12 pt-5 flex justify-between">
+                    <div className="flex flex-col gap-1">
+                        <div className=" font-medium text-lg text-greylish dark:text-white text-opacity-40 tracking-wide">Total Treasury Value</div>
+                        <div className="text-4xl font-semibold">$500.000</div>
+                    </div>
+                    <div className="flex gap-3 pt-6"> <span className="hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide">1W</span><span className=" hover:text-primary cursor-pointer text-greylish  text-opacity-40 tracking-wide">1M</span><span className="text-greylish hover:text-primary cursor-pointer text-opacity-40 tracking-wide">3M</span><span className=" hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide">1Y</span></div>
+                </div>
+                {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
+                <div className="w-full h-full flex items-center justify-center"><LineChart data={stats?.TotalBalanceByDay.year ?? {}} type={'area'} /></div>
             </div>
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
                 <div className="flex justify-between w-full">
                     <div className="text-2xl font-semibold">Connected Wallets</div>
-                    <Button className="text-xs sm:text-base !py-0 !px-8 rounded-xl" onClick={() =>{setWalletModal(!walletModal)}}>+ Add Wallet</Button>
+                    <Button className="text-xs sm:text-base !py-0 !px-8 rounded-xl" onClick={() => { setWalletModal(!walletModal) }}>+ Add Wallet</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
                     <div className="w-full shadow-custom  pt-4  rounded-xl bg-white dark:bg-darkSecond min-w-[50%]">
@@ -157,12 +159,12 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                                         <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
                                         <div className="flex flex-col">
                                             <div className="font-semibold">Treasury Valut 0</div>
-                                            <div className="text-sm text-greylish ">{AddressReducer(selectedAccount)}</div>
+                                            <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? "")}</div>
                                         </div>
                                     </div>
                                     <div onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish flex "><span className="rotate-90">...</span>
-                                    {details && <div className="flex flex-col   bg-white absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
-                                            <div className="cursor-pointer  text-sm  items-start    w-full pl-3  py-2 gap-3" onClick={() => {
+                                        {details && <div className="flex flex-col   bg-white absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
+                                            <div className="cursor-pointer  text-sm  items-start  w-full pl-3  py-2 gap-3" onClick={() => {
                                                 setModalEditVisible(true)
                                                 setModalVisible(false)
                                             }}>
@@ -172,7 +174,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                                                 setDeleteModal(true)
                                                 setModalVisible(false)
                                             }}>
-                                               <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-4 h-4" alt="" /> <span>Delete</span></div>
+                                                <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-4 h-4" alt="" /> <span>Delete</span></div>
                                             </div>
                                         </div>}
                                     </div>
@@ -193,7 +195,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-[75%] ">
+                                <div className="w-[75%]">
                                     {
                                         balance && orderBalance4 !== undefined ?
                                             <div className="flex flex-col  w-full" ref={customRef}>
@@ -227,11 +229,11 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                                         <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
                                         <div className="flex flex-col">
                                             <div className="font-semibold">Treasury Valut 0</div>
-                                            <div className="text-sm text-greylish ">{AddressReducer(selectedAccount)}</div>
+                                            <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? '')}</div>
                                         </div>
                                     </div>
-                                    <div onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish flex "><span className="rotate-90">...</span>
-                                    {details && <div className="flex flex-col   bg-white absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
+                                    <div onClick={() => { setDetails(!details) }} className="relative cursor-pointer h-7 w-7 text-2xl m-0 font-bold text-greylish flex "><span className="rotate-90">...</span>
+                                        {details && <div className="flex flex-col   bg-white absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
                                             <div className="cursor-pointer  text-sm  items-start    w-full pl-3  py-2 gap-3" onClick={() => {
                                                 setModalEditVisible(true)
                                                 setModalVisible(false)
@@ -242,7 +244,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                                                 setDeleteModal(true)
                                                 setModalVisible(false)
                                             }}>
-                                               <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-4 h-4" alt="" /> <span>Delete</span></div>
+                                                <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-4 h-4" alt="" /> <span>Delete</span></div>
                                             </div>
                                         </div>}
                                     </div>
@@ -290,7 +292,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
 

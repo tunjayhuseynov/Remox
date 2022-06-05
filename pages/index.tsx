@@ -13,11 +13,12 @@ import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { changeAccount, changeExisting, } from 'redux/reducers/selectedAccount';
 import { isIndividualExisting } from 'hooks/singingProcess/utils';
+import useLoading from 'hooks/useLoading';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
   const { processSigning } = useOneClickSign()
-  const { search, isLoading } = useFirestoreSearchField()
+  const { search } = useFirestoreSearchField()
   const dark = useAppSelector(selectDarkMode)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
@@ -73,6 +74,9 @@ const Home = () => {
     }
   }
 
+  const [isLoading, ConnectEvent] = useLoading(connectEvent)
+  
+
   return <>
     <section className="flex justify-center items-center w-full h-screen">
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
@@ -82,7 +86,7 @@ const Home = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
           <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected} list={[{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]} />
-          {<Button onClick={connectEvent} isLoading={isLoading}>{address ? "Enter App" : "Connect to a wallet"}</Button>}
+          {<Button onClick={ConnectEvent} isLoading={isLoading}>{address ? "Enter App" : "Connect to a wallet"}</Button>}
         </div>
       </div>
     </section>

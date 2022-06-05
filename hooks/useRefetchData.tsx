@@ -5,7 +5,7 @@ import { setContributors } from 'redux/reducers/contributors'
 import useCurrency from '../apiHooks/useCurrency'
 import { IBalanceMembers, setOrderBalance, updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/reducers/currencies'
 import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
-import { SelectParsedTransactions, setParsedTransactions, setTransactions } from '../redux/reducers/transactions'
+import { setParsedTransactions } from '../redux/reducers/transactions'
 import useRequest from 'apiHooks/useRequest'
 import { addRequests } from 'redux/reducers/requests'
 import { useListenTags } from 'apiHooks/useTags'
@@ -17,6 +17,7 @@ import { setAccountStats } from 'redux/reducers/accountstats'
 import { useLazyGetAccountBalancePriceQuery, useLazyGetAccountTransactionsQuery } from 'redux/api'
 import { auth } from 'firebaseConfig'
 import useNextSelector from './useNextSelector'
+import useAsyncEffect from './useAsyncEffect'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
@@ -48,20 +49,10 @@ const useRefetchData = () => {
     //     }
     // }, [selectedAccount])
 
-    useEffect(() => {
-        if (!insight.isLoading) {
-            dispatch(setAccountStats(insight))
-        }
-    }, [insight])
+    useEffect(() => { if (!insight.isLoading) dispatch(setAccountStats(insight)) }, [insight])
 
 
-    useEffect(() => {
-        if (data) {
-            setTimeout(() => {
-                dispatch(addRequests(data!.requests))
-            }, 1500)
-        }
-    }, [data])
+    useEffect(() => { if (data) setTimeout(() => { dispatch(addRequests(data!.requests)) }, 1500) }, [data])
 
     useEffect(() => {
         if (txs && txs.length > 0) {
@@ -70,13 +61,7 @@ const useRefetchData = () => {
         }
     }, [txs])
 
-    useEffect(() => {
-        if (contributors) {
-            setTimeout(() => {
-                dispatch(setContributors({ data: contributors }))
-            }, 1500)
-        }
-    }, [contributors])
+    useEffect(() => { if (contributors) setTimeout(() => { dispatch(setContributors({ data: contributors })) }, 1500) }, [contributors])
 
     useEffect(() => {
         if (tagData && tagData?.tags && tagData?.tags.length > 0) {
@@ -86,22 +71,19 @@ const useRefetchData = () => {
         }
     }, [tagData])
 
-    useEffect(() => {
+    useAsyncEffect(async () => {
         if (selectedAccount) {
-            balanceFetch({ addresses: [selectedAccount], blockchain: blockchain }).unwrap().then(response => {
-                const prices = response.AllPrices
-                const totalBalance = response.TotalBalance
-                dispatch(updateTotalBalance(totalBalance))
-                dispatch(updateUserBalance(prices))
-                dispatch(setOrderBalance(Object.values(prices as IBalanceMembers).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString()))))
-                setBalanceDone(true)
-            })
+            const response = await balanceFetch({ addresses: [selectedAccount], blockchain: blockchain }).unwrap();
+            const prices = response.AllPrices
+            const totalBalance = response.TotalBalance
+            dispatch(updateTotalBalance(totalBalance))
+            dispatch(updateUserBalance(prices))
+            dispatch(setOrderBalance(Object.values(prices as IBalanceMembers).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString()))))
+            setBalanceDone(true)
         }
     }, [selectedAccount])
 
-    useEffect(() => {
-        fetching()
-    }, [fetchedCurrencies, selectedAccount])
+    useEffect(() => { fetching() }, [fetchedCurrencies, selectedAccount])
 
     const fetching = async () => {
         if (fetchedCurrencies && fetchedCurrencies.length > 0) {

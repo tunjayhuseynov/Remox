@@ -15,11 +15,13 @@ import Network from './reducers/network';
 import Masspay from './reducers/masspay';
 import Stats from './reducers/accountstats';
 import PayInputs from './reducers/payinput';
+import Budgets from './reducers/budgets';
 import { BlockScoutApi, RemoxApi } from './api';
 
 const store = configureStore({
 	reducer: {
 		tags: Tags,
+		budgets: Budgets,
 		currencyandbalance: Currency,
 		notification: Notification,
 		storage: Storage,

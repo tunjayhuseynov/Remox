@@ -23,16 +23,21 @@ export interface IUser {
 
 export interface IBudgetExercise {
     id: string;
+    parentId: string;
+    parentType: "organization" | "individual"
     name: string;
     from: number;
     to: number;
     budgets: DocumentReference[] | IBudget[];
+
+    blockchain: BlockChainTypes;
 
     created_at: number;
 }
 
 export interface IBudget {
     id: string;
+    parentId: string;
     name: string;
     token: string;
     amount: number;
@@ -47,6 +52,7 @@ export interface IBudget {
 
 export interface ISubBudget {
     id: string;
+    parentId: string;
     name: string;
     token: string;
     amount: number;

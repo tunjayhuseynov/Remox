@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
+import { IBudgetExercise } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { IPriceResponse } from "pages/api/calculation/price";
 import { ISpendingResponse } from "pages/api/calculation/spending";
@@ -25,7 +26,12 @@ export const RemoxApi = createApi({
             query: (data) => ({
                 url: `api/calculation/spending?addresses[]=${data.addresses.join('&addresses[]=')}&blockchain=${data.blockchain}&id=${data.authId}`,
             })
-        })
+        }),
+        getAccountBudget: builder.query<IBudgetExercise[], Params>({
+            query: (data) => ({
+                url: `api/budget?addresses[]=${data.addresses.join('&addresses[]=')}&blockchain=${data.blockchain}&id=${data.authId}`,
+            })
+        }),
     })
 })
 
