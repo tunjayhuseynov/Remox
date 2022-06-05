@@ -57,7 +57,7 @@ const Unlock = () => {
     return <>
         <header className="flex md:px-40 h-[75px] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
-                <img src={!Dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
+                <img src={Dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
             </div>
         </header>
         <section className="flex flex-col justify-center items-center h-screen gap-16 min-w-[300px]">
