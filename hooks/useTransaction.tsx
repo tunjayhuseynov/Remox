@@ -1,12 +1,13 @@
 import { getAuth } from "firebase/auth";
+import { auth } from "firebaseConfig";
 import { useEffect, useState } from "react";
 import { useLazyGetAccountTransactionsQuery } from "redux/api/remox";
+import useAsyncEffect from "./useAsyncEffect";
 import { IFormattedTransaction } from "./useTransactionProcess";
 import useWalletKit from "./walletSDK/useWalletKit";
 
 export default function useTransaction(accounts: string[]) {
     const { blockchain } = useWalletKit()
-    const auth = getAuth()
     const [fetch] = useLazyGetAccountTransactionsQuery()
 
     const MultipleTransaction = async () => {
@@ -21,18 +22,15 @@ export default function useTransaction(accounts: string[]) {
     const [txs, setTxs] = useState<IFormattedTransaction[]>()
 
 
-    useEffect(() => {
-        (
-            async () => {
-                try {
-                    const txs = await MultipleTransaction()
-                    setTxs(txs)
-                } catch (error) {
-                    console.error(error)
-                    setTxs([])
-                }
-            }
-        )()
+    useAsyncEffect(async () => {
+        try {
+            if (accounts.length === 0) throw new Error("No accounts")
+            const txs = await MultipleTransaction()
+            setTxs(txs)
+        } catch (error) {
+            console.error(error)
+            setTxs([])
+        }
     }, [accounts])
 
     return { MultipleTransaction, list: txs }
