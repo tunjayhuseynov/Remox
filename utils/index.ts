@@ -3,7 +3,7 @@ import { TransactionDirection, TransactionType } from "types";
 
 export const AddressReducer = (address: string) => {
 	return address.split('').reduce((a, c, i, arr) => {
-		return i < 5 || arr.length - i < 4 ? a + c : a.split('.').length - 1 < 4 ? a + '.' : a;
+		return i < 6 || arr.length - i < 5 ? a + c : a.split('.').length - 1 < 4 ? a + '.' : a;
 	}, '');
 };
 
