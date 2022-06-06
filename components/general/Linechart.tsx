@@ -1,83 +1,47 @@
-// import { Line } from 'react-chartjs-2';
-// import {Chart as ChartJS, Title, Tooltip, LineElement, Legend, CategoryScale, LinearScale, PointElement, Filler} from 'chart.js';
-// ChartJS.register(
-//   Title, Tooltip, LineElement, Legend,
-//   CategoryScale, LinearScale, PointElement, Filler
-// )
-
+import useNextSelector from 'hooks/useNextSelector';
 import dynamic from 'next/dynamic';
-import React, { useState } from 'react'
+import { IFlowDetail } from 'pages/api/calculation/spending';
+import { selectDarkMode } from 'redux/reducers/notificationSlice';
 
 const ReactApexChart = dynamic(
   () => import('react-apexcharts'),
   { ssr: false }
 );
 
-function LineChart({ data,type }: { data: any,type:string }) {
-
+function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: string }) {
+  const dark = useNextSelector(selectDarkMode)
 
   const series = [
     {
-      name: "Cases",
+      name: "Value",
       data: [
-        3845718,
-        5557415,
-        1203228,
-        6907340,
-        3343777,
-        8836549,
-        1674466,
-        9324638,
-        2055423,
-       
-        
+        ...Object.values(data),
       ],
 
     },
 
   ];
   const options: ApexCharts.ApexOptions = {
+    theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
-    grid: {
-      show: false,
-    },
+    grid: { show: false },
     legend: {
       show: false,
       showForSingleSeries: false,
       showForNullSeries: false,
       showForZeroSeries: false,
     },
-    yaxis: {
-      show: false,
-    },
+    yaxis: { show: false },
     chart: {
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: false
-      }
+      toolbar: { show: false },
+      zoom: { enabled: false }
     },
-
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      curve: "smooth",
-    },
-
+    dataLabels: { enabled: false },
+    stroke: { curve: "smooth" },
     xaxis: {
       type: "datetime",
       categories: [
-        "1/22/20",
-        "2/1/20",
-        "2/15/20",
-        "3/1/20",
-        "3/15/20",
-        "4/1/20",
-        "4/15/20",
-        "5/1/20",
-        "5/7/20",
+        ...Object.keys(data),
       ],
     },
   };

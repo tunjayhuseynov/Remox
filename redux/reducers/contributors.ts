@@ -20,19 +20,7 @@ export const contributorSlice = createSlice({
 		setContributors: (state, action: { payload: { data: IuseContributor[]; secretKey?: string } }) => {
 			if (action.payload.secretKey !== undefined) {
 				const teams = action.payload.data.map((contributor) => ({
-					...contributor,
-					members: contributor.members.map((member) => {
-						return {
-							...member,
-							name: decryptMessage(member.name, action.payload.secretKey),
-							amount: decryptMessage(member.amount, action.payload.secretKey),
-							secondaryAmount: member.secondaryAmount
-								? decryptMessage(member.secondaryAmount, action.payload.secretKey)
-								: null,
-							address: decryptMessage(member.address, action.payload.secretKey),
-							execution: decryptMessage(member.execution, action.payload.secretKey)
-						};
-					})
+					...contributor
 				}));
 				state.contributors = teams;
 				if (!state.isFetched) {

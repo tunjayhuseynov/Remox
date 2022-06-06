@@ -5,63 +5,83 @@ import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
 import { useFirestoreSearchField } from 'apiHooks/useFirebase';
-import { IUser } from 'firebaseConfig';
-import { useWalletKit, useAuth } from 'hooks'
-import { AddressReducer } from "utils";
+import { auth, IUser } from 'firebaseConfig';
+import { useWalletKit } from 'hooks'
+import { useSelector } from 'react-redux';
+import { changeAccount, changeExisting, SelectExisting } from 'redux/reducers/selectedAccount';
+import { useDispatch } from 'react-redux';
+import { setStorage } from 'redux/reducers/storage';
+import { Get_Individual } from 'crud/individual';
+import { AddressReducer } from 'utils';
+import useNextSelector from 'hooks/useNextSelector';
+import useAsyncEffect from 'hooks/useAsyncEffect';
+import { isIndividualExisting } from 'hooks/singingProcess/utils';
+
 
 function ChooseType() {
+  const [isOrganisation, setOrganisation] = useState(false)
+  const [isIndividual, setIndividual] = useState(false)
   const dark = useAppSelector(selectDarkMode)
-  const [organisation, setOrganisation] = useState(false)
-  const [individual, setIndividual] = useState(false)
   const [organisation2, setOrganisation2] = useState(false)
   const [individual2, setIndividual2] = useState(false)
   const navigate = useRouter()
-  const { search, isLoading } = useFirestoreSearchField<IUser>()
-  const { Connect, Address } = useWalletKit();
+  // const { search } = useFirestoreSearchField()
+  const { Address } = useWalletKit();
+
+  const isUserExist = useNextSelector(SelectExisting)
+  const dispatch = useDispatch()
 
   const [address, setAddress] = useState<string | null>(null)
-  useEffect(() => setAddress(Address), [Address])
 
-  const createRouter = () => {
-    if (organisation2) {
-      navigate.push('/create-organisation')
-    } else if (individual2) {
-      navigate.push('/create-account')
+  useAsyncEffect(async () => {
+    if (Address) {
+      setAddress(Address)
+      if (!isUserExist) {
+        dispatch(changeAccount(Address!))
+        dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
+      }
+    } else navigate.push("/")
+  }, [Address])
+
+
+  const login = async () => {
+    if (isUserExist) {
+      const individual = await Get_Individual(auth.currentUser?.uid!)
+      if (isOrganisation) {
+        
+
+      } else if (isIndividual) {
+        dispatch(setStorage({
+          uid: auth.currentUser?.uid!,
+          lastSignedProviderAddress: Address!,
+          signType: "individual",
+          organization: null,
+          individual: individual
+        }))
+        navigate.push("/dashboard")
+      }
     }
   }
-  const login = () => {
-    if (address) {
-      search("users", 'address', address, "array-contains")
-        .then(user => {
-          if (user) {
-            navigate.push('/unlock')
-          } else {
-            navigate.push('/create-account')
-          }
 
-        })
-    }
-  }
-  createRouter()
 
-const data = [
-  {
-    name:"UbeSwap",
-    address: address  && AddressReducer(address),
-  },
-  {
-    name:"AriSwap",
-    address: address  && AddressReducer(address),
-  },
-  {
-    name:"Saber",
-    address: address  && AddressReducer(address),
-  },
-  {
-    name:"Zebec",
-    address: address  && AddressReducer(address),
-  },
-]
+  const data = [
+    {
+      name: "UbeSwap",
+      address: address && AddressReducer(address),
+    },
+    {
+      name: "AriSwap",
+      address: address && AddressReducer(address),
+    },
+    {
+      name: "Saber",
+      address: address && AddressReducer(address),
+    },
+    {
+      name: "Zebec",
+      address: address && AddressReducer(address),
+    },
+  ]
 
 
 
@@ -76,14 +96,14 @@ const data = [
       <div className="w-[40%] ">
         <div className="flex gap-8">
           {address ? <div className="h-full cursor-pointer border border-b-0 transition-all hover:transition-all   hover:border-primary rounded-lg w-full">
-            {data.map((i,id)=>{
-              return <div key={id} className={` ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id=== data.length- 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white hover:bg-light hover:border-primary py-3 px-3`}>
-              <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
-              <div className="flex  flex-col">
-                <p className="text-base">{i.name}</p>
-                <p className="text-sm text-greylish">{i.address}</p>
+            {data.map((i, id) => {
+              return <div key={id} className={` ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === data.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white hover:bg-light hover:border-primary py-3 px-3`}>
+                <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
+                <div className="flex  flex-col">
+                  <p className="text-base">{i.name}</p>
+                  <p className="text-sm text-greylish">{i.address}</p>
+                </div>
               </div>
-            </div>
             })}
             <Button className="w-full rounded-t-none !border-0" onClick={() => navigate.push('/create-organisation')}>Add Organisation</Button>
           </div>
@@ -92,17 +112,16 @@ const data = [
               <div className={`${organisation2 && "  text-primary"}  flex items-center text-xl justify-center font-bold py-4 px-4 dark:border-greylish`}>Add a new Organisation</div>
             </div>
           }
-          {address ? <div className={`${individual && " !border-primary "} border  hover:border-primary hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`}>
-          <div className={`    cursor-pointer  dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual(!individual); setOrganisation(false); }}>
-            <div className={`${individual && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>     
-          </div>
-         {individual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none" onClick={login}>Next  &gt;</Button>}
+          {address ? <div className={`${isIndividual && " !border-primary "} border  hover:border-primary hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`}>
+            <div className={`    cursor-pointer  dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual(!isIndividual); setOrganisation(false); }}>
+              <div className={`${isIndividual && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
+            </div>
+            {isIndividual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none" onClick={login}>Next  &gt;</Button>}
           </div> :
-           <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:border-primary hover:text-primary transition-all hover:transition-all    cursor-pointer  dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
-            <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>     
-          </div> }
+            <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:border-primary hover:text-primary transition-all hover:transition-all cursor-pointer dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
+              <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
+            </div>}
         </div>
-
       </div>
     </div>
   </div>

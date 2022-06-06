@@ -10,18 +10,16 @@ import DeleteBudget from 'subpages/dashboard/budgets/deleteBudgets';
 import AllBudgets from 'subpages/dashboard/budgets/allBudgets';
 
 const Budgets = () => {
+    
 
     const [newBudget, setNewBudget] = useState(false)
     const [editBudget, setEditBudget] = useState(false)
     const [delBudget, setDelBudget] = useState(false)
-    const [newModal, setNewModal] = useState(false)
-    const [newModal2, setNewModal2] = useState(false)
+    const [newBudgetModal, setNewBudgetModal] = useState(false)
     const [sign, setSign] = useState(false)
     const [exercise, setExercise] = useState(false)
     const [subBudgets, setSubBudgets] = useState<number>()
     const [isOpen, setOpen] = useState(false)
-
-
 
 
     return <div className="mb-6">
@@ -33,16 +31,17 @@ const Budgets = () => {
             </div>
             {!newBudget && <div className="text-primary cursor-pointer" onClick={() => { setExercise(true); }} ><span className="rounded-full border border-primary px-[.3rem]">+</span> Create a new budgetary exercise</div>}
             {
-                newModal2 && <Modal onDisable={setNewModal2} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewBudgets setNewBudget={setNewModal2} />
+                newBudgetModal &&
+                <Modal onDisable={setNewBudgetModal} disableX={true} className={'!w-[40%] !pt-4'}>
+                    <NewBudgets setNewBudget={setNewBudgetModal} />
                 </Modal>
             }
-            {exercise && <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
-                <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
-            </Modal>}
+            {exercise &&
+                <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
+                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
+                </Modal>}
             {sign && <>
                 <TotalValues />
-
                 <div className="w-full pt-2 pb-12 flex justify-between items-center">
                     <div className="w-[40%] text-xl">
                         <div className="relative w-full pt-5">
@@ -71,7 +70,7 @@ const Budgets = () => {
                         {subBudgets ? <div className="text-white border flex  items-center gap-2 border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setSubBudgets(0) }}> <img src="/icons/left_arrow.png" className="w-3 h-3" alt="" />  Back </div> : ""}
                         <div className="text-primary border border-primary px-3 py-2 rounded-xl cursor-pointer">Current Month</div>
                         <div className="text-primary border border-primary bg-red-100 px-9 py-2 rounded-xl cursor-pointer">Overall</div>
-                        {!subBudgets && <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setNewModal2(true) }}>Add Budget</div>}
+                        {!subBudgets && <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setNewBudgetModal(true) }}>Add Budget</div>}
                     </div>
                 </div>
                 <div className={` ${subBudgets ? "w-full" : "grid grid-cols-2 gap-12"}  `}>

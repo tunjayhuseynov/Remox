@@ -27,6 +27,7 @@ import { MultisigTxParser } from "utils/multisig";
 import BigNumber from "bignumber.js";
 import { SolanaCoins } from "types";
 import useSolanaProvider from "./useSolanaProvider";
+import useNextSelector from "hooks/useNextSelector";
 // import {
 //     Payment
 // } from 'batch-payment/src'
@@ -93,9 +94,9 @@ export type MultisigType = {
 export default function useMultisig() {
 
 
-    let selectedAccount = useSelector(SelectSelectedAccount)
-    const blockchain = useSelector(selectBlockchain)
-    const storage = useSelector(selectStorage)
+    let selectedAccount = useNextSelector(SelectSelectedAccount, "")
+    const blockchain = useNextSelector(selectBlockchain, "celo")
+    const storage = useNextSelector(selectStorage, null)
     const [isLoading, setLoading] = useState(false)
 
     const dispatch = useDispatch()
@@ -103,7 +104,7 @@ export default function useMultisig() {
 
     const { data } = useFirestoreRead<MultisigType>("multisigs", auth.currentUser?.uid ?? "")
 
-    const isMultisig = selectedAccount.toLowerCase() !== storage?.accountAddress.toLowerCase()
+    const isMultisig = selectedAccount?.toLowerCase() !== storage?.lastSignedProviderAddress.toLowerCase()
 
     //Celo
     const { address, kit } = useContractKit()
@@ -113,7 +114,7 @@ export default function useMultisig() {
     //solana
     const { connection } = useConnection();
     const { publicKey, signTransaction, signAllTransactions, sendTransaction } = useWallet();
-    const {Provider} = useSolanaProvider()
+    const { Provider } = useSolanaProvider()
 
 
     const initGokiSolana = async () => {

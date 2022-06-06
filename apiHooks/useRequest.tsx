@@ -2,6 +2,7 @@ import { CoinsName } from "types";
 import { useFirestoreRead } from "./useFirebase";
 import { useSelector } from "react-redux";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import useNextSelector from "hooks/useNextSelector";
 
 export interface IRequest {
     id: string;
@@ -33,9 +34,9 @@ export enum RequestStatus {
 
 export default function useRequest() {
 
-    const selectedAddress = useSelector(SelectSelectedAccount)
+    const selectedAddress = useNextSelector(SelectSelectedAccount)
 
-    let { data } = useFirestoreRead<{ requests: IRequest[] }>('requests', selectedAddress!.toLowerCase());
+    let { data } = useFirestoreRead<{ requests: IRequest[] }>('requests', selectedAddress?.toLowerCase() ?? "0");
 
     return { data };
 }

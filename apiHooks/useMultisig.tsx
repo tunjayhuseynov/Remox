@@ -14,6 +14,7 @@ import { DashboardContext } from 'layouts/dashboard';
 import useCeloPay, { PaymentInput } from './useCeloPay';
 import { Contracts } from './Contracts/Contracts';
 import { fromWei } from 'utils/ray';
+import useNextSelector from 'hooks/useNextSelector';
 
 
 export enum MultisigMethodIds {
@@ -40,11 +41,11 @@ export interface Transaction {
 }
 
 export default function useMultisig() {
-    let selectedAccount = useSelector(SelectSelectedAccount)
-    const storage = useSelector(selectStorage)
+    let selectedAccount = useNextSelector(SelectSelectedAccount, "")
+    const storage = useNextSelector(selectStorage, null)
     const { kit, address } = useContractKit()
     const [isLoading, setLoading] = useState(false)
-    const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser?.uid ?? "")
+    const { data } = useFirestoreRead<{ addresses: { name: string, address: string }[] }>("multisigs", auth.currentUser?.uid ?? "0")
     const [transactions, setTransactions] = useState<Transaction[]>()
     const { refetch } = useContext(DashboardContext) as { refetch: () => Promise<void> }
     const { GenerateBatchPay } = useCeloPay()
@@ -53,7 +54,7 @@ export default function useMultisig() {
 
     const dispatch = useDispatch()
 
-    const isMultisig = selectedAccount.toLowerCase() !== storage?.accountAddress.toLowerCase()
+    const isMultisig = selectedAccount.toLowerCase() !== storage?.lastSignedProviderAddress.toLowerCase()
 
     const FetchTransactions = async (multisigAddress: string, skip: number, take: number) => {
         setLoading(true)

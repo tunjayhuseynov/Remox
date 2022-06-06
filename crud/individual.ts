@@ -16,7 +16,7 @@ export const Get_Individual = async (id: string) => {
 
 export const Create_Individual = async (individual: IIndividual) => {
     for (let exercise of individual.budget_execrises) {
-        exercise = await Get_Budget_Exercise_Ref(exercise.id);
+        exercise = Get_Budget_Exercise_Ref(exercise.id);
     }
     await FirestoreWrite<IIndividual>().createDoc(individualCollectionName, individual.id, individual);
     return individual;

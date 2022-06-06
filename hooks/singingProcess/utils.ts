@@ -1,6 +1,6 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { PublicKey, Connection } from "@solana/web3.js"
-import { FirestoreReadMultiple, Indicator, UploadImage, useFirestoreSearchField } from "apiHooks/useFirebase"
+import { FirestoreRead, FirestoreReadMultiple, Indicator, UploadImage, useFirestoreSearchField } from "apiHooks/useFirebase"
 import axios from "axios"
 import { SolanaEndpoint } from "components/Wallet"
 import { individualCollectionName } from "crud/individual"
@@ -38,14 +38,17 @@ const nftOwner = async (nft: string, blockchain: BlockChainTypes, tokenId?: numb
     }
     throw new Error("No blockchain is selected")
 }
+
+
 export const isOldUser = async (address: string) => await isUserUsingOldVersion(address)
 
 export const isIndiviualRegistered = async (address: string) => await isIndividualExisting(address)
 
 export const isOrganisationRegistered = async (address: string, blockchain: BlockChainTypes) => await isOrganizationExisting(address, blockchain)
 
+
 export const isIndividualExisting = async (address: string) => {
-    return !!(await isAddressExisting<IIndividual>(individualCollectionName, [{ addressField: "addresses", address }]))
+    return !!(await FirestoreRead<IIndividual>(individualCollectionName, address))
 }
 
 export const isOrganizationExisting = async (name: string, blockchain: string) => {
@@ -94,4 +97,9 @@ export const UploadImageForUser = async (props: { image: Image | null, name: str
             }
         }
     }
+}
+
+export const isUserAllowToSystem = () => {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem("remoxUser")) return true;
+    return false;
 }

@@ -1,7 +1,7 @@
 import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase";
 import { IRegisteredIndividual } from "firebaseConfig";
 
-export const registeredIndividualCollectionName = "individuals"
+export const registeredIndividualCollectionName = "registrationIndividuals"
 
 export const Get_Registered_Individual = async (id: string) => {
     const individual = await FirestoreRead<IRegisteredIndividual>(registeredIndividualCollectionName, id)

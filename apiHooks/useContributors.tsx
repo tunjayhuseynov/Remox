@@ -3,6 +3,7 @@ import { CoinsName } from "types";
 import { selectStorage } from "redux/reducers/storage";
 import { useSelector } from "react-redux";
 import { FieldValue } from "firebase/firestore";
+import useNextSelector from "hooks/useNextSelector";
 
 export enum DateInterval {
   daily = "daily",
@@ -46,12 +47,12 @@ export interface IMember {
 }
 
 export default function useContributors() {
-  const storage = useSelector(selectStorage)
+  const storage = useNextSelector(selectStorage)
   const { data } = useFirestoreReadMultiple<IuseContributor>("contributors", [
     {
       firstQuery: "userId",
       condition: "==",
-      secondQuery: storage?.uid
+      secondQuery: storage?.uid ?? "0"
     }
   ]);
 

@@ -5,29 +5,31 @@ import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
 import { selectStorage } from "../redux/reducers/storage"
 import useMultisigner from 'hooks/walletSDK/useMultisig'
 import useMultiWallet from "./useMultiWallet"
+import useWalletKit from "./walletSDK/useWalletKit"
 
 const useMultisigProcess = () => {
     let selectedAccount = useSelector(SelectSelectedAccount)
     const storage = useSelector(selectStorage)
     const multiSlice = useSelector(selectMultisigTransactions)
     const { data } = useMultiWallet()
+    const { Address } = useWalletKit()
 
     const [owners, setOwners] = useState<string[]>()
     const [signAndInternal, setSignAndInternal] = useState<{
         sign: number;
         internalSigns: number;
     }>()
-    
+
 
     const { transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useMultisigner()
 
-    const isMultisig = selectedAccount.toLowerCase() !== storage?.accountAddress.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
+    const isMultisig = selectedAccount.toLowerCase() !== Address?.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
     const dispatch = useDispatch()
 
     const fetchTxs = useCallback((disabledTransactionDispatch = false, skip = 0, take = 10) => {
         if (!disabledTransactionDispatch) dispatch(setTransactions([]))
         FetchTransactions(selectedAccount, skip, take)
-        
+
     }, [isMultisig, selectedAccount])
 
     useEffect(() => {

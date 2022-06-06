@@ -3,18 +3,20 @@ import '@celo-tools/use-contractkit/lib/styles.css';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-toastify/dist/ReactToastify.css';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import dynamic from 'next/dynamic';
 import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux'
 import Wallet from 'components/Wallet'
 import store from 'redux/store';
 import { ReactElement, ReactNode } from 'react';
-import DashboardLayout from 'layouts/dashboard';
 import { NextPage } from 'next';
 import { ThemeProvider } from "next-themes";
 
 import App from 'layouts/App'
 import Guard from 'layouts/Guard';
 import Head from 'next/head';
+const DashboardLayout = dynamic(() => import('layouts/dashboard'))
+
 
 type NextPageWithLayout = NextPage & {
   disableLayout?: (page: ReactElement) => ReactNode

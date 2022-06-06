@@ -11,7 +11,7 @@ import admin from "firebase-admin";
 import serviceAccount from "firebaseConfig/account.json";
 import { doc, getDoc } from "firebase/firestore";
 import { getApp } from "firebase-admin/app";
-
+import { adminApp} from 'firebaseConfig/admin';
 
 export default async function handler(
     req: NextApiRequest,
@@ -32,32 +32,29 @@ export default async function handler(
             return;
         }
         
-        const app = admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount as any),
-            databaseURL: "https://remox-dao-default-rtdb.firebaseio.com"
-        }, "admin");
+        
 
         // const inds = await FirestoreRead<IRegisteredIndividual>(registeredIndividualCollectionName, publicKey as string)
 
-        const ss = await app.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
+        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
         const inds = ss.data() as IRegisteredIndividual | undefined;
         if (!inds) {
             const nonce = Math.round(Math.random() * 10000000);
             const password = Process(publicKey as string);
             let user;
             if (id) {
-                user = await app.auth().updateUser(id as string, {
+                user = await adminApp.auth().updateUser(id as string, {
                     email: `${publicKey}Remox@gmail.com`,
                     password
                 })
             } else {
-                user = await app.auth().createUser({
+                user = await adminApp.auth().createUser({
                     email: `${publicKey}Remox@gmail.com`,
                     password
                 })
             }
 
-            await app.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).set({
+            await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).set({
                 id: user.uid,
                 address: publicKey as string,
                 nonce,
@@ -75,12 +72,13 @@ export default async function handler(
             //     password,
             //     created_date: GetTime()
             // })
-            return nonce;
+            return res.status(200).send(nonce);
         }
 
-        return inds.nonce;
-    } catch (error) {
+        return res.status(200).send(inds.nonce);
+    } catch (error: any) {
         console.error(error)
+        res.status(500).json({error: error.message})
     }
 
 }

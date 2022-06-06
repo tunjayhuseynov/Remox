@@ -1,14 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { SelectOrderBalance } from 'redux/reducers/currencies';
-import { useAppSelector } from 'redux/hooks';
+import { IBalanceItem, SelectOrderBalance } from 'redux/reducers/currencies';
 import CoinItem from './coinitem';
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { Chart as ChartJs } from 'chart.js';
-import Chartjs from "components/general/chart";
 import useModalSideExit from 'hooks/useModalSideExit';
 import { useSelector } from "react-redux";
-import { SelectAccountStats } from "redux/reducers/accountstats";
+import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import Loader from "components/Loader";
 import LineChart from "components/general/Linechart";
 import Button from "components/button";
@@ -18,21 +16,25 @@ import EditWallet from "./editWallet";
 import DeleteWallet from "./deleteWallet";
 import NewWalletModal from "./newWalletModal";
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import useNextSelector from "hooks/useNextSelector";
+import { selectStorage } from "redux/reducers/storage";
 
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
-    const orderBalance = useAppSelector(SelectOrderBalance)
+    const selectedAccount = useNextSelector(SelectSelectedAccount)
+    const orderBalance = useNextSelector(SelectOrderBalance)
+    const dark = useNextSelector(selectDarkMode)
+    const storage = useNextSelector(selectStorage)
+    const stats = useNextSelector(SelectRawStats)
 
     const [modalVisible, setModalVisible] = useState(false)
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [walletModal, setWalletModal] = useState(false)
     const [details, setDetails] = useState(false)
-    const [chartDate, setChartDate] = useState("")
-    const dark = useAppSelector(selectDarkMode)
-    const [orderBalance4, setOrderBalance] = useState(orderBalance.slice(0, 3))
+    const [orderBalance4, setOrderBalance] = useState<IBalanceItem[]>([])
     const [selectcoin, setSelectcoin] = useState<string>("")
+    const [chartDate, setChartDate] = useState("")
 
     // const [data, setData] = useState({
     //     datasets: [{
@@ -47,7 +49,6 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     //     ],
     // });
 
-    const [data, setData] = useState({})
 
     const chartjs = useRef<ChartJs>(null)
 
@@ -55,14 +56,12 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
 
 
     useEffect(() => {
-        setOrderBalance(orderBalance.slice(0, 3))
+        setOrderBalance(orderBalance?.slice(0, 3) ?? [])
     }, [orderBalance])
 
     const {
         isLoading,
         totalBalance: balance,
-        lastIn,
-        lastOut,
         TotalBalancePercentage: percent
     } = useSelector(SelectAccountStats)
 
@@ -160,7 +159,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                          </div>
                 </div>
                 {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
-                <div className="w-full h-full flex items-center justify-center"><LineChart data={data} type={'area'} /></div>
+                <div className="w-full h-full flex items-center justify-center"><LineChart data={stats?.TotalBalanceByDay.year ?? {}} type={'area'} /></div>
             </div>
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
                 <div className="flex justify-between w-full">
@@ -177,7 +176,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                                             <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
                                             <div className="flex flex-col">
                                                 <div className="font-semibold">{item.walletName}</div>
-                                                <div className="text-sm text-greylish ">{AddressReducer(selectedAccount)}</div>
+                                                <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? "")}</div>
                                             </div>
                                         </div>
                                         <div onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish flex "><span className="rotate-90">...</span>

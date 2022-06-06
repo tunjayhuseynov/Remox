@@ -6,7 +6,7 @@ import { changeAccount } from "../redux/reducers/selectedAccount";
 import { selectStorage, setStorage } from "../redux/reducers/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'apiHooks/useFirebase';
-import { IUser } from 'firebaseConfig';
+import { auth, IUser } from 'firebaseConfig';
 import { getAuth } from 'firebase/auth';
 import useWalletKit from './walletSDK/useWalletKit';
 
@@ -27,11 +27,10 @@ export default function useMultiWallet() {
     const { initConnector } = useContractKitInternal()
     const dispatch = useDispatch()
     const storage = useSelector(selectStorage)
-    const user = getAuth()
-    const data = useFirestoreRead<IUser>('users', user.currentUser!.uid).data?.multiwallets;
+    const data = useFirestoreRead<IUser>('users', auth.currentUser!.uid).data?.multiwallets;
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {
-        const incomingData = await FirestoreRead<IUser>("users", user!.currentUser!.uid)
+        const incomingData = await FirestoreRead<IUser>("users", auth!.currentUser!.uid)
         if (!incomingData) {
             throw new Error("No Data In Users")
         }
@@ -39,14 +38,16 @@ export default function useMultiWallet() {
         if (connector && connector.account && storage) {
             if (!incomingData.address.some(address => address === connector.account) && !incomingData.multiwallets.some(s => s.address === connector.account)) {
                 const arr = [...incomingData.address, connector.account]
-                await FirestoreWrite<Pick<IUser, "address" | "multiwallets">>().updateDoc("users", user!.currentUser!.uid, {
+                await FirestoreWrite<Pick<IUser, "address" | "multiwallets">>().updateDoc("users", auth!.currentUser!.uid, {
                     address: arr,
                     multiwallets: [...incomingData.multiwallets, { name: connector.type, address: connector.account, blockchain }]
                 })
             }
             dispatch(setStorage({
                 ...storage,
-                accountAddress: connector.account,
+                lastSignedProviderAddress: connector.account,
+                signType: "individual",
+                organization: null
             }))
             dispatch(changeAccount(connector.account))
         }

@@ -2,16 +2,19 @@ import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
 import { selectUnlock } from 'redux/reducers/unlock'
 import { useEffect } from 'react'
+import { isUserAllowToSystem } from 'hooks/singingProcess/utils'
+import { useWalletKit } from 'hooks'
 
 export default function Guard({ children }: { children: JSX.Element }) {
-    const isUnlock = useSelector(selectUnlock)
+    // const isUnlock = useSelector(selectUnlock)
     const router = useRouter()
+    const { Connected } = useWalletKit()
 
     useEffect(() => {
-        if (isUnlock === false) router.push("/unlock")
+        if (!isUserAllowToSystem() && !Connected) router.push("/")
     }, [])
 
-    if(isUnlock === false) return <></>
+    if (!isUserAllowToSystem()) return <></>
     return (
         <>{children}</>
     )

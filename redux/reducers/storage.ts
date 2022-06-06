@@ -1,24 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
 import { RootState } from "../store";
 
 export interface IStorage {
-    accountAddress: string,
-    allAccounts: string[],
-    token: string,
     uid: string,
-    encryptedMessageToken: string,
-    contractAddress?: string,
-    name?: string;
-    surname?: string,
-    companyName?: string,
+    lastSignedProviderAddress: string,
+    signType: "individual" | "organization",
+    organization: IOrganization | null,
+    individual: IIndividual | null,
 }
 
 interface IContainer {
-    user: IStorage | null, 
+    user: IStorage | null,
 }
 
 const initialState = (): IContainer => {
-    if(typeof window === 'undefined') return { user: null }
+    if (typeof window === 'undefined') return { user: null }
     const val = localStorage.getItem("remoxUser")
 
     if (val) {
@@ -33,12 +30,12 @@ export const storageSlice = createSlice({
     name: "storage",
     initialState: initialState(),
     reducers: {
-        setStorage: (state, action: {payload: IStorage}) => {
+        setStorage: (state: IContainer, action: { payload: IStorage }) => {
             localStorage.setItem("remoxUser", JSON.stringify(action.payload))
             const data: IStorage = action.payload
             state.user = data
         },
-        removeStorage: (state) => {
+        removeStorage: (state: IContainer) => {
             localStorage.removeItem("remoxUser")
             state.user = null;
         }

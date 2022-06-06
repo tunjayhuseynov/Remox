@@ -1,15 +1,18 @@
 import axios from 'axios'
 import { getAuth } from 'firebase/auth'
+import { auth } from 'firebaseConfig'
 import { useWalletKit } from 'hooks'
+import { IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/spending'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useLazyGetAccountSpendingQuery } from 'redux/api'
-import { IMoneyFlow, ITagFlow } from 'redux/reducers/accountstats'
+import { setAccountRawStats } from 'redux/reducers/accountstats'
 import { ATag } from 'subpages/dashboard/insight/boxmoney'
 
 
 export default function useInsight({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) {
     const { blockchain } = useWalletKit()
-    const auth = getAuth()
+    const dispatch = useDispatch()
 
     const [isLoading, setLoading] = useState(false)
     const [totalBalance, setTotalBalance] = useState<number>(0)
@@ -24,33 +27,37 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
     const [spendingFetch] = useLazyGetAccountSpendingQuery()
 
     useEffect(() => {
-        setLoading(true)
-        spendingFetch({
-            addresses: selectedAccounts,
-            blockchain,
-            authId: auth.currentUser?.uid
-        }).unwrap().then(response => {
-            const {
-                AverageSpend,
-                AccountIn,
-                AccountOut,
-                AccountAge,
-                AccountTotalBalanceChangePercent,
-                TotalBalance,
-                AccountInTag,
-                AccountOutTag
-            } = response
+        if (selectedAccounts.length > 0) {
+            setLoading(true)
+            spendingFetch({
+                addresses: selectedAccounts,
+                blockchain,
+                authId: auth.currentUser?.uid
+            }).unwrap().then(response => {
+                const {
+                    AverageSpend,
+                    AccountIn,
+                    AccountOut,
+                    AccountAge,
+                    AccountTotalBalanceChangePercent,
+                    TotalBalance,
+                    AccountInTag,
+                    AccountOutTag
+                } = response
 
-            setTotalBalance(TotalBalance)
-            setAverageSpend(AverageSpend)
-            setAccountAge(AccountAge)
-            setIn(AccountIn)
-            setOut(AccountOut)
-            setAccountInTag(AccountInTag)
-            setAccountOutTag(AccountOutTag)
-            setTotalBalancePercentage(AccountTotalBalanceChangePercent)
-            setLoading(false)
-        })
+                dispatch(setAccountRawStats(response))
+
+                setTotalBalance(TotalBalance)
+                setAverageSpend(AverageSpend)
+                setAccountAge(AccountAge)
+                setIn(AccountIn)
+                setOut(AccountOut)
+                setAccountInTag(AccountInTag)
+                setAccountOutTag(AccountOutTag)
+                setTotalBalancePercentage(AccountTotalBalanceChangePercent)
+                setLoading(false)
+            })
+        }
     }, [selectedAccounts])
 
     return {
@@ -62,11 +69,28 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
 
 const ChooseTimeframe = (date: number, flow?: IMoneyFlow | ITagFlow) => {
     if (flow) {
-        if (date === 30) {
+        if (date === 7) {
+            if ('total' in flow) {
+                return (flow as IMoneyFlow).week.total
+            }
+            return flow.week;
+        }
+        else if (date === 30) {
+            if ('total' in flow) {
+                return (flow as IMoneyFlow).month.total
+            }
             return flow.month
         } else if (date === 90) {
+            if ('total' in flow) {
+                return (flow as IMoneyFlow).quart.total
+            }
             return flow.quart
-        } else if (date === 365) return flow.year
+        } else if (date === 365) {
+            if ('total' in flow) {
+                return (flow as IMoneyFlow).year.total
+            }
+            return flow.year
+        }
         else return flow.currentMonth
     }
 }
