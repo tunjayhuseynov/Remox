@@ -21,12 +21,12 @@ const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<bo
             for (const member of memberState) {
                 // await cancelTask(member.taskId!)
                 let mem = { ...member }
-                mem.name = encryptMessage(`${mem.name}`, storage?.encryptedMessageToken)
-                mem.address = encryptMessage(mem.address, storage?.encryptedMessageToken)
-                mem.amount = encryptMessage(mem.amount, storage?.encryptedMessageToken)
-                mem.execution = encryptMessage(mem.execution, storage?.encryptedMessageToken)
+                mem.name = `${mem.name}`
+                mem.address = mem.address
+                mem.amount = mem.amount
+                mem.execution = mem.execution
                 if (mem.secondaryAmount) {
-                    mem.secondaryAmount = encryptMessage(mem.secondaryAmount, storage?.encryptedMessageToken)
+                    mem.secondaryAmount = mem.secondaryAmount
                 }
 
                 await editMember(mem.teamId, mem.id, {

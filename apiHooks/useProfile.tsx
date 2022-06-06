@@ -16,9 +16,9 @@ export default function useProfile() {
       address: data!.address,
       id: data!.id,
       multiwallets: data.multiwallets,
-      name: decryptMessage(data!.name, storage.encryptedMessageToken),
-      surname: decryptMessage(data!.surname, storage.encryptedMessageToken),
-      companyName: decryptMessage(data!.companyName, storage.encryptedMessageToken),
+      name: data!.name,
+      surname: data!.surname,
+      companyName: data!.companyName,
       seenTime: data?.seenTime ?? 0,
       timestamp: data!.timestamp,
       blockchain: data?.blockchain ?? 'celo',
@@ -31,8 +31,8 @@ export default function useProfile() {
       name: string,
       surname: string,
     }>().updateDoc("users", auth.currentUser!.uid, {
-      name: encryptMessage(name, storage?.encryptedMessageToken),
-      surname: encryptMessage(surname, storage?.encryptedMessageToken),
+      name: name,
+      surname: surname,
     })
     setLoading(false)
   }
@@ -42,7 +42,7 @@ export default function useProfile() {
     await FirestoreWrite<{
       companyName: string,
     }>().updateDoc("users", auth.currentUser!.uid, {
-      companyName: encryptMessage(company, storage?.encryptedMessageToken),
+      companyName: company,
     })
     setLoading(false)
   }

@@ -25,7 +25,6 @@ export enum ExecutionType {
 }
 
 export interface IMember {
-  members: IMember;
   id: string;
   name: string,
   first: string,
@@ -40,10 +39,10 @@ export interface IMember {
   paymantEndDate: string,
   interval: DateInterval,
   usdBase: boolean,
-  secondaryCurrency?: CoinsName,
-  secondaryAmount?: string | null,
-  secondaryUsdBase?: boolean,
-  taskId?: string | null,
+  secondaryCurrency: CoinsName | null,
+  secondaryAmount: string | null,
+  secondaryUsdBase: boolean | null,
+  taskId: string | null,
 }
 
 export default function useContributors() {

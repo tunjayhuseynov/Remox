@@ -25,7 +25,7 @@ import Loader from "components/Loader";
 import Paydropdown from '../../../../subpages/pay/paydropdown';
 import Upload from "components/upload";
 
-const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> , onDisable: Dispatch<boolean> }) => {
+const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean>, onDisable: Dispatch<boolean> }) => {
     const dispatch = useDispatch()
     const [file, setFile] = useState<File>()
     const { GetCoins } = useWalletKit()
@@ -88,7 +88,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> , onDis
 
     const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const { memberName,memberSurname, amount, address, amount2 } = e.target as HTMLFormElement;
+        const { memberName, memberSurname, amount, address, amount2 } = e.target as HTMLFormElement;
 
         if (memberName && memberSurname && amount && address && selectedWallet && selectedTeam) {
             if (!selectedWallet.name) {
@@ -161,34 +161,28 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> , onDis
 
 
                 let newMember: IMember = {
+                    taskId: null,
                     id: props.id,
                     first: `${memberNameValue}`,
-                    name: encryptMessage(`${memberNameValue} ${memberSurnameValue}`, storage?.encryptedMessageToken),
+                    name: `${memberNameValue} ${memberSurnameValue}`,
                     last: `${memberSurnameValue}`,
-                    address: encryptMessage(addressValue.trim(), storage?.encryptedMessageToken),
+                    address: addressValue.trim(),
                     compensation: compensationValue,
-                    amount: encryptMessage(amountValue, storage?.encryptedMessageToken),
+                    amount: amountValue,
                     currency: selectedWallet.name as CoinsName,
                     teamId: selectedTeam.id,
                     usdBase: selectedType,
                     interval: selectedFrequency!.type as DateInterval,
-                    execution: encryptMessage(value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual, storage?.encryptedMessageToken),
+                    execution: value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual,
                     paymantDate: startDate!.toISOString(),
                     paymantEndDate: endDate!.toISOString(),
+                    secondaryAmount: amountValue2 ? amountValue2.trim() : null,
+                    secondaryCurrency: selectedWallet2?.name ? selectedWallet2.name as CoinsName : null,
+                    secondaryUsdBase: amountValue2 ? selectedType : null,
                 }
 
                 if (hash) newMember.taskId = hash
                 else if (!hash && props.taskId) newMember.taskId = null
-
-                if (amountValue2 && selectedWallet2 && selectedWallet2.name) {
-                    newMember = {
-                        ...newMember,
-                        secondaryAmount: encryptMessage(amountValue2.trim(), storage?.encryptedMessageToken),
-                        secondaryCurrency: selectedWallet2.name as CoinsName,
-                        secondaryUsdBase: selectedType,
-                    }
-                }
-
 
                 await editMember(props.teamId, props.id, newMember)
                 dispatch(changeSuccess({ activate: true, text: "Member updated successfully" }))
@@ -207,122 +201,122 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean> , onDis
 
     return <>
         <div>
-            {!isLoading && member ? 
-            <form onSubmit={Submit}>
-            <div className="flex flex-col space-y-8">
-            <div className="text-2xl self-center pt-2 font-semibold ">Edit People</div>
-            <div className="flex flex-col space-y-4">
-                <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className=" text-left text-greylish dark:text-white">Choose Profile Photo Type</div>
-            <div className={` flex items-center gap-3 w-full`}>
-            <Paydropdown className={'!py-3'}  paymentname={paymentname4}  value={value4} setValue={setValue4} />
-            </div>
-        </div>
-        {value4 && <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className="text-xs text-left  dark:text-white">{value=== "NFT" ? "NFT Address" : "Your Photo"} </div>
-            <div className={`  w-full border rounded-lg`}>
-              {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
-            </div>
-        </div>}
-        <div className="grid grid-cols-2 gap-x-10">
-                        <div>
-                            <div className="text-greylish ">Name</div>
-                            <input type="text" name="memberName" placeholder="First Name" defaultValue={member.first} className="border-2 pl-2 rounded-md outline-none py-2  w-full dark:bg-darkSecond" required />
-                        </div>
-                        <div>
-                            <div className="text-greylish ">Surname</div>
-                            <input type="text" name="memberSurname" placeholder="Last Name" defaultValue={member.last}  className="border-2 pl-2 rounded-md outline-none py-2  w-full dark:bg-darkSecond"  />
-                        </div>
-                    </div>
-                </div>  
-
-                <div className="grid grid-cols-2 gap-x-10">
-                    <div className="flex flex-col">
-                        <div className="text-greylish">Team</div>
-                        <div className="w-full ">
-                            <div>
-                                <Dropdown onSelect={setSelectedTeam} selected={selectedTeam} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} className="!py-[0.6rem]  border-2 !rounded-md " />
+            {!isLoading && member ?
+                <form onSubmit={Submit}>
+                    <div className="flex flex-col space-y-8">
+                        <div className="text-2xl self-center pt-2 font-semibold ">Edit People</div>
+                        <div className="flex flex-col space-y-4">
+                            <div className="flex flex-col mb-4 space-y-1 w-full">
+                                <div className=" text-left text-greylish dark:text-white">Choose Profile Photo Type</div>
+                                <div className={` flex items-center gap-3 w-full`}>
+                                    <Paydropdown className={'!py-3'} paymentname={paymentname4} value={value4} setValue={setValue4} />
+                                </div>
+                            </div>
+                            {value4 && <div className="flex flex-col mb-4 space-y-1 w-full">
+                                <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
+                                <div className={`  w-full border rounded-lg`}>
+                                    {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                                </div>
+                            </div>}
+                            <div className="grid grid-cols-2 gap-x-10">
+                                <div>
+                                    <div className="text-greylish ">Name</div>
+                                    <input type="text" name="memberName" placeholder="First Name" defaultValue={member.first} className="border-2 pl-2 rounded-md outline-none py-2  w-full dark:bg-darkSecond" required />
+                                </div>
+                                <div>
+                                    <div className="text-greylish ">Surname</div>
+                                    <input type="text" name="memberSurname" placeholder="Last Name" defaultValue={member.last} className="border-2 pl-2 rounded-md outline-none py-2  w-full dark:bg-darkSecond" />
+                                </div>
                             </div>
                         </div>
 
-                    </div>
-                    <div className="flex flex-col ">
-                        <div className="text-greylish">Compensation Type</div>
-                        <div className=" w-full ">
-                            <div>
-                                <Paydropdown paymentname={paymentname2} value={value2} setValue={setValue2} className={"!py-[0.6rem]"} />
+                        <div className="grid grid-cols-2 gap-x-10">
+                            <div className="flex flex-col">
+                                <div className="text-greylish">Team</div>
+                                <div className="w-full ">
+                                    <div>
+                                        <Dropdown onSelect={setSelectedTeam} selected={selectedTeam} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} className="!py-[0.6rem]  border-2 !rounded-md " />
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div className="flex flex-col ">
+                                <div className="text-greylish">Compensation Type</div>
+                                <div className=" w-full ">
+                                    <div>
+                                        <Paydropdown paymentname={paymentname2} value={value2} setValue={setValue2} className={"!py-[0.6rem]"} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div className="flex flex-col space-y-4">
-                <div className="text-greylish">Amount Type</div>
-                <div>
-                    <Paydropdown setSelectedType={setSelectedType} usdbase={props.usdBase} onChangeType={setSelectedType}  paymentname={paymentname} value={value} setValue={setValue} className={"!py-[0.6rem] !rounded-md "} />
-                    </div>
-                </div>
-                <div className="flex flex-col space-y-4">
-                    <div className="text-greylish">Wallet Address</div>
-                    <div>
-                        <input type="text" name="address" defaultValue={member.address} className="border-2 pl-2 rounded-md outline-none py-2 w-full dark:bg-darkSecond" placeholder="Wallet Address" required />
-                    </div>
-                </div>
+                        <div className="flex flex-col space-y-4">
+                            <div className="text-greylish">Amount Type</div>
+                            <div>
+                                <Paydropdown setSelectedType={setSelectedType} usdbase={props.usdBase} onChangeType={setSelectedType} paymentname={paymentname} value={value} setValue={setValue} className={"!py-[0.6rem] !rounded-md "} />
+                            </div>
+                        </div>
+                        <div className="flex flex-col space-y-4">
+                            <div className="text-greylish">Wallet Address</div>
+                            <div>
+                                <input type="text" name="address" defaultValue={member.address} className="border-2 pl-2 rounded-md outline-none py-2 w-full dark:bg-darkSecond" placeholder="Wallet Address" required />
+                            </div>
+                        </div>
 
-                <div className="flex w-full gap-x-10">
-                    {!selectedWallet ? <Loader /> : <Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
-                    <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
-                        <input type="number" defaultValue={member.amount} name="amount" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white " placeholder="Amount" required step={'any'} min={0} />
-                        {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                    </div>
-                </div>
-                {secondActive ?
-                    <div className="flex gap-x-10">
-                        {!selectedWallet ? <Loader /> : <Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
-                        <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
-                            <input type="number" name="amount2 " defaultValue={(member.secondaryAmount ?? 0)} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} />
-                            {selectedType && <span className="text-xs self-center opacity-70 dark:text-white ">USD as</span>}
+                        <div className="flex w-full gap-x-10">
+                            {!selectedWallet ? <Loader /> : <Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
+                            <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
+                                <input type="number" defaultValue={member.amount} name="amount" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white " placeholder="Amount" required step={'any'} min={0} />
+                                {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
+                            </div>
                         </div>
-                    </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}
-                <div className="flex gap-x-10">
-                    <div className="flex flex-col space-y-4 w-full">
-                        <div className="text-greylish">Payment Type</div>
-                        <div>
-                            <Paydropdown setSelectedType={setSelectedExecution} paymentname={paymentname3} value={value3} setValue={setValue3} className={"!py-[0.6rem]"} />
-                        </div>
-                    </div>
+                        {secondActive ?
+                            <div className="flex gap-x-10">
+                                {!selectedWallet ? <Loader /> : <Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
+                                <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
+                                    <input type="number" name="amount2 " defaultValue={(member.secondaryAmount ?? 0)} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} />
+                                    {selectedType && <span className="text-xs self-center opacity-70 dark:text-white ">USD as</span>}
+                                </div>
+                            </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}
+                        <div className="flex gap-x-10">
+                            <div className="flex flex-col space-y-4 w-full">
+                                <div className="text-greylish">Payment Type</div>
+                                <div>
+                                    <Paydropdown setSelectedType={setSelectedExecution} paymentname={paymentname3} value={value3} setValue={setValue3} className={"!py-[0.6rem]"} />
+                                </div>
+                            </div>
 
-                    <div className="flex flex-col space-y-4 w-full">
-                        <div className="text-greylish">Payment Frequency</div>
-                        <div>
-                            <Dropdown onSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border-2 !rounded-md !py-[0.7rem]" />
+                            <div className="flex flex-col space-y-4 w-full">
+                                <div className="text-greylish">Payment Frequency</div>
+                                <div>
+                                    <Dropdown onSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border-2 !rounded-md !py-[0.7rem]" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex gap-x-10">
+                            <div className="flex flex-col space-y-4 w-full">
+                                <div className="text-greylish">Payment Start Date</div>
+                                <div className="border dark:border-darkSecond p-2 rounded-md">
+                                    <DatePicker className="dark:bg-dark w-full outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} />
+                                </div>
+                            </div>
+                            <div className="flex flex-col space-y-4 w-full">
+                                <div className="text-greylish">Payment End Date</div>
+                                <div className="border dark:border-darkSecond p-2 rounded-md">
+                                    <DatePicker className="dark:bg-dark w-full outline-none" selected={endDate} minDate={new Date()} onChange={(date) => date ? setEndDate(date) : null} />
+                                </div>
+                            </div>
+                        </div>
+                        {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
+                        <div className="grid grid-cols-2 gap-x-10 justify-center">
+                            <Button version="second" className="px-8 py-3" onClick={() => { props.onDisable(false) }}>
+                                Close
+                            </Button>
+                            <Button type='submit' className="px-8 py-3" isLoading={isLoading || loading || allowLoading} >
+                                Save Person
+                            </Button>
                         </div>
                     </div>
-                </div>
-                <div className="flex gap-x-10">
-                    <div className="flex flex-col space-y-4 w-full">
-                        <div className="text-greylish">Payment Start Date</div>
-                        <div className="border dark:border-darkSecond p-2 rounded-md">
-                            <DatePicker className="dark:bg-dark w-full outline-none" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} />
-                        </div>
-                    </div>
-                    <div className="flex flex-col space-y-4 w-full">
-                        <div className="text-greylish">Payment End Date</div>
-                        <div className="border dark:border-darkSecond p-2 rounded-md">
-                            <DatePicker className="dark:bg-dark w-full outline-none" selected={endDate} minDate={new Date()} onChange={(date) => date ? setEndDate(date) : null} />
-                        </div>
-                    </div>
-                </div>
-                {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
-                <div className="grid grid-cols-2 gap-x-10 justify-center">
-                    <Button version="second" className="px-8 py-3" onClick={() => { props.onDisable(false) }}>
-                        Close
-                    </Button>
-                    <Button type='submit'  className="px-8 py-3"  isLoading={isLoading || loading || allowLoading} >
-                        Save Person
-                    </Button>
-                </div>
-            </div>
-        </form>
+                </form>
                 : <div className="flex justify-center"> <Loader /></div>}
         </div>
     </>

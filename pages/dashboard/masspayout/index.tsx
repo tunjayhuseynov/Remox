@@ -31,7 +31,7 @@ import Loader from "components/Loader";
 const MassPay = () => {
     const { memberList, request } = useSelector(selectMasspay)
     const { editMember } = useContributors()
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, Address } = useWalletKit()
 
 
     const storage = useAppSelector(selectStorage)
@@ -117,7 +117,7 @@ const MassPay = () => {
         setIsPaying(true)
 
         try {
-            if (storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase() && GetCoins) {
+            if (Address?.toLowerCase() === selectedAccount.toLowerCase() && GetCoins) {
                 if (result.length === 1) {
                     // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
                     await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
@@ -127,11 +127,11 @@ const MassPay = () => {
                         const isMonthly = member.interval === DateInterval.monthly;
                         const isOverdue = new Date(member.paymantDate).getTime() < new Date().getTime();
                         member.paymantDate = isMonthly ? date.addMonths(isOverdue ? new Date() : new Date(member.paymantDate), 1).toISOString() : date.addDays(isOverdue ? new Date() : new Date(member.paymantDate), 7).toISOString();
-                        member.name = encryptMessage(`${member.name}`, storage?.encryptedMessageToken)
-                        member.address = encryptMessage(member.address, storage?.encryptedMessageToken)
-                        member.amount = encryptMessage(member.amount, storage?.encryptedMessageToken)
+                        member.name = `${member.name}`
+                        member.address = member.address
+                        member.amount = member.amount
                         if (member.secondaryAmount) {
-                            member.secondaryAmount = encryptMessage(member.secondaryAmount, storage?.encryptedMessageToken)
+                            member.secondaryAmount = member.secondaryAmount
                         }
                         await editMember(member.teamId, member.id, member)
                     }
@@ -153,11 +153,11 @@ const MassPay = () => {
                             const isMonthly = member.interval === DateInterval.monthly;
                             const isOverdue = new Date(member.paymantDate).getTime() < new Date().getTime();
                             member.paymantDate = isMonthly ? date.addMonths(isOverdue ? new Date() : new Date(member.paymantDate), 1).toISOString() : date.addDays(isOverdue ? new Date() : new Date(member.paymantDate), 7).toISOString();
-                            member.name = encryptMessage(`${member.name}`, storage?.encryptedMessageToken)
-                            member.address = encryptMessage(member.address, storage?.encryptedMessageToken)
-                            member.amount = encryptMessage(member.amount, storage?.encryptedMessageToken)
+                            member.name = `${member.name}`
+                            member.address = member.address
+                            member.amount = member.amount
                             if (member.secondaryAmount) {
-                                member.secondaryAmount = encryptMessage(member.secondaryAmount, storage?.encryptedMessageToken)
+                                member.secondaryAmount = member.secondaryAmount
                             }
 
                             await editMember(member.teamId, member.id, member)
@@ -236,7 +236,7 @@ const MassPay = () => {
                                     <div className="hidden sm:block font-semibold">Address</div>
                                     <div className="hidden sm:block font-semibold">Disbursement</div>
                                     <div className="hidden sm:block"></div>
-                                    {contributors && resMember && members && members.length > 0 ? resMember.map((w, i) => <TeamInput selectedId={selectedId} setSelectedId={setSelectedId} key={w.id} index={i} {...w} members={resMember} setMembers={setResMember} />) : 'No Member Yet'}
+                                    {contributors && resMember && members && members.length > 0 ? resMember.map((w, i) => <TeamInput  selectedId={selectedId} setSelectedId={setSelectedId} key={w.id} index={i} {...w} members={resMember as any} setMembers={setResMember} />) : 'No Member Yet'}
                                 </div>
                             </div>
                             <span className="text-lg">Total: $ {Object.values(resMember.filter(s => selectedId.includes(s.id))).reduce((a, e, i) => {
