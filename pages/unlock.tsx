@@ -29,7 +29,7 @@ const Unlock = () => {
 
 
     const Submit = async () => {
-        if (!Connected && Address) {
+        if (!Connected && !Address) {
             dispatch(setMenu(false))
             dispatch(removeTransactions())
             ToastRun(<div className="dark:text-white"><strong>You've not signed into your wallet yet</strong> <br /> Please, sign in first</div>)

@@ -7,7 +7,7 @@ export interface IStorage {
     lastSignedProviderAddress: string,
     signType: "individual" | "organization",
     organization: IOrganization | null,
-    individual: IIndividual | null,
+    individual: IIndividual,
 }
 
 interface IContainer {

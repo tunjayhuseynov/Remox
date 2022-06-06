@@ -34,7 +34,7 @@ function ChooseType() {
   const [address, setAddress] = useState<string | null>(null)
 
   useAsyncEffect(async () => {
-    if (Address) {
+    if (Address && auth.currentUser) {
       setAddress(Address)
       if (!isUserExist) {
         dispatch(changeAccount(Address!))
@@ -48,7 +48,7 @@ function ChooseType() {
     if (isUserExist) {
       const individual = await Get_Individual(auth.currentUser?.uid!)
       if (isOrganisation) {
-        
+
 
       } else if (isIndividual) {
         dispatch(setStorage({

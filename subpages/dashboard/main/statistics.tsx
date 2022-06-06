@@ -24,7 +24,6 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const orderBalance = useNextSelector(SelectOrderBalance)
     const dark = useNextSelector(selectDarkMode)
-    const storage = useNextSelector(selectStorage)
     const stats = useNextSelector(SelectRawStats)
 
     const [modalVisible, setModalVisible] = useState(false)
@@ -144,7 +143,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
             </Modal>
         }
         <div className="flex flex-col gap-5 h-full w-full ">
-            <div className="text-4xl font-semibold text-left">Welcome, Orkhan</div>
+            <div className="text-4xl font-semibold text-left">Welcome, {}</div>
             <div className="bg-white dark:bg-darkSecond rounded-lg shadow">
                 <div className="w-full px-12 pt-5 flex justify-between">
                     <div className="  flex flex-col gap-1">

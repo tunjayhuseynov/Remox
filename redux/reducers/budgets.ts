@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
+import { RootState } from "redux/store";
 type Init = {
     budget_exercises: IBudgetExercise[]
 }
@@ -88,6 +89,8 @@ const budgetSlice = createSlice({
         }
     }
 })
+
+export const SelectBudgetExercise = (state: RootState) => state.budgets.budget_exercises;
 
 
 export const {

@@ -68,14 +68,26 @@ export interface ISubBudget {
 
 export interface IOrganization {
     id: string;
-    organizationAccounts: DocumentReference[] | IAccount[];
-    blockchain: BlockChainTypes;
-    members: string[];
-    firebaseAccess: string[];
-    creator: DocumentReference | IIndividual;
-    image: Image | null,
     name: string;
+    image: Image | null,
+    accounts: DocumentReference[] | IAccount[];
+    members: string[];
 
+    creator: DocumentReference | IIndividual;
+    
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
+    
+    created_date: number;
+}
+
+export interface IIndividual {
+    id: string;
+    name: string;
+    image: Image | null,
+    accounts: IAccount[];
+    seenTime: number;
+    members: string[];
+     
     budget_execrises: DocumentReference[] | IBudgetExercise[];
 
     created_date: number;
@@ -101,17 +113,7 @@ export interface IAccount {
     created_date: number;
 }
 
-export interface IIndividual {
-    id: string;
-    name: string;
-    seenTime: number;
-    image: Image | null,
-    addresses: string[];
-    accounts: IAccount[];
-    budget_execrises: DocumentReference[] | IBudgetExercise[];
 
-    created_date: number;
-}
 
 export interface IRegisteredIndividual {
     id: string;
