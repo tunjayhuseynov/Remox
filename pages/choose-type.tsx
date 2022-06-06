@@ -8,11 +8,14 @@ import { useFirestoreSearchField } from 'apiHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
 import { useSelector } from 'react-redux';
-import { SelectExisting } from 'redux/reducers/selectedAccount';
+import { changeAccount, changeExisting, SelectExisting } from 'redux/reducers/selectedAccount';
 import { useDispatch } from 'react-redux';
 import { setStorage } from 'redux/reducers/storage';
 import { Get_Individual } from 'crud/individual';
 import { AddressReducer } from 'utils';
+import useNextSelector from 'hooks/useNextSelector';
+import useAsyncEffect from 'hooks/useAsyncEffect';
+import { isIndividualExisting } from 'hooks/singingProcess/utils';
 
 
 function ChooseType() {
@@ -22,17 +25,21 @@ function ChooseType() {
   const [organisation2, setOrganisation2] = useState(false)
   const [individual2, setIndividual2] = useState(false)
   const navigate = useRouter()
-  const { search } = useFirestoreSearchField()
+  // const { search } = useFirestoreSearchField()
   const { Address } = useWalletKit();
 
-  const isUserExist = useSelector(SelectExisting)
+  const isUserExist = useNextSelector(SelectExisting)
   const dispatch = useDispatch()
 
   const [address, setAddress] = useState<string | null>(null)
 
-  useEffect(() => {
+  useAsyncEffect(async () => {
     if (Address) {
       setAddress(Address)
+      if (!isUserExist) {
+        dispatch(changeAccount(Address!))
+        dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
+      }
     } else navigate.push("/")
   }, [Address])
 
@@ -41,15 +48,15 @@ function ChooseType() {
     if (isUserExist) {
       const individual = await Get_Individual(auth.currentUser?.uid!)
       if (isOrganisation) {
-
+        
 
       } else if (isIndividual) {
         dispatch(setStorage({
-          ...individual,
           uid: auth.currentUser?.uid!,
           lastSignedProviderAddress: Address!,
           signType: "individual",
-          organization: null
+          organization: null,
+          individual: individual
         }))
         navigate.push("/dashboard")
       }
@@ -111,7 +118,7 @@ function ChooseType() {
             </div>
             {isIndividual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none" onClick={login}>Next  &gt;</Button>}
           </div> :
-            <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:border-primary hover:text-primary transition-all hover:transition-all    cursor-pointer  dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
+            <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:border-primary hover:text-primary transition-all hover:transition-all cursor-pointer dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
               <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
             </div>}
         </div>

@@ -3,13 +3,15 @@ import { useSelector } from 'react-redux'
 import { selectUnlock } from 'redux/reducers/unlock'
 import { useEffect } from 'react'
 import { isUserAllowToSystem } from 'hooks/singingProcess/utils'
+import { useWalletKit } from 'hooks'
 
 export default function Guard({ children }: { children: JSX.Element }) {
     // const isUnlock = useSelector(selectUnlock)
     const router = useRouter()
+    const { Connected } = useWalletKit()
 
     useEffect(() => {
-        if (!isUserAllowToSystem()) router.push("/choose-type")
+        if (!isUserAllowToSystem() && !Connected) router.push("/")
     }, [])
 
     if (!isUserAllowToSystem()) return <></>

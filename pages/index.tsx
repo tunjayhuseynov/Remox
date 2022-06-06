@@ -61,7 +61,7 @@ const Home = () => {
         }])
 
         if (user) {
-          navigate.push('/choose-type')
+          navigate.push('/unlock')
         } else {
           await processSigning(address);
           dispatch(changeAccount(address))
