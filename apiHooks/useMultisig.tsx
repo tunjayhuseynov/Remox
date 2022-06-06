@@ -54,7 +54,7 @@ export default function useMultisig() {
 
     const dispatch = useDispatch()
 
-    const isMultisig = selectedAccount.toLowerCase() !== storage?.lastSignedProviderAddress.toLowerCase()
+    const isMultisig = selectedAccount?.toLowerCase() !== storage?.lastSignedProviderAddress?.toLowerCase()
 
     const FetchTransactions = async (multisigAddress: string, skip: number, take: number) => {
         setLoading(true)

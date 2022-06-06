@@ -53,7 +53,7 @@ const Transactions = () => {
     const { data: wallets } = useMultiWallet()
     const [changedAccount, setChangedAccount] = useState<string[]>([])
 
-    useEffect(() => setChangedAccount(wallets?.map(s => s.address) ?? [selectedAccount]), [wallets])
+    useEffect(() => setChangedAccount(wallets?.map(s => s.address) ?? [selectedAccount]), [wallets, selectedAccount])
 
     const { list } = useTransaction(changedAccount)
 
