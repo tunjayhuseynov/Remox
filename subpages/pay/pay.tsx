@@ -371,7 +371,7 @@ const Pay = ({ setModals }: { setModals: Dispatch<SetStateAction<boolean>> }) =>
                                                 <div className="block bg-gray-600 peer-checked:bg-primary w-14 h-8 rounded-full"></div>
                                                 <div className="peer-checked:transform peer-checked:translate-x-full  absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
                                             </div>
-                                            <div className="ml-3 text-gray-700 font-semibold">
+                                            <div className="ml-3 text-gray-700 dark:text-white font-semibold">
                                                 Enable Stream rate
                                             </div>
                                         </label>

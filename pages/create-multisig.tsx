@@ -125,6 +125,12 @@ function CreateMultisig() {
                             {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                         </div>
                     </div>}
+                    {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">Token ID</div>
+                        <div className={`w-full border rounded-lg`}>
+                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                        </div>
+                    </div>}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Choose Wallet Provider</div>
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
@@ -179,8 +185,8 @@ function CreateMultisig() {
                     {!newOwner && text === "Create Multisig" && <div className="flex flex-col items-start mb-4  w-full ">
                         <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => { setNewOwner(true) }}>+ Add to Owner</div>
                     </div>}
-                    {text === "Create Multisig" && owners.map((w) => {
-                        return <div className="flex flex-col  space-y-1 w-full">
+                    {text === "Create Multisig" && owners.map((w,i) => {
+                        return <div key={i}  className="flex flex-col  space-y-1 w-full">
                             <div className="flex gap-5">
                                 <div className={` w-[25%]`}>
                                     <div className="w-full mb-4" >

@@ -49,7 +49,7 @@ export default function TagsSetting() {
                         </Button>
                     </div>
                 </div>
-                <div className="w-full pt-2 pb-2 rounded-xl border-t ">
+                <div className="w-full pt-2 pb-2 border-t ">
                     <div>
                         {tags.length > 0 && tags.map((tag, index) => <TagItem key={tag.id} tag={tag} />)}
                         {tags.length === 0 && <div className="text-2xl text-center py-10 font-semibold tracking-wide">No tag yet. Create a tag to track what you care about.</div>}

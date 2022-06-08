@@ -15,7 +15,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const [value, setValue] = useState('')
     const [value2, setValue2] = useState('')
     const navigate = useRouter()
-    const { Connect, Address } = useWalletKit();
+    const { Connect, Address,blockchain } = useWalletKit();
     const [stream, setStream] = useState(false)
     const { search, isLoading } = useFirestoreSearchField<IUser>()
     const { addWallet } = useMultiWallet()
@@ -61,10 +61,16 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                         <div className="text-sm">Choose Profile Photo Type</div>
                         <Paydropdown paymentname={paymentname} value={value} setValue={setValue} />
                     </div>
-                    {value && <div className="flex flex-col mb-4 space-y-1 w-full">
+                    {value && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
                             {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                        </div>
+                    </div>}
+                    {blockchain === 'celo' &&  value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">Token ID</div>
+                        <div className={`w-full border rounded-lg`}>
+                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                     <div className="flex flex-col gap-1">

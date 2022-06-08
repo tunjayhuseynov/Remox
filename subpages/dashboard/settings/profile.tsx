@@ -5,8 +5,10 @@ import Loader from "components/Loader";
 import Modal from 'components/general/modal'
 import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
+import { useWalletKit } from 'hooks'
 
 const ProfileSetting = () => {
+    const {blockchain } = useWalletKit();
     const [isUser, setUser] = useState(false)
     const [isCompany, setCompany] = useState(false)
     const [orgphoto, setOrgphoto] = useState(false)
@@ -55,6 +57,12 @@ const ProfileSetting = () => {
                         <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
                             {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                        </div>
+                    </div>}
+                    {blockchain === 'celo' &&  value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">Token ID</div>
+                        <div className={`w-full border rounded-lg`}>
+                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                 </div>
@@ -187,37 +195,7 @@ const ProfileSetting = () => {
                     </div>
 
                 </div>
-                {/* <div className="flex flex-col space-y-3">
-                    <form onSubmit={update}>
-                        <div>Personal Name</div>
-                        <div className="flex space-x-4 items-center max-w-[600px]">
-                            <div className="grid grid-cols-2 gap-x-4">
-                                <div>
-                                    <input type="text" defaultValue={profile?.name} name="name" className="border px-2 py-2 outline-none border-gray-700 rounded-lg dark:bg-darkSecond" />
-                                </div>
-                                <div>
-                                    <input type="text" name="surname" defaultValue={profile?.surname} className="border px-2 py-2 outline-none border-gray-700 rounded-lg dark:bg-darkSecond" />
-                                </div>
-                            </div>
-                            <div className="flex-grow">
-                                <Button type="submit" className="px-12 py-2 w-full" isLoading={isUser}>Update</Button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div className="flex flex-col space-y-3">
-                    <form onSubmit={update}>
-                        <div>Organization Name</div>
-                        <div className="flex space-x-4 items-center max-w-[600px]">
-                            <div className="flex-grow">
-                                <input type="text" name="company" defaultValue={profile?.companyName} className="border px-2 py-2 outline-none border-gray-700 rounded-lg w-full dark:bg-darkSecond" />
-                            </div>
-                            <div>
-                                <Button type="submit" className="px-12 py-2" isLoading={isCompany}>Update</Button>
-                            </div>
-                        </div>
-                    </form>
-                </div> */}
+               
             </> : <div className="flex justify-center"> <Loader /> </div>}
     </div>
 }

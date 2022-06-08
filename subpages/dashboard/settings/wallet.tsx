@@ -11,8 +11,10 @@ import { useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
+import { useWalletKit } from 'hooks'
 
 const WalletSetting = () => {
+    const {blockchain } = useWalletKit();
     const [value, setValue] = useState('')
     const storage = useSelector(selectStorage)
     const dark = useAppSelector(selectDarkMode)
@@ -29,25 +31,38 @@ const WalletSetting = () => {
     // if (!isMultisig) return <div className="text-center">Please, select a MultiSig account</div>
     const paymentname = ["Upload Photo", "NFT"]
 
+    const walletData = [
+        {
+            id: 0,
+            name: 'Orkhan Aslanov',
+            value: '$150.00'
+        },
+        {
+            id: 1,
+            name: 'Tuncay Huseynov',
+            value: '$480.00'
+        },
+    ]
+
     return <div className="flex flex-col space-y-7 ">
         <div className="flex flex-col space-y-2">
         </div>
-        <div className="w-full border-b py-6">
+        <div className="w-full border-b dark:border-[#aaaaaa] py-6">
             <div className="text-greylish">Total Balance</div>
             <div className="text-3xl font-semibold">$500.00</div>
         </div>
-        <div className=" grid grid-cols-[25%,25%,25%,25%]  border-b  py-6 !mt-0 relative" >
+        {walletData.map((item,index)=>{
+            return <div key={index} className=" grid grid-cols-[25%,25%,25%,25%]  border-b dark:border-[#aaaaaa]  py-6 !mt-0 relative" >
             <div className="flex items-center justify-start gap-2" >
                 <div className="p-6 bg-greylish rounded-full"></div>
                 <div className="flex flex-col gap-1">
-                    <div className="">Orkhan Aslanov (you) </div>
+                    <div className="">{item.name}</div>
                     <div className="text-greylish dark:text-white text-sm">Orkhan.sol</div>
                 </div>
             </div>
             <div className="flex items-center justify-center">
                 <div className="flex items-center justify-center text-xl">
-                    $150.00
-
+                    {item.value}
                 </div>
             </div>
             <div className="flex items-center justify-center">
@@ -77,6 +92,7 @@ const WalletSetting = () => {
             </div>
 
         </div>
+        })}
         {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} disableX={true} className={' py-6 !w-[40%]'}>
             <div className="-my-5 flex flex-col space-y-7 px-20">
                 <div className="font-bold text-2xl text-center">Edit Wallet</div>
@@ -86,12 +102,18 @@ const WalletSetting = () => {
                         <Paydropdown paymentname={paymentname} value={value} setValue={setValue} />
                     </div>
                 </div>
-                <div className="flex flex-col mb-4 space-y-1 w-full">
+                {value && <div className="flex flex-col mb-4 space-y-1 w-full">
                     <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
                     <div className={`  w-full border rounded-lg`}>
                         {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                     </div>
-                </div>
+                </div>}
+                {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                    <div className="text-xs text-left  dark:text-white">Token ID</div>
+                    <div className={`w-full border rounded-lg`}>
+                        <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                    </div>
+                </div>}
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Wallet Name</span>
                     <div>

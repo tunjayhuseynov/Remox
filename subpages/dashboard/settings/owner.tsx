@@ -45,7 +45,7 @@ const OwnerSetting = () => {
             <div className="flex items-center justify-start gap-2" >
                 <div className="p-6 bg-greylish rounded-full"></div>
                 <div className="flex flex-col gap-1">
-                    <div className="font-semibold">Orkhan Aslanov </div>
+                    <div className="font-semibold">Orkhan Aslanov (you)</div>
                     <div className="text-greylish dark:text-white text-sm">Orkhan.sol</div>
                 </div>
             </div>

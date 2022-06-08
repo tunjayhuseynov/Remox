@@ -116,7 +116,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
                 </div>
                  <div className="flex space-x-3 justify-end">
                  <span onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold "><span className=" text-primary pb-4">...</span>
-                    {details && <div className="flex flex-col items-center bg-white absolute right-24 -bottom-3 w-[7rem]  rounded-lg shadow-xl z-50 ">
+                    {details && <div className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-24 -bottom-3 w-[7rem]  rounded-lg shadow-xl z-50 ">
                         <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full px-2  py-1 gap-3" onClick={() => {
                             setEditModal(true)
                             setModalVisible(false)

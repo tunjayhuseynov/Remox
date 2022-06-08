@@ -1,12 +1,12 @@
 import Modal from 'components/general/modal'
 import React, { useState } from 'react'
-import NewBudgets from 'subpages/dashboard/budgets/newBudgets'
+import NewBudgets from 'subpages/dashboard/budgets/Modals/newBudgets'
 import TotalValues from 'subpages/dashboard/budgets/totalValues'
 
 import { IoIosArrowDown } from 'react-icons/io';
-import NewExercise from 'subpages/dashboard/budgets/newExercise';
-import EditBudget from 'subpages/dashboard/budgets/editBudgets';
-import DeleteBudget from 'subpages/dashboard/budgets/deleteBudgets';
+import NewExercise from 'subpages/dashboard/budgets/Modals/newExercise';
+import EditBudget from 'subpages/dashboard/budgets/Modals/editBudgets';
+import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
 import AllBudgets from 'subpages/dashboard/budgets/allBudgets';
 
 const Budgets = () => {
@@ -18,9 +18,58 @@ const Budgets = () => {
     const [newBudgetModal, setNewBudgetModal] = useState(false)
     const [sign, setSign] = useState(false)
     const [exercise, setExercise] = useState(false)
-    const [subBudgets, setSubBudgets] = useState<number>()
     const [isOpen, setOpen] = useState(false)
 
+
+
+    const budgetData = [
+        {
+            id: 0,
+            name: "Marketing",
+            Percent: "40%",
+            subBudgets : true,
+            labels:true,
+            twoToken: false
+        },
+        {
+            id: 1,
+            name: "Security",
+            Percent: "70%",
+            subBudgets : false,
+            labels:true,
+            twoToken: false
+        },
+        {
+            id: 2,
+            name: "Development",
+            Percent: "60%",
+            subBudgets : false,
+            labels:false,
+            twoToken: false
+        },
+        {
+            id: 3,
+            name: "Design",
+            Percent: "60%",
+            subBudgets : true,
+            labels:false,
+            twoToken: true
+        },
+
+    ]
+
+    const exerciseData = [
+        {
+            id: 0,
+            name: "Remox B Q3 2022",
+            total: "$50.000,00"
+        },
+        {
+            id: 1,
+            name: "Remox A Q2 2022",
+            total: "$35.650,40"
+        },
+    ]
 
     return <div className="mb-6">
         <div className="w-full">
@@ -51,12 +100,17 @@ const Budgets = () => {
                                     <IoIosArrowDown className='transition w-[0.7em] h-[0.7rem]' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                                 </div>
                             </div>
-                            {isOpen && <div className="absolute flex   rounded-lg  bottom-2 translate-y-full bg-light z-50">
+                            {isOpen && <div className="absolute flex   rounded-lg  bottom-2 translate-y-full bg-light dark:bg-darkSecond z-50">
                                 <ul className="w-full">
-                                    <li className=" sm:h-10  flex flex-col items-center text-center justify-center w-full bg-white space-y-1 transition rounded-lg cursor-pointer px-6 py-6 ">
-                                        <div className="flex text-start items-center justify-start w-full">
-                                            <label className=" text-start  flex items-center justify-start cursor-pointer w-full ">
-                                                <div className="text-primary cursor-pointer " onClick={() => { setExercise(true) }} ><span className="rounded-full border border-primary px-1">+</span> Create a new budgetary exercise</div>
+                                    <li className= "flex flex-col items-center text-center justify-center w-full bg-white dark:bg-darkSecond space-y-1 transition rounded-xl cursor-pointer  ">
+                                        <div className="flex flex-col w-full">
+                                            {exerciseData.map((item, index) => {
+                                                return <label key={index} className=" text-start  flex  items-center justify-start cursor-pointer w-full  border-b dark:border-greylish pl-3 pr-6 py-2">
+                                                <div className="flex items-center gap-3"><span className="font-semibold">{item.name}</span> <div className="border text-sm border-primary text-primary rounded-md px-1 py-1">Active</div> <span className=" font-semibold">{item.total}</span> </div>
+                                            </label>
+                                            })}
+                                            <label className=" text-start  flex items-center justify-start cursor-pointer w-full pl-3 pr-6 py-2">
+                                                <div className="text-primary cursor-pointer " onClick={() => { setExercise(true) }} ><span className="rounded-full border border-primary px-2 ">+</span> Create a new budgetary exercise</div>
                                             </label>
                                         </div>
                                     </li>
@@ -64,17 +118,20 @@ const Budgets = () => {
                             </div>}
 
                         </div>
-                        <div className="text-primary border border-primary bg-red-100 text-sm px-1 py-1 rounded-sm cursor-pointer text-center max-w-[20%]">May 2022</div>
+                        <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-sm px-1 py-1 rounded-sm cursor-pointer text-center max-w-[20%]">May 2022</div>
                     </div>
                     <div className="flex gap-5">
-                        {subBudgets ? <div className="text-white border flex  items-center gap-2 border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setSubBudgets(0) }}> <img src="/icons/left_arrow.png" className="w-3 h-3" alt="" />  Back </div> : ""}
                         <div className="text-primary border border-primary px-3 py-2 rounded-xl cursor-pointer">Current Month</div>
-                        <div className="text-primary border border-primary bg-red-100 px-9 py-2 rounded-xl cursor-pointer">Overall</div>
-                        {!subBudgets && <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setNewBudgetModal(true) }}>Add Budget</div>}
+                        <div className="text-primary border border-primary bg-primary  bg-opacity-30 px-9 py-2 rounded-xl cursor-pointer">Overall</div>
+                        <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { setNewBudgetModal(true) }}>Add Budget</div>
                     </div>
                 </div>
-                <div className={` ${subBudgets ? "w-full" : "grid grid-cols-2 gap-12"}  `}>
-                    <AllBudgets setEditBudget={setEditBudget} setDelBudget={setDelBudget} setSubBudgets={setSubBudgets} subBudgets={subBudgets} />
+
+                <div className={` grid grid-cols-2 gap-12  `}>
+                    {budgetData.map((item,id)=>{
+                        return  <AllBudgets  item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget}  />
+                    })}
+                   
                 </div>
                 {exercise && <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
                     <NewExercise setExercise={setExercise} />

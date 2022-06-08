@@ -249,20 +249,7 @@ const Swap = () => {
                                         </div>
                                     </> : <div className="text-center"><Loader /></div>)
                                 }
-<<<<<<< HEAD
                             </div>
-=======
-                            }} parentClass="shadow-custom bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-1 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
-                        </div>
-                        <div>
-                            {!(!token1Amount) && (!isLoading ?
-                                <>
-                                    <div className="font-bold text-2xl text-center outline-none unvisibleArrow">
-                                        {parseFloat(appAmount).toFixed(4)}
-                                    </div>
-                                </> : <div className="text-center"><Loader /></div>)
-                            }
->>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                         </div>
                         <div className="flex flex-col items-end h-full">
                             <div className="text-right text-xl outline-none unvisibleArrow">
@@ -272,7 +259,6 @@ const Swap = () => {
                         </div>
                     </div>
                 </div>
-<<<<<<< HEAD
                 <div className="px-3 py-3 font-extralight text-sm">
                     <div className="flex justify-between">
                         <div>Rate:</div>
@@ -282,13 +268,6 @@ const Swap = () => {
                         <div>Fee:</div>
                         <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                     </div>
-=======
-            </div>
-            <div className="px-8 py-3 font-extralight text-sm">
-                <div className="flex justify-between">
-                    <div>Rate:</div>
-                    <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
->>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                 </div>
                 <div className="text-center ">
                     <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
@@ -336,18 +315,6 @@ const Swap = () => {
                             <div>Fee:</div>
                             <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                         </div>
-<<<<<<< HEAD
-=======
-                        <div className="text-right">
-                            {token2.name}
-                        </div>
-                    </div>
-                </div>
-                <div className="flex flex-col px-5 text-xs space-y-1">
-                    <div className="flex justify-between">
-                        <div>Rate:</div>
-                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
->>>>>>> 43e5069a8ddc387de07c67ee0c4e6c197f2862b3
                     </div>
                     <div className="flex justify-center">
                         <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>

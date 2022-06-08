@@ -36,7 +36,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const { GenerateBatchPay } = useCeloPay()
     const { createTask, loading } = useGelato()
     const balance = useAppSelector(SelectBalances)
-    const { GetCoins } = useWalletKit()
+    const { GetCoins,blockchain } = useWalletKit()
 
     const contributors = useAppSelector(selectContributors).contributors
     const { addMember, isLoading } = useContributors()
@@ -107,7 +107,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                         paymantDate: startDate!.toISOString(),
                         paymantEndDate: endDate!.toISOString(),
                     }
-                  
+
                     if (amountValue2 && selectedWallet2.name) {
                         sent = {
                             ...sent,
@@ -139,20 +139,26 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     return <>
         <form onSubmit={Submit}>
             <div className="flex flex-col space-y-8">
-            <div className="text-2xl self-center pt-2 font-semibold ">Add People</div>
+                <div className="text-2xl self-center pt-2 font-semibold ">Add People</div>
                 <div className="flex flex-col space-y-4">
-                <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className=" text-left text-greylish dark:text-white">Choose Profile Photo Type</div>
-            <div className={` flex items-center gap-3 w-full`}>
-            <Paydropdown className={'!py-4'}  paymentname={paymentname4}  value={value4} setValue={setValue4} />
-            </div>
-        </div>
-        {value4 && <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className="text-xs text-left  dark:text-white">{value=== "NFT" ? "NFT Address" : "Your Photo"} </div>
-            <div className={`  w-full border rounded-lg`}>
-              {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
-            </div>
-        </div>}
+                    <div className="flex flex-col mb-4 space-y-1 w-full">
+                        <div className=" text-left text-greylish dark:text-white">Choose Profile Photo Type</div>
+                        <div className={` flex items-center gap-3 w-full`}>
+                            <Paydropdown className={'!py-4'} paymentname={paymentname4} value={value4} setValue={setValue4} />
+                        </div>
+                    </div>
+                    {value4 && <div className="flex flex-col mb-4 space-y-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
+                        <div className={`  w-full border rounded-lg`}>
+                            {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                        </div>
+                    </div>}
+                    {blockchain === 'celo' && value4 === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">Token ID</div>
+                        <div className={`w-full border rounded-lg`}>
+                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                        </div>
+                    </div>}
                     <div className="grid grid-cols-2 gap-x-10">
                         <div>
                             <div className="text-greylish ">Name</div>
@@ -184,9 +190,9 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                     </div>
                 </div>
                 <div className="flex flex-col space-y-1">
-                <div className="text-greylish">Amount Type</div>
-                <div>
-                    <Paydropdown setSelectedType={setSelectedType} onChangeType={setSelectedType} paymentname={paymentname} value={value} setValue={setValue} className={"!py-[0.6rem] !rounded-md "} />
+                    <div className="text-greylish">Amount Type</div>
+                    <div>
+                        <Paydropdown setSelectedType={setSelectedType} onChangeType={setSelectedType} paymentname={paymentname} value={value} setValue={setValue} className={"!py-[0.6rem] !rounded-md "} />
                     </div>
                 </div>
                 <div className="flex flex-col space-y-1">

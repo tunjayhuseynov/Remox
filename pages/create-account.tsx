@@ -21,7 +21,7 @@ const CreateAccount = () => {
   const [value, setValue] = useState('')
   const [selectedType, setSelectedType] = useState(false)
   const [file, setFile] = useState<File>()
-
+  
   const list = useMemo<Array<{ title: string, type?: string, name: string }>>(() => [
     { title: "Your Name", name: "userName" }, { title: "Your Address", name: "address", value: Address },
     { title: "Password", name: "password", type: "password", limit: 6 },
@@ -91,6 +91,12 @@ const CreateAccount = () => {
             <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
             <div className={`  w-full border rounded-lg`}>
               {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+            </div>
+          </div>}
+          {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+            <div className="text-xs text-left  dark:text-white">Token ID</div>
+            <div className={`w-full border rounded-lg`}>
+              <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
             </div>
           </div>}
           {list.map((w, i) => <Input key={i} {...w} />)}

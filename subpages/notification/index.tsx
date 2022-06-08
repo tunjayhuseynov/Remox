@@ -85,7 +85,7 @@ const NotificationCointainer = () => {
         </div>}
         <AnimatePresence>
             {openNotify &&
-                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-40 fixed shadow-custom w-[360px] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
+                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-40 fixed shadow-custom w-[360px] xl:w-[380px] h-[100vh] pr-1 xl:pr-2 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond ">
                     <div className="flex justify-between py-6 px-5 text-center border-t-2 border-b-2 dark:border-greylish dark:bg-darkSecond">
                         <p className="text-greylish opacity-45 text-center text-xl flex items-center">Action Bar</p>
                         {<button onClick={() => setNotify(false)} className="text-center">
