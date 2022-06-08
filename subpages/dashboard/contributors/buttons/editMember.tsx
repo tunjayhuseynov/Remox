@@ -161,34 +161,28 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean>, onDisa
 
 
                 let newMember: IMember = {
+                    taskId: null,
                     id: props.id,
                     first: `${memberNameValue}`,
-                    name: encryptMessage(`${memberNameValue} ${memberSurnameValue}`, storage?.encryptedMessageToken),
+                    name: `${memberNameValue} ${memberSurnameValue}`,
                     last: `${memberSurnameValue}`,
-                    address: encryptMessage(addressValue.trim(), storage?.encryptedMessageToken),
+                    address: addressValue.trim(),
                     compensation: compensationValue,
-                    amount: encryptMessage(amountValue, storage?.encryptedMessageToken),
+                    amount: amountValue,
                     currency: selectedWallet.name as CoinsName,
                     teamId: selectedTeam.id,
                     usdBase: selectedType,
                     interval: selectedFrequency!.type as DateInterval,
-                    execution: encryptMessage(value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual, storage?.encryptedMessageToken),
+                    execution: value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual,
                     paymantDate: startDate!.toISOString(),
                     paymantEndDate: endDate!.toISOString(),
+                    secondaryAmount: amountValue2 ? amountValue2.trim() : null,
+                    secondaryCurrency: selectedWallet2?.name ? selectedWallet2.name as CoinsName : null,
+                    secondaryUsdBase: amountValue2 ? selectedType : null,
                 }
 
                 if (hash) newMember.taskId = hash
                 else if (!hash && props.taskId) newMember.taskId = null
-
-                if (amountValue2 && selectedWallet2 && selectedWallet2.name) {
-                    newMember = {
-                        ...newMember,
-                        secondaryAmount: encryptMessage(amountValue2.trim(), storage?.encryptedMessageToken),
-                        secondaryCurrency: selectedWallet2.name as CoinsName,
-                        secondaryUsdBase: selectedType,
-                    }
-                }
-
 
                 await editMember(props.teamId, props.id, newMember)
                 dispatch(changeSuccess({ activate: true, text: "Member updated successfully" }))

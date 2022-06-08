@@ -18,7 +18,7 @@ export default function useSign(address: string, blockchain: BlockchainType) {
         return await Create_Individual({
             id,
             created_date: Math.floor(new Date().getTime() / 1000),
-            addresses: [address],
+            members: [address],
             ...individual,
         })
     }

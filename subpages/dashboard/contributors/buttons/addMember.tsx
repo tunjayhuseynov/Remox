@@ -92,32 +92,25 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                     }
 
                     let sent: IMember = {
+                        taskId: null,
                         id: uuidv4(),
                         first: `${firstNameValue}`,
-                        name: encryptMessage(`${firstNameValue} ${lastNameValue}`, storage?.encryptedMessageToken),
+                        name: `${firstNameValue} ${lastNameValue}`,
                         last: `${lastNameValue}`,
-                        address: encryptMessage(walletAddressValue.trim(), storage?.encryptedMessageToken),
+                        address: walletAddressValue.trim(),
                         compensation: compensationValue,
                         currency: selectedWallet.name as CoinsName,
-                        amount: encryptMessage(parseFloat(amountValue.trim()).toString(), storage?.encryptedMessageToken),
+                        amount: parseFloat(amountValue.trim()).toString(),
                         teamId: selected.id,
                         usdBase: selectedType,
-                        execution: encryptMessage(value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual, storage?.encryptedMessageToken),
+                        execution: value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual,
                         interval: selectedFrequency!.type as DateInterval,
                         paymantDate: startDate!.toISOString(),
                         paymantEndDate: endDate!.toISOString(),
+                        secondaryAmount: amountValue2 ? parseFloat(amountValue2.trim()).toString() : null,
+                        secondaryCurrency: selectedWallet2?.name ? selectedWallet2.name as CoinsName : null,
+                        secondaryUsdBase: amountValue2 ? selectedType : null,
                     }
-
-                    if (amountValue2 && selectedWallet2.name) {
-                        sent = {
-                            ...sent,
-                            secondaryAmount: encryptMessage(parseFloat(amountValue2.trim()).toString(), storage?.encryptedMessageToken),
-                            secondaryCurrency: selectedWallet2.name as CoinsName,
-                            secondaryUsdBase: selectedType,
-                        }
-                    }
-
-
 
                     await addMember(selected.id, sent)
 

@@ -238,11 +238,11 @@ export default function     DynamicPayroll() {
                                 hash = await createTask(Math.floor((new Date(curr.paymantDate).getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
 
                                 let user = { ...curr }
-                                user.name = encryptMessage(`${user.name}`, storage?.encryptedMessageToken)
-                                user.address = encryptMessage(user.address, storage?.encryptedMessageToken)
-                                user.amount = encryptMessage(user.amount, storage?.encryptedMessageToken)
+                                user.name = `${user.name}`
+                                user.address = user.address
+                                user.amount = user.amount
                                 if (user.secondaryAmount) {
-                                    user.secondaryAmount = encryptMessage(user.secondaryAmount, storage?.encryptedMessageToken)
+                                    user.secondaryAmount = user.secondaryAmount
                                 }
 
 

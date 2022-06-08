@@ -34,7 +34,7 @@ function ChooseType() {
   const [address, setAddress] = useState<string | null>(null)
 
   useAsyncEffect(async () => {
-    if (Address) {
+    if (Address && auth.currentUser) {
       setAddress(Address)
       if (!isUserExist) {
         dispatch(changeAccount(Address!))

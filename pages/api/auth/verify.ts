@@ -18,7 +18,7 @@ export default async function handler(
 ) {
 
     try {
-        if (!process.env.EMAIL || !process.env.PASSWORD) throw new Error("Missing env variables");
+        // if (!process.env.EMAIL || !process.env.PASSWORD) throw new Error("Missing env variables");
 
         // await setPersistence(auth, inMemoryPersistence)
         // await signInWithEmailAndPassword(auth, process.env.EMAIL, process.env.PASSWORD);
@@ -116,14 +116,14 @@ export default async function handler(
                         provider: null,
                         signerType: "single"
                     })),
-                    addresses: [
+                    members: [
                         ...user.address
                     ],
                     budget_execrises: [],
                     created_date,
                     id: user.id,
                     image: null,
-                    name: (name ?? `Remox User #${Math.round(Math.random() * 1000)}`)
+                    name: (name ?? `Remox User #${Math.round(Math.random() * 1000)}`),
                 }
                 for (let exercise of individual.budget_execrises) {
                     exercise = Get_Budget_Exercise_Ref(exercise.id);

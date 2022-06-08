@@ -10,7 +10,7 @@ export const Get_Organization = async (id: string) => {
     const organization = await FirestoreRead<IOrganization>(organizationCollectionName, id)
     if (!organization) throw new Error("Organization not found");
 
-    const accounts = organization.organizationAccounts.map(async (account) => {
+    const accounts = organization.accounts.map(async (account) => {
         const accountData = await Get_Account(account.id)
         if (!accountData) throw new Error("Account not found");
         return accountData;
@@ -25,12 +25,12 @@ export const Get_Organization = async (id: string) => {
     const individual = await Get_Individual(organization.creator.id)
     organization.creator = individual;
     organization.budget_execrises = await Promise.all(budgetExercises);
-    organization.organizationAccounts = await Promise.all(accounts);
+    organization.accounts = await Promise.all(accounts);
     return organization;
 }
 
 export const Create_Organization = async (organization: IOrganization) => {
-    for (let account of organization.organizationAccounts) {
+    for (let account of organization.accounts) {
         await Create_Account(account as IAccount);
         account = Get_Account_Ref(account.id);
     }
@@ -40,7 +40,7 @@ export const Create_Organization = async (organization: IOrganization) => {
 
 
 export const Update_Organization = async (organization: IOrganization) => {
-    for (let account of organization.organizationAccounts) {
+    for (let account of organization.accounts) {
         await Create_Account(account as IAccount);
         account = Get_Account_Ref(account.id);
     }

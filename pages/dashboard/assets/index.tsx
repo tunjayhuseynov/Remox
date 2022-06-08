@@ -171,7 +171,11 @@ const Assets = () => {
                                     <motion.div variants={variants} className="hidden sm:block" animate={per24 === 0 ? `${darkMode ? "white" : "black"}` : per24 > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                         % {(item.per_24 || 0).toFixed(2)}
                                     </motion.div>
+<<<<<<< HEAD
                                     <motion.div animate={price === 0 && amount === 0 ? `${darkMode ? "white" : "black"}` : price === 0 ? amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`} className=" flex justify-self-end xl:block pr-1 xl:pr-2" >
+=======
+                                    <motion.div animate={price === 0 && amount === 0 ? `${darkMode ? "white" : "black"}` : price === 0 ? amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`} className=" lex justify-self-end xl:block pr-1 xl:pr-0" >
+>>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                                         $ {(item.amount * item.tokenPrice).toFixed(2)}
                                     </motion.div>
                                     {/* <motion.div animate={percent === 0 ? `${darkMode ? "white" : "black"}` : percent > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
@@ -179,7 +183,7 @@ const Assets = () => {
                                 </motion.div> */}
                                 </div>
                                     <div className="grid grid-cols-[95%,5%] items-center pt-2 pb-8">
-                                        <div className="bg-light dark:bg-dark rounded-2xl relative my-3 h-[1rem] ">
+                                        <div className="bg-light dark:bg-dark rounded-2xl relative my-3 h-[0.5rem] ">
                                             <div className={`bg-primary rounded-2xl h-full `} style={{ width: (item.percent || 0).toFixed(2) + "%" }}></div>
                                         </div>
                                         <div className="ml-2"> {(item.percent || 0).toFixed(2)}%</div>

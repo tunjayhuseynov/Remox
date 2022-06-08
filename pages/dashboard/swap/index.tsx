@@ -16,9 +16,14 @@ import Loader from "components/Loader";
 
 const Swap = () => {
     const { GetCoins } = useWalletKit()
-    const [token1, setToken1] = useState<DropDownItem>(Object.values(GetCoins)[0])
+    const [token1, setToken1] = useState<DropDownItem>()
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<DropDownItem>(Object.values(GetCoins)[1])
+    const [token2, setToken2] = useState<DropDownItem>()
+
+    useEffect(() => {
+        setToken1(Object.values(GetCoins)[0])
+        setToken2(Object.values(GetCoins)[1])
+    }, [GetCoins])
 
     const { isMultisig } = useMultisigProcess()
 
@@ -47,15 +52,16 @@ const Swap = () => {
     const dispatch = useDispatch()
 
     const { Exchange, MinmumAmountOut, isLoading } = useSwap()
+    const [settingRef, exceptRef] = useModalSideExit<boolean>(isSetting, setSetting, false)
 
     const change = useCallback(async (value?: number) => {
-        if (token1.name && token2.name) {
+        if (token1!.name && token2!.name) {
             try {
                 console.log("Rendered")
 
                 const data = await MinmumAmountOut(
-                    GetCoins[token1.name as keyof Coins],
-                    GetCoins[token2.name as keyof Coins],
+                    GetCoins[token1!.name as keyof Coins],
+                    GetCoins[token2!.name as keyof Coins],
                     (value || (token1Amount ?? 0)).toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
@@ -71,11 +77,11 @@ const Swap = () => {
     }, [token1, token2, token1Amount, slippageArr, deadline])
 
     const startSwap = async () => {
-        if (token1.name && token2.name && token1Amount && token1Amount > 0) {
+        if (token1!.name && token2!.name && token1Amount && token1Amount > 0) {
             try {
                 const data = await Exchange(
-                    GetCoins[token1.name as keyof Coins],
-                    GetCoins[token2.name as keyof Coins],
+                    GetCoins[token1!.name as keyof Coins],
+                    GetCoins[token2!.name as keyof Coins],
                     token1Amount.toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
@@ -100,12 +106,11 @@ const Swap = () => {
         }
     }, [token1, token2, token1Amount, slippageArr])
 
-    const [settingRef, exceptRef] = useModalSideExit<boolean>(isSetting, setSetting, false)
 
 
     const changeSwap = () => {
-        const token1_copy = { ...token1 }
-        const token2_copy = { ...token2 }
+        const token1_copy = { ...token1! }
+        const token2_copy = { ...token2! }
         const token2_amount = parseFloat(parseFloat(appAmount).toFixed(2))
         setToken1(token2_copy)
         setToken2(token1_copy)
@@ -117,12 +122,12 @@ const Swap = () => {
     }
 
     if (isMultisig) return <div className="text-center py-2">We are working on bringing Swap into MultiSig account. Please, select a wallet account until we finish it</div>
-
+    if(!token1 || !token2) return <></>
     return <>
         <div className="flex justify-start">
             <div className="text-3xl font-bold ">Swap</div>
         </div>
-        <div className="flex items-center justify-center pt-12">
+        <div className="flex flex-col items-center justify-center pt-12">
             <div className="flex flex-col w-[50%]">
                 <div className="shadow-custom rounded-xl bg-white dark:bg-darkSecond pt-3 pb-10 px-3 flex flex-col space-y-1">
                     <div className="flex justify-end    ">
@@ -259,6 +264,7 @@ const Swap = () => {
                         </div>
                     </div>
                 </div>
+<<<<<<< HEAD
                 <div className="px-3 py-3 font-extralight text-sm">
                     <div className="flex justify-between">
                         <div>Rate:</div>
@@ -268,6 +274,13 @@ const Swap = () => {
                         <div>Fee:</div>
                         <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                     </div>
+=======
+            </div>
+            <div className="px-8 py-3 font-extralight text-sm">
+                <div className="flex justify-between">
+                    <div>Rate:</div>
+                    <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+>>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                 </div>
                 <div className="text-center ">
                     <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
@@ -315,6 +328,18 @@ const Swap = () => {
                             <div>Fee:</div>
                             <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                         </div>
+<<<<<<< HEAD
+=======
+                        <div className="text-right">
+                            {token2.name}
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-col px-5 text-xs space-y-1">
+                    <div className="flex justify-between">
+                        <div>Rate:</div>
+                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+>>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                     </div>
                     <div className="flex justify-center">
                         <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>

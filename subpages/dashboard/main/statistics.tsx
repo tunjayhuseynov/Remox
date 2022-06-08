@@ -17,7 +17,6 @@ import AllWallets from "./allWallets";
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const dark = useNextSelector(selectDarkMode)
-    const storage = useNextSelector(selectStorage)
     const stats = useNextSelector(SelectRawStats)
     const [walletModal, setWalletModal] = useState<boolean>(false)
     const [selectcoin, setSelectcoin] = useState<string>("")
@@ -68,7 +67,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     return <>
 
         <div className="flex flex-col gap-5 h-full w-full ">
-            <div className="text-4xl font-semibold text-left">Welcome, Orkhan</div>
+            <div className="text-4xl font-semibold text-left">Welcome, {}</div>
             <div className="bg-white dark:bg-darkSecond rounded-lg shadow">
                 <div className="w-full px-12 pt-5 flex justify-between">
                     <div className="  flex flex-col gap-1">

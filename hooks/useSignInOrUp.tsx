@@ -12,7 +12,7 @@ import useWalletKit from "./walletSDK/useWalletKit";
 
 export default function useSignInOrUp() {
     const { Wallet, blockchain } = useWalletKit()
-    const { search } = useFirestoreSearchField<IUser>()
+    const { search } = useFirestoreSearchField()
     const [error, setError] = useState<{ errorCode: string, errorMessage: string }>();
     const [user, setUser] = useState<User>();
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -23,7 +23,7 @@ export default function useSignInOrUp() {
     const executeSign = async (address: string, password: string, dataForSignUp?: IUser) => {
         setLoading(true)
         try {
-            const dbUser = await search('users', [{ field: 'address', searching: address, indicator: "array-contains" }])
+            const dbUser = await search<IUser>('users', [{ field: 'address', searching: address, indicator: "array-contains" }])
             const token = await hashing((dbUser?.[0].address[0] ?? address), password)
             const encryptedMessageToken = await hashing(password, token)
             let userCredential;
@@ -59,16 +59,16 @@ export default function useSignInOrUp() {
                     addresses: []
                 })
                 await checkTag()
-                dispatch(setStorage({
-                    accountAddress: address,
-                    allAccounts: [address],
-                    token: token,
-                    uid: user.uid,
-                    companyName: dataForSignUp?.companyName,
-                    surname: dataForSignUp?.surname,
-                    name: dataForSignUp?.name,
-                    encryptedMessageToken: encryptedMessageToken
-                }))
+                // dispatch(setStorage({
+                //     accountAddress: address,
+                //     allAccounts: [address],
+                //     token: token,
+                //     uid: user.uid,
+                //     companyName: dataForSignUp?.companyName,
+                //     surname: dataForSignUp?.surname,
+                //     name: dataForSignUp?.name,
+                //     encryptedMessageToken: encryptedMessageToken
+                // }))
                 dispatch(changeAccount(address))
             } else {
                 const incomingData = await FirestoreRead<IUser>("users", user!.uid)
@@ -99,17 +99,17 @@ export default function useSignInOrUp() {
                     })
                 }
                 await checkTag()
-                dispatch(setStorage({
-                    accountAddress: address,
-                    allAccounts: incomingData.address,
-                    token: token,
-                    uid: user!.uid,
-                    contractAddress: incomingData.contractAddress,
-                    companyName: decryptMessage(incomingData?.companyName, encryptedMessageToken),
-                    surname: decryptMessage(incomingData?.surname, encryptedMessageToken),
-                    name: decryptMessage(incomingData?.name, encryptedMessageToken),
-                    encryptedMessageToken: encryptedMessageToken
-                }))
+                // dispatch(setStorage({
+                //     accountAddress: address,
+                //     allAccounts: incomingData.address,
+                //     token: token,
+                //     uid: user!.uid,
+                //     contractAddress: incomingData.contractAddress,
+                //     companyName: decryptMessage(incomingData?.companyName, encryptedMessageToken),
+                //     surname: decryptMessage(incomingData?.surname, encryptedMessageToken),
+                //     name: decryptMessage(incomingData?.name, encryptedMessageToken),
+                //     encryptedMessageToken: encryptedMessageToken
+                // }))
                 dispatch(changeAccount(address))
             }
 
