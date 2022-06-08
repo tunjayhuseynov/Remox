@@ -12,11 +12,11 @@ import { changeError, selectDarkMode, selectError } from "redux/reducers/notific
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IBalanceItem, SelectBalances } from "redux/reducers/currencies";
 import Button from "components/button";
-import { PaymentInput } from "apiHooks/useCeloPay";
+import { PaymentInput } from "rpcHooks/useCeloPay";
 import useMultisig from 'hooks/walletSDK/useMultisig'
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
-import { Tag } from "apiHooks/useTags";
+import { Tag } from "rpcHooks/useTags";
 import { selectTags } from "redux/reducers/tags";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";

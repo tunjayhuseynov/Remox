@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Tag } from 'apiHooks/useTags';
+import { Tag } from 'rpcHooks/useTags';
 import { IFormattedTransaction } from 'hooks/useTransactionProcess';
 import { Transactions } from '../../types/sdk/blockscout';
 import { RootState } from '../store';

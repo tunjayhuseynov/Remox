@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
-import { Tag } from 'apiHooks/useTags';
+import { Tag } from 'rpcHooks/useTags';
 import { selectTags } from 'redux/reducers/tags';
 import useWalletKit from './walletSDK/useWalletKit';
 

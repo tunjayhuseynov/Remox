@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Button from "components/button";
 import { useAppDispatch } from 'redux/hooks';
 import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import useLending, { InterestRateMode, LendingBorrowStatus, LendingType, LendingUserComponentData } from "apiHooks/useLending";
+import useLending, { InterestRateMode, LendingBorrowStatus, LendingType, LendingUserComponentData } from "rpcHooks/useLending";
 import { useSelector } from 'react-redux'
 import { SelectCurrencies, SelectBalances } from 'redux/reducers/currencies'
 import { Coins } from 'types'

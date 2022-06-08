@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { LendingUserComponentData } from 'apiHooks/useLending'
+import { LendingUserComponentData } from 'rpcHooks/useLending'
 import type { RootState } from '../store'
 
 

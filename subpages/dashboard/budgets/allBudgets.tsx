@@ -82,7 +82,7 @@ function AllBudgets({ setEditBudget, setDelBudget, setSubBudgets, subBudgets }: 
             </div>
         </div>
         </div>
-        <div className=" flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
             <div className={` ${subBudgets ? subBudgets === 2 ? "w-full" : "hidden" : ""} `}>
                 <div className="rounded-xl shadow-custom px-4 py-4 bg-white dark:bg-darkSecond " >
                     <div className="flex items-center justify-between w-full">

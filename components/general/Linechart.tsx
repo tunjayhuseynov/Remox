@@ -35,7 +35,7 @@ function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: str
     chart: {
       toolbar: { show: false },
       zoom: { enabled: false },
-      background: "#1C1C1C"
+      background: dark ? "#1C1C1C" : "#FFFFFF"
     },
     dataLabels: { enabled: false },
     stroke: { curve: "smooth" },

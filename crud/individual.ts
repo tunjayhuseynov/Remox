@@ -1,4 +1,4 @@
-import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase";
+import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
 import { IIndividual } from "firebaseConfig";
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise";
 

@@ -1,4 +1,4 @@
-import { useFirestoreSearchField } from "apiHooks/useFirebase";
+import { useFirestoreSearchField } from "rpcHooks/useFirebase";
 import axios from "axios";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, IUser } from "firebaseConfig";

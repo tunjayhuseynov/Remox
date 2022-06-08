@@ -4,9 +4,9 @@ import Profile from "subpages/dashboard/contributors/buttons/profile"
 import EditMember from "subpages/dashboard/contributors/buttons/editMember"
 import Avatar from "../../../components/avatar";
 import Delete from './buttons/delete'
-import { IMember } from "apiHooks/useContributors";
+import { IMember } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
-import useGelato from "apiHooks/useGelato";
+import useGelato from "rpcHooks/useGelato";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';

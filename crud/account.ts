@@ -1,4 +1,4 @@
-import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase"
+import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { doc } from "firebase/firestore";
 import { db, IAccount } from "firebaseConfig"
 

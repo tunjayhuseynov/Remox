@@ -3,16 +3,16 @@ import { toTransactionObject } from '@celo/connect';
 import { Keypair, PACKET_DATA_SIZE, PublicKey, SystemInstruction, SystemProgram, Transaction } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "apiHooks/useFirebase";
+import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "rpcHooks/useFirebase";
 import { auth } from 'firebaseConfig';
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/reducers/storage";
 import { useDispatch } from "react-redux";
 import { setInternalSign, setSign } from "redux/reducers/multisig";
-import useCeloPay, { PaymentInput } from "apiHooks/useCeloPay";
+import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
-import { Contracts } from "apiHooks/Contracts/Contracts";
+import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { fromWei, lamport, toLamport } from "utils/ray";
 import * as borsh from '@project-serum/borsh';
 import { selectBlockchain } from "redux/reducers/network";
@@ -32,8 +32,8 @@ import useNextSelector from "hooks/useNextSelector";
 //     Payment
 // } from 'batch-payment/src'
 
-const multiProxy = import("apiHooks/ABI/MultisigProxy.json");
-const multisigContract = import("apiHooks/ABI/Multisig.json")
+const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
+const multisigContract = import("rpcHooks/ABI/Multisig.json")
 
 export interface TransactionMultisig {
     destination: string,

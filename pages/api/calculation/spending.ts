@@ -4,8 +4,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import date from 'date-and-time'
 import axios from "axios";
 import { ATag } from "subpages/dashboard/insight/boxmoney";
-import { Tag } from "apiHooks/useTags";
-import { FirestoreRead } from "apiHooks/useFirebase";
+import { Tag } from "rpcHooks/useTags";
+import { FirestoreRead } from "rpcHooks/useFirebase";
 
 export interface IFlowDetail {
     [key: string]: number,
@@ -186,51 +186,60 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
         [key: string]: number
     } = {}
 
+    const stringTime = (time: Date) => `${time.getMonth() + 1}/${time.getDate()}/${time.getFullYear()}`
+
     transactions.forEach(t => {
         const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
         const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
         const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
-        const stringTime = `${tTime.getMonth() + 1}/${tTime.getDate()}/${tTime.getFullYear()}`
 
+        const sTime = stringTime(tTime)
         if (tDay <= selectedDay) {
             let calc = 0;
             if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                 const tx = t as ITransfer;
                 const current = (Number(fromMinScale(blockchain)(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
-                if (isOut) calendarOut[stringTime] = calendarOut[stringTime] ? calendarOut[stringTime] + current : current;
-                else calendarIn[stringTime] = calendarIn[stringTime] ? calendarIn[stringTime] + current : current;
+                if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                 calc += current;
             }
             if (t.id === ERC20MethodIds.noInput) {
                 const current = (Number(fromMinScale(blockchain)(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1))
-                if (isOut) calendarOut[stringTime] = calendarOut[stringTime] ? calendarOut[stringTime] + current : current;
-                else calendarIn[stringTime] = calendarIn[stringTime] ? calendarIn[stringTime] + current : current;
+                if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                 calc += current;
             }
             if (t.id === ERC20MethodIds.batchRequest) {
                 const tx = t as IBatchRequest;
                 tx.payments.forEach(transfer => {
                     const current = (Number(fromMinScale(blockchain)(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
-                    if (isOut) calendarOut[stringTime] = calendarOut[stringTime] ? calendarOut[stringTime] + current : current;
-                    else calendarIn[stringTime] = calendarIn[stringTime] ? calendarIn[stringTime] + current : current;
+                    if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                    else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                     calc += current;
                 })
             }
             if (isOut) {
-                TotalInOut[stringTime] = TotalInOut[stringTime] ? TotalInOut[stringTime] - calc : -1 * calc;
+                TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] - calc : -1 * calc;
                 myout += calc
             } else {
-                TotalInOut[stringTime] = TotalInOut[stringTime] ? TotalInOut[stringTime] + calc : calc;
+                TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] + calc : calc;
                 myin += calc
             }
         }
     })
     let tv = TotalBalance;
-    TotalInOut = Object.entries(TotalInOut).reduce<{ [name: string]: number }>((a, [key, value]) => {
+    const totalInOut = Object.entries(TotalInOut)
+    TotalInOut = totalInOut.reduce<{ [name: string]: number }>((a, [key, value]) => {
         tv += value;
         a[key] = tv;
         return a;
     }, {})
+
+    if(totalInOut.length === 0){
+        TotalInOut[stringTime(date.addDays(new Date(), selectedDay))] = TotalBalance
+        TotalInOut[stringTime(new Date())] = TotalBalance;
+    }
+
     return {
         AccountIn: {
             total: myin,

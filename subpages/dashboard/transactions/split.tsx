@@ -7,7 +7,7 @@ import _ from "lodash";
 import { useTransactionProcess, useWalletKit } from "hooks";
 import { useSelector } from "react-redux";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
-import useProfile from "apiHooks/useProfile";
+import useProfile from "rpcHooks/useProfile";
 import { useModalSideExit } from "hooks";
 import Paydropdown from 'subpages/pay/paydropdown';
 

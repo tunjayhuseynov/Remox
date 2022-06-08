@@ -1,4 +1,4 @@
-import { IuseCurrency } from "apiHooks/useCurrency";
+import { IuseCurrency } from "rpcHooks/useCurrency";
 import { useCallback, useMemo } from "react";
 import { AltCoins, Coins, TokenType } from "types";
 import useWalletKit from "./walletSDK/useWalletKit";

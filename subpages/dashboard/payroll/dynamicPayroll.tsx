@@ -4,14 +4,14 @@ import TeamContainer from 'subpages/dashboard/payroll/teamContainer'
 import { SelectBalances, SelectTotalBalance } from 'redux/reducers/currencies';
 import { Coins } from 'types';
 import { selectContributors } from 'redux/reducers/contributors';
-import { DateInterval, ExecutionType, IMember } from 'apiHooks/useContributors';
+import { DateInterval, ExecutionType, IMember } from 'rpcHooks/useContributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
-import useAllowance from "apiHooks/useAllowance";
-import { Contracts } from "apiHooks/Contracts/Contracts";
-import useCeloPay, { PaymentInput } from "apiHooks/useCeloPay";
-import useGelato from "apiHooks/useGelato";
+import useAllowance from "rpcHooks/useAllowance";
+import { Contracts } from "rpcHooks/Contracts/Contracts";
+import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
+import useGelato from "rpcHooks/useGelato";
 import useContributors from "hooks/useContributors";
 import { encryptMessage } from 'utils/hashing';
 import { selectStorage } from 'redux/reducers/storage';

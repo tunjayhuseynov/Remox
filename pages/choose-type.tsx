@@ -4,7 +4,7 @@ import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
-import { useFirestoreSearchField } from 'apiHooks/useFirebase';
+import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
 import { useSelector } from 'react-redux';

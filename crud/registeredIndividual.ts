@@ -1,4 +1,4 @@
-import { FirestoreRead, FirestoreWrite } from "apiHooks/useFirebase";
+import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
 import { IRegisteredIndividual } from "firebaseConfig";
 
 export const registeredIndividualCollectionName = "registrationIndividuals"

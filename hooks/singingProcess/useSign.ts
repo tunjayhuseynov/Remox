@@ -10,30 +10,29 @@ import { Get_Account_Ref } from "crud/account";
 export default function useSign(address: string, blockchain: BlockchainType) {
 
     const RegisterIndividual = async (individual: Omit<IIndividual, "id" | "created_date" | "addresses" | "blockchain">) => {
-        if (await isIndiviualRegistered) throw new Error("User already registered");
+        if (await isIndiviualRegistered(address)) throw new Error("User already registered");
         if (!auth.currentUser) throw new Error("User not logged in");
         await UploadImageForUser(individual);
 
         const id = auth.currentUser.uid;
         return await Create_Individual({
+            ...individual,
             id,
             created_date: Math.floor(new Date().getTime() / 1000),
             members: [address],
-            ...individual,
         })
     }
 
     const RegisterOrganization = async (organization: Omit<IOrganization, "id" | "created_date" | "blockchain">) => {
-        if (await isOrganisationRegistered) throw new Error("User already registered");
+        if (await isOrganisationRegistered(organization.name, blockchain)) throw new Error("User already registered");
 
         await UploadImageForUser(organization);
 
         const id = process(`${organization.name}-`);
         return await Create_Organization({
-            id,
-            blockchain,
-            created_date: Math.floor(new Date().getTime() / 1000),
             ...organization,
+            id,
+            created_date: Math.floor(new Date().getTime() / 1000),
         })
     }
 

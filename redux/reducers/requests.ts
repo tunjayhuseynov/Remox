@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { IRequest, RequestStatus } from 'apiHooks/useRequest'
+import { IRequest, RequestStatus } from 'rpcHooks/useRequest'
 import type { RootState } from '../store'
 
 

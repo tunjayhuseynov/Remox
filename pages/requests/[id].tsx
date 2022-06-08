@@ -10,10 +10,10 @@ import useRequest from "hooks/useRequest";
 import DatePicker from "react-datepicker";
 import Modal from "components/general/modal";
 import dateFormat from "dateformat";
-import { IRequest } from "apiHooks/useRequest";
+import { IRequest } from "rpcHooks/useRequest";
 import { isAddress } from "web3-utils";
 import { toast, ToastContainer } from 'react-toastify';
-import useCurrency from "apiHooks/useCurrency";
+import useCurrency from "rpcHooks/useCurrency";
 import { ICoinMembers, updateAllCurrencies } from 'redux/reducers/currencies'
 import { SelectCurrencies } from 'redux/reducers/currencies';
 import { TotalUSDAmount } from "subpages/dashboard/requests/totalAmount";

@@ -5,7 +5,7 @@ import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { SelectBalances, SelectTotalBalance } from 'redux/reducers/currencies';
 import { AddressReducer } from "../../../utils";
 import Button from "components/button";
-import useGelato from "apiHooks/useGelato";
+import useGelato from "rpcHooks/useGelato";
 import { selectTags } from "redux/reducers/tags";
 import { BN } from "utils/ray";
 import { useModalSideExit, useWalletKit } from "hooks";

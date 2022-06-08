@@ -1,4 +1,4 @@
-import { FirestoreWrite, FirestoreRead, useFirestoreRead } from 'apiHooks/useFirebase'
+import { FirestoreWrite, FirestoreRead, useFirestoreRead } from 'rpcHooks/useFirebase'
 import { useState } from 'react'
 import { auth } from 'firebaseConfig';
 import { generate } from 'shortid'

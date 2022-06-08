@@ -1,4 +1,4 @@
-import useTags from 'apiHooks/useTags'
+import useTags from 'rpcHooks/useTags'
 import Button from 'components/button'
 import Error from 'components/general/error'
 import Modal from 'components/general/modal'

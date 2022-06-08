@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeAccount } from "../redux/reducers/selectedAccount";
 import { selectStorage, setStorage } from "../redux/reducers/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
-import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'apiHooks/useFirebase';
+import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
 import { getAuth } from 'firebase/auth';
 import useWalletKit from './walletSDK/useWalletKit';

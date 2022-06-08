@@ -1,4 +1,4 @@
-import { useFirestoreReadMultiple } from "apiHooks/useFirebase";
+import { useFirestoreReadMultiple } from "rpcHooks/useFirebase";
 import { CoinsName } from "types";
 import { selectStorage } from "redux/reducers/storage";
 import { useSelector } from "react-redux";

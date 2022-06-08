@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFirestoreSearchField } from 'apiHooks/useFirebase';
+import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { IUser } from 'firebaseConfig';
 import Button from "components/button";
 import AnimatedTabBar from 'components/animatedTabBar';

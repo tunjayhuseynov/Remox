@@ -1,4 +1,4 @@
-import { FirestoreRead, FirestoreReadMultiple, FirestoreWrite } from "apiHooks/useFirebase";
+import { FirestoreRead, FirestoreReadMultiple, FirestoreWrite } from "rpcHooks/useFirebase";
 import { individualCollectionName } from "crud/individual";
 import { registeredIndividualCollectionName } from "crud/registeredIndividual";
 import { getAuth, inMemoryPersistence, setPersistence, signInWithEmailAndPassword } from "firebase/auth";

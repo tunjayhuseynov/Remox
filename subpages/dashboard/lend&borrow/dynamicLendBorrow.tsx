@@ -1,4 +1,4 @@
-import useLending, { LendingUserComponentData } from "apiHooks/useLending";
+import useLending, { LendingUserComponentData } from "rpcHooks/useLending";
 import Loader from "components/Loader";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

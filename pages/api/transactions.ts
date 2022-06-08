@@ -5,11 +5,11 @@ import { CeloCoins, CoinsName, PoofCoins, SolanaCoins } from 'types';
 import { GetTransactions, Transactions } from 'types/sdk'
 import * as solanaWeb3 from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Tag } from 'apiHooks/useTags';
+import { Tag } from 'rpcHooks/useTags';
 import _ from 'lodash';
 import { SolanaEndpoint } from 'components/Wallet';
 import { BlockchainType, CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
-import { FirestoreRead, FirestoreReadMultiple } from 'apiHooks/useFirebase';
+import { FirestoreRead, FirestoreReadMultiple } from 'rpcHooks/useFirebase';
 
 
 

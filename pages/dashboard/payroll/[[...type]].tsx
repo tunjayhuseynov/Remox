@@ -2,7 +2,7 @@ import {useState} from 'react'
 import AnimatedTabBar from 'components/animatedTabBar';
 import DynamicPayroll from 'subpages/dashboard/payroll/dynamicPayroll';
 import { useRouter } from 'next/router';
-import {  IMember } from 'apiHooks/useContributors';
+import {  IMember } from 'rpcHooks/useContributors';
 import Button from 'components/button';
 
 const Payroll = () => {

@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Tag } from "apiHooks/useTags";
+import { Tag } from "rpcHooks/useTags";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { Chart as ChartJs } from 'chart.js';
 import Chartjs from "components/general/chart";
-import useInsight from "apiHooks/useInsight";
+import useInsight from "rpcHooks/useInsight";
 
 export type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
 

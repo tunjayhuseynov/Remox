@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IMember } from 'apiHooks/useContributors';
-import { IRequest } from 'apiHooks/useRequest';
+import { IMember } from 'rpcHooks/useContributors';
+import { IRequest } from 'rpcHooks/useRequest';
 import { RootState } from '../store';
 
 const initialState: { memberList: IMember[] | IRequest[], request?: boolean } = {
