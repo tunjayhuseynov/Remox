@@ -47,7 +47,7 @@ const Contributors = () => {
     return <div>
         <div className="flex flex-col  pb-5 gap-10">
             <div className="flex justify-between items-center w-full">
-                <div className="text-3xl font-bold">
+                <div className="text-4xl font-bold">
                     Contributors
                 </div>
                 {selectbar === "Team" ? <Button className="text-xs sm:text-base !py-1 !px-6 rounded-2xl" onClick={() => setAddTeamModal(true)}>Add Team</Button> : <Button className="text-xs sm:text-base !py-1 !px-6 rounded-2xl" onClick={() => setAddMemberModal(true)}>Add People</Button>}

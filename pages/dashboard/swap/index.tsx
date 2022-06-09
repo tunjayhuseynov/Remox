@@ -125,7 +125,7 @@ const Swap = () => {
     if(!token1 || !token2) return <></>
     return <>
         <div className="flex justify-start">
-            <div className="text-3xl font-bold ">Swap</div>
+            <div className="text-4xl font-bold ">Swap</div>
         </div>
         <div className="flex flex-col items-center justify-center pt-12">
             <div className="flex flex-col w-[50%]">
@@ -264,7 +264,6 @@ const Swap = () => {
                         </div>
                     </div>
                 </div>
-<<<<<<< HEAD
                 <div className="px-3 py-3 font-extralight text-sm">
                     <div className="flex justify-between">
                         <div>Rate:</div>
@@ -274,13 +273,6 @@ const Swap = () => {
                         <div>Fee:</div>
                         <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                     </div>
-=======
-            </div>
-            <div className="px-8 py-3 font-extralight text-sm">
-                <div className="flex justify-between">
-                    <div>Rate:</div>
-                    <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
->>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                 </div>
                 <div className="text-center ">
                     <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
@@ -328,18 +320,6 @@ const Swap = () => {
                             <div>Fee:</div>
                             <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                         </div>
-<<<<<<< HEAD
-=======
-                        <div className="text-right">
-                            {token2.name}
-                        </div>
-                    </div>
-                </div>
-                <div className="flex flex-col px-5 text-xs space-y-1">
-                    <div className="flex justify-between">
-                        <div>Rate:</div>
-                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
->>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                     </div>
                     <div className="flex justify-center">
                         <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>

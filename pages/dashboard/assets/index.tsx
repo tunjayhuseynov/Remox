@@ -112,7 +112,7 @@ const Assets = () => {
 
     return <>
         <div className="">
-            <div className="font-bold text-3xl">Assets</div>
+            <div className="font-bold text-4xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
                     <AnimatedTabBar data={paymentdata} setText={setText} />
@@ -121,7 +121,7 @@ const Assets = () => {
                     <div className="font-bold text-2xl">{text === "Tokens" ? 'Token Balances' : "NFT Balances"}</div>
                     {text === "Tokens" ? <div className="font-bold text-2xl">{(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <Loader />}</div> : <div className="font-bold text-2xl">$143.2</div>}
                 </div>
-                {text === "Tokens" ? <div className=" pb-5 px-2 sm:px-8 shadow-custom rounded-xl bg-white dark:bg-darkSecond">
+                {text === "Tokens" ? <div className=" pb-5 px-2 sm:px-8 ">
                     {TypeCoin.map((i, index) => {
                         return <div key={index}> <div className="font-bold text-2xl py-5 !ml-[-0.5rem]">{i.header}</div>
                             <div id="header" className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  py-4">

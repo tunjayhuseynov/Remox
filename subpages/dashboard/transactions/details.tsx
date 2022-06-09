@@ -31,7 +31,6 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
     const [split2, setSplit2] = useState(false)
     const [split3, setSplit3] = useState(false)
     const { GetCoins, fromMinScale } = useWalletKit()
-    const dark = useSelector(selectDarkMode)
     const { profile, UpdateSeenTime } = useProfile()
     const [openNotify, setNotify] = useState(false)
 
@@ -109,10 +108,10 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                     <div className="flex flex-col w-full pb-4">
                         <span className="text-left  text-greylish pb-2 pl-1" >Budget</span>
                         <Paydropdown paymentname={paymentname} value={value} setValue={setValue} className={'!py-3'} />
-                        {split1  ? <div className="border-b w-full pt-8"></div> : <div className="pt-8 cursor-pointer self-start text-primary flex items-center justify-center gap-1" onClick={()=>{setSplit1(true)}} ><span className=" px-2 border border-primary rounded-full ">+</span>Add Split</div> }
+                        {split1 ? <div className="border-b w-full pt-8"></div> : <div className="pt-8 cursor-pointer self-start text-primary flex items-center justify-center gap-1" onClick={() => { setSplit1(true) }} ><span className=" px-2 border border-primary rounded-full ">+</span>Add Split</div>}
                     </div>
                 </div>
-                <Split split={split1} split2={split2} split3={split3} setSplit={setSplit1} setSplit2={setSplit2} setSplit3={setSplit3}  />
+                <Split split={split1} split2={split2} split3={split3} setSplit={setSplit1} setSplit2={setSplit2} setSplit3={setSplit3} />
                 <div className="flex gap-8">
                     <Button version="second" className="shadow-none px-10 py-2 !rounded-md" onClick={() => setSplit(false)}>Close</Button>
                     <Button className="shadow-none px-10 py-2 !rounded-md">Save</Button>
@@ -125,6 +124,9 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
         <AnimatePresence>
             {openNotify &&
                 <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-[97] fixed shadow-custom w-[35rem] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond cursor-default ">
+                    <button onClick={() => setNotify(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
+                        <img src="/icons/cross_greylish.png" alt="" />
+                    </button>
                     <div className="flex flex-col min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center">
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Transaction Details</div>
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-medium pt-4">- $100.00</div>

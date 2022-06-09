@@ -1,38 +1,24 @@
 import React from 'react'
+import { ITotals } from './allBudgets'
+import TotalDetails from './totalDetails'
 
-function TotalValues() {
+function TotalValues({totals}: {totals: ITotals[]}) {
 
-    const total = [
-        {
-            id: 0,
-            name: "Total Budget",
-            value: "$300.000,00 USD"
-        },
-        {
-            id: 1,
-            name: "Total Used",
-            value: "$100.000,00"
-        },
-        {
-            id: 2,
-            name: "Total Pending",
-            value: "$140.000,00"
-        },
-        {
-            id: 3,
-            name: "Total Available",
-            value: "$100.000,00"
-        },
-    ]
+
 
     return <div className="py-4  border-b dark:border-[#aaaaaa]">
-        <div className='flex   '>
-            {total.map((item, index) => {
-                return <div key={index} className={`flex ${item.id===0 ? 'pr-8' : 'pl-28'}  flex-col  gap-12 lg:gap-4 !mt-0`}>
+        <div className='flex'>
+            {totals.map((item, index) => {
+                return <div key={index} className={`flex ${item.id===0 ? 'pr-16 !min-w-[23rem] ' : item.id === 3 ? '!border-r-0 pl-20 gap-8 !flex-row text-2xl min-w-[23rem] items-center justify-center' : 'px-20'}  border-r dark:border-[#aaaaaa] !my-0`}>
+                    <div className={` ${item.id===3 && 'self-start'} flex flex-col gap-12 lg:gap-4 `}>
                     <div className='text-xl font-bold'>{item.name}</div>
-                    <div className={` ${item.id === 0 ? 'text-4xl' : 'text-2xl'} font-semibold flex flex-col gap-2`}>
+                    <div className={` ${item.id === 0 ? 'text-4xl' :  'text-2xl'} font-semibold flex flex-col gap-2`}>
                         {item.value}
                     </div>
+                    </div>
+                    {item.id ===3 && <div className="flex items-center justify-center">
+                        <TotalDetails totals={totals} />
+                    </div> }
                 </div>
             })}
         </div>

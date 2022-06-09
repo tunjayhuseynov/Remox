@@ -148,8 +148,8 @@ export default function     DynamicPayroll() {
 
             {memberState[0].length > 0 ? <div className="px-10">
                 <div className="text-2xl font-semibold py-2 pb-8">Run Payroll</div>
-                <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-                    <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] sm:grid-cols-[16%,13%,14%,17%,12%,12%,18%] rounded-xl bg-light  dark:bg-dark  sm:mb-5 px-5 " >
+                <div className="w-full shadow-custom px-5 pt-4 pb-6 ">
+                    <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] sm:grid-cols-[16%,13%,14%,17%,12%,12%,18%]   sm:mb-5 px-5 " >
                         <div className="font-semibold py-3">Name</div>
                         <div className="font-semibold py-3">Start Date</div>
                         <div className="font-semibold py-3">End Date</div>
@@ -164,7 +164,7 @@ export default function     DynamicPayroll() {
                 </div>
                 <div className="flex flex-col space-y-3 pt-10">
                     <div className="text-2xl font-semibold tracking-wide">Review Treasury Impact</div>
-                    <div className="w-full flex flex-col  bg-white dark:bg-darkSecond shadow rounded-xl p-5 ">
+                    <div className="w-full flex flex-col   p-5 ">
                         <div className="grid grid-cols-[20%,80%]  pb-2">
                              <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
                             <div className="font-semibold text-lg text-greylish">Token Allucation</div>
@@ -261,9 +261,9 @@ export default function     DynamicPayroll() {
                 {memberState[0].length > 0 && confirm ? 'Confirm' : 'Run Payroll'}
             </Button>
         </div>
-        <div className="rounded-xl shadow-custom px-5 py-6 bg-white dark:bg-darkSecond ">
-            <div className='flex  space-y-3 gap-12'>
-                <div className='flex flex-col space-y-5 gap-12 lg:gap-4'>
+        <div className=" px-5 py-6 border-b">
+            <div className='flex '>
+                <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r'>
                     <div className='text-xl font-bold'>Monthly Total Payment</div>
                     {totalPrice ? <div className='text-3xl font-bold !mt-1'>
                         ${Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
@@ -272,7 +272,7 @@ export default function     DynamicPayroll() {
                         }, 0).toFixed(2)} USD
                     </div> : <div><Loader /></div>}
                 </div>
-                <div className="flex flex-col space-y-5 !mt-0">
+                <div className="flex flex-col space-y-5 pl-8 !mt-0">
                     <div className='text-xl font-bold'>Token Allocation</div>
                     <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12'>
                         {totalPrice ?
@@ -295,7 +295,7 @@ export default function     DynamicPayroll() {
                 </div>
             </div>
         </div>
-        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
+        <div className="w-full  px-5 pt-4 pb-6 ">
             <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,12%,12%,18%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
                 <div className="font-semibold py-3 pl-8 ">Name</div>
                 <div className="font-semibold py-3">Start Date</div>

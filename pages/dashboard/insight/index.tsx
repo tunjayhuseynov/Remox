@@ -90,7 +90,7 @@ const Insight = () => {
     return (
         <div className="flex flex-col space-y-3">
             <div className="flex justify-between pb-4">
-                <div className="text-3xl font-bold">Insights</div>
+                <div className="text-4xl font-bold">Insights</div>
                 {/* <div className="flex gap-2">
                     {!isMultisig && <div className="mr-3">
                         <WalletDropdown selected={selectedAccount} onChange={(wallets) => {

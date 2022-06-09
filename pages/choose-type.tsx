@@ -67,15 +67,15 @@ function ChooseType() {
   const data = [
     {
       name: "UbeSwap",
-      address: address && AddressReducer(address),
+      value: "$50.000",
     },
     {
       name: "AriSwap",
-      address: address && AddressReducer(address),
+      value: "$50.000",
     },
     {
       name: "AriSwap",
-      address: address && AddressReducer(address),
+      value: "$50.000",
     },
 
   ]
@@ -99,7 +99,7 @@ function ChooseType() {
                   <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
                   <div className="flex  flex-col">
                     <p className="text-base">{i.name}</p>
-                    <p className="text-sm text-greylish">{i.address}</p>
+                    <p className="text-sm text-greylish">{i.value}</p>
                   </div>
                 </div>
               })}
@@ -112,11 +112,11 @@ function ChooseType() {
               <div className={`${organisation2 && "  text-primary"}  flex items-center text-xl justify-center font-bold py-4 px-4 dark:border-greylish`} onClick={() => navigate.push('/create-organisation')}>Add a new Organisation</div>
             </div>
           }
-          {address ? <div className={`${isIndividual && " !border-primary "} border  hover:!border-primary dark:border-greylish  hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`}  onMouseEnter={() => { setIndividual(!isIndividual); setOrganisation(false); } } onMouseLeave={() =>  setIndividual(!isIndividual) }>
+          {address ? <div  onClick={login} className={`${isIndividual && " !border-primary "} border  hover:!border-primary dark:border-greylish  hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`}  onMouseEnter={() => { setIndividual(!isIndividual); setOrganisation(false); } } onMouseLeave={() =>  setIndividual(!isIndividual) }>
             <div className={`    cursor-pointer    bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`}>
               <div className={`${isIndividual && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
             </div>
-            {isIndividual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none " onClick={login}>Next  &gt;</Button>}
+            {isIndividual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>}
           </div> :
             <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:!border-primary hover:text-primary transition-all hover:transition-all cursor-pointer dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
               <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`} onClick={() => navigate.push('/create-account')}>Continue as a Individual</div>

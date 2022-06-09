@@ -12,7 +12,8 @@ import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice
 import useNextSelector from "hooks/useNextSelector";
 import { selectStorage } from "redux/reducers/storage";
 import AllWallets from "./allWallets";
-
+import Modal from 'components/general/modal'
+import NewWalletModal from "./newWalletModal";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
     const selectedAccount = useNextSelector(SelectSelectedAccount)
@@ -65,7 +66,11 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     ]
 
     return <>
-
+    {
+        walletModal && <Modal onDisable={setWalletModal} disableX={true} className={'!pt-4 !z-[99] !w-[43%]'}>
+            <NewWalletModal onDisable={setWalletModal} />
+        </Modal>
+    }
         <div className="flex flex-col gap-5 h-full w-full ">
             <div className="text-4xl font-semibold text-left">Welcome, {}</div>
             <div className="bg-white dark:bg-darkSecond rounded-lg shadow">
@@ -81,7 +86,6 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                         <span className={` ${chartDate === "1y" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("1y")}>1Y</span>
                     </div>
                 </div>
-                {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
                 <div className="w-full h-full flex items-center justify-center"><LineChart data={stats?.TotalBalanceByDay.year ?? {}} type={'area'} /></div>
             </div>
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
@@ -91,7 +95,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
                     {datas.map((item, id) => {
-                        return <AllWallets item={item} key={id} walletModal={walletModal} setWalletModal={setWalletModal} />
+                        return <AllWallets item={item} key={id}  />
                     })}
                 </div>
 

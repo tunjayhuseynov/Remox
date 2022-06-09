@@ -8,6 +8,7 @@ import useContributors from "hooks/useContributors";
 import useGelato from "apiHooks/useGelato";
 import { useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { useModalSideExit } from "hooks";
 
 const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
     const [deleteModal, setDeleteModal] = useState(false)
@@ -33,6 +34,8 @@ const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
         }
     }
 
+    const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
+
     return <>
        {props.selectbar === "Team" && <div className=" flex px-5 py-5   min-w-[23.5rem] min-h-[12rem] items-start justify-between  bg-white dark:bg-darkSecond shadow rounded-lg">
             <div className="flex flex-col justify-between w-full h-full">
@@ -41,8 +44,8 @@ const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
                 <div>{props.name}</div>
             </div>
             <div className="flex items-end justify-end">
-                <span onClick={() =>{setDetails(!details)}} className=" text-3xl flex items-center relative cursor-pointer  font-bold"><span className="rotate-90 text-primary">...</span>
-                {details && <div className="flex flex-col items- justify-start bg-white dark:bg-darkSecond  absolute right-6 -top-12  translate-y-full rounded-lg shadow-xl z-50 ">
+                <span ref={exceptRef} onClick={() =>{setDetails(!details)}} className=" text-3xl flex items-center relative cursor-pointer  font-bold"><span className="rotate-90 text-primary">...</span>
+                {details && <div ref={divRef} className="flex flex-col items- justify-start bg-white dark:bg-darkSecond  absolute right-6 -top-12  translate-y-full rounded-lg shadow-xl z-50 ">
                 <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex items-center min-w-[7rem] px-2 pr-6 py-1 gap-2" onClick={() => setEditModal(true)}>
                     <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt=""  /> <span>Edit</span>
                 </div>
