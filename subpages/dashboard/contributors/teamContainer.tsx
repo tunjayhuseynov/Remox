@@ -3,9 +3,9 @@ import Modal from "../../../components/general/modal";
 import Delete from "./buttons/delete";
 import EditTeam from './buttons/editTeam'
 import TeamItem from "./teamItem";
-import { IuseContributor } from "apiHooks/useContributors";
+import { IuseContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
-import useGelato from "apiHooks/useGelato";
+import useGelato from "rpcHooks/useGelato";
 import { useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import { useModalSideExit } from "hooks";

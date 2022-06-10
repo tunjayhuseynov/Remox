@@ -10,12 +10,12 @@ import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } fro
 import { Transactions } from 'types/sdk';
 import { fromLamport, fromWei, toLamport } from 'utils/ray';
 import { ERC20MethodIds } from '../useTransactionProcess';
-import useCeloPay, { PaymentInput, Task } from 'apiHooks/useCeloPay'
-import { Tag } from 'apiHooks/useTags';
+import useCeloPay, { PaymentInput, Task } from 'rpcHooks/useCeloPay'
+import { Tag } from 'rpcHooks/useTags';
 
 import * as spl from 'easy-spl'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { useFirestoreSearchField } from 'apiHooks/useFirebase';
+import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { IUser } from 'firebaseConfig/types';
 import { changePrivateToken } from 'redux/reducers/selectedAccount';
 import { TextDecoder, TextEncoder } from 'util';

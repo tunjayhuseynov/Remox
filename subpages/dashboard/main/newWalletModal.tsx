@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFirestoreSearchField } from 'apiHooks/useFirebase';
+import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { IUser } from 'firebaseConfig';
 import Button from "components/button";
 import AnimatedTabBar from 'components/animatedTabBar';
@@ -15,15 +15,11 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const [value, setValue] = useState('')
     const [value2, setValue2] = useState('')
     const navigate = useRouter()
-    const { Connect, Address,blockchain } = useWalletKit();
+    const { blockchain } = useWalletKit();
     const [stream, setStream] = useState(false)
-    const { search, isLoading } = useFirestoreSearchField<IUser>()
     const { addWallet } = useMultiWallet()
-    const [selectedItem, setItem] = useState<any>(null)
-    const [address, setAddress] = useState<string | null>(null)
     const [file, setFile] = useState<File>()
 
-    useEffect(() => setAddress(Address), [Address])
 
     const data = [
         {
@@ -67,7 +63,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                             {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                         </div>
                     </div>}
-                    {blockchain === 'celo' &&  value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                    {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
                             <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />

@@ -1,6 +1,6 @@
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
-import { DateInterval, IMember } from "apiHooks/useContributors";
+import { DateInterval, IMember } from "rpcHooks/useContributors";
 import { useDispatch } from "react-redux";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "utils";

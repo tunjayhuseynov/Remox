@@ -1,6 +1,6 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { PublicKey, Connection } from "@solana/web3.js"
-import { FirestoreRead, FirestoreReadMultiple, Indicator, UploadImage, useFirestoreSearchField } from "apiHooks/useFirebase"
+import { FirestoreRead, FirestoreReadMultiple, Indicator, UploadImage, useFirestoreSearchField } from "rpcHooks/useFirebase"
 import axios from "axios"
 import { SolanaEndpoint } from "components/Wallet"
 import { individualCollectionName } from "crud/individual"

@@ -1,5 +1,5 @@
-import { IuseCurrency } from "apiHooks/useCurrency";
-import { FirestoreRead, FirestoreReadMultiple } from "apiHooks/useFirebase";
+import { IuseCurrency } from "rpcHooks/useCurrency";
+import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
 import { BASE_URL, BlockchainType, Collection, GetCoins } from "utils/api";
 import axios from "axios";
 import { Balance } from "hooks/useCalculation";

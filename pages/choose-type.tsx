@@ -4,7 +4,7 @@ import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
-import { useFirestoreSearchField } from 'apiHooks/useFirebase';
+import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
 import { useSelector } from 'react-redux';
@@ -21,7 +21,7 @@ import { isIndividualExisting } from 'hooks/singingProcess/utils';
 function ChooseType() {
   const [isOrganisation, setOrganisation] = useState(false)
   const [isIndividual, setIndividual] = useState(false)
-  const dark = useAppSelector(selectDarkMode)
+  const dark = useNextSelector(selectDarkMode)
   const [organisation2, setOrganisation2] = useState(false)
   const [individual2, setIndividual2] = useState(false)
   const navigate = useRouter()
@@ -115,8 +115,8 @@ function ChooseType() {
             <Button className=" top-0 w-full rounded-t-none !border-0 " onClick={() => navigate.push('/create-organisation')}>Add Organisation</Button>
           </div>  
             :
-            <div className={`${organisation2 && " !border-primary"} hover:!border-primary hover:text-primary transition-all hover:transition-all  cursor-pointer  border dark:border-greylish w-1/2 bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg min-h-[10rem]`} onClick={() => { setOrganisation2(!organisation2); setIndividual2(false); }}>
-              <div className={`${organisation2 && "  text-primary"}  flex items-center text-xl justify-center font-bold py-4 px-4 dark:border-greylish`} onClick={() => navigate.push('/create-organisation')}>Add a new Organisation</div>
+            <div className={`${organisation2 && " !border-primary"} hover:border-primary hover:text-primary transition-all hover:transition-all  cursor-pointer  border dark:border-greylish w-1/2 bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg min-h-[10rem]`} onClick={() => { setOrganisation2(!organisation2); setIndividual2(false); }}>
+              <div className={`${organisation2 && "  text-primary"}  flex items-center text-xl justify-center font-bold py-4 px-4 dark:border-greylish`}>Add a new Organisation</div>
             </div>
           }
           {address ? <div onClick={login} className={`${isIndividual && " !border-primary "} border  hover:!border-primary dark:border-greylish  hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`} onMouseEnter={() => { setIndividual(!isIndividual); setOrganisation(false); }} onMouseLeave={() => setIndividual(!isIndividual)}>
@@ -125,8 +125,8 @@ function ChooseType() {
             </div>
             {isIndividual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>}
           </div> :
-            <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:!border-primary hover:text-primary transition-all hover:transition-all cursor-pointer dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
-              <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`} onClick={() => navigate.push('/create-account')}>Continue as a Individual</div>
+            <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:border-primary hover:text-primary transition-all hover:transition-all cursor-pointer dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
+              <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
             </div>}
         </div>
       </div>

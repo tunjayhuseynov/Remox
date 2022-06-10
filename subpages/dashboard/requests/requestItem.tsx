@@ -1,6 +1,6 @@
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
-import { IRequest } from "apiHooks/useRequest";
+import { IRequest } from "rpcHooks/useRequest";
 import { useEffect, useRef, useState } from "react";
 import { useWalletKit } from "hooks";
 import Link from "next/link";

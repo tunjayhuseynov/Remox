@@ -1,8 +1,8 @@
-import { IRequest } from "apiHooks/useRequest";
+import { IRequest } from "rpcHooks/useRequest";
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies } from "redux/reducers/currencies";
-import { IMember } from 'apiHooks/useContributors';
+import { IMember } from 'rpcHooks/useContributors';
 import { AltCoins, Coins } from "types";
 import _ from 'lodash'
 import { generate } from "shortid";

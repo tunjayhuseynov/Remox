@@ -3,6 +3,7 @@ import { IBudgetExercise } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { IPriceResponse } from "pages/api/calculation/price";
 import { ISpendingResponse } from "pages/api/calculation/spending";
+import { IOrganizationORM } from "types/orm";
 
 interface Params { addresses: string[], blockchain: string, authId?: string }
 
@@ -32,8 +33,25 @@ export const RemoxApi = createApi({
                 url: `api/budget?addresses[]=${data.addresses.join('&addresses[]=')}&blockchain=${data.blockchain}&id=${data.authId}`,
             })
         }),
+        getOrganization: builder.query<IOrganizationORM, { orgId: string }>({
+            query: (data) => ({
+                url: `api/organization?id=${data.orgId}`,
+            })
+        }),
+        getOrganizations: builder.query<IOrganizationORM[], { member: string }>({
+            query: (data) => ({
+                url: `api/organization/multiple?member=${data.member}`,
+            })
+        }),
     })
 })
 
 
-export const { useLazyGetAccountTransactionsQuery, useLazyGetAccountBalancePriceQuery, useLazyGetAccountSpendingQuery } = RemoxApi
+export const { 
+    useLazyGetAccountTransactionsQuery, 
+    useLazyGetAccountBalancePriceQuery, 
+    useLazyGetAccountSpendingQuery,
+    useLazyGetAccountBudgetQuery,
+    useLazyGetOrganizationQuery,
+    useLazyGetOrganizationsQuery,
+} = RemoxApi

@@ -12,9 +12,9 @@ import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransacti
 import { selectTags } from "redux/reducers/tags";
 import { useSelector } from "react-redux";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
-import useGelato from "apiHooks/useGelato";
+import useGelato from "rpcHooks/useGelato";
 import { motion, AnimatePresence } from "framer-motion"
-import useProfile from "apiHooks/useProfile";
+import useProfile from "rpcHooks/useProfile";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { RootState } from "redux/store";
 import { TransactionDirection, TransactionType, TransactionStatus } from "../../../types";

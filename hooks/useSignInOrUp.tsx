@@ -5,8 +5,8 @@ import { auth, IUser } from "firebaseConfig";
 import { changeAccount } from "../redux/reducers/selectedAccount";
 import { setStorage } from "../redux/reducers/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
-import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../apiHooks/useFirebase";
-import useTags from "apiHooks/useTags";
+import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../rpcHooks/useFirebase";
+import useTags from "rpcHooks/useTags";
 import useWalletKit from "./walletSDK/useWalletKit";
 
 

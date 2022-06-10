@@ -11,13 +11,15 @@ export default function useStorage() {
     const getId = useMemo(() => isOrg ? storage.organization?.id : storage?.individual?.id, [storage]);
     const getAccounts = useMemo(() => isOrg ? storage.organization?.accounts : storage?.individual?.accounts, [storage]);
     const getSeenTime = useMemo(() => storage?.individual?.seenTime, [storage])
-
+    const getMembers = useMemo(() => isOrg ? storage.organization?.members : storage?.individual.members, [storage])
+    
 
     return {
         getName,
         getId,
         getAccounts,
-        getSeenTime
+        getSeenTime,
+        getMembers
     }
 
 

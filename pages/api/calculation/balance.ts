@@ -28,7 +28,7 @@ export default async function handler(
         }
         res.status(500).json({ error: "Something went wrong" });
     } catch (error) {
-        res.json(error)
+        throw new Error(error as any)
         res.status(405).end()
     }
 }

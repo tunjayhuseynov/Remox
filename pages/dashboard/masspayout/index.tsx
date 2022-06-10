@@ -12,14 +12,14 @@ import { changeError, selectDarkMode, selectError } from "redux/reducers/notific
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { useRefetchData, useWalletKit } from "hooks";
 import Button from "components/button";
-import { DateInterval, IMember } from "apiHooks/useContributors";
-import { PaymentInput } from "apiHooks/useCeloPay";
-import useMultisig from "apiHooks/useMultisig";
+import { DateInterval, IMember } from "rpcHooks/useContributors";
+import { PaymentInput } from "rpcHooks/useCeloPay";
+import useMultisig from "rpcHooks/useMultisig";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import date from 'date-and-time'
 import { encryptMessage } from "utils/hashing";
-import { IRequest } from "apiHooks/useRequest";
+import { IRequest } from "rpcHooks/useRequest";
 import { selectTags } from "redux/reducers/tags";
 import { Coins } from "types";
 import { useSelector } from "react-redux";

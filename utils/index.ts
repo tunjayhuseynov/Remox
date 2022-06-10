@@ -7,7 +7,7 @@ export const AddressReducer = (address: string) => {
 	}, '');
 };
 
-export function progressBarWidth(num: number) {
+export function ProgressBarWidth(num: number) {
     return {width: num + "%"}
   }
 

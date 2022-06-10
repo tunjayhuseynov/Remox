@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import Button from "components/button";
-import useProfile from "apiHooks/useProfile";
+import useProfile from "rpcHooks/useProfile";
 import Loader from "components/Loader";
 import Modal from 'components/general/modal'
 import Paydropdown from "subpages/pay/paydropdown";

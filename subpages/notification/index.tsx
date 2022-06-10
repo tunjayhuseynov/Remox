@@ -1,4 +1,4 @@
-import useProfile from "apiHooks/useProfile";
+import useProfile from "rpcHooks/useProfile";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
@@ -6,11 +6,10 @@ import { generate } from "shortid";
 import { fromWei } from "utils/ray";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "../../hooks/useTransactionProcess";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { RootState } from "../../redux/store";
 import { TransactionDirection, TransactionType } from "../../types";
 import { motion, AnimatePresence } from "framer-motion"
 import { TransactionTypeDeclare } from "utils";
-import { LendingType } from "apiHooks/useLending";
+import { LendingType } from "rpcHooks/useLending";
 import { useModalSideExit } from "hooks";
 import Link from "next/link";
 

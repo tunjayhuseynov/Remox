@@ -5,16 +5,16 @@ import { useAppDispatch, useAppSelector } from "redux/hooks"
 import { changeSuccess, changeError, selectError } from 'redux/reducers/notificationSlice'
 import DatePicker from "react-datepicker";
 import Button from "components/button";
-import { DateInterval, ExecutionType, IMember } from "apiHooks/useContributors";
+import { DateInterval, ExecutionType, IMember } from "rpcHooks/useContributors";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from 'uuid'
 import { selectStorage } from "redux/reducers/storage";
 import { encryptMessage } from "utils/hashing";
 import { useContractKit } from "@celo-tools/use-contractkit";
-import useAllowance from "apiHooks/useAllowance";
-import useGelato from "apiHooks/useGelato";
-import useCeloPay, { PaymentInput } from "apiHooks/useCeloPay";
+import useAllowance from "rpcHooks/useAllowance";
+import useGelato from "rpcHooks/useGelato";
+import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import { SelectBalances } from "redux/reducers/currencies";
 import { ToastRun } from "utils/toast";
 import { AltCoins, CoinsName, CoinsURL } from "types";

@@ -1,4 +1,4 @@
-import useInsight from 'apiHooks/useInsight';
+import useInsight from 'rpcHooks/useInsight';
 import Loader from 'components/Loader';
 
 const Boxinsight = ({ insight }: { insight: ReturnType<typeof useInsight> }) => {

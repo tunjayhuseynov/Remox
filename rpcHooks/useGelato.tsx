@@ -1,5 +1,5 @@
 import { useContractKit } from '@celo-tools/use-contractkit';
-import Gelato from 'apiHooks/ABI/Gelato.json'
+import Gelato from 'rpcHooks/ABI/Gelato.json'
 import { useState } from 'react';
 import { AbiItem } from './ABI/AbiItem';
 import { Contracts } from './Contracts/Contracts';

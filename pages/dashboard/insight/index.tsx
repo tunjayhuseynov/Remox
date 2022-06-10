@@ -5,7 +5,7 @@ import { WalletDropdown } from "components/general/walletdropdown"
 import { useSelector } from "react-redux";
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import useMultiWallet from "hooks/useMultiWallet";
-import useInsight from "apiHooks/useInsight";
+import useInsight from "rpcHooks/useInsight";
 import Loader from "components/Loader";
 import useMultisigProcess from "hooks/useMultisigProcess";
 import { useAppSelector } from "redux/hooks";

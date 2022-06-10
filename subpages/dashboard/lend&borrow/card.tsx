@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LendingUserComponentData } from 'apiHooks/useLending';
+import { LendingUserComponentData } from 'rpcHooks/useLending';
 import Button from 'components/button';
 import Modal from 'components/general/modal';
 import MdContent from './mdcontent';

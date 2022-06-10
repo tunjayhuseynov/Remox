@@ -7,7 +7,7 @@ import { IoIosArrowDown } from 'react-icons/io';
 import NewExercise from 'subpages/dashboard/budgets/Modals/newExercise';
 import EditBudget from 'subpages/dashboard/budgets/Modals/editBudgets';
 import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
-import AllBudgets, { BudgetItem, ITotals } from 'subpages/dashboard/budgets/allBudgets';
+import BudgetCard, { IBudgetItem, ITotals } from 'subpages/dashboard/budgets/budgetCard';
 
 const Budgets = () => {
 
@@ -21,8 +21,7 @@ const Budgets = () => {
     const [isOpen, setOpen] = useState(false)
 
 
-
-    const budgetData = [
+    const budgetData: IBudgetItem[] = [
         {
             id: 0,
             name: "Marketing",
@@ -267,7 +266,7 @@ const Budgets = () => {
                 {
                     id: 0,
                     name: "Security",
-                    coinUrl:"celoiconsquare",
+                    coinUrl: "celoiconsquare",
                     used: "20.000",
                     pending: "7.000",
                     available: "7.000",
@@ -276,7 +275,7 @@ const Budgets = () => {
                 {
                     id: 1,
                     name: "Product",
-                    coinUrl:"celoiconsquare",
+                    coinUrl: "celoiconsquare",
                     used: "20.000",
                     pending: "7.000",
                     available: "7.000",
@@ -285,7 +284,7 @@ const Budgets = () => {
                 {
                     id: 2,
                     name: "Event",
-                    coinUrl:"celoiconsquare",
+                    coinUrl: "celoiconsquare",
                     used: "20.000",
                     pending: "7.000",
                     available: "7.000",
@@ -355,55 +354,55 @@ const Budgets = () => {
             id: 0,
             name: "Total Budget",
             value: "$300,000.00 USD",
-            token:{
+            token: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             },
-            token2:{
+            token2: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             }
         },
         {
             id: 1,
             name: "Total Used",
             value: "$100,000.00",
-            token:{
+            token: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             },
         },
         {
             id: 2,
             name: "Total Pending",
             value: "$140,000.00",
-            token:{
+            token: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             },
-            token2:{
+            token2: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             }
         },
         {
             id: 3,
             name: "Total Available",
             value: "$100,000.00",
-            token:{
+            token: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             },
-            token2:{
+            token2: {
                 value: '0.10',
                 coinUrl: 'celodollar',
-                name:'CELO'
+                name: 'CELO'
             }
         },
     ]
@@ -466,10 +465,11 @@ const Budgets = () => {
 
                 <div className={` grid grid-cols-2 gap-12  `}>
                     {budgetData.map((item, id) => {
-                        return <AllBudgets item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />
-                    })}
+                        return <BudgetCard item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />
+                    })
+                    }
 
-                </div>
+                </div >
                 {exercise && <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
                     <NewExercise setExercise={setExercise} />
                 </Modal>}
@@ -484,8 +484,8 @@ const Budgets = () => {
                     </Modal>
                 }
             </>}
-        </div>
-    </div>
+        </div >
+    </div >
 
 }
 

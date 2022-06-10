@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IuseContributor } from 'apiHooks/useContributors';
+import { IuseContributor } from 'rpcHooks/useContributors';
 import { decryptMessage } from 'utils/hashing';
 import { RootState } from '../store';
 

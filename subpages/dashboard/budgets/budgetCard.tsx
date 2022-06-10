@@ -1,13 +1,12 @@
 import React, { useState, useEffect, forwardRef } from 'react'
 import { useAppSelector } from 'redux/hooks';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/reducers/notificationSlice';
 import BudgetDetails from './budgetDetails';
 import { useModalSideExit } from "hooks";
-import useProfile from "apiHooks/useProfile";
-import { progressBarWidth } from '../../../utils'
+import { ProgressBarWidth } from '../../../utils'
 import ReactDOM, { createPortal } from 'react-dom';
 
-export interface BudgetItem {
+export interface IBudgetItem {
     id: number;
     name: string;
     Percent: string;
@@ -61,7 +60,7 @@ export interface ITotals{
         name: string;
     };
 }[]
-function AllBudgets({ setEditBudget, setDelBudget, item, id }: { item: BudgetItem, id: number, setEditBudget: React.Dispatch<boolean>, setDelBudget: React.Dispatch<boolean> }) {
+function BudgetCard({ setEditBudget, setDelBudget, item, id }: { item: IBudgetItem, id: number, setEditBudget: React.Dispatch<boolean>, setDelBudget: React.Dispatch<boolean> }) {
     const [openNotify, setNotify] = useState(false)
     const [details, setDetails] = useState(false)
     const [detailModal, setDetailModal] = useState(false)
@@ -102,7 +101,7 @@ function AllBudgets({ setEditBudget, setDelBudget, item, id }: { item: BudgetIte
                     <div className="flex items-center gap-2 text-greylish dark:text-white py-2"><span className="text-2xl font-bold flex items-center gap-1"><img src={`/icons/currencies/${item.coinUrl}.svg`} alt="" className="rounded-full" />{item.value}</span>impacted on<span className="text-lg flex items-center gap-1"><img src={`/icons/currencies/${item.coinUrl}.svg`} className="rounded-full" alt="" />{item.impacted}</span></div>
                     <div className=" rounded-xl relative w-full h-[1.2rem] flex    bg-greylish bg-opacity-40">
                         <div className=" w-[60%] h-full bg-primary rounded-l-xl"></div>
-                        <div className="stripe-1 ml-2 object-cover h-full" style={progressBarWidth(40)}></div>
+                        <div className="stripe-1 ml-2 object-cover h-full" style={ProgressBarWidth(40)}></div>
                         <div className=" w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
                     </div>
                     <div className="grid grid-cols-4 px-3 gap-4 justify-between items-center py-4">
@@ -118,7 +117,7 @@ function AllBudgets({ setEditBudget, setDelBudget, item, id }: { item: BudgetIte
                         <div className="flex items-center gap-2 text-greylish dark:text-white py-4"><span className="text-2xl font-bold flex items-center gap-1 dark:text-white"><img src={`/icons/currencies/${item.coinUrl}.svg`} alt="" className="rounded-full" />{item.value}</span>impacted on<span className="text-lg flex items-center gap-1 "><img src="/icons/currencies/celodollar.svg" className="rounded-full" alt="" />{item.impacted}</span></div>
                         <div className=" rounded-xl relative w-full h-[1.2rem] flex    bg-greylish bg-opacity-40">
                             <div className=" w-[27.5%] h-full bg-primary rounded-l-xl"></div>
-                            <div className="stripe-1 ml-2 object-cover h-full" style={progressBarWidth(40)}></div>
+                            <div className="stripe-1 ml-2 object-cover h-full" style={ProgressBarWidth(40)}></div>
                             <div className=" w-[45%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
                         </div>
                         <div className="grid grid-cols-4 px-3 justify-between items-center py-4">
@@ -132,13 +131,8 @@ function AllBudgets({ setEditBudget, setDelBudget, item, id }: { item: BudgetIte
                     </>}
                 </div>        
             </div>
-
-
         </div>
-
-
-
     </>
 }
 
-export default AllBudgets
+export default BudgetCard

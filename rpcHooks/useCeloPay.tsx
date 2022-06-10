@@ -11,7 +11,7 @@ import { useContext } from "react";
 import { Contracts } from "./Contracts/Contracts";
 import { AbiItem } from "./ABI/AbiItem";
 import useGelato from "./useGelato";
-import BatchRequestABI from 'apiHooks/ABI/BatchRequest.json'
+import BatchRequestABI from 'rpcHooks/ABI/BatchRequest.json'
 import { DateInterval } from "./useContributors";
 import useAllowance from './useAllowance'
 import useTags, { Tag } from "./useTags";
@@ -19,7 +19,7 @@ import usePoof from "hooks/usePoof";
 import { fromWei, toWei } from "utils/ray";
 
 const Ether = import("ethers");
-const nomAbi = import("apiHooks/ABI/nom.json")
+const nomAbi = import("rpcHooks/ABI/nom.json")
 
 export interface PaymentInput {
     coin: AltCoins | PoofAltCoins,

@@ -1,5 +1,5 @@
 import Avatar from "components/avatar";
-import { DateInterval, IMember } from "apiHooks/useContributors";
+import { DateInterval, IMember } from "rpcHooks/useContributors";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";

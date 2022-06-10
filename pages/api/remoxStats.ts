@@ -1,4 +1,4 @@
-import { FirestoreRead, FirestoreReadMultiple } from "apiHooks/useFirebase";
+import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
 import axios from "axios";
 import { IUser } from "firebaseConfig";
 import { Balance } from "hooks/useCalculation";

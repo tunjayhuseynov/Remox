@@ -1,4 +1,4 @@
-import { useFirestoreSearchField } from 'apiHooks/useFirebase';
+import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
 import { PROVIDERS } from "@celo-tools/use-contractkit";
 import { useWalletKit } from 'hooks'

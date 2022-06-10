@@ -1,4 +1,4 @@
-import { IRequest, RequestStatus } from 'apiHooks/useRequest';
+import { IRequest, RequestStatus } from 'rpcHooks/useRequest';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';

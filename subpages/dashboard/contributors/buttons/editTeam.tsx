@@ -1,4 +1,4 @@
-import { IuseContributor } from "apiHooks/useContributors";
+import { IuseContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
 import { useAppDispatch } from "redux/hooks";

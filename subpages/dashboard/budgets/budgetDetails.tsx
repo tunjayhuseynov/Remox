@@ -3,13 +3,12 @@ import _ from "lodash";
 import { motion, AnimatePresence } from "framer-motion"
 import SubBudgets from './subBudgets';
 import Labels from './labels';
-import { progressBarWidth } from '../../../utils'
-import ReactDOM, { createPortal } from 'react-dom';
-import useProfile from "apiHooks/useProfile";
-import { BudgetItem } from './allBudgets';
+import useProfile from "rpcHooks/useProfile";
+import { IBudgetItem } from './budgetCard';
+import { ProgressBarWidth } from 'utils';
 
 
-function BudgetDetails ({ item, openNotify, divRef, setNotify }: { setNotify: React.Dispatch<React.SetStateAction<boolean>>, item: BudgetItem, openNotify: boolean, divRef: React.RefObject<HTMLDivElement> }) {
+function BudgetDetails ({ item, openNotify, divRef, setNotify }: { setNotify: React.Dispatch<React.SetStateAction<boolean>>, item: IBudgetItem, openNotify: boolean, divRef: React.RefObject<HTMLDivElement> }) {
     const { UpdateSeenTime } = useProfile()
 
     useEffect(() => {
@@ -37,7 +36,7 @@ function BudgetDetails ({ item, openNotify, divRef, setNotify }: { setNotify: Re
                             <div className="flex items-center gap-2 text-greylish py-2"><span className="text-2xl font-bold flex items-center gap-1"><img src="/icons/currencies/celoiconsquare.svg" alt="" className="rounded-full" />50.000,00</span>impacted on<span className="text-lg flex items-center gap-1"><img src="/icons/currencies/celoiconsquare.svg" className="rounded-full" alt="" />100.000,00</span></div>
                             <div className=" rounded-xl relative w-full h-[1.2rem] flex    bg-greylish bg-opacity-40">
                                 <div className=" w-[60%] h-full bg-primary rounded-l-xl"></div>
-                                <div className="stripe-1 ml-2 object-cover h-full"  style={progressBarWidth(40)}></div>
+                                <div className="stripe-1 ml-2 object-cover h-full"  style={ProgressBarWidth(40)}></div>
                                 <div className=" w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
                             </div>
                             <div className="grid grid-cols-4 px-3 justify-between items-center py-4">
