@@ -60,9 +60,9 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
         setModal(false)
     }
 
-    return <div ref={divRef} className={`border-b border-greylish border-opacity-10 mx-1 grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[25%,20%,20%,20%,15%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
+    return <div ref={divRef} className={` ${selected.length > 1 && "border-b "}  mx-1 grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[25%,20%,20%,20%,15%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
         <div className="flex space-x-3 overflow-hidden">
-            <div className="flex items-center">
+            <div className=" pl-4 flex items-center">
                 {!payment && request.status === RequestStatus.approved ?
                     <input type="checkbox" checked={selected.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                         const requests = [...selected]

@@ -6,7 +6,6 @@ import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import Modal from 'components/general/modal'
 import EditWallet from "./editWallet";
 import DeleteWallet from "./deleteWallet";
-import NewWalletModal from "./newWalletModal";
 import Loader from "components/Loader";
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import { useSelector } from "react-redux";
@@ -21,7 +20,7 @@ export interface AllwalletTypes {
 }
 
 
-function AllWallets({ item, walletModal, setWalletModal }: { item: AllwalletTypes,  walletModal: boolean, setWalletModal: React.Dispatch<React.SetStateAction<boolean>> }) {
+function AllWallets({ item }: { item: AllwalletTypes }) {
     const [details, setDetails] = useState<boolean>(false)
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
@@ -45,7 +44,7 @@ function AllWallets({ item, walletModal, setWalletModal }: { item: AllwalletType
         TotalBalancePercentage: percent
     } = useSelector(SelectAccountStats)
 
-
+    const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
     return <>
         {
             modalEditVisible && <Modal onDisable={setModalEditVisible} disableX={true} className={'!pt-4 !w-[43%]'}>
@@ -57,11 +56,7 @@ function AllWallets({ item, walletModal, setWalletModal }: { item: AllwalletType
                 <DeleteWallet onDisable={setDeleteModal} />
             </Modal>
         }
-        {
-            walletModal && <Modal onDisable={setWalletModal} disableX={true} className={'!pt-4 !z-[99] !w-[43%]'}>
-                <NewWalletModal onDisable={setWalletModal} />
-            </Modal>
-        }
+
         <div className="w-full shadow-custom  pt-4  rounded-xl bg-white dark:bg-darkSecond min-w-[50%]">
             <div className="w-full">
                 <div className="border-b dark:border-greylish pb-2">
@@ -73,8 +68,8 @@ function AllWallets({ item, walletModal, setWalletModal }: { item: AllwalletType
                                 <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? "")}</div>
                             </div>
                         </div>
-                        <div onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish dark:text-white flex "><span className="rotate-90">...</span>
-                            {details && <div className="flex flex-col   bg-white dark:bg-darkSecond absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
+                        <div ref={exceptRef} onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish dark:text-white flex "><span className="rotate-90">...</span>
+                            {details && <div ref={divRef} className="flex flex-col   bg-white dark:bg-darkSecond absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
                                 <div className="cursor-pointer  text-sm  items-start    w-full pl-3  py-2 gap-3" onClick={() => {
                                     setModalEditVisible(true)
                                     setModalVisible(false)

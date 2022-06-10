@@ -325,6 +325,7 @@ const Pay = ({ setModals }: { setModals: Dispatch<SetStateAction<boolean>> }) =>
                                     {/* <div className="flex space-x-5 sm:space-x-0 sm:justify-between py-4 items-center">
                                         <input ref={fileInput} type="file" className="hidden" onChange={(e) => e.target.files!.length > 0 ? CSV.Import(e.target.files![0]).then(e => setCsvImport(e)).catch(e => console.error(e)) : null} />
                                     </div> */}
+                                    
                                     <div className="grid grid-cols-2  gap-8">
                                         {MyInputs.map((e, i) => {
                                             return <Input key={e.index} text={text}  stream={stream} incomingIndex={e.index} />

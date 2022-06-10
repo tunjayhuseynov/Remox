@@ -93,6 +93,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
 
     const paymentname = ["Marketing", "Security", "Fees", "Rewards", "Other"]
 
+
     return <>
         <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[20%,15%,12%,18%,25%,10%] items-center' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-2 `}>
             <div className="flex space-x-3 items-center overflow-hidden">

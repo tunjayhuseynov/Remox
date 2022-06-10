@@ -117,7 +117,7 @@ const Automations = () => {
     console.log(teams.map(w => w && w.members && w.members.filter(s => s.execution === ExecutionType.auto)).length)
     return <div className="flex flex-col space-y-3">
         <div className="flex justify-between items-center w-full pb-3">
-            <div className="text-3xl font-bold">
+            <div className="text-4xl font-bold">
                 Recurring
             </div>
         </div>

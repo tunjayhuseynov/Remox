@@ -18,7 +18,7 @@ const Lendborrow = () => {
     ]
    
     return <div className="flex flex-col space-y-3">
-        <div className="text-3xl font-bold">
+        <div className="text-4xl font-bold">
             Lend - Borrow
         </div>
         <div className="flex  pt-2 w-[30%] justify-between">

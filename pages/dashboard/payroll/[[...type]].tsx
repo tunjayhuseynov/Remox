@@ -24,7 +24,7 @@ const Payroll = () => {
 
     return <div className="flex flex-col space-y-3">
             <div className="flex justify-between items-center w-full">
-                <div className="text-3xl font-bold">
+                <div className="text-4xl font-bold">
                     Payroll
                 </div>
             </div>

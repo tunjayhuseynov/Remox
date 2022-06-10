@@ -45,7 +45,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
 
             if (!selectedCurrency || !selectedCoin || !selectedBalance || !selectedBalance[1]) return <Fragment key={index}></Fragment>
             return <Fragment key={generate()}>
-                <div className="flex flex-col items-start justify-center text-center gap-2 mb-4">
+                <div className="flex flex-col items-start justify-center text-center gap-3 mb-2">
                     <div className="flex justify-between items-start">
                         <div className="flex space-x-3 items-center pr-2">
                             <div>{selectedBalance[1].amount.toFixed(2)}</div>
@@ -55,7 +55,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
                         </div>
                     </div>
-                    <div className="flex  pb-4 border-b-2 border-greylish border-opacity-10 w-full items-start">
+                    <div className="flex  pb-4 border-b w-full items-start">
                         <div className="flex space-x-3 items-start pr-2">
                             <div>-{parseFloat(coin.amount).toFixed(2)}</div>
                         </div>

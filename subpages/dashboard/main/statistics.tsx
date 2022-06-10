@@ -12,7 +12,8 @@ import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice
 import useNextSelector from "hooks/useNextSelector";
 import useStorage from "hooks/storage/useStorage";
 import AllWallets from "./allWallets";
-
+import Modal from 'components/general/modal'
+import NewWalletModal from "./newWalletModal";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
     const stats = useNextSelector(SelectRawStats)
@@ -36,7 +37,11 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     ]
 
     return <>
-
+    {
+        walletModal && <Modal onDisable={setWalletModal} disableX={true} className={'!pt-4 !z-[99] !w-[43%]'}>
+            <NewWalletModal onDisable={setWalletModal} />
+        </Modal>
+    }
         <div className="flex flex-col gap-5 h-full w-full ">
             <div className="text-4xl font-semibold text-left">Welcome, {getName}</div>
             <div className="bg-white dark:bg-darkSecond rounded-lg shadow">
@@ -62,7 +67,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
                     {datas.map((item, id) => {
-                        return <AllWallets item={item} key={id} walletModal={walletModal} setWalletModal={setWalletModal} />
+                        return <AllWallets item={item} key={id}  />
                     })}
                 </div>
 

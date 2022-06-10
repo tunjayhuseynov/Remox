@@ -160,7 +160,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                 penders.length === 0 ? <div className="text-3xl font-bold text-center tracking-wider">No {page} requests found</div> : <>
                     <div className="flex flex-col space-y-8">
                         {page === RequestStatus.approved && <>
-                            <div className="w-full flex flex-col  bg-white dark:bg-darkSecond shadow rounded-xl p-4">
+                            <div className="w-full flex flex-col  border-b pt-2  px-0">
                                 <div className="grid grid-cols-[20%,80%]  pb-2">
                                     <div className="font-semibold text-lg text-greylish dark:text-white ">Total Treasury</div>
                                     {selected.length > 0 && <div className="font-semibold text-lg text-greylish dark:text-white">Token Allucation</div>}
@@ -179,8 +179,8 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                         }
                         {requestmodal && <Modal onDisable={setRequestModal} className={"!w-[75%] !pt-4 px-8"} >
                             <div className="text-2xl font-semibold py-2 pb-8">Pending Requests</div>
-                            <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-                                <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl bg-light  dark:bg-dark sm:mb-5 px-2 ">
+                            <div className="w-full   pt-4 pb-6">
+                                <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-2 ">
                                     <div className="text-base font-semibold">Name</div>
                                     <div className="text-base font-semibold">Request date</div>
                                     <div className="text-base font-semibold">Requested Amount</div>
@@ -190,9 +190,9 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                             </div>
                             <Button className={'w-full py-2 mt-5 text-2xl'} >Approve Requests</Button>
                         </Modal>}
-                        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-                            <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-1   font-semibold tracking-wide items-center rounded-xl bg-light  dark:bg-dark sm:mb-5 px-1 ">
-                                <div className="flex items-center space-x-2 min-h-[2.125rem]">
+                        <div className="w-full   pt-4 pb-6 ">
+                            <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-1   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-1 ">
+                                <div className="flex pl-4 items-center space-x-2 min-h-[2.125rem]">
                                     {page === RequestStatus.approved ?
                                         <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                                             const requests = [...selected]
@@ -236,8 +236,8 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                             <div className="w-[70vw] px-10 flex flex-col space-y-8">
                                 <div className="flex flex-col">
                                     <div className="text-2xl font-bold tracking-wide pt-1 pb-3">Approve Payments</div>
-                                    <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-                                        <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl bg-light  dark:bg-dark sm:mb-5 px-2 ">
+                                    <div className="w-full   pt-4 pb-6 ">
+                                        <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-2 ">
                                             <div className="text-base font-bold">Name</div>
                                             <div className="text-base font-bold">Request date</div>
                                             <div className="text-base font-bold">Requested Amount</div>
@@ -249,13 +249,13 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                 </div>
                                 <div className="flex flex-col space-y-3">
                                     <div className="text-2xl font-bold tracking-wide">Review Treasury Impact</div>
-                                    <div className="w-full flex flex-col  bg-white shadow rounded-xl p-4">
+                                    <div className="w-full flex flex-col   p-4">
                                         <div className="grid grid-cols-[20%,80%]  pb-2">
                                             <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
                                             <div className="font-semibold text-lg text-greylish">Token Allocation</div>
                                         </div>
                                         <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
-                                            <div className="flex flex-col items-start mb-4">
+                                            <div className="flex flex-col items-start mb-3">
                                                 <TotalAmount coinList={selected} />
 
                                             </div>

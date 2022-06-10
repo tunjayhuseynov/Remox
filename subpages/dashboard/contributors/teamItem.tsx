@@ -11,6 +11,7 @@ import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { useModalSideExit } from "hooks";
 
 const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
 
@@ -33,6 +34,9 @@ const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
             throw error
         }
     }
+
+    const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
+
     return <>
         {
             modalEditVisible && <Modal onDisable={setModalEditVisible} disableX={true} >
@@ -87,8 +91,8 @@ const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
             </div>
             <div className="flex items-center gap-16  pl-[2px] self-start truncate">
                 <span className="w-12 text-base">{props.compensation}</span>
-                <span onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold"><span className=" text-primary pb-4">...</span>
-                    {details && <div className="flex flex-col items-center bg-white dark:bg-dark absolute right-10 -bottom-6 w-[8rem]  rounded-lg shadow-xl z-50 ">
+                <span ref={exceptRef} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold"><span className=" text-primary pb-4">...</span>
+                    {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-dark absolute right-10 -bottom-6 w-[8rem]  rounded-lg shadow-xl z-50 ">
                         <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full px-2 pr-6 py-1 gap-3" onClick={() => {
                             setModalEditVisible(true)
                             setModalVisible(false)

@@ -31,7 +31,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
     const totalAmount = useMemo<number>(() => TotalUSDAmount(coinList, currency), [coinList, currency])
 
     return <>
-        <div className={`pb-4 ${totalAmount.toFixed(2) !== "0.00" &&  "border-b-2 border-greylish border-opacity-10"} w-full flex flex-col justify-center items-start space-y-3`}>
+        <div className={`pb-4 ${totalAmount.toFixed(2) !== "0.00" &&  "border-b"} w-full flex flex-col justify-center items-start space-y-3`}>
             <div className="flex justify-start   items-center">
                 <div className="font-bold  text-2xl">${totalBalance?.toFixed(2)} USD</div>
             </div>
@@ -40,7 +40,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
                     <div>-{totalAmount.toFixed(2)} USD</div>
             </div>}
         </div>
-        { totalAmount.toFixed(2) !== "0.00" &&  <div className="pt-3 ">
+        { totalAmount.toFixed(2) !== "0.00" &&  <div className="pt-2 ">
          <div className="flex justify-start items-center">
                     <div className="font-bold text-2xl">{((totalBalance ?? 0) - totalAmount).toFixed(2)} USD</div>
             </div>
