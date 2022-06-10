@@ -77,6 +77,14 @@ function ChooseType() {
       name: "AriSwap",
       value: "$50.000",
     },
+    {
+      name: "AriSwap",
+      value: "$50.000",
+    },
+    {
+      name: "AriSwap",
+      value: "$50.000",
+    },
 
   ]
 
@@ -103,16 +111,15 @@ function ChooseType() {
                   </div>
                 </div>
               })}
-
             </div>
             <Button className=" top-0 w-full rounded-t-none !border-0 " onClick={() => navigate.push('/create-organisation')}>Add Organisation</Button>
-          </div>
+          </div>  
             :
             <div className={`${organisation2 && " !border-primary"} hover:!border-primary hover:text-primary transition-all hover:transition-all  cursor-pointer  border dark:border-greylish w-1/2 bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg min-h-[10rem]`} onClick={() => { setOrganisation2(!organisation2); setIndividual2(false); }}>
               <div className={`${organisation2 && "  text-primary"}  flex items-center text-xl justify-center font-bold py-4 px-4 dark:border-greylish`} onClick={() => navigate.push('/create-organisation')}>Add a new Organisation</div>
             </div>
           }
-          {address ? <div  onClick={login} className={`${isIndividual && " !border-primary "} border  hover:!border-primary dark:border-greylish  hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`}  onMouseEnter={() => { setIndividual(!isIndividual); setOrganisation(false); } } onMouseLeave={() =>  setIndividual(!isIndividual) }>
+          {address ? <div onClick={login} className={`${isIndividual && " !border-primary "} border  hover:!border-primary dark:border-greylish  hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`} onMouseEnter={() => { setIndividual(!isIndividual); setOrganisation(false); }} onMouseLeave={() => setIndividual(!isIndividual)}>
             <div className={`    cursor-pointer    bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`}>
               <div className={`${isIndividual && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
             </div>
