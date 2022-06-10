@@ -32,7 +32,6 @@ export default async function handler(
             return;
         }
 
-
         // const inds = await FirestoreRead<IRegisteredIndividual>(registeredIndividualCollectionName, publicKey as string)
         const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
         const inds = ss.data() as IRegisteredIndividual | undefined;

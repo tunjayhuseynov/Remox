@@ -68,3 +68,13 @@ html{
   z-index: 100;
 }
 
+.stripe-1 {
+  color: white;
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFC7B5,
+    #FFC7B5 3px,
+    #e9633a 5px,
+    #da532b 7px
+  );
+}

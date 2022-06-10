@@ -36,7 +36,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const { GenerateBatchPay } = useCeloPay()
     const { createTask, loading } = useGelato()
     const balance = useAppSelector(SelectBalances)
-    const { GetCoins } = useWalletKit()
+    const { GetCoins,blockchain } = useWalletKit()
 
     const contributors = useAppSelector(selectContributors).contributors
     const { addMember, isLoading } = useContributors()
@@ -144,6 +144,12 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                         <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
                             {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                        </div>
+                    </div>}
+                    {blockchain === 'celo' && value4 === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">Token ID</div>
+                        <div className={`w-full border rounded-lg`}>
+                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                     <div className="grid grid-cols-2 gap-x-10">

@@ -264,11 +264,23 @@ const Swap = () => {
                         </div>
                     </div>
                 </div>
+<<<<<<< HEAD
+                <div className="px-3 py-3 font-extralight text-sm">
+                    <div className="flex justify-between">
+                        <div>Rate:</div>
+                        <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div>Fee:</div>
+                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
+                    </div>
+=======
             </div>
             <div className="px-8 py-3 font-extralight text-sm">
                 <div className="flex justify-between">
                     <div>Rate:</div>
                     <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+>>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                 </div>
                 <div className="text-center ">
                     <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
@@ -316,6 +328,8 @@ const Swap = () => {
                             <div>Fee:</div>
                             <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
                         </div>
+<<<<<<< HEAD
+=======
                         <div className="text-right">
                             {token2.name}
                         </div>
@@ -325,6 +339,7 @@ const Swap = () => {
                     <div className="flex justify-between">
                         <div>Rate:</div>
                         <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(4) : <div className="px-3"><Loader /></div>} {token2.name}</div>
+>>>>>>> 67cf5a90db9ec700f86a813e09cdd043c0e00553
                     </div>
                     <div className="flex justify-center">
                         <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>

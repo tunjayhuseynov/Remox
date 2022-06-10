@@ -76,7 +76,8 @@ export interface IOrganization {
     creator: DocumentReference | IIndividual;
     
     budget_execrises: DocumentReference[] | IBudgetExercise[];
-    
+    blockchain: BlockChainTypes;
+
     created_date: number;
 }
 

@@ -21,7 +21,7 @@ import { isIndividualExisting } from 'hooks/singingProcess/utils';
 function ChooseType() {
   const [isOrganisation, setOrganisation] = useState(false)
   const [isIndividual, setIndividual] = useState(false)
-  const dark = useAppSelector(selectDarkMode)
+  const dark = useNextSelector(selectDarkMode)
   const [organisation2, setOrganisation2] = useState(false)
   const [individual2, setIndividual2] = useState(false)
   const navigate = useRouter()
@@ -71,10 +71,6 @@ function ChooseType() {
     },
     {
       name: "AriSwap",
-      address: address && AddressReducer(address),
-    },
-    {
-      name: "Saber",
       address: address && AddressReducer(address),
     },
     {

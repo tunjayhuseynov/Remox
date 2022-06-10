@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { DropDownItem } from "../../../types/dropdown";
+import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";
 import Button from 'components/button';

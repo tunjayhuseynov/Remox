@@ -16,6 +16,7 @@ import Masspay from './reducers/masspay';
 import Stats from './reducers/accountstats';
 import PayInputs from './reducers/payinput';
 import Budgets from './reducers/budgets';
+import SubInputs from './reducers/subinput';
 import { BlockScoutApi, RemoxApi } from './api';
 
 const store = configureStore({
@@ -37,6 +38,7 @@ const store = configureStore({
 		masspay: Masspay,
 		accountstats: Stats,
 		payInputs: PayInputs,
+		subInputs:SubInputs,
 		[RemoxApi.reducerPath]: RemoxApi.reducer,
 		[BlockScoutApi.reducerPath]: BlockScoutApi.reducer,
 	},

@@ -134,7 +134,7 @@ const Transactions = () => {
                             <div onClick={() => setOpen(!isOpen)} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                                 <img className={`w-[1.5rem] h-[1.5rem] !m-0`} src={darkMode ? '/icons/filter_white.png' : '/icons/filter.png'} alt='Import' />
                             </div>
-                            {isOpen && <div className='absolute bg-white dark:bg-darkSecond  min-w-[27rem] min-h-[16rem] rounded-xl sm:-right-0 -bottom-1 translate-y-full shadow-xl z-50'>
+                            {isOpen && <div className='absolute bg-white dark:bg-darkSecond  w-[26rem] h-[15rem] rounded-xl sm:-right-0 -bottom-1 translate-y-full shadow-xl z-50'>
                                 <Filter />
                             </div>}
                         </div>
