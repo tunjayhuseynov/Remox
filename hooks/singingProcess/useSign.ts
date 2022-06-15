@@ -6,13 +6,10 @@ import { auth, IIndividual, IOrganization } from "firebaseConfig";
 import { Create_Organization, organizationCollectionName } from "crud/organization";
 import useWalletKit, { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { Get_Account_Ref } from "crud/account";
-import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
 
 export default function useSign(address: string, blockchain: BlockchainType) {
 
-    const { Address } = useWalletKit()
-
-    const RegisterIndividual = useCallback(async (individual: Omit<IIndividual, "id" | "created_date" | "addresses" | "blockchain">) => {
+    const RegisterIndividual = useCallback(async (individual: Omit<IIndividual, "id" | "created_date">) => {
         if (await isIndiviualRegistered(address)) throw new Error("User already registered");
         if (!auth.currentUser) throw new Error("User not logged in");
         await UploadImageForUser(individual);
@@ -26,7 +23,7 @@ export default function useSign(address: string, blockchain: BlockchainType) {
         })
     }, [address, blockchain])
 
-    const RegisterOrganization = useCallback(async (organization: Omit<IOrganization, "id" | "created_date" | "blockchain">) => {
+    const RegisterOrganization = useCallback(async (organization: Omit<IOrganization, "id" | "created_date">) => {
         if (await isOrganisationRegistered(organization.name, blockchain)) throw new Error("User already registered");
 
         await UploadImageForUser(organization);

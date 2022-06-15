@@ -10,7 +10,6 @@ import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from 'uuid'
 import { selectStorage } from "redux/reducers/storage";
-import { encryptMessage } from "utils/hashing";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import useAllowance from "rpcHooks/useAllowance";
 import useGelato from "rpcHooks/useGelato";

@@ -13,7 +13,6 @@ import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import useGelato from "rpcHooks/useGelato";
 import useContributors from "hooks/useContributors";
-import { encryptMessage } from 'utils/hashing';
 import { selectStorage } from 'redux/reducers/storage';
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';

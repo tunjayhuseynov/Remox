@@ -1,12 +1,15 @@
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
-import { IIndividual } from "firebaseConfig";
+import { db, IIndividual } from "firebaseConfig";
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise";
+import { doc } from "firebase/firestore";
 
 export const individualCollectionName = "individuals"
 
+export const Get_Individual_Ref = (id: string)=> doc(db, individualCollectionName, id);
+
 export const Get_Individual = async (id: string) => {
     const individual = await FirestoreRead<IIndividual>(individualCollectionName, id)
-    if (!individual) throw new Error("Individual not found");
+    if (!individual) return undefined;
     const budgetExercises = individual.budget_execrises.map(async (budget_execrise) => {
         return await Get_Budget_Exercise(budget_execrise.id)
     })

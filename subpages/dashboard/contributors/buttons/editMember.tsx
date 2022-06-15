@@ -11,7 +11,6 @@ import { useAppSelector } from "redux/hooks";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/reducers/storage";
-import { encryptMessage } from "utils/hashing";
 import useAllowance from "rpcHooks/useAllowance";
 import useGelato from "rpcHooks/useGelato";
 import { Contracts } from "rpcHooks/Contracts/Contracts";

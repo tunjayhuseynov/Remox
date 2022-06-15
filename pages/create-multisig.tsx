@@ -13,11 +13,20 @@ import { useWalletKit } from "hooks";
 import Paydropdown from "subpages/pay/paydropdown";
 import AnimatedTabBar from 'components/animatedTabBar';
 import Upload from "components/upload";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+
+interface IFormInput {
+    nftAddress: string;
+    nftTokenId: number;
+    name: string;
+}
 
 function CreateMultisig() {
 
-    const { data, importMultisigAccount, createMultisigAccount, isLoading } = useMultisig()
-    const storage = useSelector(selectStorage)
+    const { register, handleSubmit } = useForm<IFormInput>();
+    // const { data, importMultisigAccount, createMultisigAccount, isLoading } = useMultisig()
+    // const storage = useSelector(selectStorage)
     const { Address, Wallet, blockchain } = useWalletKit();
     const address = Address
     const dispatch = useDispatch()
@@ -36,10 +45,11 @@ function CreateMultisig() {
     const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
     const [file, setFile] = useState<File>()
 
-    const importInputRef = useRef<HTMLInputElement>(null)
-    const importNameInputRef = useRef<HTMLInputElement>(null)
+    // const importInputRef = useRef<HTMLInputElement>(null)
+    // const importNameInputRef = useRef<HTMLInputElement>(null)
 
 
+    const onSubmit: SubmitHandler<IFormInput> = data => console.log(data);
 
 
     const addOwner = () => {
@@ -50,39 +60,39 @@ function CreateMultisig() {
         }
     }
 
-    const createClick = async () => {
-        if (sign && internalSign && owners.length + 1 >= sign && owners.length + 1 >= internalSign) {
-            try {
-                await createMultisigAccount(
-                    owners.map(owner => owner.address),
-                    name,
-                    sign.toString(),
-                    internalSign.toString()
-                )
+    // const createClick = async () => {
+    //     if (sign && internalSign && owners.length + 1 >= sign && owners.length + 1 >= internalSign) {
+    //         try {
+    //             await createMultisigAccount(
+    //                 owners.map(owner => owner.address),
+    //                 name,
+    //                 sign.toString(),
+    //                 internalSign.toString()
+    //             )
 
-                dispatch(changeSuccess({ activate: true, text: "Successfully" }))
+    //             dispatch(changeSuccess({ activate: true, text: "Successfully" }))
 
-            } catch (error: any) {
-                console.error(error)
-                dispatch(changeError({ activate: true, text: (error?.data?.message || "Something went wrong") }))
+    //         } catch (error: any) {
+    //             console.error(error)
+    //             dispatch(changeError({ activate: true, text: (error?.data?.message || "Something went wrong") }))
 
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
 
-    const importClick = async () => {
-        if (importInputRef.current && importInputRef.current.value) {
-            try {
-                await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""))
-                dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
+    // const importClick = async () => {
+    //     if (importInputRef.current && importInputRef.current.value) {
+    //         try {
+    //             await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""))
+    //             dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
 
-            } catch (error: any) {
-                console.error(error)
-                dispatch(changeError({ activate: true, text: (error || "Something went wrong") }))
+    //         } catch (error: any) {
+    //             console.error(error)
+    //             dispatch(changeError({ activate: true, text: (error || "Something went wrong") }))
 
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
 
     const paymentdata = [
         {
@@ -104,7 +114,7 @@ function CreateMultisig() {
                 <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
             </div>
         </header>
-        <form className="py-[6.25rem] sm:py-0 sm:h-full " >
+        <form onSubmit={handleSubmit(onSubmit)} className="py-[6.25rem] sm:py-0 sm:h-full " >
             <section className="flex flex-col items-center h-full  gap-6 pt-20">
                 <div className="flex flex-col items-center justify-center gap-4">
                     <div className="text-xl sm:text-3xl  dark:text-white text-center font-semibold">Set Account Details</div>
@@ -122,13 +132,13 @@ function CreateMultisig() {
                     {value && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
-                            {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                            {value === "NFT" ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                         </div>
                     </div>}
                     {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
-                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                            <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
@@ -140,13 +150,13 @@ function CreateMultisig() {
                     {text === "Import Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Multisig Adress</div>
                         <div className={` flex items-center gap-3 w-full border rounded-lg`}>
-                            <input ref={importInputRef} type="text" className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Multisig Address" />
+                            <input type="text" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Multisig Address" />
                         </div>
                     </div>}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Wallet Name</div>
                         <div className={` flex items-center gap-3 w-full border rounded-lg`}>
-                            {text === "Create Multisig" ? <input type="text" placeholder="Remox DAO" className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" onChange={(e) => { setName(e.target.value) }} required /> : <input ref={importNameInputRef} type="text" className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Wallet name" />}
+                            {<input type="text" {...register("name", { required: true })} placeholder="Remox DAO" className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" />}
                         </div>
                     </div>
                     {newOwner && text === "Create Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
@@ -167,7 +177,7 @@ function CreateMultisig() {
                             <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={addOwner}>+ Add to Owner</div>
                         </div>
                     </div>}
-                    <div className="flex flex-col  space-y-1 w-full">
+                    <div className="flex flex-col space-y-1 w-full">
                         <span className="text-greylish opacity-35">Add Owners</span>
                         <div className="flex gap-5">
                             <div className={` w-[25%]`}>
@@ -185,8 +195,8 @@ function CreateMultisig() {
                     {!newOwner && text === "Create Multisig" && <div className="flex flex-col items-start mb-4  w-full ">
                         <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => { setNewOwner(true) }}>+ Add to Owner</div>
                     </div>}
-                    {text === "Create Multisig" && owners.map((w,i) => {
-                        return <div key={i}  className="flex flex-col  space-y-1 w-full">
+                    {text === "Create Multisig" && owners.map((w, i) => {
+                        return <div key={i} className="flex flex-col  space-y-1 w-full">
                             <div className="flex gap-5">
                                 <div className={` w-[25%]`}>
                                     <div className="w-full mb-4" >
@@ -211,7 +221,7 @@ function CreateMultisig() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 min-w-[26%] pb-5">
                     <Button version="second" onClick={() => navigate.push('/create-organisation')}>Back</Button>
-                    {text === "Create Multisig" ? <Button type="submit" onClick={createClick}>Create</Button> : <Button type="submit" onClick={importClick}>Import</Button>}
+                    {text === "Create Multisig" ? <Button type="submit">Create</Button> : <Button type="submit">Import</Button>}
                 </div>
             </section>
         </form>

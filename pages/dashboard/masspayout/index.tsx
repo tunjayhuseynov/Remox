@@ -18,7 +18,6 @@ import useMultisig from "rpcHooks/useMultisig";
 import { selectContributors } from "redux/reducers/contributors";
 import useContributors from "hooks/useContributors";
 import date from 'date-and-time'
-import { encryptMessage } from "utils/hashing";
 import { IRequest } from "rpcHooks/useRequest";
 import { selectTags } from "redux/reducers/tags";
 import { Coins } from "types";

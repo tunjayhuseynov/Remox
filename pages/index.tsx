@@ -14,20 +14,21 @@ import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { changeAccount, changeExisting, } from 'redux/reducers/selectedAccount';
 import { isIndividualExisting } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
+import useNextSelector from 'hooks/useNextSelector';
+import { selectStorage } from 'redux/reducers/storage';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
   const { processSigning } = useOneClickSign()
   const { search } = useFirestoreSearchField()
-  const dark = useAppSelector(selectDarkMode)
+  const dark = useNextSelector(selectDarkMode)
+  const storage = useNextSelector(selectStorage)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
   const [address, setAddress] = useState<string | null>(null)
-  const [Dark, setDark] = useState<boolean | null>(null)
 
-  useEffect(() => setDark(dark), [dark])
   useEffect(() => setAddress(Address), [Address])
 
   const [selected, setSelected] = useState<DropDownItem>(
@@ -54,6 +55,11 @@ const Home = () => {
         await Connect()
       }
       else if (address) {
+        if(storage && storage.uid){
+          navigate.push("/choose-type")
+          return;
+        }
+        
         const user = await search<IUser>("users", [{
           field: 'address',
           searching: address,
@@ -81,7 +87,7 @@ const Home = () => {
     <section className="flex justify-center items-center w-full h-screen">
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
         <div className="w-[12.5rem] sm:w-[25rem] flex flex-col items-center justify-center gap-10">
-          <img src={Dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
+          <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
           <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
