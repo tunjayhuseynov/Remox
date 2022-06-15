@@ -30,6 +30,19 @@ export const storageSlice = createSlice({
     name: "storage",
     initialState: initialState(),
     reducers: {
+        setOrganization: (state: IContainer, action: { payload: IOrganization }) => {
+            if (state.user) {
+                state.user.organization = action.payload
+                state.user.signType = "organization"
+                const val = localStorage.getItem("remoxUser")
+                if (val) {
+                    const data: IStorage = JSON.parse(val)
+                    data.organization = action.payload
+                    data.signType = "organization"
+                    localStorage.setItem("remoxUser", JSON.stringify(data))
+                }
+            }
+        },
         setStorage: (state: IContainer, action: { payload: IStorage }) => {
             localStorage.setItem("remoxUser", JSON.stringify(action.payload))
             const data: IStorage = action.payload
@@ -42,7 +55,7 @@ export const storageSlice = createSlice({
     }
 })
 
-export const { setStorage, removeStorage } = storageSlice.actions
+export const { setStorage, removeStorage, setOrganization } = storageSlice.actions
 
 export const selectStorage = (state: RootState) => state.storage.user
 

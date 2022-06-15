@@ -17,9 +17,10 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 
 interface IFormInput {
-    nftAddress: string;
-    nftTokenId: number;
+    nftAddress?: string;
+    nftTokenId?: number;
     name: string;
+    multisigAddress?: string;
 }
 
 function CreateMultisig() {
@@ -141,22 +142,22 @@ function CreateMultisig() {
                             <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
-                    <div className="flex flex-col mb-4 space-y-1 w-full">
+                    {/* <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Choose Wallet Provider</div>
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
                             <Paydropdown setSelectedType={setSelectedType} paymentname={paymentname2} value={value2} setValue={setValue2} />
                         </div>
-                    </div>
+                    </div> */}
                     {text === "Import Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Multisig Adress</div>
                         <div className={` flex items-center gap-3 w-full border rounded-lg`}>
-                            <input type="text" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Multisig Address" />
+                            <input type="text" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Multisig Address" />
                         </div>
                     </div>}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Wallet Name</div>
                         <div className={` flex items-center gap-3 w-full border rounded-lg`}>
-                            {<input type="text" {...register("name", { required: true })} placeholder="Remox DAO" className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" />}
+                            {<input type="text"  {...register("name", { required: true })} placeholder="Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />}
                         </div>
                     </div>
                     {newOwner && text === "Create Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">

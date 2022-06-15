@@ -1,6 +1,6 @@
 import { CoinsURL } from "./coins";
 
-export type DropDownItem = DropDownPriceItem | DropDownAddressItem | DropDownOnlyCoin;
+export type DropDownItem = DropDownExtra;
 
 
 interface BaseDropDown {
@@ -12,24 +12,10 @@ interface BaseDropDown {
     onClick?: () => void,
 }
 
-interface DropDownPriceItem extends BaseDropDown {
-    type: string,
+interface DropDownExtra extends BaseDropDown{
+    type?: string,
     amount?: string,
     address?: string,
     coinUrl?: CoinsURL
-}
-
-interface DropDownAddressItem extends BaseDropDown {
-    address: string,
-    type?: string,
-    amount?: string,
-    coinUrl?: CoinsURL
-}
-
-interface DropDownOnlyCoin extends BaseDropDown {
-    address?: string,
-    type?: string,
-    amount?: string,
-    coinUrl: CoinsURL
 }
 

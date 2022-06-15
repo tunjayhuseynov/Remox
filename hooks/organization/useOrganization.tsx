@@ -13,7 +13,7 @@ export default function useOrganization(address: string, blockchain: BlockchainT
     const { RegisterOrganization } = useSign(address, blockchain)
     const { create: createIndividual } = useIndividual(address ?? "0", blockchain);
 
-    const create = async (e: SyntheticEvent<HTMLFormElement>, organizationImageStatus: string, organizationFile: File | null, individualImageStatus: string, individualFile: File | null) => {
+    const create = async (e: SyntheticEvent<HTMLFormElement>, organizationIsUpload: boolean, organizationFile: File | null, individualIsUpload: boolean, individualFile: File | null) => {
         e.preventDefault()
 
         try {
@@ -27,10 +27,10 @@ export default function useOrganization(address: string, blockchain: BlockchainT
                 organizationNFTAddress, organizationName, organizationTokenId,
                 individualNFTAddress, individualTokenId, individualName }: { [key: string]: HTMLInputElement } = target;
             if (!address) throw new Error("No address")
-            if (!organizationImageStatus) throw new Error(`No Organization Image Selection`);
+            if (!organizationIsUpload) throw new Error(`No Organization Image Selection`);
             if (!organizationName.value) throw new Error("No Organization Name")
 
-            if (organizationImageStatus === "NFT") {
+            if (!organizationIsUpload) {
                 if (!organizationNFTAddress.value) throw new Error("No Organization NFT Address")
                 if (!organizationTokenId.value) throw new Error("No Organization Token Id")
             } else {
@@ -47,8 +47,8 @@ export default function useOrganization(address: string, blockchain: BlockchainT
 
 
             if (!individual) {
-                if (!individualImageStatus) throw new Error("No Individual Image Selection")
-                if (individualImageStatus === "NFT") {
+                if (!individualIsUpload) throw new Error("No Individual Image Selection")
+                if (!individualIsUpload) {
                     if (!individualNFTAddress.value) throw new Error("No Individual NFT Address")
                     if (!individualTokenId.value) throw new Error("No Individual Token Id")
                 } else {
