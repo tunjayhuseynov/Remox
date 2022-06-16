@@ -36,7 +36,7 @@ const Sidebar = () => {
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), address: selectedAccount ?? "", photo: "nftmonkey" })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), totalValue: '4500USD', photo: "nftmonkey" })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -56,23 +56,23 @@ const Sidebar = () => {
 
     useEffect(() => {
         if (data && wallets) {
-            const multi = { name: "+ Multisig Account", address: "", onClick: () => { setAccountModal(true) } }
-            const wallet = { name: "+ Add New Wallet", address: "", onClick: async () => { addWallet().then(s => { if (s) setItem({ name: s.type, address: s.account! }) }).catch(e => console.error(e)) } }
+            const multi = { name: "+ Multisig Account", onClick: () => { setAccountModal(true) } }
+            const wallet = { name: "+ Add New Wallet",  onClick: async () => { addWallet().then(s => { if (s) setItem({ name: s.type }) }).catch(e => console.error(e)) } }
             let parsedData;
             if (blockchain === 'solana') {
-                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e?.address as SolanaMultisigData)?.multisig }))
+                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}` }))
             } else {
-                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}`, address: (e?.address as string) }))
+                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}` }))
             }
             setList([
                 ...wallets.map(s => ({
-                    name: WordSplitter(s.name), address: s.address, onClick: async () => {
+                    name: WordSplitter(s.name),  onClick: async () => {
                         try {
                             await walletSwitch(s.name)
                         } catch (error: any) {
                             console.error(error)
                         }
-                        setItem({ name: WordSplitter(s.name), address: s.address })
+                        setItem({ name: WordSplitter(s.name)})
                     }
                 })),
                 ...parsedData, wallet, multi
@@ -88,7 +88,7 @@ const Sidebar = () => {
         <div className="hidden md:block z-[1] md:col-span-2 w-[16.188rem] flex-none fixed pt-28">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">
-                    <Dropdown className="min-w-[12.5rem] max-w-[13rem] bg-white dark:bg-darkSecond truncate" list={list} photo={true} selected={selectedItem} onSelect={(w) => {
+                    <Dropdown className="min-w-[12.5rem] max-w-[13rem] bg-white dark:bg-darkSecond truncate" list={list} photo={true} totalValue={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address && w.amount) {
                             setItem(w)
                             dispatch(changeAccount(w.amount ? w.amount : w.address))

@@ -8,6 +8,7 @@ interface BaseDropDown {
     feeName?: string,
     className?: string, 
     photo?:string,
+    totalValue?:string,
     id?: string,
     onClick?: () => void,
 }
@@ -30,6 +31,6 @@ interface DropDownOnlyCoin extends BaseDropDown {
     address?: string,
     type?: string,
     amount?: string,
-    coinUrl: CoinsURL
+    coinUrl?: CoinsURL
 }
 

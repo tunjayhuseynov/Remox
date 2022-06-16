@@ -51,11 +51,11 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                         <div className="text-4xl font-semibold">${stats?.TotalBalance.toFixed(0)}<sup className="text-sm">{`.${stats?.TotalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                     </div>
                     <div className="flex gap-3 pt-6">
-                        <span className={` ${chartDate === "week" && 'text-primary text-opacity-100'} hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide`} onClick={() => setChartDate("week")}>1W</span>
-                        <span className={` ${chartDate === "month" && 'text-primary text-opacity-100'}  hover:text-primary cursor-pointer text-greylish  text-opacity-40 tracking-wide`} onClick={() => setChartDate("month")}>1M</span>
-                        <span className={` ${chartDate === "quart" && 'text-primary text-opacity-100'} text-greylish hover:text-primary cursor-pointer text-opacity-40 tracking-wide`} onClick={() => setChartDate("quart")}>3M</span>
-                        <span className={` ${chartDate === "year" && 'text-primary text-opacity-100'}  hover:text-primary cursor-pointer text-greylish text-opacity-40 tracking-wide`} onClick={() => setChartDate("year")}>1Y</span>
-                    </div>
+                            <span className={` ${chartDate === "week" && '!text-primary text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("week")}>1W</span>
+                            <span className={` ${chartDate === "month" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white  text-opacity-40 tracking-wide`} onClick={() => setChartDate("month")}>1M</span>
+                            <span className={` ${chartDate === "quart" && '!text-primary text-opacity-100'} text-greylish hover:!text-primary cursor-pointer dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("quart")}>3M</span>
+                            <span className={` ${chartDate === "year" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("year")}>1Y</span>
+                        </div>
                 </div>
                 {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
                 <div className="w-full h-full flex items-center justify-center"><LineChart data={stats?.TotalBalanceByDay[chartDate] ?? {}} type={'area'} /></div>
