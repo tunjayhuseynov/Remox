@@ -5,7 +5,7 @@ import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetTransactionsQuery } from 'redux/api';
-import { BlockChainTypes, selectBlockchain, updateBlockchain } from 'redux/reducers/network';
+import { selectBlockchain, updateBlockchain } from 'redux/reducers/network';
 import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
 import { Transactions } from 'types/sdk';
 import { fromLamport, fromWei, toLamport } from 'utils/ray';
@@ -52,7 +52,7 @@ export default function useWalletKit() {
     const { publicKey, sendTransaction, signMessage, disconnect, wallet, connect: solConnect, connected, signTransaction, signAllTransactions } = useWallet();
 
 
-    const setBlockchain = (bc: BlockChainTypes) => {
+    const setBlockchain = (bc: BlockchainType) => {
         dispatch(updateBlockchain(bc))
     }
 

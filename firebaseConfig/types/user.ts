@@ -1,10 +1,10 @@
 import type { DocumentReference } from "firebase/firestore";
-import type { BlockChainTypes } from "redux/reducers/network";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export interface IMultiwallet {
     name: string;
     address: string,
-    blockchain: BlockChainTypes
+    blockchain: BlockchainType
 }
 
 export interface IUser {
@@ -16,7 +16,7 @@ export interface IUser {
     companyName?: string;
     contractAddress?: string;
     seenTime: number;
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
     timestamp: number;
 }
 
@@ -30,7 +30,7 @@ export interface IBudgetExercise {
     to: number;
     budgets: DocumentReference[] | IBudget[];
 
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
 
     created_at: number;
 }
@@ -76,7 +76,7 @@ export interface IOrganization {
     creator: DocumentReference | IIndividual;
     
     budget_execrises: DocumentReference[] | IBudgetExercise[];
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
 
     created_date: number;
 }
@@ -107,7 +107,7 @@ export interface IAccount {
     image: Image | null,
     signerType: "single" | "multi";
     provider: "Goki" | "CeloTerminal" | null;
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
     address: string;
     name: string;
     members: IMember[];
@@ -121,7 +121,7 @@ export interface IRegisteredIndividual {
     address: string;
     nonce: number;
     password: string;
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
     created_date: number;
 }
 
@@ -130,5 +130,5 @@ export interface Image {
     nftUrl: string;
     tokenId: number | null;
     type: "image" | "nft";
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
 }

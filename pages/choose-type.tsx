@@ -1,9 +1,8 @@
-import React from 'react'
 import { useState } from "react";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
-import { auth, IUser } from 'firebaseConfig';
+import { auth, IBudgetExercise, IUser } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
 import { changeAccount, changeExisting, SelectExisting } from 'redux/reducers/selectedAccount';
 import { useDispatch } from 'react-redux';
@@ -12,6 +11,7 @@ import useNextSelector from 'hooks/useNextSelector';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { isIndividualExisting } from 'hooks/singingProcess/utils';
 import useIndividual from 'hooks/individual/useIndividual';
+import { setBudgetExercises } from "redux/reducers/budgets";
 
 
 function ChooseType() {
@@ -49,6 +49,7 @@ function ChooseType() {
           organization: null,
           individual: individual
         }))
+        dispatch(setBudgetExercises(individual.budget_execrises as IBudgetExercise[]))
         navigate.push("/dashboard")
       } else {
         navigate.push("/create-account")

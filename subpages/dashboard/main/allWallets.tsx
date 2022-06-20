@@ -101,23 +101,24 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                             </div>
                         </div>
                     </div>
-                    <div className="w-[75%] ">
+                    <div className="w-[75%] rounded-xl">
                         {
                             balance && orderBalance4 !== undefined ?
                                 <div className="flex flex-col  w-full" ref={customRef}>
                                     {orderBalance4.map((item, index) => {
-                                        return <div className="border-b dark:border-greylish w-full" key={index} > <CoinItem key={item.coins.contractAddress + item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
-                                            if (item.amount) {
-                                                setSelectcoin(item.coins.name)
-                                            }
-                                        }}
-                                            selectcoin={selectcoin}
-                                            title={item.coins.name}
-                                            coin={item.amount.toFixed(2)}
-                                            usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)}
-                                            percent={(item.percent || 0).toFixed(1)}
-                                            rate={item.per_24}
-                                            img={item.coins.coinUrl} />
+                                        return <div className="border-b dark:border-greylish w-full" key={index} >
+                                            <CoinItem key={item.coins.contractAddress + item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
+                                                if (item.amount) {
+                                                    setSelectcoin(item.coins.name)
+                                                }
+                                            }}
+                                                selectcoin={selectcoin}
+                                                title={item.coins.name}
+                                                coin={item.amount.toFixed(2)}
+                                                usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)}
+                                                percent={(item.percent || 0).toFixed(1)}
+                                                rate={item.per_24}
+                                                img={item.coins.coinUrl} />
                                         </div>
                                     })}
                                 </div> : <Loader />

@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { BlockchainType } from 'hooks/walletSDK/useWalletKit'
 import type { RootState } from '../store'
 
-export type BlockChainTypes = "celo" | "solana"
 
 const initialState: { 
-    blockchain: BlockChainTypes,
+    blockchain: BlockchainType,
 } = {
     blockchain: (()=>{
         if(typeof window === 'undefined') return "celo"
-        return (localStorage.getItem('blockchain') as (BlockChainTypes | null))
+        return (localStorage.getItem('blockchain') as (BlockchainType | null))
     })() || 'celo',
 }
 
@@ -16,7 +16,7 @@ export const networkSlice = createSlice({
     name: 'network',
     initialState,
     reducers: {
-        updateBlockchain: (state, action: PayloadAction<BlockChainTypes>) => {
+        updateBlockchain: (state, action: PayloadAction<BlockchainType>) => {
             state.blockchain = action.payload
         },
     },

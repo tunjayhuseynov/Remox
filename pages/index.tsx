@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectDarkMode } from 'redux/reducers/notificationSlice';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { BlockChainTypes, updateBlockchain } from 'redux/reducers/network';
+import { updateBlockchain } from 'redux/reducers/network';
 import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
@@ -16,6 +16,7 @@ import { isIndividualExisting } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
 import { selectStorage } from 'redux/reducers/storage';
+import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
@@ -36,7 +37,7 @@ const Home = () => {
   )
 
   useEffect(() => {
-    dispatch(updateBlockchain(selected.address! as BlockChainTypes))
+    dispatch(updateBlockchain(selected.address! as BlockchainType))
     if (selected.address) {
       localStorage.setItem("blockchain", selected.address)
     }
@@ -55,11 +56,11 @@ const Home = () => {
         await Connect()
       }
       else if (address) {
-        if(storage && storage.uid){
+        if (storage && storage.uid) {
           navigate.push("/choose-type")
           return;
         }
-        
+
         const user = await search<IUser>("users", [{
           field: 'address',
           searching: address,
@@ -81,7 +82,7 @@ const Home = () => {
   }
 
   const [isLoading, ConnectEvent] = useLoading(connectEvent)
-  
+
 
   return <>
     <section className="flex justify-center items-center w-full h-screen">

@@ -4,7 +4,7 @@ import { selectDarkMode } from 'redux/reducers/notificationSlice';
 import BudgetDetails from './budgetDetails';
 import { useModalSideExit } from "hooks";
 import { ProgressBarWidth } from '../../../utils'
-import ReactDOM, { createPortal } from 'react-dom';
+import { createPortal } from 'react-dom';
 
 export interface IBudgetItem {
     id: number;
@@ -60,6 +60,8 @@ export interface ITotals{
         name: string;
     };
 }[]
+
+
 function BudgetCard({ setEditBudget, setDelBudget, item, id }: { item: IBudgetItem, id: number, setEditBudget: React.Dispatch<boolean>, setDelBudget: React.Dispatch<boolean> }) {
     const [openNotify, setNotify] = useState(false)
     const [details, setDetails] = useState(false)
@@ -72,7 +74,7 @@ function BudgetCard({ setEditBudget, setDelBudget, item, id }: { item: IBudgetIt
 
     return <>
         <BudgetDetails item={item} divRef={divRef} setNotify={setNotify} openNotify={openNotify} />
-        {openNotify && ReactDOM.createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)}
+        {openNotify && createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)}
         <div key={id} >
             <div className="rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-xl" >
                 <div className="flex items-center justify-between w-full">

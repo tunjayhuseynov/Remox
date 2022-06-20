@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js"
 import { MethodIds, MethodNames, TransactionMultisig } from "hooks/walletSDK/useMultisig"
-import { BlockChainTypes } from "redux/reducers/network"
+import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { fromLamport, fromWei } from "./ray"
 
 export const EVM_WALLET_SIZE = 39;
@@ -30,7 +30,7 @@ export const MultisigTxParser = (
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
-            confirmations: string[], Value: BigNumber, blockchain: BlockChainTypes,
+            confirmations: string[], Value: BigNumber, blockchain: BlockchainType,
             parsedData?: ParsedMultisigData
         }
 ) => {

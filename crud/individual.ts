@@ -1,7 +1,7 @@
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
 import { db, IIndividual } from "firebaseConfig";
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise";
-import { doc } from "firebase/firestore";
+import { doc, DocumentReference } from "firebase/firestore";
 
 export const individualCollectionName = "individuals"
 
@@ -18,9 +18,11 @@ export const Get_Individual = async (id: string) => {
 }
 
 export const Create_Individual = async (individual: IIndividual) => {
+    let exerciseRef: DocumentReference[] = []
     for (let exercise of individual.budget_execrises) {
-        exercise = Get_Budget_Exercise_Ref(exercise.id);
+        exerciseRef.push(Get_Budget_Exercise_Ref(exercise.id));
     }
+    individual.budget_execrises = exerciseRef;
     await FirestoreWrite<IIndividual>().createDoc(individualCollectionName, individual.id, individual);
     return individual;
 }

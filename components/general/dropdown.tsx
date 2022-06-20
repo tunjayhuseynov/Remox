@@ -72,7 +72,7 @@ const Dropdown = ({ selected, list, toTop = false, photo = false, nameActivation
                     { height: 'auto' }
                 }>
                     {list?.filter((w) => {
-                        if (!nameActivation) {
+                        if (!nameActivation && w?.address) {
                             return w?.address !== selected?.address
                         } else if (w.name) {
                             return w?.name !== selected?.name

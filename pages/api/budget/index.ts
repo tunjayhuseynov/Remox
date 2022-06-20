@@ -2,11 +2,11 @@ import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { budgetExerciseCollectionName } from 'crud/budget_exercise'
 import { IBudget, IBudgetExercise } from "firebaseConfig";
-import { BlockChainTypes } from "redux/reducers/network";
 import { AltCoins } from "types";
 import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { IPriceResponse } from "../calculation/price";
+import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export default async function handler(
     req: NextApiRequest,
@@ -14,7 +14,7 @@ export default async function handler(
 ) {
     try {
         const parentId = req.query["id"] as string;
-        const blockchain = req.query.blockchain as BlockChainTypes;
+        const blockchain = req.query.blockchain as BlockchainType;
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 

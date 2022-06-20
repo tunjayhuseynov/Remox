@@ -43,6 +43,8 @@ const CreateOrganization = () => {
 
   const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
 
+  const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+
   const Create = async (e: SyntheticEvent<HTMLFormElement>) => {
 
     const organization = await create(e, organizationIsUpload, organizationFile ?? null, individualIsUpload, individualFile ?? null)
@@ -70,7 +72,8 @@ const CreateOrganization = () => {
           <div className="flex flex-col mb-4 space-y-1 w-full">
             <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
             <div className={` flex items-center gap-3 w-full rounded-lg`}>
-              <Dropdown list={paymentname} selected={paymentname[0]} onSelect={(e) => {
+              <Dropdown list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                setSelectedPayment(e)
                 if (e.name === "NFT") setOrganizationIsUpload(false)
                 else setOrganizationIsUpload(true)
               }} />
