@@ -73,10 +73,12 @@ const Assets = () => {
     const TypeCoin = [
         {
             header: "Spot Assets",
+            balance: "$50.41",
             tokenTypes: TokenType.YieldToken,
         },
         {
             header: "Yield Bearing Assets",
+            balance: "$50.41",
             tokenTypes: TokenType.YieldToken,
         }
 
@@ -95,19 +97,19 @@ const Assets = () => {
         {
             name: "Bored Rmx #31",
             currency: 71,
-            value:876,
+            value: 876,
         },
         {
             name: "Bored Rmx #32",
             currency: 42,
-            value:623,
+            value: 623,
         },
         {
             name: "Bored Rmx #33",
             currency: 37,
-            value:945,
+            value: 945,
         },
-        
+
     ]
 
     return <>
@@ -117,22 +119,26 @@ const Assets = () => {
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
                     <AnimatedTabBar data={paymentdata} setText={setText} />
                 </div>
-                <div className="flex justify-end gap-20  py-8">
+                <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{text === "Tokens" ? 'Token Balances' : "NFT Balances"}</div>
                     {text === "Tokens" ? <div className="font-bold text-2xl">{(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <Loader />}</div> : <div className="font-bold text-2xl">$143.2</div>}
                 </div>
-                {text === "Tokens" ? <div className=" pb-5 px-2 sm:px-8 ">
+                {text === "Tokens" ? <div className=" pb-5 ">
                     {TypeCoin.map((i, index) => {
-                        return <div key={index}> <div className="font-bold text-2xl py-5 !ml-[-0.5rem]">{i.header}</div>
-                            <div id="header" className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  py-4">
+                        return <div key={index}>
+                            <div className="flex items-center justify-between py-3">
+                                <div className="font-bold text-lg">{i.header}</div>
+                                <div className="font-bold text-lg">{i.balance}</div>
+                            </div>
+                             <div id="header" className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  py-4 pl-4">
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl">Asset</div>
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl">Balance</div>
                                 <div className="hidden font-semibold text-greylish dark:text-white sm:block sm:text-xl">Price</div>
                                 <div className="hidden font-semibold text-greylish dark:text-white sm:block sm:text-xl">24h</div>
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl pl-2">Value</div>
-                            </div>
+                            </div> 
                             {Object.entries(selectBalance).map(([key, item]: [string, IBalanceItem | undefined], index) => {
-                                if (!item && index == 0) return <div key={index} className="flex justify-center py-1"> <Loader /></div>
+                                if (!item && index == 0) return <div key={index} className="flex justify-center py-1  pr-2"> <Loader /></div>
                                 if (!item || (i.header === "Spot Assets" ? item.coins.type === i.tokenTypes : item.coins.type !== i.tokenTypes)) return <Fragment key={index}></Fragment>
 
 
@@ -157,63 +163,60 @@ const Assets = () => {
                                     setStyle(newStyle);
                                 }, 200);
 
-                                return <> <div key={index} className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%]">
-                                    <div className="flex space-x-3 items-center">
-                                        <div><img src={item?.coins?.coinUrl} width={20} height={20} alt="" /></div>
-                                        <div>{item?.coins?.name}</div>
+                                return item.amount > 0 && <> <div key={index} className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%] pl-4">
+                                   <div className="flex space-x-3 items-center">
+                                        <div><img src={item?.coins?.coinUrl} width={20} height={20} alt="" className="rounded-full" /></div>
+                                        <div className="font-semibold">{item?.coins?.name}</div>
                                     </div>
-                                    <motion.div variants={variants} animate={amount === 0 ? `${darkMode ? "white" : "black"}` : amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
+                                    <motion.div className={`font-semibold `}  variants={variants} animate={amount === 0 ? `${darkMode ? "white" : "black"}` : amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                         {(item.amount || 0).toFixed(2)}
                                     </motion.div>
-                                    <motion.div variants={variants} className="hidden sm:block" animate={price === 0 ? `${darkMode ? "white" : "black"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
+                                    <motion.div variants={variants} className="hidden sm:block font-semibold" animate={price === 0 ? `${darkMode ? "white" : "black"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                         $ {(item.tokenPrice || 0).toFixed(2)}
                                     </motion.div>
-                                    <motion.div variants={variants} className="hidden sm:block" animate={per24 === 0 ? `${darkMode ? "white" : "black"}` : per24 > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
+                                    <motion.div variants={variants} className="hidden sm:block font-semibold" animate={per24 === 0 ? `${darkMode ? "white" : "black"}` : per24 > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                         % {(item.per_24 || 0).toFixed(2)}
                                     </motion.div>
-                                    <motion.div animate={price === 0 && amount === 0 ? `${darkMode ? "white" : "black"}` : price === 0 ? amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`} className=" flex justify-self-end xl:block pr-1 xl:pr-2" >
+                                    <motion.div animate={price === 0 && amount === 0 ? `${darkMode ? "white" : "black"}` : price === 0 ? amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`} className="font-semibold flex justify-self-end xl:block pr-1 xl:pr-2" >
                                         $ {(item.amount * item.tokenPrice).toFixed(2)}
                                     </motion.div>
-                                    {/* <motion.div animate={percent === 0 ? `${darkMode ? "white" : "black"}` : percent > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
-                                    % {(item.percent || 0).toFixed(2)}
-                                </motion.div> */}
                                 </div>
-                                    <div className="grid grid-cols-[95%,5%] items-center pt-2 pb-8">
-                                        <div className="bg-light dark:bg-dark rounded-2xl relative my-3 h-[0.5rem] ">
+                                    <div className="grid grid-cols-[95%,5%] items-center pt-2 pb-8 pl-4">
+                                        <div className="bg-greylish bg-opacity-10 dark:bg-darkSecond rounded-2xl relative my-3 h-[0.5rem] ">
                                             <div className={`bg-primary rounded-2xl h-full `} style={{ width: (item.percent || 0).toFixed(2) + "%" }}></div>
                                         </div>
                                         <div className="ml-2"> {(item.percent || 0).toFixed(2)}%</div>
                                     </div>
-                                </>
-                            })}
+                                </>}
+                            )}
                         </div>
                     })}
-                </div> : 
-                
-                <div className="w-full h-full  grid grid-cols-3 gap-20 ">
-                    {nftdata.map((i, index) => {
-                        return <div key={index} className=" h-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
-                        <div className="w-full   rounded-xl">
-                            <img src="/icons/nftmonkey.png" alt="" className="w-full max-h-[16rem] object-cover rounded-xl" />
-                        </div>
-                        <div className="flex justify-between items-center py-3 px-2 border-b dark:border-b-greylish">
-                            <div className="flex flex-col items-start justify-center">
-                                <div className="text-xl font-semibold">{i.name}</div>
-                                <div className="text-sm text-greylish">Bored Ape Yacht Club</div>
+                </div> :
+
+                    <div className="w-full h-full  grid grid-cols-3 gap-20 ">
+                        {nftdata.map((i, index) => {
+                            return <div key={index} className=" h-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
+                                <div className="w-full   rounded-xl">
+                                    <img src="/icons/nftmonkey.png" alt="" className="w-full max-h-[16rem] object-cover rounded-xl" />
+                                </div>
+                                <div className="flex justify-between items-center py-3 px-2 border-b dark:border-b-greylish">
+                                    <div className="flex flex-col items-start justify-center">
+                                        <div className="text-xl font-semibold">{i.name}</div>
+                                        <div className="text-sm text-greylish">Bored Ape Yacht Club</div>
+                                    </div>
+                                    <div className=" text-xl font-medium flex gap-1">{i.currency} <span><img src="/icons/celoicon.svg" alt="" w-2 h-2 /></span> CELO</div>
+                                </div>
+                                <div className="flex justify-between items-center  py-4 px-2">
+                                    <div className=" text-2xl font-semibold">${i.value}</div>
+                                    <div className="flex  items-center gap-3 justify-center">
+                                        <div className="text-2xl font-semibold">
+                                            <img src="/icons/copyicon.png" alt="" className="w-5 h-5 cursor-pointer" /></div>
+                                        <a href=""><img src="/icons/edit.png" className="w-6 h-6 cursor-pointer" alt="" /></a>
+                                    </div>
+                                </div>
                             </div>
-                            <div className=" text-xl font-medium flex gap-1">{i.currency} <span><img src="/icons/celoicon.svg" alt="" w-2 h-2 /></span> CELO</div>
-                        </div>
-                        <div className="flex justify-between items-center  py-4 px-2">
-                        <div className=" text-2xl font-semibold">${i.value}</div>
-                            <div className="flex  items-center gap-3 justify-center">
-                                <div className="text-2xl font-semibold">
-                                    <img src="/icons/copyicon.png" alt="" className="w-5 h-5 cursor-pointer"/></div>
-                                <a href=""><img src="/icons/edit.png" className="w-6 h-6 cursor-pointer"  alt="" /></a>
-                            </div>  
-                        </div>
-                        </div>
-                    })}
-                </div>}
+                        })}
+                    </div>}
             </div>
         </div>
     </>

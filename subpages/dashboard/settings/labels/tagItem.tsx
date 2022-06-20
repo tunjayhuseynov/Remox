@@ -10,9 +10,11 @@ import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Delete from "subpages/dashboard/contributors/buttons/delete";
 import { useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
-
+import {IFormInput} from '../tags';
+import { useForm, SubmitHandler } from "react-hook-form";
 
 export default function TagItem({ tag }: { tag: Tag }) {
+    const { register, handleSubmit } = useForm<IFormInput>();
     const [modalVisible, setModalVisible] = useState(false)
     const [details, setDetails] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -58,6 +60,11 @@ export default function TagItem({ tag }: { tag: Tag }) {
 
     const [divRef2, exceptRef2] = useModalSideExit(details, setDetails, false)
 
+    const onSubmit: SubmitHandler<IFormInput> = data => {
+        const Color = color
+        console.log(data)
+    }
+
     return (
         <>
                     {editModal &&
@@ -66,10 +73,10 @@ export default function TagItem({ tag }: { tag: Tag }) {
                         <div className="font-semibold tracking-wider text-2xl">
                             Edit tag
                         </div>
-                        <div className="flex items-end space-x-12">
+                        <form onSubmit={handleSubmit(onSubmit)} className="flex items-end space-x-12">
                             <div className="flex flex-col space-y-3 items">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
-                                <input type="text" className="rounded-xl border  dark:bg-darkSecond px-5 py-2" ref={inputRef} defaultValue={tag.name} />
+                                <input type="text" {...register("name", { required: true })} className="rounded-xl border  dark:bg-darkSecond px-5 py-2" ref={inputRef} defaultValue={tag.name} />
                             </div>
                             <div className="flex flex-col  ">
                                 <label className="text-greylish bg-opacity-50"></label>
@@ -91,7 +98,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
                                         }
                                 </div>
                             </div>
-                        </div>
+                        </form>
                         <div className="flex justify-center gap-16">
                             <Button type="submit" version="second" onClick={() => setEditModal(false)} className="!px-10 !py-2 !rounded-xl">
                                 Back

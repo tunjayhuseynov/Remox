@@ -152,12 +152,15 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
 
     return <>
-            {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={'!pt-5'}>
-                <Walletmodal  onDisable={setWalletModals}  setModals={setModal} />
-            </Modal>}
+        {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={'!pt-5'}>
+            <Walletmodal onDisable={setWalletModals} setModals={setModal} />
+        </Modal>}
         {
             genLoading ? <div className="flex items-center justify-center"><Loader /></div> :
-                penders.length === 0 ? <div className="text-3xl font-bold text-center tracking-wider">No {page} requests found</div> : <>
+                penders.length === 0 ? <div className="w-full h-[90%] flex flex-col  items-center justify-center gap-6">
+                    <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
+                    <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
+                </div> : <>
                     <div className="flex flex-col space-y-8">
                         {page === RequestStatus.approved && <>
                             <div className="w-full flex flex-col  border-b pt-2  px-0">
@@ -166,7 +169,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                     {selected.length > 0 && <div className="font-semibold text-lg text-greylish dark:text-white">Token Allucation</div>}
                                 </div>
                                 <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
-                                    <div className="flex flex-col items-start   mb-4">
+                                    <div className="flex flex-col items-start   mb-3">
                                         <TotalAmount coinList={selected} />
 
                                     </div>
@@ -238,7 +241,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                     <div className="text-2xl font-bold tracking-wide pt-1 pb-3">Approve Payments</div>
                                     <div className="w-full   pt-4 pb-6 ">
                                         <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-2 ">
-                                            <div className="text-base font-bold">Name</div>
+                                            <div className="text-base font-bold pl-6">Name</div>
                                             <div className="text-base font-bold">Request date</div>
                                             <div className="text-base font-bold">Requested Amount</div>
                                             <div className="text-base font-bold">Requests Type</div>
@@ -249,7 +252,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                 </div>
                                 <div className="flex flex-col space-y-3">
                                     <div className="text-2xl font-bold tracking-wide">Review Treasury Impact</div>
-                                    <div className="w-full flex flex-col   p-4">
+                                    <div className="w-full flex flex-col  ">
                                         <div className="grid grid-cols-[20%,80%]  pb-2">
                                             <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
                                             <div className="font-semibold text-lg text-greylish">Token Allocation</div>

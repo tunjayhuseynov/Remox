@@ -407,8 +407,8 @@ const Budgets = () => {
         },
     ]
 
-    return <div className="mb-6">
-        <div className="w-full">
+    return <div className="mb-6 w-full h-full">
+        <div className="w-full h-full">
             <div className="flex justify-between items-center w-full">
                 <div className="text-4xl font-bold pb-12">
                     Budgets
@@ -428,7 +428,7 @@ const Budgets = () => {
                 <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
                     <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
                 </Modal>}
-            {sign && <>
+            {sign ? <>
                 <TotalValues totals={Totals} />
                 <div className="w-full pt-2 pb-12 flex justify-between items-center">
                     <div className="w-[40%] text-xl">
@@ -474,7 +474,7 @@ const Budgets = () => {
 
                 </div >
                 {exercise && <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewExercise setExercise={setExercise} />
+                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
                 </Modal>}
                 {
                     editBudget && <Modal onDisable={setEditBudget} disableX={true} className={'!w-[40%] !pt-4'}>
@@ -486,7 +486,11 @@ const Budgets = () => {
                         <DeleteBudget onDisable={setDelBudget} />
                     </Modal>
                 }
-            </>}
+            </>:
+            <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+                <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]"/>
+                <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
+            </div> }
         </div >
     </div >
 

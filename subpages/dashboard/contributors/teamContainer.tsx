@@ -37,7 +37,7 @@ const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
 
     return <>
-       {props.selectbar === "Team" && <div className=" flex px-5 py-5   min-w-[23.5rem] min-h-[12rem] items-start justify-between  bg-white dark:bg-darkSecond shadow rounded-lg">
+       {props.selectbar === "Team" && <div className=" flex px-5 py-5   min-w-[23.5rem] min-h-[12rem] items-start justify-between  ">
             <div className="flex flex-col justify-between w-full h-full">
                 <div className="flex items-start justify-between w-full">
                 <div className="font-semibold text-[1.5rem] overflow-hidden whitespace-nowrap">

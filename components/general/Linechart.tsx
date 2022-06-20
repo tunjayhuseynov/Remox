@@ -51,7 +51,7 @@ function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: str
     <ReactApexChart
       options={options}
       series={series}
-      type={type === 'area' ? 'area' : 'bar'}
+      type={'area'}
       height={350}
       className={'w-full h-full'}
     />

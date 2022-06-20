@@ -34,17 +34,17 @@ export default function RequestLayout() {
     ]
 
     return (
-        <div className="flex flex-col space-y-5">
+        <div className="flex flex-col space-y-5 h-full">
             <div className="flex justify-between pb-6 ">
                 <div className="text-4xl font-bold tracking-wider">Requests</div>
                 <div>
-                    <Button className="!py-1 px-4 rounded-xl  font-semibold tracking-wider flex items-center" onClick={() => setModalVisible(true)}> Share Request Link    </Button>
+                    <Button className="mt-1 !py-1 px-4 rounded-xl  font-semibold tracking-wider flex items-center" onClick={() => setModalVisible(true)}> Share Request Link    </Button>
                 </div>
             </div>
             <div className="flex  w-[83%] justify-between">
                 <AnimatedTabBar data={data} className={'!text-2xl'} />
             </div>
-            <div className=" py-5">
+            <div className=" py-5 h-full">
                 <DynamicRequest type={type?.[0] === "approved" ? "approved" : type?.[0] === "rejected" ? "rejected" : "pending"} />
             </div>
             {modalVisibility && <Modal onDisable={setModalVisible} className={'!py-8 !pt-1'}>

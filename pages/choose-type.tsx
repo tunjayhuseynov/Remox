@@ -27,15 +27,15 @@ function ChooseType() {
   const dispatch = useDispatch()
 
 
-  useAsyncEffect(async () => {
-    if (Address && auth.currentUser) {
-      setAddress(Address)
-      if (!isUserExist) {
-        dispatch(changeAccount(Address!))
-        dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
-      }
-    } else navigate.push("/")
-  }, [Address])
+  // useAsyncEffect(async () => {
+  //   if (Address && auth.currentUser) {
+  //     setAddress(Address)
+  //     if (!isUserExist) {
+  //       dispatch(changeAccount(Address!))
+  //       dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
+  //     }
+  //   } else navigate.push("/create-account")
+  // }, [Address])
 
 
   const individualLogin = async () => {
@@ -57,11 +57,7 @@ function ChooseType() {
     }
   }
 
-  const addOrganization = () => navigate.push("/create-organization")
 
-  const organizationalLogin = () => {
-
-  }
 
 
   const data: { name: string, value: string }[] = [
@@ -101,7 +97,7 @@ function ChooseType() {
       <div className="w-[40%] ">
         <div className="flex gap-8">
           <div className="h-full cursor-pointer border border-b-0 dark:border-greylish transition-all hover:transition-all hover:!border-primary rounded-lg w-full">
-            <div className="overflow-auto h-[13.1rem] w-full relative">
+            <div className="bg-white rounded-lg overflow-auto h-[13.1rem] w-full relative">
               {data.map((i, id) => {
                 return <div key={id} className={` ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === data.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
                   <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
@@ -111,11 +107,11 @@ function ChooseType() {
                   </div>
                 </div>
               })}
-              {data.length === 0 && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Data Exists</div>}
+              {data.length === 0 && <div className="!bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Data Exists</div>}
             </div>
-            <Button className="top-0 w-full rounded-t-none !border-0" onClick={addOrganization}>Add Organisation</Button>
+            <Button className="top-0 w-full rounded-t-none !border-0" onClick={() => navigate.push("/create-organization")}>Add Organisation</Button>
           </div>
-          <div onClick={individualLogin} className={`cursor-pointer group border hover:!border-primary dark:border-greylish  hover:text-primary transition-all dark:bg-darkSecond hover:transition-all h-full rounded-lg w-full`}>
+          <div onClick={individualLogin} className={`cursor-pointer bg-white group border hover:!border-primary dark:border-greylish  hover:text-primary transition-all dark:bg-darkSecond hover:transition-all h-full rounded-lg w-full`}>
             <div className={`bg-white dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[8rem] group-hover:min-h-[10rem] relative`}>
               <div className={`group-hover:text-primary text-xl font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>{individual ? "Continue" : "Register"} as an Individual</div>
             </div>

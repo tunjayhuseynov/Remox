@@ -17,6 +17,7 @@ import Stats from './reducers/accountstats';
 import PayInputs from './reducers/payinput';
 import Budgets from './reducers/budgets';
 import SubInputs from './reducers/subinput';
+import SplitInputs from './reducers/split';
 import { BlockScoutApi, RemoxApi } from './api';
 
 const store = configureStore({
@@ -39,6 +40,7 @@ const store = configureStore({
 		accountstats: Stats,
 		payInputs: PayInputs,
 		subInputs:SubInputs,
+		splitInputs:SplitInputs,
 		[RemoxApi.reducerPath]: RemoxApi.reducer,
 		[BlockScoutApi.reducerPath]: BlockScoutApi.reducer,
 	},

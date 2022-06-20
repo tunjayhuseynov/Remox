@@ -4,17 +4,19 @@ import { Dispatch, useState } from "react";
 import { useAppDispatch } from "redux/hooks";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Button from "../../../../components/button";
-
+import { useForm, SubmitHandler } from "react-hook-form";
+import { IFormInput} from './addTeam'
 
 const EditTeam = (props: IuseContributor & { onCurrentModal: Dispatch<boolean> }) => {
-
+    const { register, handleSubmit } = useForm<IFormInput>();
     // const [updateTeam, { isLoading }] = useUpdateTeamMutation()
     const { editTeam, isLoading } = useContributors()
     const [input, setInput] = useState<string>('')
     const dispatch = useAppDispatch()
 
+    const onSubmit: SubmitHandler<IFormInput> = data => console.log(data)
 
-    return <div className="flex flex-col items-center justify-center space-y-10">
+    return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10">
         <div className="flex items-center justify-center text-xl">
             <div className="text-2xl self-center pt-2 font-semibold ">Edit Team</div>
         </div>
@@ -23,7 +25,7 @@ const EditTeam = (props: IuseContributor & { onCurrentModal: Dispatch<boolean> }
         <div className="">
             Team Name
         </div>
-            <input type="text" defaultValue={props.name} onChange={(e) => setInput(e.target.value)}className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond" required />
+            <input type="text" {...register("name", { required: true })} defaultValue={props.name} onChange={(e) => setInput(e.target.value)}className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond" required />
         </div>
         <div className="flex  gap-x-10 justify-center w-full">
             <Button version="second" className="px-14 !py-2 font-light" onClick={() => {
@@ -45,7 +47,7 @@ const EditTeam = (props: IuseContributor & { onCurrentModal: Dispatch<boolean> }
                 Save
             </Button>
         </div>
-    </div>
+    </form>
 }
 
 export default EditTeam;

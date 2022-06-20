@@ -3,21 +3,20 @@ import { generate } from 'shortid';
 import { DropDownItem } from "../../types/dropdown";
 import type { RootState } from '../store'
 
-export interface ISubInput {
+export interface ISplitInput {
     index: string;
-    name?: string;
+    budget?: string;
     amount?: number;
     wallet?: DropDownItem;
-    amount2?: number;
-    wallet2?: DropDownItem;
+
 }
 
-interface ISubInputs {
-    inputs: ISubInput[],
+interface ISplitInputs {
+    inputs: ISplitInput[],
     inputAmount: number,
 }
 
-const SubInputs: ISubInputs = {
+const SplitInputs: ISplitInputs = {
     inputs: [
         { index: generate() }
     ],
@@ -25,31 +24,30 @@ const SubInputs: ISubInputs = {
 }
 
 
-const SubInputSlice = createSlice({
-    name: "subinput",
-    initialState: SubInputs,
+const SplitInputSlice = createSlice({
+    name: "splitinput",
+    initialState: SplitInputs,
     reducers: {
 
-        addSubInput: (state, action: { payload: ISubInput }) => {
+        addSplitInput: (state, action: { payload: ISplitInput }) => {
             state.inputs.push(action.payload)
             state.inputAmount += 1
         },
-        changeSubInput: (state: ISubInputs, action: PayloadAction<ISubInput>) => {
+        changeSplitInput: (state: ISplitInputs, action: PayloadAction<ISplitInput>) => {
             const { index } = action.payload;
             const input = state.inputs.find(i => i.index === index);
             if (input) {
-                input.name = action.payload.name;
+                input.budget = action.payload.budget;
                 input.amount = action.payload.amount;
                 input.wallet = action.payload.wallet;
-                input.amount2 = action.payload.amount2;
-                input.wallet2 = action.payload.wallet2;
+
             }
         },
-        removeSubInput: (state, action: { payload: string }) => {
+        removeSplitInput: (state, action: { payload: string }) => {
             state.inputs = state.inputs.filter(input => input.index !== action.payload)
             state.inputAmount -= 1
         },
-        resetSubInput: (state) => {
+        resetSplitInput: (state) => {
             state.inputs = [
                 {index: generate()}
             ]
@@ -58,8 +56,8 @@ const SubInputSlice = createSlice({
     }
 })
 
-export const {addSubInput,resetSubInput,removeSubInput,changeSubInput} = SubInputSlice.actions;
-export const SelectInputs = (state: RootState) => state.subInputs.inputs;
-export const SelectInputAmount = (state: RootState) => state.subInputs.inputAmount;
+export const {addSplitInput,resetSplitInput,removeSplitInput,changeSplitInput} = SplitInputSlice.actions;
+export const SelectInputs = (state: RootState) => state.splitInputs.inputs;
+export const SelectInputAmount = (state: RootState) => state.splitInputs.inputAmount;
 
-export default SubInputSlice.reducer;
+export default SplitInputSlice.reducer;

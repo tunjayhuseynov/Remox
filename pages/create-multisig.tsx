@@ -14,13 +14,14 @@ import Paydropdown from "subpages/pay/paydropdown";
 import AnimatedTabBar from 'components/animatedTabBar';
 import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
-
-
+import Dropdown from "components/general/dropdown";
+import { DropDownItem } from "types";
 interface IFormInput {
     nftAddress?: string;
     nftTokenId?: number;
     name: string;
     multisigAddress?: string;
+    confirmOwners?: number;
 }
 
 function CreateMultisig() {
@@ -28,6 +29,7 @@ function CreateMultisig() {
     const { register, handleSubmit } = useForm<IFormInput>();
     // const { data, importMultisigAccount, createMultisigAccount, isLoading } = useMultisig()
     // const storage = useSelector(selectStorage)
+
     const { Address, Wallet, blockchain } = useWalletKit();
     const address = Address
     const dispatch = useDispatch()
@@ -40,17 +42,24 @@ function CreateMultisig() {
     const [internalSign, setInternalSign] = useState<number | undefined>(1)
     const [value, setValue] = useState('')
     const [value2, setValue2] = useState('')
-    const [selectedType, setSelectedType] = useState(false)
+    // const [selectedType, setSelectedType] = useState(false)
     const [newOwner, setNewOwner] = useState(false)
     const [text, setText] = useState('Create Multisig')
     const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
     const [file, setFile] = useState<File>()
+    const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
+    const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
 
     // const importInputRef = useRef<HTMLInputElement>(null)
     // const importNameInputRef = useRef<HTMLInputElement>(null)
 
 
-    const onSubmit: SubmitHandler<IFormInput> = data => console.log(data);
+    const onSubmit: SubmitHandler<IFormInput> = data =>{
+       const orgPhoto = file
+        const Owners = owners
+        console.log(data,orgPhoto,Owners)
+    };
 
 
     const addOwner = () => {
@@ -61,39 +70,6 @@ function CreateMultisig() {
         }
     }
 
-    // const createClick = async () => {
-    //     if (sign && internalSign && owners.length + 1 >= sign && owners.length + 1 >= internalSign) {
-    //         try {
-    //             await createMultisigAccount(
-    //                 owners.map(owner => owner.address),
-    //                 name,
-    //                 sign.toString(),
-    //                 internalSign.toString()
-    //             )
-
-    //             dispatch(changeSuccess({ activate: true, text: "Successfully" }))
-
-    //         } catch (error: any) {
-    //             console.error(error)
-    //             dispatch(changeError({ activate: true, text: (error?.data?.message || "Something went wrong") }))
-
-    //         }
-    //     }
-    // }
-
-    // const importClick = async () => {
-    //     if (importInputRef.current && importInputRef.current.value) {
-    //         try {
-    //             await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""))
-    //             dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
-
-    //         } catch (error: any) {
-    //             console.error(error)
-    //             dispatch(changeError({ activate: true, text: (error || "Something went wrong") }))
-
-    //         }
-    //     }
-    // }
 
     const paymentdata = [
         {
@@ -106,8 +82,6 @@ function CreateMultisig() {
         }
     ]
 
-    const paymentname = ["Upload Photo", "NFT"]
-    const paymentname2 = ["Celo", "Solana"]
 
     return <div className="h-screen w-full">
         <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
@@ -127,27 +101,25 @@ function CreateMultisig() {
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <Paydropdown setSelectedType={setSelectedType} paymentname={paymentname} value={value} setValue={setValue} />
+                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                                setSelectedPayment(e)
+                                if (e.name === "NFT") setOrganizationIsUpload(false)
+                                else setOrganizationIsUpload(true)
+                            }} />
                         </div>
                     </div>
-                    {value && <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
+                    {<div className="flex flex-col mb-4 space-y-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">{!organizationIsUpload ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
-                            {value === "NFT" ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                            {!organizationIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                         </div>
                     </div>}
-                    {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                    {blockchain === 'celo' && !organizationIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
-                            <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                            <input type="number" {...register("nftTokenId", { required: true })}  className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
-                    {/* <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs  text-left  dark:text-white">Choose Wallet Provider</div>
-                        <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <Paydropdown setSelectedType={setSelectedType} paymentname={paymentname2} value={value2} setValue={setValue2} />
-                        </div>
-                    </div> */}
                     {text === "Import Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Multisig Adress</div>
                         <div className={` flex items-center gap-3 w-full border rounded-lg`}>
@@ -215,7 +187,7 @@ function CreateMultisig() {
                     {text === "Create Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
                         <div className="w-ful flex justify-start items-center">
-                            <input type="text" className="border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
+                            <input type="number" {...register("confirmOwners", { required: true })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" max={owners.length + 1} value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
                             <p className="text-greylish w-[30%]">out of {owners.length + 1} owners</p>
                         </div>
                     </div>}

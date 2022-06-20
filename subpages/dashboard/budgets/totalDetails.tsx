@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
 import { useModalSideExit } from "hooks";
-import useProfile from "rpcHooks/useProfile";
-import { ITotals } from './budgetCard'
+import useProfile from 'rpcHooks/useProfile';
+import { ITotals } from './budgetCard';
 
 function TotalDetails({ totals }: { totals: ITotals[] }) {
     const { profile, UpdateSeenTime } = useProfile()

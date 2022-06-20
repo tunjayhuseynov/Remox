@@ -68,12 +68,12 @@ const Home = () => {
         }])
 
         if (user) {
-          navigate.push('/unlock')
+          navigate.push('/choose-type')
         } else {
           await processSigning(address);
           dispatch(changeAccount(address))
           dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
-          navigate.push('/choose-type')
+          navigate.push('/create-account')
         }
       }
     } catch (error) {

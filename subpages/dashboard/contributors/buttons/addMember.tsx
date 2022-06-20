@@ -21,12 +21,36 @@ import { useWalletKit } from "hooks";
 import Loader from "components/Loader";
 import Paydropdown from '../../../../subpages/pay/paydropdown';
 import Upload from "components/upload";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+export interface IFormInput {
+    nftAddress?: string;
+    nftTokenId?: number;
+    name: string;
+    surname: string;
+    address:string;
+    amount:number;
+    amount2?:number;
+
+}
+
 
 export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
-    const [value, setValue] = useState('Pay with Token Amounts')
-    const [value2, setValue2] = useState('Full Time')
-    const [value3, setValue3] = useState('Manual')
-    const [value4, setValue4] = useState('')
+    const { register, handleSubmit } = useForm<IFormInput>();
+    const [userIsUpload, setUserIsUpload] = useState<boolean>(true)
+
+    const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+
+    const paymentname2: DropDownItem[] = [{ name: "Full Time" }, { name: "Part Time" }, { name: "Bounty" }]
+    const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
+
+    const paymentname3: DropDownItem[] = [{ name: "Pay with Token Amounts" }, { name: "Pay with USD-based Amounts" }]
+    const [selectedPayment3, setSelectedPayment3] = useState(paymentname3[0])
+
+    const paymentname4: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }]
+    const [selectedPayment4, setSelectedPayment4] = useState(paymentname4[0])
+
 
     const { kit } = useContractKit()
     const storage = useAppSelector(selectStorage)
@@ -35,7 +59,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const { GenerateBatchPay } = useCeloPay()
     const { createTask, loading } = useGelato()
     const balance = useAppSelector(SelectBalances)
-    const { GetCoins,blockchain } = useWalletKit()
+    const { GetCoins, blockchain } = useWalletKit()
 
     const contributors = useAppSelector(selectContributors).contributors
     const { addMember, isLoading } = useContributors()
@@ -46,119 +70,135 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const [endDate, setEndDate] = useState<Date>(new Date());
 
     const [selectedExecution, setSelectedExecution] = useState(false)
+    const [selectedType, setSelectedType] = useState(false)
 
     const [selected, setSelected] = useState<DropDownItem>(contributors.length > 0 ? { name: "Select Team", coinUrl: CoinsURL.None } : { name: "No Team", coinUrl: CoinsURL.None })
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({ name: "Monthly", type: DateInterval.monthly })
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>(GetCoins[CoinsName.CELO]);
-    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>(GetCoins[CoinsName.CELO]);
+    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>();
+    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>();
+    const [amount, setAmount] = useState<number>(0)
+    const [amount2, setAmount2] = useState<number>(0)
 
-    const [selectedType, setSelectedType] = useState(false)
 
     const dispatch = useAppDispatch()
 
+console.log(selectedType)
+    // const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
+    //     e.preventDefault()
 
-    const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault()
+    //     const target = e.target as HTMLFormElement;
 
-        const target = e.target as HTMLFormElement;
+    //     const { firstName, lastName, teamName, walletAddress, amount, amount2 } = target;
+    //     const firstNameValue = (firstName as HTMLInputElement).value
+    //     const lastNameValue = (lastName as HTMLInputElement).value
+    //     const compensationValue = value2
+    //     // const teamNameValue = (teamName as HTMLInputElement)?.value
+    //     const walletAddressValue = (walletAddress as HTMLInputElement).value
+    //     const amountValue = (amount as HTMLInputElement).value
+    //     const amountValue2 = (amount2 as HTMLInputElement)?.value
 
-        const { firstName, lastName, teamName, walletAddress, amount, amount2 } = target;
-        const firstNameValue = (firstName as HTMLInputElement).value
-        const lastNameValue = (lastName as HTMLInputElement).value
-        const compensationValue = value2
-        // const teamNameValue = (teamName as HTMLInputElement)?.value
-        const walletAddressValue = (walletAddress as HTMLInputElement).value
-        const amountValue = (amount as HTMLInputElement).value
-        const amountValue2 = (amount2 as HTMLInputElement)?.value
+    //     if (firstNameValue && lastNameValue && walletAddressValue && amountValue && compensationValue) {
+    //         if (!Object.values(GetCoins).includes(selectedWallet as AltCoins)) {
+    //             ToastRun(<>Please, choose a Celo wallet</>)
+    //             return
+    //         }
+    //         if (selected.name === "Select Team") {
+    //             ToastRun(<>Please, choose a team</>)
+    //             return
+    //         }
 
-        if (firstNameValue && lastNameValue && walletAddressValue && amountValue && compensationValue) {
-            if (!Object.values(GetCoins).includes(selectedWallet as AltCoins)) {
-                ToastRun(<>Please, choose a Celo wallet</>)
-                return
-            }
-            if (selected.name === "Select Team") {
-                ToastRun(<>Please, choose a team</>)
-                return
-            }
+    //         if (selectedWallet.name && selected.id) {
 
-            if (selectedWallet.name && selected.id) {
+    //             try {
 
-                try {
+    //                 if (walletAddressValue.trim().startsWith("0x")) {
+    //                     const isAddressExist = kit.web3.utils.isAddress(walletAddressValue.trim());
+    //                     if (!isAddressExist) throw new Error("There is not any wallet belong this address");
+    //                 }
 
-                    if (walletAddressValue.trim().startsWith("0x")) {
-                        const isAddressExist = kit.web3.utils.isAddress(walletAddressValue.trim());
-                        if (!isAddressExist) throw new Error("There is not any wallet belong this address");
-                    }
+    //                 let sent: IMember = {
+    //                     taskId: null,
+    //                     id: uuidv4(),
+    //                     first: `${firstNameValue}`,
+    //                     name: `${firstNameValue} ${lastNameValue}`,
+    //                     last: `${lastNameValue}`,
+    //                     address: walletAddressValue.trim(),
+    //                     compensation: compensationValue,
+    //                     currency: selectedWallet.name as CoinsName,
+    //                     amount: parseFloat(amountValue.trim()).toString(),
+    //                     teamId: selected.id,
+    //                     usdBase: selectedType,
+    //                     execution: value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual,
+    //                     interval: selectedFrequency!.type as DateInterval,
+    //                     paymantDate: startDate!.toISOString(),
+    //                     paymantEndDate: endDate!.toISOString(),
+    //                     secondaryAmount: amountValue2 ? parseFloat(amountValue2.trim()).toString() : null,
+    //                     secondaryCurrency: selectedWallet2?.name ? selectedWallet2.name as CoinsName : null,
+    //                     secondaryUsdBase: amountValue2 ? selectedType : null,
+    //                 }
 
-                    let sent: IMember = {
-                        taskId: null,
-                        id: uuidv4(),
-                        first: `${firstNameValue}`,
-                        name: `${firstNameValue} ${lastNameValue}`,
-                        last: `${lastNameValue}`,
-                        address: walletAddressValue.trim(),
-                        compensation: compensationValue,
-                        currency: selectedWallet.name as CoinsName,
-                        amount: parseFloat(amountValue.trim()).toString(),
-                        teamId: selected.id,
-                        usdBase: selectedType,
-                        execution: value3 === "Auto" ? ExecutionType.auto : ExecutionType.manual,
-                        interval: selectedFrequency!.type as DateInterval,
-                        paymantDate: startDate!.toISOString(),
-                        paymantEndDate: endDate!.toISOString(),
-                        secondaryAmount: amountValue2 ? parseFloat(amountValue2.trim()).toString() : null,
-                        secondaryCurrency: selectedWallet2?.name ? selectedWallet2.name as CoinsName : null,
-                        secondaryUsdBase: amountValue2 ? selectedType : null,
-                    }
+    //                 await addMember(selected.id, sent)
 
-                    await addMember(selected.id, sent)
+    //                 dispatch(changeSuccess({ activate: true, text: "Member is added successfully" }))
+    //                 onDisable(false)
+    //             } catch (error: any) {
+    //                 console.error(error)
+    //                 dispatch(changeError({ activate: true, text: error.message }))
+    //             }
+    //         }
+    //     }
+    // }
 
-                    dispatch(changeSuccess({ activate: true, text: "Member is added successfully" }))
-                    onDisable(false)
-                } catch (error: any) {
-                    console.error(error)
-                    dispatch(changeError({ activate: true, text: error.message }))
-                }
-            }
-        }
+
+    const onSubmit: SubmitHandler<IFormInput> = data => {
+        const Photo = file;
+        const Team = selected;
+        const Compensation = selectedPayment2.name;
+        const Wallet = selectedWallet
+        const Wallet2 = selectedWallet2
+        const PaymentType = selectedExecution ? "Auto" : "Manual";
+        const Frequency = selectedFrequency.name;
+        const dateStart = startDate;
+        const dateEnd = endDate;
+        console.log(data,Photo,Team,Compensation,Wallet,Wallet2,PaymentType,Frequency,dateStart,dateEnd)
     }
 
-    const paymentname = ["Pay with USD-based Amounts", "Pay with Token Amounts"]
-    const paymentname2 = ["Full Time", "Part Time", "Bounty"]
-    const paymentname3 = ["Manual", "Auto"]
-    const paymentname4 = ["Upload Photo", "NFT"]
 
     return <>
-        <form onSubmit={Submit}>
+        <form onSubmit={handleSubmit(onSubmit)} >
             <div className="flex flex-col space-y-8">
                 <div className="text-2xl self-center pt-2 font-semibold ">Add People</div>
                 <div className="flex flex-col space-y-4">
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className=" text-left text-greylish dark:text-white">Choose Profile Photo Type</div>
                         <div className={` flex items-center gap-3 w-full`}>
-                            <Paydropdown className={'!py-4'} paymentname={paymentname4} value={value4} setValue={setValue4} />
+                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                                setSelectedPayment(e)
+                                if (e.name === "NFT") setUserIsUpload(false)
+                                else setUserIsUpload(true)
+                            }} />
                         </div>
                     </div>
-                    {value4 && <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
+                    {<div className="flex flex-col mb-4 space-y-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">{!userIsUpload ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
-                            {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                            {!userIsUpload ? <input type="text"  {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                         </div>
                     </div>}
-                    {blockchain === 'celo' && value4 === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                    {blockchain === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
-                            <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                            <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                     <div className="grid grid-cols-2 gap-x-10">
                         <div>
                             <div className="text-greylish ">Name</div>
-                            <input type="text" name="firstName" placeholder="First Name" className="border-2 pl-2 rounded-md outline-none py-2  w-full dark:bg-darkSecond" required />
+                            <input type="text" {...register("name", { required: true })}  placeholder="First Name" className="border pl-2 rounded-md outline-none py-3  w-full dark:bg-darkSecond" required />
                         </div>
                         <div>
                             <div className="text-greylish ">Surname</div>
-                            <input type="text" name="lastName" placeholder="Last Name" className="border-2 pl-2 rounded-md outline-none py-2 w-full dark:bg-darkSecond" required />
+                            <input type="text" {...register("surname", { required: true })}  placeholder="Last Name" className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond" required />
                         </div>
                     </div>
                 </div>
@@ -166,61 +206,68 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                     <div className="flex flex-col">
                         <div className="text-greylish">Team</div>
                         <div className="w-full ">
-                            <div>
-                                <Dropdown onSelect={setSelected} selected={selected} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} className="!py-[0.6rem]  border-2 !rounded-md " />
-                            </div>
+                            <Dropdown onSelect={setSelected} selected={selected} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} />
                         </div>
-
                     </div>
                     <div className="flex flex-col ">
                         <div className="text-greylish">Compensation Type</div>
                         <div className=" w-full ">
-                            <div>
-                                <Paydropdown paymentname={paymentname2} value={value2} setValue={setValue2} className={"!py-[0.6rem]"} />
-                            </div>
+                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
+                                setSelectedPayment2(e)
+
+                            }} />
                         </div>
                     </div>
                 </div>
                 <div className="flex flex-col space-y-1">
                     <div className="text-greylish">Amount Type</div>
                     <div>
-                        <Paydropdown setSelectedType={setSelectedType} onChangeType={setSelectedType} paymentname={paymentname} value={value} setValue={setValue} className={"!py-[0.6rem] !rounded-md "} />
+                        <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname3} selected={selectedPayment3} onSelect={(e) => {
+                            setSelectedPayment3(e)
+                            if (e.name === "Pay with USD-based Amounts") setSelectedType(true)
+                            else setSelectedType(false)
+                        }} />
                     </div>
                 </div>
                 <div className="flex flex-col space-y-1">
                     <div className="text-greylish">Wallet Address</div>
                     <div>
-                        <input type="text" name="walletAddress" className="border-2 pl-2 rounded-md outline-none py-2 w-full dark:bg-darkSecond" placeholder="Wallet Address" required />
+                        <input type="text"  {...register("address", { required: true })}  className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond" placeholder="Wallet Address" required />
                     </div>
                 </div>
-
                 <div className="flex w-full gap-x-10">
-                    {!selectedWallet ? <Loader /> : <Dropdown parentClass={'w-full   border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" onSelect={setSelectedWallet} nameActivation={true} selected={selectedWallet} list={Object.values(GetCoins)} />}
+                    {<Dropdown parentClass={'w-full   border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" nameActivation={true} selected={selectedWallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                            setSelectedWallet(val)
+                        }}  />}
                     <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
-                        <input type="number" name="amount" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white " placeholder="Amount" required step={'any'} min={0} />
+                        <input type="number" {...register("amount", { required: true })}  className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white " placeholder="Amount" required step={'any'} min={0} onChange={(e)=>{setAmount(parseInt(e.target.value))}} />
                         {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
                     </div>
                 </div>
                 {secondActive ?
                     <div className="flex gap-x-10">
-                        {!selectedWallet ? <Loader /> : <Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" onSelect={setSelectedWallet2} nameActivation={true} selected={selectedWallet2} list={Object.values(GetCoins)} />}
+                        { <Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3" nameActivation={true} selected={selectedWallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                            setSelectedWallet2(val)
+                        }}  />}
                         <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
-                            <input type="number" name="amount2" className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} />
+                            <input type="number" {...register("amount2", { required: true })} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} onChange={(e)=>{setAmount2(parseInt(e.target.value))}} />
                             {selectedType && <span className="text-xs self-center opacity-70 dark:text-white ">USD as</span>}
                         </div>
                     </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}
                 <div className="flex gap-x-10">
                     <div className="flex flex-col space-y-1 w-full">
                         <div className="text-greylish">Payment Type</div>
-                        <div>
-                            <Paydropdown setSelectedType={setSelectedExecution} selectedExecution={selectedExecution} paymentname={paymentname3} value={value3} setValue={setValue3} className={"!py-[0.6rem]"} />
-                        </div>
+                        <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname4} selected={selectedPayment4} onSelect={(e) => {
+                            setSelectedPayment4(e)
+                            if (e.name === "Auto") setSelectedExecution(true)
+                            else setSelectedExecution(false)
+                        }} />
                     </div>
 
                     <div className="flex flex-col space-y-1 w-full">
                         <div className="text-greylish">Payment Frequency</div>
                         <div>
-                            <Dropdown onSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border-2 !rounded-md !py-[0.7rem]" />
+                            <Dropdown onSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border !rounded-md !py-[0.7rem]" />
                         </div>
                     </div>
                 </div>

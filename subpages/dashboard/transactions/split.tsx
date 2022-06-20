@@ -10,29 +10,22 @@ import { selectDarkMode } from "redux/reducers/notificationSlice";
 import useProfile from "rpcHooks/useProfile";
 import { useModalSideExit } from "hooks";
 import Paydropdown from 'subpages/pay/paydropdown';
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput, removeSplitInput } from "redux/reducers/split";
 
-function Split({split,split2,split3,setSplit,setSplit2,setSplit3}:{split:boolean,split2:boolean,split3:boolean,setSplit:React.Dispatch<React.SetStateAction<boolean>>,setSplit2:React.Dispatch<React.SetStateAction<boolean>>,setSplit3:React.Dispatch<React.SetStateAction<boolean>>}) {
+function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: number; }) {
     const { GetCoins, fromMinScale } = useWalletKit()
     const dark = useSelector(selectDarkMode)
     const { profile, UpdateSeenTime } = useProfile()
     const [openNotify, setNotify] = useState(false)
+    const [index] = useState<string>(incomingIndex)
+    const dispatch = useAppDispatch()
 
-    const [value2, setValue2] = useState('')
-    const [value3, setValue3] = useState('')
-    const [value4, setValue4] = useState('')
+    const [amount, setAmount] = useState<number>()
+    const [wallet, setWallet] = useState<DropDownItem>()
 
-    const [wallet2, setWallet2] = useState<DropDownItem>({
-        name: Object.values(GetCoins)[0].name,
-        coinUrl: Object.values(GetCoins)[0].coinUrl
-    })
-    const [wallet3, setWallet3] = useState<DropDownItem>({
-        name: Object.values(GetCoins)[0].name,
-        coinUrl: Object.values(GetCoins)[0].coinUrl
-    })
-    const [wallet4, setWallet4] = useState<DropDownItem>({
-        name: Object.values(GetCoins)[0].name,
-        coinUrl: Object.values(GetCoins)[0].coinUrl
-    })
+    const paymentname: DropDownItem[] = [{ name: "Select" }, { name: "Security" }, { name: "Development" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
 
     useEffect(() => {
         if (openNotify) {
@@ -40,64 +33,51 @@ function Split({split,split2,split3,setSplit,setSplit2,setSplit3}:{split:boolean
         }
     }, [openNotify])
 
+    useEffect(() => {
+        dispatch(changeSplitInput({
+            index,
+            budget: selectedPayment.name,
+            amount,
+            wallet,
 
-    const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
+        }))
+    }, [selectedPayment, amount, wallet,])
 
-    const paymentname2 = ["Marketing", "Security","Development"]
-    const paymentname3 = ["Marketing", "Security","Development"]
-    const paymentname4 = ["Marketing", "Security","Development"]
 
-  return <>
-  {split && <div className="flex flex-col gap-10 justify-center items-center  pb-8 px-16 w-full">
-  <div className="flex justify-between items-center w-full px-1">
-      <span className="text-lg font-medium">Split 2</span>
-      <span className="text-red-600 cursor-pointer" onClick={()=>{setSplit(false)}}>Delete</span>
 
-  </div>
-  <div className="flex w-full justify-between ">
-      <div className="flex flex-col w-[45%]">
-          <span className="text-left  text-greylish pb-2 pl-1" >Token</span>
-       <Dropdown className=" border bg-white text-sm rounded-lg" onSelect={val => {
-              setWallet2(val)
-          }} nameActivation={true} selected={wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />
-      </div>
-      <div className="flex flex-col w-[45%]">
-          <span className="text-left  text-greylish pb-2 pl-1" >Amount</span>
-          <input className="outline-none unvisibleArrow  border rounded-xl py-[.4rem] pl-2 dark:bg-darkSecond dark:text-white" placeholder="0"   step={'any'} min={0} />
-      </div>
-  </div>
-  <div className="flex flex-col w-full pb-4">
-  <span className="text-left  text-greylish pb-2 pl-1" >Budget</span>
-  <Paydropdown  paymentname={paymentname2} value={value2} setValue={setValue2} className={'!py-3'}  />
-  {split2  ? <div className="border-b w-full pt-8"></div> : <div className="pt-8 cursor-pointer self-start text-primary flex items-center justify-center gap-1" onClick={()=>{setSplit2(true)}} ><span className=" px-2 border border-primary rounded-full ">+</span>Add Split</div> }
-  </div>
-</div>}
-{split2 && <div className="flex flex-col gap-10 justify-center items-center  pb-8  px-16 w-full">
-  <div className="flex justify-between items-center w-full px-1">
-      <span className="text-lg font-medium">Split 3</span>
-      <span className="text-red-600 cursor-pointer" onClick={()=> setSplit2(false)}>Delete</span>
+    return <>
+        <div className="flex flex-col gap-6 justify-center items-center   w-full">
+            <div className="flex justify-between items-center w-full px-1">
+                <span className="text-lg font-medium">Split {indexs + 1}</span>
+                {indexs !== 0 && <div className="cursor-pointer text-red-600 font-bold" onClick={() => {
+                    dispatch(removeSplitInput(index))
+                    //setRefreshPage(generate())
+                }} >Delete</div>}
 
-  </div>
-  <div className="flex w-full justify-between ">
-      <div className="flex flex-col w-[45%]">
-          <span className="text-left  text-greylish pb-2 pl-1" >Token</span>
-       <Dropdown className=" border bg-white text-sm rounded-lg" onSelect={val => {
-              setWallet3(val)
-          }} nameActivation={true} selected={wallet3 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />
-      </div>
-      <div className="flex flex-col w-[45%]">
-          <span className="text-left  text-greylish pb-2 pl-1" >Amount</span>
-          <input className="outline-none unvisibleArrow  border rounded-xl py-[.4rem] pl-2 dark:bg-darkSecond dark:text-white" placeholder="0"   step={'any'} min={0} />
-      </div>
-  </div>
-  <div className="flex flex-col w-full pb-4">
-  <span className="text-left  text-greylish pb-2 pl-1" >Budget</span>
-  <Paydropdown  paymentname={paymentname3} value={value3} setValue={setValue3} className={'!py-3'}  />
-  {split3  ? <div className="border-b w-full pt-8"></div> : <div className="pt-8 cursor-pointer self-start text-primary flex items-center justify-center gap-1" onClick={()=>{setSplit3(true)}} ><span className=" px-2 border border-primary rounded-full ">+</span>Add Split</div> }
-  </div>
- 
-</div>}
-</> 
+            </div>
+            <div className="flex w-full justify-between ">
+                <div className="flex flex-col w-[45%]">
+                    <span className="text-left  text-greylish pb-2 pl-1" >Token</span>
+                    <Dropdown className="!py-[0.5rem] border dark:border-none dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                        setWallet(val)
+                    }} />
+                </div>
+                <div className="flex flex-col w-[45%]">
+                    <span className="text-left  text-greylish pb-2 pl-1" >Amount</span>
+                    <input type="number" className="outline-none unvisibleArrow  border rounded-lg py-3 pl-2 dark:bg-darkSecond dark:text-white" placeholder="0" step={'any'} min={0} defaultValue={amount} name={`amount__${index}`} onChange={(e) => {
+                        setAmount(Number(e.target.value))
+                    }} />
+                </div>
+            </div>
+            <div className="flex flex-col w-full pb-4">
+                <span className="text-left  text-greylish pb-2 pl-1" >Budget</span>
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    setSelectedPayment(e)
+                }} />
+            </div>
+        </div>
+
+    </>
 }
 
 export default Split
