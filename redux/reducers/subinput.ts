@@ -60,6 +60,6 @@ const SubInputSlice = createSlice({
 
 export const {addSubInput,resetSubInput,removeSubInput,changeSubInput} = SubInputSlice.actions;
 export const SelectInputs = (state: RootState) => state.subInputs.inputs;
-export const SelectInputAmount = (state: RootState) => state.payInputs.inputAmount;
+export const SelectInputAmount = (state: RootState) => state.subInputs.inputAmount;
 
 export default SubInputSlice.reducer;

@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { SolanaEndpoint } from 'components/Wallet';
 import { BlockchainType, CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
 import { FirestoreRead, FirestoreReadMultiple } from 'rpcHooks/useFirebase';
+import { adminApp } from 'firebaseConfig/admin';
 
 
 
@@ -31,7 +32,8 @@ export default async function handler(
 
     let myTags;
     if (authId) {
-      myTags = await FirestoreRead<{tags: Tag[]}>("tags", authId)
+      myTags = (await adminApp.firestore().collection("tags").doc(authId).get()).data() as { tags: Tag[] }
+      // myTags = await FirestoreRead<{tags: Tag[]}>("tags", authId)
     }
 
     for (const key of parsedAddress) {

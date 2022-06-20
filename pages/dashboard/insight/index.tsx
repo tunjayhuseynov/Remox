@@ -11,7 +11,6 @@ import useMultisigProcess from "hooks/useMultisigProcess";
 import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { CSVLink } from "react-csv";
-import LineChart from "components/general/Linechart";
 import AllCharts from "subpages/dashboard/insight/allCharts";
 import BudgetsAndLabels from "subpages/dashboard/insight/Budgets-Labels";
 
@@ -72,7 +71,7 @@ const Insight = () => {
                 </div>
             </div>
             <div className=" px-5 w-full mt-6">
-                <div className="grid grid-cols-[24%,60%,16%] w-[90%]  mb-10">
+                <div className="grid grid-cols-[24%,60%,16%] w-[95%]  mb-10">
                     <div className='flex flex-col  gap-12 lg:gap-4 pr-6 border-r'>
                         <div className='text-xl font-semibold'>Total Spending </div>
                         <div className='text-3xl font-bold !mt-0'>$5.000 USD</div>
@@ -101,9 +100,10 @@ const Insight = () => {
                     </div>
                 </div>
             </div>
+            
+            <BudgetsAndLabels/>
             <AllCharts />
 
-            <BudgetsAndLabels/>
         </div>
     );
 }

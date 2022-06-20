@@ -23,8 +23,14 @@ function Walletmodal({ onDisable, setModals }: { onDisable: React.Dispatch<boole
     const [list, setList] = useState<DropDownItem[]>([])
     const dispatch = useDispatch()
     const [isAccountModal, setAccountModal] = useState(false)
-    const [value, setValue] = useState('')
-    const [value2, setValue2] = useState('')
+
+
+    const paymentname: DropDownItem[] = [{ name: "CELO" }, { name: "SOLANA" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+
+    const paymentname2: DropDownItem[] = [{ name: "Security" }, { name: "Development" }]
+    const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
+
 
     useEffect(() => {
         if (data && wallets) {
@@ -51,8 +57,6 @@ function Walletmodal({ onDisable, setModals }: { onDisable: React.Dispatch<boole
     }, [data, wallets])
 
 
-    const paymentname = ["Marketing", "Event"]
-    const paymentname2 = ["Security", "Development"]
 
     return <>
         <div className="text-2xl font-semibold py-3 text-center">
@@ -72,15 +76,19 @@ function Walletmodal({ onDisable, setModals }: { onDisable: React.Dispatch<boole
             </div>
             <div className="flex flex-col gap-2 w-full">
                 <div className="text-greylish">Choose Budget</div>
-                <Paydropdown paymentname={paymentname} value={value} setValue={setValue} />
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    setSelectedPayment(e)
+                }} />
             </div>
-            {value && <div className="flex flex-col gap-2 w-full">
+            {selectedPayment && <div className="flex flex-col gap-2 w-full">
                 <div className="text-greylish">Choose Subbudget</div>
-                <Paydropdown paymentname={paymentname2} value={value2} setValue={setValue2} />
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
+                    setSelectedPayment2(e)
+                }} />
             </div>}
-            <div className="flex  self-center w-full pt-4 gap-4 max-w-[80%] xl:max-w-[55%]">
-                <Button version="second" className={'!py-2 px-9 rounded-xl'} onClick={() => { onDisable(false) }}>Close</Button>
-                <Button type="submit" className={'!py-2 px-10 rounded-xl'} onClick={() => { setModals(true); onDisable(false) }}>Next</Button>
+            <div className="flex  self-center w-full pt-4 gap-4 max-w-[80%] xl:max-w-full">
+                <Button version="second" className={'!py-2 px-9 w-full rounded-xl'} onClick={() => { onDisable(false) }}>Close</Button>
+                <Button type="submit" className={'!py-2 px-10 w-full rounded-xl'} onClick={() => { setModals(true); onDisable(false) }}>Next</Button>
             </div>
         </div>
     </>

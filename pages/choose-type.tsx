@@ -1,56 +1,47 @@
 import React from 'react'
-import { useState, useEffect } from "react";
-import { useAppSelector } from "redux/hooks";
+import { useState } from "react";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
-import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
-import { useSelector } from 'react-redux';
 import { changeAccount, changeExisting, SelectExisting } from 'redux/reducers/selectedAccount';
 import { useDispatch } from 'react-redux';
 import { setStorage } from 'redux/reducers/storage';
-import { Get_Individual } from 'crud/individual';
-import { AddressReducer } from 'utils';
 import useNextSelector from 'hooks/useNextSelector';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { isIndividualExisting } from 'hooks/singingProcess/utils';
+import useIndividual from 'hooks/individual/useIndividual';
 
 
 function ChooseType() {
-  const [isOrganisation, setOrganisation] = useState(false)
-  const [isIndividual, setIndividual] = useState(false)
-  const dark = useNextSelector(selectDarkMode)
-  const [organisation2, setOrganisation2] = useState(false)
-  const [individual2, setIndividual2] = useState(false)
   const navigate = useRouter()
-  // const { search } = useFirestoreSearchField()
-  const { Address } = useWalletKit();
+  const { Address, blockchain } = useWalletKit();
+  const [address, setAddress] = useState<string | null>(null)
+
+  const dark = useNextSelector(selectDarkMode)
+  const { individual } = useIndividual(address ?? "0", blockchain)
+
 
   const isUserExist = useNextSelector(SelectExisting)
   const dispatch = useDispatch()
 
-  const [address, setAddress] = useState<string | null>(null)
 
-  useAsyncEffect(async () => {
-    if (Address && auth.currentUser) {
-      setAddress(Address)
-      if (!isUserExist) {
-        dispatch(changeAccount(Address!))
-        dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
-      }
-    } else navigate.push("/")
-  }, [Address])
+  // useAsyncEffect(async () => {
+  //   if (Address && auth.currentUser) {
+  //     setAddress(Address)
+  //     if (!isUserExist) {
+  //       dispatch(changeAccount(Address!))
+  //       dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
+  //     }
+  //   } else navigate.push("/create-account")
+  // }, [Address])
 
 
-  const login = async () => {
+  const individualLogin = async () => {
     if (isUserExist) {
-      const individual = await Get_Individual(auth.currentUser?.uid!)
-      if (isOrganisation) {
 
-
-      } else if (isIndividual) {
+      if (individual) {
         dispatch(setStorage({
           uid: auth.currentUser?.uid!,
           lastSignedProviderAddress: Address!,
@@ -59,32 +50,36 @@ function ChooseType() {
           individual: individual
         }))
         navigate.push("/dashboard")
+      } else {
+        navigate.push("/create-account")
       }
     }
   }
 
 
-  const data = [
-    {
-      name: "UbeSwap",
-      value: "$50.000",
-    },
-    {
-      name: "AriSwap",
-      value: "$50.000",
-    },
-    {
-      name: "AriSwap",
-      value: "$50.000",
-    },
-    {
-      name: "AriSwap",
-      value: "$50.000",
-    },
-    {
-      name: "AriSwap",
-      value: "$50.000",
-    },
+
+
+  const data: { name: string, value: string }[] = [
+    // {
+    //   name: "UbeSwap",
+    //   value: "$50.000",
+    // },
+    // {
+    //   name: "AriSwap",
+    //   value: "$50.000",
+    // },
+    // {
+    //   name: "AriSwap",
+    //   value: "$50.000",
+    // },
+    // {
+    //   name: "AriSwap",
+    //   value: "$50.000",
+    // },
+    // {
+    //   name: "AriSwap",
+    //   value: "$50.000",
+    // },
 
   ]
 
@@ -100,8 +95,8 @@ function ChooseType() {
       <div className="text-3xl font-bold">Choose Account Type</div>
       <div className="w-[40%] ">
         <div className="flex gap-8">
-          {address ? <div className="h-full cursor-pointer border border-b-0 dark:border-greylish transition-all hover:transition-all   hover:!border-primary rounded-lg w-full">
-            <div className="overflow-auto max-h-[13.1rem] w-full">
+          <div className="h-full cursor-pointer border border-b-0 dark:border-greylish transition-all hover:transition-all hover:!border-primary rounded-lg w-full">
+            <div className="bg-white rounded-lg overflow-auto h-[13.1rem] w-full relative">
               {data.map((i, id) => {
                 return <div key={id} className={` ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === data.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
                   <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
@@ -111,29 +106,22 @@ function ChooseType() {
                   </div>
                 </div>
               })}
+              {data.length === 0 && <div className="!bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Data Exists</div>}
             </div>
-            <Button className=" top-0 w-full rounded-t-none !border-0 " onClick={() => navigate.push('/create-organisation')}>Add Organisation</Button>
-          </div>  
-            :
-            <div className={`${organisation2 && " !border-primary"} hover:border-primary hover:text-primary transition-all hover:transition-all  cursor-pointer  border dark:border-greylish w-1/2 bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg min-h-[10rem]`} onClick={() => { setOrganisation2(!organisation2); setIndividual2(false); }}>
-              <div className={`${organisation2 && "  text-primary"}  flex items-center text-xl justify-center font-bold py-4 px-4 dark:border-greylish`}>Add a new Organisation</div>
+            <Button className="top-0 w-full rounded-t-none !border-0" onClick={() => navigate.push("/create-organization")}>Add Organisation</Button>
+          </div>
+          <div onClick={individualLogin} className={`cursor-pointer bg-white group border hover:!border-primary dark:border-greylish  hover:text-primary transition-all dark:bg-darkSecond hover:transition-all h-full rounded-lg w-full`}>
+            <div className={`bg-white dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[8rem] group-hover:min-h-[10rem] relative`}>
+              <div className={`group-hover:text-primary text-xl font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>{individual ? "Continue" : "Register"} as an Individual</div>
             </div>
-          }
-          {address ? <div onClick={login} className={`${isIndividual && " !border-primary "} border  hover:!border-primary dark:border-greylish  hover:text-primary transition-all hover:transition-all h-full rounded-lg   w-full`} onMouseEnter={() => { setIndividual(!isIndividual); setOrganisation(false); }} onMouseLeave={() => setIndividual(!isIndividual)}>
-            <div className={`    cursor-pointer    bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`}>
-              <div className={`${isIndividual && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
-            </div>
-            {isIndividual && <Button className="cursor-pointer bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>}
-          </div> :
-            <div className={` ${individual2 && " !border-primary "} w-1/2 border hover:border-primary hover:text-primary transition-all hover:transition-all cursor-pointer dark:border-greylish  bg-white flex items-center justify-center dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[10rem]`} onClick={() => { setIndividual2(!individual2); setOrganisation2(false); }}>
-              <div className={`${individual2 && "  text-primary"}   flex items-center text-xl font-bold  justify-center py-4 px-4 dark:border-greylish`}>Continue as a Individual</div>
-            </div>}
+            <Button className="group-hover:visible invisible transition-all bg-primary text-white text-xl text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
 }
+
 ChooseType.disableLayout = true
 ChooseType.disableGuard = true
 

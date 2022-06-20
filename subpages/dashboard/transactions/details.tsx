@@ -24,21 +24,26 @@ import { BN } from "utils/ray";
 import Modal from 'components/general/modal';
 import Paydropdown from 'subpages/pay/paydropdown';
 import Split from './split';
+import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput } from "redux/reducers/split";
+import shortid, { generate } from 'shortid'
+import useNextSelector from "hooks/useNextSelector";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+
+interface IFormInput {
+    name?: string;
+}
 
 function Details({ Transaction, TransferData, status, time, address, isSwap, isComment, Comment, Type }: { Transaction: IFormattedTransaction, Type: string | undefined, isSwap: boolean, isComment: boolean, Comment: string | undefined, address: string, time: string, TransferData: ITransfer | undefined, status: string }) {
+    const { register, handleSubmit } = useForm<IFormInput>();
+    const MyInputs = useNextSelector(SelectInputs)
+    const dispatch = useAppDispatch()
     const [split, setSplit] = useState(false)
-    const [split1, setSplit1] = useState(false)
-    const [split2, setSplit2] = useState(false)
-    const [split3, setSplit3] = useState(false)
+
     const { GetCoins, fromMinScale } = useWalletKit()
     const { profile, UpdateSeenTime } = useProfile()
     const [openNotify, setNotify] = useState(false)
 
-    const [value, setValue] = useState('')
-    const [wallet, setWallet] = useState<DropDownItem>({
-        name: Object.values(GetCoins)[0].name,
-        coinUrl: Object.values(GetCoins)[0].coinUrl
-    })
 
     useEffect(() => {
         if (openNotify) {
@@ -49,7 +54,16 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
 
     const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
 
-    const paymentname = ["Marketing", "Security", "Development"]
+    useEffect(() => {
+        return () => {
+            dispatch(resetSplitInput())
+        }
+    }, [])
+    
+    const onSubmit: SubmitHandler<IFormInput> = data =>{
+       const  Splits = MyInputs
+        console.log(data,Splits)
+    }
 
     return <>
         {split && <Modal onDisable={setSplit} disableX={true} className={'!pt-2 !px-0 cursor-default'}>
@@ -83,39 +97,26 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                         </div>
                         <div className={`flex flex-col  text-start`}>
                             <span className="text-greylish pb-2">Split</span>
-                            <span className="text-lg font-semibold">2</span>
+                            <span className="text-lg font-semibold">{MyInputs?.length}</span>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col gap-10 justify-center items-center  pb-8  px-16 w-full">
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-lg font-medium">Split 1</span>
-                        <div></div>
-
-                    </div>
-                    <div className="flex w-full justify-between ">
-                        <div className="flex flex-col w-[45%]">
-                            <span className="text-left  text-greylish pb-2 pl-1" >Token</span>
-                            <Dropdown className=" border bg-white text-sm rounded-lg" onSelect={val => {
-                                setWallet(val)
-                            }} nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />
-                        </div>
-                        <div className="flex flex-col w-[45%]">
-                            <span className="text-left  text-greylish pb-2 pl-1" >Amount</span>
-                            <input className="outline-none unvisibleArrow  border rounded-xl py-[.4rem] pl-2 dark:bg-darkSecond dark:text-white" placeholder="0" step={'any'} min={0} />
-                        </div>
-                    </div>
-                    <div className="flex flex-col w-full pb-4">
-                        <span className="text-left  text-greylish pb-2 pl-1" >Budget</span>
-                        <Paydropdown paymentname={paymentname} value={value} setValue={setValue} className={'!py-3'} />
-                        {split1 ? <div className="border-b w-full pt-8"></div> : <div className="pt-8 cursor-pointer self-start text-primary flex items-center justify-center gap-1" onClick={() => { setSplit1(true) }} ><span className=" px-2 border border-primary rounded-full ">+</span>Add Split</div>}
-                    </div>
+                <form  onSubmit={handleSubmit(onSubmit)}  className="w-full flex flex-col items-center justify-center">
+                <div className="flex flex-col w-full pb-8 px-16 gap-8">
+                    {MyInputs && MyInputs.map((e, i) => {
+                        return <Split key={e.index} incomingIndex={e.index} indexs={i} />
+                    })}
+                    {MyInputs && MyInputs.length < 3 && <div className=" cursor-pointer self-start text-primary flex items-start gap-1 justify-center " onClick={() => {
+                        dispatch(addSplitInput({
+                            index: shortid()
+                        }))
+                    }}  ><span className=" px-2 border border-primary rounded-full ">+</span>Add Split</div>}
                 </div>
-                <Split split={split1} split2={split2} split3={split3} setSplit={setSplit1} setSplit2={setSplit2} setSplit3={setSplit3} />
                 <div className="flex gap-8">
                     <Button version="second" className="shadow-none px-10 py-2 !rounded-md" onClick={() => setSplit(false)}>Close</Button>
-                    <Button className="shadow-none px-10 py-2 !rounded-md">Save</Button>
+                    <Button type="submit" className="shadow-none px-10 py-2 !rounded-md">Save</Button>
                 </div>
+                </form>
             </div>
         </Modal>}
         <div ref={exceptRef} onClick={() => { setNotify(!openNotify) }}>

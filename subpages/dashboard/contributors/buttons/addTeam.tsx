@@ -3,9 +3,13 @@ import { useAppDispatch } from "redux/hooks"
 import { changeSuccess } from 'redux/reducers/notificationSlice'
 import Button from "../../../../components/button";
 import useContributors from "hooks/useContributors";
+import { useForm, SubmitHandler } from "react-hook-form";
 
+export interface IFormInput {
+name: string;
+}
 const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
-
+    const { register, handleSubmit } = useForm<IFormInput>();
     const { addTeam, isLoading } = useContributors()
     const [error, setError] = useState(false)
 
@@ -26,12 +30,14 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         }
     }
 
-    return <div className="flex flex-col items-center justify-center space-y-10">
+    const onSubmit: SubmitHandler<IFormInput> = data => console.log(data)
+
+    return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10">
         <div className="text-2xl self-center pt-2 font-semibold ">Add Team</div>
         <div className="flex flex-col w-[85%] ">
             <div>Team Name</div>
             <div>
-                <input ref={teamName} type="text" className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond" />
+                <input {...register("name", { required: true })}  type="text" className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond" />
             </div>
             {error && <div className="text-red-600"> Something went wrong</div>}
         </div>
@@ -39,11 +45,11 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         <Button version="second" onClick={()=> onDisable(false)}  className="px-14 !py-2 font-light">
                 Close
             </Button>
-            <Button onClick={create} isLoading={isLoading} className="px-14 !py-2 font-light">
+            <Button type="submit" onClick={create} isLoading={isLoading} className="px-14 !py-2 font-light">
                 Save
             </Button>
         </div>
-    </div>
+    </form>
 }
 
 export default AddTeams;

@@ -1,12 +1,14 @@
 import { Dispatch, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone'
+import { UseFormRegister } from 'react-hook-form';
+import {IFormInput} from '../pages/create-organization'
 
 export default function Upload({ setFile,className }: { setFile: Dispatch<File>,className?:string }) {
     const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
     useEffect(() => {
         if (acceptedFiles.length > 0) {
-            setFile(acceptedFiles[0])
+            setFile && setFile(acceptedFiles[0])
         }
     }, [acceptedFiles])
 
@@ -18,7 +20,7 @@ export default function Upload({ setFile,className }: { setFile: Dispatch<File>,
 
     return <section>
         <div {...getRootProps({ className: ` ${className} h-[11.375rem] border border-dashed flex justify-center items-center` })}>
-            <input {...getInputProps()} />
+            <input  type="file"   {...getInputProps()} /> 
             {files.length > 0 ?
                 <aside>
                     <ul>{files}</ul>

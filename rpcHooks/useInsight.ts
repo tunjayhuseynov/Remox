@@ -1,5 +1,3 @@
-import axios from 'axios'
-import { getAuth } from 'firebase/auth'
 import { auth } from 'firebaseConfig'
 import { useWalletKit } from 'hooks'
 import { IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/spending'
@@ -58,7 +56,7 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
                 setLoading(false)
             })
         }
-    }, [selectedAccounts])
+    }, [selectedAccounts, selectedDate])
 
     return {
         isLoading,
@@ -70,23 +68,23 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
 const ChooseTimeframe = (date: number, flow?: IMoneyFlow | ITagFlow) => {
     if (flow) {
         if (date === 7) {
-            if ('total' in flow) {
+            if ('total' in flow.week) {
                 return (flow as IMoneyFlow).week.total
             }
             return flow.week;
         }
         else if (date === 30) {
-            if ('total' in flow) {
+            if ('total' in flow.month) {
                 return (flow as IMoneyFlow).month.total
             }
             return flow.month
         } else if (date === 90) {
-            if ('total' in flow) {
+            if ('total' in flow.quart) {
                 return (flow as IMoneyFlow).quart.total
             }
             return flow.quart
         } else if (date === 365) {
-            if ('total' in flow) {
+            if ('total' in flow.year) {
                 return (flow as IMoneyFlow).year.total
             }
             return flow.year

@@ -13,14 +13,37 @@ import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
 import { useWalletKit } from 'hooks'
 import useModalSideExit from 'hooks/useModalSideExit';
+import WalletItem from './wallet/walletItem'
+import { useForm, SubmitHandler } from "react-hook-form";
+import { DropDownItem } from "types/dropdown";
+import Dropdown from "components/general/dropdown";
+
+export interface IWalletData {
+    id: number;
+    name: string;
+    mail: string;
+    value: string;
+}[]
+
+export interface IFormInput {
+    nftAddress?: string;
+    nftTokenId?: number;
+    name: string;
+
+}
 
 const WalletSetting = () => {
-    const {blockchain } = useWalletKit();
+    const { register, handleSubmit } = useForm<IFormInput>();
+    const { blockchain } = useWalletKit();
     const [value, setValue] = useState('')
     const storage = useSelector(selectStorage)
-    const dark = useAppSelector(selectDarkMode)
+
+    const [userIsUpload, setUserIsUpload] = useState<boolean>(true)
+    const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+
     const { owners, isMultisig, signAndInternal } = useMultisigProcess()
-    const [details, setDetails] = useState(false)
+
     const [addOwnerModal, setAddOwnerModal] = useState(false)
     const [replaceOwnerModal, setReplaceOwnerModal] = useState(false)
     const [changeTresholdModal, setChangeTresholdModal] = useState(false)
@@ -29,115 +52,81 @@ const WalletSetting = () => {
     const [selectedOwner, setSelectedOwner] = useState("")
     const [removable, setRemovable] = useState({ name: "", address: "" })
 
-    // if (!isMultisig) return <div className="text-center">Please, select a MultiSig account</div>
-    const paymentname = ["Upload Photo", "NFT"]
 
-    const walletData = [
+    const walletData: IWalletData[] = [
         {
             id: 0,
             name: 'Orkhan Aslanov',
+            mail: 'Orkhan.sol',
             value: '$150.00'
         },
         {
             id: 1,
             name: 'Tuncay Huseynov',
+            mail: 'Tuncay.sol',
             value: '$480.00'
         },
     ]
 
-    const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
+
+    const onSubmit: SubmitHandler<IFormInput> = data => {
+        const Photo = file
+        console.log(data,Photo)
+    }
+
 
     return <div className="flex flex-col space-y-7 ">
-        <div className="flex flex-col space-y-2">
-        </div>
         <div className="w-full border-b dark:border-[#aaaaaa] py-6">
             <div className="text-greylish">Total Balance</div>
             <div className="text-3xl font-semibold">$500.00</div>
         </div>
-        {walletData.map((item,index)=>{
-            return <div key={index} className=" grid grid-cols-[25%,25%,25%,25%]  border-b dark:border-[#aaaaaa]  py-6 !mt-0 relative" >
-            <div className="flex items-center justify-start gap-2" >
-                <div className="p-6 bg-greylish rounded-full"></div>
-                <div className="flex flex-col gap-1">
-                    <div className="">{item.name}</div>
-                    <div className="text-greylish dark:text-white text-sm">Orkhan.sol</div>
-                </div>
-            </div>
-            <div className="flex items-center justify-center">
-                <div className="flex items-center justify-center text-xl">
-                    {item.value}
-                </div>
-            </div>
-            <div className="flex items-center justify-center">
-                <div className="flex pl-3">
-                    <div className=" absolute z-[0] bg-greylish bg-opacity-80  w-8 h-8 rounded-full"></div>
-                    <div className="relative z-[3] right-[16px] bg-greylish bg-opacity-70 w-8 h-8 rounded-full"></div>
-                    <div className=" relative z-[5] -left-[5px] bg-greylish bg-opacity-60 w-8 h-8 rounded-full"></div>
-                </div>
-            </div>
-            <div className="flex space-x-3 justify-end">
-                <span ref={exceptRef} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold "><span className=" text-primary pb-4">...</span>
-                    {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-0 -bottom-3 w-[7rem]  rounded-lg shadow-xl z-50 ">
-                        <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full pl-2 py-1 gap-3" onClick={() => {
-                            setReplaceOwnerModal(true)
-                        }}>
-                            <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
-                        </div>
-                        <div className="cursor-pointer  text-sm flex w-full pl-2 py-1 gap-3" onClick={() => {
-                            setRemovable({ name: `Owner `, address: "0sadf145435q34" })
-                            setRemoveModal(true)
-                        }}>
-                            <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Delete</span>
-                        </div>
-                    </div>}
-                </span>
-
-            </div>
-
-        </div>
+        {walletData.map((item, index) => {
+            return <WalletItem item={item} key={index} setReplaceOwnerModal={setReplaceOwnerModal} setRemovable={setRemovable} setRemoveModal={setRemoveModal} />
         })}
         {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} disableX={true} className={' py-6 !w-[40%]'}>
-            <div className="-my-5 flex flex-col space-y-7 px-20">
+            <form  onSubmit={handleSubmit(onSubmit)} className="-my-5 flex flex-col space-y-7 px-20">
                 <div className="font-bold text-2xl text-center">Edit Wallet</div>
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Choose Profile Photo Type</span>
-                    <div>
-                        <Paydropdown paymentname={paymentname} value={value} setValue={setValue} />
-                    </div>
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                        setSelectedPayment(e)
+                        if (e.name === "NFT") setUserIsUpload(false)
+                        else setUserIsUpload(true)
+                    }} />
                 </div>
-                {value && <div className="flex flex-col mb-4 space-y-1 w-full">
-                    <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
+                {<div className="flex flex-col mb-4 space-y-1 w-full">
+                    <div className="text-xs text-left  dark:text-white">{!userIsUpload ? "NFT Address" : "Your Photo"} </div>
                     <div className={`  w-full border rounded-lg`}>
-                        {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                        {!userIsUpload ?  <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                     </div>
                 </div>}
-                {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+                {blockchain === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                     <div className="text-xs text-left  dark:text-white">Token ID</div>
                     <div className={`w-full border rounded-lg`}>
-                        <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                        <input type="number"  {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                     </div>
                 </div>}
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Wallet Name</span>
                     <div>
-                        <input type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
+                        <input type="text" {...register("name", { required: true })} className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
                     </div>
                 </div>
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Wallet Address</span>
                     <div>
-                        <input type="text" className="w-full px-3 py-3 border rounded-lg bg-greylish bg-opacity-10 dark:bg-darkSecond" />
+                        <input type="text" readOnly  className="w-full px-3 py-3 border rounded-lg bg-greylish bg-opacity-10 dark:bg-darkSecond" />
                     </div>
                 </div>
                 <div className="flex justify-center">
                     <div className="grid grid-cols-2 gap-5 w-full ">
                         <Button version="second" onClick={() => { setReplaceOwnerModal(false) }}>Close</Button>
-                        <Button className="!px-3 !py-2" >
+                        <Button type="submit" className="!px-3 !py-2" >
                             Save
                         </Button>
                     </div>
                 </div>
-            </div>
+            </form>
         </Modal>}
         {removeModal && <Modal onDisable={setRemoveModal} disableX={true} className={'!pt-6'}>
             <div className="flex flex-col space-y-8 items-center">

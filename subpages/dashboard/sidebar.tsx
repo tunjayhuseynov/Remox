@@ -88,7 +88,7 @@ const Sidebar = () => {
         <div className="hidden md:block z-[1] md:col-span-2 w-[16.188rem] flex-none fixed pt-28">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">
-                    <Dropdown className="min-w-[12.5rem] max-w-[13rem] bg-white dark:bg-darkSecond truncate" list={list} photo={true} totalValue={true} selected={selectedItem} onSelect={(w) => {
+                    <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" list={list} photo={true} totalValue={true} selected={selectedItem} onSelect={(w) => {
                         if (w.address && w.amount) {
                             setItem(w)
                             dispatch(changeAccount(w.amount ? w.amount : w.address))

@@ -4,72 +4,88 @@ import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
 import Avatar from "components/avatar";
 import Button from "components/button";
-import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
 import { useWalletKit } from 'hooks'
+import Dropdown from "components/general/dropdown";
+import { DropDownItem } from "types";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+
+export interface IFormInput {
+    nftAddress?: string;
+    nftTokenId?: number;
+    name: string;
+    address:string;
+    email?:string;
+
+}
 
 const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
-    const {blockchain } = useWalletKit();
+    const { register, handleSubmit } = useForm<IFormInput>();
+    const { blockchain } = useWalletKit();
     const { signAndInternal, owners, addOwner, isLoading, refetch } = useMultisigProcess()
-    const [value, setValue] = useState('')
     const [pageIndex, setPageIndex] = useState(0);
     const [file, setFile] = useState<File>()
     const dispatch = useDispatch()
-
+    const [photoIsUpload, setPhotoIsUpload] = useState<boolean>(true)
+    const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
 
     const [address, setAddress] = useState("");
 
-    const paymentname = ["Upload Photo", "NFT"]
+
+
+    const onSubmit: SubmitHandler<IFormInput> = data => {
+        const Photo = file
+        console.log(data,Photo)
+
+    }
 
     return <div className=" flex flex-col space-y-6">
         <div className="font-bold text-2xl text-center">Add Owner</div>
-        {pageIndex === 0 && <>
-            {/* <div className="flex flex-col space-y-3">
-                <span>New Owner</span>
-                <div>
-                    <input type="text" placeholder="Owner Name" className="w-[75%] px-3 py-2 border border-black rounded-lg" />
-                </div>
-            </div> */}
+        {pageIndex === 0 && <form  onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <div className="flex flex-col space-y-1">
                 <span className="text-greylish">Choose Owner Profile Photo</span>
-                <div>
-                    <Paydropdown paymentname={paymentname} value={value} setValue={setValue} />
-                </div>
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    setSelectedPayment(e)
+                    if (e.name === "NFT") setPhotoIsUpload(false)
+                    else setPhotoIsUpload(true)
+                }} />
             </div>
-            {value && <div className="flex flex-col mb-4 space-y-1 w-full">
-                <div className="text-xs text-left  dark:text-white">{value === "NFT" ? "NFT Address" : "Your Photo"} </div>
+            {<div className="flex flex-col  space-y-1 w-full">
+                <div className="text-xs text-left  dark:text-white">{!photoIsUpload ? "NFT Address" : "Your Photo"} </div>
                 <div className={`  w-full border rounded-lg`}>
-                    {value === "NFT" ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                    {!photoIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                 </div>
             </div>}
-            {blockchain === 'celo' && value === "NFT" && <div className="flex flex-col mb-4 gap-1 w-full">
+            {blockchain === 'celo' && !photoIsUpload  && <div className="flex flex-col gap-1 w-full">
                 <div className="text-xs text-left  dark:text-white">Token ID</div>
                 <div className={`w-full border rounded-lg`}>
-                    <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                    <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                 </div>
             </div>}
             <div className="flex flex-col space-y-1">
                 <span className="text-greylish">Owner Name</span>
                 <div>
-                    <input onChange={(e) => setAddress(e.target.value)} type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
+                    <input  {...register("name", { required: true })} type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
                 </div>
             </div>
             <div className="flex flex-col space-y-1">
                 <span className="text-greylish">Owner Wallet Address</span>
                 <div>
-                    <input onChange={(e) => setAddress(e.target.value)} type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
+                    <input {...register("address", { required: true })} type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
                 </div>
             </div>
             <div className="flex flex-col space-y-1">
                 <span className="text-greylish">Owner Email Address (optional)</span>
                 <div>
-                    <input onChange={(e) => setAddress(e.target.value)} type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
+                    <input {...register("email", { required: true })} type="text" className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
                 </div>
             </div>
             <div className="flex justify-center pt-4">
                 <div className="grid grid-cols-2 gap-5 w-[50%] ">
                     <Button version="second" className={'!px-3 !py-2 !rounded-xl'} onClick={() => onDisable(false)}>Close</Button>
-                    <Button className="!px-3 !py-2 !rounded-xl" onClick={() => {
+                    <Button type="submit" className="!px-3 !py-2 !rounded-xl" onClick={() => {
                         if (address) {
                             setPageIndex(1)
                         }
@@ -77,7 +93,8 @@ const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                         Save
                     </Button>
                 </div>
-            </div></>}
+            </div>
+            </form>}
         {pageIndex === 1 && <>
             <div className="flex border border-primary px-3 py-2 items-center rounded-xl space-x-3">
                 <div>

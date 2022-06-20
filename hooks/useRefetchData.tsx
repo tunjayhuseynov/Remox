@@ -55,7 +55,7 @@ const useRefetchData = () => {
     useEffect(() => { if (data) setTimeout(() => { dispatch(addRequests(data!.requests)) }, 1500) }, [data])
 
     useEffect(() => {
-        if (txs && txs.length > 0) {
+        if (txs) {
             dispatch(setParsedTransactions(txs))
             setTxDone(true)
         }

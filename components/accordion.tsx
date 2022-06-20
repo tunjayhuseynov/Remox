@@ -57,10 +57,10 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
                     {status === TransactionStatus.Rejected && <div className="bg-red-600 w-2 h-2 rounded-full"></div>}
                     <div>{status === "Completed" && "Approved" }</div>
                 </div>
-                <div className=" grid grid-cols-[20%,60%,20%] h-4  text-greylish w-full">
+                <div className=" grid grid-cols-[20%,60%,20%] h-full items-center  text-greylish w-full">
                         <div className="">| {status === TransactionStatus.Completed ? "3"  : status === TransactionStatus.Pending && "2"} / 3</div>
-                        <div className="relative rounded-xl bg-greylish bg-opacity-10 w-full h-full">
-                            {status === TransactionStatus.Pending  ? <div className="absolute rounded-xl h-full bg-primary w-[66%]"></div>: status === TransactionStatus.Completed && <div className="absolute rounded-xl h-full bg-green-600 w-full"></div>}
+                        <div className="relative  rounded-xl bg-greylish bg-opacity-10 w-full h-[1rem]">
+                            {status === TransactionStatus.Pending  ? <div className="absolute rounded-xl h-full bg-primary w-[66%]"></div>: status === TransactionStatus.Completed && <div className="absolute h-full rounded-xl  bg-green-600 w-full"></div>}
                         </div>
                     </div>
                 </div>

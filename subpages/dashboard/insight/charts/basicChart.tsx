@@ -47,9 +47,7 @@ export function BasicCharts({ BudgetData, type }: { BudgetData?:number[], type?:
         xaxis: {
             categories: ['Jun','Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct','Nov','Dec'],
         },
-        yaxis: {
-            show:false
-        },
+
         fill: {
             opacity: 1
         },

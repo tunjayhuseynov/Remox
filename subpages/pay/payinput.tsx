@@ -22,10 +22,7 @@ const Input = ({ incomingIndex, text, stream, request = false, setSelectedType, 
     const [surname, setSurname] = useState<string>("")
     const [address, setAddress] = useState<string>("")
     const [amount, setAmount] = useState<number>()
-    const [wallet, setWallet] = useState<DropDownItem>({
-        name: Object.values(GetCoins)[0].name,
-        coinUrl: Object.values(GetCoins)[0].coinUrl
-    })
+    const [wallet, setWallet] = useState<DropDownItem>()
 
     const [amount2, setAmount2] = useState<number>()
     const [wallet2, setWallet2] = useState<DropDownItem>()

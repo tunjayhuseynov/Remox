@@ -13,7 +13,6 @@ import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import useGelato from "rpcHooks/useGelato";
 import useContributors from "hooks/useContributors";
-import { encryptMessage } from 'utils/hashing';
 import { selectStorage } from 'redux/reducers/storage';
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
@@ -170,7 +169,7 @@ export default function     DynamicPayroll() {
                             <div className="font-semibold text-lg text-greylish">Token Allucation</div>
                         </div>
                         <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
-                            <div className="flex flex-col items-start   mb-4">
+                            <div className="flex flex-col items-start   mb-3">
                                 <TotalAmount coinList={memberState[0]} />
 
                             </div>
@@ -264,7 +263,7 @@ export default function     DynamicPayroll() {
         <div className=" px-5 py-6 border-b">
             <div className='flex '>
                 <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r'>
-                    <div className='text-xl font-bold'>Monthly Total Payment</div>
+                    <div className='text-xl text-greylish dark:text-white font-bold'>Monthly Total Payment</div>
                     {totalPrice ? <div className='text-3xl font-bold !mt-1'>
                         ${Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
                             a += amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
@@ -273,7 +272,7 @@ export default function     DynamicPayroll() {
                     </div> : <div><Loader /></div>}
                 </div>
                 <div className="flex flex-col space-y-5 pl-8 !mt-0">
-                    <div className='text-xl font-bold'>Token Allocation</div>
+                    <div className='text-xl text-greylish dark:text-white font-bold'>Token Allocation</div>
                     <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12'>
                         {totalPrice ?
                             Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {

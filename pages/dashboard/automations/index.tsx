@@ -122,7 +122,7 @@ const Automations = () => {
             </div>
         </div>
         {addStopModal &&
-            <Modal onDisable={setAddStopModal}  className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
+            <Modal onDisable={setAddStopModal} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
                 <AddStopModal onDisable={setAddStopModal} memberState={memberState[0]} />
             </Modal>}
         <div className="w-full relative">
@@ -130,7 +130,7 @@ const Automations = () => {
                 {memberState[0].length > 0 ? 'Confirm' : 'Cancel Payment'}
             </Button>
         </div>
-        <div className="rounded-xl shadow-custom px-5 pb-10 pt-6 bg-white dark:bg-darkSecond ">
+        <div className=" px-5 pb-10 pt-6  ">
             <div className='flex  space-y-3 gap-12'>
                 <div className='flex flex-col space-y-5 gap-12 lg:gap-4'>
                     <div className='text-xl font-semibold'>Total Recurring Payment</div>
@@ -164,15 +164,15 @@ const Automations = () => {
                 </div>
             </div>
         </div>
-        <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[2%,20%,18%,15%,15%,15%,15%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
-                <input type="checkbox" className="self-center cursor-pointer w-[1.125rem] h-[1.125rem] checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+        <div className="w-full  px-5 pt-4 pb-6 h-full">
+            {teams.map(w => w && w.members && w.members.filter(s => s.execution === ExecutionType.auto)).length > 0 && <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,15%,15%,15%,15%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
+                {/* <input type="checkbox" className="self-center cursor-pointer w-[1.125rem] h-[1.125rem] checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     if (e.target.checked) {
                         memberState[1](teams.reduce<IMember[]>((a, c) => a.concat(c.members), []))
                     } else {
                         memberState[1]([])
                     }
-                }} />
+                }} /> */}
                 <div className="font-semibold py-3 pl-2">Name</div>
                 <div className="font-semibold py-3">Start Date</div>
                 <div className="font-semibold py-3">End Date</div>
@@ -180,11 +180,14 @@ const Automations = () => {
                 <div className="font-semibold py-3">Frequency</div>
                 <div className="font-semibold py-3">Labels</div>
 
-            </div>
+            </div>}
             <div>
                 {teams.map(w => w && w.members && w.members.filter(s => s.execution === ExecutionType.auto).length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} /></Fragment> : undefined)}
             </div>
-            {teams.length === 0 && <div className="text-center text-gray-500 text-lg">No automations found</div>}
+            {teams.length === 0 && <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+                <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
+                <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
+            </div>}
         </div>
     </div>
 }

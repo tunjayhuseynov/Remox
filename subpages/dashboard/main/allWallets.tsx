@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
+import Deposit from "./deposit";
 
 export interface AllwalletTypes {
     id: number,
@@ -25,6 +26,7 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
     const [deleteModal, setDeleteModal] = useState<boolean>(false)
+    const [depositModal, setDepositModal] = useState<boolean>(false)
     const [modalVisible, setModalVisible] = useState<boolean>(false)
     const orderBalance = useNextSelector(SelectOrderBalance)
     const [orderBalance4, setOrderBalance] = useState<IBalanceItem[]>([])
@@ -56,7 +58,11 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                 <DeleteWallet onDisable={setDeleteModal} />
             </Modal>
         }
-
+        {
+            depositModal && <Modal onDisable={setDepositModal} className={'!pt-4'}>
+                <Deposit/>
+            </Modal>
+        }
         <div className="w-full shadow-custom  pt-4  rounded-xl bg-white dark:bg-darkSecond min-w-[50%]">
             <div className="w-full">
                 <div className="border-b dark:border-greylish pb-2">
@@ -81,6 +87,12 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                                     setModalVisible(false)
                                 }}>
                                     <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-4 h-4  text-greylish dark:text-white" alt="" /> <span>Delete</span></div>
+                                </div>
+                                <div className="cursor-pointer  text-sm flex w-full pl-3 pr-12 py-2 gap-3" onClick={() => {
+                                    setDepositModal(true)
+                                    setModalVisible(false)
+                                }}>
+                                    <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'deposit'}.png`} className="w-4 h-4  text-greylish dark:text-white" alt="" /> <span>Deposit</span></div>
                                 </div>
                             </div>}
                         </div>

@@ -10,10 +10,16 @@ import { AiOutlineDown } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
 import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/reducers/notificationSlice'
 import { selectTags } from 'redux/reducers/tags'
-import TagItem from 'subpages/dashboard/settings/tags/tagItem'
+import TagItem from 'subpages/dashboard/settings/labels/tagItem'
+import { useForm, SubmitHandler } from "react-hook-form";
+
+export interface IFormInput {
+    name: string;
+    color:string;
+  }
 
 export default function TagsSetting() {
-
+  const { register, handleSubmit } = useForm<IFormInput>();
     const tags = useSelector(selectTags)
     const isSuccess = useSelector(selectSuccess)
     const isError = useSelector(selectError)
@@ -39,6 +45,11 @@ export default function TagsSetting() {
         setColor(color.hex)
     }
 
+    const onSubmit: SubmitHandler<IFormInput> = data => {
+        const Color = color
+        console.log(data)
+    }
+
     return (
         <>
             <div >
@@ -62,10 +73,10 @@ export default function TagsSetting() {
                         <div className="flex  font-semibold tracking-wider text-2xl">
                             Create a New Tag
                         </div>
-                        <div className="flex items-end space-x-12">
+                        <form onSubmit={handleSubmit(onSubmit)} className="flex items-end space-x-12">
                             <div className="flex flex-col space-y-3">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
-                                <input type="text" className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="Marketing" ref={inputRef} />
+                                <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="Marketing" ref={inputRef} />
                             </div>
                             <div className="flex flex-col space-y-3 ">
                                 <label className="text-greylish bg-opacity-50"></label>
@@ -87,7 +98,7 @@ export default function TagsSetting() {
                                         }
                                 </div>
                             </div>
-                        </div>
+                        </form>
                         <div className="flex justify-center gap-16">
                             <Button type="submit" version="second" onClick={() => setShowModal(false)} className="px-8 !py-2">
                                 Back

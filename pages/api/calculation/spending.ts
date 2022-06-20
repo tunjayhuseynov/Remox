@@ -142,6 +142,7 @@ export default async function handler(
 
 
 const AverageMonthlySpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+    if(transactions.length === 0) return 0;
     let average = 0;
     let oldest: IFormattedTransaction = transactions[0];
 

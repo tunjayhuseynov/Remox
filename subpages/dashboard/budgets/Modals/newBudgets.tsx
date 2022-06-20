@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState,useEffect,useRef } from 'react'
 import { DropDownItem } from "../../../../types/dropdown";
 import Dropdown from "../../../../components/general/dropdown";
 import { useWalletKit } from "../../../../hooks";
@@ -10,37 +10,38 @@ import useNextSelector from "hooks/useNextSelector";
 import Subinput from '../subinput';
 import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import { Coins } from 'types/coins';
+import { useForm, SubmitHandler } from "react-hook-form";
 
+
+interface IFormInput {
+
+    name: string;
+  
+  }
 function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<boolean>, setSign?: React.Dispatch<boolean> }) {
+    const { register, handleSubmit,setValue } = useForm<IFormInput>();
     const { GetCoins } = useWalletKit()
+    const dispatch = useAppDispatch()
     const dark = useNextSelector(selectDarkMode)
     const [anotherToken, setAnotherToken] = useState(false)
-    const [subBudget, setSubBudget] = useState(false)
     const MyInputs = useNextSelector(SelectInputs)
     const [name, setName] = useState<string>("")
-    const [amount, setAmount] = useState<number>()
-    const [wallet, setWallet] = useState<DropDownItem>({
-        name: Object.values(GetCoins)[0].name,
-        coinUrl: Object.values(GetCoins)[0].coinUrl
-    })
-
-    const [amount2, setAmount2] = useState<number>()
+    const [amount, setAmount] = useState<number>(0)
+    const [wallet, setWallet] = useState<DropDownItem>()
+    const [amount2, setAmount2] = useState<number>(0)
     const [wallet2, setWallet2] = useState<DropDownItem>()
 
-    // useEffect(() => {
+    const Budget = [
+        {
+            Amount: amount,
+            Coin: wallet,
+            Amount2:amount2,
+            Coin2:wallet2
+        }
+    ]
 
-    //     let newInput: ISubInput = {
-    //         index: generate(),
-    //         name,
-    //         amount: amount || 0,
-    //         wallet: GetCoins[wallet as unknown as keyof Coins],
-    //     }
 
-    //     if (amount2) newInput.amount2 = amount2;
-    //     if (wallet2) newInput.wallet2 = GetCoins[wallet2 as unknown as keyof Coins]
-    //     dispatch(addSubInput(newInput))
-    
-    // }, [name, amount, wallet, amount2, wallet2])
+
 
     useEffect(() => {
         return ()=> {
@@ -48,33 +49,38 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
         }
     }, [])
 
-    const dispatch = useAppDispatch()
+
+    const onSubmit: SubmitHandler<IFormInput> = data =>{
+        const BudgetVal = Budget
+        const SubBudgets = MyInputs
+        console.log(data,BudgetVal,SubBudgets);
+    }
 
     return (
         <div>
             <div className="text-2xl text-center font-bold">Add Budgets</div>
-            <div className="px-12 flex flex-col gap-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="px-12 flex flex-col gap-4">
                 <div className="flex flex-col">
                     <span className="text-left  text-greylish pb-2 ml-1" >Budget Name</span>
-                    <input type="text" className="border dark:border-none w-full bg-white dark:bg-darkSecond py-2 px-1 rounded-lg"  defaultValue={name}  name={`name__0`} onChange={(e) => { setName(e.target.value) }} />
+                    <input type="text" required  {...register("name", {required : true})} className="border dark:border-none w-full bg-white dark:bg-darkSecond py-2 px-1 rounded-lg"   onChange={(e) => { setName(e.target.value) }} />
                 </div>
                 <div className="flex w-full gap-8 pt-4">
                     <div className="flex flex-col  w-full">
                         <span className="text-left  text-greylish pb-2 ml-1" >Budget Token</span>
-                        <Dropdown className="!py-[0.6rem] border dark:border-none dark:bg-darkSecond text-sm rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                        <Dropdown className="!py-[0.35rem] border dark:border-none dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
                             setWallet(val)
                         }} />
                     </div>
                     <div className="flex flex-col w-full">
                         <span className="text-left  text-greylish pb-2 ml-1" >Budget Amount</span>
-                        <input className="outline-none unvisibleArrow bg-white pl-2 border dark:border-none rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
+                        <input required className="outline-none unvisibleArrow bg-white pl-2 border dark:border-none rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} onChange={(e)=>{setAmount(parseInt(e.target.value))}} />
                     </div>
                 </div>
                 {anotherToken && <div className="flex w-full gap-8   pt-4">
                     <div className="flex flex-col w-full">
                         <span className="text-left  text-greylish pb-2 ml-1" >Budget Token</span>
-                        <Dropdown className="!py-[0.6rem] border dark:border-none bg-white dark:bg-darkSecond text-sm rounded-lg" nameActivation={true} selected={wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
-                            setWallet2(val)
+                        <Dropdown className="!py-[0.35rem] border dark:border-none bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                            setWallet2(val);
                         }} />
                     </div>
                     <div className="flex flex-col w-full">
@@ -87,7 +93,7 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
                             }} />}
                         </div>
                     </div>
-                        <input className="outline-none unvisibleArrow bg-white pl-2 border dark:border-none rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
+                        <input className="outline-none unvisibleArrow bg-white pl-2 border dark:border-none rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0}  onChange={(e)=>{setAmount2(parseInt(e.target.value))}} />
                     </div> </div>}
                 {!anotherToken && <div className="text-primary  cursor-pointer " onClick={() => setAnotherToken(true)}>
                     <span className="flex gap-2 items-center bg-opacity-5 font-semibold  pl-1 text-center rounded-xl ">
@@ -106,9 +112,9 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
                 }}  >Add Subbudget</div>}
                 <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8  pt-6">
                     <Button version="second" className="!rounded-xl" onClick={() => { setNewBudget(false) }}>Cancel</Button>
-                    <Button type="submit" className=" !rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" onClick={() => { setSign && setSign(true); setNewBudget(false) }}>Create</Button>
+                    <Button type="submit" className=" !rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" >Create</Button>
                 </div>
-            </div>
+            </form>
 
         </div>
     )

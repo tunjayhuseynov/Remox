@@ -35,7 +35,7 @@ export const DropDownViewer = ({ parentClass, displayName, name,totalValue, coin
 
         <div className="text-left flex space-x-2 items-center">
             {coinUrl && <div><img src={coinUrl} className={coinUrl ? `w-[1.25rem] h-[1.25rem]` : ''} alt="" /></div>}
-            <div className={`${className ?? ''} font-normal text-lg truncate`} title={name}>{name.substring(0, 10) + '.'}</div>
+            <div className={`${className ?? ''} font-normal text-lg truncate`} title={name}>{name === " Celo Extension Wallet" ? "Celo Exten.." : name}</div>
             
         </div>
         {totalValue && <div className={`text-left text-sm text-gray-500`}>{totalValue}</div>}
@@ -74,7 +74,7 @@ const Dropdown = ({ selected, list, toTop = false, photo = false, totalValue = f
                     { height: 'auto' }
                 }>
                     {list?.filter((w) => {
-                        if (!nameActivation) {
+                        if (!nameActivation && w?.address) {
                             return w?.address !== selected?.address
                         } else if (w.name) {
                             return w?.name !== selected?.name
