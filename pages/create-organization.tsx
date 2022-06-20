@@ -1,24 +1,14 @@
 import { SyntheticEvent, useState } from "react";
 import Button from "components/button";
-import Input from "components/input";
-import { useAuth, useSignInOrUp, useWalletKit } from "hooks";
+import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
-import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
-import useSign from "hooks/singingProcess/useSign";
 import useLoading from "hooks/useLoading";
 import useOrganization from "hooks/organization/useOrganization";
-import { ToastRun } from "utils/toast";
-import { UploadImage } from "rpcHooks/useFirebase";
-import { auth, Image, IOrganization } from "firebaseConfig";
-import { Get_Individual, Get_Individual_Ref } from "crud/individual";
 import useIndividual from "hooks/individual/useIndividual";
-import uniqid from 'uniqid'
-import { GetTime } from "utils";
-import useNextSelector from "hooks/useNextSelector";
 import { selectStorage, setOrganization } from "redux/reducers/storage";
 import { useDispatch } from "react-redux";
 import Dropdown from "components/general/dropdown";
@@ -44,9 +34,7 @@ const CreateOrganization = () => {
   const navigate = useRouter()
   const dark = useAppSelector(selectDarkMode)
   const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
-  const [individualIsUpload, setIndividualIsUpload] = useState<boolean>(true)
   const [organizationFile, setOrganizationFile] = useState<File>()
-  const [individualFile, setIndividualFile] = useState<File>()
 
   const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
 
@@ -54,8 +42,8 @@ const CreateOrganization = () => {
 
   const Create = async (e: SyntheticEvent<HTMLFormElement>) => {
 
-    const organization = await create(e, organizationIsUpload, organizationFile ?? null, individualIsUpload, individualFile ?? null)
-    dispatch(setOrganization(organization));
+    // const organization = await create(e, organizationIsUpload, organizationFile ?? null, individualIsUpload, individualFile ?? null)
+    // dispatch(setOrganization(organization));
 
     navigate.push('/create-multisig')
   }
@@ -64,7 +52,9 @@ const CreateOrganization = () => {
 
   const onSubmit: SubmitHandler<IFormInput> = data => {
     const orgFile = organizationFile;
-    console.log(data, orgFile)
+
+
+
     navigate.push('/create-multisig')
 
   };
