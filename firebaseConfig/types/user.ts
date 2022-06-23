@@ -72,26 +72,24 @@ export interface IOrganization {
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
-
-    creator: DocumentReference | IIndividual;
-    
-    budget_execrises: DocumentReference[] | IBudgetExercise[];
-    blockchain: BlockchainType;
-
     created_date: number;
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
+
+    
+    creator: DocumentReference | IIndividual;
+    blockchain: BlockchainType;
 }
 
 export interface IIndividual {
     id: string;
     name: string;
     image: Image | null,
-    accounts: IAccount[];
-    seenTime: number;
+    accounts: DocumentReference[] | IAccount[];
     members: string[];
-     
-    budget_execrises: DocumentReference[] | IBudgetExercise[];
-
     created_date: number;
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
+    
+    seenTime: number;
 }
 
 export interface IMember {
@@ -113,7 +111,6 @@ export interface IAccount {
     members: IMember[];
     created_date: number;
 }
-
 
 
 export interface IRegisteredIndividual {

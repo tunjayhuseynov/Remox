@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { db } from 'firebaseConfig';
+import { db, storage } from 'firebaseConfig';
 import { onSnapshot, doc, setDoc, getDoc, collection, query, where, getDocs, WhereFilterOp, runTransaction, deleteDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -127,7 +127,6 @@ export function useFirestoreSearchField() {
 }
 
 export const UploadImage = async (folder: string, image: File) => {
-    const storage = getStorage();
     const reference = ref(storage, `${folder}/${image.name}`);
     await uploadBytes(reference, image);
     return await getDownloadURL(reference)

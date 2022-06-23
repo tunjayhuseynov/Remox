@@ -132,7 +132,6 @@ const RequestId = () => {
 
 
     return <>
-        <ToastContainer />
         <header className="flex justify-start h-[4.688rem] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
             <div onClick={() => router.push('/dashboard')} className="w-[6.25rem] h-[1.25rem] sm:w-full sm:h-[1.875rem]" >
                 <img src={!dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />

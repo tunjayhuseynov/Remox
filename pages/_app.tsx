@@ -15,6 +15,7 @@ import { ThemeProvider } from "next-themes";
 import App from 'layouts/App'
 import Guard from 'layouts/Guard';
 import Head from 'next/head';
+import { ToastContainer } from 'react-toastify';
 const DashboardLayout = dynamic(() => import('layouts/dashboard'))
 
 
@@ -40,6 +41,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </>
     </Head>
     <Provider store={store}>
+      <ToastContainer />
       <Wallet>
         <App>
           {

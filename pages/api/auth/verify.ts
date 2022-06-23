@@ -1,5 +1,5 @@
 import { registeredIndividualCollectionName } from "crud/registeredIndividual";
-import { auth, IIndividual, IRegisteredIndividual, IUser } from "firebaseConfig";
+import { auth, IAccount, IIndividual, IRegisteredIndividual, IUser } from "firebaseConfig";
 import { NextApiRequest, NextApiResponse } from "next";
 import { recoverPersonalSignature } from 'eth-sig-util';
 import { bufferToHex } from 'ethereumjs-util';
@@ -11,6 +11,8 @@ import { GetTime } from "utils";
 import { IuseContributor } from "rpcHooks/useContributors";
 import { adminApp } from "firebaseConfig/admin";
 import { Get_Budget_Exercise_Ref } from "crud/budget_exercise";
+import { accountCollectionName, Get_Account_Ref } from "crud/account";
+import { DocumentReference } from "firebase/firestore";
 
 export default async function handler(
     req: NextApiRequest,
@@ -102,19 +104,28 @@ export default async function handler(
                     });
                 }
 
+                let accounts: IAccount[] = user.address.map(s => ({
+                    address: s,
+                    blockchain: "celo",
+                    created_date: GetTime(),
+                    id: s,
+                    image: null,
+                    members: [],
+                    name: "",
+                    provider: null,
+                    signerType: "single"
+                }))
+
+                const accountRef: DocumentReference[] = [];
+                for (const account of accounts) {
+                    const res = await adminApp.firestore().collection(accountCollectionName).doc(account.id).set(account);
+                    accountRef.push(Get_Account_Ref(account.id));
+                }
+
+
                 let individual: IIndividual = {
                     seenTime,
-                    accounts: user.address.map(s => ({
-                        address: s,
-                        blockchain: "celo",
-                        created_date: GetTime(),
-                        id: s,
-                        image: null,
-                        members: [],
-                        name: "",
-                        provider: null,
-                        signerType: "single"
-                    })),
+                    accounts: accountRef,
                     members: [
                         ...user.address
                     ],

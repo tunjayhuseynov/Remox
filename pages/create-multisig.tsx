@@ -1,21 +1,25 @@
 
 import { useDispatch, useSelector } from 'react-redux';
-import { changeError, changeSuccess, selectDarkMode } from 'redux/reducers/notificationSlice';
-import { selectStorage } from 'redux/reducers/storage';
+import { selectDarkMode } from 'redux/reducers/notificationSlice';
 import Button from 'components/button';
-import useMultisig from 'hooks/walletSDK/useMultisig';
 import { AddressReducer } from "utils";
-import { useRef, useState, Dispatch } from "react";
-import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
+import { useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useAppSelector } from "redux/hooks";
 import { useWalletKit } from "hooks";
-import Paydropdown from "subpages/pay/paydropdown";
 import AnimatedTabBar from 'components/animatedTabBar';
 import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
+import { ToastRun } from 'utils/toast';
+import useMultisig from 'hooks/walletSDK/useMultisig';
+import useNextSelector from 'hooks/useNextSelector';
+import { selectStorage } from 'redux/reducers/storage';
+import { UploadImage } from 'rpcHooks/useFirebase';
+import { UploadImageForUser } from 'hooks/singingProcess/utils';
+import { IAccount, Image } from 'firebaseConfig';
+
 interface IFormInput {
     nftAddress?: string;
     nftTokenId?: number;
@@ -27,38 +31,79 @@ interface IFormInput {
 function CreateMultisig() {
 
     const { register, handleSubmit } = useForm<IFormInput>();
-    // const { data, importMultisigAccount, createMultisigAccount, isLoading } = useMultisig()
-    // const storage = useSelector(selectStorage)
 
-    const { Address, Wallet, blockchain } = useWalletKit();
-    const address = Address
-    const dispatch = useDispatch()
+    const { Address: address, blockchain } = useWalletKit();
+    const { createMultisigAccount, importMultisigAccount } = useMultisig()
+    // const {
+    //     createMultisigAccount
+    // } = useMultisig()
+    const storage = useNextSelector(selectStorage)
+
     const navigate = useRouter()
     const addressRef = useRef<HTMLInputElement>(null)
     const nameRef = useRef<HTMLInputElement>(null)
     const dark = useAppSelector(selectDarkMode)
-    const [name, setName] = useState<string>("Remox Multisig")
     const [sign, setSign] = useState<number | undefined>(1)
-    const [internalSign, setInternalSign] = useState<number | undefined>(1)
-    const [value, setValue] = useState('')
-    const [value2, setValue2] = useState('')
-    // const [selectedType, setSelectedType] = useState(false)
     const [newOwner, setNewOwner] = useState(false)
     const [text, setText] = useState('Create Multisig')
     const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
     const [file, setFile] = useState<File>()
-    const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
-    const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+    const [multisigIsUpload, setMultisigIsUpload] = useState<boolean>(true)
+    const paymentname: DropDownItem[] = [{ id: "image", name: "Upload Photo" }, { id: "nft", name: "NFT" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
 
-    // const importInputRef = useRef<HTMLInputElement>(null)
-    // const importNameInputRef = useRef<HTMLInputElement>(null)
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        try {
+            const orgPhoto = file ?? null
+            const Owners = owners
+            if (multisigIsUpload && !orgPhoto) throw new Error("No file uploaded")
+            if (Owners.length === 0) throw new Error("No owners added")
 
+            let image: Parameters<typeof UploadImageForUser>[0] | undefined;
+            if (orgPhoto || data.nftAddress) {
+                image =
+                {
+                    image: {
+                        blockchain,
+                        imageUrl: orgPhoto ?? data.nftAddress!,
+                        nftUrl: data.nftAddress ?? "",
+                        tokenId: data.nftTokenId ?? null,
+                        type: multisigIsUpload ? "image" : "nft"
+                    },
+                    name: `organizations/${data.name}`
+                }
 
-    const onSubmit: SubmitHandler<IFormInput> = data =>{
-       const orgPhoto = file
-        const Owners = owners
-        console.log(data,orgPhoto,Owners)
+                await UploadImageForUser(image)
+            }
+
+            let multisig: IAccount;
+            if (text === "Create Multisig") {
+                multisig =
+                    await createMultisigAccount(
+                        Owners.map(s => s.address),
+                        data.name,
+                        data.confirmOwners?.toString() ?? "0",
+                        data.confirmOwners?.toString() ?? "0",
+                        image?.image ?? null,
+                        storage?.organization ? "organization" : "individual"
+                    )
+            } else {
+                multisig =
+                    await importMultisigAccount(
+                        data.multisigAddress!,
+                        data.name,
+                        image?.image ?? null,
+                        storage?.organization ? "organization" : "individual"
+                    )
+            }
+
+            navigate.push('/dashboard')
+
+        } catch (error) {
+            const err = error as any
+            console.error(err)
+            ToastRun(<div>{err}</div>)
+        }
     };
 
 
@@ -101,23 +146,23 @@ function CreateMultisig() {
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                                 setSelectedPayment(e)
-                                if (e.name === "NFT") setOrganizationIsUpload(false)
-                                else setOrganizationIsUpload(true)
+                                if (e.name === "NFT") setMultisigIsUpload(false)
+                                else setMultisigIsUpload(true)
                             }} />
                         </div>
                     </div>
                     {<div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs text-left  dark:text-white">{!organizationIsUpload ? "NFT Address" : "Your Photo"} </div>
+                        <div className="text-xs text-left  dark:text-white">{!multisigIsUpload ? "NFT Address" : "Your Photo"} </div>
                         <div className={`  w-full border rounded-lg`}>
-                            {!organizationIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                            {!multisigIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                         </div>
                     </div>}
-                    {blockchain === 'celo' && !organizationIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
+                    {blockchain === 'celo' && !multisigIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
-                            <input type="number" {...register("nftTokenId", { required: true })}  className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                            <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                     {text === "Import Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">

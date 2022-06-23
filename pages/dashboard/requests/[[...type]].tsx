@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import Button from 'components/button';
 import Modal from 'components/general/modal';
-import { RiFileCopyLine } from 'react-icons/ri'
-import { BsShare } from 'react-icons/bs'
 import Copied from "components/copied";
 import { useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';

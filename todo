@@ -1,1 +1,6 @@
-Gas fee Label (tag) , Swap tag, Payroll tag => Those are default
+-1. Gas fee Label (tag) 
+-2. Swap tag, 
+-3. Payroll tag => Those are default
+
+2. animatedTabBar is not okay with setText
+3. createAccount is not okay with react hook form

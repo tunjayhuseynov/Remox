@@ -6,7 +6,7 @@ import { SolanaEndpoint } from "components/Wallet"
 import { individualCollectionName } from "crud/individual"
 import { organizationCollectionName } from "crud/organization"
 import { ethers } from "ethers"
-import { IIndividual, Image, IUser } from "firebaseConfig"
+import { IIndividual, Image, IOrganization, IUser } from "firebaseConfig"
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
 import type { BlockchainType } from "hooks/walletSDK/useWalletKit"
 
@@ -42,21 +42,17 @@ const nftOwner = async (nft: string, blockchain: BlockchainType, tokenId?: numbe
 
 export const isOldUser = async (address: string) => await isUserUsingOldVersion(address)
 
-export const isIndiviualRegistered = async (address: string) => await isIndividualExisting(address)
-
-export const isOrganisationRegistered = async (address: string, blockchain: BlockchainType) => await isOrganizationExisting(address, blockchain)
-
 
 export const isIndividualExisting = async (address: string) => {
     return !!(await FirestoreRead<IIndividual>(individualCollectionName, address))
 }
 
 export const isOrganizationExisting = async (name: string, blockchain: string) => {
-    return !!(await isAddressExisting<IIndividual>(organizationCollectionName, [{ addressField: "name", address: name, indicator: "==" }, { addressField: "blockchain", address: blockchain, indicator: "==" }]))
+    return (await isAddressExisting<IOrganization>(organizationCollectionName, [{ addressField: "name", address: name, indicator: "==" }, { addressField: "blockchain", address: blockchain, indicator: "==" }])).length != 0
 }
 
 export const isUserUsingOldVersion = async (address: string) => {
-    return !!(await isAddressExisting('users', [{ addressField: 'address', address: address, indicator: "array-contains" }]))
+    return (await isAddressExisting('users', [{ addressField: 'address', address: address, indicator: "array-contains" }])).length != 0
 }
 
 export const isAddressNftOwner = async (address: string, nft: string, blockchain: BlockchainType, tokenId?: number) => {

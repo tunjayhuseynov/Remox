@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
+import { IAccount, IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
 import { RootState } from "../store";
 
 export interface IStorage {
@@ -30,6 +30,15 @@ export const storageSlice = createSlice({
     name: "storage",
     initialState: initialState(),
     reducers: {
+        addAccount: (state: IContainer, action: { payload: IAccount }) => {
+            if (state.user) {
+                if (state.user.signType === "organization" && state.user.organization) {
+                    (state.user.organization.accounts as IAccount[]).push(action.payload)
+                } else {
+                    (state.user.individual.accounts as IAccount[]).push(action.payload)
+                }
+            }
+        },
         setOrganization: (state: IContainer, action: { payload: IOrganization }) => {
             if (state.user) {
                 state.user.organization = action.payload
@@ -39,6 +48,19 @@ export const storageSlice = createSlice({
                     const data: IStorage = JSON.parse(val)
                     data.organization = action.payload
                     data.signType = "organization"
+                    localStorage.setItem("remoxUser", JSON.stringify(data))
+                }
+            }
+        },
+        setIndividual: (state: IContainer, action: { payload: IIndividual }) => {
+            if (state.user) {
+                state.user.individual = action.payload
+                state.user.signType = "individual"
+                const val = localStorage.getItem("remoxUser")
+                if (val) {
+                    const data: IStorage = JSON.parse(val)
+                    data.individual = action.payload
+                    data.signType = "individual"
                     localStorage.setItem("remoxUser", JSON.stringify(data))
                 }
             }
@@ -55,7 +77,7 @@ export const storageSlice = createSlice({
     }
 })
 
-export const { setStorage, removeStorage, setOrganization } = storageSlice.actions
+export const { setStorage, removeStorage, setOrganization, addAccount, setIndividual } = storageSlice.actions
 
 export const selectStorage = (state: RootState) => state.storage.user
 

@@ -1,5 +1,5 @@
 import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
-import { auth, IUser } from 'firebaseConfig';
+import { auth, IBudgetExercise, IUser } from 'firebaseConfig';
 import { PROVIDERS } from "@celo-tools/use-contractkit";
 import { useWalletKit } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
@@ -12,18 +12,18 @@ import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { changeAccount, changeExisting, } from 'redux/reducers/selectedAccount';
-import { isIndividualExisting } from 'hooks/singingProcess/utils';
+import { isIndividualExisting, isOldUser } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
-import { selectStorage } from 'redux/reducers/storage';
+import { selectStorage, setStorage } from 'redux/reducers/storage';
 import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
+import useIndividual from 'hooks/accounts/useIndividual';
+import { setBudgetExercises } from 'redux/reducers/budgets';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
   const { processSigning } = useOneClickSign()
-  const { search } = useFirestoreSearchField()
   const dark = useNextSelector(selectDarkMode)
-  const storage = useNextSelector(selectStorage)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
@@ -35,6 +35,9 @@ const Home = () => {
   const [selected, setSelected] = useState<DropDownItem>(
     { name: blockchain?.split("").reduce((a, c, i) => { if (i === 0) { return a.toUpperCase() + c } return a + c }, '') ?? "Celo", address: blockchain ?? "celo", coinUrl: blockchain === "celo" || !blockchain ? CoinsURL.CELO : CoinsURL.SOL }
   )
+
+  const { individual, isIndividualFetched } = useIndividual(address ?? "0", (selected.address as BlockchainType) ?? "celo")
+
 
   useEffect(() => {
     dispatch(updateBlockchain(selected.address! as BlockchainType))
@@ -56,24 +59,33 @@ const Home = () => {
         await Connect()
       }
       else if (address) {
-        if (storage && storage.uid) {
-          navigate.push("/choose-type")
-          return;
-        }
-
-        const user = await search<IUser>("users", [{
-          field: 'address',
-          searching: address,
-          indicator: "array-contains"
-        }])
+        // Kohne userleri unlock sehfesine yonlendirmek ucundur
+        const user = await isOldUser(address)
 
         if (user) {
-          navigate.push('/choose-type')
+          navigate.push('/unlock')
         } else {
-          await processSigning(address);
-          dispatch(changeAccount(address))
-          dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
-          navigate.push('/create-account')
+          if (auth.currentUser === null) {
+            await processSigning(address);
+          } else {
+            const isExist = await isIndividualExisting(auth.currentUser!.uid);
+            dispatch(changeAccount(address))
+            dispatch(changeExisting(isExist));
+            if (isExist && individual) {
+              dispatch(setStorage({
+                uid: auth.currentUser?.uid!,
+                lastSignedProviderAddress: Address!,
+                signType: "individual",
+                organization: null,
+                individual: individual
+              }))
+              dispatch(setBudgetExercises(individual.budget_execrises as IBudgetExercise[]))
+              navigate.push('/choose-type')
+            }
+            else {
+              navigate.push('/create-account')
+            }
+          }
         }
       }
     } catch (error) {
@@ -93,7 +105,7 @@ const Home = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
           <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected} list={[{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]} />
-          {<Button onClick={ConnectEvent} isLoading={isLoading}>{address ? "Enter App" : "Connect to a wallet"}</Button>}
+          {<Button onClick={ConnectEvent} isLoading={isLoading || isIndividualFetched}>{address ? auth.currentUser !== null ?  "Enter App" : "Provider Sign" : "Connect to a wallet"}</Button>}
         </div>
       </div>
     </section>
