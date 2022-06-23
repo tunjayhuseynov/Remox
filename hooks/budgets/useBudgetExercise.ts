@@ -1,26 +1,50 @@
 import { Create_Budget_Exercise, Delete_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercise";
-import { IBudgetExercise } from "firebaseConfig";
+import { Update_Individual } from "crud/individual";
+import { Update_Organization } from "crud/organization";
+import { IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
+import { useWalletKit } from "hooks";
+import useRemoxAccount from "hooks/accounts/useRemoxAccount";
 import { useDispatch } from "react-redux";
 import { addBudgetExercise, deleteBudgetExercise } from "redux/reducers/budgets";
+import useBudgets from "./useBudgets";
+import useSubbudgets from "./useSubbudgets";
 
 export default function useBudgetExercise() {
     const dispatch = useDispatch()
+    const { Address, blockchain } = useWalletKit()
 
-    const create = async (budget: IBudgetExercise) => {
-        await Create_Budget_Exercise(budget);
-        dispatch(addBudgetExercise(budget));
+    const budget = useBudgets()
+    const subbudget = useSubbudgets()
+
+    const { remoxAccountType, remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
+
+
+    const create_exercise = async (budget: IBudgetExercise) => {
+        if (remoxAccount) {
+            await Create_Budget_Exercise(budget);
+            if (remoxAccountType === "organization") {
+                const organization = { ...remoxAccount } as IOrganization;
+                organization.budget_execrises = [...organization.budget_execrises, budget] as IBudgetExercise[];
+                await Update_Organization(organization)
+            } else {
+                const individual = { ...remoxAccount } as IIndividual;
+                individual.budget_execrises = [...individual.budget_execrises, budget] as IBudgetExercise[]
+                await Update_Individual(individual)
+            }
+            dispatch(addBudgetExercise(budget));
+        }
     }
 
-    const update = async (budget: IBudgetExercise) => {
+    const update_exercise = async (budget: IBudgetExercise) => {
         await Update_Budget_Exercise(budget);
         dispatch(addBudgetExercise(budget));
     }
 
-    const del = async (budget: IBudgetExercise) => {
+    const delete_exercise = async (budget: IBudgetExercise) => {
         await Delete_Budget_Exercise(budget);
         dispatch(deleteBudgetExercise(budget));
     }
 
-    return { create, update, del }
+    return { create_exercise, update_exercise, delete_exercise, ...budget, ...subbudget }
 
 }

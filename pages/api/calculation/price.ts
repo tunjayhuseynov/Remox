@@ -1,10 +1,11 @@
 import { IuseCurrency } from "rpcHooks/useCurrency";
 import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
-import { BASE_URL, BlockchainType, Collection, GetCoins } from "utils/api";
+import { BASE_URL, Collection, GetCoins } from "utils/api";
 import axios from "axios";
 import { Balance } from "hooks/useCalculation";
 import { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, TokenType } from "types";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export interface IPriceResponse {
     AllPrices: {

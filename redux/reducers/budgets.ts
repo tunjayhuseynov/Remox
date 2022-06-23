@@ -1,12 +1,25 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
 import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
+import { IBudgetExerciseORM } from "pages/api/budget";
 import { RootState } from "redux/store";
+
 type Init = {
     budget_exercises: IBudgetExercise[]
 }
 const initial: Init = {
     budget_exercises: []
 }
+
+const fetchBudgetExercise = createAsyncThunk<IBudgetExerciseORM>("", async ()=>{
+    const res = await axios.get<IBudgetExerciseORM>("/api/budget", {
+        params: {
+            addresses: [],
+            // id: 
+        }
+    });
+    return res.data;
+})
 
 const budgetSlice = createSlice({
     name: "budgets",
@@ -87,6 +100,9 @@ const budgetSlice = createSlice({
                 }
             }
         }
+    },
+    extraReducers: (builder) => {
+        // builder.addCase()
     }
 })
 

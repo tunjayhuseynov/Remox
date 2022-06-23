@@ -1,4 +1,4 @@
-import { BASE_URL, BlockchainType, fromMinScale, IPrice } from "utils/api";
+import { BASE_URL, fromMinScale, IPrice } from "utils/api";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { NextApiRequest, NextApiResponse } from "next";
 import date from 'date-and-time'
@@ -6,6 +6,7 @@ import axios from "axios";
 import { ATag } from "subpages/dashboard/insight/boxmoney";
 import { Tag } from "rpcHooks/useTags";
 import { FirestoreRead } from "rpcHooks/useFirebase";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export interface IFlowDetail {
     [key: string]: number,
@@ -41,6 +42,7 @@ export interface ISpendingResponse {
     AverageSpend: number,
     AccountAge: number,
     TotalBalance: number,
+    TotalSpend: number,
     TotalBalanceByDay: ITotalBalanceByDay,
     AccountTotalBalanceChangePercent: number,
     AccountIn: IMoneyFlow,
@@ -57,13 +59,18 @@ export default async function handler(
     try {
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
+
+        const inTxs = req.query["txs[]"];
+        const parsedtxs = typeof inTxs === "string" ? [inTxs] : inTxs;
+
         const blockchain = req.query.blockchain as BlockchainType;
         const authId = req.query.id as string;
 
         const txs = await axios.get(BASE_URL + "/api/transactions", {
             params: {
                 addresses: parsedAddress,
-                blockchain: blockchain
+                blockchain: blockchain, 
+                txs: parsedtxs
             }
         })
 
@@ -76,7 +83,7 @@ export default async function handler(
 
         const myTags = await FirestoreRead<{ tags: Tag[] }>("tags", authId)
 
-        const average = AverageMonthlySpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
+        const average = AverageMonthlyAndTotalSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
@@ -94,7 +101,8 @@ export default async function handler(
         const percentChange = TotalBalanceChangePercent(prices.data.AllPrices)
 
         res.status(200).json({
-            AverageSpend: average,
+            AverageSpend: average.average,
+            TotalSpend: average.total,
             AccountAge: age,
             TotalBalance: prices.data.TotalBalance,
             AccountTotalBalanceChangePercent: percentChange,
@@ -141,8 +149,11 @@ export default async function handler(
 }
 
 
-const AverageMonthlySpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
-    if(transactions.length === 0) return 0;
+const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+    if(transactions.length === 0) return {
+        average: 0,
+        total: 0
+    };
     let average = 0;
     let oldest: IFormattedTransaction = transactions[0];
 
@@ -170,7 +181,10 @@ const AverageMonthlySpending = (transactions: IFormattedTransaction[], selectedA
     })
     const days = date.subtract(new Date(), new Date(Number(oldest.rawData.timeStamp) * 1000)).toDays()
     const months = Math.ceil(Math.abs(days) / 30)
-    return average / months;
+    return {
+        average:  average / months,
+        total: average
+    };
 }
 
 const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance: number, selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {

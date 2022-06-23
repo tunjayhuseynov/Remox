@@ -7,7 +7,7 @@ import { addBudget, deleteBudget, updateBudget } from "redux/reducers/budgets";
 export default function useBudgets() {
     const dispatch = useDispatch()
 
-    const create = async (budget: IBudget) => {
+    const create_budget = async (budget: IBudget) => {
         await Create_Budget(budget);
         const exercise = await Get_Budget_Exercise(budget.parentId);
         (exercise.budgets as IBudget[]).push(budget)
@@ -15,12 +15,12 @@ export default function useBudgets() {
         dispatch(addBudget(budget))
     }
 
-    const update = async (budget: IBudget) => {
+    const update_budget = async (budget: IBudget) => {
         await Update_Budget(budget);
         dispatch(updateBudget(budget))
     }
 
-    const del = async (budget: IBudget) => {
+    const delete_budget = async (budget: IBudget) => {
         await Delete_Budget(budget);
         const exercise = await Get_Budget_Exercise(budget.parentId);
         exercise.budgets = (exercise.budgets as IBudget[]).filter(b => b.id !== budget.id)
@@ -28,5 +28,5 @@ export default function useBudgets() {
         dispatch(deleteBudget(budget))
     }
 
-    return { create, update, del }
+    return { create_budget, update_budget, delete_budget }
 }

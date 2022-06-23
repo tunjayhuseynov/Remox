@@ -8,9 +8,10 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Tag } from 'rpcHooks/useTags';
 import _ from 'lodash';
 import { SolanaEndpoint } from 'components/Wallet';
-import { BlockchainType, CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
+import { CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
 import { FirestoreRead, FirestoreReadMultiple } from 'rpcHooks/useFirebase';
 import { adminApp } from 'firebaseConfig/admin';
+import { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 
 
 
@@ -24,6 +25,8 @@ export default async function handler(
     let txList: IFormattedTransaction[] = []
 
     const addresses = req.query["addresses[]"];
+    const txs = req.query["txs[]"];
+    const parsedtxs = typeof txs === "string" ? [txs] : txs;
     const authId = req.query.id as string;
     const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
     const blockchain = req.query.blockchain as BlockchainType;
@@ -37,7 +40,7 @@ export default async function handler(
     }
 
     for (const key of parsedAddress) {
-      const txs = await GetTxs(key, myTags?.tags ?? [], blockchain)
+      const txs = await GetTxs(key, myTags?.tags ?? [], blockchain, parsedtxs)
       txList = txList.concat(txs)
     }
 
@@ -47,15 +50,15 @@ export default async function handler(
   }
 }
 
-const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType) => {
+const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType, inTxs?: string[]) => {
   let txList: Transactions[] = []
 
   if (blockchain === "solana") {
     const txsList: Transactions[] = []
     // new PublicKey("So11111111111111111111111111111111111111112")
     const connection = new solanaWeb3.Connection(SolanaEndpoint)
-    const sings = await connection.getConfirmedSignaturesForAddress2(new solanaWeb3.PublicKey(address), { limit: 1000 })
-    const txs = await connection.getParsedTransactions(sings.map(s => s.signature))
+    const sings = !inTxs ? await connection.getConfirmedSignaturesForAddress2(new solanaWeb3.PublicKey(address), { limit: 1000 }) : null
+    const txs = await connection.getParsedTransactions(inTxs ?? sings!.map(s => s.signature))
     const tokens = await connection.getTokenAccountsByOwner(new solanaWeb3.PublicKey(address), { programId: TOKEN_PROGRAM_ID })
 
 
@@ -105,10 +108,20 @@ const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType) 
 
     txList = txsList;
   } else if (blockchain === 'celo') {
-    const exReq = await axios.get<GetTransactions>(`${CeloExplorer}?module=account&action=tokentx&address=${address}`)
+    if (txList) {
+      for (const tx of txList) {
+        const exReq = await axios.get<{ result: Transactions }>(`${CeloExplorer}?module=transaction&action=gettxinfo&txhash=${tx}`)
 
-    const txs = exReq.data;
-    txList = txs.result;
+        const txs = exReq.data;
+        txList.push(txs.result);
+      }
+
+    } else {
+      const exReq = await axios.get<GetTransactions>(`${CeloExplorer}?module=account&action=tokentx&address=${address}`)
+
+      const txs = exReq.data;
+      txList = txs.result;
+    }
   }
 
   const parsedTxs = await ParseTxs(txList, blockchain, tags)

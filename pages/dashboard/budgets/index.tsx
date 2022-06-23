@@ -8,6 +8,8 @@ import NewExercise from 'subpages/dashboard/budgets/Modals/newExercise';
 import EditBudget from 'subpages/dashboard/budgets/Modals/editBudgets';
 import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
 import BudgetCard, { IBudgetItem, ITotals } from 'subpages/dashboard/budgets/budgetCard';
+import useNextSelector from 'hooks/useNextSelector';
+import { SelectBudgetExercise } from 'redux/reducers/budgets';
 
 const Budgets = () => {
 
@@ -20,6 +22,19 @@ const Budgets = () => {
     const [exercise, setExercise] = useState(false)
     const [isOpen, setOpen] = useState(false)
 
+    const budget_exercises = useNextSelector(SelectBudgetExercise)
+    
+    const hasExercises = (budget_exercises?.length ?? 0) > 0
+
+
+    // const list: IBudgetItem[] = budget_exercises?.map(budget_exercise => {
+
+    //     return {
+    //         id: budget_exercise.id,
+    //         name: budget_exercise.name,
+    //         value: budget_exercise.value,
+    //     }
+    // })
 
     const budgetData: IBudgetItem[] = [
         {
@@ -407,6 +422,7 @@ const Budgets = () => {
         },
     ]
 
+    if(!budget_exercises) return <>Loading...</>
     return <div className="mb-6 w-full h-full">
         <div className="w-full h-full">
             <div className="flex justify-between items-center w-full">
@@ -414,7 +430,7 @@ const Budgets = () => {
                     Budgets
                 </div>
             </div>
-            {!newBudget && <div className="text-primary cursor-pointer flex items-center space-x-1" onClick={() => { setExercise(true); }} >
+            {!hasExercises && <div className="text-primary cursor-pointer flex items-center space-x-1" onClick={() => { setExercise(true); }} >
                 <div className="rounded-full border border-primary w-5 h-5 flex items-center justify-center">+</div>
                 <div>Create a new budgetary exercise</div>
             </div>}
@@ -426,25 +442,25 @@ const Budgets = () => {
             }
             {exercise &&
                 <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
+                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
                 </Modal>}
-            {sign ? <>
+            {hasExercises && <>
                 <TotalValues totals={Totals} />
                 <div className="w-full pt-2 pb-12 flex justify-between items-center">
                     <div className="w-[40%] text-xl">
                         <div className="relative w-full pt-5">
-                            <div onClick={() => setOpen(!isOpen)} className={`  w-full font-normal   py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec   flex   items-center gap-2`}>
+                            <div onClick={() => setOpen(!isOpen)} className={`w-full font-normal py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec flex items-center gap-2`}>
                                 <span className="flex items-center justify-center text-2xl">Remox Budget Q3 2022</span>
                                 <div>
                                     <IoIosArrowDown className='transition w-[0.7em] h-[0.7rem]' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                                 </div>
                             </div>
-                            {isOpen && <div className="absolute flex   rounded-lg  bottom-2 translate-y-full bg-light dark:bg-darkSecond z-50">
+                            {isOpen && <div className="absolute flex rounded-lg bottom-2 translate-y-full bg-light dark:bg-darkSecond z-50">
                                 <ul className="w-full">
                                     <li className="flex flex-col items-center text-center justify-center w-full bg-white dark:bg-darkSecond space-y-1 transition rounded-xl cursor-pointer  ">
                                         <div className="flex flex-col w-full">
                                             {exerciseData.map((item, index) => {
-                                                return <label key={index} className=" text-start  flex  items-center justify-start cursor-pointer w-full  border-b dark:border-greylish pl-3 pr-6 py-2">
+                                                return <label key={index} className=" text-start flex items-center justify-start cursor-pointer w-full  border-b dark:border-greylish pl-3 pr-6 py-2">
                                                     <div className="flex items-center gap-3"><span className="font-semibold">{item.name}</span> <div className="border text-sm border-primary text-primary rounded-md px-1 py-1">Active</div> <span className=" font-semibold">{item.total}</span> </div>
                                                 </label>
                                             })}
@@ -468,13 +484,13 @@ const Budgets = () => {
 
                 <div className={` grid grid-cols-2 gap-12  `}>
                     {budgetData.map((item, id) => {
-                        return <BudgetCard item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />
+                        return <BudgetCard key={item.id} item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />
                     })
                     }
 
                 </div >
                 {exercise && <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
+                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
                 </Modal>}
                 {
                     editBudget && <Modal onDisable={setEditBudget} disableX={true} className={'!w-[40%] !pt-4'}>
@@ -486,11 +502,7 @@ const Budgets = () => {
                         <DeleteBudget onDisable={setDelBudget} />
                     </Modal>
                 }
-            </>:
-            <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
-                <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]"/>
-                <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
-            </div> }
+            </>}
         </div >
     </div >
 
