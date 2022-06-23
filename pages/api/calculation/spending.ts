@@ -38,7 +38,13 @@ export interface ITotalBalanceByDay {
     currentMonth: Omit<IFlowDetail, "total">
 }
 
+export interface CoinStats {
+    coin: string
+    totalSpending: number
+}
+
 export interface ISpendingResponse {
+    CoinStats: CoinStats[],
     AverageSpend: number,
     AccountAge: number,
     TotalBalance: number,
@@ -69,7 +75,7 @@ export default async function handler(
         const txs = await axios.get(BASE_URL + "/api/transactions", {
             params: {
                 addresses: parsedAddress,
-                blockchain: blockchain, 
+                blockchain: blockchain,
                 txs: parsedtxs
             }
         })
@@ -83,6 +89,7 @@ export default async function handler(
 
         const myTags = await FirestoreRead<{ tags: Tag[] }>("tags", authId)
 
+        const coinsSpending = CoinsAndSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
         const average = AverageMonthlyAndTotalSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -101,6 +108,7 @@ export default async function handler(
         const percentChange = TotalBalanceChangePercent(prices.data.AllPrices)
 
         res.status(200).json({
+            CoinStats: coinsSpending,
             AverageSpend: average.average,
             TotalSpend: average.total,
             AccountAge: age,
@@ -149,8 +157,41 @@ export default async function handler(
 }
 
 
+const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+    if (transactions.length === 0) return [];
+
+    let sum: CoinStats[] = []
+
+    transactions.forEach(transaction => {
+        if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
+            if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
+                const tx = transaction as ITransfer;
+                sum.push({
+                    coin: tx.rawData.tokenSymbol,
+                    totalSpending: +fromMinScale(blockchain)(tx.amount),
+                })
+            }
+            if (transaction.id === ERC20MethodIds.noInput) {
+                sum.push({
+                    coin: transaction.rawData.tokenSymbol,
+                    totalSpending: +fromMinScale(blockchain)(transaction.rawData.value),
+                })
+            }
+            if (transaction.id === ERC20MethodIds.batchRequest) {
+                const tx = transaction as IBatchRequest;
+                tx.payments.forEach(transfer => {
+                    sum.push({
+                        coin: transfer.coinAddress.name,
+                        totalSpending: +fromMinScale(blockchain)(transfer.amount),
+                    })
+                })
+            }
+        }
+    })
+    return sum;
+}
 const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
-    if(transactions.length === 0) return {
+    if (transactions.length === 0) return {
         average: 0,
         total: 0
     };
@@ -182,7 +223,7 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
     const days = date.subtract(new Date(), new Date(Number(oldest.rawData.timeStamp) * 1000)).toDays()
     const months = Math.ceil(Math.abs(days) / 30)
     return {
-        average:  average / months,
+        average: average / months,
         total: average
     };
 }
@@ -250,7 +291,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
         return a;
     }, {})
 
-    if(totalInOut.length === 0){
+    if (totalInOut.length === 0) {
         TotalInOut[stringTime(date.addDays(new Date(), selectedDay))] = TotalBalance
         TotalInOut[stringTime(new Date())] = TotalBalance;
     }

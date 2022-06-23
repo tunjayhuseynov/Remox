@@ -4,3 +4,4 @@
 
 2. animatedTabBar is not okay with setText
 3. createAccount is not okay with react hook form
+4. Budget Card duzgun datalar ile provide edilmeyib

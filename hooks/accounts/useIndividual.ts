@@ -3,16 +3,17 @@ import { auth, IAccount, IBudgetExercise, IIndividual } from "firebaseConfig"
 import useSign from "hooks/singingProcess/useSign"
 import useAsyncEffect from "hooks/useAsyncEffect"
 import { BlockchainType } from "hooks/walletSDK/useWalletKit"
-import { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
-import { setBudgetExercises } from "redux/reducers/budgets"
+import { useState } from "react"
+import { useAppDispatch } from "redux/hooks"
+import { fetchBudgetExercise } from "redux/reducers/budgets"
 import { setIndividual } from "redux/reducers/storage"
 
 export default function useIndividual(address: string, blockchain: BlockchainType) {
     const [individual, setIndividualState] = useState<IIndividual | null>()
     const [loading, setLoading] = useState(false)
 
-    const dispatch = useDispatch()
+    // Do not touch
+    const dispatch = useAppDispatch()
 
 
     useAsyncEffect(async () => {
@@ -21,7 +22,11 @@ export default function useIndividual(address: string, blockchain: BlockchainTyp
             const individual = await Get_Individual(auth.currentUser.uid)
             if (individual) {
                 dispatch(setIndividual(individual))
-                dispatch(setBudgetExercises(individual.budget_execrises as IBudgetExercise[]))
+                dispatch(fetchBudgetExercise({
+                    addresses: individual.members,
+                    blockchain: blockchain,
+                    id: individual.id
+                }))
                 setIndividualState(individual ?? null)
             }
             setLoading(false)

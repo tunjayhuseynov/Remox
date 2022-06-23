@@ -10,10 +10,11 @@ import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
 import BudgetCard, { IBudgetItem, ITotals } from 'subpages/dashboard/budgets/budgetCard';
 import useNextSelector from 'hooks/useNextSelector';
 import { SelectBudgetExercise } from 'redux/reducers/budgets';
+import { useWalletKit } from 'hooks';
 
 const Budgets = () => {
 
-
+    const { GetCoins } = useWalletKit()
     const [newBudget, setNewBudget] = useState(false)
     const [editBudget, setEditBudget] = useState(false)
     const [delBudget, setDelBudget] = useState(false)
@@ -23,333 +24,354 @@ const Budgets = () => {
     const [isOpen, setOpen] = useState(false)
 
     const budget_exercises = useNextSelector(SelectBudgetExercise)
-    
+
     const hasExercises = (budget_exercises?.length ?? 0) > 0
 
 
-    // const list: IBudgetItem[] = budget_exercises?.map(budget_exercise => {
-
-    //     return {
-    //         id: budget_exercise.id,
-    //         name: budget_exercise.name,
-    //         value: budget_exercise.value,
-    //     }
-    // })
-
-    const budgetData: IBudgetItem[] = [
+    const list: IBudgetItem[] | undefined = budget_exercises?.[0].budgets.map<IBudgetItem>((budget) => (
         {
-            id: 0,
-            name: "Marketing",
-            Percent: "40%",
-            coinUrl: "celoiconsquare",
-            value: "50,000.00",
-            impacted: "100,000.00",
+            id: +budget.id,
+            name: budget.name,
+            percent: ((budget.totalBudget - budget.totalAvailable / budget.totalBudget) * 100).toString(),
+            value: budget.totalAvailable.toString(),
+            impacted: budget.totalBudget.toString(),
+            coinUrl: GetCoins[budget.budgetCoins.coin].coinUrl,
             token: [
                 {
+                    coinUrl: GetCoins[budget.budgetCoins.coin].coinUrl,
                     id: 0,
-                    name: "Used",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 1,
-                    name: "Pending",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 2,
-                    name: "Available",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-            ],
-            subBudgets: [
-                {
-                    id: 0,
-                    name: "Security",
-                    coinUrl: "celodollar",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 1,
-                    name: "Product",
-                    coinUrl: "celodollar",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 2,
-                    name: "Event",
-                    coinUrl: "celodollar",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
+                    name: budget.budgetCoins.coin,
+                    value: budget.budgetCoins.totalAmount.toString(),
                 }
             ],
-            labels: [
+            subBudgets: budget.subbudgets.map((sub, i) => (
                 {
-                    id: 0,
-                    color: 'bg-red-600',
-                    name: "Security",
-                    used: "9.000",
-                    pending: "7.000",
-                    coinUrl: "celodollar",
-                    progressbar: 40
-                },
-                {
-                    id: 1,
-                    color: 'bg-green-400',
-                    name: "Event",
-                    used: "12.000",
-                    pending: "4.000",
-                    coinUrl: "celodollar",
-                    progressbar: 70
-                },
-
-            ],
-        },
-        {
-            id: 1,
-            name: "Security",
-            Percent: "70%",
-            coinUrl: "celoiconsquare",
-            value: "50,000.00",
-            impacted: "100,000.00",
-            token: [
-                {
-                    id: 0,
-                    name: "Used",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 1,
-                    name: "Pending",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 2,
-                    name: "Available",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-            ],
-            subBudgets: [
-                {
-                    id: 0,
-                    name: "Security",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "10.000",
-                    available: "7.000",
-                    progressbar: 50
-                },
-                {
-                    id: 1,
-                    name: "Product",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 2,
-                    name: "Event",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
+                    id: i,
+                    name: sub.name,
+                    coinUrl: GetCoins[sub.token].coinUrl,
+                    used: "0",
+                    pending: "0",
+                    available: "0",
+                    progressbar: 0,
                 }
-            ],
-        },
-        {
-            id: 2,
-            name: "Development",
-            Percent: "60%",
-            coinUrl: "celoiconsquare",
-            value: "50,000.00",
-            impacted: "100,000.00",
-            token: [
-                {
-                    id: 0,
-                    name: "Used",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 1,
-                    name: "Pending",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 2,
-                    name: "Available",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-            ],
-            subBudgets: [
-                {
-                    id: 0,
-                    name: "Security",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 1,
-                    name: "Product",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 2,
-                    name: "Event",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                }
-            ],
-            labels: [
-                {
-                    id: 0,
-                    color: 'bg-primary',
-                    name: "Security",
-                    used: "9.000",
-                    pending: "7.000",
-                    coinUrl: "celodollar",
-                    progressbar: 40
-                },
-                {
-                    id: 1,
-                    color: 'bg-red-600',
-                    name: "Event",
-                    used: "9.000",
-                    pending: "7.000",
-                    coinUrl: "celodollar",
-                    progressbar: 60
-                },
+            )),
+        }
+    ))
 
-            ],
-        },
-        {
-            id: 3,
-            name: "Design",
-            Percent: "60%",
-            coinUrl: "celoiconsquare",
-            value: "50,000.00",
-            impacted: "100,000.00",
-            token: [
-                {
-                    id: 0,
-                    name: "Used",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 1,
-                    name: "Pending",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 2,
-                    name: "Available",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-            ],
-            subBudgets: [
-                {
-                    id: 0,
-                    name: "Security",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 1,
-                    name: "Product",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                },
-                {
-                    id: 2,
-                    name: "Event",
-                    coinUrl: "celoiconsquare",
-                    used: "20.000",
-                    pending: "7.000",
-                    available: "7.000",
-                    progressbar: 40
-                }
-            ],
-            labels: [
-                {
-                    id: 0,
-                    color: 'bg-orange-400',
-                    name: "Security",
-                    coinUrl: "celoiconsquare",
-                    used: "12.000",
-                    pending: "4.000",
-                    progressbar: 30
-                },
-                {
-                    id: 1,
-                    color: 'bg-green-400',
-                    name: "Security",
-                    used: "12.000",
-                    pending: "4.000",
-                    coinUrl: "celodollar",
-                    progressbar: 70
-                },
+    // const budgetData: IBudgetItem[] = [
+    //     {
+    //         id: 0,
+    //         name: "Marketing",
+    //         percent: "40%",
+    //         coinUrl: "celoiconsquare",
+    //         value: "50,000.00",
+    //         impacted: "100,000.00",
+    //         token: [
+    //             {
+    //                 id: 0,
+    //                 name: "Used",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Pending",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Available",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //         ],
+    //         subBudgets: [
+    //             {
+    //                 id: 0,
+    //                 name: "Security",
+    //                 coinUrl: "celodollar",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Product",
+    //                 coinUrl: "celodollar",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Event",
+    //                 coinUrl: "celodollar",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             }
+    //         ],
+    //         labels: [
+    //             {
+    //                 id: 0,
+    //                 color: 'bg-red-600',
+    //                 name: "Security",
+    //                 used: "9.000",
+    //                 pending: "7.000",
+    //                 coinUrl: "celodollar",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 1,
+    //                 color: 'bg-green-400',
+    //                 name: "Event",
+    //                 used: "12.000",
+    //                 pending: "4.000",
+    //                 coinUrl: "celodollar",
+    //                 progressbar: 70
+    //             },
 
-            ],
-            twoToken: [
-                {
-                    id: 0,
-                    name: "Used",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 1,
-                    name: "Pending",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-                {
-                    id: 2,
-                    name: "Available",
-                    coinUrl: "celoiconsquare",
-                    value: '30,000.00'
-                },
-            ]
-        },
+    //         ],
+    //     },
+    //     {
+    //         id: 1,
+    //         name: "Security",
+    //         percent: "70%",
+    //         coinUrl: "celoiconsquare",
+    //         value: "50,000.00",
+    //         impacted: "100,000.00",
+    //         token: [
+    //             {
+    //                 id: 0,
+    //                 name: "Used",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Pending",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Available",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //         ],
+    //         subBudgets: [
+    //             {
+    //                 id: 0,
+    //                 name: "Security",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "10.000",
+    //                 available: "7.000",
+    //                 progressbar: 50
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Product",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Event",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             }
+    //         ],
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Development",
+    //         percent: "60%",
+    //         coinUrl: "celoiconsquare",
+    //         value: "50,000.00",
+    //         impacted: "100,000.00",
+    //         token: [
+    //             {
+    //                 id: 0,
+    //                 name: "Used",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Pending",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Available",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //         ],
+    //         subBudgets: [
+    //             {
+    //                 id: 0,
+    //                 name: "Security",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Product",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Event",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             }
+    //         ],
+    //         labels: [
+    //             {
+    //                 id: 0,
+    //                 color: 'bg-primary',
+    //                 name: "Security",
+    //                 used: "9.000",
+    //                 pending: "7.000",
+    //                 coinUrl: "celodollar",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 1,
+    //                 color: 'bg-red-600',
+    //                 name: "Event",
+    //                 used: "9.000",
+    //                 pending: "7.000",
+    //                 coinUrl: "celodollar",
+    //                 progressbar: 60
+    //             },
 
-    ]
+    //         ],
+    //     },
+    //     {
+    //         id: 3,
+    //         name: "Design",
+    //         percent: "60%",
+    //         coinUrl: "celoiconsquare",
+    //         value: "50,000.00",
+    //         impacted: "100,000.00",
+    //         token: [
+    //             {
+    //                 id: 0,
+    //                 name: "Used",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Pending",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Available",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //         ],
+    //         subBudgets: [
+    //             {
+    //                 id: 0,
+    //                 name: "Security",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Product",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Event",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "20.000",
+    //                 pending: "7.000",
+    //                 available: "7.000",
+    //                 progressbar: 40
+    //             }
+    //         ],
+    //         labels: [
+    //             {
+    //                 id: 0,
+    //                 color: 'bg-orange-400',
+    //                 name: "Security",
+    //                 coinUrl: "celoiconsquare",
+    //                 used: "12.000",
+    //                 pending: "4.000",
+    //                 progressbar: 30
+    //             },
+    //             {
+    //                 id: 1,
+    //                 color: 'bg-green-400',
+    //                 name: "Security",
+    //                 used: "12.000",
+    //                 pending: "4.000",
+    //                 coinUrl: "celodollar",
+    //                 progressbar: 70
+    //             },
+
+    //         ],
+    //         twoToken: [
+    //             {
+    //                 id: 0,
+    //                 name: "Used",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 1,
+    //                 name: "Pending",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //             {
+    //                 id: 2,
+    //                 name: "Available",
+    //                 coinUrl: "celoiconsquare",
+    //                 value: '30,000.00'
+    //             },
+    //         ]
+    //     },
+
+    // ]
 
     const exerciseData = [
         {
@@ -422,7 +444,7 @@ const Budgets = () => {
         },
     ]
 
-    if(!budget_exercises) return <>Loading...</>
+    if (!budget_exercises) return <>Loading...</>
     return <div className="mb-6 w-full h-full">
         <div className="w-full h-full">
             <div className="flex justify-between items-center w-full">
@@ -483,7 +505,7 @@ const Budgets = () => {
                 </div>
 
                 <div className={` grid grid-cols-2 gap-12  `}>
-                    {budgetData.map((item, id) => {
+                    {list?.map((item, id) => {
                         return <BudgetCard key={item.id} item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />
                     })
                     }

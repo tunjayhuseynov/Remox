@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom';
 export interface IBudgetItem {
     id: number;
     name: string;
-    Percent: string;
+    percent: string;
     coinUrl: string;
     value: string;
     impacted: string;
@@ -80,7 +80,7 @@ function BudgetCard({ setEditBudget, setDelBudget, item, id }: { item: IBudgetIt
                 <div className="flex items-center justify-between w-full">
                     <div className="text-xl font-bold">{item.name}</div>
                     <div className="flex items-center gap-5">
-                        <div className="text-xl font-bold">{item.Percent}</div>
+                        <div className="text-xl font-bold">{item.percent}</div>
                         <div className="flex space-x-3 justify-end" >
                             <span ref={exceptRef2} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold relative"><span className=" text-primary pb-4 rotate-90">...</span>
                                 {details && <div ref={divRef2} className="flex flex-col items-center bg-white dark:bg-darkSecond  absolute right-5 -bottom-5 w-[7rem]  rounded-lg shadow-xl z-50 ">

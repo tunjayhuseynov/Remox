@@ -1,20 +1,30 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
-import { IBudgetExerciseORM } from "pages/api/budget";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
+import { IBudgetExerciseORM, IBudgetORM } from "pages/api/budget";
 import { RootState } from "redux/store";
 
 type Init = {
-    budget_exercises: IBudgetExercise[]
+    isDone: boolean;
+    budget_exercises: IBudgetExerciseORM[]
 }
 const initial: Init = {
-    budget_exercises: []
+    budget_exercises: [],
+    isDone: false
+}
+interface ThunkType {
+    id: string,
+    blockchain: BlockchainType,
+    addresses: string[]
 }
 
-const fetchBudgetExercise = createAsyncThunk<IBudgetExerciseORM>("", async ()=>{
-    const res = await axios.get<IBudgetExerciseORM>("/api/budget", {
+export const fetchBudgetExercise = createAsyncThunk<IBudgetExerciseORM[], ThunkType>("budgets/fetchBudget", async (props: ThunkType) => {
+    const res = await axios.get<IBudgetExerciseORM[]>("/api/budget", {
         params: {
-            addresses: [],
+            id: props.id,
+            addresses: props.addresses,
+            blockchain: props.blockchain
             // id: 
         }
     });
@@ -25,31 +35,31 @@ const budgetSlice = createSlice({
     name: "budgets",
     initialState: initial,
     reducers: {
-        setBudgetExercises: (state: Init, { payload }: { payload: IBudgetExercise[] }) => {
+        setBudgetExercises: (state: Init, { payload }: { payload: IBudgetExerciseORM[] }) => {
             state.budget_exercises = payload;
         },
-        addBudgetExercise: (state: Init, { payload }: { payload: IBudgetExercise }) => {
+        addBudgetExercise: (state: Init, { payload }: { payload: IBudgetExerciseORM }) => {
             state.budget_exercises.push(payload);
         },
-        updateBudgetExercise: (state: Init, { payload }: { payload: IBudgetExercise }) => {
+        updateBudgetExercise: (state: Init, { payload }: { payload: IBudgetExerciseORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.id);
             if (index !== -1) {
                 state.budget_exercises[index] = payload;
             }
         },
-        deleteBudgetExercise: (state: Init, { payload }: { payload: IBudgetExercise }) => {
+        deleteBudgetExercise: (state: Init, { payload }: { payload: IBudgetExerciseORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.id);
             if (index !== -1) {
                 state.budget_exercises.splice(index, 1);
             }
         },
-        addBudget: (state: Init, { payload }: { payload: IBudget }) => {
+        addBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 state.budget_exercises[index].budgets.push(payload as any);
             }
         },
-        updateBudget: (state: Init, { payload }: { payload: IBudget }) => {
+        updateBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
@@ -58,7 +68,7 @@ const budgetSlice = createSlice({
                 }
             }
         },
-        deleteBudget: (state: Init, { payload }: { payload: IBudget }) => {
+        deleteBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
@@ -102,11 +112,21 @@ const budgetSlice = createSlice({
         }
     },
     extraReducers: (builder) => {
-        // builder.addCase()
+        builder.addCase(fetchBudgetExercise.fulfilled, (state, action) => {
+            state.budget_exercises = action.payload;
+            state.isDone = true;
+        })
+        builder.addCase(fetchBudgetExercise.pending, (state, action) => {
+            state.isDone = false;
+        })
+        builder.addCase(fetchBudgetExercise.rejected, (state, action) => {
+            state.isDone = true;
+        })
     }
 })
 
 export const SelectBudgetExercise = (state: RootState) => state.budgets.budget_exercises;
+export const SelectBudgetExerciseStatus = (state: RootState) => state.budgets.isDone;
 
 
 export const {

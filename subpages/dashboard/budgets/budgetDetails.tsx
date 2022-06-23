@@ -29,7 +29,7 @@ function BudgetDetails ({ item, openNotify, divRef, setNotify }: { setNotify: Re
                         <div className="flex items-center justify-between w-full">
                             <div className="text-xl font-bold">{item.name}</div>
                             <div className="flex items-center gap-5">
-                                <div className="text-xl font-bold">{item.Percent}</div>
+                                <div className="text-xl font-bold">{item.percent}</div>
                             </div>
                         </div>
                         <div>

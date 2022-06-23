@@ -18,7 +18,7 @@ import useNextSelector from 'hooks/useNextSelector';
 import { selectStorage, setStorage } from 'redux/reducers/storage';
 import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 import useIndividual from 'hooks/accounts/useIndividual';
-import { setBudgetExercises } from 'redux/reducers/budgets';
+import { fetchBudgetExercise } from 'redux/reducers/budgets';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
@@ -79,7 +79,13 @@ const Home = () => {
                 organization: null,
                 individual: individual
               }))
-              dispatch(setBudgetExercises(individual.budget_execrises as IBudgetExercise[]))
+              dispatch(
+                fetchBudgetExercise({
+                  addresses: individual.members,
+                  blockchain: selected.address as BlockchainType,
+                  id: individual.id
+                })
+              )
               navigate.push('/choose-type')
             }
             else {
