@@ -57,6 +57,9 @@ const budgetSlice = createSlice({
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 state.budget_exercises[index].budgets.push(payload as any);
+                state.budget_exercises[index].totalAvailable += payload.totalAvailable;
+                state.budget_exercises[index].totalBudget += payload.totalBudget;
+                state.budget_exercises[index].totalUsed += payload.totalUsed;
             }
         },
         updateBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
@@ -64,7 +67,14 @@ const budgetSlice = createSlice({
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
                 if (budgetIndex !== -1) {
+                    const oldBudget = state.budget_exercises[index].budgets[budgetIndex]
+                    state.budget_exercises[index].totalAvailable =- oldBudget.totalAvailable;
+                    state.budget_exercises[index].totalBudget =- oldBudget.totalBudget;
+                    state.budget_exercises[index].totalUsed =- oldBudget.totalUsed;
                     state.budget_exercises[index].budgets[budgetIndex] = payload;
+                    state.budget_exercises[index].totalAvailable += payload.totalAvailable;
+                    state.budget_exercises[index].totalBudget += payload.totalBudget;
+                    state.budget_exercises[index].totalUsed += payload.totalUsed;
                 }
             }
         },
@@ -73,6 +83,10 @@ const budgetSlice = createSlice({
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
                 if (budgetIndex !== -1) {
+                    const oldBudget = state.budget_exercises[index].budgets[budgetIndex]
+                    state.budget_exercises[index].totalAvailable =- oldBudget.totalAvailable;
+                    state.budget_exercises[index].totalBudget =- oldBudget.totalBudget;
+                    state.budget_exercises[index].totalUsed =- oldBudget.totalUsed;
                     state.budget_exercises[index].budgets.splice(budgetIndex, 1);
                 }
             }

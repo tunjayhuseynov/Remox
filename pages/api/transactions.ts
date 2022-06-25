@@ -108,8 +108,8 @@ const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType, 
 
     txList = txsList;
   } else if (blockchain === 'celo') {
-    if (txList) {
-      for (const tx of txList) {
+    if (inTxs) {
+      for (const tx of inTxs) {
         const exReq = await axios.get<{ result: Transactions }>(`${CeloExplorer}?module=transaction&action=gettxinfo&txhash=${tx}`)
 
         const txs = exReq.data;

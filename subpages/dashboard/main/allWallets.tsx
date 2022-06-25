@@ -7,21 +7,16 @@ import Modal from 'components/general/modal'
 import EditWallet from "./editWallet";
 import DeleteWallet from "./deleteWallet";
 import Loader from "components/Loader";
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/reducers/notificationSlice';
 import { useSelector } from "react-redux";
 import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
 import Deposit from "./deposit";
-
-export interface AllwalletTypes {
-    id: number,
-    walletName: string,
-    balance: string,
-}
+import { IAccount } from "firebaseConfig";
 
 
-function AllWallets({ item }: { item: AllwalletTypes }) {
+function AllWallets({ item }: { item: IAccount }) {
     const [details, setDetails] = useState<boolean>(false)
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
@@ -60,7 +55,7 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
         }
         {
             depositModal && <Modal onDisable={setDepositModal} className={'!pt-4'}>
-                <Deposit/>
+                <Deposit />
             </Modal>
         }
         <div className="w-full shadow-custom  pt-4  rounded-xl bg-white dark:bg-darkSecond min-w-[50%]">
@@ -70,7 +65,7 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                         <div className="flex items-center gap-3 px-3">
                             <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
                             <div className="flex flex-col">
-                                <div className="font-semibold">{item.walletName}</div>
+                                <div className="font-semibold">{item.name}</div>
                                 <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? "")}</div>
                             </div>
                         </div>
@@ -102,7 +97,7 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                     <div className="border-r dark:border-greylish min-w-[28%]  flex flex-col gap-3 py-2 px-3">
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Total Value</div>
-                            <div className="text-lg"> {!isLoading ? item.balance : <Loader />}</div>
+                            <div className="text-lg"> {!isLoading ? "9999" : <Loader />}</div>
                         </div>
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Signers</div>

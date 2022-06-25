@@ -12,9 +12,11 @@ interface IBudgetCoin {
     coin: string,
     totalAmount: number,
     totalUsedAmount: number,
-    secondCoin: string | null,
-    secondTotalAmount: number | null
-    secondTotalUsedAmount: number | null,
+    second: {
+        secondCoin: string,
+        secondTotalAmount: number
+        secondTotalUsedAmount: number,
+    } | null
 }
 
 export interface IBudgetORM extends IBudget {
@@ -89,9 +91,11 @@ export default async function handler(
                     coin: budget.token,
                     totalAmount: budget.amount,
                     totalUsedAmount: spending.data.CoinStats?.[0].totalSpending ?? 0,
-                    secondTotalAmount: budget.secondAmount,
-                    secondCoin: budget.secondToken,
-                    secondTotalUsedAmount: spending.data.CoinStats?.[1].totalSpending ?? null
+                    second: budget.secondToken && budget.secondAmount && spending.data.CoinStats?.[1] ? {
+                        secondTotalAmount: budget.secondAmount,
+                        secondCoin: budget.secondToken,
+                        secondTotalUsedAmount: spending.data.CoinStats[1].totalSpending
+                    } : null
                 }
 
                 totalBudgetCoin.push(budgetCoin)
@@ -121,7 +125,21 @@ export default async function handler(
                 totalBudget: orm.reduce((a, c) => c.totalBudget + a, 0),
                 totalAvailable: orm.reduce((a, c) => c.totalAvailable + a, 0),
                 totalUsed: orm.reduce((a, c) => c.totalUsed + a, 0),
-                budgetCoins: totalBudgetCoin
+                budgetCoins: totalBudgetCoin.reduce<IBudgetCoin[]>((a, c) => {
+                    if (a.some(s => s.coin === c.coin)) {
+                        const index = a.findIndex(s => s.coin === c.coin)
+                        a[index].totalAmount += c.totalAmount
+                        a[index].totalUsedAmount += c.totalUsedAmount
+                        if (c.second && a[index].second) {
+                            a[index].second!.secondTotalAmount += c.second.secondTotalAmount
+                            a[index].second!.secondTotalUsedAmount += c.second.secondTotalUsedAmount
+                        }
+                    } else {
+                        a.push({ ...c })
+                    }
+
+                    return a;
+                }, [])
             })
         }
 

@@ -76,9 +76,19 @@ export default async function handler(
             params: {
                 addresses: parsedAddress,
                 blockchain: blockchain,
-                txs: parsedtxs
             }
         })
+
+        let specificTxs;
+        if (parsedtxs) {
+            specificTxs = await axios.get(BASE_URL + "/api/transactions", {
+                params: {
+                    addresses: parsedAddress,
+                    blockchain: blockchain,
+                    txs: parsedtxs
+                }
+            })
+        }
 
         const prices = await axios.get(BASE_URL + "/api/calculation/price", {
             params: {
@@ -89,7 +99,7 @@ export default async function handler(
 
         const myTags = await FirestoreRead<{ tags: Tag[] }>("tags", authId)
 
-        const coinsSpending = CoinsAndSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
+        const coinsSpending = CoinsAndSpending(specificTxs?.data, parsedAddress, prices.data.AllPrices, blockchain)
         const average = AverageMonthlyAndTotalSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -151,14 +161,16 @@ export default async function handler(
             }
         })
     } catch (error) {
-        res.json(error as any)
+        res.json({
+            "message": (error as any).message
+        } as any)
         res.status(405).end()
     }
 }
 
 
 const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
-    if (transactions.length === 0) return [];
+    if (!transactions || transactions.length === 0) return [];
 
     let sum: CoinStats[] = []
 
@@ -248,7 +260,6 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
         const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
         const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
         const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
-
         const sTime = stringTime(tTime)
         if (tDay <= selectedDay) {
             let calc = 0;
@@ -292,7 +303,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
     }, {})
 
     if (totalInOut.length === 0) {
-        TotalInOut[stringTime(date.addDays(new Date(), selectedDay))] = TotalBalance
+        TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
         TotalInOut[stringTime(new Date())] = TotalBalance;
     }
 

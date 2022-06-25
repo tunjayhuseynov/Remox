@@ -30,6 +30,8 @@ const initState: StateType = {
         TotalBalancePercentage: 0
     },
     rawStats: {
+        CoinStats: [],
+        TotalSpend: 0,
         AccountAge: 0,
         AverageSpend: 0,
         AccountIn: {

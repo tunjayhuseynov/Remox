@@ -21,6 +21,7 @@ function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: str
     },
 
   ];
+
   const options: ApexCharts.ApexOptions = {
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],

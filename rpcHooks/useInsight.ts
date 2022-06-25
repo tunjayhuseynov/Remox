@@ -32,6 +32,7 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
                 blockchain,
                 authId: auth.currentUser?.uid
             }).unwrap().then(response => {
+                console.log(response)
                 const {
                     AverageSpend,
                     AccountIn,

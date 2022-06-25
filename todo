@@ -5,3 +5,7 @@
 2. animatedTabBar is not okay with setText
 3. createAccount is not okay with react hook form
 4. Budget Card duzgun datalar ile provide edilmeyib
+5. Budget Detials'de tags ve subbudgets yoxdu
+6. TotalPendingler yoxdur
+7. Total Detail'de umumen breakdownlar hele ki aktiv deyil
+8. allWallets => balance ile api'a kecid edilmelidi
