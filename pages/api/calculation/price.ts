@@ -7,16 +7,18 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, TokenType } from "types";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
+export interface IPriceCoin {
+    coins: AltCoins;
+    per_24: number;
+    price: number;
+    amount: number;
+    percent: number;
+    tokenPrice: number;
+}
+
 export interface IPriceResponse {
     AllPrices: {
-        [name: string]: {
-            coins: AltCoins;
-            per_24: number;
-            price: number;
-            amount: number;
-            percent: number;
-            tokenPrice: number;
-        };
+        [name: string]: IPriceCoin;
     },
     TotalBalance: number
 }

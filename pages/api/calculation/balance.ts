@@ -13,6 +13,10 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
 
+export interface BalanceAPI {
+    [key: string]: string
+}
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<any>
