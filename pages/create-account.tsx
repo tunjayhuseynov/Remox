@@ -1,8 +1,7 @@
 import { useState } from "react";
 import Button from "components/button";
-import { useAuth, useWalletKit } from "hooks";
+import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import { ToastRun } from "utils/toast";
 import Upload from "components/upload";
@@ -16,6 +15,7 @@ import { GetTime } from "utils";
 import useLoading from "hooks/useLoading";
 import useNextSelector from "hooks/useNextSelector";
 import { process } from "uniqid";
+import useSign from "hooks/singingProcess/useSign";
 
 interface IFormInput {
   nftAddress?: string;
@@ -29,7 +29,7 @@ const CreateAccount = () => {
   const { Address, Wallet, blockchain } = useWalletKit();
   const [address] = useState(Address)
 
-  const { Create_Individual } = useRemoxAccount(address ?? "0", blockchain)
+  const { RegisterIndividual } = useSign(address ?? "0", blockchain)
 
   const navigate = useRouter()
   const dark = useNextSelector(selectDarkMode)
@@ -57,8 +57,6 @@ const CreateAccount = () => {
           },
           name: `organizations/${data.name}`
         }
-
-        await UploadImageForUser(image)
       }
 
       let user: Omit<IIndividual, "id" | "created_date"> = {
@@ -90,7 +88,7 @@ const CreateAccount = () => {
         seenTime: GetTime()
       }
 
-      await Create_Individual(user)
+      await RegisterIndividual(user)
 
       navigate.push('/choose-type')
     } catch (error) {

@@ -39,8 +39,8 @@ export const Create_Individual = async (individual: IIndividual) => {
         accountRefs.push(Get_Account_Ref(account.id));
     }
 
-    individual.accounts = accountRefs;
-    individual.budget_execrises = exerciseRef;
+    individual.accounts = [...accountRefs];
+    individual.budget_execrises = [...exerciseRef];
     await FirestoreWrite<IIndividual>().createDoc(individualCollectionName, individual.id, individual);
     return individual;
 }

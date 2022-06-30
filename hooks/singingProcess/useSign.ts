@@ -20,8 +20,7 @@ export default function useSign(address: string, blockchain: BlockchainType) {
 
         const id = auth.currentUser.uid;
         
-
-        let individualState = {
+        let individualState: IIndividual = {
             ...individual,
             id,
             created_date: Math.floor(new Date().getTime() / 1000),
@@ -52,19 +51,6 @@ export default function useSign(address: string, blockchain: BlockchainType) {
         const user = await RegisterIndividual(individual);
         const org = await RegisterOrganization({ ...organization, creator: Get_Account_Ref(user.id) });
     }, [address, blockchain])
-
-
-    // const getOrganizations = useCallback(async () => {
-    //     const organizations = await FirestoreReadMultiple<IOrganization>(organizationCollectionName, [
-    //         {
-    //             firstQuery: "members",
-    //             condition: "array-contains",
-    //             secondQuery: Address
-    //         }
-    //     ]);
-    //     return organizations;
-    // }, [address, blockchain])
-
 
     return {
         RegisterIndividual,

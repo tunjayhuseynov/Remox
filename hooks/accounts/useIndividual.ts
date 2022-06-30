@@ -33,16 +33,10 @@ export default function useIndividual(address: string, blockchain: BlockchainTyp
         }
     }, [auth.currentUser, address, blockchain])
 
-    const { RegisterIndividual } = useSign(address ?? "0", blockchain)
-    const Create_Individual = async (individual: Omit<IIndividual, "id" | "created_date">) => {
-
-        return await RegisterIndividual(individual)
-    }
-
     const Add_Account_2_Individual = async (account: IAccount) => {
         if (!individual) throw new Error("Individual not found")
         await Add_New_Individual_Account(individual, account)
     }
 
-    return { Create_Individual, Add_Account_2_Individual, individual, isIndividualFetching: loading }
+    return { Add_Account_2_Individual, individual, isIndividualFetching: loading }
 }
