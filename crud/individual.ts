@@ -2,7 +2,7 @@ import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
 import { db, IAccount, IIndividual } from "firebaseConfig";
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise";
 import { arrayUnion, doc, DocumentReference, FieldValue } from "firebase/firestore";
-import { Get_Account, Get_Account_Ref } from "./account";
+import { Create_Account, Get_Account, Get_Account_Ref } from "./account";
 
 export const individualCollectionName = "individuals"
 
@@ -37,6 +37,7 @@ export const Create_Individual = async (individualFreeze: IIndividual) => {
 
     let accountRefs: DocumentReference[] = []
     for (let account of individual.accounts) {
+        await Create_Account(account as IAccount)
         accountRefs.push(Get_Account_Ref(account.id));
     }
 
