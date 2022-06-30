@@ -11,7 +11,7 @@ export const Get_Individual_Ref = (id: string) => doc(db, individualCollectionNa
 export const Get_Individual = async (id: string) => {
     const individual = await FirestoreRead<IIndividual>(individualCollectionName, id)
     if (!individual) return undefined;
-
+    
     const accounts = individual.accounts.map(async (account) => {
         const accountData = await Get_Account(account.id)
         if (!accountData) throw new Error("Account not found");

@@ -137,9 +137,9 @@ const CreateAccount = () => {
             </div>
           </div>}
           <div className="flex flex-col mb-4 gap-1 w-full">
-            <div className="text-xs text-left  dark:text-white">Token ID</div>
+            <div className="text-xs text-left  dark:text-white">Name</div>
             <div className={`w-full border rounded-lg`}>
-              <input type="number" {...register("name", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+              <input type="text" {...register("name", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
             </div>
           </div>
           <div className="flex flex-col mb-4 gap-1 w-full">

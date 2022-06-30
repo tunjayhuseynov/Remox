@@ -73,7 +73,7 @@ const useRefetchData = () => {
 
     useAsyncEffect(async () => {
         if (selectedAccount) {
-            const response = await balanceFetch({ addresses: ["0x246f4599efd3fa67ac44335ed5e749e518ffd8bb"], blockchain: blockchain }).unwrap();
+            const response = await balanceFetch({ addresses: [selectedAccount], blockchain: blockchain }).unwrap();
             const prices = response.AllPrices
             const totalBalance = response.TotalBalance
             dispatch(updateTotalBalance(totalBalance))

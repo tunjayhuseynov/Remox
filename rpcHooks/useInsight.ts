@@ -28,7 +28,7 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
         if (selectedAccounts.length > 0) {
             setLoading(true)
             spendingFetch({
-                addresses: ["0x246f4599efd3fa67ac44335ed5e749e518ffd8bb"],
+                addresses: [...selectedAccounts],
                 blockchain,
                 authId: auth.currentUser?.uid
             }).unwrap().then(response => {

@@ -1,8 +1,7 @@
-import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
-import { auth, IBudgetExercise, IUser } from 'firebaseConfig';
+import { auth } from 'firebaseConfig';
 import { PROVIDERS } from "@celo-tools/use-contractkit";
 import { useWalletKit } from 'hooks'
-import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { useAppDispatch } from 'redux/hooks';
 import { selectDarkMode } from 'redux/slices/notificationSlice';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -11,14 +10,11 @@ import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
-import { changeAccount, changeExisting, } from 'redux/slices/account/selectedAccount';
-import { isIndividualExisting, isOldUser } from 'hooks/singingProcess/utils';
+import { isOldUser } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
-import { selectStorage, setStorage } from 'redux/slices/account/storage';
 import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 import useIndividual from 'hooks/accounts/useIndividual';
-import { fetchBudgetExercise } from 'redux/slices/account/budgets';
 import { setBlockchain, setProviderAddress } from 'redux/slices/account/remoxData';
 
 const Home = () => {
@@ -81,7 +77,6 @@ const Home = () => {
   }
 
   const [isLoading, ConnectEvent] = useLoading(connectEvent)
-
 
   return <>
     <section className="flex justify-center items-center w-full h-screen">
