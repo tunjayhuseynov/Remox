@@ -1,5 +1,5 @@
 import React from 'react'
-import { IStorage } from '../redux/reducers/storage'
+import { IStorage } from '../redux/slices/account/storage'
 
 export interface CustomContext{
     data : IStorage | undefined, 

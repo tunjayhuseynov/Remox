@@ -1,11 +1,11 @@
 import { ExecutionType, IMember } from "rpcHooks/useContributors";
-import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
+import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from "components/button";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import TeamItem from "./stopItem";
 import useGelato from "rpcHooks/useGelato";
 import useContributors from "hooks/useContributors";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 
 
 const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<boolean>, memberState: IMember[] }) => {

@@ -8,8 +8,8 @@ import { useRef, useState } from 'react'
 import { TwitterPicker } from 'react-color'
 import { AiOutlineDown } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
-import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/reducers/notificationSlice'
-import { selectTags } from 'redux/reducers/tags'
+import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/slices/notificationSlice'
+import { selectTags } from 'redux/slices/tags'
 import TagItem from 'subpages/dashboard/settings/labels/tagItem'
 import { useForm, SubmitHandler } from "react-hook-form";
 

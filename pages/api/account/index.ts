@@ -1,14 +1,14 @@
 import { accountCollectionName } from "crud/account";
-import { IAccount, IUser } from "firebaseConfig";
+import { IAccount } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AltCoins } from "types";
-import { BalanceAPI } from "../calculation/balance";
 import axios from "axios";
 import { IPriceCoin as IPriceCoin, IPriceResponse } from "../calculation/price";
 import { BASE_URL } from "utils/api";
+import { IAccountMultisig } from "../multisig";
 
 export interface IAccountORM extends IAccount {
+    multidata: IAccountMultisig | null;
     totalValue: number;
     coins: (IPriceCoin & { name: string })[]
 }
@@ -39,8 +39,23 @@ export default async function handler(
             }
         })
 
+        let multidata: IAccountORM["multidata"] = null;
+        
+        if (account.signerType === "multi") {
+            const { data: multisig } = await axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
+                params: {
+                    address: account.address,
+                    blockchain: account.blockchain,
+                    Skip: 0,
+                    Take: 10
+                }
+            })
+            multidata = multisig;
+        }
+
         let orm: IAccountORM = {
             ...account,
+            multidata,
             totalValue: balance.TotalBalance,
             coins: Object.entries(balance.AllPrices).reduce<(IPriceCoin & { name: string })[]>((a, [key, value]) => {
                 a.push({

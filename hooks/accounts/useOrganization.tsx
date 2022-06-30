@@ -5,7 +5,7 @@ import useIndividual from "hooks/accounts/useIndividual";
 import useSign from "hooks/singingProcess/useSign";
 import useNextSelector from "hooks/useNextSelector";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import { UploadImage } from "rpcHooks/useFirebase";
 
 interface IOrganizationCreate {

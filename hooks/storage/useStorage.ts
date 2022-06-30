@@ -1,7 +1,7 @@
 import { auth } from "firebaseConfig";
 import useNextSelector from "hooks/useNextSelector";
 import { useMemo } from "react";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 
 export default function useStorage() {
     const storage = useNextSelector(selectStorage)

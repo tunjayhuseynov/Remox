@@ -2,7 +2,7 @@ import { useRouter } from "next/router"
 import Button from "components/button";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeError, changeSuccess, selectDarkMode } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess, selectDarkMode } from "redux/slices/notificationSlice";
 import Input from "subpages/pay/payinput";
 import { CeloCoins, Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
@@ -14,10 +14,10 @@ import { IRequest } from "rpcHooks/useRequest";
 import { isAddress } from "web3-utils";
 import { toast, ToastContainer } from 'react-toastify';
 import useCurrency from "rpcHooks/useCurrency";
-import { ICoinMembers, updateAllCurrencies } from 'redux/reducers/currencies'
-import { SelectCurrencies } from 'redux/reducers/currencies';
+import { ICoinMembers, updateAllCurrencies } from 'redux/slices/currencies'
+import { SelectCurrencies } from 'redux/slices/currencies';
 import { TotalUSDAmount } from "subpages/dashboard/requests/totalAmount";
-import { SelectInputs,changeBasedValue } from "redux/reducers/payinput";
+import { SelectInputs,changeBasedValue } from "redux/slices/payinput";
 import { AddressReducer } from 'utils'
 
 

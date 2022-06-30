@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useAppDispatch } from "redux/hooks"
-import { changeSuccess } from 'redux/reducers/notificationSlice'
+import { changeSuccess } from 'redux/slices/notificationSlice'
 import Button from "../../../../components/button";
 import useContributors from "hooks/useContributors";
 import { useForm, SubmitHandler } from "react-hook-form";

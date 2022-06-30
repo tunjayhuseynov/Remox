@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import useMultisigProcess from "hooks/useMultisigProcess";
-import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Button from "components/button";
 import Upload from "components/upload";
 import { useWalletKit } from 'hooks'

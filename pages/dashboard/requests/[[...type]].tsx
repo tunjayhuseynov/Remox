@@ -3,7 +3,7 @@ import Button from 'components/button';
 import Modal from 'components/general/modal';
 import Copied from "components/copied";
 import { useSelector } from 'react-redux';
-import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
+import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { BaseUrl } from 'utils/const';
 import AnimatedTabBar from 'components/animatedTabBar';
 import DynamicRequest from 'subpages/dashboard/requests/dynamicRequests';

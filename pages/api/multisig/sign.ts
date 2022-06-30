@@ -7,13 +7,13 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { NextApiRequest, NextApiResponse } from "next";
 import Multisig from 'rpcHooks/ABI/Multisig.json'
 
-export interface MultisigThreshold {
+export interface IMultisigThreshold {
     sign: number;
     internalSign: number;
 }
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<MultisigThreshold>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<IMultisigThreshold>) {
     try {
         const { blockchain, address: multisigAddress } = req.query as { blockchain: BlockchainType, address: string };
 

@@ -7,7 +7,7 @@ import { IuseContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import useGelato from "rpcHooks/useGelato";
 import { useAppSelector } from 'redux/hooks';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useModalSideExit } from "hooks";
 
 const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {

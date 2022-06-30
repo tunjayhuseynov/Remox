@@ -3,7 +3,7 @@ import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useAppSelector } from "redux/hooks";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import Upload from "components/upload";
 import useLoading from "hooks/useLoading";
 import useOrganization from "hooks/accounts/useOrganization";

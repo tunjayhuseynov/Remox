@@ -1,14 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { IBalanceItem, SelectOrderBalance } from 'redux/reducers/currencies';
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
-import { Chart as ChartJs } from 'chart.js';
-import useModalSideExit from 'hooks/useModalSideExit';
-import { useSelector } from "react-redux";
-import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import LineChart from "components/general/Linechart";
 import Button from "components/button";
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import useNextSelector from "hooks/useNextSelector";
 import useStorage from "hooks/storage/useStorage";
 import AllWallets from "./allWallets";
@@ -16,6 +9,7 @@ import Modal from 'components/general/modal'
 import NewWalletModal from "./newWalletModal";
 import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
+import { SelectRawStats } from "redux/slices/account/accountstats";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
     const stats = useNextSelector(SelectRawStats)

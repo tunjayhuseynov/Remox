@@ -5,17 +5,17 @@ import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "rpcHooks/useFirebase";
 import { auth, IAccount, IIndividual, Image, IMember, IOrganization } from 'firebaseConfig';
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useSelector } from "react-redux";
-import { addAccount, selectStorage } from "redux/reducers/storage";
+import { addAccount, selectStorage } from "redux/slices/account/storage";
 import { useDispatch } from "react-redux";
-import { setInternalSign, setSign } from "redux/reducers/multisig";
+import { setInternalSign, setSign } from "redux/slices/account/multisig";
 import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { fromWei, lamport, toLamport } from "utils/ray";
 import * as borsh from '@project-serum/borsh';
-import { selectBlockchain } from "redux/reducers/network";
+import { selectBlockchain } from "redux/slices/account/network";
 import *  as spl from 'easy-spl'
 // import { createVault, instantSendNative, startTokenStream } from 'zebecprotocol-sdk'
 // import { SetWhiteListSchema, WhiteList } from 'zebecprotocol-sdk/multisig/native/schema'
@@ -41,7 +41,7 @@ import useLoading from "hooks/useLoading";
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/Multisig.json")
 
-export interface TransactionMultisig {
+export interface ITransactionMultisig {
     destination: string,
     data?: string,
     executed: boolean,
@@ -105,7 +105,7 @@ export default function useMultisig() {
     const storage = useNextSelector(selectStorage, null)
 
     const dispatch = useDispatch()
-    const [transactions, setTransactions] = useState<TransactionMultisig[]>()
+    const [transactions, setTransactions] = useState<ITransactionMultisig[]>()
 
     const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount, Remove_Member, Add_Member, Replace_Member } = useRemoxAccount(selectedAccount, blockchain)
 
@@ -135,7 +135,7 @@ export default function useMultisig() {
 
 
     const FetchTransactions = async (multisigAddress: string, skip: number, take: number) => {
-        let transactionArray: TransactionMultisig[] = []
+        let transactionArray: ITransactionMultisig[] = []
         try {
             if (blockchain === 'solana') {
                 const { sdk } = await initGokiSolana();
@@ -869,7 +869,7 @@ export default function useMultisig() {
     const getTransaction = async (multisigAddress: string, transactionId: string) => {
         try {
 
-            let txResult: TransactionMultisig;
+            let txResult: ITransactionMultisig;
             if (blockchain === 'solana') {
 
                 const { sdk } = await initGokiSolana();

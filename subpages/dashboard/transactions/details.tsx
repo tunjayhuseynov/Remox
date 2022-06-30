@@ -2,16 +2,16 @@ import React, { Dispatch, SetStateAction } from 'react'
 import dateFormat from "dateformat";
 import { Fragment, useEffect, useState, useRef } from "react";
 import Dropdown from "components/general/dropdown";
-import { SelectCurrencies } from "redux/reducers/currencies";
+import { SelectCurrencies } from "redux/slices/currencies";
 import { DropDownItem } from "types/dropdown";
 import { AddressReducer } from 'utils'
 import _ from "lodash";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useTransactionProcess, useWalletKit } from "hooks";
 import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer } from "hooks/useTransactionProcess";
-import { selectTags } from "redux/reducers/tags";
+import { selectTags } from "redux/slices/tags";
 import { useSelector } from "react-redux";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import useGelato from "rpcHooks/useGelato";
 import { motion, AnimatePresence } from "framer-motion"
 import useProfile from "rpcHooks/useProfile";
@@ -24,7 +24,7 @@ import { BN } from "utils/ray";
 import Modal from 'components/general/modal';
 import Paydropdown from 'subpages/pay/paydropdown';
 import Split from './split';
-import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput } from "redux/reducers/split";
+import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput } from "redux/slices/split";
 import shortid, { generate } from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
 import { useForm, SubmitHandler } from "react-hook-form";

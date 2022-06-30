@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
-import { selectUnlock } from 'redux/reducers/unlock'
+import { selectUnlock } from 'redux/slices/unlock'
 import { useEffect } from 'react'
 import { isUserAllowToSystem } from 'hooks/singingProcess/utils'
 import { useWalletKit } from 'hooks'

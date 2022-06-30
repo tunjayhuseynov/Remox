@@ -3,7 +3,7 @@ import Button from "components/button";
 import { useAuth, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useAppSelector } from "redux/hooks";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import { ToastRun } from "utils/toast";
 import Upload from "components/upload";
 import Dropdown from "components/general/dropdown";

@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
 import { useAppSelector } from "../../redux/hooks";
-import { selectSuccessText } from "../../redux/reducers/notificationSlice";
+import { selectSuccessText } from "../../redux/slices/notificationSlice";
 import Button from "../button";
 
 const Success = ({ onClose, className, onAction }: { onClose: Dispatch<boolean>, className?: string, onAction?: () => void }) => {

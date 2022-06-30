@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js"
-import { MethodIds, MethodNames, TransactionMultisig } from "hooks/walletSDK/useMultisig"
+import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig"
 import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { fromLamport, fromWei } from "./ray"
 
@@ -38,7 +38,7 @@ export const MultisigTxParser = (
     if (blockchain === 'solana') size = SOLANA_WALLET_SIZE
     else size = EVM_WALLET_SIZE
     let from = blockchain === "solana" ? fromLamport : fromWei
-    let obj: TransactionMultisig = {
+    let obj: ITransactionMultisig = {
         destination: destination,
         data: data,
         executed: executed,

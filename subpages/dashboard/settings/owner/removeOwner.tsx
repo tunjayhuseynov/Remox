@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import useMultisigProcess from "hooks/useMultisigProcess";
-import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Avatar from "components/avatar";
 import Button from "components/button";
 

@@ -5,7 +5,7 @@ import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetTransactionsQuery } from 'redux/api';
-import { selectBlockchain, updateBlockchain } from 'redux/reducers/network';
+import { selectBlockchain, updateBlockchain } from 'redux/slices/account/network';
 import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
 import { Transactions } from 'types/sdk';
 import { fromLamport, fromWei, toLamport } from 'utils/ray';
@@ -17,7 +17,7 @@ import * as spl from 'easy-spl'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
 import { IUser } from 'firebaseConfig/types';
-import { changePrivateToken } from 'redux/reducers/selectedAccount';
+import { changePrivateToken } from 'redux/slices/account/selectedAccount';
 import { TextDecoder, TextEncoder } from 'util';
 import { GetSignedMessage } from 'utils';
 import useNextSelector from 'hooks/useNextSelector';

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IAccount, IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 
 export interface IStorage {
     uid: string,
@@ -10,11 +10,11 @@ export interface IStorage {
     individual: IIndividual,
 }
 
-interface IContainer {
+interface IStorageContainer {
     user: IStorage | null,
 }
 
-const initialState = (): IContainer => {
+const initialState = (): IStorageContainer => {
     if (typeof window === 'undefined') return { user: null }
     const val = localStorage.getItem("remoxUser")
 
@@ -30,7 +30,7 @@ export const storageSlice = createSlice({
     name: "storage",
     initialState: initialState(),
     reducers: {
-        addAccount: (state: IContainer, action: { payload: IAccount }) => {
+        addAccount: (state: IStorageContainer, action: { payload: IAccount }) => {
             if (state.user) {
                 if (state.user.signType === "organization" && state.user.organization) {
                     (state.user.organization.accounts as IAccount[]).push(action.payload)
@@ -39,7 +39,7 @@ export const storageSlice = createSlice({
                 }
             }
         },
-        setOrganization: (state: IContainer, action: { payload: IOrganization }) => {
+        setOrganization: (state: IStorageContainer, action: { payload: IOrganization }) => {
             if (state.user) {
                 state.user.organization = action.payload
                 state.user.signType = "organization"
@@ -52,7 +52,7 @@ export const storageSlice = createSlice({
                 }
             }
         },
-        setIndividual: (state: IContainer, action: { payload: IIndividual }) => {
+        setIndividual: (state: IStorageContainer, action: { payload: IIndividual }) => {
             if (state.user) {
                 state.user.individual = action.payload
                 state.user.signType = "individual"
@@ -65,12 +65,12 @@ export const storageSlice = createSlice({
                 }
             }
         },
-        setStorage: (state: IContainer, action: { payload: IStorage }) => {
+        setStorage: (state: IStorageContainer, action: { payload: IStorage }) => {
             localStorage.setItem("remoxUser", JSON.stringify(action.payload))
             const data: IStorage = action.payload
             state.user = data
         },
-        removeStorage: (state: IContainer) => {
+        removeStorage: (state: IStorageContainer) => {
             localStorage.removeItem("remoxUser")
             state.user = null;
         }

@@ -1,7 +1,7 @@
 import { auth, IUser } from 'firebaseConfig';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { selectStorage } from 'redux/reducers/storage';
+import { selectStorage } from 'redux/slices/account/storage';
 import { decryptMessage, encryptMessage } from 'utils/hashing';
 import { FirestoreWrite, useFirestoreRead } from './useFirebase';
 

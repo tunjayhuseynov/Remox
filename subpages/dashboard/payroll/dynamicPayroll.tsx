@@ -1,9 +1,9 @@
 import Button from 'components/button';
 import { Fragment, useState, useMemo } from 'react';
 import TeamContainer from 'subpages/dashboard/payroll/teamContainer'
-import { SelectBalances, SelectTotalBalance } from 'redux/reducers/currencies';
+import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
 import { Coins } from 'types';
-import { selectContributors } from 'redux/reducers/contributors';
+import { selectContributors } from 'redux/slices/account/contributors';
 import { DateInterval, ExecutionType, IMember } from 'rpcHooks/useContributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
@@ -13,11 +13,11 @@ import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import useGelato from "rpcHooks/useGelato";
 import useContributors from "hooks/useContributors";
-import { selectStorage } from 'redux/reducers/storage';
+import { selectStorage } from 'redux/slices/account/storage';
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
-import { setMemberList } from 'redux/reducers/masspay';
+import { setMemberList } from 'redux/slices/masspay';
 import Loader from 'components/Loader';
 import Runpayroll from './modalpay/Runpayroll';
 import Modal from "../../../components/general/modal";

@@ -1,31 +1,45 @@
-import { createContext, useEffect, useState } from 'react'
-import { IStorage, selectStorage } from "redux/reducers/storage"
-import { selectToggle } from "redux/reducers/toggles"
-import { AnimatePresence } from "framer-motion";
-import MobileMenu from "subpages/dashboard/mobileMenu"
-import Visitcard from "components/visitcard"
-import NotificationCointainer from "subpages/notification"
-import Sidebarlist from "subpages/dashboard/sidebarlist"
+import { createContext, useEffect } from 'react'
 import Sidebar from "subpages/dashboard/sidebar"
-import { useDispatch } from 'react-redux'
 import Navbar from 'subpages/dashboard/navbar'
-import { setUnlock } from 'redux/reducers/unlock';
-import { useIdleTimer } from 'react-idle-timer'
 import { useRefetchData } from 'hooks'
 import Loader from 'components/Loader'
-import useNextSelector from 'hooks/useNextSelector'
+import { useAppDispatch, useAppSelector } from 'redux/hooks'
+import { SelectAccountType, SelectBlockchain, SelectIsRemoxDataFetching, SelectProviderAddress } from 'redux/slices/account/remoxData'
+import { launchApp } from 'redux/slices/account/thunks/launch'
+import { auth } from 'firebaseConfig'
+import useIndividual from 'hooks/accounts/useIndividual'
 
 export const DashboardContext = createContext<{ refetch: () => void }>({ refetch: () => { } })
 
 
 export default function DashboardLayout({ children }: { children: JSX.Element }) {
 
-    // const storage = useNextSelector(selectStorage)
-    // const toggle = useNextSelector(selectToggle)
-    // const isSuccess = useSelector(selectSuccess)
-    // const isError = useSelector(selectError)
-    // const dispatch = useDispatch()
+    const isFetching = useAppSelector(SelectIsRemoxDataFetching)
 
+    const dispatch = useAppDispatch()
+    const accountType = useAppSelector(SelectAccountType)
+    const address = useAppSelector(SelectProviderAddress)
+    const blockchain = useAppSelector(SelectBlockchain)
+
+    const { individual, isIndividualFetching } = useIndividual(address ?? "0", blockchain ?? "celo")
+
+    useEffect(() => {
+        if (address && auth.currentUser && blockchain && !isIndividualFetching && individual && accountType && accountType === "individual") {
+            dispatch(launchApp({
+                accountType: accountType,
+                addresses: [address],
+                blockchain: blockchain,
+                id: auth.currentUser.uid,
+                storage: {
+                    lastSignedProviderAddress: address,
+                    signType: accountType,
+                    uid: auth.currentUser.uid,
+                    individual: individual,
+                    organization: null
+                }
+            }))
+        }
+    }, [individual])
 
     const { fetching, isAppLoaded } = useRefetchData()
 
@@ -34,26 +48,11 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     //     onIdle: () => dispatch(setUnlock(false)),
     // })
 
-    if (!isAppLoaded) return <div className="w-screen h-screen flex items-center justify-center">
+    if (isFetching) return <div className="w-screen h-screen flex items-center justify-center">
         <Loader />
     </div>
     return <>
         <DashboardContext.Provider value={{ refetch: fetching }}>
-            {/* <AnimatePresence>
-                {toggle &&
-                    <MobileMenu>
-                        <div className="flex flex-col space-y-10 px-10">
-                            <div className="actions flex flex-col items-center justify-evenly space-y-5">
-                                {storage ? <Visitcard name="Remox" address={storage.lastSignedProviderAddress} /> : <Loader />}
-                                <div className="relative">
-                                    <NotificationCointainer />
-                                </div>
-                            </div>
-                            <Sidebarlist />
-                        </div>
-                    </MobileMenu>
-                }
-            </AnimatePresence> */}
             <div className="flex flex-col min-h-screen overflow-hidden">
                 <div className="fixed w-full pt-6 pb-6 bg-light dark:bg-dark z-50">
                     <Navbar></Navbar>
@@ -65,12 +64,6 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                     </div>
                 </div>
             </div>
-            {/* {(isSuccess || isError) &&
-                <div className="fixed left-0 top-0 w-screen h-screen">
-                    {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-                    {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
-                </div>
-            } */}
         </DashboardContext.Provider>
     </>
 }

@@ -8,7 +8,7 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { Get_Account_Ref } from "crud/account";
 import { GetTime } from "utils";
 import { useDispatch } from "react-redux";
-import { setIndividual, setOrganization } from "redux/reducers/storage";
+import { setIndividual, setOrganization } from "redux/slices/account/storage";
 
 export default function useSign(address: string, blockchain: BlockchainType) {
     const dispatch = useDispatch()

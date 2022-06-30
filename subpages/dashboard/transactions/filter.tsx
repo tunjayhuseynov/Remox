@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import { useSelector } from "react-redux";
 import Paydropdown from "subpages/pay/paydropdown";
 

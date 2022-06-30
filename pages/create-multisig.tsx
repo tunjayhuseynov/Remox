@@ -1,6 +1,6 @@
 
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import Button from 'components/button';
 import { AddressReducer } from "utils";
 import { useRef, useState } from "react";
@@ -15,7 +15,7 @@ import { DropDownItem } from "types";
 import { ToastRun } from 'utils/toast';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import useNextSelector from 'hooks/useNextSelector';
-import { selectStorage } from 'redux/reducers/storage';
+import { selectStorage } from 'redux/slices/account/storage';
 import { UploadImage } from 'rpcHooks/useFirebase';
 import { UploadImageForUser } from 'hooks/singingProcess/utils';
 import { IAccount, Image } from 'firebaseConfig';

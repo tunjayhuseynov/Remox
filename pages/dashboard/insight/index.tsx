@@ -3,13 +3,13 @@ import Boxinsight from "subpages/dashboard/insight/boxinsight";
 import Boxmoney from "subpages/dashboard/insight/boxmoney";
 import { WalletDropdown } from "components/general/walletdropdown"
 import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useMultiWallet from "hooks/useMultiWallet";
 import useInsight from "rpcHooks/useInsight";
 import Loader from "components/Loader";
 import useMultisigProcess from "hooks/useMultisigProcess";
 import { useAppSelector } from "redux/hooks";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import { CSVLink } from "react-csv";
 import AllCharts from "subpages/dashboard/insight/allCharts";
 import BudgetsAndLabels from "subpages/dashboard/insight/Budgets-Labels";

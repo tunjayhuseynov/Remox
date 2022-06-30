@@ -2,7 +2,7 @@ import { Create_Budget, Delete_Budget, Update_Budget } from "crud/budget";
 import { Get_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercise";
 import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { useDispatch } from "react-redux";
-import { addBudget, deleteBudget, updateBudget } from "redux/reducers/budgets";
+import { addBudget, deleteBudget, updateBudget } from "redux/slices/account/budgets";
 
 export default function useBudgets() {
     const dispatch = useDispatch()

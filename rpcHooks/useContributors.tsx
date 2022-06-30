@@ -1,6 +1,6 @@
 import { useFirestoreReadMultiple } from "rpcHooks/useFirebase";
 import { CoinsName } from "types";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import { useSelector } from "react-redux";
 import { FieldValue } from "firebase/firestore";
 import useNextSelector from "hooks/useNextSelector";

@@ -1,30 +1,37 @@
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
-import {  SelectExisting } from 'redux/reducers/selectedAccount';
-import { selectStorage, setStorage } from 'redux/reducers/storage';
+import { SelectExisting } from 'redux/slices/account/selectedAccount';
+import { selectStorage, setStorage } from 'redux/slices/account/storage';
 import useNextSelector from 'hooks/useNextSelector';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { useSelector } from "react-redux";
 import { auth } from "firebaseConfig";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import { SelectBlockchain, SelectProviderAddress, setAccountType } from "redux/slices/account/remoxData";
+import { launchApp } from "redux/slices/account/thunks/launch";
+import useIndividual from "hooks/accounts/useIndividual";
 
 
 function ChooseType() {
   const navigate = useRouter()
   const dark = useNextSelector(selectDarkMode)
 
-  //Burada UseSelector'u deyismeyin, cunki useAsyncEffectle birbasa access edirik, eks haldi ilk renderden sonra undefined olur
-  const isUserExist = useSelector(SelectExisting)
-  const storage = useSelector(selectStorage)
+  const dispatch = useAppDispatch()
+  const address = useAppSelector(SelectProviderAddress)
+  const blockchain = useAppSelector(SelectBlockchain)
+
+  const { individual, isIndividualFetching } = useIndividual(address ?? "0", blockchain ?? "celo")
 
   useAsyncEffect(async () => {
-    if(!isUserExist || !storage?.individual || !auth?.currentUser){
+    if (!auth?.currentUser || !address || !blockchain) {
       navigate.push("/")
     }
   }, [])
 
   const individualLogin = async () => {
-    if (isUserExist && storage?.individual) {
+    if (address && auth.currentUser && blockchain && !isIndividualFetching && individual) {
+      dispatch(setAccountType("individual"))
       navigate.push("/dashboard")
     }
   }

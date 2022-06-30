@@ -5,7 +5,7 @@ import { ATag } from "subpages/dashboard/insight/boxmoney";
 
 
 
-interface IAccountStats {
+export interface IAccountStats {
     isLoading: boolean;
     totalBalance: number;
     averageSpend: number;

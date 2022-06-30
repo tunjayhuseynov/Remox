@@ -1,14 +1,14 @@
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectMoolaData, updateData } from "redux/reducers/moola";
+import { selectMoolaData, updateData } from "redux/slices/moola";
 import { AltCoins, Coins, SolanaCoins, TokenType } from "types";
 import BigNumber from 'bignumber.js'
 import { BN, etherSize, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
-import { SelectCurrencies } from 'redux/reducers/currencies'
+import { SelectCurrencies } from 'redux/slices/currencies'
 import { useWalletKit } from "hooks";
 import { VaultClient, VaultConfig } from '@castlefinance/vault-sdk'
 import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";

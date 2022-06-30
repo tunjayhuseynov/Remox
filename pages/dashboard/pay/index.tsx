@@ -5,23 +5,23 @@ import Error from "components/general/error";
 import { MultipleTransactionData } from "types/sdk";
 import CSV, { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import Input from "subpages/pay/payinput";
 import { useAppDispatch } from "redux/hooks";
-import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
-import { IBalanceItem, SelectBalances } from "redux/reducers/currencies";
+import { changeError, selectDarkMode, selectError } from "redux/slices/notificationSlice";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
+import { IBalanceItem, SelectBalances } from "redux/slices/currencies";
 import Button from "components/button";
 import { PaymentInput } from "rpcHooks/useCeloPay";
 import useMultisig from 'hooks/walletSDK/useMultisig'
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
 import { Tag } from "rpcHooks/useTags";
-import { selectTags } from "redux/reducers/tags";
+import { selectTags } from "redux/slices/tags";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/reducers/payinput";
+import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/slices/payinput";
 
 const Pay = () => {
 

@@ -2,7 +2,7 @@ import _ from "lodash";
 // import { TransactionHook, TransactionHookByDateInOut } from '../../../hooks/useTransactionProcess'
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useAppSelector } from "redux/hooks";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Button from "components/button";
 import { ProcessAccordion } from "components/accordion";
 import { useRouter } from "next/router";

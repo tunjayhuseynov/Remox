@@ -35,15 +35,16 @@ export default async function handler(
         let totalBalance = 0;
         const organization = Data as IOrganization | IIndividual;
 
+        const list = await Promise.all(organization.accounts.map(acc => axios.get<IAccountORM>(BASE_URL + "/api/account", {
+            params: {
+                id: acc.id
+            }
+        })
+        ));
 
-        for (const account of organization.accounts) {
-            const { data: Accounts } = await axios.get<IAccountORM>(BASE_URL + "/api/account", {
-                params: {
-                    id: account.id
-                }
-            })
-            totalBalance += Accounts.totalValue;
-            result.push(Accounts);
+        for (const account of list) {
+            totalBalance += account.data.totalValue;
+            result.push(account.data);
         }
 
         res.status(200).json({

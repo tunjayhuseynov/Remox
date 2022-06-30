@@ -4,7 +4,7 @@ import { IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/s
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useLazyGetAccountSpendingQuery } from 'redux/api'
-import { setAccountRawStats } from 'redux/reducers/accountstats'
+import { setAccountRawStats } from 'redux/slices/account/accountstats'
 import { ATag } from 'subpages/dashboard/insight/boxmoney'
 
 
@@ -66,7 +66,7 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
     }
 }
 
-const ChooseTimeframe = (date: number, flow?: IMoneyFlow | ITagFlow) => {
+export const ChooseTimeframe = (date: number, flow?: IMoneyFlow | ITagFlow) => {
     if (flow) {
         if (date === 7) {
             if ('total' in flow.week) {

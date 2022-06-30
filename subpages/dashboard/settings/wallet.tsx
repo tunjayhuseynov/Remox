@@ -6,9 +6,9 @@ import Button from 'components/button'
 import Modal from 'components/general/modal'
 import useMultisigProcess from 'hooks/useMultisigProcess'
 import { useSelector } from 'react-redux'
-import { selectStorage } from 'redux/reducers/storage'
+import { selectStorage } from 'redux/slices/account/storage'
 import { useAppSelector } from 'redux/hooks';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";
 import { useWalletKit } from 'hooks'

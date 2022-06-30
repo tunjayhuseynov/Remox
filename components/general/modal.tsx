@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import {useAppSelector } from '../../redux/hooks';
-import {selectDarkMode} from 'redux/reducers/notificationSlice';
+import {selectDarkMode} from 'redux/slices/notificationSlice';
 import ReactDOM, { createPortal } from 'react-dom';
 
 

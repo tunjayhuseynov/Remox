@@ -1,19 +1,19 @@
 import { useEffect, useState, useRef } from "react";
-import { IBalanceItem, SelectOrderBalance } from 'redux/reducers/currencies';
+import { IBalanceItem, SelectOrderBalance } from 'redux/slices/currencies';
 import { AddressReducer } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Modal from 'components/general/modal'
 import EditWallet from "./editWallet";
 import DeleteWallet from "./deleteWallet";
 import Loader from "components/Loader";
-import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import { useSelector } from "react-redux";
-import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
 import Deposit from "./deposit";
 import { IAccount } from "firebaseConfig";
+import { SelectAccountStats } from "redux/slices/account/accountstats";
 
 
 function AllWallets({ item }: { item: IAccount }) {

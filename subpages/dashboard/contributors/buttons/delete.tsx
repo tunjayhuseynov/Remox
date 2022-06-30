@@ -1,6 +1,6 @@
 import { Dispatch, useState } from "react";
 
-import { changeSuccess } from "redux/reducers/notificationSlice";
+import { changeSuccess } from "redux/slices/notificationSlice";
 import { useAppDispatch } from "redux/hooks";
 import Button from "../../../../components/button";
 

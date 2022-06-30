@@ -1,7 +1,7 @@
 import { useContractKit } from '@celo-tools/use-contractkit';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteBalance } from 'redux/reducers/currencies';
+import { deleteBalance } from 'redux/slices/currencies';
 import { AltCoins, Coins } from 'types';
 import usePoof from 'hooks/usePoof'
 import { useWalletKit } from 'hooks';

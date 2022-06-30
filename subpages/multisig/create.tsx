@@ -1,13 +1,13 @@
 /// Yuxaridaki nedir?? not alib yeniden yazmisam orda ferqli bi error var maraqli geldi baxaram deye saxladim
 
 import { useDispatch, useSelector } from 'react-redux';
-import { changeError, changeSuccess } from '../../redux/reducers/notificationSlice';
-import { selectStorage } from '../../redux/reducers/storage';
+import { changeError, changeSuccess } from '../../redux/slices/notificationSlice';
+import { selectStorage } from '../../redux/slices/account/storage';
 import Button from '../../components/button';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { AddressReducer } from "../../utils";
 import { useRef, useState, Dispatch } from "react";
-import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
+import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 
 export default function Create({ setCreateModal }: { setCreateModal: Dispatch<boolean> }) {
 

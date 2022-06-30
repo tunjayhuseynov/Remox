@@ -2,8 +2,8 @@ import { MetaMaskConnector, CeloExtensionWalletConnector, LedgerConnector, Walle
 import { Mainnet, useContractKit, useContractKitInternal, Connector, WalletTypes } from "@celo-tools/use-contractkit";
 import { CeloContract } from '@celo/contractkit'
 import { useDispatch, useSelector } from 'react-redux';
-import { changeAccount } from "../redux/reducers/selectedAccount";
-import { selectStorage, setStorage } from "../redux/reducers/storage";
+import { changeAccount } from "../redux/slices/account/selectedAccount";
+import { selectStorage, setStorage } from "../redux/slices/account/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';

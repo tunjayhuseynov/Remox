@@ -10,7 +10,7 @@ import useGelato from "rpcHooks/useGelato";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useModalSideExit } from "hooks";
 
 const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {

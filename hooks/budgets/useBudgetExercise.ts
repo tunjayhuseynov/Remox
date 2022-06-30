@@ -5,7 +5,7 @@ import { IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
 import { useWalletKit } from "hooks";
 import useRemoxAccount from "hooks/accounts/useRemoxAccount";
 import { useDispatch } from "react-redux";
-import { addBudgetExercise, deleteBudgetExercise } from "redux/reducers/budgets";
+import { addBudgetExercise, deleteBudgetExercise } from "redux/slices/account/budgets";
 import useBudgets from "./useBudgets";
 import useSubbudgets from "./useSubbudgets";
 

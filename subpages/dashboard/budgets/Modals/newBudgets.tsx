@@ -4,11 +4,11 @@ import Dropdown from "../../../../components/general/dropdown";
 import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch } from "redux/hooks";
-import { addSubInput, SelectInputs, resetSubInput, changeSubInput, ISubInput } from "redux/reducers/subinput";
+import { addSubInput, SelectInputs, resetSubInput, changeSubInput, ISubInput } from "redux/slices/subinput";
 import shortid, { generate } from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
 import Subinput from '../subinput';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { Coins } from 'types/coins';
 import { useForm, SubmitHandler } from "react-hook-form";
 

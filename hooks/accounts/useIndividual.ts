@@ -5,8 +5,8 @@ import useAsyncEffect from "hooks/useAsyncEffect"
 import { BlockchainType } from "hooks/walletSDK/useWalletKit"
 import { useState } from "react"
 import { useAppDispatch } from "redux/hooks"
-import { fetchBudgetExercise } from "redux/reducers/budgets"
-import { setIndividual } from "redux/reducers/storage"
+import { fetchBudgetExercise } from "redux/slices/account/budgets"
+import { setIndividual } from "redux/slices/account/storage"
 
 export default function useIndividual(address: string, blockchain: BlockchainType) {
     const [individual, setIndividualState] = useState<IIndividual | null>()
@@ -44,5 +44,5 @@ export default function useIndividual(address: string, blockchain: BlockchainTyp
         await Add_New_Individual_Account(individual, account)
     }
 
-    return { Create_Individual, Add_Account_2_Individual, individual, isIndividualFetched: loading }
+    return { Create_Individual, Add_Account_2_Individual, individual, isIndividualFetching: loading }
 }

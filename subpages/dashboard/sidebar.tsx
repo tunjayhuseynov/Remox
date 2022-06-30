@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
 import Modal from 'components/general/modal';
-import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
-import { changeAccount, SelectSelectedAccount } from 'redux/reducers/selectedAccount';
+import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
+import { changeAccount, SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { DropDownItem } from 'types';
 import Create from '../multisig/create';
 import Button from 'components/button';

@@ -4,7 +4,7 @@ import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";
 import { useDispatch } from "react-redux";
-import { addPayInput, changePayInput, removePayInput, SelectInputAmount, SelectIsBaseOnDollar } from "redux/reducers/payinput";
+import { addPayInput, changePayInput, removePayInput, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
 import { generate } from "shortid";
 import { useSelector } from "react-redux";
 import Loader from "components/Loader";

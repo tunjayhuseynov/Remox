@@ -5,13 +5,13 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { IBudgetExerciseORM, IBudgetORM } from "pages/api/budget";
 import { RootState } from "redux/store";
 
-type Init = {
-    isDone: boolean;
+export type IBudgetState = {
+    isFetched: boolean;
     budget_exercises: IBudgetExerciseORM[]
 }
-const initial: Init = {
+const initial: IBudgetState = {
     budget_exercises: [],
-    isDone: false
+    isFetched: false
 }
 interface ThunkType {
     id: string,
@@ -35,25 +35,25 @@ const budgetSlice = createSlice({
     name: "budgets",
     initialState: initial,
     reducers: {
-        setBudgetExercises: (state: Init, { payload }: { payload: IBudgetExerciseORM[] }) => {
+        setBudgetExercises: (state: IBudgetState, { payload }: { payload: IBudgetExerciseORM[] }) => {
             state.budget_exercises = payload;
         },
-        addBudgetExercise: (state: Init, { payload }: { payload: IBudgetExerciseORM }) => {
+        addBudgetExercise: (state: IBudgetState, { payload }: { payload: IBudgetExerciseORM }) => {
             state.budget_exercises.push(payload);
         },
-        updateBudgetExercise: (state: Init, { payload }: { payload: IBudgetExerciseORM }) => {
+        updateBudgetExercise: (state: IBudgetState, { payload }: { payload: IBudgetExerciseORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.id);
             if (index !== -1) {
                 state.budget_exercises[index] = payload;
             }
         },
-        deleteBudgetExercise: (state: Init, { payload }: { payload: IBudgetExerciseORM }) => {
+        deleteBudgetExercise: (state: IBudgetState, { payload }: { payload: IBudgetExerciseORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.id);
             if (index !== -1) {
                 state.budget_exercises.splice(index, 1);
             }
         },
-        addBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
+        addBudget: (state: IBudgetState, { payload }: { payload: IBudgetORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 state.budget_exercises[index].budgets.push(payload as any);
@@ -62,7 +62,7 @@ const budgetSlice = createSlice({
                 state.budget_exercises[index].totalUsed += payload.totalUsed;
             }
         },
-        updateBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
+        updateBudget: (state: IBudgetState, { payload }: { payload: IBudgetORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
@@ -78,7 +78,7 @@ const budgetSlice = createSlice({
                 }
             }
         },
-        deleteBudget: (state: Init, { payload }: { payload: IBudgetORM }) => {
+        deleteBudget: (state: IBudgetState, { payload }: { payload: IBudgetORM }) => {
             const index = state.budget_exercises.findIndex((budget) => budget.id === payload.parentId);
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
@@ -91,7 +91,7 @@ const budgetSlice = createSlice({
                 }
             }
         },
-        addSubBudget: (state: Init, { payload }: { payload: ISubBudget }) => {
+        addSubBudget: (state: IBudgetState, { payload }: { payload: ISubBudget }) => {
             const index = state.budget_exercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.parentId));
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.parentId);
@@ -100,7 +100,7 @@ const budgetSlice = createSlice({
                 }
             }
         },
-        updateSubBudget: (state: Init, { payload }: { payload: ISubBudget }) => {
+        updateSubBudget: (state: IBudgetState, { payload }: { payload: ISubBudget }) => {
             const index = state.budget_exercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.parentId));
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.parentId);
@@ -112,7 +112,7 @@ const budgetSlice = createSlice({
                 }
             }
         },
-        deleteSubBudget: (state: Init, { payload }: { payload: ISubBudget }) => {
+        deleteSubBudget: (state: IBudgetState, { payload }: { payload: ISubBudget }) => {
             const index = state.budget_exercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.parentId));
             if (index !== -1) {
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.parentId);
@@ -128,13 +128,13 @@ const budgetSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(fetchBudgetExercise.fulfilled, (state, action) => {
             state.budget_exercises = action.payload;
-            state.isDone = true;
+            state.isFetched = true;
         })
         builder.addCase(fetchBudgetExercise.pending, (state, action) => {
-            state.isDone = false;
+            state.isFetched = false;
         })
         builder.addCase(fetchBudgetExercise.rejected, (state, action) => {
-            state.isDone = true;
+            state.isFetched = true;
         })
     }
 })

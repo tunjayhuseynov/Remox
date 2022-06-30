@@ -5,10 +5,10 @@ import Dropdown from "../../../components/general/dropdown";
 import { useWalletKit } from "../../../hooks";
 import Button from '../../../components/button';
 import { useAppDispatch } from "redux/hooks";
-import { addSubInput, SelectInputs, removeSubInput, SelectInputAmount, changeSubInput } from "redux/reducers/subinput";
+import { addSubInput, SelectInputs, removeSubInput, SelectInputAmount, changeSubInput } from "redux/slices/subinput";
 import shortid, { generate } from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useForm, SubmitHandler } from "react-hook-form";

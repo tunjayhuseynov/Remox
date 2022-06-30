@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAppSelector } from 'redux/hooks';
-import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import BudgetDetails from './budgetDetails';
 import { useModalSideExit, useWalletKit } from "hooks";
 import { ProgressBarWidth } from '../../../utils'

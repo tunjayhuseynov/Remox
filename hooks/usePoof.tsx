@@ -2,7 +2,7 @@ import { useContractKit } from '@celo-tools/use-contractkit'
 import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { SelectPrivateToken } from 'redux/reducers/selectedAccount'
+import { SelectPrivateToken } from 'redux/slices/account/selectedAccount'
 import { PoofCoinsName } from 'types'
 import { fromWei } from 'utils/ray'
 // const snarkjs = require('@poofcash/snarkjs')

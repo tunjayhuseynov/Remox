@@ -1,5 +1,5 @@
 import { Connection, PublicKey, SystemInstruction } from "@solana/web3.js";
-import { MethodIds, MethodNames, TransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { NextApiRequest, NextApiResponse } from "next";
 import { GokiSDK, GOKI_ADDRESSES, GOKI_IDLS, Programs, SmartWalletTransactionData } from "@gokiprotocol/client";
 import { BorshInstructionCoder, utils } from "@project-serum/anchor";
@@ -14,16 +14,15 @@ import { newProgramMap } from "@saberhq/anchor-contrib";
 import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
 import { lamport } from "utils/ray";
 import { u64 } from "@saberhq/token-utils";
-import { SolanaEndpoint } from "components/Wallet";
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ITransactionMultisig[]>) {
     try {
         const { blockchain, address: multisigAddress, Skip, Take } = req.query as { blockchain: BlockchainType, address: string, Skip: string, Take: string };
         const skip = +Skip;
         const take = +Take;
 
-        let transactionArray: TransactionMultisig[] = []
+        let transactionArray: ITransactionMultisig[] = []
         if (blockchain === 'solana') {
 
             const pb = new PublicKey(multisigAddress)
@@ -34,8 +33,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const allAddresses = { ...GOKI_ADDRESSES, SmartWallet: pb };
             const programs = newProgramMap<Programs>(provider, GOKI_IDLS, allAddresses);
 
-            // GOKI_IDLS.SmartWallet.accounts.smartWallet.fetch
-            // const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
             const data = await programs.SmartWallet.account.smartWallet.fetch(pb)
 
             if (data) {
@@ -170,9 +167,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         }
 
-        res.status(200).json({
-            txs: transactionArray
-        })
+        res.status(200).json(transactionArray)
     } catch (e: any) {
         console.error(e)
         throw new Error(e);

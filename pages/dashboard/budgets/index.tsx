@@ -8,7 +8,7 @@ import EditBudget from 'subpages/dashboard/budgets/Modals/editBudgets';
 import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
 import BudgetCard from 'subpages/dashboard/budgets/budgetCard';
 import useNextSelector from 'hooks/useNextSelector';
-import { SelectBudgetExercise } from 'redux/reducers/budgets';
+import { SelectBudgetExercise } from 'redux/slices/account/budgets';
 import { useWalletKit } from 'hooks';
 
 const Budgets = () => {
