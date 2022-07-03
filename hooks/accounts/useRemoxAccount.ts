@@ -1,17 +1,12 @@
-import { Add_Member_To_Account, Remove_Member_From_Account, Update_Members_In_Account } from 'crud/account'
-import { IAccount, Image } from 'firebaseConfig'
-import useNextSelector from 'hooks/useNextSelector'
 import { BlockchainType } from 'hooks/walletSDK/useWalletKit'
-import React, { useMemo } from 'react'
-import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount'
-import { selectStorage } from 'redux/slices/account/storage'
+import { useMemo } from 'react'
 import useIndividual from './useIndividual'
 import useOrganization from './useOrganization'
-import { process } from 'uniqid'
+import { useAppSelector } from 'redux/hooks'
+import { SelectStorage } from 'redux/slices/account/remoxData'
 
 export default function useRemoxAccount(address: string, blockchain: BlockchainType) {
-    const storage = useNextSelector(selectStorage)
-    const selectedAddress = useNextSelector(SelectSelectedAccount)
+    const storage = useAppSelector(SelectStorage)
 
     const remoxAccount = useMemo(() => {
         if (storage?.organization) {

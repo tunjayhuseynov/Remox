@@ -5,13 +5,11 @@ import { process } from "uniqid"
 import { auth, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { Create_Organization } from "crud/organization";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import { Get_Account_Ref } from "crud/account";
 import { GetTime } from "utils";
 import { useDispatch } from "react-redux";
-import { setIndividual, setOrganization } from "redux/slices/account/storage";
 import { UploadImage } from "rpcHooks/useFirebase";
 import { useSelector } from "react-redux";
-import { SelectIndividual } from "redux/slices/account/remoxData";
+import { SelectIndividual, setStorage } from "redux/slices/account/remoxData";
 
 interface IOrganizationCreate {
     organizationIsUpload: boolean;
@@ -39,14 +37,21 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
             members: [address],
         }
 
-        dispatch(setIndividual(individualState))
+        dispatch(setStorage({
+            individual: individualState,
+            uid: auth.currentUser.uid,
+            lastSignedProviderAddress: address,
+            signType: "individual",
+            organization: null
+        }))
 
         return await Create_Individual(individualState)
     }, [address, blockchain])
 
     const RegisterOrganization = useCallback(async (organization: Omit<IOrganization, "id" | "created_date">, input: IOrganizationCreate) => {
         if (await isOrganizationExisting(organization.name, blockchain)) throw new Error("User already registered");
-        
+
+        if (!auth.currentUser) throw new Error("User not logged in");
         if (!individual) throw new Error("You must be sign in as an individual beforehand")
         if (!address) throw new Error("No address")
         if (!input.organizationName) throw new Error("No Organization Name")
@@ -87,7 +92,13 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
             id,
             created_date: GetTime(),
         })
-        dispatch(setOrganization(response))
+        dispatch(setStorage({
+            individual: individual,
+            uid: auth.currentUser?.uid,
+            lastSignedProviderAddress: address,
+            signType: "organization",
+            organization: response
+        }))
         return response;
     }, [address, blockchain])
 

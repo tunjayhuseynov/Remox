@@ -16,11 +16,10 @@ import { Tag } from 'rpcHooks/useTags';
 import * as spl from 'easy-spl'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
-import { IUser } from 'firebaseConfig/types';
 import { changePrivateToken } from 'redux/slices/account/selectedAccount';
 import { TextDecoder, TextEncoder } from 'util';
 import { GetSignedMessage } from 'utils';
-import useNextSelector from 'hooks/useNextSelector';
+import { SelectBlockchain } from 'redux/slices/account/remoxData';
 
 
 
@@ -32,7 +31,7 @@ export enum CollectionName {
 export type BlockchainType = "celo" | "solana"
 
 export default function useWalletKit() {
-    const blockchain = useNextSelector(selectBlockchain) as BlockchainType;
+    const blockchain = useSelector(SelectBlockchain) as BlockchainType;
     const dispatch = useDispatch()
 
     const { setVisible } = useWalletModal();

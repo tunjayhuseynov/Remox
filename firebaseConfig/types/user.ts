@@ -35,6 +35,14 @@ export interface IBudgetExercise {
     created_at: number;
 }
 
+export interface IBudgetTX{
+    hash: string,
+    timestamp: number,
+    isSendingOut: boolean,
+    token: string,
+    amount: number,
+}
+
 export interface IBudget {
     id: string;
     parentId: string;
@@ -43,7 +51,7 @@ export interface IBudget {
     amount: number;
     secondToken: string | null;
     secondAmount: number | null;
-    txs: string[];
+    txs: IBudgetTX[];
 
     subbudgets: ISubBudget[];
 
@@ -60,7 +68,7 @@ export interface ISubBudget {
     secondToken: string | null;
     secondAmount: number | null;
 
-    txs: string[];
+    txs: IBudgetTX[];
 
     created_at: number;
 }

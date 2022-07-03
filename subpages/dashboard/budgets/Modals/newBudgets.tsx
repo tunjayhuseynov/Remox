@@ -40,8 +40,6 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
     ]
 
 
-
-
     useEffect(() => {
         return () => {
             dispatch(resetSubInput())
@@ -105,13 +103,11 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
 
                 }
                 {MyInputs && MyInputs.length < 10 && <div className="text-primary border border-primary rounded-lg px-3 py-1 text-center w-[30.8%] transition hover:bg-primary hover:transition hover:text-white cursor-pointer" onClick={() => {
-                    dispatch(addSubInput({
-                        index: shortid()
-                    }))
+                    dispatch(addSubInput({ index: shortid() }))
                 }}  >Add Subbudget</div>}
                 <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8  pt-6">
                     <Button version="second" className="!rounded-xl" onClick={() => { setNewBudget(false) }}>Cancel</Button>
-                    <Button type="submit" className=" !rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" >Create</Button>
+                    <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" >Create</Button>
                 </div>
             </form>
 

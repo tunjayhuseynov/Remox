@@ -8,7 +8,6 @@ import Upload from "components/upload";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
-import useRemoxAccount from "hooks/accounts/useRemoxAccount";
 import { IIndividual } from "firebaseConfig";
 import { UploadImageForUser } from "hooks/singingProcess/utils";
 import { GetTime } from "utils";

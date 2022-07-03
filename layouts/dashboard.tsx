@@ -8,6 +8,9 @@ import { SelectAccountType, SelectBlockchain, SelectIsRemoxDataFetching, SelectP
 import { launchApp } from 'redux/slices/account/thunks/launch'
 import { auth } from 'firebaseConfig'
 import useIndividual from 'hooks/accounts/useIndividual'
+import { useRouter } from 'next/router'
+import useAsyncEffect from 'hooks/useAsyncEffect'
+import { Get_Individual } from 'crud/individual'
 
 export const DashboardContext = createContext<{ refetch: () => void }>({ refetch: () => { } })
 
@@ -21,10 +24,13 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const address = useAppSelector(SelectProviderAddress)
     const blockchain = useAppSelector(SelectBlockchain)
 
-    const { individual, isIndividualFetching } = useIndividual(address ?? "0", blockchain ?? "celo")
+    const router = useRouter()
 
-    useEffect(() => {
-        if (address && auth.currentUser && blockchain && !isIndividualFetching && individual && accountType && accountType === "individual") {
+    // const { individual, isIndividualFetching } = useIndividual(address ?? "0", blockchain ?? "celo")
+
+    useAsyncEffect(async () => {
+        const individual = await Get_Individual(auth.currentUser?.uid ?? "0")
+        if (address && auth.currentUser && blockchain && individual && accountType && accountType === "individual") {
             dispatch(launchApp({
                 accountType: accountType,
                 addresses: [address],
@@ -38,8 +44,10 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                     organization: null
                 }
             }))
+        } else {
+            router.push("/")
         }
-    }, [individual])
+    }, [])
 
     const { fetching, isAppLoaded } = useRefetchData()
 

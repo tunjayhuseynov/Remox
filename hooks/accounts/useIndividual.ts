@@ -1,9 +1,7 @@
 import { Add_New_Individual_Account, Get_Individual } from "crud/individual"
 import { auth, IAccount, IBudgetExercise, IIndividual } from "firebaseConfig"
-import useSignUp from "hooks/singingProcess/useSignUp"
-import useAsyncEffect from "hooks/useAsyncEffect"
 import { BlockchainType } from "hooks/walletSDK/useWalletKit"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAppDispatch } from "redux/hooks"
 import { fetchBudgetExercise } from "redux/slices/account/budgets"
 import { setIndividual } from "redux/slices/account/storage"
@@ -16,22 +14,25 @@ export default function useIndividual(address: string, blockchain: BlockchainTyp
     const dispatch = useAppDispatch()
 
 
-    useAsyncEffect(async () => {
-        if (auth.currentUser) {
-            setLoading(true)
-            const individual = await Get_Individual(auth.currentUser.uid)
-            if (individual) {
-                dispatch(setIndividual(individual))
-                dispatch(fetchBudgetExercise({
-                    addresses: individual.members,
-                    blockchain: blockchain,
-                    id: individual.id
-                }))
-                setIndividualState(individual ?? null)
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                setLoading(true)
+                const individual = await Get_Individual(user.uid)
+                if (individual) {
+                    dispatch(setIndividual(individual))
+                    dispatch(fetchBudgetExercise({
+                        addresses: individual.members,
+                        blockchain: blockchain,
+                        id: individual.id
+                    }))
+                    setIndividualState(individual ?? null)
+                }
+                setLoading(false)
             }
-            setLoading(false)
-        }
-    }, [auth.currentUser, address, blockchain])
+        })
+        return () => unsubscribe()
+    }, [address, blockchain])
 
     const Add_Account_2_Individual = async (account: IAccount) => {
         if (!individual) throw new Error("Individual not found")

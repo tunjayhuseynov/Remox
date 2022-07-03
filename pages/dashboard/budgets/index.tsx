@@ -7,9 +7,9 @@ import NewExercise from 'subpages/dashboard/budgets/Modals/newExercise';
 import EditBudget from 'subpages/dashboard/budgets/Modals/editBudgets';
 import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
 import BudgetCard from 'subpages/dashboard/budgets/budgetCard';
-import useNextSelector from 'hooks/useNextSelector';
-import { SelectBudgetExercise } from 'redux/slices/account/budgets';
 import { useWalletKit } from 'hooks';
+import { useAppSelector } from 'redux/hooks';
+import { SelectBudgets } from 'redux/slices/account/remoxData';
 
 const Budgets = () => {
 
@@ -22,15 +22,11 @@ const Budgets = () => {
     const [exercise, setExercise] = useState(false)
     const [isOpen, setOpen] = useState(false)
 
-    const budget_exercises = useNextSelector(SelectBudgetExercise)
+    const budget_exercises = useAppSelector(SelectBudgets)
 
     const hasExercises = (budget_exercises?.length ?? 0) > 0
 
-
-    const list = budget_exercises;
-
-
-    if (!budget_exercises || !list || !list?.[0]) return <>Loading...</>
+    // if (!budget_exercises || !budget_exercises?.[0]) return <>No Data</>
     return <div className="mb-6 w-full h-full">
         <div className="w-full h-full">
             <div className="flex justify-between items-center w-full">
@@ -53,12 +49,12 @@ const Budgets = () => {
                     <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
                 </Modal>}
             {hasExercises && <>
-                <TotalValues total={list[0]} />
+                <TotalValues total={budget_exercises[0]} />
                 <div className="w-full pt-2 pb-12 flex justify-between items-center">
                     <div className="w-[40%] text-xl">
                         <div className="relative w-full pt-5">
                             <div onClick={() => setOpen(!isOpen)} className={`w-full font-normal py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec flex items-center gap-2`}>
-                                <span className="flex items-center justify-center text-2xl">{list[0].name}</span>
+                                <span className="flex items-center justify-center text-2xl">{budget_exercises[0].name}</span>
                                 <div>
                                     <IoIosArrowDown className='transition w-[0.7em] h-[0.7rem]' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                                 </div>
@@ -67,7 +63,7 @@ const Budgets = () => {
                                 <ul className="w-full">
                                     <li className="flex flex-col items-center text-center justify-center w-full bg-white dark:bg-darkSecond space-y-1 transition rounded-xl cursor-pointer  ">
                                         <div className="flex flex-col w-full">
-                                            {list.map((item, index) => {
+                                            {budget_exercises.map((item, index) => {
                                                 return <label key={index} className=" text-start flex items-center justify-start cursor-pointer w-full  border-b dark:border-greylish pl-3 pr-6 py-2">
                                                     <div className="flex items-center gap-3"><span className="font-semibold">{item.name}</span> <div className="border text-sm border-primary text-primary rounded-md px-1 py-1">Active</div> <span className=" font-semibold">{item.totalBudget}</span> </div>
                                                 </label>
@@ -91,17 +87,14 @@ const Budgets = () => {
                 </div>
 
                 <div className={` grid grid-cols-2 gap-12  `}>
-                    {list[0].budgets.map((item, id) => {
-                        return <BudgetCard key={item.id} item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />
-                    })
-                    }
-
+                    {budget_exercises[0].budgets.map((item, id) => <BudgetCard key={item.id} item={item} id={id} setEditBudget={setEditBudget} setDelBudget={setDelBudget} />)}
                 </div >
-                {
+                {/* {
                     exercise &&
                     <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
                         <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
-                    </Modal>}
+                    </Modal>
+                } */}
                 {
                     editBudget &&
                     <Modal onDisable={setEditBudget} disableX={true} className={'!w-[40%] !pt-4'}>

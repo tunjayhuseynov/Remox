@@ -1,7 +1,7 @@
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { budgetExerciseCollectionName } from 'crud/budget_exercise'
-import { IBudget, IBudgetExercise } from "firebaseConfig";
+import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
 import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { IPriceResponse } from "../calculation/price";
@@ -20,6 +20,14 @@ interface IBudgetCoin {
 }
 
 export interface IBudgetORM extends IBudget {
+    totalBudget: number,
+    totalUsed: number,
+    totalAvailable: number,
+    budgetCoins: IBudgetCoin,
+    subbudgets: ISubbudgetORM[],
+}
+
+export interface ISubbudgetORM extends ISubBudget {
     totalBudget: number,
     totalUsed: number,
     totalAvailable: number,
@@ -62,25 +70,21 @@ export default async function handler(
         for (let budget_exercise of budget_exercises) {
             const orm: IBudgetORM[] = [];
             let totalBudgetCoin: IBudgetCoin[] = []
-            let coinStats: {
-                coin: string,
-                totalAmount: number,
-                usedAmount: number,
-                pendingAmount: number,
-                availableAmount: number
-            }[] = []
 
             const budget_snapshots = await adminApp.firestore().collection("budgets").where("parentId", "==", budget_exercise.id).get();
             budget_exercise.budgets = budget_snapshots.docs.map(snapshot => snapshot.data() as IBudget);
 
 
+            /*Budget Calculation */
+            /*Budget Calculation */
+            /*Budget Calculation */
             for (let budget of budget_exercise.budgets) {
                 let totalBudget: number = 0, totalUsed: number = 0, totalPending: number = 0, totalAvailable: number = 0;
                 const spending = await axios.get<ISpendingResponse>("/api/calculation/spending", {
                     params: {
                         addresses: addresses,
                         blockchain: blockchain,
-                        txs: budget.txs
+                        txs: budget.txs.map(s => s.hash)
                     }
                 })
 
@@ -102,23 +106,65 @@ export default async function handler(
 
 
                 totalUsed += spending.data.TotalSpend;
-                // totalPending += totalBudget - totalUsed;
                 totalAvailable += totalBudget - totalUsed;;
+
+                /*Subbudget Calculation */
+                /*Subbudget Calculation */
+                /*Subbudget Calculation */
+                let subbudgets: ISubbudgetORM[] = [];
+                for (const subbudget of budget.subbudgets) {
+                    let totalBudget: number = 0, totalUsed: number = 0, totalPending: number = 0, totalAvailable: number = 0;
+                    const spending = await axios.get<ISpendingResponse>("/api/calculation/spending", {
+                        params: {
+                            addresses: addresses,
+                            blockchain: blockchain,
+                            txs: subbudget.txs.map(s => s.hash)
+                        }
+                    })
+
+                    totalBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 1)));
+
+                    let budgetCoin: IBudgetCoin = {
+                        coin: subbudget.token,
+                        totalAmount: subbudget.amount,
+                        totalUsedAmount: spending.data.CoinStats?.[0].totalSpending ?? 0,
+                        second: subbudget.secondToken && subbudget.secondAmount && spending.data.CoinStats?.[1] ? {
+                            secondTotalAmount: subbudget.secondAmount,
+                            secondCoin: subbudget.secondToken,
+                            secondTotalUsedAmount: spending.data.CoinStats[1].totalSpending
+                        } : null
+                    }
+
+                    totalUsed += spending.data.TotalSpend;
+                    totalAvailable += totalBudget - totalUsed;;
+
+                    subbudgets.push({
+                        ...subbudget,
+                        totalBudget: totalBudget,
+                        budgetCoins: budgetCoin,
+                        totalAvailable: totalAvailable,
+                        totalUsed: totalUsed,
+                    })
+                }
+                /*Subbudget Calculation END*/
+                /*Subbudget Calculation END*/
+                /*Subbudget Calculation END */
+
                 orm.push({
                     ...budget,
                     totalBudget,
                     totalUsed,
                     totalAvailable,
-                    budgetCoins: budgetCoin
+                    budgetCoins: budgetCoin,
+                    subbudgets: subbudgets
                 })
-                // coinStats.push({
-                //     coin: budget.token,
-                //     totalAmount: budget.amount,
-                //     usedAmount: budget,
-                //     pendingAmount: budget.pendingAmount,
-                //     availableAmount: budget.availableAmount
-                // })
+
             }
+            /*Budget Calculation END*/
+            /*Budget Calculation END*/
+            /*Budget Calculation END*/
+            
+
             exercises.push({
                 ...budget_exercise,
                 budgets: orm,

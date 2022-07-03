@@ -4,8 +4,10 @@ import { Update_Organization } from "crud/organization";
 import { IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
 import { useWalletKit } from "hooks";
 import useRemoxAccount from "hooks/accounts/useRemoxAccount";
+import { IBudgetExerciseORM } from "pages/api/budget";
 import { useDispatch } from "react-redux";
-import { addBudgetExercise, deleteBudgetExercise } from "redux/slices/account/budgets";
+import { useAppSelector } from "redux/hooks";
+import { addBudgetExercise, deleteBudgetExercise, SelectBudgets, updateBudgetExercise } from "redux/slices/account/remoxData";
 import useBudgets from "./useBudgets";
 import useSubbudgets from "./useSubbudgets";
 
@@ -16,8 +18,9 @@ export default function useBudgetExercise() {
     const budget = useBudgets()
     const subbudget = useSubbudgets()
 
-    const { remoxAccountType, remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
+    const budgetState = useAppSelector(SelectBudgets)
 
+    const { remoxAccountType, remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
 
     const create_exercise = async (budget: IBudgetExercise) => {
         if (remoxAccount) {
@@ -31,18 +34,26 @@ export default function useBudgetExercise() {
                 individual.budget_execrises = [...individual.budget_execrises, budget] as IBudgetExercise[]
                 await Update_Individual(individual)
             }
-            dispatch(addBudgetExercise(budget));
+            dispatch(addBudgetExercise({
+                ...budget,
+                budgets: [],
+                totalBudget: 0,
+                totalUsed: 0,
+                totalAvailable: 0,
+                budgetCoins: [],
+            }));
         }
     }
 
-    const update_exercise = async (budget: IBudgetExercise) => {
+    const update_exercise = async (budget: IBudgetExerciseORM) => {
         await Update_Budget_Exercise(budget);
-        dispatch(addBudgetExercise(budget));
+        dispatch(updateBudgetExercise(budget));
     }
 
-    const delete_exercise = async (budget: IBudgetExercise) => {
+    const delete_exercise = async (budget: IBudgetExerciseORM) => {
         await Delete_Budget_Exercise(budget);
         dispatch(deleteBudgetExercise(budget));
+
     }
 
     return { create_exercise, update_exercise, delete_exercise, ...budget, ...subbudget }

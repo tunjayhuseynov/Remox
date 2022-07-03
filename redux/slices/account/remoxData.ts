@@ -14,7 +14,6 @@ import ContributorsReducers from './reducers/contributors'
 import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
-import { setCookie, getCookie, hasCookie } from 'cookies-next';
 
 export type IAccountType = "individual" | "organization";
 
@@ -43,12 +42,6 @@ export interface IRemoxData {
 }
 
 const init = (): IRemoxData => {
-
-    if (hasCookie("remoxData")) {
-        const remox = getCookie('remoxData')
-        return JSON.parse(remox as string)
-    }
-
     return {
         isFetching: true,
         stats: null,
@@ -95,7 +88,6 @@ const remoxDataSlice = createSlice({
             state.storage = action.payload.Storage;
             state.accountType = action.payload.Storage.signType;
             state.isFetching = false;
-            setCookie("remoxData", JSON.stringify({ ...state }))
         });
         builder.addCase(launchApp.rejected, (state, action) => {
             state.isFetching = false;
@@ -158,7 +150,7 @@ export const SelectIsRemoxDataFetching = createDraftSafeSelector(
 
 
 export const {
-    setAccountStats, setAccountType,
+    setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget,
     addBudget, addBudgetExercise, addSubBudget, deleteBudget, deleteBudgetExercise,
     deleteSubBudget, setBudgetExercises, updateBudget, updateBudgetExercise, updateSubBudget,
     addContributor, removeContributor, setContributors, setBlockchain,

@@ -1,11 +1,9 @@
 import { auth } from 'firebaseConfig';
-import { PROVIDERS } from "@celo-tools/use-contractkit";
 import { useWalletKit } from 'hooks'
 import { useAppDispatch } from 'redux/hooks';
 import { selectDarkMode } from 'redux/slices/notificationSlice';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { updateBlockchain } from 'redux/slices/account/network';
 import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
@@ -14,44 +12,38 @@ import { isOldUser } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
 import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
-import useIndividual from 'hooks/accounts/useIndividual';
 import { setBlockchain, setProviderAddress } from 'redux/slices/account/remoxData';
+import { Get_Individual } from 'crud/individual';
 
 const Home = () => {
-  const { Connect, Address } = useWalletKit();
+  const { Connect, Address: address } = useWalletKit();
   const { processSigning } = useOneClickSign()
   const dark = useNextSelector(selectDarkMode)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
-  const [address, setAddress] = useState<string | null>(null)
-
-  useEffect(() => setAddress(Address), [Address])
+  const [buttonText, setButtonText] = useState("Connect to a wallet")
+  useEffect(() => {
+    setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
+    dispatch(setBlockchain("celo"))
+  }, [])
 
   const [selected, setSelected] = useState<DropDownItem>(
     { name: blockchain?.split("").reduce((a, c, i) => { if (i === 0) { return a.toUpperCase() + c } return a + c }, '') ?? "Celo", address: blockchain ?? "celo", coinUrl: blockchain === "celo" || !blockchain ? CoinsURL.CELO : CoinsURL.SOL }
   )
 
-  const { individual, isIndividualFetching: isIndividualFetched } = useIndividual(address ?? "0", (selected.address as BlockchainType) ?? "celo")
 
-
-  useEffect(() => {
-    dispatch(updateBlockchain(selected.address! as BlockchainType))
-    if (selected.address) {
-      localStorage.setItem("blockchain", selected.address)
-    }
-  }, [selected])
-
-  useEffect(() => {
-    const key = PROVIDERS["Private key"]
-    key.description = "Sign into Poof.cash with your private key";
-    key.name = "Poof.cash";
-    key.icon = "https://poof.cash/images/LogoMark.svg";
-  }, [])
+  // useEffect(() => {
+  //   const key = PROVIDERS["Private key"]
+  //   key.description = "Sign into Poof.cash with your private key";
+  //   key.name = "Poof.cash";
+  //   key.icon = "https://poof.cash/images/LogoMark.svg";
+  // }, [])
 
   const connectEvent = async () => {
     try {
+      console.log(address)
       if (!address) {
         await Connect()
       }
@@ -63,6 +55,8 @@ const Home = () => {
 
         dispatch(setProviderAddress(address));
         dispatch(setBlockchain(selected.address as BlockchainType))
+
+        const individual = await Get_Individual(auth.currentUser.uid)
         if (individual) {
           navigate.push('/choose-type')
         }
@@ -87,7 +81,7 @@ const Home = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
           <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected} list={[{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]} />
-          {<Button onClick={ConnectEvent} isLoading={isLoading || isIndividualFetched}>{address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet"}</Button>}
+          <Button onClick={ConnectEvent} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>
     </section>
