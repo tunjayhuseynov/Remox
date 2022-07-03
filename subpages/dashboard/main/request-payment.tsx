@@ -13,6 +13,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     const dark = useAppSelector(selectDarkMode)
     const router = useRouter()
 
+    // useAppSelector()
 
 
     const data = [

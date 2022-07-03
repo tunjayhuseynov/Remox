@@ -1,6 +1,6 @@
 import { Add_New_Individual_Account, Get_Individual } from "crud/individual"
 import { auth, IAccount, IBudgetExercise, IIndividual } from "firebaseConfig"
-import useSign from "hooks/singingProcess/useSign"
+import useSignUp from "hooks/singingProcess/useSignUp"
 import useAsyncEffect from "hooks/useAsyncEffect"
 import { BlockchainType } from "hooks/walletSDK/useWalletKit"
 import { useState } from "react"

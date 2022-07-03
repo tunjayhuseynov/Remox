@@ -10,10 +10,11 @@ import NewWalletModal from "./newWalletModal";
 import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
 import { SelectRawStats } from "redux/slices/account/accountstats";
+import { SelectStats } from "redux/slices/account/remoxData";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
-    const stats = useNextSelector(SelectRawStats)
-    const { getName, getAccounts } = useStorage()
+    const stats = useNextSelector(SelectStats)
+    const { getName } = useStorage()
 
     const [chartDate, setChartDate] = useState<"week" | "month" | "quart" | "year">("week")
 

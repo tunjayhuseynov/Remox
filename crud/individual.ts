@@ -47,18 +47,19 @@ export const Create_Individual = async (individualFreeze: IIndividual) => {
     return individual;
 }
 
-export const Update_Individual = async (individual: IIndividual) => {
+export const Update_Individual = async (individualFreeze: IIndividual) => {
+    let individual = {...individualFreeze}
     let exerciseRef: DocumentReference[] = []
     for (let exercise of individual.budget_execrises) {
         exerciseRef.push(Get_Budget_Exercise_Ref(exercise.id));
     }
 
     let accountRefs: DocumentReference[] = []
-    for (let account of individual.accounts) {
+    for (let account of individual.accounts) { 
         accountRefs.push(Get_Account_Ref(account.id));
     }
-    individual.accounts = accountRefs;
-    individual.budget_execrises = exerciseRef;
+    individual.accounts = [...accountRefs];
+    individual.budget_execrises = [...exerciseRef];
     await FirestoreWrite<IIndividual>().updateDoc(individualCollectionName, individual.id, individual);
     return individual;
 }

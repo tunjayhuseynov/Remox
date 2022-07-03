@@ -15,7 +15,7 @@ import { GetTime } from "utils";
 import useLoading from "hooks/useLoading";
 import useNextSelector from "hooks/useNextSelector";
 import { process } from "uniqid";
-import useSign from "hooks/singingProcess/useSign";
+import useSignUp from "hooks/singingProcess/useSignUp";
 
 interface IFormInput {
   nftAddress?: string;
@@ -29,7 +29,7 @@ const CreateAccount = () => {
   const { Address, Wallet, blockchain } = useWalletKit();
   const [address] = useState(Address)
 
-  const { RegisterIndividual } = useSign(address ?? "0", blockchain)
+  const { RegisterIndividual } = useSignUp(address ?? "0", blockchain)
 
   const navigate = useRouter()
   const dark = useNextSelector(selectDarkMode)

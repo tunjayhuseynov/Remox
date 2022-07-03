@@ -3,19 +3,31 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { IAccountORM } from "pages/api/account";
 import { ISpendingResponse } from "pages/api/calculation/spending";
 import { IStorage } from "./storage";
+import { RootState } from "redux/store";
+import { IBudgetExerciseORM } from "pages/api/budget";
+import { IuseContributor } from "rpcHooks/useContributors";
+import { launchApp } from "./thunks/launch";
+import type { IAccountMultisig } from 'pages/api/multisig'
 import StatsReducers from './reducers/stats'
 import BudgetsReducers from './reducers/budgets'
 import ContributorsReducers from './reducers/contributors'
 import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
-import { RootState } from "redux/store";
-import { IBudgetExerciseORM } from "pages/api/budget";
-import { IuseContributor } from "rpcHooks/useContributors";
-import { launchApp } from "./thunks/launch";
+import { setCookie, getCookie, hasCookie } from 'cookies-next';
 
 export type IAccountType = "individual" | "organization";
 
+
+// Bizim ana sehfedeki multisig hesablarindaki umumi datalarimiz
+export interface IMultisigStats {
+    pendingRequests: IAccountMultisig[],
+    approvedRequests: IAccountMultisig[],
+    signingNeedRequests: IAccountMultisig[],
+}
+
+
+// Bizim webapp'in merkezi datalari
 export interface IRemoxData {
     isFetching: boolean;
     stats: ISpendingResponse | null; // +
@@ -27,24 +39,34 @@ export interface IRemoxData {
     storage: IStorage | null,
     providerAddress: string | null,
     accountType: IAccountType | null,
+    multisigStats: IMultisigStats | null,
 }
 
-const init: IRemoxData = {
-    isFetching: true,
-    stats: null,
-    budgetExercises: [],
-    contributors: [],
-    blockchain: null,
-    accounts: [],
-    totalBalance: 0,
-    storage: null,
-    providerAddress: null,
-    accountType: null,
+const init = (): IRemoxData => {
+
+    if (hasCookie("remoxData")) {
+        const remox = getCookie('remoxData')
+        return JSON.parse(remox as string)
+    }
+
+    return {
+        isFetching: true,
+        stats: null,
+        budgetExercises: [],
+        contributors: [],
+        blockchain: null,
+        accounts: [],
+        totalBalance: 0,
+        storage: null,
+        providerAddress: null,
+        accountType: null,
+        multisigStats: null,
+    }
 }
 
 const remoxDataSlice = createSlice({
     name: "remoxData",
-    initialState: init,
+    initialState: init(),
     reducers: {
         ...StatsReducers,
         ...BudgetsReducers,
@@ -73,6 +95,7 @@ const remoxDataSlice = createSlice({
             state.storage = action.payload.Storage;
             state.accountType = action.payload.Storage.signType;
             state.isFetching = false;
+            setCookie("remoxData", JSON.stringify({ ...state }))
         });
         builder.addCase(launchApp.rejected, (state, action) => {
             state.isFetching = false;
@@ -119,6 +142,11 @@ export const SelectAccountType = createDraftSafeSelector(
 export const SelectProviderAddress = createDraftSafeSelector(
     (state: RootState) => state.remoxData.providerAddress,
     (providerAddress) => providerAddress
+)
+
+export const SelectIndividual = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.storage?.individual,
+    (individual) => individual
 )
 
 export const SelectIsRemoxDataFetching = createDraftSafeSelector(

@@ -302,6 +302,8 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
         return a;
     }, {})
 
+    const currTime = stringTime(new Date());
+    if (!TotalInOut[currTime]) TotalInOut[stringTime(new Date())] = TotalBalance;
     if (totalInOut.length === 0) {
         TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
         TotalInOut[stringTime(new Date())] = TotalBalance;
