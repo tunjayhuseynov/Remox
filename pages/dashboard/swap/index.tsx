@@ -2,8 +2,8 @@ import Dropdown from "components/general/dropdown";
 import { Coins, DropDownItem } from 'types'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SelectBalances } from "redux/reducers/currencies";
-import { changeError, changeSuccess, selectError, selectSuccess } from "redux/reducers/notificationSlice";
+import { SelectBalances } from "redux/slices/currencies";
+import { changeError, changeSuccess, selectError, selectSuccess } from "redux/slices/notificationSlice";
 import Success from "components/general/success";
 import Error from "components/general/error";
 import Modal from "components/general/modal";

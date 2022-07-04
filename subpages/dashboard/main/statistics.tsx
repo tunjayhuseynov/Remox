@@ -1,48 +1,31 @@
 import { useEffect, useState, useRef } from "react";
-import { IBalanceItem, SelectOrderBalance } from 'redux/reducers/currencies';
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
-import { Chart as ChartJs } from 'chart.js';
-import useModalSideExit from 'hooks/useModalSideExit';
-import { useSelector } from "react-redux";
-import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import LineChart from "components/general/Linechart";
 import Button from "components/button";
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
 import useNextSelector from "hooks/useNextSelector";
 import useStorage from "hooks/storage/useStorage";
 import AllWallets from "./allWallets";
 import Modal from 'components/general/modal'
 import NewWalletModal from "./newWalletModal";
+import useMultiWallet from "hooks/useMultiWallet";
+import { IAccount } from "firebaseConfig";
+import { SelectRawStats } from "redux/slices/account/accountstats";
+import { SelectStats } from "redux/slices/account/remoxData";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
-    const stats = useNextSelector(SelectRawStats)
-    const { getName, getAccounts } = useStorage()
+    const stats = useNextSelector(SelectStats)
+    const { getName } = useStorage()
 
     const [chartDate, setChartDate] = useState<"week" | "month" | "quart" | "year">("week")
 
     const [openNotify, setNotify] = useState<boolean>(false)
 
-    const datas = [
-        {
-            id: 0,
-            walletName: "Treasury Vault 0",
-            balance: `$0`,
-            owners: 'nftmonkey'
-        },
-        {
-            id: 1,
-            walletName: "Treasury Vault 1",
-            balance: `$0`,
-
-        },
-    ]
+    const { data } = useMultiWallet()
 
     return <>
         <Modal onDisable={setNotify} openNotify={openNotify} >
             <NewWalletModal onDisable={setNotify} />
         </Modal>
-
         <div className="flex flex-col gap-5 h-full w-full ">
             <div className="text-4xl font-semibold text-left">Welcome, {getName}</div>
             <div className="bg-white  mt-3 dark:bg-darkSecond rounded-lg shadow">
@@ -67,8 +50,8 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                     <Button className="text-xs sm:text-base !py-0 !px-8 rounded-xl" onClick={() => { setNotify(true) }}>+ Add Wallet</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
-                    {datas.map((item, id) => {
-                        return <AllWallets item={item} key={id} />
+                    {data && data.map((item, id) => {
+                        return <AllWallets item={item as IAccount} key={id} />
                     })}
                 </div>
 

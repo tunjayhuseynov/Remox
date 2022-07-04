@@ -5,14 +5,14 @@ import { TransactionStatus, AltCoins, CoinsName } from "types";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import TransactionItem from "subpages/dashboard/transactions/transactionItem";
 import { useAppSelector } from "redux/hooks";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useMultisigProcess from "hooks/useMultisigProcess";
-import { selectMultisig, selectMultisigTransactions } from "redux/reducers/multisig";
+import { selectMultisig, selectMultisigTransactions } from "redux/slices/account/multisig";
 import { HiDownload } from 'react-icons/hi'
-import { selectTags } from "redux/reducers/tags";
+import { selectTags } from "redux/slices/tags";
 import { WalletDropdown } from "components/general/walletdropdown"
 import AnimatedTabBar from "components/animatedTabBar";
 import { TransactionDirectionDeclare } from "utils";
@@ -21,7 +21,7 @@ import useMultiWallet from "hooks/useMultiWallet";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Loader from "components/Loader";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import { useSelector } from "react-redux";
 import Button from "components/button";
 import Filter from "subpages/dashboard/transactions/filter";

@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { SelectParsedTransactions, SelectTransactions } from '../redux/reducers/transactions';
+import { SelectParsedTransactions, SelectTransactions } from '../redux/slices/account/transactions';
 import { useSelector } from 'react-redux';
 import { Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
 import { Tag } from 'rpcHooks/useTags';
-import { selectTags } from 'redux/reducers/tags';
+import { selectTags } from 'redux/slices/tags';
 import useWalletKit from './walletSDK/useWalletKit';
 
 

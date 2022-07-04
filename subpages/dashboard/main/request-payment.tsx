@@ -2,9 +2,9 @@ import React,{useState} from 'react'
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
-import { selectContributors } from 'redux/reducers/contributors';
+import { selectContributors } from 'redux/slices/account/contributors';
 import { ExecutionType } from 'rpcHooks/useContributors';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
@@ -13,6 +13,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     const dark = useAppSelector(selectDarkMode)
     const router = useRouter()
 
+    // useAppSelector()
 
 
     const data = [

@@ -5,7 +5,7 @@ import { ATag } from "subpages/dashboard/insight/boxmoney";
 
 
 
-interface IAccountStats {
+export interface IAccountStats {
     isLoading: boolean;
     totalBalance: number;
     averageSpend: number;
@@ -30,6 +30,8 @@ const initState: StateType = {
         TotalBalancePercentage: 0
     },
     rawStats: {
+        CoinStats: [],
+        TotalSpend: 0,
         AccountAge: 0,
         AverageSpend: 0,
         AccountIn: {

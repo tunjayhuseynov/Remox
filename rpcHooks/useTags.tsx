@@ -4,7 +4,7 @@ import { auth } from 'firebaseConfig';
 import { generate } from 'shortid'
 import { arrayUnion, arrayRemove } from 'firebase/firestore'
 import { useSelector } from 'react-redux';
-import { addTag, removeTag, SelectParsedTransactions } from 'redux/reducers/transactions';
+import { addTag, removeTag, SelectParsedTransactions } from 'redux/slices/account/transactions';
 import { useDispatch } from 'react-redux';
 
 export interface Tag {

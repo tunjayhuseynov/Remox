@@ -5,9 +5,9 @@ import AddTeams from 'subpages/dashboard/contributors/buttons/addTeam'
 import AddMemberModal from 'subpages/dashboard/contributors/buttons/addMember'
 import { generate } from 'shortid';
 import { useAppSelector, useAppDispatch } from 'redux/hooks'
-import { selectError, selectSuccess } from 'redux/reducers/notificationSlice'
+import { selectError, selectSuccess } from 'redux/slices/notificationSlice'
 import Button from 'components/button';
-import { selectContributors } from 'redux/reducers/contributors';
+import { selectContributors } from 'redux/slices/account/contributors';
 import Loader from 'components/Loader';
 import { motion, AnimateSharedLayout } from "framer-motion";
 

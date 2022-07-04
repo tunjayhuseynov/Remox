@@ -6,15 +6,15 @@ import { SolanaEndpoint } from "components/Wallet"
 import { individualCollectionName } from "crud/individual"
 import { organizationCollectionName } from "crud/organization"
 import { ethers } from "ethers"
-import { IIndividual, Image, IUser } from "firebaseConfig"
+import { IIndividual, Image, IOrganization, IUser } from "firebaseConfig"
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
-import type { BlockChainTypes } from "redux/reducers/network"
+import type { BlockchainType } from "hooks/walletSDK/useWalletKit"
 
 const isAddressExisting = async <Type extends {}>(collectionName: string, queries: { addressField: string, address: string, indicator?: Indicator }[]) => {
     return await FirestoreReadMultiple<Type>(collectionName, queries.map(s => ({ secondQuery: s.addressField, firstQuery: s.address, condition: (s?.indicator ?? "array-contains") })))
 }
 
-const nftOwner = async (nft: string, blockchain: BlockChainTypes, tokenId?: number) => {
+const nftOwner = async (nft: string, blockchain: BlockchainType, tokenId?: number) => {
     if (blockchain === "celo") {
         if (!tokenId) throw new Error("Token ID is required for Celo NFTs")
         const id = tokenId;
@@ -42,24 +42,20 @@ const nftOwner = async (nft: string, blockchain: BlockChainTypes, tokenId?: numb
 
 export const isOldUser = async (address: string) => await isUserUsingOldVersion(address)
 
-export const isIndiviualRegistered = async (address: string) => await isIndividualExisting(address)
-
-export const isOrganisationRegistered = async (address: string, blockchain: BlockChainTypes) => await isOrganizationExisting(address, blockchain)
-
 
 export const isIndividualExisting = async (address: string) => {
     return !!(await FirestoreRead<IIndividual>(individualCollectionName, address))
 }
 
 export const isOrganizationExisting = async (name: string, blockchain: string) => {
-    return !!(await isAddressExisting<IIndividual>(organizationCollectionName, [{ addressField: "name", address: name, indicator: "==" }, { addressField: "blockchain", address: blockchain, indicator: "==" }]))
+    return (await isAddressExisting<IOrganization>(organizationCollectionName, [{ addressField: "name", address: name, indicator: "==" }, { addressField: "blockchain", address: blockchain, indicator: "==" }])).length != 0
 }
 
 export const isUserUsingOldVersion = async (address: string) => {
-    return !!(await isAddressExisting('users', [{ addressField: 'address', address: address, indicator: "array-contains" }]))
+    return (await isAddressExisting('users', [{ addressField: 'address', address: address, indicator: "array-contains" }])).length != 0
 }
 
-export const isAddressNftOwner = async (address: string, nft: string, blockchain: BlockChainTypes, tokenId?: number) => {
+export const isAddressNftOwner = async (address: string, nft: string, blockchain: BlockchainType, tokenId?: number) => {
     (await nftOwner(nft, blockchain, tokenId)).trim().toLowerCase() === address.trim().toLowerCase()
 }
 

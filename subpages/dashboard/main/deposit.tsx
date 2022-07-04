@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAppSelector } from 'redux/hooks';
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 
 function Deposit({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const selectedAccount = useAppSelector(SelectSelectedAccount)

@@ -1,73 +1,59 @@
-import { SyntheticEvent, useState } from "react";
+import { useState } from "react";
 import Button from "components/button";
-import Input from "components/input";
-import { useAuth, useSignInOrUp, useWalletKit } from "hooks";
+import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
-import Paydropdown from "subpages/pay/paydropdown";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import Upload from "components/upload";
-import useSign from "hooks/singingProcess/useSign";
 import useLoading from "hooks/useLoading";
-import useOrganization from "hooks/organization/useOrganization";
-import { ToastRun } from "utils/toast";
-import { UploadImage } from "rpcHooks/useFirebase";
-import { auth, Image, IOrganization } from "firebaseConfig";
-import { Get_Individual, Get_Individual_Ref } from "crud/individual";
-import useIndividual from "hooks/individual/useIndividual";
-import uniqid from 'uniqid'
-import { GetTime } from "utils";
-import useNextSelector from "hooks/useNextSelector";
-import { selectStorage, setOrganization } from "redux/reducers/storage";
-import { useDispatch } from "react-redux";
+import useOrganization from "hooks/accounts/useOrganization";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
-
-type UploadType = "Upload Photo" | "NFT"
+import { ToastRun } from "utils/toast";
 
 export interface IFormInput {
   nftAddress?: string;
   nftTokenId?: number;
   name: string;
-
 }
 
 const CreateOrganization = () => {
   const { register, handleSubmit } = useForm<IFormInput>();
-  const { Address: address, Wallet, blockchain } = useWalletKit();
-  const { individual } = useIndividual(address ?? "0", blockchain)
-  const { create } = useOrganization(address ?? "0", blockchain);
-  const dispatch = useDispatch();
+  const { Address: address, blockchain } = useWalletKit();
+  const { Create_Organization } = useOrganization(address ?? "0", blockchain);
 
   const navigate = useRouter()
   const dark = useAppSelector(selectDarkMode)
   const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
-  const [individualIsUpload, setIndividualIsUpload] = useState<boolean>(true)
   const [organizationFile, setOrganizationFile] = useState<File>()
-  const [individualFile, setIndividualFile] = useState<File>()
 
   const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+
   const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-  const Create = async (e: SyntheticEvent<HTMLFormElement>) => {
 
-    const organization = await create(e, organizationIsUpload, organizationFile ?? null, individualIsUpload, individualFile ?? null)
-    dispatch(setOrganization(organization));
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    try {
+      const orgFile = organizationFile;
+      if(organizationIsUpload && !orgFile) throw new Error("No organization file uploaded")
 
-    navigate.push('/create-multisig')
-  }
+      await Create_Organization({
+        organizationFile: orgFile,
+        organizationIsUpload: organizationIsUpload,
+        organizationName: data.name,
+        organizationNFTAddress: data.nftAddress,
+        organizationNFTTokenId: data.nftTokenId
+      })
 
-  const [isLoading, submit] = useLoading(Create)
-
-  const onSubmit: SubmitHandler<IFormInput> = data => {
-    const orgFile = organizationFile;
-    console.log(data, orgFile)
-    navigate.push('/create-multisig')
+      navigate.push('/create-multisig')
+    } catch (error) {
+      console.error(error as any)
+      ToastRun(<div>{(error as any).message}</div>)
+    }
 
   };
 
-
+  const [isLoading, submit] = useLoading(onSubmit)
 
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
@@ -75,17 +61,16 @@ const CreateOrganization = () => {
         <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
       </div>
     </header>
-    <form onSubmit={handleSubmit(onSubmit)} className="py-[6.25rem] sm:py-0 sm:h-full" >
+    <form onSubmit={handleSubmit(submit)} className="py-[6.25rem] sm:py-0 sm:h-full" >
       <section className="flex flex-col items-center h-full  gap-6 pt-20">
         <div className="flex flex-col gap-4">
           <div className="text-xl sm:text-3xl  dark:text-white text-center font-bold">Set Account Details</div>
-          {/* <div className="text-greylish dark:text-primary tracking-wide font-light text-sm sm:text-lg text-center">This password encrypts your accounts on this device.</div> */}
         </div>
         <div className="flex flex-col px-3 gap-1 items-center justify-center min-w-[25%]">
           <div className="flex flex-col mb-4 space-y-1 w-full">
             <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
             <div className={` flex items-center gap-3 w-full rounded-lg`}>
-              <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+              <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                 setSelectedPayment(e)
                 if (e.name === "NFT") setOrganizationIsUpload(false)
                 else setOrganizationIsUpload(true)

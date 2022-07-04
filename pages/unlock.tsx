@@ -5,11 +5,11 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
-import { removeStorage } from "redux/reducers/storage";
-import { setMenu } from "redux/reducers/toggles";
-import { removeTransactions } from "redux/reducers/transactions";
-import { setUnlock } from "redux/reducers/unlock";
+import { selectDarkMode } from "redux/slices/notificationSlice";
+import { removeStorage } from "redux/slices/account/storage";
+import { setMenu } from "redux/slices/toggles";
+import { removeTransactions } from "redux/slices/account/transactions";
+import { setUnlock } from "redux/slices/unlock";
 import { ToastRun } from "utils/toast";
 
 const Unlock = () => {

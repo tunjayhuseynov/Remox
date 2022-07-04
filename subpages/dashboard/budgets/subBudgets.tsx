@@ -1,6 +1,6 @@
 import React from 'react'
 import { ProgressBarWidth } from '../../../utils'
-function SubBudgets({ item }: { item: { id: number, name: string, coinUrl: string, used: string, pending: string, available: string, progressbar: number, } }) {
+function SubBudgets({ item }: { item: { id: number, name: string, coinUrl: string, used: string, pending: string, available: string, progressbar: number } }) {
 
   return <div className=" border-b py-4 w-full flex justify-between items-center">
     <div className="text-greylish w-[15%]">{item.name}</div>

@@ -33,16 +33,6 @@ export const RemoxApi = createApi({
                 url: `api/budget?addresses[]=${data.addresses.join('&addresses[]=')}&blockchain=${data.blockchain}&id=${data.authId}`,
             })
         }),
-        getOrganization: builder.query<IOrganizationORM, { orgId: string }>({
-            query: (data) => ({
-                url: `api/organization?id=${data.orgId}`,
-            })
-        }),
-        getOrganizations: builder.query<IOrganizationORM[], { member: string }>({
-            query: (data) => ({
-                url: `api/organization/multiple?member=${data.member}`,
-            })
-        }),
     })
 })
 
@@ -52,6 +42,4 @@ export const {
     useLazyGetAccountBalancePriceQuery, 
     useLazyGetAccountSpendingQuery,
     useLazyGetAccountBudgetQuery,
-    useLazyGetOrganizationQuery,
-    useLazyGetOrganizationsQuery,
 } = RemoxApi

@@ -2,10 +2,10 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useSelector } from "react-redux";
 import Loader from "components/Loader";
-import { IBalanceItem, SelectBalances, SelectTotalBalance } from "../../../redux/reducers/currencies";
+import { IBalanceItem, SelectBalances, SelectTotalBalance } from "../../../redux/slices/currencies";
 import { motion } from 'framer-motion'
 import { Fragment, useEffect, useRef } from "react";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import { useAppSelector } from '../../../redux/hooks';
 import { TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';

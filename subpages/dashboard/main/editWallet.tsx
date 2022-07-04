@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Button from "components/button";
 import Paydropdown from "subpages/pay/paydropdown";
 import Upload from "components/upload";

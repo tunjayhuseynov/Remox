@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Tag } from 'rpcHooks/useTags';
 import { IFormattedTransaction } from 'hooks/useTransactionProcess';
-import { Transactions } from '../../types/sdk/blockscout';
-import { RootState } from '../store';
+import { Transactions } from '../../../types/sdk/blockscout';
+import { RootState } from '../../store';
 
 interface InitialTransaction {
 	transactions: Transactions[];
@@ -18,25 +18,25 @@ export const TransactionAPI = createSlice({
 	name: 'transactions',
 	initialState: initialState,
 	reducers: {
-		setParsedTransactions: (state, action) => {
+		setParsedTransactions: (state: InitialTransaction, action: { payload: IFormattedTransaction[] }) => {
 			state.parsedTransactoins = action.payload;
 		},
-		removeParsedTransactions: (state) => {
+		removeParsedTransactions: (state: InitialTransaction) => {
 			state.parsedTransactoins = [];
 		},
-		setTransactions: (state, action) => {
+		setTransactions: (state: InitialTransaction, action: { payload: Transactions[] }) => {
 			state.transactions = action.payload;
 		},
-		removeTransactions: (state) => {
+		removeTransactions: (state: InitialTransaction) => {
 			state.transactions = [];
 		},
-		addTag: (state, action: { payload: { transactionId: string, tag: Tag } }) => {
+		addTag: (state: InitialTransaction, action: { payload: { transactionId: string, tag: Tag } }) => {
 			const tx = state.parsedTransactoins.find(s => s.hash.toLowerCase() === action.payload.transactionId)
-			if (tx && action.payload.tag && !tx.tags?.some(s=>s.id === action.payload.tag.id)) {
+			if (tx && action.payload.tag && !tx.tags?.some(s => s.id === action.payload.tag.id)) {
 				tx.tags?.push(action.payload.tag)
 			}
 		},
-		removeTag: (state, action: { payload: { transactionId: string, tag: Tag } }) => {
+		removeTag: (state: InitialTransaction, action: { payload: { transactionId: string, tag: Tag } }) => {
 			const tx = state.parsedTransactoins.find(s => s.hash.toLowerCase() === action.payload.transactionId)
 			if (tx && action.payload.tag) {
 				tx.tags = tx.tags?.filter(s => s.id !== action.payload.tag.id)

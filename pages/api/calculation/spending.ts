@@ -1,4 +1,4 @@
-import { BASE_URL, BlockchainType, fromMinScale, IPrice } from "utils/api";
+import { BASE_URL, fromMinScale, IPrice } from "utils/api";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { NextApiRequest, NextApiResponse } from "next";
 import date from 'date-and-time'
@@ -6,6 +6,7 @@ import axios from "axios";
 import { ATag } from "subpages/dashboard/insight/boxmoney";
 import { Tag } from "rpcHooks/useTags";
 import { FirestoreRead } from "rpcHooks/useFirebase";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export interface IFlowDetail {
     [key: string]: number,
@@ -37,10 +38,17 @@ export interface ITotalBalanceByDay {
     currentMonth: Omit<IFlowDetail, "total">
 }
 
+export interface CoinStats {
+    coin: string
+    totalSpending: number
+}
+
 export interface ISpendingResponse {
+    CoinStats: CoinStats[],
     AverageSpend: number,
     AccountAge: number,
     TotalBalance: number,
+    TotalSpend: number,
     TotalBalanceByDay: ITotalBalanceByDay,
     AccountTotalBalanceChangePercent: number,
     AccountIn: IMoneyFlow,
@@ -57,15 +65,30 @@ export default async function handler(
     try {
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
+
+        const inTxs = req.query["txs[]"];
+        const parsedtxs = typeof inTxs === "string" ? [inTxs] : inTxs;
+
         const blockchain = req.query.blockchain as BlockchainType;
         const authId = req.query.id as string;
 
         const txs = await axios.get(BASE_URL + "/api/transactions", {
             params: {
                 addresses: parsedAddress,
-                blockchain: blockchain
+                blockchain: blockchain,
             }
         })
+
+        let specificTxs;
+        if (parsedtxs) {
+            specificTxs = await axios.get(BASE_URL + "/api/transactions", {
+                params: {
+                    addresses: parsedAddress,
+                    blockchain: blockchain,
+                    txs: parsedtxs
+                }
+            })
+        }
 
         const prices = await axios.get(BASE_URL + "/api/calculation/price", {
             params: {
@@ -76,7 +99,8 @@ export default async function handler(
 
         const myTags = await FirestoreRead<{ tags: Tag[] }>("tags", authId)
 
-        const average = AverageMonthlySpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
+        const coinsSpending = CoinsAndSpending(specificTxs?.data, parsedAddress, prices.data.AllPrices, blockchain)
+        const average = AverageMonthlyAndTotalSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
         const { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
@@ -94,7 +118,9 @@ export default async function handler(
         const percentChange = TotalBalanceChangePercent(prices.data.AllPrices)
 
         res.status(200).json({
-            AverageSpend: average,
+            CoinStats: coinsSpending,
+            AverageSpend: average.average,
+            TotalSpend: average.total,
             AccountAge: age,
             TotalBalance: prices.data.TotalBalance,
             AccountTotalBalanceChangePercent: percentChange,
@@ -135,14 +161,52 @@ export default async function handler(
             }
         })
     } catch (error) {
-        res.json(error as any)
+        res.json({
+            "message": (error as any).message
+        } as any)
         res.status(405).end()
     }
 }
 
 
-const AverageMonthlySpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
-    if(transactions.length === 0) return 0;
+const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+    if (!transactions || transactions.length === 0) return [];
+
+    let sum: CoinStats[] = []
+
+    transactions.forEach(transaction => {
+        if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
+            if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
+                const tx = transaction as ITransfer;
+                sum.push({
+                    coin: tx.rawData.tokenSymbol,
+                    totalSpending: +fromMinScale(blockchain)(tx.amount),
+                })
+            }
+            if (transaction.id === ERC20MethodIds.noInput) {
+                sum.push({
+                    coin: transaction.rawData.tokenSymbol,
+                    totalSpending: +fromMinScale(blockchain)(transaction.rawData.value),
+                })
+            }
+            if (transaction.id === ERC20MethodIds.batchRequest) {
+                const tx = transaction as IBatchRequest;
+                tx.payments.forEach(transfer => {
+                    sum.push({
+                        coin: transfer.coinAddress.name,
+                        totalSpending: +fromMinScale(blockchain)(transfer.amount),
+                    })
+                })
+            }
+        }
+    })
+    return sum;
+}
+const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+    if (transactions.length === 0) return {
+        average: 0,
+        total: 0
+    };
     let average = 0;
     let oldest: IFormattedTransaction = transactions[0];
 
@@ -170,7 +234,10 @@ const AverageMonthlySpending = (transactions: IFormattedTransaction[], selectedA
     })
     const days = date.subtract(new Date(), new Date(Number(oldest.rawData.timeStamp) * 1000)).toDays()
     const months = Math.ceil(Math.abs(days) / 30)
-    return average / months;
+    return {
+        average: average / months,
+        total: average
+    };
 }
 
 const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance: number, selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
@@ -193,7 +260,6 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
         const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
         const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
         const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
-
         const sTime = stringTime(tTime)
         if (tDay <= selectedDay) {
             let calc = 0;
@@ -236,8 +302,10 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
         return a;
     }, {})
 
-    if(totalInOut.length === 0){
-        TotalInOut[stringTime(date.addDays(new Date(), selectedDay))] = TotalBalance
+    const currTime = stringTime(new Date());
+    if (!TotalInOut[currTime]) TotalInOut[stringTime(new Date())] = TotalBalance;
+    if (totalInOut.length === 0) {
+        TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
         TotalInOut[stringTime(new Date())] = TotalBalance;
     }
 

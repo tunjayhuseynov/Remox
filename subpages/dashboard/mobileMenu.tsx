@@ -1,5 +1,5 @@
 import { useAppDispatch } from "../../redux/hooks"
-import { setMenu } from "../../redux/reducers/toggles"
+import { setMenu } from "../../redux/slices/toggles"
 import {motion} from 'framer-motion'
 import { useEffect } from "react"
 

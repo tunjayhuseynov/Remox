@@ -1,79 +1,69 @@
-import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
-import { auth, IUser } from 'firebaseConfig';
-import { PROVIDERS } from "@celo-tools/use-contractkit";
+import { auth } from 'firebaseConfig';
 import { useWalletKit } from 'hooks'
-import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { useAppDispatch } from 'redux/hooks';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { BlockChainTypes, updateBlockchain } from 'redux/reducers/network';
 import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
-import { changeAccount, changeExisting, } from 'redux/reducers/selectedAccount';
-import { isIndividualExisting } from 'hooks/singingProcess/utils';
+import { isOldUser } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
-import { selectStorage } from 'redux/reducers/storage';
+import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
+import { setBlockchain, setProviderAddress } from 'redux/slices/account/remoxData';
+import { Get_Individual } from 'crud/individual';
 
 const Home = () => {
-  const { Connect, Address } = useWalletKit();
+  const { Connect, Address: address } = useWalletKit();
   const { processSigning } = useOneClickSign()
-  const { search } = useFirestoreSearchField()
   const dark = useNextSelector(selectDarkMode)
-  const storage = useNextSelector(selectStorage)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
-  const [address, setAddress] = useState<string | null>(null)
-
-  useEffect(() => setAddress(Address), [Address])
+  const [buttonText, setButtonText] = useState("Connect to a wallet")
+  useEffect(() => {
+    setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
+    dispatch(setBlockchain("celo"))
+  }, [])
 
   const [selected, setSelected] = useState<DropDownItem>(
     { name: blockchain?.split("").reduce((a, c, i) => { if (i === 0) { return a.toUpperCase() + c } return a + c }, '') ?? "Celo", address: blockchain ?? "celo", coinUrl: blockchain === "celo" || !blockchain ? CoinsURL.CELO : CoinsURL.SOL }
   )
 
-  useEffect(() => {
-    dispatch(updateBlockchain(selected.address! as BlockChainTypes))
-    if (selected.address) {
-      localStorage.setItem("blockchain", selected.address)
-    }
-  }, [selected])
 
-  useEffect(() => {
-    const key = PROVIDERS["Private key"]
-    key.description = "Sign into Poof.cash with your private key";
-    key.name = "Poof.cash";
-    key.icon = "https://poof.cash/images/LogoMark.svg";
-  }, [])
+  // useEffect(() => {
+  //   const key = PROVIDERS["Private key"]
+  //   key.description = "Sign into Poof.cash with your private key";
+  //   key.name = "Poof.cash";
+  //   key.icon = "https://poof.cash/images/LogoMark.svg";
+  // }, [])
 
   const connectEvent = async () => {
     try {
+      console.log(address)
       if (!address) {
         await Connect()
       }
       else if (address) {
-        if(storage && storage.uid){
-          navigate.push("/create-account")
-          return;
-        }
-        
-        const user = await search<IUser>("users", [{
-          field: 'address',
-          searching: address,
-          indicator: "array-contains"
-        }])
+        // Kohne userleri unlock sehfesine yonlendirmek ucundur
+        const user = await isOldUser(address)
+        if (user) return navigate.push("/unlock")
+        if (auth.currentUser === null) return await processSigning(address);
 
-        if (user) {
+        dispatch(setProviderAddress(address));
+        dispatch(setBlockchain(selected.address as BlockchainType))
+
+        const individual = await Get_Individual(auth.currentUser.uid)
+        if (individual) {
           navigate.push('/choose-type')
-        } else {
-          await processSigning(address);
-          dispatch(changeAccount(address))
-          dispatch(changeExisting(await isIndividualExisting(auth.currentUser!.uid)))
+        }
+        else {
           navigate.push('/create-account')
         }
+
       }
     } catch (error) {
       console.error(error)
@@ -81,7 +71,6 @@ const Home = () => {
   }
 
   const [isLoading, ConnectEvent] = useLoading(connectEvent)
-  
 
   return <>
     <section className="flex justify-center items-center w-full h-screen">
@@ -92,7 +81,7 @@ const Home = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
           <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected} list={[{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]} />
-          {<Button onClick={ConnectEvent} isLoading={isLoading}>{address ? "Enter App" : "Connect to a wallet"}</Button>}
+          <Button onClick={ConnectEvent} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>
     </section>

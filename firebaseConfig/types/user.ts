@@ -1,10 +1,10 @@
 import type { DocumentReference } from "firebase/firestore";
-import type { BlockChainTypes } from "redux/reducers/network";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export interface IMultiwallet {
     name: string;
     address: string,
-    blockchain: BlockChainTypes
+    blockchain: BlockchainType
 }
 
 export interface IUser {
@@ -16,7 +16,7 @@ export interface IUser {
     companyName?: string;
     contractAddress?: string;
     seenTime: number;
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
     timestamp: number;
 }
 
@@ -30,9 +30,17 @@ export interface IBudgetExercise {
     to: number;
     budgets: DocumentReference[] | IBudget[];
 
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
 
     created_at: number;
+}
+
+export interface IBudgetTX{
+    hash: string,
+    timestamp: number,
+    isSendingOut: boolean,
+    token: string,
+    amount: number,
 }
 
 export interface IBudget {
@@ -43,7 +51,7 @@ export interface IBudget {
     amount: number;
     secondToken: string | null;
     secondAmount: number | null;
-    txs: string[];
+    txs: IBudgetTX[];
 
     subbudgets: ISubBudget[];
 
@@ -60,7 +68,7 @@ export interface ISubBudget {
     secondToken: string | null;
     secondAmount: number | null;
 
-    txs: string[];
+    txs: IBudgetTX[];
 
     created_at: number;
 }
@@ -72,26 +80,24 @@ export interface IOrganization {
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
-
-    creator: DocumentReference | IIndividual;
-    
-    budget_execrises: DocumentReference[] | IBudgetExercise[];
-    blockchain: BlockChainTypes;
-
     created_date: number;
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
+
+    
+    creator: DocumentReference | IIndividual;
+    blockchain: BlockchainType;
 }
 
 export interface IIndividual {
     id: string;
     name: string;
     image: Image | null,
-    accounts: IAccount[];
-    seenTime: number;
+    accounts: DocumentReference[] | IAccount[];
     members: string[];
-     
-    budget_execrises: DocumentReference[] | IBudgetExercise[];
-
     created_date: number;
+    budget_execrises: DocumentReference[] | IBudgetExercise[];
+    
+    seenTime: number;
 }
 
 export interface IMember {
@@ -107,7 +113,7 @@ export interface IAccount {
     image: Image | null,
     signerType: "single" | "multi";
     provider: "Goki" | "CeloTerminal" | null;
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
     address: string;
     name: string;
     members: IMember[];
@@ -115,13 +121,12 @@ export interface IAccount {
 }
 
 
-
 export interface IRegisteredIndividual {
     id: string;
     address: string;
     nonce: number;
     password: string;
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
     created_date: number;
 }
 
@@ -130,5 +135,5 @@ export interface Image {
     nftUrl: string;
     tokenId: number | null;
     type: "image" | "nft";
-    blockchain: BlockChainTypes;
+    blockchain: BlockchainType;
 }

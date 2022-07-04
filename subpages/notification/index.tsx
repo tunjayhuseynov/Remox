@@ -1,7 +1,7 @@
 import useProfile from "rpcHooks/useProfile";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { generate } from "shortid";
 import { fromWei } from "utils/ray";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "../../hooks/useTransactionProcess";

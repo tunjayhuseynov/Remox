@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { IuseContributor } from 'rpcHooks/useContributors';
 import { decryptMessage } from 'utils/hashing';
-import { RootState } from '../store';
+import { RootState } from '../../store';
 
-const initialState: { contributors: IuseContributor[]; isFetched: boolean;  } = {
+export interface IContributorState { contributors: IuseContributor[]; isFetched: boolean; }
+
+const initialState: IContributorState = {
 	contributors: [],
 	isFetched: false,
 };
@@ -12,12 +14,12 @@ export const contributorSlice = createSlice({
 	name: 'contributors',
 	initialState: initialState,
 	reducers: {
-		addContributor: (state, action) => {
+		addContributor: (state: IContributorState, action: { payload: IuseContributor[] }) => {
 			if (action.payload !== undefined) {
 				state.contributors.push(...action.payload);
 			}
 		},
-		setContributors: (state, action: { payload: { data: IuseContributor[]; secretKey?: string } }) => {
+		setContributors: (state: IContributorState, action: { payload: { data: IuseContributor[]; secretKey?: string } }) => {
 			if (action.payload.secretKey !== undefined) {
 				const teams = action.payload.data.map((contributor) => ({
 					...contributor
@@ -28,7 +30,7 @@ export const contributorSlice = createSlice({
 				}
 			}
 		},
-		removeContributor: (state, action) => {
+		removeContributor: (state: IContributorState, action: { payload: string }) => {
 			if (action.payload !== undefined) {
 				state.contributors = state.contributors.filter((contributor) => contributor.id !== action.payload);
 			}

@@ -2,7 +2,7 @@ import useLending, { LendingUserComponentData } from "rpcHooks/useLending";
 import Loader from "components/Loader";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectMoolaData, updateData } from "redux/reducers/moola";
+import { selectMoolaData, updateData } from "redux/slices/moola";
 import Card from "subpages/dashboard/lend&borrow/card";
 
 

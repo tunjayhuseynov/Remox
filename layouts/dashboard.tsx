@@ -1,31 +1,53 @@
-import { createContext, useEffect, useState } from 'react'
-import { IStorage, selectStorage } from "redux/reducers/storage"
-import { selectToggle } from "redux/reducers/toggles"
-import { AnimatePresence } from "framer-motion";
-import MobileMenu from "subpages/dashboard/mobileMenu"
-import Visitcard from "components/visitcard"
-import NotificationCointainer from "subpages/notification"
-import Sidebarlist from "subpages/dashboard/sidebarlist"
+import { createContext, useEffect,useState } from 'react'
 import Sidebar from "subpages/dashboard/sidebar"
-import { useDispatch } from 'react-redux'
 import Navbar from 'subpages/dashboard/navbar'
-import { setUnlock } from 'redux/reducers/unlock';
-import { useIdleTimer } from 'react-idle-timer'
 import { useRefetchData } from 'hooks'
 import Loader from 'components/Loader'
-import useNextSelector from 'hooks/useNextSelector'
+import { useAppDispatch, useAppSelector } from 'redux/hooks'
+import { SelectAccountType, SelectBlockchain, SelectIsRemoxDataFetching, SelectProviderAddress } from 'redux/slices/account/remoxData'
+import { launchApp } from 'redux/slices/account/thunks/launch'
+import { auth } from 'firebaseConfig'
+import useIndividual from 'hooks/accounts/useIndividual'
+import { useRouter } from 'next/router'
+import useAsyncEffect from 'hooks/useAsyncEffect'
+import { Get_Individual } from 'crud/individual'
 
-export const DashboardContext = createContext<{ refetch: () => void }>({ refetch: () => { } })
+export const DashboardContext = createContext<{ refetch: () => void,setMainAnimate?:React.Dispatch<React.SetStateAction<number>>,mainAnimate?: number }>({ refetch: () => { } })
 
 
 export default function DashboardLayout({ children }: { children: JSX.Element }) {
 
-    // const storage = useNextSelector(selectStorage)
-    // const toggle = useNextSelector(selectToggle)
-    // const isSuccess = useSelector(selectSuccess)
-    // const isError = useSelector(selectError)
-    const dispatch = useDispatch()
+    const isFetching = useAppSelector(SelectIsRemoxDataFetching)
 
+    const dispatch = useAppDispatch()
+    const accountType = useAppSelector(SelectAccountType)
+    const address = useAppSelector(SelectProviderAddress)
+    const blockchain = useAppSelector(SelectBlockchain)
+    const [mainAnimate,setMainAnimate] = useState<number>(0)
+    const router = useRouter()
+
+    // const { individual, isIndividualFetching } = useIndividual(address ?? "0", blockchain ?? "celo")
+
+    useAsyncEffect(async () => {
+        const individual = await Get_Individual(auth.currentUser?.uid ?? "0")
+        if (address && auth.currentUser && blockchain && individual && accountType && accountType === "individual") {
+            dispatch(launchApp({
+                accountType: accountType,
+                addresses: [address],
+                blockchain: blockchain,
+                id: auth.currentUser.uid,
+                storage: {
+                    lastSignedProviderAddress: address,
+                    signType: accountType,
+                    uid: auth.currentUser.uid,
+                    individual: individual,
+                    organization: null
+                }
+            }))
+        } else {
+            router.push("/")
+        }
+    }, [])
 
     const { fetching, isAppLoaded } = useRefetchData()
 
@@ -33,42 +55,24 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     //     timeout: 1000 * 60 * 45,
     //     onIdle: () => dispatch(setUnlock(false)),
     // })
+    console.log(mainAnimate)
 
-    if (!isAppLoaded) return <div className="w-screen h-screen flex items-center justify-center">
+    if (isFetching) return <div className="w-screen h-screen flex items-center justify-center">
         <Loader />
     </div>
     return <>
-        <DashboardContext.Provider value={{ refetch: fetching }}>
-            {/* <AnimatePresence>
-                {toggle &&
-                    <MobileMenu>
-                        <div className="flex flex-col space-y-10 px-10">
-                            <div className="actions flex flex-col items-center justify-evenly space-y-5">
-                                {storage ? <Visitcard name="Remox" address={storage.lastSignedProviderAddress} /> : <Loader />}
-                                <div className="relative">
-                                    <NotificationCointainer />
-                                </div>
-                            </div>
-                            <Sidebarlist />
-                        </div>
-                    </MobileMenu>
-                }
-            </AnimatePresence> */}
+        <DashboardContext.Provider value={{ refetch: fetching,setMainAnimate,mainAnimate}}>
             <div className="flex flex-col min-h-screen overflow-hidden">
-                <div className="fixed w-full pt-6 pb-6 bg-light dark:bg-dark z-50"><Navbar></Navbar></div>
+                <div className="fixed w-full pt-6 pb-6 bg-light dark:bg-dark z-50">
+                    <Navbar></Navbar>
+                </div>
                 <div className="flex space-x-11 flex-shrink flex-grow ">
                     <Sidebar />
-                    <main className="relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem]  xl:pl-[17.188rem] pt-28">
+                    <main className={` ${mainAnimate === 1 ? "-translate-x-full transition duration-[0.33s] ease-out": mainAnimate === 2 ? 'hidden' : 'translate-x-0 transition-transform duration-[.33s] ease-out'} relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem]  xl:pl-[17.188rem] pt-28`}>
                         {children}
                     </main>
                 </div>
             </div>
-            {/* {(isSuccess || isError) &&
-                <div className="fixed left-0 top-0 w-screen h-screen">
-                    {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-                    {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
-                </div>
-            } */}
         </DashboardContext.Provider>
     </>
 }

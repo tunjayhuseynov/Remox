@@ -1,6 +1,6 @@
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
-import { doc } from "firebase/firestore";
-import { db, IAccount } from "firebaseConfig"
+import { arrayRemove, arrayUnion, doc, FieldValue } from "firebase/firestore";
+import { db, IAccount, IMember } from "firebaseConfig"
 
 export const accountCollectionName = "accounts"
 
@@ -23,4 +23,22 @@ export const Create_Account = async (account: IAccount) => {
 
 export const Update_Account = async (account: IAccount) => {
     await FirestoreWrite<IAccount>().updateDoc(accountCollectionName, account.id, account);
+}
+
+export const Remove_Member_From_Account = async (account: IAccount, member: IMember) => {
+    await FirestoreWrite<Pick<IAccount, "members">>().updateDoc(accountCollectionName, account.id, {
+        members: account.members.filter(s => s.id !== member.id)
+    })
+}
+
+export const Add_Member_To_Account = async (account: IAccount, member: IMember) => {
+    await FirestoreWrite<{ members: FieldValue }>().updateDoc(accountCollectionName, account.id, {
+        members: arrayUnion(member)
+    })
+}
+
+export const Update_Members_In_Account = async (account: IAccount, members: IMember[]) => {
+    await FirestoreWrite<Pick<IAccount, "members">>().updateDoc(accountCollectionName, account.id, {
+        members: members
+    })
 }

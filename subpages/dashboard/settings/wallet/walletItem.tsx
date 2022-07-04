@@ -1,7 +1,7 @@
 import { useModalSideExit } from 'hooks';
 import React, { Dispatch, SetStateAction,useState } from 'react';
 import { useAppSelector } from 'redux/hooks';
-import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import {IWalletData} from '../wallet';
 
 

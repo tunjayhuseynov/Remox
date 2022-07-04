@@ -1,8 +1,8 @@
-import { CollectionName } from "hooks/walletSDK/useWalletKit";
+import { BlockchainType, CollectionName } from "hooks/walletSDK/useWalletKit";
 import { AltCoins, CeloCoins, PoofCoins, SolanaCoins } from "types";
 import { fromLamport, fromWei } from "utils/ray";
 
-export type BlockchainType = "celo" | "poof" | "solana"
+
 export const CeloExplorer = "https://explorer.celo.org/api"
 export const BASE_URL = process.env.NODE_ENV === "production" ? "https://app.remox.io" : "http://localhost:3000"
 
@@ -30,13 +30,13 @@ export const GetCoins = (blockchain: BlockchainType) => {
     if (blockchain === "celo") {
         return CeloCoins;
     }
-    if (blockchain === "poof") return PoofCoins
+    // if (blockchain === "poof") return PoofCoins
 
     return SolanaCoins;
 }
 
 export const fromMinScale = (blockchain: BlockchainType) => {
-    if (blockchain === "celo" || blockchain === "poof") {
+    if (blockchain === "celo") {
         return fromWei
     }
 

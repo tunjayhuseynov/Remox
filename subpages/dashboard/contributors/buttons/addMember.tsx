@@ -2,19 +2,19 @@ import React, { SyntheticEvent, useState } from "react";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks"
-import { changeSuccess, changeError, selectError } from 'redux/reducers/notificationSlice'
+import { changeSuccess, changeError, selectError } from 'redux/slices/notificationSlice'
 import DatePicker from "react-datepicker";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "rpcHooks/useContributors";
-import { selectContributors } from "redux/reducers/contributors";
+import { selectContributors } from "redux/slices/account/contributors";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from 'uuid'
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import useAllowance from "rpcHooks/useAllowance";
 import useGelato from "rpcHooks/useGelato";
 import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
-import { SelectBalances } from "redux/reducers/currencies";
+import { SelectBalances } from "redux/slices/currencies";
 import { ToastRun } from "utils/toast";
 import { AltCoins, CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";

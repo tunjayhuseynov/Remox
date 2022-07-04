@@ -1,6 +1,6 @@
 import { newKit } from "@celo/contractkit";
 import { PublicKey } from "@solana/web3.js";
-import { BlockchainType, GetCoins } from "utils/api";
+import { GetCoins } from "utils/api";
 import { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, TokenType } from "types";
 import { fromLamport, fromWei } from "utils/ray";
@@ -8,9 +8,14 @@ import * as solanaWeb3 from '@solana/web3.js';
 import { SolanaEndpoint } from "components/Wallet";
 import * as spl from 'easy-spl'
 import { Mainnet } from "@celo-tools/use-contractkit";
+import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
+
+export interface BalanceAPI {
+    [key: string]: string
+}
 
 export default async function handler(
     req: NextApiRequest,

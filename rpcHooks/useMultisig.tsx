@@ -2,11 +2,11 @@ import { useContractKit } from '@celo-tools/use-contractkit';
 import { toTransactionObject } from '@celo/connect';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
-import { selectStorage } from 'redux/reducers/storage';
+import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
+import { selectStorage } from 'redux/slices/account/storage';
 import { auth } from 'firebaseConfig';
 import { FirestoreWrite, useFirestoreRead } from './useFirebase';
-import { setInternalSign, setSign } from "../redux/reducers/multisig"
+import { setInternalSign, setSign } from "../redux/slices/account/multisig"
 import { AltCoins, CeloCoins, Coins } from 'types';
 import { StableToken } from '@celo/contractkit';
 import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper';

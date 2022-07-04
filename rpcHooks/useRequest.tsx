@@ -1,7 +1,7 @@
 import { CoinsName } from "types";
 import { useFirestoreRead } from "./useFirebase";
 import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useNextSelector from "hooks/useNextSelector";
 
 export interface IRequest {

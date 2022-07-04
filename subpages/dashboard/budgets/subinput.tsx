@@ -5,10 +5,10 @@ import Dropdown from "../../../components/general/dropdown";
 import { useWalletKit } from "../../../hooks";
 import Button from '../../../components/button';
 import { useAppDispatch } from "redux/hooks";
-import { addSubInput, SelectInputs, removeSubInput, SelectInputAmount, changeSubInput } from "redux/reducers/subinput";
+import { addSubInput, SelectInputs, removeSubInput, SelectInputAmount, changeSubInput } from "redux/slices/subinput";
 import shortid, { generate } from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -16,8 +16,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 export interface IFormInput {
 
     name: string;
-    amount:number;
-    amount2?:number;
+    amount: number;
+    amount2?: number;
 
 }
 
@@ -48,17 +48,17 @@ function Subinput({ incomingIndex, indexs }: { incomingIndex: string, indexs: nu
         }))
     }, [name, amount, wallet, amount2, wallet2])
 
-    
+
     const onSubmit: SubmitHandler<IFormInput> = data => {
 
         const Wallet = wallet
         const Wallet2 = wallet2
 
-        console.log(data,Wallet,Wallet2)
+        console.log(data, Wallet, Wallet2)
     }
 
     return <>
-        {indexs !== 0 && <form  onSubmit={handleSubmit(onSubmit)} > <div className="flex flex-col">
+        {indexs !== 0 && <form onSubmit={handleSubmit(onSubmit)} > <div className="flex flex-col">
             <div className="flex justify-between relative">
                 <span className="text-left  text-greylish pb-2 ml-1" >Subbudget Name</span>
                 <div className="absolute -top-[-2.5rem] -right-[2rem]">
@@ -68,7 +68,7 @@ function Subinput({ incomingIndex, indexs }: { incomingIndex: string, indexs: nu
                     }} />}
                 </div></div>
 
-            <input type="text" className="border w-full py-2 px-1 rounded-lg" defaultValue={name} {...register("name", { required: true })}  onChange={(e) => { setName(e.target.value) }} />
+            <input type="text" className="border w-full py-2 px-1 rounded-lg" defaultValue={name} {...register("name", { required: true })} onChange={(e) => { setName(e.target.value) }} />
         </div>
             <div className="flex w-full gap-8  pt-4">
                 <div className="flex flex-col w-full">

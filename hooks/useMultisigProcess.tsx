@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { selectMultisigTransactions, setTransactions } from "../redux/reducers/multisig"
-import { SelectSelectedAccount } from '../redux/reducers/selectedAccount'
-import { selectStorage } from "../redux/reducers/storage"
+import { selectMultisigTransactions, setTransactions } from "../redux/slices/account/multisig"
+import { SelectSelectedAccount } from '../redux/slices/account/selectedAccount'
+import { selectStorage } from "../redux/slices/account/storage"
 import useMultisigner from 'hooks/walletSDK/useMultisig'
 import useMultiWallet from "./useMultiWallet"
 import useWalletKit from "./walletSDK/useWalletKit"

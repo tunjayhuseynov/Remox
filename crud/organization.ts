@@ -3,6 +3,8 @@ import { IAccount, IBudgetExercise, IOrganization } from "firebaseConfig"
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account"
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise"
 import { Get_Individual } from "./individual"
+import { arrayUnion } from "firebase/firestore"
+import type { DocumentReference, FieldValue } from "firebase/firestore"
 
 export const organizationCollectionName = "organizations"
 
@@ -23,30 +25,51 @@ export const Get_Organization = async (id: string) => {
     })
 
     const individual = await Get_Individual(organization.creator.id)
-    organization.creator = individual;
+    if (individual) organization.creator = individual;
     organization.budget_execrises = await Promise.all(budgetExercises);
     organization.accounts = await Promise.all(accounts);
     return organization;
 }
 
 export const Create_Organization = async (organization: IOrganization) => {
+    let accountRefs: DocumentReference[] = []
     for (let account of organization.accounts) {
         await Create_Account(account as IAccount);
         account = Get_Account_Ref(account.id);
+        accountRefs.push(account)
     }
+    organization.accounts = accountRefs;
+    console.log("Accounts created")
     await FirestoreWrite<IOrganization>().createDoc(organizationCollectionName, organization.id, organization)
     return organization;
 }
 
 
 export const Update_Organization = async (organization: IOrganization) => {
+    
+    let accountRefs: DocumentReference[] = []
     for (let account of organization.accounts) {
-        await Create_Account(account as IAccount);
-        account = Get_Account_Ref(account.id);
+        if (!(await Get_Account(account.id))) {
+            await Create_Account(account as IAccount);
+        }
+        accountRefs.push(Get_Account_Ref(account.id));
     }
+
+    let exec: DocumentReference[] = []
     for (let exercise of organization.budget_execrises) {
-        exercise = Get_Budget_Exercise_Ref(exercise.id);
+        exec.push(Get_Budget_Exercise_Ref(exercise.id));
     }
+    
+    organization.budget_execrises = exec;
+    organization.accounts = accountRefs;
+
     await FirestoreWrite<IOrganization>().updateDoc(organizationCollectionName, organization.id, organization)
     return organization;
+}
+
+export const Add_New_Organization_Account = async (organization: IOrganization, account: IAccount) => {
+
+    await FirestoreWrite<{ accounts: FieldValue }>().updateDoc(organizationCollectionName, organization.id, {
+        accounts: arrayUnion(Get_Account_Ref(account.id))
+    })
 }

@@ -5,7 +5,7 @@ import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetTransactionsQuery } from 'redux/api';
-import { BlockChainTypes, selectBlockchain, updateBlockchain } from 'redux/reducers/network';
+import { selectBlockchain, updateBlockchain } from 'redux/slices/account/network';
 import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
 import { Transactions } from 'types/sdk';
 import { fromLamport, fromWei, toLamport } from 'utils/ray';
@@ -16,11 +16,10 @@ import { Tag } from 'rpcHooks/useTags';
 import * as spl from 'easy-spl'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
-import { IUser } from 'firebaseConfig/types';
-import { changePrivateToken } from 'redux/reducers/selectedAccount';
+import { changePrivateToken } from 'redux/slices/account/selectedAccount';
 import { TextDecoder, TextEncoder } from 'util';
 import { GetSignedMessage } from 'utils';
-import useNextSelector from 'hooks/useNextSelector';
+import { SelectBlockchain } from 'redux/slices/account/remoxData';
 
 
 
@@ -32,7 +31,7 @@ export enum CollectionName {
 export type BlockchainType = "celo" | "solana"
 
 export default function useWalletKit() {
-    const blockchain = useNextSelector(selectBlockchain) as BlockchainType;
+    const blockchain = useSelector(SelectBlockchain) as BlockchainType;
     const dispatch = useDispatch()
 
     const { setVisible } = useWalletModal();
@@ -52,7 +51,7 @@ export default function useWalletKit() {
     const { publicKey, sendTransaction, signMessage, disconnect, wallet, connect: solConnect, connected, signTransaction, signAllTransactions } = useWallet();
 
 
-    const setBlockchain = (bc: BlockChainTypes) => {
+    const setBlockchain = (bc: BlockchainType) => {
         dispatch(updateBlockchain(bc))
     }
 

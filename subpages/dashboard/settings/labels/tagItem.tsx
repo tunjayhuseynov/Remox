@@ -6,10 +6,10 @@ import { useRef, useState } from "react";
 import { TwitterPicker } from "react-color";
 import { AiOutlineDown } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Delete from "subpages/dashboard/contributors/buttons/delete";
 import { useAppSelector } from 'redux/hooks';
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import {IFormInput} from '../tags';
 import { useForm, SubmitHandler } from "react-hook-form";
 

@@ -1,6 +1,6 @@
 import { Dispatch, SyntheticEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
@@ -8,15 +8,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "rpcHooks/useContributors";
 import { useAppSelector } from "redux/hooks";
-import { selectContributors } from "redux/reducers/contributors";
+import { selectContributors } from "redux/slices/account/contributors";
 import useContributors from "hooks/useContributors";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import useAllowance from "rpcHooks/useAllowance";
 import useGelato from "rpcHooks/useGelato";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import date from 'date-and-time'
-import { SelectBalances } from 'redux/reducers/currencies';
+import { SelectBalances } from 'redux/slices/currencies';
 import { ToastRun } from "utils/toast";
 import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";

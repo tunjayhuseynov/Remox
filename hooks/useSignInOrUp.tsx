@@ -2,8 +2,8 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, User } from
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { auth, IUser } from "firebaseConfig";
-import { changeAccount } from "../redux/reducers/selectedAccount";
-import { setStorage } from "../redux/reducers/storage";
+import { changeAccount } from "../redux/slices/account/selectedAccount";
+import { setStorage } from "../redux/slices/account/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../rpcHooks/useFirebase";
 import useTags from "rpcHooks/useTags";

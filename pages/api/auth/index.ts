@@ -4,7 +4,6 @@ import { registeredIndividualCollectionName } from "crud/registeredIndividual";
 import { getAuth, inMemoryPersistence, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db, IIndividual, IRegisteredIndividual } from "firebaseConfig";
 import { NextApiRequest, NextApiResponse } from "next";
-import { BlockChainTypes } from "redux/reducers/network";
 import { process as Process } from 'uniqid'
 import { GetTime } from "utils";
 import admin from "firebase-admin";
@@ -12,6 +11,7 @@ import serviceAccount from "firebaseConfig/account.json";
 import { doc, getDoc } from "firebase/firestore";
 import { getApp } from "firebase-admin/app";
 import { adminApp} from 'firebaseConfig/admin';
+import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export default async function handler(
     req: NextApiRequest,
@@ -58,7 +58,7 @@ export default async function handler(
                 id: user.uid,
                 address: publicKey as string,
                 nonce,
-                blockchain: blockchain as BlockChainTypes,
+                blockchain: blockchain as BlockchainType,
                 password,
                 created_date: GetTime()
 

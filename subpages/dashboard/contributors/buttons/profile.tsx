@@ -5,7 +5,7 @@ import { IMember } from "rpcHooks/useContributors";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
-import { setMemberList } from "redux/reducers/masspay";
+import { setMemberList } from "redux/slices/masspay";
 
 const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<boolean>, onCurrentModal: Dispatch<boolean>, onEditModal: Dispatch<boolean>, member: IMember }) => {
     const router = useRouter()

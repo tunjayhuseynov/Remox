@@ -6,12 +6,12 @@ import { DropDownItem } from "types/dropdown";
 import _ from "lodash";
 import { useTransactionProcess, useWalletKit } from "hooks";
 import { useSelector } from "react-redux";
-import { selectDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode } from "redux/slices/notificationSlice";
 import useProfile from "rpcHooks/useProfile";
 import { useModalSideExit } from "hooks";
 import Paydropdown from 'subpages/pay/paydropdown';
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput, removeSplitInput } from "redux/reducers/split";
+import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput, removeSplitInput } from "redux/slices/split";
 
 function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: number; }) {
     const { GetCoins, fromMinScale } = useWalletKit()

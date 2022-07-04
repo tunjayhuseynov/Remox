@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useSelector } from "react-redux";
-import { selectDarkMode,changeDarkMode } from "redux/reducers/notificationSlice";
+import { selectDarkMode,changeDarkMode } from "redux/slices/notificationSlice";
 import Button from "components/button"
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
 import Link from "next/link";
-import { removeStorage } from '../../redux/reducers/storage'
-import { setMenu } from '../../redux/reducers/toggles'
+import { removeStorage } from '../../redux/slices/account/storage'
 import { useDispatch } from 'react-redux'
 import { useContractKit } from '@celo-tools/use-contractkit'
-import { removeTransactions } from '../../redux/reducers/transactions'
+import { removeTransactions } from '../../redux/slices/account/transactions'
 import { useAppSelector } from '../../redux/hooks';
 import Pay from 'subpages/pay/pay';
 
@@ -57,7 +56,6 @@ const Sidebarlist = () => {
             <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) =><SettingSVG active={isActive} darkMode={darkMode} />}</NavLink>
             <img  onClick={darkModee} src={!dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-6 h-6 self-center cursor-pointer" alt='dark' />
             <span className="cursor-pointer text-red"  onClick={() => {
-                        dispatch(setMenu(false))
                         dispatch(removeTransactions())
                         dispatch(removeStorage())
                         destroy()

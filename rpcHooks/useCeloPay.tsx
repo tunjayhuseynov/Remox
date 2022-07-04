@@ -3,7 +3,7 @@ import { GoldTokenWrapper } from "@celo/contractkit/lib/wrappers/GoldTokenWrappe
 import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransactionWallet";
 import { StableTokenWrapper } from "@celo/contractkit/lib/wrappers/StableTokenWrapper";
 import { useSelector } from "react-redux";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import { AltCoins, CeloCoins, Coins, PoofAltCoins, PoofCoins, PoofCoinsName } from "types";
 import _ from 'lodash'
 import { DashboardContext } from "layouts/dashboard";

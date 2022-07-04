@@ -1,16 +1,16 @@
 import { IRequest, RequestStatus } from 'rpcHooks/useRequest';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectSelectedAccount } from 'redux/reducers/selectedAccount';
+import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { Coins } from 'types';
 import { AddressReducer } from 'utils';
 import dateFormat from 'dateformat';
 import Modal from 'components/general/modal';
 import Button from 'components/button';
 import useRequest from 'hooks/useRequest';
-import { changeError, changeSuccess } from 'redux/reducers/notificationSlice';
+import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
-import { SelectCurrencies } from 'redux/reducers/currencies';
+import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
 
 

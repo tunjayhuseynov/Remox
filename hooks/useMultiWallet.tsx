@@ -2,13 +2,13 @@ import { MetaMaskConnector, CeloExtensionWalletConnector, LedgerConnector, Walle
 import { Mainnet, useContractKit, useContractKitInternal, Connector, WalletTypes } from "@celo-tools/use-contractkit";
 import { CeloContract } from '@celo/contractkit'
 import { useDispatch, useSelector } from 'react-redux';
-import { changeAccount } from "../redux/reducers/selectedAccount";
-import { selectStorage, setStorage } from "../redux/reducers/storage";
+import { changeAccount } from "../redux/slices/account/selectedAccount";
+import { selectStorage, setStorage } from "../redux/slices/account/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFirebase';
 import { auth, IUser } from 'firebaseConfig';
-import { getAuth } from 'firebase/auth';
 import useWalletKit from './walletSDK/useWalletKit';
+import useRemoxAccount from './accounts/useRemoxAccount';
 
 
 export enum WalletIds {
@@ -23,11 +23,12 @@ const getDeepLink = (uri: string) => {
 };
 
 export default function useMultiWallet() {
-    const { Connect, blockchain, Wallet } = useWalletKit()
+    const { Connect, blockchain, Wallet, Address } = useWalletKit()
     const { initConnector } = useContractKitInternal()
     const dispatch = useDispatch()
     const storage = useSelector(selectStorage)
-    const data = useFirestoreRead<IUser>('users', auth.currentUser!.uid).data?.multiwallets;
+    // const data = useFirestoreRead<IUser>('users', auth.currentUser!.uid).data?.multiwallets;
+    const { remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {
         const incomingData = await FirestoreRead<IUser>("users", auth!.currentUser!.uid)
@@ -121,5 +122,5 @@ export default function useMultiWallet() {
         }
     }
 
-    return { walletSwitch, addWallet, data, Wallet }
+    return { walletSwitch, addWallet, data: remoxAccount?.accounts ?? [], Wallet }
 }

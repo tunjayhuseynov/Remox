@@ -1,27 +1,27 @@
-import { useState, useRef, useEffect, SyntheticEvent, Dispatch, SetStateAction } from "react";
+import { useState, useRef, useEffect, SyntheticEvent, useContext} from "react";
 import shortid, { generate } from 'shortid'
 import Success from "components/general/success";
 import Error from "components/general/error";
 import { MultipleTransactionData } from "types/sdk";
 import { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
-import { selectStorage } from "redux/reducers/storage";
+import { selectStorage } from "redux/slices/account/storage";
 import Input from "subpages/pay/payinput";
 import { useAppDispatch } from "redux/hooks";
-import { changeError, selectDarkMode, selectError } from "redux/reducers/notificationSlice";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
-import { SelectBalances, SelectTotalBalance } from "redux/reducers/currencies";
+import { changeError, selectDarkMode, selectError } from "redux/slices/notificationSlice";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
+import { SelectBalances, SelectTotalBalance } from "redux/slices/currencies";
 import Button from "components/button";
 import { PaymentInput } from "rpcHooks/useCeloPay";
 import useMultisig from 'hooks/walletSDK/useMultisig'
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
 import { Tag } from "rpcHooks/useTags";
-import { selectTags } from "redux/reducers/tags";
+import { selectTags } from "redux/slices/tags";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/reducers/payinput";
+import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/slices/payinput";
 import Modal from 'components/general/modal';
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useAppSelector } from '../../redux/hooks';
@@ -35,7 +35,7 @@ import ReactDOM, { createPortal } from 'react-dom';
 import { DropDownItem } from 'types';
 import { useForm, SubmitHandler } from "react-hook-form";
 import Dropdown from 'components/general/dropdown';
-
+import { DashboardContext } from 'layouts/dashboard';
 export interface IFormInput {
     nftAddress?: string;
     nftTokenId?: number;
@@ -63,7 +63,7 @@ const Pay = () => {
 
     const balance = useSelector(SelectBalances)
     const prevBalance = useRef(balance)
-
+    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate:React.Dispatch<React.SetStateAction<number>>}
 
     const { submitTransaction } = useMultisig()
 
@@ -321,12 +321,12 @@ const Pay = () => {
 
     return <>
 
-        <Walletmodal  openNotify={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
-        <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => { setNotify2(true) }}>Send</Button>
-        <AnimatePresence>{openNotify &&
+        <Walletmodal  openNotify={openNotify} openNotify2={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
+        <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => { setNotify(true) }}>Send</Button>
+        <AnimatePresence>{openNotify2 &&
             <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 200, damping: 40 }} className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
                 <div className="relative bg-light dark:bg-dark">
-                    <button onClick={() => { setNotify(!openNotify); setNotify2(!openNotify2) }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
+                    <button onClick={() => { setNotify(true); setNotify2(false) }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
                         {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                         <span className="text-4xl">&#171;</span> Back
                     </button>
@@ -475,7 +475,7 @@ const Pay = () => {
                                     </div>
                                     <div className="flex justify-center pt-5">
                                         <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
-                                            <Button version="second" onClick={() => setNotify(false)}>Close</Button>
+                                            <Button version="second" onClick={() => setNotify2(false)}>Close</Button>
                                             <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isPaying}>Send</Button>
                                         </div>
                                     </div>

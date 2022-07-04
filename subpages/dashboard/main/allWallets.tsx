@@ -1,28 +1,22 @@
 import { useEffect, useState, useRef } from "react";
-import { IBalanceItem, SelectOrderBalance } from 'redux/reducers/currencies';
+import { IBalanceItem, SelectOrderBalance } from 'redux/slices/currencies';
 import { AddressReducer } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Modal from 'components/general/modal'
 import EditWallet from "./editWallet";
 import DeleteWallet from "./deleteWallet";
 import Loader from "components/Loader";
-import { changeDarkMode, selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import { useSelector } from "react-redux";
-import { SelectAccountStats, SelectRawStats } from "redux/reducers/accountstats";
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
 import Deposit from "./deposit";
-
-export interface AllwalletTypes {
-    id: number,
-    walletName: string,
-    balance: string,
-    owners?:string
-}
+import { IAccount } from "firebaseConfig";
+import { SelectAccountStats } from "redux/slices/account/accountstats";
 
 
-function AllWallets({ item }: { item: AllwalletTypes }) {
+function AllWallets({ item }: { item: IAccount }) {
     const [details, setDetails] = useState<boolean>(false)
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
@@ -67,7 +61,7 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                         <div className="flex items-center gap-3 px-3">
                             <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
                             <div className="flex flex-col">
-                                <div className="font-semibold">{item.walletName}</div>
+                                <div className="font-semibold">{item.name}</div>
                                 <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? "")}</div>
                             </div>
                         </div>
@@ -99,34 +93,35 @@ function AllWallets({ item }: { item: AllwalletTypes }) {
                     <div className="border-r dark:border-greylish min-w-[28%]  flex flex-col gap-3 py-2 px-3">
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Total Value</div>
-                            <div className="text-lg"> {!isLoading ? item.balance : <Loader />}</div>
+                            <div className="text-lg"> {!isLoading ? "9999" : <Loader />}</div>
                         </div>
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Signers</div>
                             <div className="flex pl-3">
-                                <img src={`/icons/${item.owners && item.owners}.png`} className={` absolute z-[1]  ${item.owners === undefined && "bg-gray-400"} border  w-5 h-5 rounded-full`}/>
-                                <img src={`/icons/${item.owners && item.owners}.png`} className={`relative z-[0] right-[10px] ${item.owners === undefined && "bg-gray-300"} border  w-5 h-5 rounded-full`}/>
-                                <img src={`/icons/${item.owners && item.owners}.png`} className={` relative z-[1] -left-[5px] ${item.owners === undefined && "bg-gray-500"} border  w-5 h-5 rounded-full`}/>
+                                <img src={`/icons/${item.members[0] && item.members[0].image}.png`} className={` absolute z-[1]  ${item.members[0] === undefined && "bg-gray-400"} border  w-5 h-5 rounded-full`}/>
+                                <img src={`/icons/${item.members[1] && item.members[1].image}.png`} className={`relative z-[0] right-[10px] ${item.members[1] === undefined && "bg-gray-300"} border  w-5 h-5 rounded-full`}/>
+                                <img src={`/icons/${item.members[2] && item.members[2].image}.png`} className={` relative z-[1] -left-[5px] ${item.members[2] === undefined && "bg-gray-500"} border  w-5 h-5 rounded-full`}/>
                             </div>
                         </div>
                     </div>
-                    <div className="w-[75%] ">
+                    <div className="w-[75%] rounded-xl">
                         {
                             balance && orderBalance4 !== undefined ?
                                 <div className="flex flex-col  w-full" ref={customRef}>
                                     {orderBalance4.map((item, index) => {
-                                        return <div className="border-b dark:border-greylish w-full" key={index} > <CoinItem key={item.coins.contractAddress + item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
-                                            if (item.amount) {
-                                                setSelectcoin(item.coins.name)
-                                            }
-                                        }}
-                                            selectcoin={selectcoin}
-                                            title={item.coins.name}
-                                            coin={item.amount.toFixed(2)}
-                                            usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)}
-                                            percent={(item.percent || 0).toFixed(1)}
-                                            rate={item.per_24}
-                                            img={item.coins.coinUrl} />
+                                        return <div className="border-b dark:border-greylish w-full" key={index} >
+                                            <CoinItem key={item.coins.contractAddress + item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
+                                                if (item.amount) {
+                                                    setSelectcoin(item.coins.name)
+                                                }
+                                            }}
+                                                selectcoin={selectcoin}
+                                                title={item.coins.name}
+                                                coin={item.amount.toFixed(2)}
+                                                usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)}
+                                                percent={(item.percent || 0).toFixed(1)}
+                                                rate={item.per_24}
+                                                img={item.coins.coinUrl} />
                                         </div>
                                     })}
                                 </div> : <Loader />

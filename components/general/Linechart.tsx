@@ -1,7 +1,7 @@
 import useNextSelector from 'hooks/useNextSelector';
 import dynamic from 'next/dynamic';
 import { IFlowDetail } from 'pages/api/calculation/spending';
-import { selectDarkMode } from 'redux/reducers/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 
 const ReactApexChart = dynamic(
   () => import('react-apexcharts'),
@@ -21,6 +21,7 @@ console.log(data)
     },
 
   ];
+
   const options: ApexCharts.ApexOptions = {
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],

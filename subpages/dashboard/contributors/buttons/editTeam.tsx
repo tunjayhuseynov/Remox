@@ -2,7 +2,7 @@ import { IuseContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
 import { useAppDispatch } from "redux/hooks";
-import { changeError, changeSuccess } from "redux/reducers/notificationSlice";
+import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Button from "../../../../components/button";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IFormInput} from './addTeam'

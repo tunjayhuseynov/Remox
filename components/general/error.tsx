@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
 import { useAppSelector } from "../../redux/hooks";
-import { selectErrorText } from "../../redux/reducers/notificationSlice";
+import { selectErrorText } from "../../redux/slices/notificationSlice";
 import Button from "../button";
 
 

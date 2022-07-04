@@ -10,11 +10,11 @@ import useRequest from "hooks/useRequest"
 import { useContext, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useAppSelector } from "redux/hooks"
-import { SelectBalances } from "redux/reducers/currencies"
-import { changeError, selectError, changeSuccess } from "redux/reducers/notificationSlice"
-import { SelectRequests } from "redux/reducers/requests"
-import { SelectSelectedAccount } from "redux/reducers/selectedAccount"
-import { selectStorage } from "redux/reducers/storage"
+import { SelectBalances } from "redux/slices/currencies"
+import { changeError, selectError, changeSuccess } from "redux/slices/notificationSlice"
+import { SelectRequests } from "redux/slices/requests"
+import { SelectSelectedAccount } from "redux/slices/account/selectedAccount"
+import { selectStorage } from "redux/slices/account/storage"
 import RequestedUserItem from "subpages/dashboard/requests/requestedUserItem"
 import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "subpages/dashboard/requests/totalAmount"
@@ -173,7 +173,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
 
     return <>
-        <Walletmodal openNotify={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
+    <Walletmodal  openNotify={openNotify} openNotify2={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
         {
             genLoading ? <div className="flex items-center justify-center"><Loader /></div> :
                 penders.length === 0 ? <div className="w-full h-[90%] flex flex-col  items-center justify-center gap-6">
@@ -249,13 +249,13 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                 <div className="text-base font-bold">Requested Amount</div>
                                 <div className="text-base font-bold">Requests Type</div>
                                 {page === RequestStatus.pending && selected2.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setNotify3(true) }}>Approve Selected</div>}
-                                {page === RequestStatus.approved && selected.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setNotify2(true) }}>Pay selected</div>}
+                                {page === RequestStatus.approved && selected.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setNotify(true) }}>Pay selected</div>}
 
                             </div>
                             {penders.map(pender => <RequestedUserItem key={pender.id} request={pender} selected={selected} setSelected={setSelected} selected2={selected2} setSelected2={setSelected2} />)}
                         </div>
                     </div>
-                    {page === RequestStatus.approved && <Modal onDisable={setNotify} openNotify={openNotify} setNotify2={setNotify2}>
+                    {page === RequestStatus.approved && <Modal onDisable={setNotify} openNotify={openNotify2} setNotify2={setNotify}>
                         <div className="flex   w-[75%] mx-auto">
                             <div className="flex flex-col w-full  ">
                                 <div className="flex flex-col">
