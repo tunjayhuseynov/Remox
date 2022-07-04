@@ -22,7 +22,7 @@ const Payroll = () => {
         }
     ]
 
-    return <div className="flex flex-col space-y-3">
+    return <div className="w-full h-full flex flex-col space-y-3">
             <div className="flex justify-between items-center w-full">
                 <div className="text-4xl font-bold">
                     Payroll
@@ -31,7 +31,7 @@ const Payroll = () => {
         {/* <div className="flex pl-5 pt-2 w-full ">
             <AnimatedTabBar data={data} />
         </div> */}
-        <div className="py-3">
+        <div className="w-full h-full py-3">
             <DynamicPayroll  />
         </div>
     </div>

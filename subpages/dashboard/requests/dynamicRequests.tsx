@@ -7,7 +7,7 @@ import Modal from "components/general/modal"
 import { arrayRemove, FieldValue } from "firebase/firestore"
 import { useWalletKit } from "hooks"
 import useRequest from "hooks/useRequest"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useAppSelector } from "redux/hooks"
 import { SelectBalances } from "redux/reducers/currencies"
@@ -24,6 +24,8 @@ import { DashboardContext } from "layouts/dashboard"
 import Loader from "components/Loader"
 import ModalRequestItem from "./modalRequestItem"
 import Walletmodal from "components/general/walletmodal"
+import { DropDownItem } from 'types';
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function DynamicRequest({ type }: { type: "approved" | "pending" | "rejected" }) {
 
@@ -34,7 +36,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
     const [requestmodal, setRequestModal] = useState(false)
     const [isLoading, setLoading] = useState(false)
     const [isPaying, setIsPaying] = useState(false)
-    const [walletModals, setWalletModals] = useState(false)
+    // const [walletModals, setWalletModals] = useState(false)
     const { submitTransaction } = useMultisig()
     const { genLoading } = useRequest()
     // const { BatchPay, Pay } = usePay()
@@ -62,6 +64,25 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
     const storage = useAppSelector(selectStorage)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { GetCoins } = useWalletKit()
+
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })
+    const paymentname: DropDownItem[] = [{ name: "CELO" }, { name: "SOLANA" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+    const paymentname2: DropDownItem[] = [{ name: "Security" }, { name: "Development" }]
+    const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
+    const [openNotify, setNotify] = useState(false)
+    const [openNotify2, setNotify2] = useState(false)
+    const [openNotify3, setNotify3] = useState(false)
+
+    useEffect(() => {
+        if (openNotify) {
+            document.querySelector('body')!.style.overflowY = "hidden"
+        } else {
+            document.querySelector('body')!.style.overflowY = ""
+        }
+
+
+    }, [openNotify])
 
     const Submit = async () => {
         const result: Array<MultipleTransactionData & { member?: IRequest }> = []
@@ -152,9 +173,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
 
     return <>
-        {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={'!pt-5'}>
-            <Walletmodal onDisable={setWalletModals} setModals={setModal} />
-        </Modal>}
+        <Walletmodal openNotify={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
         {
             genLoading ? <div className="flex items-center justify-center"><Loader /></div> :
                 penders.length === 0 ? <div className="w-full h-[90%] flex flex-col  items-center justify-center gap-6">
@@ -180,21 +199,23 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                             </div>
                         </>
                         }
-                        {requestmodal && <Modal onDisable={setRequestModal} className={"!w-[75%] !pt-4 px-8"} >
-                            <div className="text-2xl font-semibold py-2 pb-8">Pending Requests</div>
-                            <div className="w-full   pt-4 pb-6">
-                                <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-2 ">
-                                    <div className="text-base font-semibold">Name</div>
-                                    <div className="text-base font-semibold">Request date</div>
-                                    <div className="text-base font-semibold">Requested Amount</div>
-                                    <div className="text-base font-semibold">Requests Type</div>
+                        <Modal onDisable={setNotify3} openNotify={openNotify3} >
+                            <div className="flex flex-col   w-[75%] mx-auto">
+                                <div className="text-2xl font-semibold pt-4 pb-4">Pending Requests</div>
+                                <div className="w-full pt-12 pb-4">
+                                    <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-2 ">
+                                        <div className="text-base font-semibold">Name</div>
+                                        <div className="text-base font-semibold">Request date</div>
+                                        <div className="text-base font-semibold">Requested Amount</div>
+                                        <div className="text-base font-semibold">Requests Type</div>
+                                    </div>
+                                    {selected2.map(s => <ModalRequestItem key={s.id} request={s} setRequestModal={setRequestModal} aprovedActive={aprovedActive} />)}
                                 </div>
-                                {selected2.map(s => <ModalRequestItem key={s.id} request={s} setRequestModal={setRequestModal} aprovedActive={aprovedActive} />)}
-                            </div>
-                            <Button className={'w-full py-2 mt-5 text-2xl'} >Approve Requests</Button>
-                        </Modal>}
+                                <Button className={'w-full py-2 mt-5 text-2xl'} >Approve Requests</Button>
+                                </div>
+                        </Modal>
                         <div className="w-full   pt-4 pb-6 ">
-                            <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-1   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-1 ">
+                            <div className="grid grid-cols-[25%,20%,20%,22%,13%] py-1   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-1 ">
                                 <div className="flex pl-4 items-center space-x-2 min-h-[2.125rem]">
                                     {page === RequestStatus.approved ?
                                         <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
@@ -227,21 +248,21 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                 <div className="text-base font-bold">Request date</div>
                                 <div className="text-base font-bold">Requested Amount</div>
                                 <div className="text-base font-bold">Requests Type</div>
-                                {page === RequestStatus.pending && selected2.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setRequestModal(true) }}>Approve Selected</div>}
-                                {page === RequestStatus.approved && selected.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setWalletModals(true) }}>Pay selected</div>}
+                                {page === RequestStatus.pending && selected2.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setNotify3(true) }}>Approve Selected</div>}
+                                {page === RequestStatus.approved && selected.length > 0 && <div className="text-primary cursor-pointer font-bold text-lg" onClick={() => { setNotify2(true) }}>Pay selected</div>}
 
                             </div>
                             {penders.map(pender => <RequestedUserItem key={pender.id} request={pender} selected={selected} setSelected={setSelected} selected2={selected2} setSelected2={setSelected2} />)}
                         </div>
                     </div>
-                    {page === RequestStatus.approved && modal &&
-                        <Modal onDisable={setModal} className={"!pt-3"}>
-                            <div className="w-[70vw] px-10 flex flex-col space-y-8">
+                    {page === RequestStatus.approved && <Modal onDisable={setNotify} openNotify={openNotify} setNotify2={setNotify2}>
+                        <div className="flex   w-[75%] mx-auto">
+                            <div className="flex flex-col w-full  ">
                                 <div className="flex flex-col">
-                                    <div className="text-2xl font-bold tracking-wide pt-1 pb-3">Approve Payments</div>
-                                    <div className="w-full   pt-4 pb-6 ">
-                                        <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-2 ">
-                                            <div className="text-base font-bold pl-6">Name</div>
+                                    <div className="text-2xl font-bold tracking-wide pt-4 pb-4">Approve Payments</div>
+                                    <div className="w-full pt-12 pb-4 ">
+                                        <div className="grid grid-cols-[25%,20%,20%,20%,15%] py-2   font-semibold tracking-wide rounded-xl  sm:mb-5 ">
+                                            <div className="text-base font-bold ">Name</div>
                                             <div className="text-base font-bold">Request date</div>
                                             <div className="text-base font-bold">Requested Amount</div>
                                             <div className="text-base font-bold">Requests Type</div>
@@ -250,7 +271,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
                                     </div>
                                 </div>
-                                <div className="flex flex-col space-y-3">
+                                <div className="flex flex-col pt-4 space-y-3">
                                     <div className="text-2xl font-bold tracking-wide">Review Treasury Impact</div>
                                     <div className="w-full flex flex-col  ">
                                         <div className="grid grid-cols-[20%,80%]  pb-2">
@@ -268,13 +289,14 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-full">
+                                <div className="w-full pb-6 pt-6">
                                     <Button className="w-full text-xl font-semibold" isLoading={isPaying} onClick={Submit}>
                                         Confirm and Create Transactions
                                     </Button>
                                 </div>
                             </div>
-                        </Modal>
+                        </div>
+                    </Modal>
                     }
                 </>
         }

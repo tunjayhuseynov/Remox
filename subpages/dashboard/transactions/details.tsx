@@ -63,7 +63,20 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
     const onSubmit: SubmitHandler<IFormInput> = data =>{
        const  Splits = MyInputs
         console.log(data,Splits)
+
     }
+
+    
+    useEffect(() => {
+        if (openNotify) {
+            UpdateSeenTime(new Date().getTime())
+            document.querySelector('body')!.style.overflowY = "hidden"
+        }else{
+            document.querySelector('body')!.style.overflowY = ""
+        }
+
+        
+    }, [openNotify])
 
     return <>
         {split && <Modal onDisable={setSplit} disableX={true} className={'!pt-2 !px-0 cursor-default'}>
@@ -124,11 +137,12 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
         </div>
         <AnimatePresence>
             {openNotify &&
-                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-[97] fixed shadow-custom w-[35rem] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond cursor-default ">
+                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-[9999] fixed shadow-custom grid grid-cols-[70%,30%] h-[100vh] w-[105%] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 cursor-default ">
+                    <div className="w-full h-full backdrop-blur-[2px]"></div> 
+                    <div className="flex flex-col min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center bg-white dark:bg-darkSecond ">
                     <button onClick={() => setNotify(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                         <img src="/icons/cross_greylish.png" alt="" />
                     </button>
-                    <div className="flex flex-col min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center">
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Transaction Details</div>
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-medium pt-4">- $100.00</div>
                         <div className="pt-6 flex flex-col gap-7">
@@ -151,7 +165,6 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                                             </>
                                             : <div>Unknown Coin</div>
                                         }
-
                                     </div>
                                 </div>
                                 <div className="flex">

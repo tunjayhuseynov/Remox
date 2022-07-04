@@ -8,8 +8,20 @@ import { IBudgetItem } from './budgetCard';
 import { ProgressBarWidth } from 'utils';
 
 
-function BudgetDetails ({ item, openNotify, divRef, setNotify }: { setNotify: React.Dispatch<React.SetStateAction<boolean>>, item: IBudgetItem, openNotify: boolean, divRef: React.RefObject<HTMLDivElement> }) {
+function BudgetDetails ({ item, openNotify,  setNotify }: { setNotify: React.Dispatch<React.SetStateAction<boolean>>, item: IBudgetItem, openNotify: boolean}) {
     const { UpdateSeenTime } = useProfile()
+
+
+    useEffect(() => {
+        if (openNotify) {
+            UpdateSeenTime(new Date().getTime())
+            document.querySelector('body')!.style.overflowY = "hidden"
+        }else{
+            document.querySelector('body')!.style.overflowY = ""
+        }
+
+        
+    }, [openNotify])
 
     useEffect(() => {
         if (openNotify) {
@@ -20,11 +32,12 @@ function BudgetDetails ({ item, openNotify, divRef, setNotify }: { setNotify: Re
 
     return <AnimatePresence>
             {openNotify && <>
-                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-[97] blu fixed shadow-custom min-w-[50rem] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond cursor-default ">
+                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }}  className="overflow-hidden z-[9999] fixed shadow-custom grid grid-cols-[55%,45%] h-[100vh] pr-1 w-[105%] overflow-y-auto  overflow-x-hidden top-0 right-0  cursor-default ">          
+                <div className="w-full h-full backdrop-blur-[2px]"></div> 
+                    <div className="bg-white dark:bg-darkSecond flex flex-col min-h-[325px] sm:min-h-[auto] px-10 gap-10 py-12 justify-center sm:justify-between sm:items-stretch items-center">
                     <button onClick={() => setNotify(!openNotify)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                         <img src="/icons/cross_greylish.png" alt="" />
                     </button>
-                    <div className="flex flex-col min-h-[325px] sm:min-h-[auto] px-10 gap-10 py-12 justify-center sm:justify-between sm:items-stretch items-center">
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Budgets Details</div>
                         <div className="flex items-center justify-between w-full">
                             <div className="text-xl font-bold">{item.name}</div>

@@ -417,13 +417,13 @@ const Budgets = () => {
             {!newBudget && <div className="text-primary cursor-pointer" onClick={() => { setExercise(true); }} ><span className="rounded-full border border-primary px-[.3rem]">+</span> Create a new budgetary exercise</div>}
             {
                 newBudgetModal &&
-                <Modal onDisable={setNewBudgetModal} disableX={true} className={'!w-[40%] !pt-4'}>
+                <Modal onDisable={setNewBudgetModal} disableX={true} className={'!w-[40%] !pt-4'} animatedModal={false}>
                     <NewBudgets setNewBudget={setNewBudgetModal} />
                 </Modal>
             }
             {exercise &&
-                <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign} />
+                <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'} animatedModal={false}>
+                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} setSign={setSign}  />
                 </Modal>}
             {sign ? <>
                 <TotalValues totals={Totals} />
@@ -483,11 +483,11 @@ const Budgets = () => {
                         <DeleteBudget onDisable={setDelBudget} />
                     </Modal>
                 }
-            </>:
-            <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
-                <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]"/>
-                <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
-            </div> }
+            </> :
+                <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+                    <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
+                    <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
+                </div>}
         </div >
     </div >
 

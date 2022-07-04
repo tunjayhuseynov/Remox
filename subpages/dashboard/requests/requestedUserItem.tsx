@@ -60,11 +60,11 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
         setModal(false)
     }
 
-    return <div ref={divRef} className={` ${selected.length > 1 && "border-b "}  mx-1 grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[25%,20%,20%,20%,15%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
-        <div className="flex space-x-3 overflow-hidden">
-            <div className=" pl-4 flex items-center">
+    return <div ref={divRef} className={` ${selected.length > 1 && "border-b "}   grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[25%,20%,20%,20%,15%]' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-6 `}>
+        <div className="flex  overflow-hidden">
+            <div className="  flex items-center">
                 {!payment && request.status === RequestStatus.approved ?
-                    <input type="checkbox" checked={selected.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                    <input type="checkbox" checked={selected.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block mr-2" onChange={(e) => {
                         const requests = [...selected]
                         if (e.target.checked) {
                             if (!requests.some(s => s.id === request.id)) {
@@ -74,7 +74,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                         } else {
                             setSelected(requests.filter(m => m.id !== request.id))
                         }
-                    }} /> :request.status === RequestStatus.pending &&  <input type="checkbox" checked={selected2.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
+                    }} /> :request.status === RequestStatus.pending &&  <input type="checkbox" checked={selected2.some(s => s.id === request.id)} className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block mr-2" onChange={(e) => {
                         const requests2 = [...selected2]
                         if (e.target.checked) {
                             if (!requests2.some(s => s.id === request.id)) {
@@ -87,7 +87,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                     }} />  }
                 {!payment && request.status === RequestStatus.rejected && <img src="/icons/request/close.png" />}
             </div>
-            <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} justify-center`}>
+            <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} justify-center mr-2`}>
                 <div className={` ${request.status !== RequestStatus.rejected ? "bg-greylish bg-opacity-10" : "bg-red-300 text-black"}  ${detect ? "w-[2.813rem] h-[2.813rem] text-lg" : "w-[1.563rem] h-[1.563rem] text-xs"} flex items-center justify-center rounded-full font-bold `}>
                     {<span> {request.name ? request.name.slice(0, 2) : "Un"} </span>}
                 </div>

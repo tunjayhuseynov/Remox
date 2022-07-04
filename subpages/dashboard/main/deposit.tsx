@@ -2,11 +2,15 @@ import React from 'react'
 import { useAppSelector } from 'redux/hooks';
 import { SelectSelectedAccount } from "redux/reducers/selectedAccount";
 
-function Deposit() {
+function Deposit({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const selectedAccount = useAppSelector(SelectSelectedAccount)
 
-    return <div className="sm:flex flex-col items-center justify-center gap-5 ">
-        <div className=" text-center w-full">
+    return <div className="sm:flex w-[40%] mx-auto flex-col items-center justify-center gap-5 ">
+        <button onClick={() => { onDisable(false);  }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
+                {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+                <span className="text-4xl">&#171;</span> Back
+            </button>
+        <div className=" text-center w-full pt-5 pb-16">
             <div className="text-2xl font-bold">Deposit</div>
         </div>
         <div className="">

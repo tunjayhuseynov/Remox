@@ -8,22 +8,27 @@ const ReactApexChart = dynamic(
     { ssr: false }
 );
 
-export function BasicCharts({ BudgetData, type }: { BudgetData?:number[], type?: string }) {
+export function BasicCharts({ BudgetData, type, box = true }: { BudgetData?: number[], type?: string, box?: boolean }) {
     const dark = useNextSelector(selectDarkMode)
 
 
+
+    if (BudgetData) {
+        BudgetData.push()
+    }
 
     const series = [{
         name: 'Active',
         data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
     }, {
         name: 'Budgeted',
-        data: BudgetData ? BudgetData : []
+        data: BudgetData ? [54, 97, 41, 6, 73, 6, 64, 49, 83] : []
     }]
+
 
     const options: ApexCharts.ApexOptions = {
         theme: { mode: dark ? "dark" : "light" },
-        colors: ['#FF7348','#D9D9D9'],
+        colors: ['#FF7348', '#D9D9D9'],
         chart: {
             toolbar: { show: false },
             type: 'bar',
@@ -45,28 +50,46 @@ export function BasicCharts({ BudgetData, type }: { BudgetData?:number[], type?:
             colors: ['transparent']
         },
         xaxis: {
-            categories: ['Jun','Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct','Nov','Dec'],
+            labels: {
+                show: box ? false : true
+            },
+            categories: ['Jun', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         },
-
+        yaxis: {
+            show: box ? false : true
+        },
         fill: {
             opacity: 1
         },
         legend: {
             show: false
-          }
+        }
     }
 
 
 
 
 
-return <div className="flex items-center justify-center h-[80%] w-[80%]  xl:h-full xl:w-full bg-white dark:bg-darkSecond">
-    <ReactApexChart
-        options={options}
-        series={series}
-        height={350}
-        type="bar"
-        className={'w-full h-full'}
-    />
-</div>
+    return <div className={` ${!box ? 'w-[90%] h-[90%]' : 'h-full w-full '}  py-2 flex flex-col`}>
+        <div className="w-full pl-12 pr-4 py-3 flex justify-between">
+            <div className={`flex ${BudgetData && 'gap-12'}`}>
+                {BudgetData && <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-greylish bg-opacity-40"></div>
+                    <div className="font-semibold">Budgeted</div>
+                </div>}
+                <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-primary"></div>
+                    <div className="font-semibold">Actual</div>
+                </div>
+            </div>
+        </div>
+        <div className={`flex items-center justify-center w-full h-full`}>
+            <ReactApexChart
+                options={options}
+                series={series}
+                type="bar"
+                className={'w-full h-full'}
+            />
+        </div>
+    </div>
 }

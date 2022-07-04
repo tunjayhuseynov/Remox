@@ -9,7 +9,7 @@ const ReactApexChart = dynamic(
 );
 
 
-export function StackedChart() {
+export function StackedChart({labels,box=true}:{labels:{name: string; color: string}[],box?:boolean}) {
 
   const series = [{
     name: 'Full',
@@ -23,7 +23,7 @@ export function StackedChart() {
   }]
 
   const options: ApexCharts.ApexOptions = {
-    colors: ['#E8FF04','#2D5EFF','#EF2727',],
+    colors: ['#E8FF04', '#2D5EFF', '#EF2727',],
     chart: {
       toolbar: { show: false },
       zoom: { enabled: false },
@@ -42,7 +42,13 @@ export function StackedChart() {
       },
     },
     xaxis: {
+      labels: {
+        show: box ? false : true
+      },
       categories: ['Jun', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    },
+    yaxis: {
+      show: box ? false : true
     },
     dataLabels: {
       enabled: false,
@@ -56,14 +62,30 @@ export function StackedChart() {
   }
 
 
-  return <div className="flex items-center justify-center h-[80%] w-[80%]  xl:h-full xl:w-full bg-white dark:bg-darkSecond">
+
+
+  return <div className={` ${!box ? 'w-[90%] h-[90%]' : 'h-full w-full '} py-2 flex flex-col`}>
+  <div className="w-full px-12 pt-3 flex ">
+  <div className={`flex gap-12`}>
+    {labels.map((item, i) => {
+      return <div key={i} className="flex items-center gap-2">
+        <div className={`w-3 h-3 rounded-full`} style={{
+          background: `${item.color}`,
+        }}></div>
+        <div className="font-semibold">{item.name}</div>
+      </div>
+    })}
+
+  </div>
+</div>
+  <div className={`flex items-center justify-center w-full h-full `}>
     <ReactApexChart
       options={options}
       series={series}
       type="bar"
-      height={350}
       className={'w-full h-full'}
     />
+  </div>
   </div>
 }
 

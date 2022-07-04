@@ -166,7 +166,7 @@ console.log(selectedType)
 
     return <>
         <form onSubmit={handleSubmit(onSubmit)} >
-            <div className="flex flex-col space-y-8">
+            <div className="flex flex-col space-y-8 w-[35%] mx-auto pb-4">
                 <div className="text-2xl self-center pt-2 font-semibold ">Add People</div>
                 <div className="flex flex-col space-y-4">
                     <div className="flex flex-col mb-4 space-y-1 w-full">

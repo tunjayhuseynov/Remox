@@ -15,21 +15,32 @@ function TotalDetails({totals}: {totals: ITotals[]}) {
         }
     }, [openNotify])
 
+    useEffect(() => {
+        if (openNotify) {
+            UpdateSeenTime(new Date().getTime())
+            document.querySelector('body')!.style.overflowY = "hidden"
+        }else{
+            document.querySelector('body')!.style.overflowY = ""
+        }
 
-    const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
+        
+    }, [openNotify])
+
+
 
   return <>
 
-  <div ref={exceptRef} onClick={() => { setNotify(!openNotify) }}>
+  <div  onClick={() => { setNotify(!openNotify) }}>
   <img src="/icons/next_budgets.png" alt="" className="w-10 h-10 cursor-pointer" />
   </div>
   <AnimatePresence>
       {openNotify &&
-          <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} ref={divRef} className=" z-[97] fixed shadow-custom w-[40rem] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond cursor-default ">
+          <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }}  className=" overflow-hidden z-[9999] fixed shadow-custom grid grid-cols-[60%,40%] h-[100vh] pr-1 w-[105%] overflow-y-auto  overflow-x-hidden top-0 right-0  cursor-default ">
+                <div className="w-full h-full backdrop-blur-[2px]"></div> 
+              <div className="bg-white dark:bg-darkSecond flex flex-col min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center">
               <button onClick={() => setNotify(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                   <img src="/icons/cross_greylish.png" alt="" />
               </button>
-              <div className="flex flex-col min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center">
                   <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Spending Details</div>
                   {totals.map((item, index) => {
                       return <div key={index} className="flex flex-col gap-8 py-8 border-b">

@@ -114,8 +114,8 @@ const Automations = () => {
             return res
         }
     }, [teams, balance])
-    console.log(teams.map(w => w && w.members && w.members.filter(s => s.execution === ExecutionType.auto)).length)
-    return <div className="flex flex-col space-y-3">
+    
+    return <div className="w-full h-full flex flex-col space-y-3">
         <div className="flex justify-between items-center w-full pb-3">
             <div className="text-4xl font-bold">
                 Recurring
@@ -125,7 +125,8 @@ const Automations = () => {
             <Modal onDisable={setAddStopModal} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
                 <AddStopModal onDisable={setAddStopModal} memberState={memberState[0]} />
             </Modal>}
-        <div className="w-full relative">
+            {teams.length > 0 ?<>
+                <div className="w-full relative">
             <Button className={"absolute right-0 -top-[3.75rem] text-lg  rounded-xl !px-3 xl:w-[15%] py-1"} onClick={() => setAddStopModal(true)}>
                 {memberState[0].length > 0 ? 'Confirm' : 'Cancel Payment'}
             </Button>
@@ -184,11 +185,13 @@ const Automations = () => {
             <div>
                 {teams.map(w => w && w.members && w.members.filter(s => s.execution === ExecutionType.auto).length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} /></Fragment> : undefined)}
             </div>
-            {teams.length === 0 && <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+          
+        </div>
+            </> : <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
                 <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
                 <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
             </div>}
-        </div>
+
     </div>
 }
 

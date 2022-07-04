@@ -25,7 +25,7 @@ import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "subpages/dashboard/requests/totalAmount"
 
 
-export default function     DynamicPayroll() {
+export default function DynamicPayroll() {
     const [runmodal, setRunmodal] = useState(false)
     const [confirm, setConfirm] = useState(false)
     let totalBalance = useAppSelector(SelectTotalBalance)
@@ -134,14 +134,14 @@ export default function     DynamicPayroll() {
         }
     }, [contributors, balance])
 
-    const confirmFunc = () =>{
+    const confirmFunc = () => {
         setConfirm(!confirm)
-        if(confirm && memberState[0].length > 0 ){
+        if (confirm && memberState[0].length > 0) {
             setRunmodal(true)
         }
-}
+    }
 
-    return <div className="flex flex-col space-y-4">
+    return <div className="w-full h-full flex flex-col space-y-4">
 
         {runmodal && <Modal onDisable={setRunmodal} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
 
@@ -165,7 +165,7 @@ export default function     DynamicPayroll() {
                     <div className="text-2xl font-semibold tracking-wide">Review Treasury Impact</div>
                     <div className="w-full flex flex-col   p-5 ">
                         <div className="grid grid-cols-[20%,80%]  pb-2">
-                             <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
+                            <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
                             <div className="font-semibold text-lg text-greylish">Token Allucation</div>
                         </div>
                         <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
@@ -255,59 +255,65 @@ export default function     DynamicPayroll() {
                 }>Confirm and Run Payroll</Button>
             </div> : <div className="text-primary text-2xl font-semibold pt-12  px-2">please choose some of the members.!</div>}
         </Modal>}
-        <div className="w-full relative">
-            <Button className={"absolute right-0 -top-[3.75rem]  rounded-xl px-5 py-1"} onClick={confirmFunc}>
-                {memberState[0].length > 0 && confirm ? 'Confirm' : 'Run Payroll'}
-            </Button>
-        </div>
-        <div className=" px-5 py-6 border-b">
-            <div className='flex '>
-                <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r'>
-                    <div className='text-xl text-greylish dark:text-white font-bold'>Monthly Total Payment</div>
-                    {totalPrice ? <div className='text-3xl font-bold !mt-1'>
-                        ${Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
-                            a += amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
-                            return a;
-                        }, 0).toFixed(2)} USD
-                    </div> : <div><Loader /></div>}
-                </div>
-                <div className="flex flex-col space-y-5 pl-8 !mt-0">
-                    <div className='text-xl text-greylish dark:text-white font-bold'>Token Allocation</div>
-                    <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12'>
-                        {totalPrice ?
-                            Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {
-                                return <div key={currency} className="flex space-x-2 relative h-fit">
-                                    <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
-                                    <div className="font-semibold text-xl flex gap-1 items-center">
-                                        <img src={GetCoins[currency as keyof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
-                                        {GetCoins[currency as keyof Coins].name}</div>
-                                    <div>
-                                    </div>
-                                    <div className="absolute -left-1 -bottom-6 text-sm text-greylish opacity-75 text-left">
-                                        ${(amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
-                                    </div>
-                                </div>
-                            }) : <div className="flex py-1 justify-center"><Loader /></div>
-                        }
+        {contributors.length > 0 ? <>
+            <div className="w-full relative">
+                <Button className={"absolute right-0 -top-[3.75rem]  rounded-xl px-5 py-1"} onClick={confirmFunc}>
+                    {memberState[0].length > 0 && confirm ? 'Confirm' : 'Run Payroll'}
+                </Button>
+            </div>
+            <div className=" px-5 py-6 border-b">
+                <div className='flex '>
+                    <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r'>
+                        <div className='text-xl text-greylish dark:text-white font-bold'>Monthly Total Payment</div>
+                        {totalPrice ? <div className='text-3xl font-bold !mt-1'>
+                            ${Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
+                                a += amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+                                return a;
+                            }, 0).toFixed(2)} USD
+                        </div> : <div><Loader /></div>}
                     </div>
+                    <div className="flex flex-col space-y-5 pl-8 !mt-0">
+                        <div className='text-xl text-greylish dark:text-white font-bold'>Token Allocation</div>
+                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12'>
+                            {totalPrice ?
+                                Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {
+                                    return <div key={currency} className="flex space-x-2 relative h-fit">
+                                        <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
+                                        <div className="font-semibold text-xl flex gap-1 items-center">
+                                            <img src={GetCoins[currency as keyof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
+                                            {GetCoins[currency as keyof Coins].name}</div>
+                                        <div>
+                                        </div>
+                                        <div className="absolute -left-1 -bottom-6 text-sm text-greylish opacity-75 text-left">
+                                            ${(amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
+                                        </div>
+                                    </div>
+                                }) : <div className="flex py-1 justify-center"><Loader /></div>
+                            }
+                        </div>
 
+                    </div>
                 </div>
             </div>
-        </div>
-        <div className="w-full  px-5 pt-4 pb-6 ">
-            <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,12%,12%,18%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
-                <div className="font-semibold py-3 pl-8 ">Name</div>
-                <div className="font-semibold py-3">Start Date</div>
-                <div className="font-semibold py-3">End Date</div>
-                <div className="font-semibold py-3 ">Salary</div>
-                <div className="font-semibold py-3">Frequency</div>
-                <div className="font-semibold py-3">Status</div>
-                <div className="font-semibold py-3">Compensation Type</div>
+            <div className="w-full  px-5 pt-4 pb-6 ">
+                <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,12%,12%,18%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
+                    <div className="font-semibold py-3 pl-8 ">Name</div>
+                    <div className="font-semibold py-3">Start Date</div>
+                    <div className="font-semibold py-3">End Date</div>
+                    <div className="font-semibold py-3 ">Salary</div>
+                    <div className="font-semibold py-3">Frequency</div>
+                    <div className="font-semibold py-3">Status</div>
+                    <div className="font-semibold py-3">Compensation Type</div>
+                </div>
+                <div>
+                    {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} confirm={confirm} /></Fragment> : undefined)}
+                </div>
             </div>
-            <div>
-                {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} confirm={confirm} /></Fragment> : undefined)}
-            </div>
-        </div>
+        </> : <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+            <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
+            <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
+        </div>}
+
     </div>
 
 }

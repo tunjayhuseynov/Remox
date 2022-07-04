@@ -37,12 +37,12 @@ function NewExercise({ setExercise, setSign, setNewBudget }: { setNewBudget: Rea
         <div className="text-2xl text-center font-medium py-6">Define  of your budgetary exercise</div>
         <div className="px-12 flex flex-col gap-4">
             <div className="flex flex-col">
-                <span className="text-left  text-greylish pb-2 ml-1" >Name  of your budgetary exercise</span>
+                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Name  of your budgetary exercise</span>
                 <input type="text" {...register("name", { required: true })} className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
             </div>
             <div className="flex flex-col pt-6">
-                <span className="text-left  text-greylish pb-2 ml-1" >Dates  of the budgetary exercise</span>
-                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Dates  of the budgetary exercise</span>
+                <Dropdown parentClass={'bg-white dark:bg-darkSecond border dark:border-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                 setSelectedPayment(e)
               }} />
             </div>
@@ -50,15 +50,15 @@ function NewExercise({ setExercise, setSign, setNewBudget }: { setNewBudget: Rea
                 {selectedPayment.name === "Current full Year" ?
                     <div className="flex w-full gap-4 items-center justify-center">
                         <div className="flex flex-col gap-1 w-full">
-                            <div className="text-sm text-greylish black:text-white">From</div>
+                            <div className="text-sm text-greylish ">From</div>
                             <div className="border w-full py-2 px-1 rounded-lg bg-greylish dark:bg-darkSecond bg-opacity-20"  >
                                 {From}
                             </div>
                         </div>
                         <div className="flex  border-b w-[10%] pt-4"></div>
                         <div className="flex flex-col gap-1 w-full">
-                            <div className="text-sm text-greylish black:text-white ">To</div>
-                            <div className="border w-full py-2 px-1 rounded-lg bg-greylish dark:bg-darkSecond bg-opacity-20">
+                            <div className="text-sm text-greylish dark:text-white ">To</div>
+                            <div className="border w-full py-2 px-1 rounded-lg bg-greylish  dark:bg-darkSecond bg-opacity-20">
                                 {To}
                             </div>
                         </div>

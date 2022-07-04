@@ -55,7 +55,7 @@ function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: numbe
                 }} >Delete</div>}
 
             </div>
-            <div className="flex w-full justify-between ">
+            <div className="flex w-full justify-between">
                 <div className="flex flex-col w-[45%]">
                     <span className="text-left  text-greylish pb-2 pl-1" >Token</span>
                     <Dropdown className="!py-[0.5rem] border dark:border-none dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {

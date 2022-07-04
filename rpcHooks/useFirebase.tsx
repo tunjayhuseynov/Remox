@@ -47,7 +47,7 @@ export function FirestoreWrite<DataType extends {}>() {
             });
         } catch (e) {
             console.error("Transaction failed: ", e);
-            throw new Error("Transaction failed: " + e)
+            // throw new Error("Transaction failed: " + e)
         }
     }
 

@@ -27,18 +27,35 @@ import AnimatedTabBar from 'components/animatedTabBar';
 import { useAppSelector } from '../../redux/hooks';
 import Loader from "components/Loader";
 import Paydropdown from './paydropdown';
+import { motion, AnimatePresence } from "framer-motion"
+import { useModalSideExit } from "hooks";
+import useProfile from "rpcHooks/useProfile";
+import Walletmodal from 'components/general/walletmodal';
+import ReactDOM, { createPortal } from 'react-dom';
+import { DropDownItem } from 'types';
+import { useForm, SubmitHandler } from "react-hook-form";
+import Dropdown from 'components/general/dropdown';
 
-const Pay = ({ setModals }: { setModals: Dispatch<SetStateAction<boolean>> }) => {
+export interface IFormInput {
+    nftAddress?: string;
+    nftTokenId?: number;
+    name?: string;
 
+}
+
+const Pay = () => {
+    const { register, handleSubmit } = useForm<IFormInput>();
     const storage = useSelector(selectStorage)
     const selectedAccount = useSelector(SelectSelectedAccount)
     const isError = useSelector(selectError)
     const MyInputs = useSelector(SelectInputs)
-    const [value, setValue] = useState('Pay with Token Amounts')
-    const [value2, setValue2] = useState('Days')
     const [text, setText] = useState('One-Time')
     const [stream, setStream] = useState(false)
     const refminus = useRef<HTMLSpanElement>(null)
+
+    const [walletModals, setWalletModals] = useState(false)
+    const [Modals, setModals] = useState(false)
+    const { profile, UpdateSeenTime } = useProfile()
 
     const dispatch = useAppDispatch()
     const router = useRouter();
@@ -62,6 +79,15 @@ const Pay = ({ setModals }: { setModals: Dispatch<SetStateAction<boolean>> }) =>
 
     const fileInput = useRef<HTMLInputElement>(null);
 
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })
+    const paymentname: DropDownItem[] = [{ name: "CELO" }, { name: "SOLANA" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+    const paymentname2: DropDownItem[] = [{ name: "Security" }, { name: "Development" }]
+    const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
+    const paymentname3: DropDownItem[] = [{ name: "Pay with USD-based Amounts" }, { name: "Pay with Token Amounts" }]
+    const [selectedPayment3, setSelectedPayment3] = useState(paymentname3[0])
+    const paymentname4: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
+    const [selectedPayment4, setSelectedPayment4] = useState(paymentname4[0])
 
     useEffect(() => {
         return () => {
@@ -264,163 +290,206 @@ const Pay = ({ setModals }: { setModals: Dispatch<SetStateAction<boolean>> }) =>
         }
     ]
 
-    const paymentname = ["Pay with USD-based Amounts", "Pay with Token Amounts"]
-    const paymentname2 = ["Days", "Weeks", "Months"]
 
-    return <Modal onDisable={setModals} className="lg:min-w-[30%] !pt-3 " disableX={true}>
-        <div className="sm:px-8">
-            <form onSubmit={Submit}>
-                <div className="sm:flex flex-col items-center justify-center min-h-screen">
-                    <div className="sm:min-w-[50vw] min-h-[75vh] h-auto ">
-                        <div className="py-2 text-center w-full">
-                            <div className="text-3xl font-bold">Remox Pay</div>
-                        </div>
-                        <div className="w-full flex justify-center py-4">
-                        <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} setText={setText} setStream={setStream} className={'!text-lg'} /></div>
-                        </div>
-                        <div className="w-full flex flex-col  bg-white dark:bg-darkSecond px-3 py-2 shadow rounded-xl">
-                            <div className="grid grid-cols-[33%,33%,34%] ">
-                            <div className="font-semibold text-lg text-greylish">Total Treasury</div>
-                            <div className="font-semibold text-lg text-greylish">Wallet Balance</div>
-                            <div className="font-semibold text-lg text-greylish">Token Allucation</div>
-                        
-                            </div>
-                            <div className="grid grid-cols-[33%,33%,34%]">
-                            <div className="flex flex-col gap-2 mb-4">
-                                <div className="text-2xl font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
-                                <div className={` w-full flex justify-center text-white font-semibold`} >- $ <span ref={refminus}> {MyInputs.reduce((a, e, i) => {
-                                    if (!e.wallet?.name) return a;
-                                    if (selectedType) return a + (e.amount ?? 0) + (e.amount2 ?? 0);
-                                    return a + ((e.amount ?? 0) * (balance[e.wallet?.name as keyof typeof balance]?.tokenPrice ?? 1)) + ((e.amount2 ?? 0) * (balance[e.wallet2?.name as keyof typeof balance]?.tokenPrice ?? 1));
-                                }, 0).toFixed(2)}</span> USD</div>
-                                <div className="text-white font-semibold"> $ 0.00 USD</div>
-                            </div>
-                            </div>
-                        </div>
-                        <div className="sm:flex flex-col gap-3  py-5 xl:py-10">
-                            <div className="sm:flex flex-col  gap-y-10  ">
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="flex flex-col space-y-3">
-                                        <span className="text-left text-sm font-semibold">Amount Type</span>
-                                        <Paydropdown setSelectedType={setSelectedType} onChangeType={onChangeType} paymentname={paymentname}  value={value} setValue={setValue} />
-                                    </div>
 
-                                    <div className="flex flex-col space-y-3">
-                                        <span className="text-left text-sm font-semibold">Transaction Tags</span>
-                                        <div className="w-full  gap-x-3 sm:gap-x-10">
-                                            {tags && tags.length > 0 && <Select
-                                                closeMenuOnSelect={true}
-                                                isMulti
-                                                isClearable={false}
-                                                options={tags.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
-                                                styles={colourStyles}
-                                            // onChange={onChange}
-                                            />}
-                                            {tags.length === 0 && <div>No tag yet</div>}
+    const [openNotify, setNotify] = useState(false)
+    const [openNotify2, setNotify2] = useState(false)
+
+
+    useEffect(() => {
+        if (openNotify) {
+            UpdateSeenTime(new Date().getTime())
+            document.querySelector('body')!.style.overflowY = "hidden"
+        } else {
+            document.querySelector('body')!.style.overflowY = ""
+        }
+
+
+    }, [openNotify])
+
+
+
+    const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
+
+    const onSubmit: SubmitHandler<IFormInput> = data => {
+        const Wallet = selectedItem
+        const Budget = selectedPayment
+        const subBudget = selectedPayment2
+        console.log(Wallet, Budget, subBudget)
+
+    }
+
+    return <>
+
+        <Walletmodal  openNotify={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
+        <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => { setNotify2(true) }}>Send</Button>
+        <AnimatePresence>{openNotify &&
+            <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 200, damping: 40 }} className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
+                <div className="relative bg-light dark:bg-dark">
+                    <button onClick={() => { setNotify(!openNotify); setNotify2(!openNotify2) }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
+                        {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+                        <span className="text-4xl">&#171;</span> Back
+                    </button>
+                    <form onSubmit={handleSubmit(onSubmit)} >
+                        <div className="sm:flex flex-col items-center justify-center min-h-screen">
+                            <div className="sm:min-w-[50vw] min-h-[75vh] h-auto ">
+                                <div className="pt-12 pb-4 text-center w-full">
+                                    <div className="text-2xl font-bold">Remox Pay</div>
+                                </div>
+                                <div className="w-full flex justify-center py-4">
+                                    <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} setText={setText} setStream={setStream} className={'!text-lg'} /></div>
+                                </div>
+                                <div className="w-full flex flex-col   px-3 py-2">
+                                    <div className={`grid ${text !== "Recurring" ? "grid-cols-[30%,30%,40%]" : "grid-cols-[40%,60%]"} `}>
+                                        <div className="flex flex-col gap-2 mb-4 border-r">
+                                            <div className="font-semibold text-lg text-greylish dark:text-white ">Total Treasury</div>
+                                            <div className="text-2xl font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
+
+                                        </div>
+                                        {text !== "Recurring" && <div className="flex flex-col gap-2 mb-4 border-r">
+                                            <div className="font-semibold pl-5 text-lg text-greylish dark:text-white ">Wallet Balance</div>
+                                            <div className="text-xl pl-5  font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
+
+                                        </div>}
+                                        <div className="flex flex-col gap-2 mb-4">
+                                            <div className="font-semibold pl-5 text-lg text-greylish dark:text-white ">Token Allocation</div>
+                                            <div className="text-2xl font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
+
                                         </div>
                                     </div>
                                 </div>
+                                <div className="sm:flex flex-col gap-3  py-5 xl:py-10">
+                                    <div className="sm:flex flex-col  gap-y-10  ">
+                                        <div className="grid grid-cols-2 gap-8">
+                                            <div className="flex flex-col">
+                                                <span className="text-left pb-1 text-sm ml-1 font-semibold">Amount Type</span>
+                                                <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={paymentname3} selected={selectedPayment3} onSelect={(e) => {
+                                                    setSelectedPayment3(e)
+                                                }} />
 
-                                <div className="flex flex-col">
-                                    {/* <div className="flex space-x-5 sm:space-x-0 sm:justify-between py-4 items-center">
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <span className="text-left pb-1 text-sm ml-1 font-semibold">Transaction Tags</span>
+                                                <div className="w-full  gap-x-3 sm:gap-x-10 ">
+                                                    {tags && tags.length > 0 && <Select
+                                                        closeMenuOnSelect={true}
+                                                        isMulti
+                                                        isClearable={false}
+                                                        options={tags.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
+                                                        styles={colourStyles}
+                                                    // onChange={onChange}
+                                                    />}
+                                                    {tags.length === 0 && <div>No tag yet</div>}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            {/* <div className="flex space-x-5 sm:space-x-0 sm:justify-between py-4 items-center">
                                         <input ref={fileInput} type="file" className="hidden" onChange={(e) => e.target.files!.length > 0 ? CSV.Import(e.target.files![0]).then(e => setCsvImport(e)).catch(e => console.error(e)) : null} />
                                     </div> */}
-                                    
-                                    <div className="grid grid-cols-2  gap-8">
-                                        {MyInputs.map((e, i) => {
-                                            return <Input key={e.index} text={text}  stream={stream} incomingIndex={e.index} />
-                                        })
-                                        }
-                                    </div>
-                                </div>
-                                {text === "Recurring" && <div className="w-full grid grid-cols-2 gap-14">
-                                    <div className="w-full flex flex-col space-y-3">
-                                        <span className="text-left text-sm font-semibold">Start time</span>
-                                        <div className="w-full grid grid-cols-[60%,35%] gap-5">
-                                            <input type="date" className="w-full border p-2 rounded-lg " />
-                                            <input type="time" className="w-full border p-2 rounded-lg" />
-                                        </div>
-                                    </div>
 
-                                    <div className="w-full flex flex-col space-y-3">
-                                        <span className="text-left text-sm font-semibold">Completion time</span>
-                                        <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
-                                        {stream && text === "Recurring"  ? <input type="date" className=" w-full border p-2 rounded-lg mr-5 bg-gray-300" readOnly /> : <input type="date" className="w-full border p-2 rounded-lg mr-5" />}
-                                        {stream && text === "Recurring"  ?  <input type="time" className="w-full border p-2 rounded-lg mr-5 bg-gray-300" readOnly /> : <input type="time" className="w-full border p-2 rounded-lg mr-5" />}
+                                            <div className="grid grid-cols-2  gap-8">
+                                                {MyInputs.map((e, i) => {
+                                                    return <Input key={e.index} text={text} stream={stream} incomingIndex={e.index} />
+                                                })
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>}
+                                        {text === "Recurring" && <div className="w-full grid grid-cols-2 gap-8">
+                                            <div className="w-full flex flex-col">
+                                                <span className="text-left text-sm pb-1 ml-1 font-semibold">Start time</span>
+                                                <div className="w-full grid grid-cols-[60%,35%] gap-5">
+                                                    <input type="date" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg " />
+                                                    <input type="time" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg" />
+                                                </div>
+                                            </div>
 
-                                <div className="py-5 sm:py-0 w-full gap-16">
-                                    {text === "One-Time" ? <div className="w-[50%] flex gap-4">
-                                        <Button version="second" className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
-                                            dispatch(addPayInput({
-                                                index: shortid()
-                                            }))
-                                        }}>
-                                            + Add More
-                                        </Button>
-                                        <Button version="second" onClick={() => {
-                                            fileInput.current?.click()
-                                        }} className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
-                                            Import CSV file
-                                        </Button>
-                                    </div> : <div className="flex items-center">
-                                        <label htmlFor="toggleB" className="flex items-center cursor-pointer">
-                                            <div className="relative">
-                                                <input type="checkbox" id="toggleB" className="sr-only peer" onClick={() => {setStream(!stream)}} />
-                                                <div className="block bg-gray-600 peer-checked:bg-primary w-14 h-8 rounded-full"></div>
-                                                <div className="peer-checked:transform peer-checked:translate-x-full  absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                                            <div className="w-full flex flex-col">
+                                                <span className="text-left text-sm pb-1 ml-1 font-semibold">Completion time</span>
+                                                <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
+                                                    {stream && text === "Recurring" ? <input type="date" className=" w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-gray-600" readOnly /> : <input type="date" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg mr-5" />}
+                                                    {stream && text === "Recurring" ? <input type="time" className="w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-gray-600" readOnly /> : <input type="time" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg mr-5" />}
+                                                </div>
                                             </div>
-                                            <div className="ml-3 text-gray-700 dark:text-white font-semibold">
-                                                Enable Stream rate
-                                            </div>
-                                        </label>
-                                    </div>}
-                                </div>
-                                {stream && text === "Recurring"  && <div className="w-full">
-                                    <div className="font-semibold  pb-4">Stream Rate <span className="text-greylish">(Eg. 20 SOL per 2 weeks)</span></div>
-                                    <div className="grid grid-cols-[31%,7%,31%,31%] items-center">
-                                        <div className="w-full flex flex-col space-y-3">
-                                            <span className="text-left text-sm font-semibold text-greylish">Token Amount</span>
-                                            <div className="w-full flex ">
-                                                <input type="number" className="w-full border p-2 rounded-lg unvisibleArrow" placeholder="0.00"  />
-                                            </div>
+                                        </div>}
+
+                                        <div className="py-5 sm:py-0 w-full gap-16">
+                                            {text === "One-Time" ? <div className="w-[50%] flex gap-4">
+                                                <Button version="second" className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
+                                                    dispatch(addPayInput({
+                                                        index: shortid()
+                                                    }))
+                                                }}>
+                                                    + Add More
+                                                </Button>
+                                                <Button version="second" onClick={() => {
+                                                    fileInput.current?.click()
+                                                }} className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
+                                                    Import CSV file
+                                                </Button>
+                                            </div> : <div className="flex items-center">
+                                                <label htmlFor="toggleB" className="flex items-center cursor-pointer">
+                                                    <div className="relative">
+                                                        <input type="checkbox" id="toggleB" className="sr-only peer" onClick={() => { setStream(!stream) }} />
+                                                        <div className="block bg-gray-600 peer-checked:bg-primary w-14 h-8 rounded-full"></div>
+                                                        <div className="peer-checked:transform peer-checked:translate-x-full  absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                                                    </div>
+                                                    <div className="ml-3 text-gray-700 dark:text-white font-semibold">
+                                                        Enable Stream rate
+                                                    </div>
+                                                </label>
+                                            </div>}
                                         </div>
-                                        <div className=" pt-7 mx-3 flex justify-center items-center">Per</div>
-                                        <div className="w-full flex flex-col space-y-3 ">
-                                            <span className="text-left text-sm font-semibold text-greylish">Number of times</span>
-                                            <div className="w-full flex ">
-                                                <input type="number" className="w-full border p-2 rounded-lg unvisibleArrow" placeholder="0.00" />
+                                        {stream && text === "Recurring" && <div className="w-full">
+                                            <div className="font-semibold  pb-4">Stream Rate <span className="text-greylish">(Eg. 20 SOL per 2 weeks)</span></div>
+                                            <div className="grid grid-cols-[31%,7%,31%,31%] items-center">
+                                                <div className="w-full flex flex-col">
+                                                    <span className="text-left text-sm ml-1 font-semibold pb-1">Token Amount</span>
+                                                    <div className="w-full flex ">
+                                                        <input type="number" className="bg-white dark:bg-darkSecond dark:border-none w-full border p-2 rounded-lg unvisibleArrow" placeholder="0.00" />
+                                                    </div>
+                                                </div>
+                                                <div className=" pt-7 mx-3 flex justify-center items-center">Per</div>
+                                                <div className="w-full flex flex-col ">
+                                                    <span className="text-left text-sm ml-1 font-semibold pb-1">Number of times</span>
+                                                    <div className="w-full flex ">
+                                                        <input type="number" className="bg-white dark:bg-darkSecond dark:border-darkSecond w-full border p-2 rounded-lg unvisibleArrow" placeholder="0.00" />
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col ml-2">
+                                                    <span className="text-left text-sm ml-1 font-semibold pb-1">Time interval</span>
+                                                    <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg '} className={'!rounded-lg !py-1 h-[2.75rem]'} list={paymentname4} selected={selectedPayment4} onSelect={(e) => {
+                                                        setSelectedPayment4(e)
+                                                    }} />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex flex-col space-y-3 ml-2">
-                                            <span className="text-left text-sm font-semibold text-greylish">Time interval</span>
-                                            <Paydropdown className={"!py-2"} paymentname={paymentname2}  value={value2} setValue={setValue2} />
+                                        </div>}
+                                        <div className="flex flex-col space-y-3">
+                                            <span className="text-left">Description <span className="text-greylish">(Optional)</span></span>
+                                            <div className="grid grid-cols-1">
+                                                <textarea placeholder="Paid 50 CELO to Ermak....." className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>}
-                                <div className="flex flex-col space-y-3">
-                                    <span className="text-left">Description <span className="text-greylish">(Optional)</span></span>
-                                    <div className="grid grid-cols-1">
-                                        <textarea placeholder="Paid 50 CELO to Ermak....." className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
+                                    <div className="flex justify-center pt-5">
+                                        <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
+                                            <Button version="second" onClick={() => setNotify(false)}>Close</Button>
+                                            <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isPaying}>Send</Button>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-center pt-5">
-                                <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-5">
-                                    <Button version="second" onClick={() => setModals(false)}>Close</Button>
-                                    <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isPaying}>Send</Button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </form>
+                    {isSuccess && <Success onClose={setSuccess} onAction={() => { router.push("/dashboard") }} />}
+                    {isError && <Error onClose={(val) => dispatch(changeError({ activate: val, text: '' }))} />}
                 </div>
-            </form>
-            {isSuccess && <Success onClose={setSuccess} onAction={() => { router.push("/dashboard") }} />}
-            {isError && <Error onClose={(val) => dispatch(changeError({ activate: val, text: '' }))} />}
-        </div>
-    </Modal>
+            </motion.div>}
+        </AnimatePresence>
+    </>
+
 }
 
 Pay.disableLayout = true;

@@ -16,6 +16,8 @@ import { selectDarkMode } from "redux/reducers/notificationSlice";
 import Paydropdown from '../../pay/paydropdown';
 import Details from "subpages/dashboard/transactions/details";
 import dateFormat from 'dateformat';
+import Dropdown from 'components/general/dropdown';
+import { DropDownItem } from 'types';
 
 const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
 
@@ -36,7 +38,10 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const { GetCoins, fromMinScale } = useWalletKit()
     const router = useRouter()
     const darkMode = useSelector(selectDarkMode)
-    
+
+    const paymentname: DropDownItem[] = [{ name: "Development" }, { name: "Security" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+
 
     const isSwap = Transaction.id === ERC20MethodIds.swap;
     const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
@@ -91,7 +96,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
         }
     }, [transaction])
 
-    const paymentname = ["Marketing", "Security", "Fees", "Rewards", "Other"]
+
 
 
     return <>
@@ -111,37 +116,43 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                     </div>} */}
                 </div>
             </div>
-            {detect &&  <Paydropdown className2={' w-[60%]  bg-light !z-[9999]'} className={'flex gap-1 items-center justify-center border-2 rounded-lg w-[60%] px-2 py-1 bg-light'} paymentname={paymentname}  value={value} setValue={setValue} />}
+            {detect &&
+                //   <Paydropdown className2={''} className={''} paymentname={paymentname}  value={value} setValue={setValue} />
+                <Dropdown parentClass={' w-[65%]  bg-light !z-[9999]'} childClass={'rounded-lg  bg-light'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    setSelectedPayment(e)
+                }} />
+
+            }
             <div className="flex items-center  gap-1"><img src={`/icons/${type2Ref.current?.innerText.toLowerCase()}.png`} className="rounded-full w-[2.5rem] h-[2.5rem]" />
-                {detect && <div className=""> 
-                <div className="flex flex-col  text-xl"> {direction !== undefined &&
-                    <span ref={typeRef} >
-                        {TransactionDirection.Swap === direction ? "Swap" : ""}
-                        {TransactionDirection.In === direction ? "Receive" : ""}
-                        {TransactionDirection.Borrow === direction ? "Borrow" : ""}
-                        {TransactionDirection.Withdraw === direction ? "Withdrawn" : ""}
-                        {TransactionDirection.Repay === direction ? "Repaid" : ""}
-                        {TransactionDirection.Deposit === direction ? "Deposit" : ""}
-                        {TransactionDirection.AutomationOut === direction ? "Execute (A)" : ""}
-                        {TransactionDirection.AutomationIn === direction ? "Receive (A)" : ""}
-                        {TransactionDirection.Out === direction ? "Send" : ""}
-                    </span>}
-                    <span className="flex gap-2 items-center text-greylish text-sm"> <div ref={type2Ref}> {direction !== undefined &&
-                        <>
-                            {TransactionDirection.Swap === direction ? "Ubeswap" : ""}
-                            {TransactionDirection.In === direction ? "Remox" : ""}
-                            {TransactionDirection.Borrow === direction ? "Moola" : ""}
+                {detect && <div className="">
+                    <div className="flex flex-col  text-xl"> {direction !== undefined &&
+                        <span ref={typeRef} >
+                            {TransactionDirection.Swap === direction ? "Swap" : ""}
+                            {TransactionDirection.In === direction ? "Receive" : ""}
+                            {TransactionDirection.Borrow === direction ? "Borrow" : ""}
                             {TransactionDirection.Withdraw === direction ? "Withdrawn" : ""}
                             {TransactionDirection.Repay === direction ? "Repaid" : ""}
                             {TransactionDirection.Deposit === direction ? "Deposit" : ""}
                             {TransactionDirection.AutomationOut === direction ? "Execute (A)" : ""}
                             {TransactionDirection.AutomationIn === direction ? "Receive (A)" : ""}
-                            {TransactionDirection.Out === direction ? "Remox" : ""}
+                            {TransactionDirection.Out === direction ? "Send" : ""}
+                        </span>}
+                        <span className="flex gap-2 items-center text-greylish text-sm"> <div ref={type2Ref}> {direction !== undefined &&
+                            <>
+                                {TransactionDirection.Swap === direction ? "Ubeswap" : ""}
+                                {TransactionDirection.In === direction ? "Remox" : ""}
+                                {TransactionDirection.Borrow === direction ? "Moola" : ""}
+                                {TransactionDirection.Withdraw === direction ? "Withdrawn" : ""}
+                                {TransactionDirection.Repay === direction ? "Repaid" : ""}
+                                {TransactionDirection.Deposit === direction ? "Deposit" : ""}
+                                {TransactionDirection.AutomationOut === direction ? "Execute (A)" : ""}
+                                {TransactionDirection.AutomationIn === direction ? "Receive (A)" : ""}
+                                {TransactionDirection.Out === direction ? "Remox" : ""}
 
-                        </>}
+                            </>}
+                        </div>
+                        </span>
                     </div>
-                    </span>
-                </div>
                 </div>}
             </div>
 
@@ -152,7 +163,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                             <span>
                                 {BN(fromMinScale(TransferData.amount)).toFixed(2)}
                             </span>
-                            <span className="text-greylish text-sm">
+                            <span className="text-greylish dark:text-white text-sm">
                                 $342
                             </span>
                         </div>
@@ -197,12 +208,12 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                         <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"}  mx-7 space-x-4`}>
                             <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2 `}>
                                 <div className="flex flex-col">
-                                <span>
-                                    {parseFloat(fromMinScale(SwapData.amountIn)).toFixed(2)}
-                                </span>
-                                <span className="text-greylish text-sm">
-                                    $2345
-                                </span>
+                                    <span>
+                                        {parseFloat(fromMinScale(SwapData.amountIn)).toFixed(2)}
+                                    </span>
+                                    <span className="text-greylish text-sm">
+                                        $2345
+                                    </span>
                                 </div>
 
                             </div>
@@ -226,21 +237,21 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"}  mx-7 space-x-4`}>
                             <div className={` `}>
-                               <div className="flex flex-col">
+                                <div className="flex flex-col">
                                     <span>
-                                    {parseFloat(fromMinScale(SwapData.amountOutMin)).toFixed(2)}
-                                </span>
-                                <span className="text-greylish text-sm">
-                                    $2345
-                                </span>
-                               </div>
+                                        {parseFloat(fromMinScale(SwapData.amountOutMin)).toFixed(2)}
+                                    </span>
+                                    <span className="text-greylish text-sm">
+                                        $2345
+                                    </span>
+                                </div>
                             </div>
                             <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 `}>
                                 {SwapData.coinOutMin ? <>
                                     <div>
                                         <img src={SwapData.coinOutMin.coinUrl} className="rounded-full w-[1.5rem] h-[1.5rem] " />
                                     </div>
-                                    <div> 
+                                    <div>
                                         {SwapData.coinOutMin.name}
                                     </div>
 
@@ -254,7 +265,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                 <div className="flex flex-col space-y-1">
                     {Transaction.tags && Transaction.tags.map((tag, index) => {
                         return <div key={tag.id} className="flex space-x-3 items-center">
-                            <div className="w-[0.8rem] h-[0.8rem] rounded-full"  style={{ backgroundColor: tag.color }}></div>
+                            <div className="w-[0.8rem] h-[0.8rem] rounded-full" style={{ backgroundColor: tag.color }}></div>
                             <div className="!ml-1 text-base">{tag.name}</div>
                         </div>
                     })}

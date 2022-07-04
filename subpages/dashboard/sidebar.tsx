@@ -15,7 +15,7 @@ import { WordSplitter } from 'utils';
 import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import Pay from 'subpages/pay/pay';
-import Walletmodal from 'components/general/walletmodal';
+
 import useNextSelector from 'hooks/useNextSelector';
 
 const Sidebar = () => {
@@ -31,12 +31,12 @@ const Sidebar = () => {
     const [isAccountModal, setAccountModal] = useState(false)
     const [isImportModal, setImportModal] = useState(false)
     const [isCreateModal, setCreateModal] = useState(false)
-    const [Modals, setModals] = useState(false)
-    const [walletModals, setWalletModals] = useState(false)
+
+
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: WordSplitter(Wallet), totalValue: '4500USD', photo: "nftmonkey" })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -55,51 +55,28 @@ const Sidebar = () => {
     const [list, setList] = useState<DropDownItem[]>([])
 
     useEffect(() => {
-        if (data && wallets) {
-            const multi = { name: "+ Multisig Account", onClick: () => { setAccountModal(true) } }
-            const wallet = { name: "+ Add New Wallet",  onClick: async () => { addWallet().then(s => { if (s) setItem({ name: s.type }) }).catch(e => console.error(e)) } }
-            let parsedData;
-            if (blockchain === 'solana') {
-                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}` }))
-            } else {
-                parsedData = data.addresses.map((e, i) => ({ name: e.name || `MultiSig ${i + 1}` }))
-            }
+
+
             setList([
-                ...wallets.map(s => ({
-                    name: WordSplitter(s.name),  onClick: async () => {
-                        try {
-                            await walletSwitch(s.name)
-                        } catch (error: any) {
-                            console.error(error)
-                        }
-                        setItem({ name: WordSplitter(s.name)})
-                    }
-                })),
-                ...parsedData, wallet, multi
+                { name: "Treasury vault 0", totalValue: '$2,800', photo: "nftmonkey" },
+                { name: "Treasury vault 1", totalValue: '$3,700', photo: "" },
+                { name: "Add Organization",  onClick: () => {navigator.push('/create-organization')}}
+                
             ])
-        }
-    }, [data, wallets])
+    }, [])
 
     return <>
-        {Modals && <Pay setModals={setModals} />}
-        {walletModals && <Modal onDisable={setWalletModals} disableX={true} className={''}>
-            <Walletmodal onDisable={setWalletModals} setModals={setModals} />
-        </Modal>}
-        <div className="hidden md:block z-[1] md:col-span-2 w-[16.188rem] flex-none fixed pt-28">
+        <div className="hidden md:block z-[1] md:col-span-2 w-[17.188rem] flex-none fixed pt-28 bg-light dark:bg-dark">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">
-                    <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" list={list} photo={true} totalValue={true} selected={selectedItem} onSelect={(w) => {
-                        if (w.address && w.amount) {
+                    <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {                     
                             setItem(w)
-                            dispatch(changeAccount(w.amount ? w.amount : w.address))
-                        }
                     }} />
                 </div>
                 <div>
                     <Siderbarlist />
-                    <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => setWalletModals(true)}>Send</Button>
-
-
+                    <Pay />
+                  
                 </div>
 
             </div>

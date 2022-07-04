@@ -58,9 +58,9 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 <div className="fixed w-full pt-6 pb-6 bg-light dark:bg-dark z-50"><Navbar></Navbar></div>
                 <div className="flex space-x-11 flex-shrink flex-grow ">
                     <Sidebar />
-                    <div className="relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem]  xl:pl-[17.188rem] pt-28">
+                    <main className="relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem]  xl:pl-[17.188rem] pt-28">
                         {children}
-                    </div>
+                    </main>
                 </div>
             </div>
             {/* {(isSuccess || isError) &&

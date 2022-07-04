@@ -12,7 +12,7 @@ import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/reducers/notificationSlice";
 import { CSVLink } from "react-csv";
 import AllCharts from "subpages/dashboard/insight/allCharts";
-import BudgetsAndLabels from "subpages/dashboard/insight/Budgets-Labels";
+
 
 const style = "py-2 bg-greylish bg-opacity-10 dark:bg-darkSecond px-5  rounded-xl hover:bg-gray-300 dark:hover:bg-greylish dark:focus:bg-greylish"
 
@@ -87,7 +87,7 @@ const Insight = () => {
                                             <img src={`/icons/currencies/${item.image}.svg`} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
                                             {item.name}</div>
                                     </div>
-                                    <div className=" text-sm text-greylish opacity-75 text-left">
+                                    <div className=" text-sm text-greylish dark:text-white opacity-75 text-left">
                                         ${item.usdValue} USD
                                     </div>
                                 </div>
@@ -100,10 +100,7 @@ const Insight = () => {
                     </div>
                 </div>
             </div>
-            
-            <BudgetsAndLabels/>
-            <AllCharts />
-
+            <AllCharts />    
         </div>
     );
 }

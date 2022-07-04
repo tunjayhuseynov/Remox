@@ -31,12 +31,16 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
         const photo = file;
-        console.log(data,photo)
-     }
+        console.log(data, photo)
+    }
 
     return (
-        <div className="flex flex-col items-center justify-center gap-7">
-            <div className="text-2xl font-bold pb-2">Edit Wallet</div>
+        <div className="flex flex-col  w-1/2  mx-auto items-center justify-center gap-7">
+            <button onClick={() => { onDisable(false); }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
+                {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+                <span className="text-4xl">&#171;</span> Back
+            </button>
+            <div className="text-2xl font-bold pb-2 pt-5">Edit Wallet</div>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-8">
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Profile Picture Photo</div>
@@ -46,13 +50,13 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                         else setOrganizationIsUpload(true)
                     }} />
                 </div>
-                { <div className="flex flex-col mb-4 space-y-1 w-full">
+                {<div className="flex flex-col  space-y-1 w-full">
                     <div className="text-xs text-left  dark:text-white">{!organizationIsUpload ? "NFT Address" : "Your Photo"} </div>
                     <div className={`  w-full border rounded-lg`}>
                         {!organizationIsUpload ? <input type="text" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                     </div>
                 </div>}
-                {blockchain === 'celo' && !organizationIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
+                {blockchain === 'celo' && !organizationIsUpload && <div className="flex flex-col  gap-1 w-full">
                     <div className="text-xs text-left  dark:text-white">Token ID</div>
                     <div className={`w-full border rounded-lg`}>
                         <input type="number" className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />

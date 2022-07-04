@@ -92,18 +92,16 @@ const Contributors = () => {
         {contributors.map(w => w && (!w?.members || w?.members?.length === 0) ? <Fragment key={generate()}><TeamContainer {...w} selectbar={selectbar} /></Fragment> : undefined)}
     </div>
 }
-{
-    addTeamModal &&
-    <Modal onDisable={setAddTeamModal} disableX={true} className={'!pt-1'}  >
+
+    <Modal onDisable={setAddTeamModal}   openNotify={addTeamModal}>
         <AddTeams onDisable={setAddTeamModal} />
     </Modal>
-}
-{
-    addMemberModal &&
-    <Modal onDisable={setAddMemberModal} disableX={true} className={'!pt-1'}>
+
+
+    <Modal onDisable={setAddMemberModal} openNotify={addMemberModal}>
         <AddMemberModal onDisable={setAddMemberModal} />
     </Modal>
-}
+
 
     </div >
 }

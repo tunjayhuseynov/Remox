@@ -32,9 +32,9 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
 
     const onSubmit: SubmitHandler<IFormInput> = data => console.log(data)
 
-    return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10">
-        <div className="text-2xl self-center pt-2 font-semibold ">Add Team</div>
-        <div className="flex flex-col w-[85%] ">
+    return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto">
+        <div className="text-2xl self-center pt-5 font-semibold ">Add Team</div>
+        <div className="flex flex-col w-[85%] pt-24">
             <div>Team Name</div>
             <div>
                 <input {...register("name", { required: true })}  type="text" className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond" />
