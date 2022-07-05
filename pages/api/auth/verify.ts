@@ -13,8 +13,9 @@ import { adminApp } from "firebaseConfig/admin";
 import { Get_Budget_Exercise_Ref } from "crud/budget_exercise";
 import { accountCollectionName, Get_Account_Ref } from "crud/account";
 import { DocumentReference } from "firebase/firestore";
+import { withSentry } from "@sentry/nextjs";
 
-export default async function handler(
+async function handler(
     req: NextApiRequest,
     res: NextApiResponse<any>
 ) {
@@ -159,3 +160,5 @@ export default async function handler(
     }
 
 }
+
+export default withSentry(handler);
