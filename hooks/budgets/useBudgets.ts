@@ -23,7 +23,26 @@ export default function useBudgets() {
             totalBudget,
             totalUsed: 0,
             totalAvailable: totalBudget,
-            subbudgets: [],
+            subbudgets: budget.subbudgets.map(sub => {
+                let totalBudget = (currencies[sub.token].price * sub.amount) + ((currencies[sub?.secondToken ?? ""]?.price ?? 0) * (sub.secondAmount ?? 0))
+                return {
+                    ...sub,
+                    totalBudget,
+                    totalAvailable: totalBudget,
+                    totalUsed: 0,
+                    budgetCoins: {
+                        coin: sub.token,
+                        totalAmount: sub.amount,
+                        totalUsedAmount: 0,
+                        second: sub.secondToken && sub.secondAmount ? {
+                            secondCoin: sub.secondToken,
+                            secondAmount: sub.secondAmount,
+                            secondTotalAmount: sub.secondAmount,
+                            secondTotalUsedAmount: 0,
+                        } : null,
+                    }
+                }
+            }),
             budgetCoins: {
                 coin: budget.token,
                 totalAmount: budget.amount,

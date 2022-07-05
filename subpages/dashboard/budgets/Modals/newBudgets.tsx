@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { DropDownItem } from "../../../../types/dropdown";
 import Dropdown from "../../../../components/general/dropdown";
 import { useWalletKit } from "../../../../hooks";
@@ -11,6 +11,9 @@ import Subinput from '../subinput';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { Coins } from 'types/coins';
 import { useForm, SubmitHandler } from "react-hook-form";
+import useBudgetExercise from 'hooks/budgets/useBudgetExercise';
+import { GetTime } from 'utils';
+import useLoading from 'hooks/useLoading';
 
 
 interface IFormInput {
@@ -18,8 +21,6 @@ interface IFormInput {
     amount: number;
     amount2?: number;
     subName: string;
-    subAmount: number;
-    subAmount2?: number;
 }
 interface IsubInputs {
     id: string;
@@ -28,36 +29,66 @@ interface IsubInputs {
     amount2?: number;
     wallet: DropDownItem;
     wallet2?: DropDownItem;
-    subAnotherToken:boolean;
+    subAnotherToken: boolean;
 }[]
 
 
-function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<boolean>, setSign?: React.Dispatch<boolean> }) {
+function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, setNewBudget: React.Dispatch<boolean>, setSign?: React.Dispatch<boolean> }) {
+
     const { register, handleSubmit, setValue } = useForm<IFormInput>();
     const { GetCoins } = useWalletKit()
     const dispatch = useAppDispatch()
     const dark = useNextSelector(selectDarkMode)
     const [anotherToken, setAnotherToken] = useState(false)
+    const { create_budget } = useBudgetExercise()
+
+    const DropDownCoins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
     // const [SubAnotherToken, setSubAnotherToken] = useState<boolean>(false)
 
-    const [wallet, setWallet] = useState<DropDownItem>()
-    const [wallet2, setWallet2] = useState<DropDownItem>()
-    
+    const [wallet, setWallet] = useState<DropDownItem>(DropDownCoins[0])
+    const [wallet2, setWallet2] = useState<DropDownItem>(DropDownCoins[0])
 
+    const onSubmit: SubmitHandler<IFormInput> = async data => {
+        const coin = wallet
+        const coin2 = wallet2
+        const subbudgets = inputs
+        console.log(coin, coin2, data, subbudgets);
 
+        let secondCoin = null, secondAmount = null, id = generate();
 
+        if (data.amount2 && data.amount2 > 0) {
+            secondCoin = coin2.name
+            secondAmount = data.amount2
+        }
 
+        await create_budget({
+            txs: [],
+            id: id,
+            amount: data.amount,
+            created_at: GetTime(),
+            name: data.name,
+            parentId,
+            token: coin.name,
+            secondAmount,
+            secondToken: secondCoin,
+            subbudgets: subbudgets.map(s => ({
+                amount: s.amount,
+                created_at: GetTime(),
+                id: s.id,
+                name: s.name,
+                parentId: id,
+                secondAmount: s.amount2 ?? null,
+                secondToken: s.amount2 && s.wallet2 && s.amount2 > 0 ? s.wallet2.name : null,
+                token: s.wallet.name,
+                txs: [],
+            })),
+        })
 
-    const onSubmit: SubmitHandler<IFormInput> = data => {
-        const Coin = wallet
-        const CoinTwo = wallet2 
-        const Inputs = inputs
-        console.log(data,Inputs);
+        setNewBudget(false)
     }
 
 
     const [inputs, setInputs] = useState<IsubInputs[]>([])
-
 
 
     const addNewInput = () => {
@@ -65,7 +96,7 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
             id: generate(),
             name: "",
             wallet: GetCoins[1],
-            wallet2:GetCoins[1],
+            wallet2: GetCoins[1],
             amount: 0,
             amount2: 0,
             subAnotherToken: false,
@@ -97,12 +128,13 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
         setInputs(inputs.map(s => s.id === id ? { ...s, wallet2 } : s))
     }
 
-    
+    const [isLoading, OnSubmit] = useLoading(onSubmit)
+
 
     return (
         <div>
             <div className="text-2xl text-center font-bold">Add Budgets</div>
-            <form onSubmit={handleSubmit(onSubmit)} className="px-12 flex flex-col gap-4">
+            <form onSubmit={handleSubmit(OnSubmit)} className="px-12 flex flex-col gap-4">
                 <div className="flex flex-col">
                     <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Name</span>
                     <input type="text" required  {...register("name", { required: true })} className="border w-full bg-white dark:bg-darkSecond py-2 px-1 rounded-lg" />
@@ -110,41 +142,44 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
                 <div className="flex w-full gap-8 pt-4">
                     <div className="flex flex-col  w-full">
                         <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
-                        <Dropdown className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                        <Dropdown className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? DropDownCoins[0]} list={DropDownCoins} onSelect={val => {
                             setWallet(val)
                         }} />
                     </div>
                     <div className="flex flex-col w-full">
                         <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
-                        <input required {...register("amount", { required: true })} className="outline-none unvisibleArrow bg-white pl-2 border  rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
+                        <input required {...register("amount", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow bg-white pl-2 border  rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
                     </div>
                 </div>
-                {anotherToken && <div className="flex w-full gap-8   pt-4">
-                    <div className="flex flex-col w-full">
-                        <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
-                        <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
-                            setWallet2(val);
-                        }} />
-                    </div>
-                    <div className="flex flex-col w-full">
-                        <div className="flex justify-between relative">
-                            <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
-                            <div className="absolute -top-[-2.75rem] -right-[2rem]">
-                                {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className=" w-5 h-5 cursor-pointer" onClick={() => {
-                                    setAnotherToken(false)
-                                    //setRefreshPage(generate())
-                                }} />}
-                            </div>
+                {anotherToken &&
+                    <div className="flex w-full gap-8 pt-4">
+                        <div className="flex flex-col w-full">
+                            <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
+                            <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet2 ?? DropDownCoins[0]} list={DropDownCoins} onSelect={val => {
+                                setWallet2(val);
+                            }} />
                         </div>
-                        <input {...register("amount2", { required: true })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
-                    </div> </div>}
-                {!anotherToken && <div className="text-primary  cursor-pointer " onClick={() => setAnotherToken(true)}>
-                    <span className="flex gap-2 items-center bg-opacity-5 font-semibold  pl-1 text-center rounded-xl ">
-                        <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token
-                    </span>
-                </div>}
+                        <div className="flex flex-col w-full">
+                            <div className="flex justify-between relative">
+                                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
+                                <div className="absolute -top-[-2.75rem] -right-[2rem]">
+                                    <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className=" w-5 h-5 cursor-pointer" onClick={() => {
+                                        setAnotherToken(false)
+                                        //setRefreshPage(generate())
+                                    }} />
+                                </div>
+                            </div>
+                            <input {...register("amount2", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
+                        </div>
+                    </div>}
+                {!anotherToken &&
+                    <div className="text-primary  cursor-pointer " onClick={() => setAnotherToken(true)}>
+                        <span className="flex gap-2 items-center bg-opacity-5 font-semibold  pl-1 text-center rounded-xl ">
+                            <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token
+                        </span>
+                    </div>
+                }
                 {inputs.map((input, index) => {
-                    console.log(input.id)
                     // return <Subinput key={e.index} incomingIndex={e.index} indexs={i} />
                     return <div key={input.id}> <div className="flex flex-col">
                         <div className="flex justify-between relative">
@@ -168,7 +203,7 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
                             </div>
                             <div className="flex flex-col w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
-                                <input  className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseInt(e.target.value))} />
+                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseInt(e.target.value))} />
                             </div>
                         </div>
                         {input.subAnotherToken && <div className="flex w-full gap-8  pt-4">
@@ -182,27 +217,24 @@ function NewBudgets({ setNewBudget, setSign }: { setNewBudget: React.Dispatch<bo
                                 <div className="flex justify-between relative">
                                     <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
                                     <div className="absolute -top-[-2.75rem] -right-[2rem]">
-                                        {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={()=> updateAnotherToken(input.id,false)} />}
+                                        {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => updateAnotherToken(input.id, false)} />}
                                     </div>
                                 </div>
                                 <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount2(input.id, parseInt(e.target.value))} />
                             </div> </div>}
-                        {!input.subAnotherToken && <div className="text-primary  cursor-pointer " onClick={()=> updateAnotherToken(input.id,true)}>
+                        {!input.subAnotherToken && <div className="text-primary  cursor-pointer " onClick={() => updateAnotherToken(input.id, true)}>
                             <span className="flex gap-2 bg-opacity-5 font-semibold py-3 pl-1 text-center rounded-xl ">
                                 <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another subbuget
                             </span>
                         </div>}</div>
                 })
-
-
                 }
                 {inputs.length < 10 && <div className="text-primary border border-primary rounded-lg px-3 py-1 text-center w-[30.8%] transition hover:bg-primary hover:transition hover:text-white cursor-pointer" onClick={addNewInput}  >Add Subbudget</div>}
                 <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8  pt-6">
                     <Button version="second" className="!rounded-xl" onClick={() => { setNewBudget(false) }}>Cancel</Button>
-                    <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" >Create</Button>
+                    <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading}>Create</Button>
                 </div>
             </form>
-
         </div>
     )
 }

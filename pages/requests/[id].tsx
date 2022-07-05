@@ -303,7 +303,7 @@ const RequestId = () => {
                                         Attach links <span className="text-black">(optional)</span>
                                     </div>
                                     <div>
-                                        <a href={result?.attachLink} target="_blank">{result?.attachLink}</a>
+                                        <a href={result?.attachLink} rel="noreferrer" target="_blank">{result?.attachLink}</a>
                                     </div>
                                 </div>
                                 }
@@ -312,7 +312,7 @@ const RequestId = () => {
                                         Upload receipt or invoice <span className="text-black">(optional)</span>
                                     </div>
                                     <div>
-                                        {result?.uploadedLink ? <a href={result?.uploadedLink} target="_blank">{result?.uploadedLink}</a> : "No file uploaded"}
+                                        {result?.uploadedLink ? <a href={result?.uploadedLink} rel="noreferrer" target="_blank">{result?.uploadedLink}</a> : "No file uploaded"}
                                     </div>
                                 </div>
                             </div>

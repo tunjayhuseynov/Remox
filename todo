@@ -9,3 +9,4 @@
 6. TotalPendingler yoxdur
 7. Total Detail'de umumen breakdownlar hele ki aktiv deyil
 8. allWallets => balance ile api'a kecid edilmelidi
+9. multisig ve ya individial sendlerde duzelis elemek lazimdi => storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()

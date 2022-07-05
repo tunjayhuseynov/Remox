@@ -1,6 +1,5 @@
 import { useAppDispatch } from "../../redux/hooks"
-import { setMenu } from "../../redux/slices/toggles"
-import {motion} from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useEffect } from "react"
 
 
@@ -15,10 +14,8 @@ const MobileMenu = ({ children }: { children: JSX.Element | JSX.Element[] | stri
         }
     }, [])
     return <>
-        <div className="absolute w-screen h-screen z-50 bg-white bg-opacity-60" onClick={()=>{
-            dispatch(setMenu(false))
-        }}></div>
-        <motion.div initial={{x: -500}} animate={{x: 0}} transition={{type: 'tween'}} exit={{x: -500}} className="w-[50vw] fixed -translate-x-50 h-full bg-white z-[100] border-r-2">
+        <div className="absolute w-screen h-screen z-50 bg-white bg-opacity-60" ></div>
+        <motion.div initial={{ x: -500 }} animate={{ x: 0 }} transition={{ type: 'tween' }} exit={{ x: -500 }} className="w-[50vw] fixed -translate-x-50 h-full bg-white z-[100] border-r-2">
             <div className="h-full flex flex-col items-center justify-center">
                 {children}
             </div>

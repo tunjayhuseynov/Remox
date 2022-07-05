@@ -14,6 +14,8 @@ import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
 import { IAccountORM } from "pages/api/account";
+import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk } from "./thunks/account";
+import { IMember } from "firebaseConfig";
 
 export type IAccountType = "individual" | "organization";
 
@@ -75,6 +77,26 @@ const remoxDataSlice = createSlice({
         }
     },
     extraReducers: builder => {
+        builder.addCase(Remove_Member_From_Account_Thunk.fulfilled, (state, action) => {
+            const index = state.accounts.findIndex(account => account.id === action.payload.accountAddress)
+            if (index !== -1) {
+                state.accounts[index].members = state.accounts[index].members.filter(s => s.address !== action.payload.memberAddress)
+            }
+        });
+        builder.addCase(Add_Member_To_Account_Thunk.fulfilled, (state, action) => {
+            const index = state.accounts.findIndex(account => account.id === action.payload.accountAddress)
+            if (index !== -1) {
+                const member: IMember = {
+                    address: action.payload.memberAddress,
+                    name: action.payload.name,
+                    id: action.payload.id,
+                    image: action.payload.image,
+                    mail: action.payload.mail,
+                }
+                state.accounts[index].members = [...state.accounts[index].members, member]
+            }
+        });
+
         builder.addCase(launchApp.pending, (state, action) => {
             state.isFetching = true;
         });

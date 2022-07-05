@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import Boxinsight from "subpages/dashboard/insight/boxinsight";
-import Boxmoney from "subpages/dashboard/insight/boxmoney";
 import { WalletDropdown } from "components/general/walletdropdown"
 import { useSelector } from "react-redux";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
@@ -12,6 +10,7 @@ import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import { CSVLink } from "react-csv";
 import AllCharts from "subpages/dashboard/insight/allCharts";
+import { IAccount } from "firebaseConfig";
 
 
 const style = "py-2 bg-greylish bg-opacity-10 dark:bg-darkSecond px-5  rounded-xl hover:bg-gray-300 dark:hover:bg-greylish dark:focus:bg-greylish"
@@ -23,14 +22,14 @@ const Insight = () => {
     const [selectedDate, setSelectedDate] = useState<number>(30)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { data } = useMultiWallet()
-    const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [selectedAccount])
-    const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
+    const [selectedAccounts, setSelectedAccounts] = useState<string[]>((data as IAccount[])?.map(s => s.address) ?? [selectedAccount])
+    // const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
     const insight = useInsight({ selectedDate, selectedAccounts })
 
 
     useEffect(() => {
         if (data !== undefined) {
-            setSelectedAccounts(data.map(s => s.address))
+            setSelectedAccounts((data as IAccount[]).map(s => s.address))
         }
     }, [data])
 
@@ -57,11 +56,11 @@ const Insight = () => {
             <div className="flex justify-between pb-4">
                 <div className="text-4xl font-bold">Insights</div>
                 <div className="flex gap-2">
-                    {!isMultisig && <div className="mr-3">
+                    {/* {!isMultisig && <div className="mr-3">
                         <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
                             setChangedAccount([...wallets.map((wallet) => wallet.address)])
                         }} />
-                    </div>}
+                    </div>} */}
                     {!isMultisig && <> <div className="">
                         <CSVLink data={''} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                             <div className={'hidden'}>Export</div>
@@ -100,7 +99,7 @@ const Insight = () => {
                     </div>
                 </div>
             </div>
-            <AllCharts />    
+            <AllCharts />
         </div>
     );
 }

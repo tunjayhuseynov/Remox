@@ -22,20 +22,20 @@ export default function useBudgetExercise() {
 
     const { remoxAccountType, remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
 
-    const create_exercise = async (budget: IBudgetExercise) => {
+    const create_exercise = async (budgetExercise: IBudgetExercise) => {
         if (remoxAccount) {
-            await Create_Budget_Exercise(budget);
+            await Create_Budget_Exercise(budgetExercise);
             if (remoxAccountType === "organization") {
                 const organization = { ...remoxAccount } as IOrganization;
-                organization.budget_execrises = [...organization.budget_execrises, budget] as IBudgetExercise[];
+                organization.budget_execrises = [...organization.budget_execrises, budgetExercise] as IBudgetExercise[];
                 await Update_Organization(organization)
             } else {
                 const individual = { ...remoxAccount } as IIndividual;
-                individual.budget_execrises = [...individual.budget_execrises, budget] as IBudgetExercise[]
+                individual.budget_execrises = [...individual.budget_execrises, budgetExercise] as IBudgetExercise[]
                 await Update_Individual(individual)
             }
             dispatch(addBudgetExercise({
-                ...budget,
+                ...budgetExercise,
                 budgets: [],
                 totalBudget: 0,
                 totalUsed: 0,

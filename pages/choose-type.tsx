@@ -9,7 +9,6 @@ import { useSelector } from "react-redux";
 import { auth } from "firebaseConfig";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectBlockchain, SelectProviderAddress, setAccountType } from "redux/slices/account/remoxData";
-import { launchApp } from "redux/slices/account/thunks/launch";
 import useIndividual from "hooks/accounts/useIndividual";
 
 

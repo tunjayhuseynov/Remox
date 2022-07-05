@@ -23,7 +23,7 @@ const useMultisigProcess = () => {
 
     const { transactions, FetchTransactions, addOwner, replaceOwner, changeSigns, removeOwner, getOwners, getSignAndInternal, confirmTransaction, revokeTransaction } = useMultisigner()
 
-    const isMultisig = selectedAccount.toLowerCase() !== Address?.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
+    const isMultisig = false //selectedAccount.toLowerCase() !== Address?.toLowerCase() && data && !data?.some(s => s.address.toLowerCase() === selectedAccount.toLowerCase())
     const dispatch = useDispatch()
 
     const fetchTxs = useCallback((disabledTransactionDispatch = false, skip = 0, take = 10) => {
@@ -32,15 +32,15 @@ const useMultisigProcess = () => {
 
     }, [isMultisig, selectedAccount])
 
-    useEffect(() => {
-        if (transactions) {
-            if (transactions.length === 0) {
-                dispatch(setTransactions(undefined))
-            } else if (!multiSlice?.some(s => s.id === transactions[transactions.length - 1]?.id)) {
-                dispatch(setTransactions(transactions))
-            }
-        }
-    }, [transactions])
+    // useEffect(() => {
+    //     if (transactions) {
+    //         if (transactions.length === 0) {
+    //             dispatch(setTransactions([]))
+    //         } else if (!multiSlice?.some(s => s.id === transactions[transactions.length - 1]?.id)) {
+    //             dispatch(setTransactions(transactions))
+    //         }
+    //     }
+    // }, [transactions])
 
     useEffect(() => {
         if (isMultisig) {

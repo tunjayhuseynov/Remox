@@ -17,14 +17,15 @@ import { useWalletKit } from 'hooks';
 import Pay from 'subpages/pay/pay';
 
 import useNextSelector from 'hooks/useNextSelector';
+import { useAppSelector } from 'redux/hooks';
+import { SelectAccountType } from 'redux/slices/account/remoxData';
 
 const Sidebar = () => {
 
     const { Disconnect, blockchain } = useWalletKit()
-    const { data, importMultisigAccount, isLoading } = useMultisig()
+    const { importMultisigAccount } = useMultisig()
     const navigator = useRouter()
-    const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
-    const selectedAccount = useNextSelector(SelectSelectedAccount)
+    const accountType = useAppSelector(SelectAccountType)
 
     const dispatch = useDispatch()
 
@@ -41,7 +42,7 @@ const Sidebar = () => {
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
             try {
-                await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""))
+                await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""), null, accountType!)
                 dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
                 setImportModal(false)
             } catch (error: any) {
@@ -57,26 +58,26 @@ const Sidebar = () => {
     useEffect(() => {
 
 
-            setList([
-                { name: "Treasury vault 0", totalValue: '$2,800', photo: "nftmonkey" },
-                { name: "Treasury vault 1", totalValue: '$3,700', photo: "" },
-                { name: "Add Organization",  onClick: () => {navigator.push('/create-organization')}}
-                
-            ])
+        setList([
+            { name: "Treasury vault 0", totalValue: '$2,800', photo: "nftmonkey" },
+            { name: "Treasury vault 1", totalValue: '$3,700', photo: "" },
+            { name: "Add Organization", onClick: () => { navigator.push('/create-organization') } }
+
+        ])
     }, [])
 
     return <>
         <div className="hidden md:block z-[1] md:col-span-2 w-[17.188rem] flex-none fixed pt-28 bg-light dark:bg-dark">
             <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">
-                    <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {                     
-                            setItem(w)
+                    <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {
+                        setItem(w)
                     }} />
                 </div>
                 <div>
                     <Siderbarlist />
                     <Pay />
-                  
+
                 </div>
 
             </div>
@@ -115,7 +116,7 @@ const Sidebar = () => {
                     <Button className="!px-10 !py-2" version="second" onClick={() => setImportModal(false)}>
                         Cancel
                     </Button>
-                    <Button className="!px-10 !py-2" onClick={importClick} isLoading={isLoading}>
+                    <Button className="!px-10 !py-2" onClick={importClick} isLoading={/*isLoading*/false}>
                         Import
                     </Button>
                 </div>

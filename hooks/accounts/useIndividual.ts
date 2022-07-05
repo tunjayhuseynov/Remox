@@ -21,11 +21,11 @@ export default function useIndividual(address: string, blockchain: BlockchainTyp
                 const individual = await Get_Individual(user.uid)
                 if (individual) {
                     dispatch(setIndividual(individual))
-                    dispatch(fetchBudgetExercise({
-                        addresses: individual.members,
-                        blockchain: blockchain,
-                        id: individual.id
-                    }))
+                    // dispatch(fetchBudgetExercise({
+                    //     addresses: individual.members,
+                    //     blockchain: blockchain,
+                    //     id: individual.id
+                    // }))
                     setIndividualState(individual ?? null)
                 }
                 setLoading(false)

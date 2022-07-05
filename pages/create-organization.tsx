@@ -11,6 +11,11 @@ import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastRun } from "utils/toast";
+import useSignUp from "hooks/singingProcess/useSignUp";
+import { UploadImageForUser } from "hooks/singingProcess/utils";
+import { IOrganization } from "firebaseConfig";
+import { GetTime } from "utils";
+import { generate } from "shortid";
 
 export interface IFormInput {
   nftAddress?: string;
@@ -20,8 +25,8 @@ export interface IFormInput {
 
 const CreateOrganization = () => {
   const { register, handleSubmit } = useForm<IFormInput>();
-  const { Address: address, blockchain } = useWalletKit();
-  const { Create_Organization } = useOrganization(address ?? "0", blockchain);
+  const { Address: address, blockchain, Wallet } = useWalletKit();
+  const { RegisterOrganization } = useSignUp(address ?? "0", blockchain)
 
   const navigate = useRouter()
   const dark = useAppSelector(selectDarkMode)
@@ -34,11 +39,60 @@ const CreateOrganization = () => {
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     try {
-      const orgFile = organizationFile;
-      if(organizationIsUpload && !orgFile) throw new Error("No organization file uploaded")
+      const File = organizationFile;
+      if (!address) return ToastRun(<>Please, sign in first</>)
+      if (organizationIsUpload && !File) throw new Error("No organization file uploaded")
 
-      await Create_Organization({
-        organizationFile: orgFile,
+      let image: Parameters<typeof UploadImageForUser>[0] | undefined;
+      if (File || data.nftAddress) {
+        image =
+        {
+          image: {
+            blockchain,
+            imageUrl: File ?? data.nftAddress!,
+            nftUrl: data.nftAddress ?? "",
+            tokenId: data.nftTokenId ?? null,
+            type: organizationIsUpload ? "image" : "nft"
+          },
+          name: `organizations/${data.name}`
+        }
+      }
+
+      let user: Omit<IOrganization, "id" | "created_date" | "creator"> = {
+        blockchain,
+        accounts: [
+          {
+            address: address,
+            blockchain,
+            created_date: GetTime(),
+            name: Wallet,
+            id: address,
+            image: null,
+            members: [
+              {
+                address,
+                id: generate(),
+                image: null,
+                mail: null,
+                name: data.name,
+              }
+            ],
+            provider: null,
+            signerType: "single",
+          }
+        ],
+        budget_execrises: [],
+        image: image?.image ?? null,
+        members: [address],
+        name: data.name,
+      }
+      // organizationFile: orgFile,
+      //   organizationIsUpload: organizationIsUpload,
+      //   organizationName: data.name,
+      //   organizationNFTAddress: data.nftAddress,
+      //   organizationNFTTokenId: data.nftTokenId
+      await RegisterOrganization(user, {
+        organizationFile: File,
         organizationIsUpload: organizationIsUpload,
         organizationName: data.name,
         organizationNFTAddress: data.nftAddress,

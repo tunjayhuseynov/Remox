@@ -6,7 +6,6 @@ import useNextSelector from "hooks/useNextSelector";
 
 export interface IRequest {
     id: string;
-    usdBase: boolean;
     name: string;
     surname: string;
     address: string;
@@ -14,13 +13,14 @@ export interface IRequest {
     currency: CoinsName;
     secondaryAmount?: string;
     secondaryCurrency?: CoinsName;
-
+    
     requestType: string;
     nameOfService: string;
     serviceDate: number;
     attachLink?: string;
     uploadedLink?: string;
-
+    
+    usdBase: boolean;
     timestamp: number;
     status: RequestStatus;
 }

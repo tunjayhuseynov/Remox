@@ -24,7 +24,7 @@ interface IProps {
 }
 
 
-const Chartjs = forwardRef<ChartJs | undefined, IProps>(function(props, ref) {
+const Chartjs = forwardRef<ChartJs | undefined, IProps>(function MyChart(props, ref) {
     const options = {
         responsive: true,
         layout: {

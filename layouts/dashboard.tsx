@@ -55,7 +55,6 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     //     timeout: 1000 * 60 * 45,
     //     onIdle: () => dispatch(setUnlock(false)),
     // })
-    console.log(mainAnimate)
 
     if (isFetching) return <div className="w-screen h-screen flex items-center justify-center">
         <Loader />

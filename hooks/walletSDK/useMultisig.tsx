@@ -3,7 +3,6 @@ import { toTransactionObject } from '@celo/connect';
 import { Keypair, PACKET_DATA_SIZE, PublicKey, SystemInstruction, SystemProgram, Transaction } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "rpcHooks/useFirebase";
 import { auth, IAccount, IIndividual, Image, IMember, IOrganization } from 'firebaseConfig';
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useSelector } from "react-redux";
@@ -17,8 +16,6 @@ import { fromWei, lamport, toLamport } from "utils/ray";
 import * as borsh from '@project-serum/borsh';
 import { selectBlockchain } from "redux/slices/account/network";
 import *  as spl from 'easy-spl'
-// import { createVault, instantSendNative, startTokenStream } from 'zebecprotocol-sdk'
-// import { SetWhiteListSchema, WhiteList } from 'zebecprotocol-sdk/multisig/native/schema'
 import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import BN from 'bn.js'
 import { GokiSDK } from '@gokiprotocol/client'
@@ -33,6 +30,8 @@ import { process } from "uniqid"
 import { Create_Account } from "crud/account";
 import useRemoxAccount from "hooks/accounts/useRemoxAccount";
 import useLoading from "hooks/useLoading";
+import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "redux/slices/account/thunks/account";
+import { useAppDispatch } from "redux/hooks";
 
 // import {
 //     Payment
@@ -104,10 +103,10 @@ export default function useMultisig() {
     const blockchain = useNextSelector(selectBlockchain, "celo")
     const storage = useNextSelector(selectStorage, null)
 
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
     const [transactions, setTransactions] = useState<ITransactionMultisig[]>()
 
-    const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount, Remove_Member, Add_Member, Replace_Member } = useRemoxAccount(selectedAccount, blockchain)
+    const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount } = useRemoxAccount(selectedAccount, blockchain)
 
     // const { data } = useFirestoreRead<MultisigType>("multisigs", auth.currentUser?.uid ?? "")
 
@@ -447,7 +446,7 @@ export default function useMultisig() {
     }
 
     const removeOwner = useCallback(async (ownerAddress: string) => {
-        if (isMultisig) {
+        if (isMultisig && remoxAccount) {
             try {
                 if (blockchain === 'solana') {
                     const { sdk } = await initGokiSolana();
@@ -477,7 +476,12 @@ export default function useMultisig() {
                 }
 
 
-                await Remove_Member(ownerAddress)
+                // await Remove_Member(ownerAddress)
+                dispatch(Remove_Member_From_Account_Thunk({
+                    accountAddress: selectedAccount,
+                    memberAddress: ownerAddress,
+                    remoxAccount: remoxAccount
+                }))
 
                 return true
             } catch (error) {
@@ -546,7 +550,7 @@ export default function useMultisig() {
 
 
     const addOwner = useCallback(async (newOwner: string, name = "", image: Image | null = null, mail: string | null = null) => {
-        if (isMultisig) {
+        if (isMultisig && remoxAccount) {
             try {
                 if (blockchain === 'solana') {
                     const { sdk } = await initGokiSolana();
@@ -581,8 +585,17 @@ export default function useMultisig() {
                     await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 }
 
-                await Add_Member(newOwner, name, image, mail)
-
+                // await Add_Member(newOwner, name, image, mail)
+                dispatch(Add_Member_To_Account_Thunk(
+                    {
+                        accountAddress: selectedAccount,
+                        memberAddress: newOwner,
+                        name,
+                        image,
+                        mail,
+                        remoxAccount: remoxAccount
+                    }
+                ))
 
                 return true
             } catch (error) {
@@ -628,7 +641,7 @@ export default function useMultisig() {
     }
 
     const replaceOwner = useCallback(async (oldOwner: string, newOwner: string) => {
-        if (isMultisig) {
+        if (isMultisig && remoxAccount) {
             try {
                 selectedAccount = selectedAccount.toLowerCase()
 
@@ -665,7 +678,13 @@ export default function useMultisig() {
                     await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 }
 
-                await Replace_Member(oldOwner, newOwner)
+                // await Replace_Member(oldOwner, newOwner)
+                dispatch(Replace_Member_In_Account_Thunk({
+                    accountAddress: selectedAccount,
+                    newMemberAdress: newOwner,
+                    oldMemberAddress: oldOwner,
+                    remoxAccount: remoxAccount
+                }))
 
             } catch (error) {
                 console.error(error)
@@ -878,7 +897,6 @@ export default function useMultisig() {
                     const tx = await wallet.fetchTransactionByIndex(Number(transactionId))
 
                     if (!tx) throw new Error(`Error fetching transaction`);
-                    console.log(tx)
                     // txResult = {
                     //     id: transactionId,
                     //     confirmations: tx.signers.reduce<string[]>((a, c, i) => {

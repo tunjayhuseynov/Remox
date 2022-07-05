@@ -79,8 +79,8 @@ export default async function handler(
             /*Budget Calculation */
             /*Budget Calculation */
             for (let budget of budget_exercise.budgets) {
-                let totalBudget: number = 0, totalUsed: number = 0, totalPending: number = 0, totalAvailable: number = 0;
-                const spending = await axios.get<ISpendingResponse>("/api/calculation/spending", {
+                let totalBudget: number = 0, totalBudgetUsed: number = 0, totalBudgetPending: number = 0, totalBudgetAvailable: number = 0;
+                const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
                     params: {
                         addresses: addresses,
                         blockchain: blockchain,
@@ -89,8 +89,7 @@ export default async function handler(
                 })
 
 
-                totalBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 1)));
-
+                totalBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 0)));
                 let budgetCoin: IBudgetCoin = {
                     coin: budget.token,
                     totalAmount: budget.amount,
@@ -105,16 +104,16 @@ export default async function handler(
                 totalBudgetCoin.push(budgetCoin)
 
 
-                totalUsed += spending.data.TotalSpend;
-                totalAvailable += totalBudget - totalUsed;;
+                totalBudgetUsed += spending.data.TotalSpend;
+                totalBudgetAvailable += totalBudget - totalBudgetUsed;
 
                 /*Subbudget Calculation */
                 /*Subbudget Calculation */
                 /*Subbudget Calculation */
                 let subbudgets: ISubbudgetORM[] = [];
                 for (const subbudget of budget.subbudgets) {
-                    let totalBudget: number = 0, totalUsed: number = 0, totalPending: number = 0, totalAvailable: number = 0;
-                    const spending = await axios.get<ISpendingResponse>("/api/calculation/spending", {
+                    let totalSubBudget: number = 0, totalSubUsed: number = 0, totalSubPending: number = 0, totalSubAvailable: number = 0;
+                    const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
                         params: {
                             addresses: addresses,
                             blockchain: blockchain,
@@ -122,7 +121,7 @@ export default async function handler(
                         }
                     })
 
-                    totalBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 1)));
+                    totalSubBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 1)));
 
                     let budgetCoin: IBudgetCoin = {
                         coin: subbudget.token,
@@ -135,15 +134,15 @@ export default async function handler(
                         } : null
                     }
 
-                    totalUsed += spending.data.TotalSpend;
-                    totalAvailable += totalBudget - totalUsed;;
+                    totalSubUsed += spending.data.TotalSpend;
+                    totalSubAvailable += totalSubBudget - totalSubUsed;;
 
                     subbudgets.push({
                         ...subbudget,
-                        totalBudget: totalBudget,
+                        totalBudget: totalSubBudget,
                         budgetCoins: budgetCoin,
-                        totalAvailable: totalAvailable,
-                        totalUsed: totalUsed,
+                        totalAvailable: totalSubAvailable,
+                        totalUsed: totalSubUsed,
                     })
                 }
                 /*Subbudget Calculation END*/
@@ -153,8 +152,8 @@ export default async function handler(
                 orm.push({
                     ...budget,
                     totalBudget,
-                    totalUsed,
-                    totalAvailable,
+                    totalUsed: totalBudgetUsed,
+                    totalAvailable: totalBudgetAvailable,
                     budgetCoins: budgetCoin,
                     subbudgets: subbudgets
                 })
@@ -163,7 +162,7 @@ export default async function handler(
             /*Budget Calculation END*/
             /*Budget Calculation END*/
             /*Budget Calculation END*/
-            
+
 
             exercises.push({
                 ...budget_exercise,

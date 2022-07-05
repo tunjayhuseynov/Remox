@@ -7,9 +7,7 @@ export const AddressReducer = (address: string) => {
 	}, '');
 };
 
-export function ProgressBarWidth(num: number) {
-    return {width: num + "%"}
-  }
+export const ProgressBarWidth = (num: number) => ({ width: num + "%" })
 
 export const WordSplitter = (word: string) => {
 	return word.split('').reduce((a, c) => {

@@ -4,12 +4,12 @@ import { IRemoxData } from "../remoxData";
 export default {
     addContributor: (state: IRemoxData, action: { payload: IuseContributor[] }) => {
         if (action.payload !== undefined) {
-            state.contributors.contributors.push(...action.payload);
+            state.contributors.push(...action.payload);
         }
     },
     addMemberToContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.contributors.find((contributor) => contributor.id === action.payload.id);
+            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
             if (contributor !== undefined) {
                 contributor.members.push(action.payload.member);
             }
@@ -17,7 +17,7 @@ export default {
     },
     removeMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.contributors.find((contributor) => contributor.id === action.payload.id);
+            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
             if (contributor !== undefined) {
                 contributor.members = contributor.members.filter((member) => member.id !== action.payload.member.id);
             }
@@ -28,15 +28,13 @@ export default {
             const teams = action.payload.data.map((contributor) => ({
                 ...contributor
             }));
-            state.contributors.contributors = teams;
-            if (!state.contributors.isFetched) {
-                state.contributors.isFetched = true;
-            }
+            state.contributors = teams;
+
         }
     },
     removeContributor: (state: IRemoxData, action: { payload: string }) => {
         if (action.payload !== undefined) {
-            state.contributors.contributors = state.contributors.contributors.filter((contributor) => contributor.id !== action.payload);
+            state.contributors = state.contributors.filter((contributor) => contributor.id !== action.payload);
         }
     }
 }

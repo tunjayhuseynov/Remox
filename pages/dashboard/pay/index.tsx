@@ -107,7 +107,7 @@ const Pay = () => {
                 }
             }
             if (!GetCoins) return
-            if (storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
+            if(selectedAccount){ // if (storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
                 if (result.length === 1) {
                     // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                     await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins] as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)

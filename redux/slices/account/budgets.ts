@@ -140,7 +140,7 @@ const budgetSlice = createSlice({
 })
 
 export const SelectBudgetExercise = (state: RootState) => state.budgets.budget_exercises;
-export const SelectBudgetExerciseStatus = (state: RootState) => state.budgets.isDone;
+export const SelectBudgetExerciseStatus = (state: RootState) => state.budgets.isFetched;
 
 
 export const {

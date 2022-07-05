@@ -48,7 +48,7 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
         return await Create_Individual(individualState)
     }, [address, blockchain])
 
-    const RegisterOrganization = useCallback(async (organization: Omit<IOrganization, "id" | "created_date">, input: IOrganizationCreate) => {
+    const RegisterOrganization = useCallback(async (organization: Omit<IOrganization, "id" | "created_date" | "creator">, input: IOrganizationCreate) => {
         if (await isOrganizationExisting(organization.name, blockchain)) throw new Error("User already registered");
 
         if (!auth.currentUser) throw new Error("User not logged in");
@@ -90,6 +90,7 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
         const response = await Create_Organization({
             ...organization,
             id,
+            creator: Get_Individual_Ref(individual.id),
             created_date: GetTime(),
         })
         dispatch(setStorage({

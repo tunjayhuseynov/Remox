@@ -43,7 +43,6 @@ const Home = () => {
 
   const connectEvent = async () => {
     try {
-      console.log(address)
       if (!address) {
         await Connect()
       }

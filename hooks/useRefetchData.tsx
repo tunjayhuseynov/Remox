@@ -94,13 +94,13 @@ const useRefetchData = () => {
 
     }
 
-    useEffect(() => {
-        if (selectedAccount) {
-            txsFetch({ addresses: [selectedAccount], blockchain: blockchain, authId: auth.currentUser?.uid }).unwrap().then((res) => {
-                setTxs(res)
-            }).catch((error) => { console.error(error) })
-        }
-    }, [selectedAccount])
+    // useEffect(() => {
+    //     if (selectedAccount) {
+    //         txsFetch({ addresses: [selectedAccount], blockchain: blockchain, authId: auth.currentUser?.uid }).unwrap().then((res) => {
+    //             setTxs(res)
+    //         }).catch((error) => { console.error(error) })
+    //     }
+    // }, [selectedAccount])
 
     return { fetching, isAppLoaded: isTxDone && isBalanceDone };
 }

@@ -7,8 +7,6 @@ import AddStopModal from 'subpages/dashboard/automations/buttons/addStop';
 import Modal from 'components/general/modal';
 import TeamContainer from 'subpages/dashboard/automations/teamContainer'
 import Button from 'components/button';
-import TokenBalance from "subpages/dashboard/requests/tokenBalance"
-import TotalAmount from "subpages/dashboard/requests/totalAmount"
 import { useWalletKit } from 'hooks';
 import { Coins } from 'types';
 import Loader from 'components/Loader';

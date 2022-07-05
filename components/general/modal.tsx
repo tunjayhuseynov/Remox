@@ -21,14 +21,14 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
 
     }, [openNotify])
 
-    if (!animatedModal) {
-        useEffect(() => {
-            document.querySelector('body')!.style.overflowY = "hidden"
-            return () => {
-                document.querySelector('body')!.style.overflowY = ""
-            }
-        }, [])
-    }
+    // if (!animatedModal) {
+    //     useEffect(() => {
+    //         document.querySelector('body')!.style.overflowY = "hidden"
+    //         return () => {
+    //             document.querySelector('body')!.style.overflowY = ""
+    //         }
+    //     }, [])
+    // }
 
     return <>
         {animatedModal ?  ReactDOM.createPortal( <AnimatePresence>{openNotify &&

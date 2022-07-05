@@ -8,12 +8,14 @@ import useMultisig from 'hooks/walletSDK/useMultisig';
 import { AddressReducer } from "../../utils";
 import { useRef, useState, Dispatch } from "react";
 import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
+import { SelectAccountType, SelectProviderAddress } from 'redux/slices/account/remoxData';
 
 export default function Create({ setCreateModal }: { setCreateModal: Dispatch<boolean> }) {
 
-    const { createMultisigAccount, isLoading } = useMultisig()
+    const { createMultisigAccount } = useMultisig()
     const storage = useSelector(selectStorage)
-    const selectedAddress = useSelector(SelectSelectedAccount)
+    const accountType = useSelector(SelectAccountType)
+    const selectedAddress = useSelector(SelectProviderAddress)
 
     const addressRef = useRef<HTMLInputElement>(null)
     const nameRef = useRef<HTMLInputElement>(null)
@@ -40,7 +42,9 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                     owners.map(owner => owner.address),
                     name,
                     sign.toString(),
-                    internalSign.toString()
+                    internalSign.toString(),
+                    null,
+                    accountType!
                 )
 
                 dispatch(changeSuccess({ activate: true, text: "Successfully" }))
@@ -84,7 +88,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                         <span className="w-[1.563rem] h-[1.563rem] text-center mr-4 font-bold rounded-full bg-greylish bg-opacity-10 flex items-center justify-center self-center">YA</span>
                         <div className="grid grid-col">
                             <h3>Your Account</h3>
-                            <p className="opacity-80">{AddressReducer(storage?.accountAddress ?? "")}</p>
+                            <p className="opacity-80">{AddressReducer(selectedAddress ?? "")}</p>
                         </div>
                     </div>
                     {owners.map((w) => {
@@ -116,7 +120,7 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                 <Button className="!px-10 !py-2" version="second" onClick={() => setCreateModal(false)}>
                     Cancel
                 </Button>
-                <Button className="!px-10 !py-2" onClick={createClick} isLoading={isLoading}>
+                <Button className="!px-10 !py-2" onClick={createClick} isLoading={/*isLoading*/false}>
                     Create
                 </Button>
             </div>
