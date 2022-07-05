@@ -161,4 +161,5 @@ async function handler(
 
 }
 
-export default withSentry(handler);
+// export default withSentry(handler);
+export default handler;

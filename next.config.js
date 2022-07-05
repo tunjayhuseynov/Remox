@@ -30,7 +30,7 @@ const sentryWebpackPluginOptions = {
   // recommended:
   //   release, url, org, project, authToken, configFile, stripPrefix,
   //   urlPrefix, include, ignore
-
+  token: process.env.SENTRY_AUTH_TOKEN,
   silent: true, // Suppresses all logs
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options.
@@ -43,6 +43,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+// module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
 
-// module.exports = nextConfig // withBundleAnalyzer(nextConfig)
+module.exports = nextConfig // withBundleAnalyzer(nextConfig)
