@@ -1,6 +1,5 @@
 import { Alfajores, ContractKitProvider, Mainnet } from '@celo-tools/use-contractkit'
 import { useMemo } from 'react';
-import { BaseUrl } from 'utils/const';
 import {
     LedgerWalletAdapter,
     PhantomWalletAdapter,
@@ -15,6 +14,7 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
     WalletModalProvider,
 } from '@solana/wallet-adapter-react-ui';
+import { BASE_URL } from 'utils/api';
 
 export const SolanaEndpoint = "https://explorer-api.mainnet-beta.solana.com/"
 export default function Wallet({ children }: { children: JSX.Element }) {
@@ -44,9 +44,9 @@ export default function Wallet({ children }: { children: JSX.Element }) {
                     <ContractKitProvider
                         dapp={{
                             name: 'Remox DAO',
-                            icon: `${BaseUrl}/favicon.png`,
+                            icon: `${BASE_URL}/favicon.png`,
                             description: 'Remox - Contributor and Treasury Management Platform',
-                            url: `${BaseUrl}`,
+                            url: `${BASE_URL}`,
                         }}
                         networks={[Mainnet, Alfajores]}
                     >

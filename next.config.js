@@ -2,6 +2,7 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const nextConfig = {
+  
   reactStrictMode: true,
   webpack5: true,
   webpack: (config) => {

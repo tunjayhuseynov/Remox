@@ -4,10 +4,10 @@ import Modal from 'components/general/modal';
 import Copied from "components/copied";
 import { useSelector } from 'react-redux';
 import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
-import { BaseUrl } from 'utils/const';
 import AnimatedTabBar from 'components/animatedTabBar';
 import DynamicRequest from 'subpages/dashboard/requests/dynamicRequests';
 import { useRouter } from 'next/router';
+import { BASE_URL } from 'utils/api';
 
 export default function RequestLayout() {
     const [modalVisibility, setModalVisible] = useState(false)
@@ -55,11 +55,11 @@ export default function RequestLayout() {
                     </div>
                     <div className="bg-greylish bg-opacity-10 flex justify-between items-center   w-1/2 rounded-xl">
                         <div className="truncate w-3/4 py-2 pl-1">
-                            {BaseUrl}/requests/{selectedAccount}
+                            {BASE_URL}/requests/{selectedAccount}
                         </div>
                         <div ref={setDivRef}>
                         <Button  className="!py-1 px-2   tracking-wider flex items-center"onClick={() => {
-                            navigator.clipboard.writeText(BaseUrl + "/requests/" + selectedAccount)
+                            navigator.clipboard.writeText(BASE_URL + "/requests/" + selectedAccount)
                             setTooltip(true)
                             setTimeout(() => {
                                 setTooltip(false)
