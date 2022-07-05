@@ -1,16 +1,9 @@
-import { FirestoreRead, FirestoreReadMultiple, FirestoreWrite } from "rpcHooks/useFirebase";
-import { individualCollectionName } from "crud/individual";
 import { registeredIndividualCollectionName } from "crud/registeredIndividual";
-import { getAuth, inMemoryPersistence, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db, IIndividual, IRegisteredIndividual } from "firebaseConfig";
+import { IRegisteredIndividual } from "firebaseConfig";
 import { NextApiRequest, NextApiResponse } from "next";
 import { process as Process } from 'uniqid'
 import { GetTime } from "utils";
-import admin from "firebase-admin";
-import serviceAccount from "firebaseConfig/account.json";
-import { doc, getDoc } from "firebase/firestore";
-import { getApp } from "firebase-admin/app";
-import { adminApp} from 'firebaseConfig/admin';
+import { adminApp } from 'firebaseConfig/admin';
 import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 
 export default async function handler(
@@ -31,8 +24,8 @@ export default async function handler(
             });
             return;
         }
-        
-        
+
+
 
         // const inds = await FirestoreRead<IRegisteredIndividual>(registeredIndividualCollectionName, publicKey as string)
 
@@ -78,7 +71,7 @@ export default async function handler(
         return res.status(200).send(inds.nonce);
     } catch (error: any) {
         console.error(error)
-        res.status(500).json({error: error.message})
+        res.status(500).json({ error: error.message })
     }
 
 }
