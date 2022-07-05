@@ -18,7 +18,7 @@ export default async function handler(
     res: NextApiResponse<any>
 ) {
     try {
-        if (!process.env.EMAIL || !process.env.PASSWORD) throw new Error("Missing env variables");
+        // if (!process.env.EMAIL || !process.env.PASSWORD) throw new Error("Missing env variables");
 
         // await setPersistence(auth, inMemoryPersistence)
         // await signInWithEmailAndPassword(auth, process.env.EMAIL, process.env.PASSWORD);
