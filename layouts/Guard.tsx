@@ -7,14 +7,14 @@ import { useWalletKit } from 'hooks'
 
 export default function Guard({ children }: { children: JSX.Element }) {
     // const isUnlock = useSelector(selectUnlock)
-    const router = useRouter()
-    const { Connected } = useWalletKit()
+    // const router = useRouter()
+    // const { Connected } = useWalletKit()
 
-    useEffect(() => {
-        if (!isUserAllowToSystem() && !Connected) router.push("/")
-    }, [])
+    // useEffect(() => {
+    //     if (!isUserAllowToSystem() && !Connected) router.push("/")
+    // }, [])
 
-    if (!isUserAllowToSystem()) return <></>
+    // if (!isUserAllowToSystem()) return <></>
     return (
         <>{children}</>
     )

@@ -55,7 +55,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
                     <DashboardLayout>
                       <Component {...pageProps} />
                     </DashboardLayout>
-
                 }
               </Guard>
           }

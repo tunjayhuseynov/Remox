@@ -3,6 +3,8 @@ import { useFirestoreRead } from "./useFirebase";
 import { useSelector } from "react-redux";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useNextSelector from "hooks/useNextSelector";
+import { useAppSelector } from "redux/hooks";
+import { SelectProviderAddress } from "redux/slices/account/remoxData";
 
 export interface IRequest {
     id: string;
@@ -13,13 +15,13 @@ export interface IRequest {
     currency: CoinsName;
     secondaryAmount?: string;
     secondaryCurrency?: CoinsName;
-    
+
     requestType: string;
     nameOfService: string;
     serviceDate: number;
     attachLink?: string;
     uploadedLink?: string;
-    
+
     usdBase: boolean;
     timestamp: number;
     status: RequestStatus;
@@ -34,9 +36,9 @@ export enum RequestStatus {
 
 export default function useRequest() {
 
-    const selectedAddress = useNextSelector(SelectSelectedAccount)
+    const selectedAddress = useAppSelector(SelectProviderAddress)
 
-    let { data } = useFirestoreRead<{ requests: IRequest[] }>('requests', selectedAddress?.toLowerCase() ?? "0");
+    let { data } = useFirestoreRead<{ requests: IRequest[] }>('requests', selectedAddress?.toLowerCase() ?? "0x");
 
     return { data };
 }

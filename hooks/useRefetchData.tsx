@@ -1,67 +1,33 @@
-import useContributors from 'rpcHooks/useContributors'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { setContributors } from 'redux/slices/account/contributors'
 import useCurrency from '../rpcHooks/useCurrency'
 import { IBalanceMembers, setOrderBalance, updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/slices/currencies'
-import { SelectSelectedAccount } from '../redux/slices/account/selectedAccount'
-import { setParsedTransactions } from '../redux/slices/account/transactions'
 import useRequest from 'rpcHooks/useRequest'
 import { addRequests } from 'redux/slices/requests'
 import { useListenTags } from 'rpcHooks/useTags'
 import { setTags } from 'redux/slices/tags'
 import useWalletKit from './walletSDK/useWalletKit'
-import { IFormattedTransaction } from './useTransactionProcess'
-import useInsight from 'rpcHooks/useInsight'
-import { useLazyGetAccountBalancePriceQuery, useLazyGetAccountTransactionsQuery } from 'redux/api'
-import { auth } from 'firebaseConfig'
-import useNextSelector from './useNextSelector'
+import { useLazyGetAccountBalancePriceQuery } from 'redux/api'
 import useAsyncEffect from './useAsyncEffect'
-import { setAccountStats } from 'redux/slices/account/accountstats'
+import { useAppSelector } from 'redux/hooks'
+import { SelectProviderAddress } from 'redux/slices/account/remoxData'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
 
-    const selectedAccount = useNextSelector(SelectSelectedAccount)
-    const [accounts, setAccounts] = useState<string[]>(selectedAccount ? [selectedAccount] : [])
-    useEffect(() => setAccounts(selectedAccount ? [selectedAccount] : []), [selectedAccount])
+    const selectedAccount = useAppSelector(SelectProviderAddress)
 
-    const [txsFetch] = useLazyGetAccountTransactionsQuery()
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
 
     const fetchedCurrencies = useCurrency()
-    const contributors = useContributors()
     const { data } = useRequest()
-    // const { setGenLoading } = useRequestHook()
 
     const tagData = useListenTags()
     const { blockchain } = useWalletKit()
-    const [txs, setTxs] = useState<IFormattedTransaction[]>([])
 
-    const insight = useInsight({ selectedDate: 0, selectedAccounts: accounts })
-
-    const [isTxDone, setTxDone] = useState<boolean>(false)
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
 
-    // useEffect(() => {
-    //     if (selectedAccount) {
-    //         setAccounts([selectedAccount])
-    //     }
-    // }, [selectedAccount])
-
-    useEffect(() => { if (!insight.isLoading) dispatch(setAccountStats(insight)) }, [insight])
-
-
     useEffect(() => { if (data) setTimeout(() => { dispatch(addRequests(data!.requests)) }, 1500) }, [data])
-
-    useEffect(() => {
-        if (txs) {
-            dispatch(setParsedTransactions(txs))
-            setTxDone(true)
-        }
-    }, [txs])
-
-    useEffect(() => { if (contributors) setTimeout(() => { dispatch(setContributors({ data: contributors })) }, 1500) }, [contributors])
 
     useEffect(() => {
         if (tagData && tagData?.tags && tagData?.tags.length > 0) {
@@ -94,15 +60,7 @@ const useRefetchData = () => {
 
     }
 
-    // useEffect(() => {
-    //     if (selectedAccount) {
-    //         txsFetch({ addresses: [selectedAccount], blockchain: blockchain, authId: auth.currentUser?.uid }).unwrap().then((res) => {
-    //             setTxs(res)
-    //         }).catch((error) => { console.error(error) })
-    //     }
-    // }, [selectedAccount])
-
-    return { fetching, isAppLoaded: isTxDone && isBalanceDone };
+    return { fetching, isAppLoaded: isBalanceDone };
 }
 
 export default useRefetchData;
