@@ -20,14 +20,12 @@ const useRefetchData = () => {
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
 
     const fetchedCurrencies = useCurrency()
-    const { data } = useRequest()
 
     const tagData = useListenTags()
     const { blockchain } = useWalletKit()
 
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
 
-    useEffect(() => { if (data) setTimeout(() => { dispatch(addRequests(data!.requests)) }, 1500) }, [data])
 
     useEffect(() => {
         if (tagData && tagData?.tags && tagData?.tags.length > 0) {

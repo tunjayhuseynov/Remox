@@ -39,6 +39,7 @@ export interface IRemoxData {
     totalBalance: number, // +
     storage: IStorage | null,
     providerAddress: string | null,
+    providerID: string | null,
     accountType: IAccountType | null,
     multisigStats: IMultisigStats | null,
 }
@@ -56,6 +57,7 @@ const init = (): IRemoxData => {
         providerAddress: null,
         accountType: null,
         multisigStats: null,
+        providerID: null,
     }
 }
 
@@ -71,6 +73,9 @@ const remoxDataSlice = createSlice({
         ...StorageReducers,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
+        },
+        setProviderID: (state: IRemoxData, action: { payload: string }) => {
+            state.providerID = action.payload;
         },
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
@@ -109,6 +114,11 @@ const remoxDataSlice = createSlice({
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
             state.storage = action.payload.Storage;
             state.accountType = action.payload.Storage.signType;
+            if (action.payload.Storage.signType === "individual") {
+                state.providerID = action.payload.Storage.individual.accounts[0].id;
+            } else if (action.payload.Storage.signType === "organization" && action.payload.Storage.organization) {
+                state.providerID = action.payload.Storage.organization.id
+            }
             state.isFetching = false;
         });
         builder.addCase(launchApp.rejected, (state, action) => {
@@ -121,6 +131,11 @@ const remoxDataSlice = createSlice({
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (storage) => storage
+)
+
+export const SelectID = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.providerID,
+    (Id) => Id
 )
 
 export const SelectAccounts = createDraftSafeSelector(

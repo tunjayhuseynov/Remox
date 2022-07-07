@@ -42,6 +42,7 @@ async function handler(
         if (!inds) throw new Error("Individual not found");
 
         let password;
+        let mail = `${publicKey}Remox@gmail.com`;
         if (inds.blockchain === "celo") {
             const msgBufferHex = bufferToHex(Buffer.from("Your nonce for signing is " + inds.nonce, 'utf8'));
             const address = recoverPersonalSignature({
@@ -151,7 +152,27 @@ async function handler(
             nonce
         })
 
-        return res.status(200).send(password);
+
+        // This algo is for finding the individual which belongs to this public key and get its real mail and password
+        const findWhichIndividual = await adminApp.firestore().collection(individualCollectionName).where("members", "array-contains", publicKey as string).get()
+        if (!findWhichIndividual.empty) {
+            const getIndividual = findWhichIndividual.docs[0].data() as IIndividual;
+            if (getIndividual.members.length === 0) throw new Error("No member in individual");
+            const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(getIndividual.members[0] as string).get()
+            mail = `${getIndividual.members[0]}Remox@gmail.com`;
+            if (ss.exists) {
+                const data = ss.data()
+                if (data) {
+                    password = data.password
+                }
+            }
+
+        }
+
+        return res.status(200).send({
+            password,
+            mail
+        });
     } catch (error: any) {
         console.log(error);
         return res.status(500).send({
