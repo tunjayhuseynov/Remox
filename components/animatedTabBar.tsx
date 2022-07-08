@@ -1,16 +1,15 @@
-import { motion, AnimateSharedLayout } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function AnimatedTabBar({ data, setText, setStream, className }: { data: { to: string, text: string }[], setText?: React.Dispatch<React.SetStateAction<string>>, setStream?: React.Dispatch<React.SetStateAction<boolean>>, className?: string }) {
-    const [selected, setSelected] = useState(0);
-
+export default function AnimatedTabBar({ data, index, setText, setStream, className }: { data: { to: string, text: string }[], index: number, setText?: React.Dispatch<React.SetStateAction<string>>, setStream?: React.Dispatch<React.SetStateAction<boolean>>, className?: string }) {
+    const [selected, setSelected] = useState(index);
 
     return (
         <>
             {
                 data.map((item, i) => {
-                    const alltext = item.text.split(" ") as string[];
+                    // const alltext = item.text.split(" ") as string[];
                     // const isMultiword = alltext.length > 1;
                     // const lastWord = alltext.pop()
                     // const finalText = alltext.join(" ")

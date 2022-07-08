@@ -118,7 +118,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
             </div>
             {detect &&
                 //   <Paydropdown className2={''} className={''} paymentname={paymentname}  value={value} setValue={setValue} />
-                <Dropdown parentClass={' w-[65%]  bg-light !z-[9999]'} childClass={'rounded-lg  bg-light'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <Dropdown parentClass={' w-[65%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]'} childClass={'rounded-lg  bg-light dark:bg-darkSecond'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                     setSelectedPayment(e)
                 }} />
 

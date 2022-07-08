@@ -16,15 +16,17 @@ import StorageReducers from './reducers/storage'
 import { IAccountORM } from "pages/api/account";
 import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk } from "./thunks/account";
 import { IMember } from "firebaseConfig";
+import { IFormattedTransaction } from "hooks/useTransactionProcess";
 
 export type IAccountType = "individual" | "organization";
 
 
 // Bizim ana sehfedeki multisig hesablarindaki umumi datalarimiz
 export interface IMultisigStats {
-    pendingRequests: IAccountMultisig[],
-    approvedRequests: IAccountMultisig[],
-    signingNeedRequests: IAccountMultisig[],
+    pendingRequests: IAccountMultisig,
+    approvedRequests: IAccountMultisig,
+    rejectedRequests: IAccountMultisig,
+    signingNeedRequests: IAccountMultisig,
 }
 
 
@@ -42,6 +44,7 @@ export interface IRemoxData {
     providerID: string | null,
     accountType: IAccountType | null,
     multisigStats: IMultisigStats | null,
+    transactions: IFormattedTransaction[]
 }
 
 const init = (): IRemoxData => {
@@ -58,6 +61,7 @@ const init = (): IRemoxData => {
         accountType: null,
         multisigStats: null,
         providerID: null,
+        transactions: []
     }
 }
 
@@ -113,6 +117,8 @@ const remoxDataSlice = createSlice({
             state.accounts = action.payload.RemoxAccount.accounts;
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
             state.storage = action.payload.Storage;
+            state.transactions = action.payload.Transactions;
+
             state.accountType = action.payload.Storage.signType;
             if (action.payload.Storage.signType === "individual") {
                 state.providerID = action.payload.Storage.individual.accounts[0].id;
@@ -131,6 +137,16 @@ const remoxDataSlice = createSlice({
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (storage) => storage
+)
+
+export const SelectMultisig = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.multisigStats,
+    (multiStats) => multiStats
+)
+
+export const SelectTransactions = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.transactions,
+    (transactions) => transactions
 )
 
 export const SelectID = createDraftSafeSelector(
