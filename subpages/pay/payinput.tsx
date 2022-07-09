@@ -104,7 +104,7 @@ const Input = ({ incomingIndex, text, stream, request = false, setSelectedType, 
             <div className="flex flex-col ">
             <div className="flex justify-between relative">
             <span className="text-left text-sm pb-1 ml-2" >Amount</span>
-                <div className="absolute -top-[-2.75rem] -right-[2rem]">
+                <div className="absolute  -top-[-2.75rem] -right-[2rem]">
                     { <BsFillTrashFill className="text-red-500 cursor-pointer w-5 h-5" onClick={() => {
                        setAnotherToken(false)
                         //setRefreshPage(generate())
@@ -112,8 +112,8 @@ const Input = ({ incomingIndex, text, stream, request = false, setSelectedType, 
                 </div></div>
                 {stream && text === "Recurring" ? <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-gray-300 border dark:border-darkSecond dark:bg-gray-300 text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                     <input className="outline-none unvisibleArrow bg-gray-300 dark:bg-gray-600 pl-2 dark:text-white" readOnly defaultValue={amount2} type="number" name={`amount__${index + 1}`}  />
-                    {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                </div> : <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-white border dark:border-darkSecond dark:bg-gray-300 text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+                    {isBasedOnDollar && <span className="text-xs  self-center opacity-70 dark:text-white">USD as</span>}
+                </div> : <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-white border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                    
                     <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Your Amount here" defaultValue={amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
                         setAmount2(Number(e.target.value))

@@ -39,12 +39,12 @@ const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
 
     return <>
         {
-            modalEditVisible && <Modal onDisable={setModalEditVisible} disableX={true} >
+            modalEditVisible && <Modal onDisable={setModalEditVisible} animatedModal={false} disableX={true} >
                 <EditMember {...props} onCurrentModal={setModalVisible} onDisable={setModalEditVisible} />
             </Modal>
         }
         {
-            deleteModal && <Modal onDisable={setDeleteModal} disableX={true} className={'!pt-4'}>
+            deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-4'}>
                 <Delete name={props.name} onCurrentModal={setDeleteModal} onDelete={onDelete} />
             </Modal>
         }
@@ -108,7 +108,7 @@ const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
                     </div>}
                 </span>
             </div>
-            {modalVisible && <Modal onDisable={setModalVisible}>
+            {modalVisible && <Modal onDisable={setModalVisible} animatedModal={false}>
                 <Profile {...props} member={props} onDeleteModal={setDeleteModal} onCurrentModal={setModalVisible} onEditModal={setModalEditVisible} />
             </Modal>}
         </div>

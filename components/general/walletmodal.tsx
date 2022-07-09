@@ -11,9 +11,8 @@ import useMultiWallet from 'hooks/useMultiWallet';
 import { WordSplitter } from 'utils';
 import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
-import Paydropdown from "subpages/pay/paydropdown";
-import { motion, AnimatePresence } from "framer-motion"
 import { DashboardContext } from 'layouts/dashboard';
+import { motion, AnimatePresence } from "framer-motion"
 import ReactDOM, { createPortal } from 'react-dom';
 
 function Walletmodal({ setNotify2,setNotify, openNotify,openNotify2, setItem, selectedItem, paymentname, paymentname2, selectedPayment, selectedPayment2, setSelectedPayment2, setSelectedPayment }: { paymentname: DropDownItem[], paymentname2: DropDownItem[], selectedPayment: DropDownItem, selectedPayment2: DropDownItem, setItem: React.Dispatch<SetStateAction<DropDownItem>>, selectedItem: DropDownItem, setSelectedPayment: React.Dispatch<SetStateAction<DropDownItem>>, setSelectedPayment2: React.Dispatch<SetStateAction<DropDownItem>>,setNotify: React.Dispatch<SetStateAction<boolean>>, setNotify2: React.Dispatch<SetStateAction<boolean>>, openNotify: boolean, openNotify2: boolean }) {
@@ -37,14 +36,9 @@ function Walletmodal({ setNotify2,setNotify, openNotify,openNotify2, setItem, se
             setMainAnimate(2)
         }
          else {
-            // document.querySelector('main')!.style.display = ""
-            // document.querySelector('main')!.style.transform = "translateX(0)"
-            // document.querySelector('main')!.style.transition = "transform 0.33s ease-out"
             document.querySelector('body')!.style.overflowY = ""    
             setMainAnimate(0)       
         }
-
-
     }, [openNotify])
 
     // type Props = { onDisable: React.Dispatch<SetStateAction<boolean>>, setModals: React.Dispatch<SetStateAction<boolean>>, setNotify: React.Dispatch<SetStateAction<boolean>>, openNotify: boolean };

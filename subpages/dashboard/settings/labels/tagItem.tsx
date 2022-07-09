@@ -68,7 +68,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
     return (
         <>
                     {editModal &&
-                <Modal onDisable={setEditModal} disableX={true} className=" !pt-5 overflow-visible ">
+                <Modal onDisable={setEditModal} animatedModal={false} disableX={true} className=" !pt-5 overflow-visible ">
                     <div className="flex flex-col space-y-12 items-center">
                         <div className="font-semibold tracking-wider text-2xl">
                             Edit tag
@@ -111,7 +111,7 @@ export default function TagItem({ tag }: { tag: Tag }) {
                 </Modal>
             }
             {deleteModal &&
-                <Modal onDisable={setDeleteModal} disableX={true}>
+                <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true}>
                     <Delete name={`${tag.name} tag`} onCurrentModal={setDeleteModal} onDelete={DeleteTag} />
                 </Modal>}
             <div className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[60%,35%,1fr] border-b  py-6 px-10 relative" >

@@ -36,7 +36,7 @@ export default function RequestLayout() {
             <div className="flex justify-between pb-6 ">
                 <div className="text-4xl font-bold tracking-wider">Requests</div>
                 <div>
-                    <Button className="mt-1 !py-1 px-4 rounded-xl  font-semibold tracking-wider flex items-center" onClick={() => setModalVisible(true)}> Share Request Link    </Button>
+                    <Button className="mt-1 !py-2 px-4 rounded-xl  font-semibold tracking-wider flex items-center" onClick={() => setModalVisible(true)}> Share Request Link    </Button>
                 </div>
             </div>
             <div className="flex  w-[83%] justify-between">
@@ -45,7 +45,7 @@ export default function RequestLayout() {
             <div className=" py-5 h-full">
                 <DynamicRequest type={type?.[0] === "approved" ? "approved" : type?.[0] === "rejected" ? "rejected" : "pending"} />
             </div>
-            {modalVisibility && <Modal onDisable={setModalVisible} className={'!py-8 !pt-1'}>
+            {modalVisibility && <Modal onDisable={setModalVisible} animatedModal={false} className={'!py-8 !pt-1'}>
                 <div className="flex flex-col space-y-5 items-center">
                     <div className="text-xl font-semibold tracking-wider pt-12 py-1">
                         Invite Link

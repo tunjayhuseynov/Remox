@@ -33,12 +33,12 @@ export default function Card({ box, type }: { box: LendingUserComponentData, typ
                 </div>
             </div>
             {leftModal && ((box.lendingBalance !== 0 && isLending) || (box.loanBalance !== 0 && !isLending)) &&
-                <Modal onDisable={setLeftModal} className="lg:min-w-[30%]" disableX={true}>
+                <Modal onDisable={setLeftModal} animatedModal={false} className="lg:min-w-[30%]" disableX={true}>
                     <MdContent box={box} type={isLending ? "withdraw" : "repay"} setModal={setLeftModal} />
                 </Modal>
             }
             {rightModal &&
-                <Modal onDisable={setRightModal} className="lg:min-w-[30%]" disableX={true}>
+                <Modal onDisable={setRightModal} animatedModal={false} className="lg:min-w-[30%]" disableX={true}>
                     <MdContent box={box} type={isLending ? "deposit" : "borrow"} setModal={setRightModal} />
                 </Modal>
             }

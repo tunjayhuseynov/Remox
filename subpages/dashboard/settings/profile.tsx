@@ -58,16 +58,16 @@ const ProfileSetting = () => {
 
 
     return <div className=" py-5 flex flex-col space-y-10">
-        {orgphoto && <Modal onDisable={setOrgphoto} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
+        {orgphoto && <Modal onDisable={setOrgphoto} animatedModal={false} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
                         <Orgphoto setOrgphoto={setOrgphoto} />
                 </Modal>}
-                {orgname && <Modal onDisable={setOrgname} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
+                {orgname && <Modal onDisable={setOrgname} animatedModal={false} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
                         <Orgname setOrgname={setOrgname} />
                 </Modal>}
-                {photo && <Modal onDisable={setPhoto} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
+                {photo && <Modal onDisable={setPhoto} animatedModal={false} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
                     <Photo setPhoto={setPhoto} />
                 </Modal>}
-                {name && <Modal onDisable={setName} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
+                {name && <Modal onDisable={setName} animatedModal={false} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
                    <Name setName={setName} />
                 </Modal>}
 

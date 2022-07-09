@@ -21,7 +21,7 @@ import useNextSelector from 'hooks/useNextSelector';
 const Sidebar = () => {
 
     const { Disconnect, blockchain } = useWalletKit()
-    const { data, importMultisigAccount, isLoading } = useMultisig()
+    // const { data, importMultisigAccount, isLoading } = useMultisig()
     const navigator = useRouter()
     const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
     const selectedAccount = useNextSelector(SelectSelectedAccount)
@@ -38,19 +38,19 @@ const Sidebar = () => {
     const importNameInputRef = useRef<HTMLInputElement>(null)
     const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })
 
-    const importClick = async () => {
-        if (importInputRef.current && importInputRef.current.value) {
-            try {
-                await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""))
-                dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
-                setImportModal(false)
-            } catch (error: any) {
-                console.error(error)
-                dispatch(changeError({ activate: true, text: (error || "Something went wrong") }))
-                setImportModal(false)
-            }
-        }
-    }
+    // const importClick = async () => {
+    //     if (importInputRef.current && importInputRef.current.value) {
+    //         try {
+    //             await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""))
+    //             dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
+    //             setImportModal(false)
+    //         } catch (error: any) {
+    //             console.error(error)
+    //             dispatch(changeError({ activate: true, text: (error || "Something went wrong") }))
+    //             setImportModal(false)
+    //         }
+    //     }
+    // }
 
     const [list, setList] = useState<DropDownItem[]>([])
 
@@ -66,8 +66,8 @@ const Sidebar = () => {
     }, [])
 
     return <>
-        <div className="hidden md:block z-[1] md:col-span-2 w-[17.188rem] flex-none fixed pt-28 bg-light dark:bg-dark">
-            <div className="grid grid-rows-[85%,1fr] pb-4 pl-4 lg:pl-10 h-full">
+        <div className="h-full hidden md:block z-[1] md:col-span-2 w-[17.188rem] flex-none fixed pt-28 bg-light dark:bg-dark">
+            <div className="grid grid-rows-[100%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">
                     <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {                     
                             setItem(w)
@@ -82,7 +82,7 @@ const Sidebar = () => {
             </div>
         </div>
 
-        {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
+        {/* {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
             <div className="flex flex-col gap-8 mt-[-2rem]">
                 <div className="text-center font-semibold pt-4 text-xl">Multi-Signature Account</div>
                 <div className="flex space-x-3 border border-greylish  py-3 rounded-md cursor-pointer items-center justify-center" onClick={() => {
@@ -125,7 +125,7 @@ const Sidebar = () => {
             isCreateModal && <Modal onDisable={setCreateModal} disableX={true}>
                 <Create setCreateModal={setCreateModal} />
             </Modal>
-        }
+        } */}
         {/* {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
         {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />} */}
     </>

@@ -75,7 +75,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
             {text === "Import Wallet" && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Profile Photo Type</div>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]  dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                         setSelectedPayment(e)
                         if (e.name === "NFT") setOrganizationIsUpload(false)
                         else setOrganizationIsUpload(true)
@@ -95,7 +95,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                 </div>}
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Wallet Provider</div>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
                         setSelectedPayment2(e)
                     }} />
                 </div>

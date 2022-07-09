@@ -216,7 +216,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                         </Modal>
                         <div className="w-full   pt-4 pb-6 ">
                             <div className="grid grid-cols-[25%,20%,20%,22%,13%] py-1   font-semibold tracking-wide items-center rounded-xl  sm:mb-5 px-1 ">
-                                <div className="flex pl-4 items-center space-x-2 min-h-[2.125rem]">
+                                <div className="flex items-center space-x-2 min-h-[2.125rem]">
                                     {page === RequestStatus.approved ?
                                         <input type="checkbox" className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                                             const requests = [...selected]

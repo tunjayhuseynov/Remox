@@ -45,7 +45,7 @@ const Budgets = () => {
                 </Modal>
             }
             {exercise &&
-                <Modal onDisable={setExercise} disableX={true} className={'!w-[40%] !pt-4'}>
+                <Modal onDisable={setExercise} animatedModal={false} disableX={true} className={'!w-[40%] !pt-4'}>
                     <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
                 </Modal>}
             {hasExercises && <>
@@ -97,13 +97,13 @@ const Budgets = () => {
                 } */}
                 {
                     editBudget &&
-                    <Modal onDisable={setEditBudget} disableX={true} className={'!w-[40%] !pt-4'}>
+                    <Modal onDisable={setEditBudget} animatedModal={false} disableX={true} className={'!w-[40%] !pt-4'}>
                         <EditBudget setNewBudget={setEditBudget} />
                     </Modal>
                 }
                 {
                     delBudget &&
-                    <Modal onDisable={setDelBudget} disableX={true} className={'!w-[30%] !pt-4'}>
+                    <Modal onDisable={setDelBudget} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>
                         <DeleteBudget onDisable={setDelBudget} />
                     </Modal>
                 }

@@ -20,14 +20,8 @@ function BudgetCard({ setEditBudget, setDelBudget, item, id }: { item: IBudgetOR
 
     return <>
         <BudgetDetails item={item} divRef={divRef2} setNotify={setNotify} openNotify={openNotify} />
-        {openNotify && createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)}
-        <div key={id} >
-            <div className="rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-xl" >
-                <div className="flex items-center justify-between w-full">
-                    <div className="text-xl font-bold">{item.name}</div>
-                    <div className="flex items-center gap-5">
-                        <div className="text-xl font-bold">{item.totalUsed * 100 / item.totalBudget}</div>
-                        <div className="flex space-x-3 justify-end" >
+        <div key={id}  className="relative">
+        <div className="flex space-x-3 justify-end absolute right-[-2rem]" >
                             <span ref={exceptRef2} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold relative"><span className=" text-primary pb-4 rotate-90">...</span>
                                 {details && <div ref={divRef2} className="flex flex-col items-center bg-white dark:bg-darkSecond  absolute right-5 -bottom-5 w-[7rem]  rounded-lg shadow-xl z-50 ">
                                     <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full pl-2 py-1 gap-3" onClick={() => {
@@ -43,9 +37,15 @@ function BudgetCard({ setEditBudget, setDelBudget, item, id }: { item: IBudgetOR
                                 </div>}
                             </span>
                         </div>
+            <div onClick={() => { setNotify(!openNotify) }} className="rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-xl" >
+                <div className="flex items-center justify-between w-full">
+                    <div className="text-xl font-bold">{item.name}</div>
+                    <div className="flex items-center gap-5">
+                        <div className="text-xl font-bold">{item.totalUsed * 100 / item.totalBudget}</div>
+                       
                     </div>
                 </div>
-                <div ref={exceptRef2} onClick={() => { setNotify(!openNotify) }}>
+                <div ref={exceptRef2} >
                     <div className="flex items-center gap-2 text-greylish dark:text-white py-2">
                         <span className="text-2xl font-bold flex items-center gap-1">
                             <img src={GetCoins[item.budgetCoins.coin].coinUrl} alt="" className="rounded-full" />{item.totalUsed}</span>impacted on

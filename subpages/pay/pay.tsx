@@ -320,10 +320,9 @@ const Pay = () => {
     }
 
     return <>
-
         <Walletmodal  openNotify={openNotify} openNotify2={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
-        <Button className="px-10 !py-1 ml-4  min-w-[70%]" onClick={() => { setNotify(true) }}>Send</Button>
-        <AnimatePresence>{openNotify2 &&
+        <Button className="px-8 !py-1 ml-7  min-w-[60%] !rounded-xl" onClick={() => { setNotify(true) }}>Send</Button>
+        <AnimatePresence>{openNotify2 && 
             <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 200, damping: 40 }} className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
                 <div className="relative bg-light dark:bg-dark">
                     <button onClick={() => { setNotify(true); setNotify2(false) }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
