@@ -14,6 +14,7 @@ import { newProgramMap } from "@saberhq/anchor-contrib";
 import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
 import { lamport } from "utils/ray";
 import { u64 } from "@saberhq/token-utils";
+import { GetTime } from "utils";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ITransactionMultisig[]>) {
@@ -45,9 +46,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
                     if (tx) {
                         for (let index = 0; index < tx.instructions.length; index++) {
-                            let method = MethodIds[MethodNames.transfer], confirmations: string[] = [], destination = "", executed = false, value = new BigNumber(0), newOwner, owner, requiredCount;
+                            let method = MethodIds[MethodNames.transfer], confirmations: string[] = [], destination = "", executed = false, timestamp = 0, value = new BigNumber(0), newOwner, owner, requiredCount;
                             const buffer = Buffer.from(tx.instructions[index].data);
                             const idlData = program.decode(buffer);
+                            timestamp = tx.executedAt.toNumber()
                             executed = tx.executedAt.toNumber() != -1;
                             confirmations = data.owners.filter((s, i) => tx.signers[i]).map(s => s.toBase58())
                             if (idlData) {
@@ -116,7 +118,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                                     newOwner,
                                     owner,
                                     requiredCount
-                                }
+                                },
+                                timestamp,
                             })
                             transactionArray.push(parsedTx)
 
@@ -155,9 +158,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 confirmations = await contract.getConfirmations(index);
 
                 const obj = MultisigTxParser({
+                    parsedData: null,
                     index, destination: tx.destination,
                     data: tx.data, executed: tx.executed,
-                    confirmations: confirmations as any, Value: tx.value, blockchain
+                    confirmations: confirmations as any, Value: tx.value, blockchain, timestamp: GetTime()
                 })
 
                 return obj;

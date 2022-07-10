@@ -1,4 +1,4 @@
-import { useEffect,useContext,  useState, SetStateAction} from 'react';
+import { useEffect, useContext, useState, SetStateAction } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Modal from 'components/general/modal';
@@ -15,13 +15,13 @@ import { DashboardContext } from 'layouts/dashboard';
 import { motion, AnimatePresence } from "framer-motion"
 import ReactDOM, { createPortal } from 'react-dom';
 
-function Walletmodal({ setNotify2,setNotify, openNotify,openNotify2, setItem, selectedItem, paymentname, paymentname2, selectedPayment, selectedPayment2, setSelectedPayment2, setSelectedPayment }: { paymentname: DropDownItem[], paymentname2: DropDownItem[], selectedPayment: DropDownItem, selectedPayment2: DropDownItem, setItem: React.Dispatch<SetStateAction<DropDownItem>>, selectedItem: DropDownItem, setSelectedPayment: React.Dispatch<SetStateAction<DropDownItem>>, setSelectedPayment2: React.Dispatch<SetStateAction<DropDownItem>>,setNotify: React.Dispatch<SetStateAction<boolean>>, setNotify2: React.Dispatch<SetStateAction<boolean>>, openNotify: boolean, openNotify2: boolean }) {
+function Walletmodal({ setNotify2, setNotify, openNotify, openNotify2, setItem, selectedItem, paymentname, paymentname2, selectedPayment, selectedPayment2, setSelectedPayment2, setSelectedPayment }: { paymentname: DropDownItem[], paymentname2: DropDownItem[], selectedPayment: DropDownItem, selectedPayment2: DropDownItem, setItem: React.Dispatch<SetStateAction<DropDownItem>>, selectedItem: DropDownItem, setSelectedPayment: React.Dispatch<SetStateAction<DropDownItem>>, setSelectedPayment2: React.Dispatch<SetStateAction<DropDownItem>>, setNotify: React.Dispatch<SetStateAction<boolean>>, setNotify2: React.Dispatch<SetStateAction<boolean>>, openNotify: boolean, openNotify2: boolean }) {
     const { Disconnect, blockchain } = useWalletKit()
-    const { data, importMultisigAccount, isLoading } = useMultisig()
+    const { importMultisigAccount } = useMultisig()
     const navigator = useRouter()
     const selectedAccount = useSelector(SelectSelectedAccount)
     const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
-    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate:React.Dispatch<React.SetStateAction<number>>}
+    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<number>> }
     const [list, setList] = useState<DropDownItem[]>([])
     const dispatch = useDispatch()
     const [isAccountModal, setAccountModal] = useState(false)
@@ -32,7 +32,7 @@ function Walletmodal({ setNotify2,setNotify, openNotify,openNotify2, setItem, se
             setMainAnimate(1)
             document.querySelector('body')!.style.overflowY = "hidden"
         }
-        else if(openNotify2){
+        else if (openNotify2) {
             setMainAnimate(2)
         }
          else {
@@ -59,8 +59,8 @@ function Walletmodal({ setNotify2,setNotify, openNotify,openNotify2, setItem, se
     }, [])
 
     return <>
-         {ReactDOM.createPortal(<AnimatePresence> {openNotify &&
-                <motion.div initial={{ x: "100%"}} animate={{ x: 15 }} exit={{ x: "100%" }} transition={{ type: "tween", duration: .33}} className="bg-light dark:bg-dark overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
+        {ReactDOM.createPortal(<AnimatePresence> {openNotify &&
+            <motion.div initial={{ x: "100%" }} animate={{ x: 15 }} exit={{ x: "100%" }} transition={{ type: "tween", duration: .33 }} className="bg-light dark:bg-dark overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
                 <div className="w-[25%] mx-auto py-8 flex flex-col gap-5  ">
                     <button onClick={() => setNotify(false)} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
                         {/* <img src="/icons/cross_greylish.png" alt="" /> */}
@@ -90,12 +90,12 @@ function Walletmodal({ setNotify2,setNotify, openNotify,openNotify2, setItem, se
                         }} />
                     </div>}
                     <div className="grid grid-cols-2 w-full pt-4 gap-4 ">
-                <Button version="second" className={'!py-2 px-9 w-full rounded-xl'} onClick={() => {  setNotify(false)  }}>Close</Button>
-                {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}
-                <div className="w-full">
-                    <Button type="submit" className={'!py-2 px-10 w-full rounded-xl'} onClick={() => {setNotify2(true);setNotify(false)  }}>Next</Button>
-                </div>
-            </div>
+                        <Button version="second" className={'!py-2 px-9 w-full rounded-xl'} onClick={() => { setNotify(false) }}>Close</Button>
+                        {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}
+                        <div className="w-full">
+                            <Button type="submit" className={'!py-2 px-10 w-full rounded-xl'} onClick={() => { setNotify2(true); setNotify(false) }}>Next</Button>
+                        </div>
+                    </div>
                 </div>
             </motion.div>}
         </AnimatePresence>, document.body)}

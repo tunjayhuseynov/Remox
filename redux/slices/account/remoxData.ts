@@ -14,15 +14,19 @@ import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
 import { IAccountORM } from "pages/api/account";
+import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk } from "./thunks/account";
+import { IMember } from "firebaseConfig";
+import { IFormattedTransaction } from "hooks/useTransactionProcess";
 
 export type IAccountType = "individual" | "organization";
 
 
 // Bizim ana sehfedeki multisig hesablarindaki umumi datalarimiz
 export interface IMultisigStats {
-    pendingRequests: IAccountMultisig[],
-    approvedRequests: IAccountMultisig[],
-    signingNeedRequests: IAccountMultisig[],
+    pendingRequests: IAccountMultisig,
+    approvedRequests: IAccountMultisig,
+    rejectedRequests: IAccountMultisig,
+    signingNeedRequests: IAccountMultisig,
 }
 
 
@@ -37,8 +41,10 @@ export interface IRemoxData {
     totalBalance: number, // +
     storage: IStorage | null,
     providerAddress: string | null,
+    providerID: string | null,
     accountType: IAccountType | null,
     multisigStats: IMultisigStats | null,
+    transactions: IFormattedTransaction[]
 }
 
 const init = (): IRemoxData => {
@@ -54,6 +60,8 @@ const init = (): IRemoxData => {
         providerAddress: null,
         accountType: null,
         multisigStats: null,
+        providerID: null,
+        transactions: []
     }
 }
 
@@ -70,11 +78,34 @@ const remoxDataSlice = createSlice({
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
         },
+        setProviderID: (state: IRemoxData, action: { payload: string }) => {
+            state.providerID = action.payload;
+        },
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
         }
     },
     extraReducers: builder => {
+        builder.addCase(Remove_Member_From_Account_Thunk.fulfilled, (state, action) => {
+            const index = state.accounts.findIndex(account => account.id === action.payload.accountAddress)
+            if (index !== -1) {
+                state.accounts[index].members = state.accounts[index].members.filter(s => s.address !== action.payload.memberAddress)
+            }
+        });
+        builder.addCase(Add_Member_To_Account_Thunk.fulfilled, (state, action) => {
+            const index = state.accounts.findIndex(account => account.id === action.payload.accountAddress)
+            if (index !== -1) {
+                const member: IMember = {
+                    address: action.payload.memberAddress,
+                    name: action.payload.name,
+                    id: action.payload.id,
+                    image: action.payload.image,
+                    mail: action.payload.mail,
+                }
+                state.accounts[index].members = [...state.accounts[index].members, member]
+            }
+        });
+
         builder.addCase(launchApp.pending, (state, action) => {
             state.isFetching = true;
         });
@@ -86,7 +117,14 @@ const remoxDataSlice = createSlice({
             state.accounts = action.payload.RemoxAccount.accounts;
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
             state.storage = action.payload.Storage;
+            state.transactions = action.payload.Transactions;
+
             state.accountType = action.payload.Storage.signType;
+            if (action.payload.Storage.signType === "individual") {
+                state.providerID = action.payload.Storage.individual.accounts[0].id;
+            } else if (action.payload.Storage.signType === "organization" && action.payload.Storage.organization) {
+                state.providerID = action.payload.Storage.organization.id
+            }
             state.isFetching = false;
         });
         builder.addCase(launchApp.rejected, (state, action) => {
@@ -99,6 +137,21 @@ const remoxDataSlice = createSlice({
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (storage) => storage
+)
+
+export const SelectMultisig = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.multisigStats,
+    (multiStats) => multiStats
+)
+
+export const SelectTransactions = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.transactions,
+    (transactions) => transactions
+)
+
+export const SelectID = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.providerID,
+    (Id) => Id
 )
 
 export const SelectAccounts = createDraftSafeSelector(

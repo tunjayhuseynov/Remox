@@ -57,7 +57,6 @@ const Swap = () => {
     const change = useCallback(async (value?: number) => {
         if (token1!.name && token2!.name) {
             try {
-                console.log("Rendered")
 
                 const data = await MinmumAmountOut(
                     GetCoins[token1!.name as keyof Coins],

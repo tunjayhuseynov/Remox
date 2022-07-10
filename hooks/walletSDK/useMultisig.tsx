@@ -3,7 +3,6 @@ import { toTransactionObject } from '@celo/connect';
 import { Keypair, PACKET_DATA_SIZE, PublicKey, SystemInstruction, SystemProgram, Transaction } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { FirestoreRead, FirestoreWrite, useFirestoreRead } from "rpcHooks/useFirebase";
 import { auth, IAccount, IIndividual, Image, IMember, IOrganization } from 'firebaseConfig';
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useSelector } from "react-redux";
@@ -17,8 +16,6 @@ import { fromWei, lamport, toLamport } from "utils/ray";
 import * as borsh from '@project-serum/borsh';
 import { selectBlockchain } from "redux/slices/account/network";
 import *  as spl from 'easy-spl'
-// import { createVault, instantSendNative, startTokenStream } from 'zebecprotocol-sdk'
-// import { SetWhiteListSchema, WhiteList } from 'zebecprotocol-sdk/multisig/native/schema'
 import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import BN from 'bn.js'
 import { GokiSDK } from '@gokiprotocol/client'
@@ -33,6 +30,8 @@ import { process } from "uniqid"
 import { Create_Account } from "crud/account";
 import useRemoxAccount from "hooks/accounts/useRemoxAccount";
 import useLoading from "hooks/useLoading";
+import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "redux/slices/account/thunks/account";
+import { useAppDispatch } from "redux/hooks";
 
 // import {
 //     Payment
@@ -52,7 +51,8 @@ export interface ITransactionMultisig {
     owner?: string,
     newOwner?: string,
     valueOfTransfer?: string,
-    method?: string
+    method?: string,
+    timestamp: number,
 }
 
 export enum MethodIds {
@@ -104,10 +104,10 @@ export default function useMultisig() {
     const blockchain = useNextSelector(selectBlockchain, "celo")
     const storage = useNextSelector(selectStorage, null)
 
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
     const [transactions, setTransactions] = useState<ITransactionMultisig[]>()
 
-    const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount, Remove_Member, Add_Member, Replace_Member } = useRemoxAccount(selectedAccount, blockchain)
+    const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount } = useRemoxAccount(selectedAccount, blockchain)
 
     // const { data } = useFirestoreRead<MultisigType>("multisigs", auth.currentUser?.uid ?? "")
 
@@ -135,125 +135,125 @@ export default function useMultisig() {
 
 
     const FetchTransactions = async (multisigAddress: string, skip: number, take: number) => {
-        let transactionArray: ITransactionMultisig[] = []
-        try {
-            if (blockchain === 'solana') {
-                const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
-                if (wallet.data) {
-                    const owners = wallet.data.owners.map(s => s.toBase58()) as string[];
-                    const program = new BorshInstructionCoder(sdk.programs.SmartWallet.idl)
-                    for (let index = 0; index < wallet.data.numTransactions.toNumber(); index++) {
-                        const tx = await wallet.fetchTransactionByIndex(index);
-                        if (tx) {
-                            for (let index = 0; index < tx.instructions.length; index++) {
-                                let method = MethodIds[MethodNames.transfer], confirmations: string[] = [], destination = "", executed = false, value = new BigNumber(0), newOwner, owner, requiredCount;
-                                const buffer = Buffer.from(tx.instructions[index].data);
-                                const idlData = program.decode(buffer);
-                                executed = tx.executedAt.toNumber() != -1;
-                                confirmations = wallet.data.owners.filter((s, i) => tx.signers[i]).map(s => s.toBase58())
-                                if (idlData) {
-                                    const { data, name } = idlData;
-                                    switch (name) {
-                                        case "setOwners":
-                                            let updatedOwners = (data as any).owners.map((s: any) => s.toBase58()) as string[]
-                                            if (updatedOwners.length > owners.length) {
-                                                method = MethodIds[MethodNames.addOwner]
-                                                owner = updatedOwners.find(s => !owners.includes(s))
-                                            }
-                                            else if (updatedOwners.length == owners.length) {
-                                                method = MethodIds[MethodNames.replaceOwner]
-                                                newOwner = updatedOwners.find(s => !owners.includes(s))
-                                            } else {
-                                                method = MethodIds[MethodNames.removeOwner]
-                                                owner = owners.find(s => !updatedOwners.includes(s))
-                                            }
-                                            break;
-                                        case "changeThreshold":
-                                            method = MethodIds[MethodNames.changeRequirement]
-                                            const threshold = (data as any).threshold.toNumber();
-                                            requiredCount = threshold;
-                                        default:
-                                            break;
-                                    }
-                                } else {
-                                    try {
-                                        const data = SystemInstruction.decodeTransfer({
-                                            data: buffer,
-                                            programId: tx.instructions[0].programId,
-                                            keys: tx.instructions[0].keys,
-                                        })
-                                        method = MethodIds[MethodNames.transfer]
-                                        destination = SolanaCoins.SOL.contractAddress;
-                                        owner = data.toPubkey.toBase58()
-                                        value = new BigNumber(data.lamports.toString())
-                                    } catch (error) {
-                                        try {
-                                            const data = decodeTransferCheckedInstructionUnchecked({
-                                                data: buffer,
-                                                programId: tx.instructions[0].programId,
-                                                keys: tx.instructions[0].keys,
-                                            })
-                                            method = MethodIds[MethodNames.transfer]
-                                            owner = data.keys.destination?.pubkey.toBase58() ?? ""
-                                            destination = data.keys.mint?.pubkey.toBase58() ?? ""
-                                            value = new BigNumber(data.data.amount.toString()).dividedBy(10 ** data.data.decimals).multipliedBy(lamport)
-                                        } catch (error) {
-                                            console.error("There is no option for this tx: ", tx)
-                                            continue;
-                                        }
-                                    }
-                                }
+        // let transactionArray: ITransactionMultisig[] = []
+        // try {
+        //     if (blockchain === 'solana') {
+        //         const { sdk } = await initGokiSolana();
+        //         const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+        //         if (wallet.data) {
+        //             const owners = wallet.data.owners.map(s => s.toBase58()) as string[];
+        //             const program = new BorshInstructionCoder(sdk.programs.SmartWallet.idl)
+        //             for (let index = 0; index < wallet.data.numTransactions.toNumber(); index++) {
+        //                 const tx = await wallet.fetchTransactionByIndex(index);
+        //                 if (tx) {
+        //                     for (let index = 0; index < tx.instructions.length; index++) {
+        //                         let method = MethodIds[MethodNames.transfer], confirmations: string[] = [], destination = "", executed = false, value = new BigNumber(0), newOwner, owner, requiredCount;
+        //                         const buffer = Buffer.from(tx.instructions[index].data);
+        //                         const idlData = program.decode(buffer);
+        //                         executed = tx.executedAt.toNumber() != -1;
+        //                         confirmations = wallet.data.owners.filter((s, i) => tx.signers[i]).map(s => s.toBase58())
+        //                         if (idlData) {
+        //                             const { data, name } = idlData;
+        //                             switch (name) {
+        //                                 case "setOwners":
+        //                                     let updatedOwners = (data as any).owners.map((s: any) => s.toBase58()) as string[]
+        //                                     if (updatedOwners.length > owners.length) {
+        //                                         method = MethodIds[MethodNames.addOwner]
+        //                                         owner = updatedOwners.find(s => !owners.includes(s))
+        //                                     }
+        //                                     else if (updatedOwners.length == owners.length) {
+        //                                         method = MethodIds[MethodNames.replaceOwner]
+        //                                         newOwner = updatedOwners.find(s => !owners.includes(s))
+        //                                     } else {
+        //                                         method = MethodIds[MethodNames.removeOwner]
+        //                                         owner = owners.find(s => !updatedOwners.includes(s))
+        //                                     }
+        //                                     break;
+        //                                 case "changeThreshold":
+        //                                     method = MethodIds[MethodNames.changeRequirement]
+        //                                     const threshold = (data as any).threshold.toNumber();
+        //                                     requiredCount = threshold;
+        //                                 default:
+        //                                     break;
+        //                             }
+        //                         } else {
+        //                             try {
+        //                                 const data = SystemInstruction.decodeTransfer({
+        //                                     data: buffer,
+        //                                     programId: tx.instructions[0].programId,
+        //                                     keys: tx.instructions[0].keys,
+        //                                 })
+        //                                 method = MethodIds[MethodNames.transfer]
+        //                                 destination = SolanaCoins.SOL.contractAddress;
+        //                                 owner = data.toPubkey.toBase58()
+        //                                 value = new BigNumber(data.lamports.toString())
+        //                             } catch (error) {
+        //                                 try {
+        //                                     const data = decodeTransferCheckedInstructionUnchecked({
+        //                                         data: buffer,
+        //                                         programId: tx.instructions[0].programId,
+        //                                         keys: tx.instructions[0].keys,
+        //                                     })
+        //                                     method = MethodIds[MethodNames.transfer]
+        //                                     owner = data.keys.destination?.pubkey.toBase58() ?? ""
+        //                                     destination = data.keys.mint?.pubkey.toBase58() ?? ""
+        //                                     value = new BigNumber(data.data.amount.toString()).dividedBy(10 ** data.data.decimals).multipliedBy(lamport)
+        //                                 } catch (error) {
+        //                                     console.error("There is no option for this tx: ", tx)
+        //                                     continue;
+        //                                 }
+        //                             }
+        //                         }
 
-                                const parsedTx = MultisigTxParser({
-                                    data: "",
-                                    blockchain,
-                                    confirmations,
-                                    destination,
-                                    executed,
-                                    index,
-                                    Value: value,
-                                    parsedData: {
-                                        method,
-                                        newOwner,
-                                        owner,
-                                        requiredCount
-                                    }
-                                })
-                                transactionArray.push(parsedTx)
+        //                         const parsedTx = MultisigTxParser({
+        //                             data: "",
+        //                             blockchain,
+        //                             confirmations,
+        //                             destination,
+        //                             executed,
+        //                             index,
+        //                             Value: value,
+        //                             parsedData: {
+        //                                 method,
+        //                                 newOwner,
+        //                                 owner,
+        //                                 requiredCount
+        //                             }
+        //                         })
+        //                         transactionArray.push(parsedTx)
 
-                            }
-                        }
-                    }
-                }
-            } else if (blockchain === 'celo') {
-                const kitMultiSig = await kit.contracts.getMultiSig(multisigAddress);
-                let total = await kitMultiSig.getTransactionCount(true, true)
-                if (total > skip) {
-                    total -= skip;
-                }
-                let limit = total - take - 1 > 0 ? total - take - 1 : 0;
-                for (let index = total - 1; index > limit; index--) {
-                    let tx = await kitMultiSig.getTransaction(index)
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     } else if (blockchain === 'celo') {
+        //         const kitMultiSig = await kit.contracts.getMultiSig(multisigAddress);
+        //         let total = await kitMultiSig.getTransactionCount(true, true)
+        //         if (total > skip) {
+        //             total -= skip;
+        //         }
+        //         let limit = total - take - 1 > 0 ? total - take - 1 : 0;
+        //         for (let index = total - 1; index > limit; index--) {
+        //             let tx = await kitMultiSig.getTransaction(index)
 
-                    if (!tx || (tx && !tx['data'])) continue;
+        //             if (!tx || (tx && !tx['data'])) continue;
 
-                    const obj = MultisigTxParser({
-                        index, destination: tx.destination,
-                        data: tx.data, executed: tx.executed,
-                        confirmations: tx.confirmations, Value: tx.value, blockchain
-                    })
+        //             const obj = MultisigTxParser({
+        //                 index, destination: tx.destination,
+        //                 data: tx.data, executed: tx.executed,
+        //                 confirmations: tx.confirmations, Value: tx.value, blockchain
+        //             })
 
-                    transactionArray.push(obj)
-                }
-            }
+        //             transactionArray.push(obj)
+        //         }
+        //     }
 
-            setTransactions(transactionArray)
-            return transactionArray
-        } catch (e: any) {
-            console.error(e)
-            throw new Error(e);
-        }
+        //     setTransactions(transactionArray)
+        //     return transactionArray
+        // } catch (e: any) {
+        //     console.error(e)
+        //     throw new Error(e);
+        // }
     }
 
 
@@ -447,7 +447,7 @@ export default function useMultisig() {
     }
 
     const removeOwner = useCallback(async (ownerAddress: string) => {
-        if (isMultisig) {
+        if (isMultisig && remoxAccount) {
             try {
                 if (blockchain === 'solana') {
                     const { sdk } = await initGokiSolana();
@@ -477,7 +477,12 @@ export default function useMultisig() {
                 }
 
 
-                await Remove_Member(ownerAddress)
+                // await Remove_Member(ownerAddress)
+                dispatch(Remove_Member_From_Account_Thunk({
+                    accountAddress: selectedAccount,
+                    memberAddress: ownerAddress,
+                    remoxAccount: remoxAccount
+                }))
 
                 return true
             } catch (error) {
@@ -546,7 +551,7 @@ export default function useMultisig() {
 
 
     const addOwner = useCallback(async (newOwner: string, name = "", image: Image | null = null, mail: string | null = null) => {
-        if (isMultisig) {
+        if (isMultisig && remoxAccount) {
             try {
                 if (blockchain === 'solana') {
                     const { sdk } = await initGokiSolana();
@@ -581,8 +586,17 @@ export default function useMultisig() {
                     await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 }
 
-                await Add_Member(newOwner, name, image, mail)
-
+                // await Add_Member(newOwner, name, image, mail)
+                dispatch(Add_Member_To_Account_Thunk(
+                    {
+                        accountAddress: selectedAccount,
+                        memberAddress: newOwner,
+                        name,
+                        image,
+                        mail,
+                        remoxAccount: remoxAccount
+                    }
+                ))
 
                 return true
             } catch (error) {
@@ -628,7 +642,7 @@ export default function useMultisig() {
     }
 
     const replaceOwner = useCallback(async (oldOwner: string, newOwner: string) => {
-        if (isMultisig) {
+        if (isMultisig && remoxAccount) {
             try {
                 selectedAccount = selectedAccount.toLowerCase()
 
@@ -665,7 +679,13 @@ export default function useMultisig() {
                     await ss.sendAndWaitForReceipt({ gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') });
                 }
 
-                await Replace_Member(oldOwner, newOwner)
+                // await Replace_Member(oldOwner, newOwner)
+                dispatch(Replace_Member_In_Account_Thunk({
+                    accountAddress: selectedAccount,
+                    newMemberAdress: newOwner,
+                    oldMemberAddress: oldOwner,
+                    remoxAccount: remoxAccount
+                }))
 
             } catch (error) {
                 console.error(error)
@@ -867,76 +887,75 @@ export default function useMultisig() {
     }
 
     const getTransaction = async (multisigAddress: string, transactionId: string) => {
-        try {
+        // try {
 
-            let txResult: ITransactionMultisig;
-            if (blockchain === 'solana') {
+        //     let txResult: ITransactionMultisig;
+        //     if (blockchain === 'solana') {
 
-                const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
-                if (wallet.data && wallet.data.owners) {
-                    const tx = await wallet.fetchTransactionByIndex(Number(transactionId))
+        //         const { sdk } = await initGokiSolana();
+        //         const wallet = await sdk.loadSmartWallet(new PublicKey(selectedAccount));
+        //         if (wallet.data && wallet.data.owners) {
+        //             const tx = await wallet.fetchTransactionByIndex(Number(transactionId))
 
-                    if (!tx) throw new Error(`Error fetching transaction`);
-                    console.log(tx)
-                    // txResult = {
-                    //     id: transactionId,
-                    //     confirmations: tx.signers.reduce<string[]>((a, c, i) => {
-                    //         if (wallet.data) {
-                    //             a.push(wallet.data.owners[i].toBase58())
-                    //         }
-                    //         return a;
-                    //     }, []),
-                    //     method: tx.instructions[0].programId.toBase58(),
+        //             if (!tx) throw new Error(`Error fetching transaction`);
+        //             // txResult = {
+        //             //     id: transactionId,
+        //             //     confirmations: tx.signers.reduce<string[]>((a, c, i) => {
+        //             //         if (wallet.data) {
+        //             //             a.push(wallet.data.owners[i].toBase58())
+        //             //         }
+        //             //         return a;
+        //             //     }, []),
+        //             //     method: tx.instructions[0].programId.toBase58(),
 
-                    // }
-                    // return { txResult }
-                    return {}
+        //             // }
+        //             // return { txResult }
+        //             return {}
 
-                }
-                throw new Error("Wallet has no data")
-            }
+        //         }
+        //         throw new Error("Wallet has no data")
+        //     }
 
-            const kitMultiSig = await kit.contracts.getMultiSig(multisigAddress);
+        //     const kitMultiSig = await kit.contracts.getMultiSig(multisigAddress);
 
-            let tx = await kitMultiSig.getTransaction(parseInt(transactionId))
-            txResult = {
-                id: parseInt(transactionId),
-                destination: tx.destination,
-                data: tx.data,
-                executed: tx.executed,
-                confirmations: tx.confirmations,
-                value: tx.value.toString(),
-            }
+        //     let tx = await kitMultiSig.getTransaction(parseInt(transactionId))
+        //     txResult = {
+        //         id: parseInt(transactionId),
+        //         destination: tx.destination,
+        //         data: tx.data,
+        //         executed: tx.executed,
+        //         confirmations: tx.confirmations,
+        //         value: tx.value.toString(),
+        //     }
 
-            let value = fromWei(tx.value)
-            txResult.value = value
-            txResult.requiredCount = ""
-            txResult.owner = ""
-            txResult.newOwner = ""
-            txResult.valueOfTransfer = ""
+        //     let value = fromWei(tx.value)
+        //     txResult.value = value
+        //     txResult.requiredCount = ""
+        //     txResult.owner = ""
+        //     txResult.newOwner = ""
+        //     txResult.valueOfTransfer = ""
 
-            let methodId = tx.data.slice(0, 10)
-            txResult.method = MethodIds[methodId as keyof typeof MethodIds]
+        //     let methodId = tx.data.slice(0, 10)
+        //     txResult.method = MethodIds[methodId as keyof typeof MethodIds]
 
-            if (methodId == "0x2e6c3721" || methodId == "0xba51a6df") {
-                txResult.requiredCount = tx.data.slice(tx.data.length - 2)
-            } else {
-                txResult.owner = "0x" + tx.data.slice(35, 74);
+        //     if (methodId == "0x2e6c3721" || methodId == "0xba51a6df") {
+        //         txResult.requiredCount = tx.data.slice(tx.data.length - 2)
+        //     } else {
+        //         txResult.owner = "0x" + tx.data.slice(35, 74);
 
-                if (methodId == "0xe20056e6") txResult.newOwner = "0x" + tx.data.slice(98)
-                if (methodId == "0xa9059cbb") {
-                    let hex = tx.data.slice(100).replace(/^0+/, '')
-                    let value = parseInt(hex, 16)
-                    txResult.valueOfTransfer = fromWei(value.toString())
-                }
-            }
+        //         if (methodId == "0xe20056e6") txResult.newOwner = "0x" + tx.data.slice(98)
+        //         if (methodId == "0xa9059cbb") {
+        //             let hex = tx.data.slice(100).replace(/^0+/, '')
+        //             let value = parseInt(hex, 16)
+        //             txResult.valueOfTransfer = fromWei(value.toString())
+        //         }
+        //     }
 
-            delete txResult.data
-            return { txResult }
-        } catch (e: any) {
-            throw new Error(e);
-        }
+        //     delete txResult.data
+        //     return { txResult }
+        // } catch (e: any) {
+        //     throw new Error(e);
+        // }
     }
 
 

@@ -53,11 +53,11 @@ export default function useOneClickSign() {
         if (Token) parameters.token = Token
         if (id) parameters.id = id
 
-        const password = await axios.get<string>("/api/auth/verify", {
+        const verify = await axios.get<{ password: string, mail: string }>("/api/auth/verify", {
             params: parameters,
         })
 
-        const signed = await signInWithEmailAndPassword(auth, `${Address!}Remox@gmail.com`, password.data)
+        const signed = await signInWithEmailAndPassword(auth, verify.data.mail, verify.data.password)
         return signed.user;
     }
 

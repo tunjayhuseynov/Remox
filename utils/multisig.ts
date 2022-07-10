@@ -26,12 +26,12 @@ export interface ParsedMultisigData {
 export const MultisigTxParser = (
     {
         index, destination, data, executed,
-        confirmations, Value, blockchain, parsedData
+        confirmations, Value, blockchain, parsedData, timestamp
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
             confirmations: string[], Value: BigNumber, blockchain: BlockchainType,
-            parsedData?: ParsedMultisigData
+            parsedData: ParsedMultisigData | null, timestamp: number
         }
 ) => {
     let size = 0;
@@ -44,6 +44,7 @@ export const MultisigTxParser = (
         executed: executed,
         confirmations: confirmations,
         value: Value.toString(),
+        timestamp: timestamp,
     }
 
     let value = from(Value)

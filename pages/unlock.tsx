@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import { removeStorage } from "redux/slices/account/storage";
-import { setMenu } from "redux/slices/toggles";
 import { removeTransactions } from "redux/slices/account/transactions";
 import { setUnlock } from "redux/slices/unlock";
 import { ToastRun } from "utils/toast";
@@ -30,9 +29,8 @@ const Unlock = () => {
 
     const Submit = async () => {
         if (!Connected && !Address) {
-            dispatch(setMenu(false))
             dispatch(removeTransactions())
-            ToastRun(<div className="dark:text-white"><strong>You've not signed into your wallet yet</strong> <br /> Please, sign in first</div>)
+            ToastRun(<div className="dark:text-white"><strong>You&apos;ve not signed into your wallet yet</strong> <br /> Please, sign in first</div>)
         }
         if (inputRef.current && Address && Connected) {
             setIncorrect(false);
@@ -76,7 +74,6 @@ const Unlock = () => {
                 {incorrrect && <div className="text-red-600 text-center">Password is Incorrect</div>}
                 <div className="grid grid-cols-2 justify-center gap-x-5">
                     <Button version='second' className="px-5 !py-2 w-32" onClick={async () => {
-                        dispatch(setMenu(false))
                         dispatch(removeTransactions())
                         dispatch(removeStorage())
                         await Disconnect()

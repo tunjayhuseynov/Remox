@@ -122,7 +122,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
         setIsPaying(true)
 
         try {
-            if (storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()) {
+            if (selectedAccount) { //storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
                 if (result.length === 1) {
                     // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
                     await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })

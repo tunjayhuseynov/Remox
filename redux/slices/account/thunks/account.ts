@@ -8,12 +8,18 @@ interface IRemove {
     accountAddress: string;
     memberAddress: string;
 }
-export const Remove_Member_From_Account_Thunk = createAsyncThunk<void, IRemove>("remoxData/remove_account_member", async ({ remoxAccount, accountAddress, memberAddress }) => {
+export const Remove_Member_From_Account_Thunk = createAsyncThunk<IRemove, IRemove>("remoxData/remove_account_member", async ({ remoxAccount, accountAddress, memberAddress }) => {
     const the_account = (remoxAccount?.accounts as IAccount[]).find(a => a.address.toLowerCase() === accountAddress?.toLowerCase())
     const member = the_account?.members.find(m => m.address.toLowerCase() === memberAddress.toLowerCase())
     if (!member) throw new Error("Member not found")
     if (!the_account) throw new Error("Account not found")
     await Remove_Member_From_Account(the_account, member)
+
+    return {
+        accountAddress,
+        memberAddress,
+        remoxAccount
+    }
 });
 
 interface IAdd {
@@ -25,17 +31,28 @@ interface IAdd {
     mail: string | null
 }
 
-export const Add_Member_To_Account_Thunk = createAsyncThunk<void, IAdd>("remoxData/add_account_member", async ({ accountAddress, memberAddress, remoxAccount, image, name, mail }) => {
+export const Add_Member_To_Account_Thunk = createAsyncThunk<IAdd & { id: string }, IAdd>("remoxData/add_account_member", async ({ accountAddress, memberAddress, remoxAccount, image, name, mail }) => {
     const the_account = (remoxAccount?.accounts as IAccount[]).find(a => a.address.toLowerCase() === accountAddress?.toLowerCase())
     if (!the_account) throw new Error("Account not found")
+    let id = nanoid();
     await Add_Member_To_Account(the_account,
         {
             address: memberAddress,
             name,
-            id: nanoid(),
+            id,
             image,
             mail
         })
+
+    return {
+        accountAddress,
+        image,
+        mail,
+        memberAddress,
+        name,
+        remoxAccount,
+        id
+    }
 })
 
 interface IReplace {
@@ -45,7 +62,7 @@ interface IReplace {
     newMemberAdress: string
 }
 
-export const Replace_Member_In_Account_Thunk = createAsyncThunk<void, IReplace>("remoxData/replace_account_member", async ({ accountAddress, newMemberAdress, oldMemberAddress, remoxAccount }) => {
+export const Replace_Member_In_Account_Thunk = createAsyncThunk<IReplace, IReplace>("remoxData/replace_account_member", async ({ accountAddress, newMemberAdress, oldMemberAddress, remoxAccount }) => {
     const the_account = (remoxAccount?.accounts as IAccount[]).find(a => a.address.toLowerCase() === accountAddress.toLowerCase())
     if (!the_account) throw new Error("Account not found")
     const oldMember = the_account.members.find(m => m.address.toLowerCase() === oldMemberAddress.toLowerCase())
@@ -54,4 +71,11 @@ export const Replace_Member_In_Account_Thunk = createAsyncThunk<void, IReplace>(
     oldMember.address = newMemberAdress;
     members.push(oldMember);
     await Update_Members_In_Account(the_account, members)
+
+    return {
+        accountAddress,
+        newMemberAdress,
+        oldMemberAddress,
+        remoxAccount
+    }
 });

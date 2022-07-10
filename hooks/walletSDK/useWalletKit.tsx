@@ -39,7 +39,7 @@ export default function useWalletKit() {
 
     const [transactionTrigger] = useLazyGetTransactionsQuery()
 
-    const { search, isLoading } = useFirestoreSearchField()
+    // const { search, isLoading } = useFirestoreSearchField()
 
     //Celo
     const { address, destroy, kit, walletType, connect, initialised } = useContractKit()
@@ -221,33 +221,33 @@ export default function useWalletKit() {
             }
 
             let connection = await connect();
-            if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
-                const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
-                if (str) {
-                    const key = JSON.parse(str)
+            // if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
+            //     const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
+            //     if (str) {
+            //         const key = JSON.parse(str)
 
-                    if (key[0] !== "GoldToken") {
-                        kit.addAccount(key[0])
-                        const accounts = kit.getWallet()?.getAccounts()
-                        if (accounts) {
-                            kit.defaultAccount = accounts[0]
-                            const connector = ctx.connector;
-                            connector.type = WalletTypes.PrivateKey;
-                            await search("users", [
-                                {
-                                    field: 'address',
-                                    searching: accounts[0],
-                                    indicator: "array-contains"
-                                }
-                            ])
+            //         if (key[0] !== "GoldToken") {
+            //             kit.addAccount(key[0])
+            //             const accounts = kit.getWallet()?.getAccounts()
+            //             if (accounts) {
+            //                 kit.defaultAccount = accounts[0]
+            //                 const connector = ctx.connector;
+            //                 connector.type = WalletTypes.PrivateKey;
+            //                 await search("users", [
+            //                     {
+            //                         field: 'address',
+            //                         searching: accounts[0],
+            //                         indicator: "array-contains"
+            //                     }
+            //                 ])
 
-                            dispatch(changePrivateToken(key[0]))
-                            setState("setConnector", connector)
-                            setState("setAddress", accounts[0])
-                        }
-                    }
-                }
-            }
+            //                 dispatch(changePrivateToken(key[0]))
+            //                 setState("setConnector", connector)
+            //                 setState("setAddress", accounts[0])
+            //             }
+            //         }
+            //     }
+            // }
             return connection;
         } catch (error) {
             console.error(error)

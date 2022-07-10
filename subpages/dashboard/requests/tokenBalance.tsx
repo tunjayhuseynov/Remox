@@ -14,20 +14,20 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
     const balance = useSelector(SelectBalances)
     const { GetCoins } = useWalletKit()
 
-    const cleanList: IRequest[] | IMember[] = []
+    const cleanList: (IRequest | IMember)[] = []
     coinList.forEach(item => {
         cleanList.push(item)
         if (item.secondaryAmount && item.secondaryCurrency) {
             cleanList.push({
                 ...item,
                 amount: item.secondaryAmount,
-                currency: item.secondaryCurrency
+                currency: item.secondaryCurrency,
             })
         }
     })
 
     const list = _(cleanList).groupBy("currency").map((value, key) => {
-        const res: IRequest = {
+        const res: IRequest | IMember = {
             ...value[0],
             amount: value.reduce((acc, curr) => {
                 return acc + parseFloat(curr.amount)

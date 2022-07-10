@@ -41,5 +41,5 @@ export const {
     useLazyGetAccountTransactionsQuery, 
     useLazyGetAccountBalancePriceQuery, 
     useLazyGetAccountSpendingQuery,
-    useLazyGetAccountBudgetQuery,
+    // useLazyGetAccountBudgetQuery,
 } = RemoxApi

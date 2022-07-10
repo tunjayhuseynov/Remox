@@ -25,10 +25,10 @@ const variants = {
 }
 
 
-const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string, style?: React.CSSProperties | undefined }>(({ children, onClick, className, style }, ref) => <li ref={ref} style={style} onClick={onClick} className={`${className} text-left border dark:border-darkSecond last:rounded-b-xl first:rounded-t-xl px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li>)
+const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string, style?: React.CSSProperties | undefined }>(function Li({ children, onClick, className, style }, ref) { return <li ref={ref} style={style} onClick={onClick} className={`${className} text-left border dark:border-darkSecond last:rounded-b-xl first:rounded-t-xl px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li> })
 
-export const DropDownViewer = ({ parentClass, displayName, name, totalValue, coinUrl, className, photo, disableAddressDisplay,photoDisplay }: {photoDisplay?:boolean, parentClass?: string, displayName?: string, name: string, totalValue?: string, address?: string, coinUrl?: CoinsURL, className?: string, disableAddressDisplay?: boolean, photo?: string }) => <>
-    {photoDisplay && name !== "Add Organization" && totalValue &&  photo ? <img src={`/icons/${photo && photo}.png`} className={`rounded-full w-10 h-10 bg-light dark:bg-greylish`} /> : photoDisplay && name !== "Add Organization" && totalValue && <div className="rounded-full w-10 h-10 bg-light dark:bg-greylish"></div>} 
+export const DropDownViewer = ({ parentClass, displayName, name, totalValue, coinUrl, className, photo, disableAddressDisplay, photoDisplay }: { photoDisplay?: boolean, parentClass?: string, displayName?: string, name: string, totalValue?: string, address?: string, coinUrl?: CoinsURL, className?: string, disableAddressDisplay?: boolean, photo?: string }) => <>
+    {photoDisplay && name !== "Add Organization" && totalValue && photo ? <img src={`/icons/${photo && photo}.png`} className={`rounded-full w-10 h-10 bg-light dark:bg-greylish`} /> : photoDisplay && name !== "Add Organization" && totalValue && <div className="rounded-full w-10 h-10 bg-light dark:bg-greylish"></div>}
     <div className={`${parentClass ?? ""} flex flex-col`}>
 
         {displayName && <div className="items-center text-sm text-greylish opacity-80">
@@ -43,7 +43,7 @@ export const DropDownViewer = ({ parentClass, displayName, name, totalValue, coi
 </>
 
 
-const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false,photoDisplay = false, parentClass = '', childClass = '', displayName, onChange }: {photoDisplay?: boolean, disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
+const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSelect, className, loader = false, disableAddressDisplay = false, photoDisplay = false, parentClass = '', childClass = '', displayName, onChange }: { photoDisplay?: boolean, disableAddressDisplay?: boolean, parentClass?: string, className?: string, toTop?: boolean, selected: DropDownItem, list: Array<DropDownItem>, nameActivation?: boolean, onSelect?: Dispatch<DropDownItem>, onChange?: Function, loader?: boolean, childClass?: string, displayName?: string }) => {
     const [isOpen, setOpen] = useState(false)
     const liArrRef = useRef<(HTMLLIElement | null)[]>([])
     const [liHeights, setLiHeights] = useState<Array<number>>([])
@@ -59,7 +59,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
         <div className={`relative ${parentClass} `}>
             <div ref={expectRef} onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond bg-white dark:bg-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
                 {!loader ? <div className={`truncate flex items-center gap-2`}>
-                    {DropDownViewer({ name: selected.name, photo: selected?.photo,photoDisplay:photoDisplay, totalValue: selected?.totalValue, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
+                    {DropDownViewer({ name: selected.name, photo: selected?.photo, photoDisplay: photoDisplay, totalValue: selected?.totalValue, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
                 </div> : <Loader />}
                 {list && list.length > 0 && <div className="ml-1">
                     <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
@@ -91,7 +91,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
                             setOpen(false);
                             onChange?.(w, selected);
                         }}>
-                            {DropDownViewer({ name: w?.name,photoDisplay: true, photo: w?.photo, totalValue: w?.totalValue, address: w?.address ?? w?.amount, coinUrl: w?.coinUrl, className: w?.className, disableAddressDisplay })}
+                            {DropDownViewer({ name: w?.name, photoDisplay: true, photo: w?.photo, totalValue: w?.totalValue, address: w?.address ?? w?.amount, coinUrl: w?.coinUrl, className: w?.className, disableAddressDisplay })}
                         </Li>
                     }
                     )}

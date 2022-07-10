@@ -11,12 +11,13 @@ import { selectMultisigTransactions } from "redux/slices/account/multisig"
 import { useWalletKit } from "hooks"
 import { useRouter } from "next/router"
 import Loader from "components/Loader"
+import { SelectProviderAddress, SelectStorage } from "redux/slices/account/remoxData"
 
 const MultisigTransaction = () => {
     const history = useRouter()
     const { id } = history.query as {id : string}
-    const selectedAddress = useSelector(SelectSelectedAccount)
-    const storage = useSelector(selectStorage)
+    const selectedAddress = useSelector(SelectProviderAddress)!
+    const storage = useSelector(SelectStorage)
     const selectMultisig = useSelector(selectMultisigTransactions)
     const { signAndInternal: signData, owners, refetch: refreshMultisig, confirmTransaction, revokeTransaction, isLoading } = useMultisigProcess()
     const transactionData = selectMultisig?.find(t => t.id === parseInt(id!))
@@ -46,27 +47,27 @@ const MultisigTransaction = () => {
     }, [transactionData])
 
     const submitAction = async () => {
-        if (!transactionData?.confirmations.includes(storage?.accountAddress ?? "")) {
-            try {
-                await confirmTransaction(selectedAddress, parseInt(id!))
-                if ((transactionData?.confirmations?.length ?? 0) - 1 === signData?.sign) {
-                    history.push('/dashboard/transactions')
-                }
-                refreshMultisig()
-            } catch (error: any) {
-                console.error(error)
-                dispatch(changeError({ activate: true, text: error?.data?.message }));
-            }
+        // if (!transactionData?.confirmations.includes(storage?.accountAddress ?? "")) {
+        //     try {
+        //         await confirmTransaction(selectedAddress, parseInt(id!))
+        //         if ((transactionData?.confirmations?.length ?? 0) - 1 === signData?.sign) {
+        //             history.push('/dashboard/transactions')
+        //         }
+        //         refreshMultisig()
+        //     } catch (error: any) {
+        //         console.error(error)
+        //         dispatch(changeError({ activate: true, text: error?.data?.message }));
+        //     }
 
-        } else {
-            try {
-                await revokeTransaction(selectedAddress, id!)
-                refreshMultisig()
-            } catch (error: any) {
-                console.error(error)
-                dispatch(changeError({ activate: true, text: error?.data?.message }));
-            }
-        }
+        // } else {
+        //     try {
+        //         await revokeTransaction(selectedAddress, id!)
+        //         refreshMultisig()
+        //     } catch (error: any) {
+        //         console.error(error)
+        //         dispatch(changeError({ activate: true, text: error?.data?.message }));
+        //     }
+        // }
     }
 
 
@@ -85,7 +86,7 @@ const MultisigTransaction = () => {
                 </div>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-y-5">
-                {owners?.map((w, i, arr) =>
+                {/* {owners?.map((w, i, arr) =>
                     <div key={w} className="flex flex-col   gap-4 items-center justify-center w-[7.5rem]" title={w}>
                         <div className={`w-[2.188rem] shadow-custom h-[2.188rem] relative ${w.toLowerCase() === storage?.accountAddress.toLowerCase() ? "bg-[#3EBE11]" : ""} ${i !== 0 ? "before:-translate-x-full before:absolute before:top-1/2 before:w-full before:h-[0.125rem] before:bg-black" : ""} ${i !== arr.length - 1 ? "after:translate-x-[70%] after:absolute after:top-1/2 after:w-[150%] after:h-[0.125rem] after:bg-black " : ""} rounded-full ${transactionData?.confirmations.includes(w) ? "bg-[#0055FF]" : "bg-[#E90D0D]"}`}></div>
                         <div className="truncate max-w-[7.5rem] font-semibold">
@@ -97,7 +98,7 @@ const MultisigTransaction = () => {
                             {w.toLowerCase() !== storage?.accountAddress.toLowerCase() ? transactionData?.confirmations.includes(w) ? "Approved" : "Pending" : ""}
                         </div>
                     </div>
-                )}
+                )} */}
             </div>
             <div className="shadow-custom w-full px-10 py-5">
                 <div className="text-xl font-semibold pb-5">Transaction Detail</div>
@@ -134,8 +135,8 @@ const MultisigTransaction = () => {
                     </Button>
                 </div>
                 {transactionData?.executed ? <div className='px-5 text-primary font-semibold'>Already Executed</div> : <div>
-                    <Button onClick={submitAction} isLoading={isLoading} className={`${!transactionData?.confirmations.includes(storage?.accountAddress ?? "") ? "bg-[#2D5EFF] border-[#2D5EFF] hover:border-primary" : "bg-[#EF2727] border-[#EF2727]"} border-2 text-white px-5 !py-2 rounded-xl w-[7.813rem]`}>
-                        {!transactionData?.confirmations.includes(storage?.accountAddress ?? "") ? "Approve" : "Revoke"}
+                    <Button onClick={submitAction} isLoading={isLoading} className={`${!transactionData?.confirmations.includes(selectedAddress ?? "") ? "bg-[#2D5EFF] border-[#2D5EFF] hover:border-primary" : "bg-[#EF2727] border-[#EF2727]"} border-2 text-white px-5 !py-2 rounded-xl w-[7.813rem]`}>
+                        {!transactionData?.confirmations.includes(selectedAddress ?? "") ? "Approve" : "Revoke"}
                     </Button>
                 </div>}
             </div>

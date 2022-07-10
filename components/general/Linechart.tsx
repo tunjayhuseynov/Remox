@@ -10,7 +10,6 @@ const ReactApexChart = dynamic(
 
 function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: string }) {
   const dark = useNextSelector(selectDarkMode)
-console.log(data)
   const series = [
     {
       name: "Value",
@@ -28,7 +27,6 @@ console.log(data)
     grid: { show: false },
     tooltip: {
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
-        console.log(w)
           return (
             '<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">' +
             '<div class="flex justify-between">' +

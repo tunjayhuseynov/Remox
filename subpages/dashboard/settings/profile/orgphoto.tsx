@@ -1,4 +1,4 @@
-import React,{Dispatch, SetStateAction, useState} from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import Button from "components/button";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
@@ -9,9 +9,9 @@ import Upload from "components/upload";
 export interface IFormInput {
     nftAddress?: string;
     nftTokenId?: number;
-  }
+}
 
-function Orgphoto({setOrgphoto}:{setOrgphoto:Dispatch<SetStateAction<boolean>>}) {
+function OrgPhoto({ setOrgphoto }: { setOrgphoto: Dispatch<SetStateAction<boolean>> }) {
     const { register, handleSubmit } = useForm<IFormInput>();
     const { blockchain } = useWalletKit();
     const [file, setFile] = useState<File>()
@@ -41,7 +41,7 @@ function Orgphoto({setOrgphoto}:{setOrgphoto:Dispatch<SetStateAction<boolean>>})
             {<div className="flex flex-col mb-4 space-y-1 w-full">
                 <div className="text-xs text-left  dark:text-white">{!photoIsUpload ? "NFT Address" : "Your Photo"} </div>
                 <div className={`  w-full border rounded-lg`}>
-                    {!photoIsUpload ? <input type="text"  {...register("nftAddress", { required: true })}  className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
+                    {!photoIsUpload ? <input type="text"  {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                 </div>
             </div>}
             {blockchain === 'celo' && !photoIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
@@ -62,4 +62,4 @@ function Orgphoto({setOrgphoto}:{setOrgphoto:Dispatch<SetStateAction<boolean>>})
     </div></>
 }
 
-export default Orgphoto
+export default OrgPhoto

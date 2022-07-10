@@ -10,7 +10,7 @@ export const Get_Budget_Exercise_Ref = (id: string) => doc(db, budgetExerciseCol
 
 export const Get_Budget_Exercise = async (id: string) => {
     const budget_exercise = await FirestoreRead<IBudgetExercise>(budgetExerciseCollectionName, id)
-    if (!budget_exercise) throw new Error("Individual not found");
+    if (!budget_exercise) throw new Error("Budget Exercise not found");
     const budgets = budget_exercise.budgets.map(async (budget) => await Get_Budget(budget.id))
     budget_exercise.budgets = await Promise.all(budgets)
     return budget_exercise;
@@ -30,9 +30,11 @@ export const Create_Budget_Exercise = async (budget_exercise: IBudgetExercise) =
 }
 
 export const Update_Budget_Exercise = async (budget_exercise: IBudgetExercise) => {
+    let refs = []
     for (let budget of budget_exercise.budgets) {
-        budget = Get_Budget_Ref(budget.id);
+        refs.push(Get_Budget_Ref(budget.id))
     }
+    budget_exercise.budgets = refs;
     await FirestoreWrite<IBudgetExercise>().updateDoc(budgetExerciseCollectionName, budget_exercise.id, budget_exercise);
     return budget_exercise;
 }

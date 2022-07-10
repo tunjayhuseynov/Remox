@@ -9,7 +9,7 @@ import { useWalletKit } from 'hooks'
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Orgphoto from "./profile/orgphoto";
+import OrgPhoto from "./profile/orgphoto";
 import Orgname from "./profile/orgname";
 import Photo from "./profile/photo";
 import Name from "./profile/name";
@@ -59,7 +59,7 @@ const ProfileSetting = () => {
 
     return <div className=" py-5 flex flex-col space-y-10">
         {orgphoto && <Modal onDisable={setOrgphoto} animatedModal={false} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
-                        <Orgphoto setOrgphoto={setOrgphoto} />
+                        <OrgPhoto setOrgphoto={setOrgphoto} />
                 </Modal>}
                 {orgname && <Modal onDisable={setOrgname} animatedModal={false} disableX={true} className="lg:min-w-[auto] overflow-visible !w-[30%] !pt-4">
                         <Orgname setOrgname={setOrgname} />

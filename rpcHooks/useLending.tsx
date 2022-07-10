@@ -447,7 +447,6 @@ export default function useLending() {
                 setInitLaoding(true)
 
                 const data = await getSingleInitialUserData(SolanaCoins.USDC)
-                console.log(data)
                 setTimeout(() => {
                     dispatch(updateData([data]))
                 }, 1000)
