@@ -279,7 +279,7 @@ const Swap = () => {
                     </Button>
                 </div>
             </div>
-            {isOpen && <Modal onDisable={setOpen} title="Confirm Swap" className="lg:left-[55.5%]">
+            {isOpen && <Modal onDisable={setOpen} animatedModal={false} title="Confirm Swap" className="lg:left-[55.5%]">
                 <div className="flex flex-col -mx-5 space-y-5">
                     <div className="flex flex-col py-2 pb-10 space-y-7 border-b-2 px-5">
                         <div className="grid grid-cols-[7%,73%,20%] items-center">

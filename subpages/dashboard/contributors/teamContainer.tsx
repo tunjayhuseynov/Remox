@@ -70,10 +70,10 @@ const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
             Show More
         </button> : null}
         {!props.members ? <div className="b-5 px-5 border-b border-black pb-5">No Team Member Yet</div> : undefined}
-        {deleteModal && <Modal onDisable={setDeleteModal} disableX={true} className={'!pt-2'}>
+        {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-2'}>
             <Delete name={props.name} onCurrentModal={setDeleteModal} onDelete={DeleteTeam} />
         </Modal>}
-        {editModal && <Modal onDisable={setEditModal} disableX={true} className={'!pt-2'}>
+        {editModal && <Modal onDisable={setEditModal} animatedModal={false} disableX={true} className={'!pt-2'}>
             <EditTeam {...props} onCurrentModal={setEditModal}  />
         </Modal>}
     </>

@@ -83,7 +83,7 @@ const WalletSetting = () => {
         {walletData.map((item, index) => {
             return <WalletItem item={item} key={index} setReplaceOwnerModal={setReplaceOwnerModal} setRemovable={setRemovable} setRemoveModal={setRemoveModal} />
         })}
-        {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} disableX={true} className={' py-6 !w-[40%]'}>
+        {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} animatedModal={false} disableX={true} className={' py-6 !w-[40%]'}>
             <form  onSubmit={handleSubmit(onSubmit)} className="-my-5 flex flex-col space-y-7 px-20">
                 <div className="font-bold text-2xl text-center">Edit Wallet</div>
                 <div className="flex flex-col space-y-3">
@@ -128,7 +128,7 @@ const WalletSetting = () => {
                 </div>
             </form>
         </Modal>}
-        {removeModal && <Modal onDisable={setRemoveModal} disableX={true} className={'!pt-6'}>
+        {removeModal && <Modal onDisable={setRemoveModal} animatedModal={false} disableX={true} className={'!pt-6'}>
             <div className="flex flex-col space-y-8 items-center">
                 <div className="text-2xl text-primary">Are You Sure?</div>
                 <div className="flex items-center justify-center text-xl">

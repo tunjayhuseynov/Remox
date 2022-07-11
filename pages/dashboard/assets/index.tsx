@@ -159,7 +159,6 @@ const Assets = () => {
                                     const newStyle = {
                                         width: `${(item.percent || 0).toFixed(2)}%`
                                     }
-
                                     setStyle(newStyle);
                                 }, 200);
 
@@ -172,13 +171,13 @@ const Assets = () => {
                                         {(item.amount || 0).toFixed(2)}
                                     </motion.div>
                                     <motion.div variants={variants} className="hidden sm:block font-semibold" animate={price === 0 ? `${darkMode ? "white" : "black"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
-                                        $ {(item.tokenPrice || 0).toFixed(2)}
+                                        ${(item.tokenPrice || 0).toFixed(2)}
                                     </motion.div>
                                     <motion.div variants={variants} className="hidden sm:block font-semibold" animate={per24 === 0 ? `${darkMode ? "white" : "black"}` : per24 > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
-                                        % {(item.per_24 || 0).toFixed(2)}
+                                        {(item.per_24 || 0).toFixed(2)}%
                                     </motion.div>
                                     <motion.div animate={price === 0 && amount === 0 ? `${darkMode ? "white" : "black"}` : price === 0 ? amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`} className="font-semibold flex justify-self-end xl:block pr-1 xl:pr-2" >
-                                        $ {(item.amount * item.tokenPrice).toFixed(2)}
+                                        ${(item.amount * item.tokenPrice).toFixed(2)}
                                     </motion.div>
                                 </div>
                                     <div className="grid grid-cols-[95%,5%] items-center pt-2 pb-8 pl-4">

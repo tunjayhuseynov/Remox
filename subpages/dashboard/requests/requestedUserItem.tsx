@@ -85,7 +85,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                             setSelected2(requests2.filter(m => m.id !== request.id))
                         }
                     }} />  }
-                {!payment && request.status === RequestStatus.rejected && <img src="/icons/request/close.png" />}
+                {!payment && request.status === RequestStatus.rejected && <img src="/icons/request/close.png" className="mr-2" />}
             </div>
             <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} justify-center mr-2`}>
                 <div className={` ${request.status !== RequestStatus.rejected ? "bg-greylish bg-opacity-10" : "bg-red-300 text-black"}  ${detect ? "w-[2.813rem] h-[2.813rem] text-lg" : "w-[1.563rem] h-[1.563rem] text-xs"} flex items-center justify-center rounded-full font-bold `}>
@@ -163,7 +163,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
             {request.status !== RequestStatus.rejected && !payment && <div onClick={() => setModal(true)} className={`text-primary text-center mr-7 ${detect ? "px-5 max-h-[5rem] min-w-[10rem] border-2 rounded-2xl border-primary hover:bg-primary hover:text-white" : "text-sm hover:text-black dark:hover:text-white "}  py-1 transition-colors duration-300`}>View Details</div>}
         </div>
         {modal &&
-            <Modal onDisable={setModal} disableX={true}>
+            <Modal  onDisable={setModal} animatedModal={false} disableX={true}>
                 <div className="flex flex-col space-y-4 min-w-[30vw]">
                     <div className="font-semibold">
                         Overview

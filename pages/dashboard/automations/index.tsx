@@ -120,7 +120,7 @@ const Automations = () => {
             </div>
         </div>
         {addStopModal &&
-            <Modal onDisable={setAddStopModal} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
+            <Modal onDisable={setAddStopModal} animatedModal={false} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
                 <AddStopModal onDisable={setAddStopModal} memberState={memberState[0]} />
             </Modal>}
             {teams.length > 0 ?<>

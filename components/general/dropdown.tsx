@@ -57,7 +57,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
 
     return (
         <div className={`relative ${parentClass} `}>
-            <div ref={expectRef} onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
+            <div ref={expectRef} onClick={() => list?.length > 0 ? setOpen(!isOpen) : null} className={`flex ${className || ''} ${loader ? 'justify-center' : 'justify-between'} items-center border dark:border-darkSecond bg-white dark:bg-darkSecond rounded-xl py-2 px-3 cursor-pointer`}>
                 {!loader ? <div className={`truncate flex items-center gap-2`}>
                     {DropDownViewer({ name: selected.name, photo: selected?.photo, photoDisplay: photoDisplay, totalValue: selected?.totalValue, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
                 </div> : <Loader />}

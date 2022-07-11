@@ -76,16 +76,16 @@ const OwnerSetting = () => {
         })}
 
 
-        {addOwnerModal && <Modal onDisable={setAddOwnerModal} disableX={true} className={'!pt-3'}>
+        {addOwnerModal && <Modal onDisable={setAddOwnerModal} animatedModal={false} disableX={true} className={'!pt-3'}>
             <AddOwner onDisable={setAddOwnerModal} />
         </Modal>}
-        {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} disableX={true} className={'!pt-3'}>
+        {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} animatedModal={false} disableX={true} className={'!pt-3'}>
             <ReplaceOwner ownerAddress={selectedOwner} onDisable={setReplaceOwnerModal} />
         </Modal>}
-        {changeTresholdModal && <Modal onDisable={setChangeTresholdModal} disableX={true}>
+        {changeTresholdModal && <Modal onDisable={setChangeTresholdModal} animatedModal={false} disableX={true}>
             <ChangeTreshold onDisable={setChangeTresholdModal} />
         </Modal>}
-        {removeModal && <Modal onDisable={setRemoveModal} disableX={true} className={'!pt-6'}>
+        {removeModal && <Modal onDisable={setRemoveModal} disableX={true} animatedModal={false} className={'!pt-6'}>
             <RemoveOwner address={removable.address} name={removable.name} onDisable={setRemoveModal} />
         </Modal>}
     </div>

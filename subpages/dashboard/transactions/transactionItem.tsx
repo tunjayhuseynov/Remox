@@ -149,8 +149,8 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                                 {TransactionDirection.AutomationOut === direction ? "Execute (A)" : ""}
                                 {TransactionDirection.AutomationIn === direction ? "Receive (A)" : ""}
                                 {TransactionDirection.Out === direction ? "Remox" : ""}
-
-                            </>}
+                            </>
+                            }
                         </div>
                         </span>
                     </div>

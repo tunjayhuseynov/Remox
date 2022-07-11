@@ -1,13 +1,13 @@
-import React, { useEffect,useContext } from "react";
-import {useAppSelector } from '../../redux/hooks';
-import {selectDarkMode} from 'redux/slices/notificationSlice';
+import React, { useEffect, useContext } from "react";
+import { useAppSelector } from '../../redux/hooks';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
 import ReactDOM, { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from "framer-motion"
 import { DashboardContext } from 'layouts/dashboard';
 
-const Modal = ({ children, onDisable, title, className, disableX = false, animatedModal = true, openNotify, animateClass,setNotify2 }: { children?: JSX.Element | JSX.Element[], onDisable: React.Dispatch<React.SetStateAction<boolean>>, title?: string, className?: string, disableX?: boolean, openNotify?: boolean, animatedModal?: boolean, animateClass?: string,setNotify2?:React.Dispatch<React.SetStateAction<boolean>> }) => {
+const Modal = ({ children, onDisable, title, className, disableX = false, animatedModal = true, openNotify, animateClass, setNotify2 }: { children?: JSX.Element | JSX.Element[], onDisable: React.Dispatch<React.SetStateAction<boolean>>, title?: string, className?: string, disableX?: boolean, openNotify?: boolean, animatedModal?: boolean, animateClass?: string, setNotify2?: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const dark = useAppSelector(selectDarkMode)
-    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate:React.Dispatch<React.SetStateAction<number>>}
+    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<number>> }
 
     useEffect(() => {
         if (openNotify) {
@@ -21,25 +21,26 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
 
     }, [openNotify])
 
-    // if (!animatedModal) {
-    //     useEffect(() => {
-    //         document.querySelector('body')!.style.overflowY = "hidden"
-    //         return () => {
-    //             document.querySelector('body')!.style.overflowY = ""
-    //         }
-    //     }, [])
-    // }
+    useEffect(() => {
+        if (!animatedModal) {
+            document.querySelector('body')!.style.overflowY = "hidden"
+            return () => {
+                document.querySelector('body')!.style.overflowY = ""
+            }
+        }
+    }, [animatedModal])
+
 
     return <>
-        {animatedModal ?  ReactDOM.createPortal( <AnimatePresence>{openNotify &&
-            <motion.div  initial={{ x: "100%"}} animate={{ x: 15 }} exit={{ x: "100%" }} transition={{ type: "tween", duration: .33}} className="bg-light dark:bg-dark  z-[9999] fixed  h-[87.5%] pr-1 w-[85%]  overflow-x-hidden bottom-0 right-0  cursor-default ">
-                <button onClick={() => {onDisable(false); setNotify2 && setNotify2(true)}} className="z-[9999] absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
+        {animatedModal ? ReactDOM.createPortal(<AnimatePresence>{openNotify &&
+            <motion.div initial={{ x: "100%" }} animate={{ x: 15 }} exit={{ x: "100%" }} transition={{ type: "tween", duration: .33 }} className="bg-light dark:bg-dark  z-[9999] fixed  h-[87.5%] pr-1 w-[85%]  overflow-x-hidden bottom-0 right-0  cursor-default ">
+                <button onClick={() => { onDisable(false); setNotify2 && setNotify2(true) }} className="z-[9999] absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
                     {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                     <span className="text-4xl">&#171;</span> Back
                 </button>
                 {children}
             </motion.div>}
-        </AnimatePresence>,document.body)
+        </AnimatePresence>, document.body)
             :
             ReactDOM.createPortal(<>
                 <div className="w-full h-full !my-0 !ml-0 bg-white dark:bg-dark dark:bg-opacity-60  bg-opacity-60 absolute left-0 top-0 z-[98]" onClick={() => onDisable(false)} style={{

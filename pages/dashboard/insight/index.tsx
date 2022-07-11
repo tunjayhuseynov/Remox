@@ -15,6 +15,55 @@ import { IAccount } from "firebaseConfig";
 
 const style = "py-2 bg-greylish bg-opacity-10 dark:bg-darkSecond px-5  rounded-xl hover:bg-gray-300 dark:hover:bg-greylish dark:focus:bg-greylish"
 
+
+export interface ILabels {
+    name: string,
+    value: number,
+    percent: number,
+    transactions: number,
+}[]
+
+export interface ISubbudgets {
+    name: string,
+    amount: {
+        coinUrl: string,
+        value: number,
+        percent:number,
+        transaction:number,
+    },
+    amount2?: {
+        coinUrl: string,
+        value: number,
+        percent:number,
+        transaction:number,
+    },
+}[]
+
+
+export interface IBudgets {
+    name: string,
+    totalSpend: string,
+    transaction: number,
+    startTime: string,
+    endTime: string,
+    amount: {
+        coinUrl: string,
+        value: number,
+        percent: number,
+        transactions: number,
+    },
+    amount2?: {
+        coinUrl: string,
+        value: number,
+        percent: number,
+        transactions: number,
+    },
+
+    subbudgets: ISubbudgets[],
+    labels: ILabels[]
+}[]
+
+
 const Insight = () => {
     const darkMode = useSelector(selectDarkMode)
     const { data: wallets } = useMultiWallet()
@@ -22,6 +71,18 @@ const Insight = () => {
     const [selectedDate, setSelectedDate] = useState<number>(30)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { data } = useMultiWallet()
+<<<<<<< HEAD
+    // const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [selectedAccount])
+    // const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
+    // const insight = useInsight({ selectedDate, selectedAccounts })
+
+
+    // useEffect(() => {
+    //     if (data !== undefined) {
+    //         setSelectedAccounts(data.map(s => s.address))
+    //     }
+    // }, [data])
+=======
     const [selectedAccounts, setSelectedAccounts] = useState<string[]>((data as IAccount[])?.map(s => s.address) ?? [selectedAccount])
     // const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
     const insight = useInsight({ selectedDate, selectedAccounts })
@@ -32,6 +93,7 @@ const Insight = () => {
             setSelectedAccounts((data as IAccount[]).map(s => s.address))
         }
     }, [data])
+>>>>>>> 08eddff32c630f2a803e2dc1c418847af465a8d5
 
 
 
@@ -51,6 +113,125 @@ const Insight = () => {
 
     ]
 
+    const Budgets: IBudgets[] = [
+        {
+            name: 'Product',
+            totalSpend: '$10,000',
+            transaction: 50,
+            startTime: 'May 2022',
+            endTime: 'May 2023',
+            amount: {
+                coinUrl: 'celodollar',
+                value: 544.730,
+                percent: 68,
+                transactions: 14,
+            },
+            amount2: {
+                coinUrl: 'celoiconsquare',
+                value: 544.730,
+                percent: 68,
+                transactions: 14,
+            },
+            subbudgets: [
+                {
+                    name: 'SubProduct',
+                    amount: {
+                        coinUrl: 'celodollar',
+                        value: 30,
+                        percent: 82,
+                        transaction:35,
+                    },
+                },
+                {
+                    name: 'subEvent',
+                    amount: {
+                        coinUrl: 'celodollar',
+                        value: 30,
+                        percent: 82,
+                        transaction:35,
+                    },
+                    amount2: {
+                        coinUrl: 'celodollar',
+                        value: 750,
+                        percent: 82,
+                        transaction:35,
+                    },
+                },
+            ],
+            labels: [
+                {
+                    name: 'budgetLabel',
+                    value: 30,
+                    percent: 76,
+                    transactions: 20,
+                },
+                {
+                    name: 'Target',
+                    value: 30,
+                    percent: 35,
+                    transactions: 21,
+                },
+            ],
+
+        },
+        {
+            name: 'Operation',
+            totalSpend: '$30.000',
+            transaction: 35,
+            startTime: 'Apr 2022',
+            endTime: 'Apr 2023',
+            amount: {
+                coinUrl: 'celodollar',
+                value: 7557.30,
+                percent: 82,
+                transactions: 35,
+            },
+            subbudgets: [
+                {
+                    name: 'subOperation',
+                    amount: {
+                        coinUrl: 'celodollar',
+                        value: 30,
+                        percent: 88,
+                        transaction:57
+                    },
+                },
+                {
+                    name: 'subEvent',
+                    amount: {
+                        coinUrl: 'celodollar',
+                        value: 30,
+                        percent: 52,
+                        transaction:57
+                    },
+                    amount2: {
+                        coinUrl: 'celodollar',
+                        value: 750,
+                        percent: 82,
+                        transaction:75
+                    },
+                },
+            ],
+            labels: [
+                {
+                    name: 'labelOperation',
+                    value: 30,
+                    percent: 30,
+                    transactions: 30,
+                },
+                {
+                    name: 'Target',
+                    value: 30,
+                    percent: 30,
+                    transactions: 30,
+                },
+            ],
+
+        }
+    ]
+
+
+
     return (
         <div className="flex flex-col space-y-3">
             <div className="flex justify-between pb-4">
@@ -59,8 +240,13 @@ const Insight = () => {
                     {/* {!isMultisig && <div className="mr-3">
                         <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
                             setChangedAccount([...wallets.map((wallet) => wallet.address)])
+<<<<<<< HEAD
+                        }} /> 
+                    </div>}*/}
+=======
                         }} />
                     </div>} */}
+>>>>>>> 08eddff32c630f2a803e2dc1c418847af465a8d5
                     {!isMultisig && <> <div className="">
                         <CSVLink data={''} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                             <div className={'hidden'}>Export</div>
@@ -99,7 +285,11 @@ const Insight = () => {
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
+            <AllCharts budgets={Budgets} />
+=======
             <AllCharts />
+>>>>>>> 08eddff32c630f2a803e2dc1c418847af465a8d5
         </div>
     );
 }

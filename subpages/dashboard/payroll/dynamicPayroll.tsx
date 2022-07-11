@@ -143,7 +143,7 @@ export default function DynamicPayroll() {
 
     return <div className="w-full h-full flex flex-col space-y-4">
 
-        {runmodal && <Modal onDisable={setRunmodal} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
+        {runmodal && <Modal onDisable={setRunmodal} animatedModal={false} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
 
             {memberState[0].length > 0 ? <div className="px-10">
                 <div className="text-2xl font-semibold py-2 pb-8">Run Payroll</div>

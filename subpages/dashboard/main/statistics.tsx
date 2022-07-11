@@ -47,7 +47,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
                 <div className="flex justify-between w-full">
                     <div className="text-2xl font-semibold">Connected Wallets</div>
-                    <Button className="text-xs sm:text-base !py-0 !px-8 rounded-xl" onClick={() => { setNotify(true) }}>+ Add Wallet</Button>
+                    <Button className="text-xs sm:text-base !py-0 !px-7 !rounded-xl" onClick={() => { setNotify(true) }}>+ Add Wallet</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
                     {data && data.map((item, id) => {

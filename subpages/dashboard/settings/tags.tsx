@@ -68,7 +68,7 @@ export default function TagsSetting() {
                 </div>
             </div>
             {showModal &&
-                <Modal onDisable={setShowModal} disableX={true} className="!pt-5 overflow-visible">
+                <Modal onDisable={setShowModal} animatedModal={false} disableX={true} className="!pt-5 overflow-visible">
                     <div className="flex flex-col space-y-12 items-center">
                         <div className="flex  font-semibold tracking-wider text-2xl">
                             Create a New Tag
