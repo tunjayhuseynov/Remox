@@ -10,8 +10,13 @@ import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Delete from "subpages/dashboard/contributors/buttons/delete";
 import { useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
-import {IFormInput} from '../tags';
+
 import { useForm, SubmitHandler } from "react-hook-form";
+
+export interface IFormInput {
+    name:string;
+    color:string;
+  }
 
 export default function TagItem({ tag }: { tag: Tag }) {
     const { register, handleSubmit } = useForm<IFormInput>();
@@ -62,21 +67,21 @@ export default function TagItem({ tag }: { tag: Tag }) {
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
         const Color = color
-        console.log(data)
+        console.log(data,Color)
     }
 
     return (
         <>
                     {editModal &&
                 <Modal onDisable={setEditModal} animatedModal={false} disableX={true} className=" !pt-5 overflow-visible ">
-                    <div className="flex flex-col space-y-12 items-center">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-12 items-center">
                         <div className="font-semibold tracking-wider text-2xl">
                             Edit tag
                         </div>
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex items-end space-x-12">
+                        <div className="flex items-end space-x-12">
                             <div className="flex flex-col space-y-3 items">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
-                                <input type="text" {...register("name", { required: true })} className="rounded-xl border  dark:bg-darkSecond px-5 py-2" ref={inputRef} defaultValue={tag.name} />
+                                <input type="text" {...register("name", { required: true })} className="rounded-xl border  dark:bg-darkSecond px-5 py-2"  defaultValue={tag.name} />
                             </div>
                             <div className="flex flex-col  ">
                                 <label className="text-greylish bg-opacity-50"></label>
@@ -98,16 +103,16 @@ export default function TagItem({ tag }: { tag: Tag }) {
                                         }
                                 </div>
                             </div>
-                        </form>
+                        </div>
                         <div className="flex justify-center gap-16">
                             <Button type="submit" version="second" onClick={() => setEditModal(false)} className="!px-10 !py-2 !rounded-xl">
                                 Back
                             </Button>
-                            <Button type="submit" onClick={UpdateTag} className="!px-10 !py-2 !rounded-xl" isLoading={isLoading} >
+                            <Button type="submit"  className="!px-10 !py-2 !rounded-xl" isLoading={isLoading} >
                                 Save
                             </Button>
                         </div>
-                    </div>
+                    </form>
                 </Modal>
             }
             {deleteModal &&
@@ -125,14 +130,14 @@ export default function TagItem({ tag }: { tag: Tag }) {
                 </div>
                  <div className="flex space-x-3 justify-end">
                  <span ref={exceptRef2} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold "><span className=" text-primary pb-4">...</span>
-                    {details && <div ref={divRef2} className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-24 -bottom-3 w-[7rem]  rounded-lg shadow-xl z-50 ">
-                        <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full px-2  py-1 gap-3" onClick={() => {
+                    {details && <div ref={divRef2} className="flex flex-col items-center  w-[8rem]  bg-white dark:bg-darkSecond absolute right-24 -bottom-7  rounded-lg shadow-xl z-50 ">
+                        <div className="cursor-pointer  hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm border-b border-greylish border-opacity-20 flex w-full px-2  py-2 gap-3" onClick={() => {
                             setEditModal(true)
                             setModalVisible(false)
                         }}>
                             <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
                         </div>
-                        <div className="cursor-pointer  text-sm flex w-full px-2 pr-6 py-1 gap-3" onClick={() => {
+                        <div className="cursor-pointer  hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm flex w-full px-2 pr-6 py-2 gap-3" onClick={() => {
                             setDeleteModal(true)
                             setModalVisible(false)
                         }}>

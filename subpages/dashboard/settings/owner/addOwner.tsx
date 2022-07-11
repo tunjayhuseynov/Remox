@@ -46,22 +46,22 @@ const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         {pageIndex === 0 && <form  onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <div className="flex flex-col space-y-1">
                 <span className="text-greylish">Choose Owner Profile Photo</span>
-                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                     setSelectedPayment(e)
                     if (e.name === "NFT") setPhotoIsUpload(false)
                     else setPhotoIsUpload(true)
                 }} />
             </div>
             {<div className="flex flex-col  space-y-1 w-full">
-                <div className="text-xs text-left  dark:text-white">{!photoIsUpload ? "NFT Address" : "Your Photo"} </div>
+                <div className=" text-left  text-greylish">{!photoIsUpload ? "NFT Address" : "Your Photo"} </div>
                 <div className={`  w-full border rounded-lg`}>
                     {!photoIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                 </div>
             </div>}
             {blockchain === 'celo' && !photoIsUpload  && <div className="flex flex-col gap-1 w-full">
-                <div className="text-xs text-left  dark:text-white">Token ID</div>
+                <div className="text-left  text-greylish">Token ID</div>
                 <div className={`w-full border rounded-lg`}>
-                    <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                    <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                 </div>
             </div>}
             <div className="flex flex-col space-y-1">

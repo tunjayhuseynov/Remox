@@ -154,346 +154,142 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     }
   };
 
-  return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col space-y-8 w-[35%] mx-auto pb-4">
-          <div className="text-2xl self-center pt-2 font-semibold ">
-            Add People
-          </div>
-          <div className="flex flex-col space-y-4">
-            <div className="flex flex-col mb-4 space-y-1 w-full">
-              <div className=" text-left text-greylish dark:text-white">
-                Choose Profile Photo Type
-              </div>
-              <div className={` flex items-center gap-3 w-full`}>
-                <Dropdown
-                  parentClass={"bg-white w-full rounded-lg h-[3.4rem]"}
-                  className={"!rounded-lg h-[3.4rem]"}
-                  childClass={"!rounded-lg"}
-                  list={imageType}
-                  selected={selectedPayment}
-                  onSelect={(e) => {
-                    setSelectedPayment(e);
-                    if (e.name === "NFT") setUserIsUpload(false);
-                    else setUserIsUpload(true);
-                  }}
-                />
-              </div>
-            </div>
-            {
-              <div className="flex flex-col mb-4 space-y-1 w-full">
-                <div className="text-xs text-left  dark:text-white">
-                  {!userIsUpload ? "NFT Address" : "Your Photo"}{" "}
-                </div>
-                <div className={`  w-full border rounded-lg`}>
-                  {!userIsUpload ? (
-                    <input
-                      type="text"
-                      {...register("nftAddress", { required: true })}
-                      className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1"
-                    />
-                  ) : (
-                    <Upload
-                      className={"!h-[3.4rem] block border-none w-full"}
-                      setFile={setFile}
-                    />
-                  )}
-                </div>
-              </div>
-            }
-            {blockchain === "celo" && !userIsUpload && (
-              <div className="flex flex-col mb-4 gap-1 w-full">
-                <div className="text-xs text-left  dark:text-white">
-                  Token ID
-                </div>
-                <div className={`w-full border rounded-lg`}>
-                  <input
-                    type="number"
-                    {...register("nftTokenId", { required: true })}
-                    className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
-                  />
-                </div>
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-x-10">
-              <div>
-                <div className="text-greylish ">Name</div>
-                <input
-                  type="text"
-                  {...register("name", { required: true })}
-                  placeholder="First Name"
-                  className="border pl-2 rounded-md outline-none py-3  w-full dark:bg-darkSecond"
-                  required
-                />
-              </div>
-              <div>
-                <div className="text-greylish ">Surname</div>
-                <input
-                  type="text"
-                  {...register("surname", { required: true })}
-                  placeholder="Last Name"
-                  className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-x-10">
-            <div className="flex flex-col">
-              <div className="text-greylish">Team</div>
-              <div className="w-full ">
-                <Dropdown
-                  onSelect={setSelected}
-                  selected={selected}
-                  list={
-                    contributors.length > 0
-                      ? [
-                          ...contributors.map((w) => {
-                            return {
-                              name: w.name,
-                              coinUrl: CoinsURL.None,
-                              id: w.id,
-                            };
-                          }),
-                        ]
-                      : []
-                  }
-                  nameActivation={true}
-                  parentClass={"bg-white w-full rounded-lg h-[3.4rem]"}
-                  className={"!rounded-lg h-[3.4rem]"}
-                  childClass={"!rounded-lg"}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col ">
-              <div className="text-greylish">Compensation Type</div>
-              <div className=" w-full ">
-                <Dropdown
-                  parentClass={"bg-white w-full rounded-lg h-[3.4rem]"}
-                  className={"!rounded-lg h-[3.4rem]"}
-                  childClass={"!rounded-lg"}
-                  list={paymentname2}
-                  selected={selectedPayment2}
-                  onSelect={(e) => {
-                    setSelectedPayment2(e);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col space-y-1">
-            <div className="text-greylish">Amount Type</div>
-            <div>
-              <Dropdown
-                parentClass={"bg-white w-full rounded-lg h-[3.4rem]"}
-                className={"!rounded-lg h-[3.4rem]"}
-                childClass={"!rounded-lg"}
-                list={paymentname3}
-                selected={selectedPayment3}
-                onSelect={(e) => {
-                  setSelectedPayment3(e);
-                  if (e.name === "Pay with USD-based Amounts")
-                    setSelectedType(true);
-                  else setSelectedType(false);
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col space-y-1">
-            <div className="text-greylish">Wallet Address</div>
-            <div>
-              <input
-                type="text"
-                {...register("address", { required: true })}
-                className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond"
-                placeholder="Wallet Address"
-                required
-              />
-            </div>
-          </div>
-          <div className="flex w-full gap-x-10">
-            {
-              <Dropdown
-                parentClass={
-                  "w-full   border-transparent text-sm dark:text-white"
-                }
-                className="!rounded-md !py-3"
-                nameActivation={true}
-                selected={
-                  selectedWallet ??
-                  Object.values(GetCoins!).map((w) => ({
-                    name: w.name,
-                    coinUrl: w.coinUrl,
-                  }))[0]
-                }
-                list={Object.values(GetCoins!).map((w) => ({
-                  name: w.name,
-                  coinUrl: w.coinUrl,
-                }))}
-                onSelect={(val) => {
-                  setSelectedWallet(val);
-                }}
-              />
-            }
-            <div
-              className={`border w-full text-black py-1 rounded-md grid ${
-                selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"
-              }`}
-            >
-              <input
-                type="number"
-                {...register("amount", { required: true, valueAsNumber: true })}
-                className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white "
-                placeholder="Amount"
-                step={"any"}
-                min={0}
-                onChange={(e) => {
-                  setAmount(parseInt(e.target.value));
-                }}
-              />
-              {selectedType && (
-                <span className="text-xs self-center opacity-70 dark:text-white">
-                  USD as
-                </span>
-              )}
-            </div>
-          </div>
-          {secondActive ? (
-            <div className="flex gap-x-10">
-              {
-                <Dropdown
-                  parentClass={
-                    "w-full border-transparent text-sm dark:text-white"
-                  }
-                  className="!rounded-md !py-3"
-                  nameActivation={true}
-                  selected={
-                    selectedWallet2 ??
-                    Object.values(GetCoins!).map((w) => ({
-                      name: w.name,
-                      coinUrl: w.coinUrl,
-                    }))[0]
-                  }
-                  list={Object.values(GetCoins!).map((w) => ({
-                    name: w.name,
-                    coinUrl: w.coinUrl,
-                  }))}
-                  onSelect={(val) => {
-                    setSelectedWallet2(val);
-                  }}
-                />
-              }
-              <div
-                className={`border w-full text-black py-1 rounded-md grid ${
-                  selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"
-                }`}
-              >
-                <input
-                  type="number"
-                  {...register("amount2", { required: true })}
-                  className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white"
-                  placeholder="Amount"
-                  step={"any"}
-                  min={0}
-                  onChange={(e) => {
-                    setAmount2(parseInt(e.target.value));
-                  }}
-                />
-                {selectedType && (
-                  <span className="text-xs self-center opacity-70 dark:text-white ">
-                    USD as
-                  </span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div
-              className="text-primary cursor-pointer"
-              onClick={() => setSecondActive(true)}
-            >
-              + Add another token
-            </div>
-          )}
-          <div className="flex gap-x-10">
-            <div className="flex flex-col space-y-1 w-full">
-              <div className="text-greylish">Payment Type</div>
-              <Dropdown
-                parentClass={"bg-white w-full rounded-lg h-[3.4rem]"}
-                className={"!rounded-lg h-[3.4rem]"}
-                childClass={"!rounded-lg"}
-                list={paymentname4}
-                selected={selectedPayment4}
-                onSelect={(e) => {
-                  setSelectedPayment4(e);
-                  if (e.name === "Auto") setSelectedExecution(true);
-                  else setSelectedExecution(false);
-                }}
-              />
-            </div>
 
-            <div className="flex flex-col space-y-1 w-full">
-              <div className="text-greylish">Payment Frequency</div>
-              <div>
-                <Dropdown
-                  onSelect={setSelectedFrequency}
-                  selected={selectedFrequency}
-                  list={[
-                    { name: "Monthly", type: DateInterval.monthly },
-                    { name: "Weekly", type: DateInterval.weekly },
-                  ]}
-                  nameActivation={true}
-                  className="border !rounded-md !py-[0.7rem]"
-                />
-              </div>
+    return <>
+        <form onSubmit={handleSubmit(onSubmit)} >
+
+          <div>
+            <div className="flex flex-col space-y-8 w-[35%] mx-auto pb-4">
+                <div className="text-2xl self-center pt-2 font-semibold ">Add People</div>
+                <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col mb-4 space-y-1 w-full">
+                        <div className=" text-left  text-greylish ">Choose Profile Photo Type</div>
+                        <div className={` flex items-center gap-3 w-full`}>
+                            <Dropdown parentClass={'bg-white w-full rounded-lg '} className={'!rounded-lg !border dark:border-white h-[3.15rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedPayment} onSelect={(e) => {
+                                setSelectedPayment(e)
+                                if (e.name === "NFT") setUserIsUpload(false)
+                                else setUserIsUpload(true)
+                            }} />
+                        </div>
+                    </div>
+                    {<div className="flex flex-col mb-4 space-y-1 w-full">
+                        <div className=" text-left text-greylish">{!userIsUpload ? "NFT Address" : "Your Photo"} </div>
+                        <div className={`  w-full border rounded-lg`}>
+                            {!userIsUpload ? <input type="text"  {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.15rem]  w-full px-1" /> : <Upload className={'!h-[3.15rem] block border-none w-full'} setFile={setFile} />}
+                        </div>
+                    </div>}
+                    {blockchain === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
+                        <div className="text-xs text-left  dark:text-white">Token ID</div>
+                        <div className={`w-full border rounded-lg`}>
+                            <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.15rem] unvisibleArrow  w-full px-1" />
+                        </div>
+                    </div>}
+                    <div className="grid grid-cols-2 gap-x-10">
+                        <div>
+                            <div className="text-greylish ">Name</div>
+                            <input type="text" {...register("name", { required: true })} placeholder="First Name" className="border pl-2 rounded-md outline-none py-3  w-full dark:bg-darkSecond" required />
+                        </div>
+                        <div>
+                            <div className="text-greylish ">Surname</div>
+                            <input type="text" {...register("surname", { required: true })} placeholder="Last Name" className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond" required />
+                        </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-x-10">
+                    <div className="flex flex-col">
+                        <div className="text-greylish">Team</div>
+                        <div className="w-full ">
+                            <Dropdown onSelect={setSelected} selected={selected} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} />
+                        </div>
+                    </div>
+                    <div className="flex flex-col ">
+                        <div className="text-greylish">Compensation Type</div>
+                        <div className=" w-full ">
+                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg '} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
+                                setSelectedPayment2(e)
+
+                            }} />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-col space-y-1">
+                    <div className="text-greylish">Amount Type</div>
+                    <div>
+                        <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} list={paymentname3} selected={selectedPayment3} onSelect={(e) => {
+                            setSelectedPayment3(e)
+                            if (e.name === "Pay with USD-based Amounts") setSelectedType(true)
+                            else setSelectedType(false)
+                        }} />
+                    </div>
+                </div>
+
+                <div className="flex w-full gap-x-10">
+                    {<Dropdown parentClass={'w-full   border-transparent text-sm dark:text-white'} className="!rounded-md !py-3 border dark:border-white" nameActivation={true} selected={selectedWallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                        setSelectedWallet(val)
+                    }} />}
+                    <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
+                        {selectedType && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
+                        <input type="number" {...register("amount", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required step={'any'} min={0} onChange={(e) => { setAmount(parseInt(e.target.value)) }} />
+                    </div>
+                </div>
+                {secondActive ?
+                    <div className="flex gap-x-10">
+                        {<Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !py-3 border dark:border-white" nameActivation={true} selected={selectedWallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                            setSelectedWallet2(val)
+                        }} />}
+                        <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
+                            {selectedType && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
+                            <input type="number" {...register("amount2", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond dark:text-white" step={'any'} min={0} onChange={(e) => { setAmount2(parseInt(e.target.value)) }} />
+                        </div>
+                    </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}> <span className="px-2 text-primary border-primary ">+</span> Add another token</div>}
+                <div className="flex flex-col space-y-1">
+                    <div className="text-greylish">Wallet Address</div>
+                    <div>
+                        <input type="text"  {...register("address", { required: true })} className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond" placeholder="Wallet Address" required />
+                    </div>
+                </div>
+                <div className="flex gap-x-10">
+                    <div className="flex flex-col space-y-1 w-full">
+                        <div className="text-greylish">Payment Type</div>
+                        <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} list={paymentname4} selected={selectedPayment4} onSelect={(e) => {
+                            setSelectedPayment4(e)
+                            if (e.name === "Auto") setSelectedExecution(true)
+                            else setSelectedExecution(false)
+                        }} />
+                    </div>
+
+                    <div className="flex flex-col space-y-1 w-full">
+                        <div className="text-greylish">Payment Frequency</div>
+                        <div>
+                            <Dropdown onSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border dark:border-white !rounded-md !py-[0.7rem] " />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex gap-x-10">
+                    <div className="flex flex-col space-y-1 w-full">
+                        <div className="text-greylish">Payment Start Date</div>
+                        <div className="border  dark:bg-darkSecond bg-white  rounded-md">
+                            <DatePicker className="dark:bg-darkSecond bg-white w-full outline-none h-[3.15rem] pl-2" selected={startDate} minDate={new Date()} onChange={(date) => date ? setStartDate(date) : null} />
+                        </div>
+                    </div>
+                    <div className="flex flex-col space-y-1 w-full">
+                        <div className="text-greylish">Payment End Date</div>
+                        <div className="border  dark:bg-darkSecond bg-white  rounded-md">
+                            <DatePicker className="dark:bg-darkSecond bg-white w-full outline-none h-[3.15rem] pl-2" selected={endDate} minDate={new Date()} onChange={(date) => date ? setEndDate(date) : null} />
+                        </div>
+                    </div>
+                </div>
+                {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
+                <div className="grid grid-cols-2 gap-x-10 justify-center">
+                    <Button type="submit" version="second" className="px-8 py-3" onClick={() => { onDisable(false) }}>
+                        Close
+                    </Button>
+                    <Button type="submit" className="px-8 py-3" isLoading={isLoading || loading || allowLoading}>
+                        Add Person
+                    </Button>
+                </div>
             </div>
-          </div>
-          <div className="flex gap-x-10">
-            <div className="flex flex-col space-y-1 w-full">
-              <div className="text-greylish">Payment Start Date</div>
-              <div className="border dark:border-darkSecond p-2 rounded-md">
-                <DatePicker
-                  className="dark:bg-dark w-full outline-none"
-                  selected={startDate}
-                  minDate={new Date()}
-                  onChange={(date) => (date ? setStartDate(date) : null)}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col space-y-1 w-full">
-              <div className="text-greylish">Payment End Date</div>
-              <div className="border dark:border-darkSecond p-2 rounded-md">
-                <DatePicker
-                  className="dark:bg-dark w-full outline-none"
-                  selected={endDate}
-                  minDate={new Date()}
-                  onChange={(date) => (date ? setEndDate(date) : null)}
-                />
-              </div>
-            </div>
-          </div>
-          {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
-          <div className="grid grid-cols-2 gap-x-10 justify-center">
-            <Button
-              type="submit"
-              version="second"
-              className="px-8 py-3"
-              onClick={() => {
-                onDisable(false);
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              type="submit"
-              className="px-8 py-3"
-              isLoading={isLoading || loading || allowLoading}
-            >
-              Add Person
-            </Button>
-          </div>
         </div>
       </form>
     </>
-  );
 };
