@@ -22,16 +22,12 @@ import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/slices/payinput";
-import Modal from 'components/general/modal';
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useAppSelector } from '../../redux/hooks';
 import Loader from "components/Loader";
-import Paydropdown from './paydropdown';
 import { motion, AnimatePresence } from "framer-motion"
 import { useModalSideExit } from "hooks";
 import useProfile from "rpcHooks/useProfile";
-import Walletmodal from 'components/general/walletmodal';
-import ReactDOM, { createPortal } from 'react-dom';
 import { DropDownItem } from 'types';
 import { useForm, SubmitHandler } from "react-hook-form";
 import Dropdown from 'components/general/dropdown';
@@ -51,10 +47,7 @@ const Pay = () => {
     const MyInputs = useSelector(SelectInputs)
     const [text, setText] = useState('One-Time')
     const [stream, setStream] = useState(false)
-    const refminus = useRef<HTMLSpanElement>(null)
 
-    const [walletModals, setWalletModals] = useState(false)
-    const [Modals, setModals] = useState(false)
     const { profile, UpdateSeenTime } = useProfile()
 
     const dispatch = useAppDispatch()
@@ -320,8 +313,8 @@ const Pay = () => {
     }
 
     return <>
-        <Walletmodal  openNotify={openNotify} openNotify2={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
-        <Button className="px-8 !py-1 ml-7  min-w-[60%] !rounded-xl" onClick={() => { setNotify(true) }}>Send</Button>
+        {/* <Walletmodal  openNotify={openNotify} openNotify2={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} /> */}
+        {/* <Button className="px-8 !py-1 ml-7  min-w-[60%] !rounded-xl" onClick={() => { setNotify(true) }}>Send</Button> */}
         <AnimatePresence>{openNotify2 && 
             <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 200, damping: 40 }} className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
                 <div className="relative bg-light dark:bg-dark">
@@ -336,7 +329,7 @@ const Pay = () => {
                                     <div className="text-2xl font-bold">Remox Pay</div>
                                 </div>
                                 <div className="w-full flex justify-center py-4">
-                                    <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} index={0} setText={setText}  className={'!text-lg'} /></div>
+                                    <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} index={0} className={'!text-lg'} /></div>
                                 </div>
                                 <div className="w-full flex flex-col   px-3 py-2">
                                     <div className={`grid ${text !== "Recurring" ? "grid-cols-[30%,30%,40%]" : "grid-cols-[40%,60%]"} `}>

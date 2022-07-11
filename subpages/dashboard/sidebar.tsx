@@ -76,14 +76,16 @@ const Sidebar = () => {
                 </div>
                 <div>
                     <Siderbarlist />
-                    <Pay />
+                    <Button className="px-8 !py-1 ml-7  min-w-[60%] !rounded-xl" onClick={() => {
+                        navigator.push("/dashboard/choose-budget")
+                    }}>Send</Button>
 
                 </div>
 
             </div>
         </div>
 
-         {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
+        {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
             <div className="flex flex-col gap-8 mt-[-2rem]">
                 <div className="text-center font-semibold pt-4 text-xl">Multi-Signature Account</div>
                 <div className="flex space-x-3 border border-greylish  py-3 rounded-md cursor-pointer items-center justify-center" onClick={() => {
@@ -126,7 +128,7 @@ const Sidebar = () => {
             isCreateModal && <Modal onDisable={setCreateModal} disableX={true}>
                 <Create setCreateModal={setCreateModal} />
             </Modal>
-        } 
+        }
         {/* {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
         {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />} */}
     </>

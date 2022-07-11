@@ -9,7 +9,7 @@ import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
 import BudgetCard from 'subpages/dashboard/budgets/budgetCard';
 import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
-import { SelectBudgets } from 'redux/slices/account/remoxData';
+import { SelectBudgetExercises } from 'redux/slices/account/remoxData';
 
 const Budgets = () => {
 
@@ -22,7 +22,7 @@ const Budgets = () => {
     const [exercise, setExercise] = useState(false)
     const [isOpen, setOpen] = useState(false)
 
-    const budget_exercises = useAppSelector(SelectBudgets)
+    const budget_exercises = useAppSelector(SelectBudgetExercises)
 
     const [selectedExerciseId, setSelectedExerciseId] = useState(budget_exercises[0].id)
     let selectedExercise = budget_exercises.find(exercise => exercise.id === selectedExerciseId)!

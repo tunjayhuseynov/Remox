@@ -4,7 +4,7 @@ import { IBudget, IBudgetExercise, IBudgetTX } from "firebaseConfig";
 import { IBudgetORM } from "pages/api/budget";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "redux/hooks";
-import { addBudget, addTxToBudget, deleteBudget, SelectBudgets, updateBudget } from "redux/slices/account/remoxData";
+import { addBudget, addTxToBudget, deleteBudget, SelectBudgetExercises, updateBudget } from "redux/slices/account/remoxData";
 import { SelectCurrencies } from "redux/slices/currencies";
 
 export default function useBudgets() {

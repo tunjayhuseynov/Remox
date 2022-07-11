@@ -10,11 +10,29 @@ import { auth } from 'firebaseConfig'
 import { useRouter } from 'next/router'
 import useAsyncEffect from 'hooks/useAsyncEffect'
 import { Get_Individual } from 'crud/individual'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export const DashboardContext = createContext<{ refetch: () => void, setMainAnimate?: Dispatch<number>, mainAnimate?: number }>({ refetch: () => { } })
 
 
+
 export default function DashboardLayout({ children }: { children: JSX.Element }) {
+    const router = useRouter()
+    const isSecondAnimation = router.query.secondAnimation == 'true'
+    const noAnimation = router.query.noAnimation === 'true'
+    const variants = {
+        hidden: { opacity: 0, x: isSecondAnimation ? 1000 : -1000, y: 0 },
+        enter: {
+            opacity: 1, x: 0, y: 0, transition: {
+                duration: 0.33,
+            }
+        },
+        exit: {
+            opacity: 0, x: isSecondAnimation ? -1000 : -1000, y: 0, transition: {
+                duration: 0.33,
+            }
+        },
+    }
 
     const isFetching = useAppSelector(SelectIsRemoxDataFetching)
 
@@ -23,7 +41,6 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const address = useAppSelector(SelectProviderAddress)
     const blockchain = useAppSelector(SelectBlockchain)
     const [mainAnimate, setMainAnimate] = useState<number>(0)
-    const router = useRouter()
 
     useAsyncEffect(async () => {
         if (!auth.currentUser) return router.push("/")
@@ -65,9 +82,15 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 </div>
                 <div className="flex space-x-11 flex-shrink flex-grow ">
                     <Sidebar />
-                    <main className={` ${mainAnimate === 1 ? "-translate-x-full transition duration-[0.33s] ease-out" : mainAnimate === 2 ? 'hidden' : 'translate-x-0 transition-transform duration-[.33s] ease-out'} relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem]  xl:pl-[17.188rem] pt-28`}>
-                        {children}
-                    </main>
+                    <AnimatePresence
+                        exitBeforeEnter
+                        initial={false}
+                    >
+                        <motion.main key={router.route} variants={noAnimation ? {} : variants} exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem] xl:pl-[17.188rem] pt-28`}>
+                            {children}
+                        </motion.main>
+                    </AnimatePresence>
+
                 </div>
             </div>
         </DashboardContext.Provider>

@@ -3,7 +3,7 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { ISpendingResponse } from "pages/api/calculation/spending";
 import { IStorage } from "./storage";
 import { RootState } from "redux/store";
-import { IBudgetExerciseORM } from "pages/api/budget";
+import { IBudgetExerciseORM, IBudgetORM } from "pages/api/budget";
 import { IuseContributor } from "rpcHooks/useContributors";
 import { launchApp } from "./thunks/launch";
 import type { IAccountMultisig } from 'pages/api/multisig'
@@ -190,10 +190,19 @@ export const SelectContributors = createDraftSafeSelector(
     (contributors) => contributors
 )
 
-export const SelectBudgets = createDraftSafeSelector(
+export const SelectBudgetExercises = createDraftSafeSelector(
     (state: RootState) => state.remoxData.budgetExercises,
     (budgets) => budgets
 )
+
+export const SelectAllBudgets = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.budgetExercises,
+    (budgets) => budgets.reduce<IBudgetORM[]>((a, c) => {
+        a.push(...c.budgets);
+        return a;
+    }, [])
+)
+
 
 export const SelectStats = createDraftSafeSelector(
     (state: RootState) => state.remoxData.stats,

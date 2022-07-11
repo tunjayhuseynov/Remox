@@ -33,12 +33,12 @@ const Transactions = () => {
     const [isOpen, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
 
-    const [pagination, setPagination] = useState(40)
+    const [pagination, setPagination] = useState(20)
 
     const { ref} = useInView({
         onChange: (inView) => {
             if (inView && Txs.length > pagination) {
-                startTransition(() => { setPagination(pagination + 40) })
+                startTransition(() => { setPagination(pagination + 20) })
             }
         }
     })

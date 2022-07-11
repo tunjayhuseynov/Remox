@@ -7,7 +7,7 @@ import useRemoxAccount from "hooks/accounts/useRemoxAccount";
 import { IBudgetExerciseORM } from "pages/api/budget";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "redux/hooks";
-import { addBudgetExercise, deleteBudgetExercise, SelectBudgets, updateBudgetExercise } from "redux/slices/account/remoxData";
+import { addBudgetExercise, deleteBudgetExercise, SelectBudgetExercises, updateBudgetExercise } from "redux/slices/account/remoxData";
 import useBudgets from "./useBudgets";
 import useSubbudgets from "./useSubbudgets";
 
@@ -18,7 +18,7 @@ export default function useBudgetExercise() {
     const budget = useBudgets()
     const subbudget = useSubbudgets()
 
-    const budgetState = useAppSelector(SelectBudgets)
+    const budgetState = useAppSelector(SelectBudgetExercises)
 
     const { remoxAccountType, remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
 

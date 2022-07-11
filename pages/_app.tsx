@@ -16,6 +16,7 @@ import App from 'layouts/App'
 import Guard from 'layouts/Guard';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
+import { AnimatePresence } from 'framer-motion';
 const DashboardLayout = dynamic(() => import('layouts/dashboard'))
 
 
@@ -28,7 +29,9 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
-function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
+  const url = `${router.route}`
+
 
   const disableLayout = Component?.disableLayout ?? false
   const disableGuard = Component?.disableGuard ?? false
@@ -52,9 +55,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
                 {
                   disableLayout ?
                     <Component {...pageProps} /> :
-                    <DashboardLayout>
-                      <Component {...pageProps} />
-                    </DashboardLayout>
+                      <DashboardLayout>
+                        <Component {...pageProps} canonical={url} key={url} />
+                      </DashboardLayout>
                 }
               </Guard>
           }
