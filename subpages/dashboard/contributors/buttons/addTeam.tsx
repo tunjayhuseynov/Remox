@@ -1,9 +1,12 @@
-import { useRef, useState } from "react";
-import { useAppDispatch } from "redux/hooks"
-import { changeSuccess } from 'redux/slices/notificationSlice'
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "redux/hooks"
 import Button from "../../../../components/button";
 import useContributors from "hooks/useContributors";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { IuseContributor } from "rpcHooks/useContributors";
+import { v4 as uuidv4 } from "uuid";
+import { GetTime } from "utils";
+import { addContributor ,SelectStorage } from "redux/slices/account/remoxData";
 
 export interface IFormInput {
     name: string;
@@ -12,16 +15,24 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
     const { register, handleSubmit } = useForm<IFormInput>();
     const { addTeam, isLoading } = useContributors()
     const [error, setError] = useState(false)
-
-    const teamName = useRef<HTMLInputElement>(null)
+    const storage = useAppSelector(SelectStorage);  
     const dispatch = useAppDispatch()
 
-    const create = async () => {
-        if (teamName.current && teamName.current.value.trim()) {
+
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        
+        if (data.name.trim()) {
             try {
                 setError(false)
-                await addTeam(teamName.current.value.trim())
-                dispatch(changeSuccess({ activate: true, text: "Successfully created" }))
+                const team : IuseContributor = {
+                    id: uuidv4(),
+                    name: data.name.trim(),
+                    members: [],
+                    timestamp: GetTime(),
+                    userId: storage!.signType === "individual" ? storage!.individual.id : storage!.organization!.id,
+                }   
+                await addTeam(team);
+                dispatch(addContributor([team]));
                 onDisable(false)
             } catch (error) {
                 console.error(error)
@@ -29,8 +40,6 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             }
         }
     }
-
-    const onSubmit: SubmitHandler<IFormInput> = data => console.log(data)
 
     return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto">
         <div className="text-2xl self-center pt-5 font-semibold ">Add Team</div>
@@ -45,7 +54,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             <Button version="second" onClick={() => onDisable(false)} className="px-14 !py-2 font-light">
                 Close
             </Button>
-            <Button type="submit" onClick={create} isLoading={isLoading} className="px-14 !py-2 font-light">
+            <Button type="submit" isLoading={isLoading} className="px-14 !py-2 font-light">
                 Save
             </Button>
         </div>

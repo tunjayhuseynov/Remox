@@ -10,11 +10,16 @@ import Button from 'components/button';
 import { selectContributors } from 'redux/slices/account/contributors';
 import Loader from 'components/Loader';
 import { motion, AnimateSharedLayout } from "framer-motion";
+import { SelectContributors, SelectStorage } from 'redux/slices/account/remoxData';
 
 
 const Contributors = () => {
 
-    const contributors = useAppSelector(selectContributors).contributors
+    const contributors = useAppSelector(SelectContributors)
+    const storage = useAppSelector(SelectStorage);
+
+    
+
     const isContributorFetched = useAppSelector(selectContributors).isFetched
     const isSuccess = useAppSelector(selectSuccess)
     const isError = useAppSelector(selectError)
@@ -25,7 +30,7 @@ const Contributors = () => {
     const [editModal, setEditModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [selected, setSelected] = useState(0);
-    const [selectbar, setSelectbar] = useState("Active");
+    const [selectbar, setSelectbar] = useState("Active");    
 
     const data = [
         {
@@ -85,7 +90,6 @@ const Contributors = () => {
                 <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
                 <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
             </div>}
-            {!isContributorFetched && <div className="flex justify-center py-10"><Loader /></div>}
         </div>
         </div> : <div className="flex gap-16">
         {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={generate()}><TeamContainer {...w} selectbar={selectbar} /></Fragment> : undefined)}

@@ -10,12 +10,37 @@ import useGelato from "rpcHooks/useGelato";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
+import { selectDarkMode } from 'redux/slices/notificationSlice';
+import { removeMemberFromContributor } from "redux/slices/account/remoxData";
 import { useModalSideExit } from "hooks";
+import { useDispatch } from "react-redux";
 
 const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
 
     const { removeMember } = useContributors()
+
+    const member : IMember = {
+        id: props.id,
+        name: props.name,
+        first: props.first,
+        last: props.last,
+        image: props.image,
+        address: props.address,
+        compensation: props.compensation,
+        currency: props.currency,
+        amount: props.amount,
+        teamId: props.teamId,
+        execution: props.execution,
+        paymantDate: props.paymantDate,
+        paymantEndDate: props.paymantEndDate,
+        interval: props.interval,
+        usdBase: props.usdBase,
+        secondaryCurrency: props.secondaryCurrency,
+        secondaryAmount: props.secondaryAmount,
+        secondaryUsdBase: props.secondaryUsdBase,
+        taskId: props.taskId,
+    }
+    
     const [modalVisible, setModalVisible] = useState(false)
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -23,6 +48,7 @@ const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
     const { cancelTask } = useGelato()
     const { GetCoins } = useWalletKit()
     const dark = useAppSelector(selectDarkMode)
+    const dispatch = useDispatch();
 
     const onDelete = async () => {
         try {
@@ -30,6 +56,7 @@ const TeamItem = (props: IMember & { teamName: string, selectbar: string }) => {
                 await cancelTask(props.taskId as string)
             }
             await removeMember(props.teamId, props.id)
+            dispatch(removeMemberFromContributor({ id: props.teamId, member: member }))
         } catch (error) {
             throw error
         }
