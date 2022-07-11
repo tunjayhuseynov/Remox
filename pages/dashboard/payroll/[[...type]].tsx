@@ -29,7 +29,7 @@ const Payroll = () => {
                 </div>
             </div>
         {/* <div className="flex pl-5 pt-2 w-full ">
-            <AnimatedTabBar data={data} />
+            <AnimatedTabBar data={data} index={0} />
         </div> */}
         <div className="w-full h-full py-3">
             <DynamicPayroll  />

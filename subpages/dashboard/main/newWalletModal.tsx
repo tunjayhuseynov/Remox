@@ -25,7 +25,6 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const [text, setText] = useState('Import Wallet')
     const navigate = useRouter()
     const { blockchain } = useWalletKit();
-    const [stream, setStream] = useState(false)
     const { addWallet } = useMultiWallet()
     const [file, setFile] = useState<File>()
     const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
@@ -65,14 +64,10 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     return <div className="w-full mx-auto">
 
         <div className=" w-1/2  mx-auto sm:flex flex-col items-center justify-center ">
-            <button onClick={() => { onDisable(false);  }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
-                {/* <img src="/icons/cross_greylish.png" alt="" /> */}
-                <span className="text-4xl">&#171;</span> Back
-            </button>
             <div className=" text-center w-full pt-4">
                 <div className="text-2xl font-bold">Add New Wallet</div>
             </div>
-            <div className="flex justify-between w-[60%] xl:w-[38%] py-7"><AnimatedTabBar data={data} setText={setText} setStream={setStream} /></div>
+            <div className="flex justify-between w-[60%]  xl:w-[38%] py-7"><AnimatedTabBar data={data} index={0} setText={setText}  /></div>
 
             {text === "Import Wallet" && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">

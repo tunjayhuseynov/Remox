@@ -117,7 +117,7 @@ const Assets = () => {
             <div className="font-bold text-4xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
-                    <AnimatedTabBar data={paymentdata} setText={setText} />
+                    <AnimatedTabBar data={paymentdata} index={0} setText={setText} />
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{text === "Tokens" ? 'Token Balances' : "NFT Balances"}</div>

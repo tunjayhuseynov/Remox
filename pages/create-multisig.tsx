@@ -139,7 +139,7 @@ function CreateMultisig() {
                 <div className="flex flex-col items-center justify-center gap-4">
                     <div className="text-xl sm:text-3xl  dark:text-white text-center font-semibold">Set Account Details</div>
                     <div className="flex  pt-2 w-full justify-between">
-                        <AnimatedTabBar data={paymentdata} setText={setText} className={'!text-lg'} />
+                        <AnimatedTabBar data={paymentdata} index={0}  setText={setText} className={'!text-lg'} />
                     </div>
                 </div>
                 <div className="flex flex-col px-3 gap-1 items-center justify-center min-w-[25%]">

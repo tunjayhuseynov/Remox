@@ -34,7 +34,7 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
         </div>
         <AnimatePresence>
             {openNotify &&
-                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }}  className=" z-[97] fixed shadow-custom w-[40rem] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond cursor-default ">
+                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }}  className=" z-[99] fixed  shadow-custom w-[40rem] h-[100vh] pr-1 overflow-y-auto overflow-x-hidden top-0 right-0 bg-white dark:bg-darkSecond cursor-default ">
                     <button onClick={() => setNotify(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                         <img src="/icons/cross_greylish.png" alt="" />
                     </button>

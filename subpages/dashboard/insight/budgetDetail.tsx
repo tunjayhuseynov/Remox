@@ -43,7 +43,7 @@ function BudgetDetail({ budgets }: { budgets: IBudgets }) {
             {budgets.amount2 && <div className="flex items-center justify-center text-greylish"> <img src={`/icons/currencies/${budgets.amount2.coinUrl}.svg`} className="w-5 h-5 mr-2" alt="" />{budgets.amount2.value} </div>}
         </div>
         <div className="flex  py-8 w-full items-center gap-16">
-            <AnimatedTabBar data={paymentdata} setText={setText} className={'!text-lg'} />
+            <AnimatedTabBar data={paymentdata} index={0} setText={setText} className={'!text-lg'} />
         </div>
         {text === "Subbudgets" ?  <div className="w-full">
             <div className={` text-greylish dark:text-white border-b grid  px-0 grid-cols-[15%,15%,15%,55%] w-full py-4  `}>
