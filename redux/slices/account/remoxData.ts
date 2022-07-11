@@ -17,16 +17,19 @@ import { IAccountORM } from "pages/api/account";
 import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk } from "./thunks/account";
 import { IMember } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 
 export type IAccountType = "individual" | "organization";
 
 
 // Bizim ana sehfedeki multisig hesablarindaki umumi datalarimiz
 export interface IMultisigStats {
-    pendingRequests: IAccountMultisig,
-    approvedRequests: IAccountMultisig,
-    rejectedRequests: IAccountMultisig,
-    signingNeedRequests: IAccountMultisig,
+    all: IAccountMultisig[],
+    multisigTxs: IAccountMultisig["txs"],
+    pendingTxs: IAccountMultisig["txs"],
+    approvedTxs: IAccountMultisig["txs"],
+    rejectedTxs: IAccountMultisig["txs"],
+    signingNeedTxs: IAccountMultisig["txs"],
 }
 
 
@@ -44,7 +47,8 @@ export interface IRemoxData {
     providerID: string | null,
     accountType: IAccountType | null,
     multisigStats: IMultisigStats | null,
-    transactions: IFormattedTransaction[]
+    transactions: IFormattedTransaction[],
+    cumulativeTransactions: (IFormattedTransaction | ITransactionMultisig)[],
 }
 
 const init = (): IRemoxData => {
@@ -61,7 +65,8 @@ const init = (): IRemoxData => {
         accountType: null,
         multisigStats: null,
         providerID: null,
-        transactions: []
+        transactions: [],
+        cumulativeTransactions: [],
     }
 }
 
@@ -119,6 +124,17 @@ const remoxDataSlice = createSlice({
             state.storage = action.payload.Storage;
             state.transactions = action.payload.Transactions;
 
+            state.multisigStats = {
+                all: action.payload.multisigAccounts.all,
+                multisigTxs: action.payload.multisigAccounts.multisigTxs,
+                pendingTxs: action.payload.multisigAccounts.pendingTxs,
+                approvedTxs: action.payload.multisigAccounts.approvedTxs,
+                rejectedTxs: action.payload.multisigAccounts.rejectedTxs,
+                signingNeedTxs: action.payload.multisigAccounts.signingNeedTxs
+            }
+
+            state.cumulativeTransactions = action.payload.cumulativeTransactions;
+
             state.accountType = action.payload.Storage.signType;
             if (action.payload.Storage.signType === "individual") {
                 state.providerID = action.payload.Storage.individual.accounts[0].id;
@@ -137,6 +153,11 @@ const remoxDataSlice = createSlice({
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (storage) => storage
+)
+
+export const SelectCumlativeTxs = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.cumulativeTransactions,
+    (txs) => txs
 )
 
 export const SelectMultisig = createDraftSafeSelector(
