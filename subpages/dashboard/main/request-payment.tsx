@@ -47,7 +47,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
 
   return <>
     {data.map((item, index) => {
-      return  <div key={index} className="  w-1/2  xl:w-[85%] xl:mx-5 ">
+      return  <div key={index} className="w-1/2 xl:w-[85%] xl:mx-5 ">
             <div className="w-full shadow-custom px-7 xl:px-5 py-3 rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg">
                 <div className="flex items-center  gap-7 ">
                     <div className="hidden lg:block w-7 h-7"><img src={`/icons/${item.icon}.png`} alt="" /></div>

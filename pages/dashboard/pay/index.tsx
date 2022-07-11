@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, SyntheticEvent, Fragment } from "react";
+import { useState, useRef, useEffect, SyntheticEvent } from "react";
 import shortid, { generate } from 'shortid'
 import Success from "components/general/success";
 import Error from "components/general/error";

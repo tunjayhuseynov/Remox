@@ -34,6 +34,8 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
     const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
 
+
+
     const data = [
         {
             to: "",
@@ -70,7 +72,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
             <div className=" text-center w-full pt-4">
                 <div className="text-2xl font-bold">Add New Wallet</div>
             </div>
-            <div className="flex justify-between w-[60%]  xl:w-[38%] py-7"><AnimatedTabBar data={data} setText={setText} setStream={setStream} /></div>
+            <div className="flex justify-between w-[60%] xl:w-[38%] py-7"><AnimatedTabBar data={data} setText={setText} setStream={setStream} /></div>
 
             {text === "Import Wallet" && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">
