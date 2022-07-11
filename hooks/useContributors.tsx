@@ -8,16 +8,9 @@ import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore";
 export default function useContributors() {
     const [isLoading, setLoading] = useState(false)
 
-    const addTeam = async (name: string) => {
+    const addTeam = async (team: IuseContributor) => {
         setLoading(true)
-        const id = uuidv4()
-        await FirestoreWrite<IuseContributor>().createDoc("contributors", id, {
-            id: id,
-            userId: auth.currentUser!.uid,
-            name,
-            timestamp: Math.floor(new Date().getTime() / 1e3),
-            members: []
-        })
+        await FirestoreWrite<IuseContributor>().createDoc("contributors", team.id, team)
         setLoading(false)
     }
 

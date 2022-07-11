@@ -4,6 +4,7 @@ import { selectStorage } from "redux/slices/account/storage";
 import { useSelector } from "react-redux";
 import { FieldValue } from "firebase/firestore";
 import useNextSelector from "hooks/useNextSelector";
+import { Image } from "firebaseConfig";
 
 export enum DateInterval {
   daily = "daily",
@@ -29,6 +30,7 @@ export interface IMember {
   name: string,
   first: string,
   last: string,
+  image: Image | null,
   address: string,
   compensation: string,
   currency: CoinsName,

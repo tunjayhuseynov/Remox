@@ -14,7 +14,7 @@ export const Get_Individual = async (id: string) => {
 
     const accounts = individual.accounts.map(async (account) => {
         const accountData = await Get_Account(account.id)
-        if (!accountData) throw new Error("Account not found");
+        // if (!accountData) throw new Error("Account not found");
         return accountData;
     })
 

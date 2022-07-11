@@ -39,7 +39,7 @@ const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCoun
                     {method}
                     {direction !== undefined && date &&
                         <>
-                            {/* {TransactionDirection.Swap === direction ? "Swapped" : ""}
+                            {TransactionDirection.Swap === direction ? "Swapped" : ""}
                             {TransactionDirection.In === direction ? "Received" : ""}
                             {TransactionDirection.Borrow === direction ? "Borrowed" : ""}
                             {TransactionDirection.Withdraw === direction ? "Withdrawn" : ""}
@@ -47,8 +47,8 @@ const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCoun
                             {TransactionDirection.Deposit === direction ? "Deposited" : ""}
                             {TransactionDirection.AutomationOut === direction ? "Executed (A)" : ""}
                             {TransactionDirection.AutomationIn === direction ? "Received (A)" : ""}
-                            {TransactionDirection.Out === direction ? "Executed" : ""} on  */}
-                            {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate") + `, 14:50`}</>}
+                            {TransactionDirection.Out === direction ? "Executed" : ""} on {" "}
+                            {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate") + `, 14:50`}</> } 
                 </div>
 
                 <div className="flex ">

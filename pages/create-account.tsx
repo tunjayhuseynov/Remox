@@ -54,8 +54,9 @@ const CreateAccount = () => {
             tokenId: data.nftTokenId ?? null,
             type: individualIsUpload ? "image" : "nft"
           },
-          name: `organizations/${data.name}`
+          name: `individuals/${data.name}`
         }
+        await UploadImageForUser(image)
       }
 
       let user: Omit<IIndividual, "id" | "created_date"> = {
