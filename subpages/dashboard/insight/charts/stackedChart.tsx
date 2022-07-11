@@ -69,7 +69,7 @@ export function StackedChart({labels,box=true}:{labels:{name: string; color: str
   <div className={`flex gap-12`}>
     {labels.map((item, i) => {
       return <div key={i} className="flex items-center gap-2">
-        <div className={`w-3 h-3 rounded-full`} style={{
+        <div className={`w-5 h-5 `} style={{
           background: `${item.color}`,
         }}></div>
         <div className="font-semibold">{item.name}</div>

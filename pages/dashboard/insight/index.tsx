@@ -28,21 +28,21 @@ export interface ISubbudgets {
     amount: {
         coinUrl: string,
         value: number,
-        percent:number,
-        transaction:number,
+        percent: number,
+        transaction: number,
     },
     amount2?: {
         coinUrl: string,
         value: number,
-        percent:number,
-        transaction:number,
+        percent: number,
+        transaction: number,
     },
 }[]
 
 
 export interface IBudgets {
     name: string,
-    totalSpend: string,
+    totalSpend: number,
     transaction: number,
     startTime: string,
     endTime: string,
@@ -63,6 +63,20 @@ export interface IBudgets {
     labels: ILabels[]
 }[]
 
+interface IInsightData {
+    totalSpend: number,
+    Tokens: {
+            value: number,
+            image: string,
+            name:string,
+            usdValue: number,
+        }[]
+
+    
+    totalTransactions: number,
+
+}
+
 
 const Insight = () => {
     const darkMode = useSelector(selectDarkMode)
@@ -71,7 +85,6 @@ const Insight = () => {
     const [selectedDate, setSelectedDate] = useState<number>(30)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { data } = useMultiWallet()
-<<<<<<< HEAD
     // const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [selectedAccount])
     // const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
     // const insight = useInsight({ selectedDate, selectedAccounts })
@@ -82,41 +95,31 @@ const Insight = () => {
     //         setSelectedAccounts(data.map(s => s.address))
     //     }
     // }, [data])
-=======
-    const [selectedAccounts, setSelectedAccounts] = useState<string[]>((data as IAccount[])?.map(s => s.address) ?? [selectedAccount])
-    // const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])
-    const insight = useInsight({ selectedDate, selectedAccounts })
 
-
-    useEffect(() => {
-        if (data !== undefined) {
-            setSelectedAccounts((data as IAccount[]).map(s => s.address))
-        }
-    }, [data])
->>>>>>> 08eddff32c630f2a803e2dc1c418847af465a8d5
-
-
-
-    const coins = [
-        {
-            value: 0.1,
-            image: 'celodollar',
-            name: 'CELO',
-            usdValue: 500,
-        },
-        {
-            value: 23,
-            image: 'celodollar',
-            name: 'CELO',
-            usdValue: 354,
-        },
-
-    ]
+    const InsightData:IInsightData = {
+        totalSpend: 1500000,
+        Tokens: [
+            {
+                value: 0.1,
+                image: 'celodollar',
+                name: 'CELO',
+                usdValue: 500,
+            },
+            {
+                value: 23,
+                image: 'celodollar',
+                name: 'CELO',
+                usdValue: 354,
+            },
+    
+        ],
+        totalTransactions: 234,
+    }
 
     const Budgets: IBudgets[] = [
         {
             name: 'Product',
-            totalSpend: '$10,000',
+            totalSpend: 1000000,
             transaction: 50,
             startTime: 'May 2022',
             endTime: 'May 2023',
@@ -139,7 +142,7 @@ const Insight = () => {
                         coinUrl: 'celodollar',
                         value: 30,
                         percent: 82,
-                        transaction:35,
+                        transaction: 35,
                     },
                 },
                 {
@@ -148,13 +151,13 @@ const Insight = () => {
                         coinUrl: 'celodollar',
                         value: 30,
                         percent: 82,
-                        transaction:35,
+                        transaction: 35,
                     },
                     amount2: {
                         coinUrl: 'celodollar',
                         value: 750,
                         percent: 82,
-                        transaction:35,
+                        transaction: 35,
                     },
                 },
             ],
@@ -176,7 +179,7 @@ const Insight = () => {
         },
         {
             name: 'Operation',
-            totalSpend: '$30.000',
+            totalSpend: 300000,
             transaction: 35,
             startTime: 'Apr 2022',
             endTime: 'Apr 2023',
@@ -193,7 +196,7 @@ const Insight = () => {
                         coinUrl: 'celodollar',
                         value: 30,
                         percent: 88,
-                        transaction:57
+                        transaction: 57
                     },
                 },
                 {
@@ -202,13 +205,13 @@ const Insight = () => {
                         coinUrl: 'celodollar',
                         value: 30,
                         percent: 52,
-                        transaction:57
+                        transaction: 57
                     },
                     amount2: {
                         coinUrl: 'celodollar',
                         value: 750,
                         percent: 82,
-                        transaction:75
+                        transaction: 75
                     },
                 },
             ],
@@ -240,13 +243,8 @@ const Insight = () => {
                     {/* {!isMultisig && <div className="mr-3">
                         <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
                             setChangedAccount([...wallets.map((wallet) => wallet.address)])
-<<<<<<< HEAD
                         }} /> 
                     </div>}*/}
-=======
-                        }} />
-                    </div>} */}
->>>>>>> 08eddff32c630f2a803e2dc1c418847af465a8d5
                     {!isMultisig && <> <div className="">
                         <CSVLink data={''} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                             <div className={'hidden'}>Export</div>
@@ -258,13 +256,13 @@ const Insight = () => {
             <div className=" px-5 w-full mt-6">
                 <div className="grid grid-cols-[24%,60%,16%] w-[95%]  mb-10">
                     <div className='flex flex-col  gap-12 lg:gap-4 pr-6 border-r'>
-                        <div className='text-xl font-semibold'>Total Spending </div>
-                        <div className='text-3xl font-bold !mt-0'>$5.000 USD</div>
+                        <div className='text-xl font-semibold text-greylish dark:text-white'>Total Spending </div>
+                        <div className='text-3xl font-bold !mt-0'>${Number(InsightData.totalSpend.toFixed(2)).toLocaleString()} USD</div>
                     </div>
                     <div className="flex flex-col gap-4  pl-6 border-r">
-                        <div className='text-xl font-semibold'>Token Allocation</div>
+                        <div className='text-xl font-semibold text-greylish dark:text-white'>Token Allocation</div>
                         <div className='grid grid-cols-4 gap-4'>
-                            {coins.map((item, i) => {
+                            {InsightData.Tokens.map((item, i) => {
                                 return <div key={i} className="flex flex-col">
                                     <div className="flex items-center gap-1">
                                         <div className="font-bold text-xl">{item.value}</div>
@@ -280,16 +278,12 @@ const Insight = () => {
                         </div>
                     </div>
                     <div className='flex flex-col pl-6'>
-                        <div className='text-xl font-semibold'>Total Transactions </div>
+                        <div className='text-xl font-semibold text-greylish dark:text-white'>Total Transactions </div>
                         <div className='text-3xl font-bold !mt-0'>239</div>
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
             <AllCharts budgets={Budgets} />
-=======
-            <AllCharts />
->>>>>>> 08eddff32c630f2a803e2dc1c418847af465a8d5
         </div>
     );
 }

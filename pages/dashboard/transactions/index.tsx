@@ -92,7 +92,7 @@ const Transactions = () => {
                     </div>
                 </div>
                 {/* <div className="flex  py-2 w-full ">
-                    <AnimatedTabBar data={data} index={1} />
+                    <AnimatedTabBar data={data} index={0} />
                 </div> */}
                 <div className="!mt-0">
                     <div className="w-full  pb-3 rounded-xl" >

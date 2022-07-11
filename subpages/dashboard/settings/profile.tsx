@@ -73,7 +73,7 @@ const ProfileSetting = () => {
 
                 { //profile ?
                     <>
-                        <div className="w-full pt-2 pb-2 rounded-xl border-t ">
+                        <div className="w-full pt-2 pb-2  border-t ">
                             <div className="w-full border-b">
                                 <div className=" py-5 flex  gap-[19rem]">
                                     <div className="text-lg font-semibold pt-2"> Organisation Photo</div>

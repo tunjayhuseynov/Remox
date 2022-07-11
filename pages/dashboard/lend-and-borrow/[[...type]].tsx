@@ -22,7 +22,7 @@ const Lendborrow = () => {
             Lend - Borrow
         </div>
         <div className="flex  pt-2 w-[30%] justify-between">
-            <AnimatedTabBar data={data} className={'!text-2xl'} />
+            <AnimatedTabBar data={data} index={0} className={'!text-2xl'} />
         </div>
         <div className="pt-3 pb-10">
             <DynamicLendBorrow type={!type || type[0].toLowerCase() === "lend" ? "lend" : "borrow"} />

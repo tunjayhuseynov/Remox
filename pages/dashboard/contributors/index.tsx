@@ -66,7 +66,7 @@ const Contributors = () => {
                 {data.map((item, i) => {
                     return <div key={i} onClick={() => { setSelectbar(item.text) }}> <motion.div className={`tiflex gap-x-3   cursor-pointer pb-3 font-semibold tracking-widertle relative ${i === selected ? "selected text-primary" : "dark:text-white"}`} onClick={() => setSelected(i)} >
 
-                        <span className={`relative text-2xl text-greylish transition-all hover:!text-primary hover:transition-all ${i === selected ? "text-primary" : "text-greylish dark:text-white"}`}>
+                        <span className={`relative text-2xl text-greylish transition-all hover:!text-primary hover:transition-all ${i === selected ? "text-primary" : "text-greylish dark:text-greylish"}`}>
                             {i === selected && (<motion.span className="absolute w-full h-[3px] bg-primary rounded-[2px] bottom-[-0.625rem]" layoutId="underline" />)}
                             {item.text} </span>
                     </motion.div></div>

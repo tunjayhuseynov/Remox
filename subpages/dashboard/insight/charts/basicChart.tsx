@@ -74,7 +74,7 @@ export function BasicCharts({ BudgetData, type, box = true }: { BudgetData?: num
         <div className="w-full pl-12 pr-4 py-3 flex justify-between">
             <div className={`flex ${BudgetData && 'gap-12'}`}>
                 {BudgetData && <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 bg-greylish bg-opacity-40"></div>
+                    <div className="w-5 h-5 bg-greylish  bg-opacity-40"></div>
                     <div className="font-semibold">Budgeted</div>
                 </div>}
                 <div className="flex items-center gap-2">
