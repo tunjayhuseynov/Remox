@@ -59,7 +59,7 @@ function NewExercise({ setExercise, setNewBudget }: { setNewBudget: React.Dispat
 
     const [isLoading, submit] = useLoading(onSubmit)
 
-    return <form onSubmit={handleSubmit(submit)}>
+    return <form onSubmit={handleSubmit(submit)} className="w-1/2 mx-auto">
         <div className="text-2xl text-center font-medium py-6">Define  of your budgetary exercise</div>
         <div className="px-12 flex flex-col gap-4">
             <div className="flex flex-col">

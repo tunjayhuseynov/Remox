@@ -47,10 +47,10 @@ const Budgets = () => {
                     <NewBudgets parentId={selectedExerciseId} setNewBudget={setNewBudgetModal} />
                 </Modal>
             }
-            {exercise &&
-                <Modal onDisable={setExercise} animatedModal={false} disableX={true} className={'!w-[40%] !pt-4'}>
-                    <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
-                </Modal>}
+
+            <Modal onDisable={setExercise} openNotify={exercise} >
+                <NewExercise setExercise={setExercise} setNewBudget={setNewBudget} />
+            </Modal>
             {hasExercises && <>
                 <TotalValues total={selectedExercise} />
                 <div className="w-full pt-2 pb-12 flex justify-between items-center">

@@ -327,7 +327,7 @@ const Pay = () => {
                 <div className="relative bg-light dark:bg-dark">
                     <button onClick={() => { setNotify(true); setNotify2(false) }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
                         {/* <img src="/icons/cross_greylish.png" alt="" /> */}
-                        <span className="text-4xl">&#171;</span> Back
+                        <span className="text-4xl pb-1">&#171;</span> Back
                     </button>
                     <form onSubmit={handleSubmit(onSubmit)} >
                         <div className="sm:flex flex-col items-center justify-center min-h-screen">
@@ -336,7 +336,7 @@ const Pay = () => {
                                     <div className="text-2xl font-bold">Remox Pay</div>
                                 </div>
                                 <div className="w-full flex justify-center py-4">
-                                    <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} setText={setText} setStream={setStream} className={'!text-lg'} /></div>
+                                    <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} index={0} setText={setText}  className={'!text-lg'} /></div>
                                 </div>
                                 <div className="w-full flex flex-col   px-3 py-2">
                                     <div className={`grid ${text !== "Recurring" ? "grid-cols-[30%,30%,40%]" : "grid-cols-[40%,60%]"} `}>

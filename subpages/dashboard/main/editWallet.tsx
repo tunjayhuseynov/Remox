@@ -36,10 +36,6 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
 
     return (
         <div className="flex flex-col  w-1/2  mx-auto items-center justify-center gap-7">
-            <button onClick={() => { onDisable(false); }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
-                {/* <img src="/icons/cross_greylish.png" alt="" /> */}
-                <span className="text-4xl">&#171;</span> Back
-            </button>
             <div className="text-2xl font-bold pb-2 pt-5">Edit Wallet</div>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-8">
                 <div className="flex flex-col gap-1">

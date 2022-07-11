@@ -39,7 +39,7 @@ const SettingLayout = () => {
                 </div>
             </div> {/*relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10 */}
                 <div className="flex  w-[90%] justify-between">
-                    <AnimatedTabBar data={data} className={'!text-2xl'} />
+                    <AnimatedTabBar data={data} index={0} className={'!text-2xl'} />
                 </div>
             </div>
             <div className="">

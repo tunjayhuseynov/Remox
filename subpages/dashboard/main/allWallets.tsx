@@ -67,19 +67,19 @@ function AllWallets({ item }: { item: IAccount }) {
                         </div>
                         <div ref={exceptRef} onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish dark:text-white flex "><span className="rotate-90">...</span>
                             {details && <div ref={divRef} className="flex flex-col   bg-white dark:bg-darkSecond absolute right-8  w-[8rem]  rounded-lg shadow-xl z-50 ">
-                                <div className="cursor-pointer border-b  text-sm  items-start    w-full pl-3  py-2 gap-3" onClick={() => {
+                                <div className="cursor-pointer border-b  text-sm  items-start hover:bg-greylish hover:bg-opacity-5 hover:transition-all    w-full pl-3  py-2 gap-3" onClick={() => {
                                     setModalEditVisible(true)
                                     setModalVisible(false)
                                 }}>
                                     <div className="flex w-full gap-2"><img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert text-greylish dark:text-white dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span></div>
                                 </div>
-                                <div className="cursor-pointer border-b  text-sm flex w-full pl-3 pr-12 py-2 gap-3" onClick={() => {
+                                <div className="cursor-pointer border-b  text-sm flex w-full hover:bg-greylish hover:bg-opacity-5 hover:transition-all pl-3 pr-12 py-2 gap-3" onClick={() => {
                                     setDeleteModal(true)
                                     setModalVisible(false)
                                 }}>
                                     <div className="flex w-full gap-2"> <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-4 h-4  text-greylish dark:text-white" alt="" /> <span>Delete</span></div>
                                 </div>
-                                <div className="cursor-pointer border-b  text-sm flex w-full pl-3 pr-12 py-2 gap-3" onClick={() => {
+                                <div className="cursor-pointer border-b  text-sm flex w-full hover:bg-greylish hover:bg-opacity-5 hover:transition-all pl-3 pr-12 py-2 gap-3" onClick={() => {
                                     setDepositModal(true)
                                     setModalVisible(false)
                                 }}>
@@ -98,9 +98,9 @@ function AllWallets({ item }: { item: IAccount }) {
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Signers</div>
                             <div className="flex pl-3">
-                                <img src={`/icons/${item.members[0] && item.members[0].image}.png`} className={` absolute z-[1]  ${item.members[0] === undefined && "bg-gray-400"} border  w-5 h-5 rounded-full`}/>
-                                <img src={`/icons/${item.members[1] && item.members[1].image}.png`} className={`relative z-[0] right-[10px] ${item.members[1] === undefined && "bg-gray-300"} border  w-5 h-5 rounded-full`}/>
-                                <img src={`/icons/${item.members[2] && item.members[2].image}.png`} className={` relative z-[1] -left-[5px] ${item.members[2] === undefined && "bg-gray-500"} border  w-5 h-5 rounded-full`}/>
+                                {item.members[1] && item.members[1].image !== null ? <img src={`${ item.members[1].image}`} className={` absolute z-[1] border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-400  absolute z-[1] border  w-5 h-5 rounded-full"></div> } 
+                                {item.members[0] && item.members[0].image !== null ?  <img src={`${ item.members[0].image}`} className={`relative z-[0] right-[10px]  border  w-5 h-5 rounded-full`}/> : <div className="bg-gray-300  relative z-[0] right-[10px]  border  w-5 h-5 rounded-full"></div> } 
+                                {item.members[2] && item.members[2].image !== null ? <img src={`${item.members[2].image}`} className={` relative z-[1] -left-[5px]  border  w-5 h-5 rounded-full`}/> : <div className="bg-gray-500   relative z-[1] -left-[5px]  border  w-5 h-5 rounded-full"></div> } 
                             </div>
                         </div>
                     </div>
