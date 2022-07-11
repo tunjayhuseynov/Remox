@@ -149,6 +149,7 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
 
     if (formatted) {
       FormattedTransaction.push({
+        timestamp: +transaction.timeStamp,
         rawData: transaction,
         hash: transaction.hash,
         ...formatted

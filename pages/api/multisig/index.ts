@@ -1,4 +1,7 @@
 import axios from "axios";
+import { accountCollectionName } from "crud/account";
+import { IAccount } from "firebaseConfig";
+import { adminApp } from "firebaseConfig/admin";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -7,6 +10,8 @@ import { MultisigOwners } from "./owners";
 import { IMultisigThreshold } from "./sign";
 
 export interface IAccountMultisig {
+    name: string;
+    address: string;
     owners: string[];
     threshold: IMultisigThreshold,
     txs: ITransactionMultisig[]
@@ -15,6 +20,11 @@ export interface IAccountMultisig {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IAccountMultisig>) {
     try {
         const { blockchain, address: multisigAddress, Skip, Take } = req.query as { blockchain: BlockchainType, address: string, Skip: string, Take: string };
+
+        const accountRef = await adminApp.firestore().collection(accountCollectionName).doc(multisigAddress).get()
+        const account = accountRef.data() as IAccount
+        
+        const name = account.name;
 
         const ownersPromise = axios.get<MultisigOwners>(BASE_URL + "/api/multisig/owners", {
             params: {
@@ -33,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const txsPromise = axios.get<ITransactionMultisig[]>(BASE_URL + "/api/multisig/txs", {
             params: {
                 blockchain,
+                name,
                 address: multisigAddress,
                 Skip,
                 Take,
@@ -42,6 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const [owners, threshold, txs] = await Promise.all([ownersPromise, thresholdPromise, txsPromise])
 
         res.status(200).json({
+            name,
+            address: multisigAddress,
             owners: owners.data.owners,
             threshold: threshold.data,
             txs: txs.data

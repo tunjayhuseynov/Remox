@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Fragment, useState,useRef } from "react";
+import { Fragment, useState, useRef, forwardRef } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { TransactionDirection, TransactionStatus } from "../types";
 import dateFormat from 'dateformat';
@@ -16,16 +16,17 @@ const variants = {
         height: "auto"
     }
 }
+interface IProps { method?: string, children: JSX.Element, date?: string, dataCount: number, status: TransactionStatus, direction?: TransactionDirection, grid?: string, color?: string }
 
-const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-cols-[37%,25%,38%]", method,color }: { method?: string, children: JSX.Element, date?: string, dataCount: number, status: TransactionStatus, direction?: TransactionDirection, grid?: string,color?:string }) => {
+const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCount, status, direction, grid = "grid-cols-[37%,25%,38%]", method, color }, ref) => {
 
     const [isOpen, setOpen] = useState(false)
     const click = () => {
         setOpen(!isOpen)
     }
 
- 
-    return <div>
+
+    return <div ref={ref}>
         <div className={`flex space-x-1 items-center ${color}  rounded-xl px-3 my-3 cursor-pointer`} onClick={click}>
             <div >
                 <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
@@ -47,20 +48,20 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
                             {TransactionDirection.AutomationOut === direction ? "Executed (A)" : ""}
                             {TransactionDirection.AutomationIn === direction ? "Received (A)" : ""}
                             {TransactionDirection.Out === direction ? "Executed" : ""} on  */}
-                            {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate") + `, 14:50` }</>}
+                            {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate") + `, 14:50`}</>}
                 </div>
 
                 <div className="flex ">
-                <div className={` pr-2 grid grid-cols-[10%,90%] ${grid !== "grid-cols-[37%,33%,30%]" ? "justify-start" : "justify-end"} gap-x-2 items-center`}>
-                    {status === TransactionStatus.Completed && <div className="bg-green-400 w-2 h-2 rounded-full"></div>}
-                    {status === TransactionStatus.Pending && <div className="bg-primary w-2 h-2 rounded-full"></div>}
-                    {status === TransactionStatus.Rejected && <div className="bg-red-600 w-2 h-2 rounded-full"></div>}
-                    <div>{status === "Completed" && "Approved" }</div>
-                </div>
-                <div className=" grid grid-cols-[20%,60%,20%] h-full items-center  text-greylish w-full">
-                        <div className="">| {status === TransactionStatus.Completed ? "3"  : status === TransactionStatus.Pending && "2"} / 3</div>
+                    <div className={` pr-2 grid grid-cols-[10%,90%] ${grid !== "grid-cols-[37%,33%,30%]" ? "justify-start" : "justify-end"} gap-x-2 items-center`}>
+                        {status === TransactionStatus.Completed && <div className="bg-green-400 w-2 h-2 rounded-full"></div>}
+                        {status === TransactionStatus.Pending && <div className="bg-primary w-2 h-2 rounded-full"></div>}
+                        {status === TransactionStatus.Rejected && <div className="bg-red-600 w-2 h-2 rounded-full"></div>}
+                        <div>{status === "Completed" && "Approved"}</div>
+                    </div>
+                    <div className=" grid grid-cols-[20%,60%,20%] h-full items-center  text-greylish w-full">
+                        <div className="">| {status === TransactionStatus.Completed ? "3" : status === TransactionStatus.Pending && "2"} / 3</div>
                         <div className="relative  rounded-xl bg-greylish bg-opacity-10 w-full h-[1rem]">
-                            {status === TransactionStatus.Pending  ? <div className="absolute rounded-xl h-full bg-primary w-[66%]"></div>: status === TransactionStatus.Completed && <div className="absolute h-full rounded-xl  bg-green-600 w-full"></div>}
+                            {status === TransactionStatus.Pending ? <div className="absolute rounded-xl h-full bg-primary w-[66%]"></div> : status === TransactionStatus.Completed && <div className="absolute h-full rounded-xl  bg-green-600 w-full"></div>}
                         </div>
                     </div>
                 </div>
@@ -70,7 +71,7 @@ const Accordion = ({ children, date, dataCount, status, direction, grid = "grid-
             {children}
         </motion.div>
     </div>
-}
+})
 
 export default Accordion;
 
@@ -86,7 +87,8 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, accounts: s
                 id: transaction.id,
                 hash: transaction.hash,
                 rawData: transaction.rawData,
-                payments: value
+                payments: value,
+                timestamp: transaction.timestamp,
             }
             TXs.push(tx)
         })
@@ -99,7 +101,7 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, accounts: s
     return <Fragment key={transaction.rawData.hash}>
         <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
             <div>
-                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} date={transaction.rawData.timeStamp}   status={TransactionStatus.Completed} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
+                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} date={transaction.rawData.timeStamp} status={TransactionStatus.Completed} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
             </div>
         </Accordion>
     </Fragment>

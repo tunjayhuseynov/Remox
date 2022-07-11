@@ -26,6 +26,7 @@ export const ERC20MethodIds = {
 
 export interface IFormattedTransaction {
     rawData: Transactions;
+    timestamp: number;
     method: string;
     hash: string,
     id: string;

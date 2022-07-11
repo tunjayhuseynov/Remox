@@ -2,7 +2,7 @@ import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransacti
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
-import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
+import { SelectBalances, SelectCurrencies, SelectTotalBalance } from 'redux/slices/currencies';
 import { AddressReducer } from "../../../utils";
 import Button from "components/button";
 import useGelato from "rpcHooks/useGelato";
@@ -18,12 +18,15 @@ import Details from "subpages/dashboard/transactions/details";
 import dateFormat from 'dateformat';
 import Dropdown from 'components/general/dropdown';
 import { DropDownItem } from 'types';
+import { useAppSelector } from "redux/hooks";
 
 const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
 
     const [detect, setDetect] = useState(true);
     const [details, setDetails] = useState(false)
     const [value, setValue] = useState('Marketing')
+
+    const currencies = useAppSelector(SelectCurrencies)
 
     const divRef = useRef<HTMLDivElement>(null)
     const typeRef = useRef<HTMLDivElement>(null)
@@ -97,8 +100,6 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     }, [transaction])
 
 
-
-
     return <>
         <div ref={divRef} className={`grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[20%,15%,12%,18%,25%,10%] items-center' : 'grid-cols-[27%,48%,25%]'} min-h-[4.688rem] py-2 `}>
             <div className="flex space-x-3 items-center overflow-hidden">
@@ -109,7 +110,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                 </div>
                 <div className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"} items-start `}>
                     <div className="text-greylish text-base font-semibold dark:text-white">
-                        {!isSwap ? <span> {isComment ? `${Comment}` : "Treasury Vault "} </span> : <span> Swap </span>}
+                        {!isSwap ? <span> {isComment ? `${Comment}` : "Treasury Vault"} </span> : <span> Swap </span>}
                     </div>
                     {/* {peer && !isSwap && <div className="text-sm text-greylish dark:text-white">
                         {AddressReducer(peer)}
@@ -161,10 +162,10 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                     {!isSwap && TransferData && !IsMultiple && <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"}   space-x-4`}>
                         <div className={`flex flex-col ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-2  text-xl font-medium`}>
                             <span>
-                                {BN(fromMinScale(TransferData.amount)).toFixed(2)}
+                                {(BN(fromMinScale(TransferData.amount)).gt(9999)) ? "9999+" : BN(fromMinScale(TransferData.amount)).toFixed(2)}
                             </span>
                             <span className="text-greylish dark:text-white text-sm">
-                                $342
+                                ${Math.min(BN(fromMinScale(TransferData.amount)).times(currencies[TransferData.coin.name].price).toNumber(), 999999999).toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2  text-xl font-medium`}>

@@ -41,7 +41,12 @@ const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/Multisig.json")
 
 export interface ITransactionMultisig {
+    name: string;
     destination: string,
+    contractAddress: string,
+    contractOwnerAmount: number,
+    contractThresholdAmount: number,
+    contractInternalThresholdAmount: number,
     data?: string,
     executed: boolean,
     confirmations: string[],

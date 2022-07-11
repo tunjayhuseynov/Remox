@@ -6,7 +6,7 @@ import type { IRemoxAccountORM } from "pages/api/account/multiple";
 import type { IBudgetExerciseORM } from "pages/api/budget";
 import type { ISpendingResponse } from "pages/api/calculation/spending";
 import type { IuseContributor } from "rpcHooks/useContributors";
-import type { IAccountType } from "../remoxData";
+import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
 import { IAccountMultisig } from "pages/api/multisig";
 
@@ -17,7 +17,16 @@ type LaunchResponse = {
     Contributors: IuseContributor[],
     Blockchain: BlockchainType,
     Storage: IStorage,
-    Transactions: IFormattedTransaction[]
+    Transactions: IFormattedTransaction[],
+    multisigAccounts: {
+        all: IAccountMultisig[],
+        multisigTxs: IAccountMultisig["txs"],
+        pendingTxs: IAccountMultisig["txs"],
+        approvedTxs: IAccountMultisig["txs"],
+        rejectedTxs: IAccountMultisig["txs"],
+        signingNeedTxs: IAccountMultisig["txs"],
+    },
+    cumulativeTransactions: IRemoxData["cumulativeTransactions"],
 }
 
 interface LaunchParams {
@@ -80,38 +89,28 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         }
     }))
 
-    const multisigAccounts = await Promise.all(promiseMultisigAccounts);
+    const multisigAccountsRef = await Promise.all(promiseMultisigAccounts);
+    const multisigAccounts = multisigAccountsRef.map(s => s.data);
 
-    let pendingRequests: IAccountMultisig;
-    let approvedRequests: IAccountMultisig;
-    let rejectedRequests: IAccountMultisig;
-    let signingNeedRequests: IAccountMultisig;
+    let multisigRequests: IAccountMultisig["txs"] = [];
+    let pendingRequests: IAccountMultisig["txs"] = [];
+    let approvedRequests: IAccountMultisig["txs"] = [];
+    let rejectedRequests: IAccountMultisig["txs"] = [];
+    let signingNeedRequests: IAccountMultisig["txs"] = [];
 
     multisigAccounts.forEach(s => {
-        const txs = s.data.txs;
+        const txs = s.txs;
         const Pendings = txs.filter(s => s.executed === false)
         const Approveds = txs.filter(s => s.executed === true)
-        pendingRequests = {
-            txs: [...pendingRequests.txs, ...Pendings],
-            owners: s.data.owners,
-            threshold: s.data.threshold
-        };
-        rejectedRequests = {
-            txs: [...rejectedRequests.txs, ...Pendings.filter(s=>s.confirmations.length === 0)],
-            owners: s.data.owners,
-            threshold: s.data.threshold
-        };
-        approvedRequests = {
-            txs: [...approvedRequests.txs, ...Approveds],
-            owners: s.data.owners,
-            threshold: s.data.threshold
-        }
-        signingNeedRequests = {
-            txs: [...signingNeedRequests.txs, ...Pendings.filter(s => !s.confirmations.some(s => addresses.includes(s)))],
-            owners: s.data.owners,
-            threshold: s.data.threshold
-        }
+
+        pendingRequests = [...pendingRequests, ...Pendings];
+        rejectedRequests = [...rejectedRequests, ...Pendings.filter(s => s.confirmations.length === 0)]
+        approvedRequests = [...approvedRequests, ...Approveds];
+        signingNeedRequests = [...signingNeedRequests, ...Pendings.filter(s => !s.confirmations.some(s => addresses.includes(s)))]
+        multisigRequests = [...multisigRequests, ...txs]
     })
+
+    let allCumulativeTransactions = [...transactionsRes.data, ...multisigRequests].sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
 
     const res: LaunchResponse = {
         RemoxAccount: accountRes.data,
@@ -120,7 +119,16 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         Contributors: contributorsRes.data,
         Blockchain: blockchain,
         Storage: storage,
-        Transactions: transactionsRes.data
+        Transactions: transactionsRes.data,
+        multisigAccounts: {
+            all: multisigAccounts,
+            multisigTxs: multisigRequests,
+            pendingTxs: pendingRequests,
+            approvedTxs: approvedRequests,
+            rejectedTxs: rejectedRequests,
+            signingNeedTxs: signingNeedRequests,
+        },
+        cumulativeTransactions: allCumulativeTransactions
     }
 
     return res;

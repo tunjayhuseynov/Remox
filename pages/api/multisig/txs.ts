@@ -19,7 +19,7 @@ import { GetTime } from "utils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ITransactionMultisig[]>) {
     try {
-        const { blockchain, address: multisigAddress, Skip, Take } = req.query as { blockchain: BlockchainType, address: string, Skip: string, Take: string };
+        const { blockchain, address: multisigAddress, Skip, Take, name } = req.query as { blockchain: BlockchainType, address: string, Skip: string, Take: string, name: string };
         const skip = +Skip;
         const take = +Take;
 
@@ -106,6 +106,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                             }
 
                             const parsedTx = MultisigTxParser({
+                                contractAddress: pb.toBase58(),
+                                contractInternalThreshold: data.threshold.toNumber(),
+                                contractThreshold: data.threshold.toNumber(),
+                                contractOwnerAmount: owners.length,
                                 data: "",
                                 blockchain,
                                 confirmations,
@@ -120,6 +124,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                                     requiredCount
                                 },
                                 timestamp,
+                                name
                             })
                             transactionArray.push(parsedTx)
 
@@ -161,14 +166,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     parsedData: null,
                     index, destination: tx.destination,
                     data: tx.data, executed: tx.executed,
-                    confirmations: confirmations as any, Value: tx.value, blockchain, timestamp: GetTime()
+                    confirmations: confirmations as any,
+                    Value: tx.value,
+                    blockchain, timestamp: GetTime(),
+                    contractAddress: multisigAddress,
+                    contractInternalThreshold: contract.internalRequired.toNumber(),
+                    contractThreshold: contract.required.toNumber(),
+                    contractOwnerAmount: contract.getOwners().length,
+                    name
                 })
 
                 return obj;
             }
-            const list = await Promise.all(Array.from(Array(total).keys()).filter(s => s > limit).map(s => GetTx(s)))
+            const list = await Promise.all(Array.from(Array(total).keys()).map(s => GetTx(total - 1 - s)))
             transactionArray.push(...list);
-
         }
 
         res.status(200).json(transactionArray)

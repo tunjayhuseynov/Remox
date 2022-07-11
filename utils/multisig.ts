@@ -26,12 +26,15 @@ export interface ParsedMultisigData {
 export const MultisigTxParser = (
     {
         index, destination, data, executed,
-        confirmations, Value, blockchain, parsedData, timestamp
+        confirmations, Value, blockchain, parsedData, timestamp, contractAddress,
+        contractOwnerAmount, contractThreshold, contractInternalThreshold, name
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
             confirmations: string[], Value: BigNumber, blockchain: BlockchainType,
-            parsedData: ParsedMultisigData | null, timestamp: number
+            parsedData: ParsedMultisigData | null, timestamp: number,
+            contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
+            contractInternalThreshold: number, name: string
         }
 ) => {
     let size = 0;
@@ -39,12 +42,17 @@ export const MultisigTxParser = (
     else size = EVM_WALLET_SIZE
     let from = blockchain === "solana" ? fromLamport : fromWei
     let obj: ITransactionMultisig = {
+        name,
         destination: destination,
         data: data,
         executed: executed,
         confirmations: confirmations,
         value: Value.toString(),
         timestamp: timestamp,
+        contractAddress: contractAddress,
+        contractInternalThresholdAmount: contractInternalThreshold,
+        contractOwnerAmount: contractOwnerAmount,
+        contractThresholdAmount: contractThreshold,
     }
 
     let value = from(Value)
