@@ -14,7 +14,7 @@ import TagItem from 'subpages/dashboard/settings/labels/tagItem'
 import { useForm, SubmitHandler } from "react-hook-form";
 
 export interface IFormInput {
-    name: string;
+    name:string;
     color:string;
   }
 
@@ -47,7 +47,7 @@ export default function TagsSetting() {
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
         const Color = color
-        console.log(data)
+        console.log(data,Color)
     }
 
     return (
@@ -69,11 +69,11 @@ export default function TagsSetting() {
             </div>
             {showModal &&
                 <Modal onDisable={setShowModal} animatedModal={false} disableX={true} className="!pt-5 overflow-visible">
-                    <div className="flex flex-col space-y-12 items-center">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-12 items-center">
                         <div className="flex  font-semibold tracking-wider text-2xl">
                             Create a New Tag
                         </div>
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex items-end space-x-12">
+                        <div className="flex items-end space-x-12">
                             <div className="flex flex-col space-y-3">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
                                 <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="Marketing" ref={inputRef} />
@@ -98,16 +98,16 @@ export default function TagsSetting() {
                                         }
                                 </div>
                             </div>
-                        </form>
+                        </div>
                         <div className="flex justify-center gap-16">
                             <Button type="submit" version="second" onClick={() => setShowModal(false)} className="px-8 !py-2">
                                 Back
                             </Button>
-                            <Button type="submit" onClick={create} className=" !py-2 " isLoading={isLoading} >
+                            <Button type="submit" onClick={create}  className=" !py-2 " isLoading={isLoading} >
                                 Create
                             </Button>
                         </div>
-                    </div>
+                    </form>
                 </Modal>
             }
         </>

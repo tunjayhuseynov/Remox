@@ -3,7 +3,7 @@ import { useAppSelector } from 'redux/hooks';
 import { selectDarkMode } from 'redux/slices/notificationSlice';
 import BudgetDetails from './budgetDetails';
 import { useModalSideExit, useWalletKit } from "hooks";
-import { ProgressBarWidth } from '../../../utils'
+import { ProgressBarWidth, SetComma } from '../../../utils'
 import { createPortal } from 'react-dom';
 import { IBudgetORM } from 'pages/api/budget';
 
@@ -24,34 +24,36 @@ function BudgetCard({ setEditBudget, setDelBudget, item, }: { item: IBudgetORM, 
     return <>
         <BudgetDetails item={item} ref={divRef} close={setDetailModal} visibility={detailModal} />
         {/* {openNotify && createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)} */}
-        <div ref={exceptRef} onClick={() => { setDetailModal(true) }}>
-            <div className="rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-xl" >
+
+        <div className="relative">
+            <div className="right-2 top-1 absolute flex space-x-3 justify-end" >
+                <span onClick={() => setDetails(!details)} className=" text-3xl flex items-center  cursor-pointer  font-bold relative"><span className=" text-primary pb-4 rotate-90">...</span>
+                    {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-dark  absolute right-4 -bottom-8 w-[8rem]  rounded-lg shadow-xl z-50 ">
+                        <div className="cursor-pointer  text-sm border-b hover:bg-greylish hover:bg-opacity-5 hover:transition-all  border-greylish border-opacity-20 flex w-full pl-2 py-2 gap-3" onClick={() => {
+                            setEditBudget(true)
+                        }}>
+                            <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
+                        </div>
+                        <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm flex w-full pl-2 py-2 gap-3" onClick={() => {
+                            setDelBudget(true)
+                        }}>
+                            <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Delete</span>
+                        </div>
+                    </div>}
+                </span>
+            </div>
+            <div ref={exceptRef} onClick={() => { setDetailModal(true) }} className=" rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-xl" >
                 <div className="flex items-center justify-between w-full">
                     <div className="text-xl font-bold">{item.name}</div>
                     <div className="flex items-center gap-5">
-                        <div className="text-xl font-bold">{coin.totalUsedAmount * 100 / coin.totalAmount}</div>
-                        <div className="flex space-x-3 justify-end" >
-                            <span onClick={() => setDetails(!details)} className=" text-3xl flex items-center  cursor-pointer  font-bold relative"><span className=" text-primary pb-4 rotate-90">...</span>
-                                {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-darkSecond  absolute right-5 -bottom-5 w-[7rem]  rounded-lg shadow-xl z-50 ">
-                                    <div className="cursor-pointer  text-sm border-b border-greylish border-opacity-20 flex w-full pl-2 py-1 gap-3" onClick={() => {
-                                        setEditBudget(true)
-                                    }}>
-                                        <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
-                                    </div>
-                                    <div className="cursor-pointer  text-sm flex w-full pl-2 py-1 gap-3" onClick={() => {
-                                        setDelBudget(true)
-                                    }}>
-                                        <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Delete</span>
-                                    </div>
-                                </div>}
-                            </span>
-                        </div>
+                        <div className="text-xl font-bold pr-4">{coin.totalUsedAmount * 100 / coin.totalAmount}</div>
+
                     </div>
                 </div>
                 <div>
                     <div className="flex items-center gap-2 text-greylish dark:text-white py-2">
                         <span className="text-2xl font-bold flex items-center gap-1">
-                            <img src={GetCoins[coin.coin].coinUrl} alt="" className="rounded-full" />{coin.totalUsedAmount}</span>impacted on
+                            <img src={GetCoins[coin.coin].coinUrl} alt="" className="rounded-full" />{SetComma(coin.totalUsedAmount)}</span>impacted on
                         <span className="text-lg flex items-center gap-1">
                             <img src={GetCoins[coin.coin].coinUrl} className="rounded-full" alt="" />{coin.totalAmount}
                         </span>

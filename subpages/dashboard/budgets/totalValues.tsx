@@ -1,5 +1,6 @@
 import { IBudgetExerciseORM } from 'pages/api/budget'
 import React from 'react'
+import { SetComma } from 'utils'
 import TotalDetails from './totalDetails'
 
 function TotalValues({ total }: { total: IBudgetExerciseORM }) {
@@ -11,7 +12,7 @@ function TotalValues({ total }: { total: IBudgetExerciseORM }) {
                 <div className={`flex flex-col gap-12 lg:gap-4`}>
                     <div className='text-xl font-bold'>Total Budget</div>
                     <div className={`text-4xl font-semibold flex flex-col gap-2`}>
-                        {Number(124523523).toLocaleString()}
+                        {SetComma(total.totalBudget)}
                     </div>
                 </div>
             </div>
@@ -19,7 +20,7 @@ function TotalValues({ total }: { total: IBudgetExerciseORM }) {
                 <div className={`flex flex-col gap-12 lg:gap-4 `}>
                     <div className='text-xl font-bold'>Total Used</div>
                     <div className={`text-2xl font-semibold flex flex-col gap-2`}>
-                        {total.totalUsed}
+                        {SetComma(total.totalUsed)}
                     </div>
                 </div>
             </div>
@@ -27,7 +28,7 @@ function TotalValues({ total }: { total: IBudgetExerciseORM }) {
                 <div className={`flex flex-col gap-12 lg:gap-4 `}>
                     <div className='text-xl font-bold'>Total Pending</div>
                     <div className={`text-2xl font-semibold flex flex-col gap-2`}>
-                        {0}
+                        {SetComma(0)}
                     </div>
                 </div>
             </div>
@@ -35,7 +36,7 @@ function TotalValues({ total }: { total: IBudgetExerciseORM }) {
                 <div className={`self-start flex flex-col gap-12 lg:gap-4`}>
                     <div className='text-xl font-bold'>Total Available</div>
                     <div className={`text-2xl font-semibold flex flex-col gap-2`}>
-                        {total.totalAvailable}
+                        {SetComma(total.totalAvailable)}
                     </div>
                 </div>
             </div>

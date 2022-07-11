@@ -162,7 +162,7 @@ function CreateMultisig() {
                     {blockchain === 'celo' && !multisigIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
-                            <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                            <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
                     {text === "Import Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
@@ -232,7 +232,7 @@ function CreateMultisig() {
                     {text === "Create Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
                         <div className="w-ful flex justify-start items-center">
-                            <input type="number" {...register("confirmOwners", { required: true })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" max={owners.length + 1} value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
+                            <input type="number" {...register("confirmOwners", { required: true, valueAsNumber: true  })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" max={owners.length + 1} value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
                             <p className="text-greylish w-[30%]">out of {owners.length + 1} owners</p>
                         </div>
                     </div>}

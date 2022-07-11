@@ -258,7 +258,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean>, onDisa
                             {blockchain === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                                 <div className="text-xs text-left  dark:text-white">Token ID</div>
                                 <div className={`w-full border rounded-lg`}>
-                                    <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                                    <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                                 </div>
                             </div>}
                             <div className="grid grid-cols-2 gap-x-10">
@@ -314,7 +314,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean>, onDisa
                                 setSelectedWallet(val)
                             }} />}
                             <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
-                                <input type="number" defaultValue={member.amount} {...register("amount", { required: true })} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white " placeholder="Amount" required step={'any'} min={0} />
+                                <input type="number" defaultValue={member.amount} {...register("amount", { required: true, valueAsNumber: true  })} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white " placeholder="Amount" required step={'any'} min={0} />
                                 {selectedType && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
                             </div>
                         </div>
@@ -324,7 +324,7 @@ const EditMember = (props: IMember & { onCurrentModal: Dispatch<boolean>, onDisa
                                     setSelectedWallet2(val)
                                 }} />}
                                 <div className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"}`}>
-                                    <input type="number" {...register("amount2", { required: true })} defaultValue={(member.secondaryAmount ?? 0)} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} />
+                                    <input type="number" {...register("amount2", { required: true, valueAsNumber: true  })} defaultValue={(member.secondaryAmount ?? 0)} className="outline-none unvisibleArrow pl-2 dark:bg-dark dark:text-white" placeholder="Amount" step={'any'} min={0} />
                                     {selectedType && <span className="text-xs self-center opacity-70 dark:text-white ">USD as</span>}
                                 </div>
                             </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}>+ Add another token</div>}

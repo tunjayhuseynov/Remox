@@ -80,7 +80,7 @@ function Subinput({ incomingIndex, indexs }: { incomingIndex: string, indexs: nu
                 </div>
                 <div className="flex flex-col w-full">
                     <span className="text-left  text-greylish pb-2 ml-1" >Subbudget Amount</span>
-                    <input {...register("amount", { required: true })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" defaultValue={amount} type="number" name={`amount__${index}`} onChange={(e) => {
+                    <input {...register("amount", { required: true, valueAsNumber: true  })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" defaultValue={amount} type="number" name={`amount__${index}`} onChange={(e) => {
                         setAmount(Number(e.target.value))
                     }} required step={'any'} min={0} />
                 </div>
@@ -102,7 +102,7 @@ function Subinput({ incomingIndex, indexs }: { incomingIndex: string, indexs: nu
                             }} />}
                         </div>
                     </div>
-                    <input {...register("amount2", { required: true })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" defaultValue={amount2} type="number" name={`amount__${index}`} onChange={(e) => {
+                    <input {...register("amount2", { required: true, valueAsNumber: true  })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" defaultValue={amount2} type="number" name={`amount__${index}`} onChange={(e) => {
                         setAmount2(Number(e.target.value))
                     }} required step={'any'} min={0} />
                 </div> </div>}

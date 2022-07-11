@@ -51,7 +51,8 @@ const Contributors = () => {
                     Contributors
                 </div>
                 <div className="pt-2">
-                    {selectbar === "Team" ? <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => setAddTeamModal(true)}>Add Team</Button> : <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => setAddMemberModal(true)}>Add People</Button>}
+                <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => setAddTeamModal(true)}>Add Team</Button>
+                    {contributors.map(w => w && w.members.length > 0  && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => setAddMemberModal(true)}>Add People</Button>)}
                 </div>
             </div>
             {/* <button className="px-5 py-2 bg-greylish bg-opacity-5 rounded-xl">
@@ -91,6 +92,7 @@ const Contributors = () => {
         {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={generate()}><TeamContainer {...w} selectbar={selectbar} /></Fragment> : undefined)}
         {contributors.map(w => w && (!w?.members || w?.members?.length === 0) ? <Fragment key={generate()}><TeamContainer {...w} selectbar={selectbar} /></Fragment> : undefined)}
     </div>
+    
 }
 
     <Modal onDisable={setAddTeamModal}   openNotify={addTeamModal}>

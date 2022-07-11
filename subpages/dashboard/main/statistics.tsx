@@ -11,6 +11,7 @@ import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
 import { SelectRawStats } from "redux/slices/account/accountstats";
 import { SelectStats } from "redux/slices/account/remoxData";
+import { SetComma } from "utils";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
     const stats = useNextSelector(SelectStats)
@@ -32,7 +33,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 <div className="w-full px-12 pt-5 flex justify-between">
                     <div className="  flex flex-col gap-1">
                         <div className=" font-medium text-lg text-greylish dark:text-white text-opacity-40 tracking-wide">Total Treasury Value</div>
-                        <div className="text-4xl font-semibold">${Number(stats?.TotalBalance?.toFixed(0)).toLocaleString()}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
+                        <div className="text-4xl font-semibold">${parseFloat(SetComma(stats?.TotalBalance)).toFixed(0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                     </div>
                     <div className="flex gap-3 pt-6">
                         <span className={` ${chartDate === "week" && '!text-primary text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("week")}>1W</span>
@@ -47,7 +48,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
                 <div className="flex justify-between w-full">
                     <div className="text-2xl font-semibold">Connected Wallets</div>
-                    <Button className="text-xs sm:text-base !py-0 !px-7 !rounded-xl" onClick={() => { setNotify(true) }}>+ Add Wallet</Button>
+                    <Button className="text-xs sm:text-base !py-0 !px-7 " onClick={() => { setNotify(true) }}>+ Add Wallet</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
                     {data && data.map((item, id) => {

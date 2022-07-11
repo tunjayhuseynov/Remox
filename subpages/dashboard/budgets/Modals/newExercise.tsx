@@ -63,12 +63,12 @@ function NewExercise({ setExercise, setNewBudget }: { setNewBudget: React.Dispat
         <div className="text-2xl text-center font-medium py-6">Define  of your budgetary exercise</div>
         <div className="px-12 flex flex-col gap-4">
             <div className="flex flex-col">
-                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Name  of your budgetary exercise</span>
+                <span className="text-left  text-greylish  pb-2 ml-1" >Name  of your budgetary exercise</span>
                 <input type="text" {...register("name", { required: true })} className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
             </div>
             <div className="flex flex-col pt-6">
                 <span className="text-left  text-greylish pb-2 ml-1" >Dates  of the budgetary exercise</span>
-                <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3rem]'} className={'!rounded-lg h-[3rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                     setSelectedPayment(e)
                 }} />
             </div>
@@ -83,7 +83,7 @@ function NewExercise({ setExercise, setNewBudget }: { setNewBudget: React.Dispat
                         </div>
                         <div className="flex  border-b w-[10%] pt-4"></div>
                         <div className="flex flex-col gap-1 w-full">
-                            <div className="text-sm text-greylish dark:text-white ">To</div>
+                            <div className="text-sm text-greylish">To</div>
                             <div className="border w-full py-2 px-1 rounded-lg bg-greylish  dark:bg-darkSecond bg-opacity-20">
                                 {To}
                             </div>
@@ -104,7 +104,7 @@ function NewExercise({ setExercise, setNewBudget }: { setNewBudget: React.Dispat
             </div>
 
             <div className="flex flex-col-reverse sm:grid grid-cols-2 w-full justify-center gap-12 pt-6">
-                <Button version="second" className="!rounded-xl">Cancel</Button>
+                <Button version="second" className="!rounded-xl" onClick={()=> setExercise(false)}>Cancel</Button>
                 <Button isLoading={isLoading} type="submit" className="bg-primary text-sm xl:text-base !rounded-xl !px-0 py-2 text-white flex items-center justify-center" >Create</Button>
             </div>
         </div>
