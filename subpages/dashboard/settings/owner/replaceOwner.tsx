@@ -31,7 +31,7 @@ const ReplaceOwner = ({ onDisable, ownerAddress }: { onDisable: React.Dispatch<b
 
         <div className="flex flex-col space-y-1">
             <span className="text-greylish">Choose Owner Profile Photo</span>
-            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                     setSelectedPayment(e)
                     if (e.name === "NFT") setPhotoIsUpload(false)
                     else setPhotoIsUpload(true)
@@ -46,7 +46,7 @@ const ReplaceOwner = ({ onDisable, ownerAddress }: { onDisable: React.Dispatch<b
         {blockchain === 'celo' &&  !photoIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
             <div className="text-xs text-left  dark:text-white">Token ID</div>
             <div className={`w-full border rounded-lg`}>
-                <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
             </div>
         </div>}
         <div className="flex flex-col space-y-1">

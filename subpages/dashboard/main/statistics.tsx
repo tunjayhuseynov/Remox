@@ -11,6 +11,7 @@ import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
 import { SelectStats } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
+import { SetComma } from "utils";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
     const stats = useNextSelector(SelectStats)
@@ -33,7 +34,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 <div className="w-full px-12 pt-5 flex justify-between">
                     <div className="  flex flex-col gap-1">
                         <div className=" font-medium text-lg text-greylish dark:text-white text-opacity-40 tracking-wide">Total Treasury Value</div>
-                        <div className="text-4xl font-semibold">${Number(stats?.TotalBalance?.toFixed(0)).toLocaleString()}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
+                        <div className="text-4xl font-semibold">${parseFloat(SetComma(stats?.TotalBalance)).toFixed(0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                     </div>
                     <div className="flex gap-3 pt-6">
                         <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("week")}>1W</span>

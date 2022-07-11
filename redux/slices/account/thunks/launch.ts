@@ -77,6 +77,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
 
 
     const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions]);
+    
 
     const accounts = accountRes.data;
 

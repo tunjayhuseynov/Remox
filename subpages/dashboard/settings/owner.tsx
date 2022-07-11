@@ -15,6 +15,8 @@ import OwnerItem from './owner/ownerItem'
 
 export interface IOwnerData {
     id: number;
+    image:string |null,
+    orgImage:string |null,
     name: string;
     text:string;
     wallet:string;
@@ -41,6 +43,8 @@ const OwnerSetting = () => {
     const walletData: IOwnerData[] = [
         {
             id: 0,
+            image:null,
+            orgImage:null,
             name: 'Orkhan Aslanov (you)',
             text: 'Orkhan.sol',
             wallet: 'Treasury Vault 0',
@@ -49,6 +53,8 @@ const OwnerSetting = () => {
         },
         {
             id: 1,
+            image:null,
+            orgImage:null,
             name: 'Tuncay Huseynov',
             text: 'Tuncay.sol',
             wallet: 'Treasury Vault 1',

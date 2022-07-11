@@ -131,7 +131,7 @@ const CreateAccount = () => {
           {blockchain === 'celo' && !individualIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
             <div className="text-xs text-left  dark:text-white">Token ID</div>
             <div className={`w-full border rounded-lg`}>
-              <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+              <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
             </div>
           </div>}
           <div className="flex flex-col mb-4 gap-1 w-full">

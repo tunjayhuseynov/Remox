@@ -70,7 +70,7 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
 
             {text === "Import Wallet" && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">
-                    <div className="text-sm">Choose Profile Photo Type</div>
+                    <div className="text-greylish">Choose Profile Photo Type</div>
                     <Dropdown parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]  dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                         setSelectedPayment(e)
                         if (e.name === "NFT") setOrganizationIsUpload(false)
@@ -78,29 +78,29 @@ function NewWalletModal({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                     }} />
                 </div>
                 {<div className={`flex flex-col  gap-1 w-full`}>
-                    <div className="text-xs text-left  dark:text-white">{!organizationIsUpload ? "NFT Address" : "Your Photo"} </div>
+                    <div className=" text-left  text-greylish">{!organizationIsUpload ? "NFT Address" : "Your Photo"} </div>
                     <div className={`  w-full border rounded-lg`}>
                         {!organizationIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                     </div>
                 </div>}
                 {blockchain === 'celo' && !organizationIsUpload && <div className="flex flex-col  gap-1 w-full">
-                    <div className="text-xs text-left  dark:text-white">Token ID</div>
+                    <div className=" text-left  text-greylish">Token ID</div>
                     <div className={`w-full border rounded-lg`}>
-                        <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                        <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                     </div>
                 </div>}
                 <div className="flex flex-col gap-1">
-                    <div className="text-sm">Choose Wallet Provider</div>
+                    <div className="text-greylish">Choose Wallet Provider</div>
                     <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
                         setSelectedPayment2(e)
                     }} />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <div className="text-sm">Wallet Name</div>
+                    <div className="text-greylish">Wallet Name</div>
                     <input type="text" {...register("name", { required: true })} placeholder="Remox DAO" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <div className="text-sm">Wallet Address</div>
+                    <div className="text-greylish">Wallet Address</div>
                     <input type="text" {...register("address", { required: true })} placeholder="Wallet Adress" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
                 </div>
                 <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">

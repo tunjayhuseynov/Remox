@@ -50,9 +50,9 @@ const Sidebarlist = () => {
             <NavLink to="/dashboard/swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><SwapSVG active={isActive} darkMode={darkMode} />Swap</Li>}</NavLink>
             {blockchain !== 'solana' && <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><BorrowSVG active={isActive} darkMode={darkMode} />Lend - Borrow</Li>}</NavLink>}
             {blockchain !== 'solana' && <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><AutomationsSVG active={isActive} darkMode={darkMode} />Recurring</Li>}</NavLink>}
-            <div className="w-full border my-4"></div>
+            <div className="w-full border-b my-4"></div>
 
-            <div className="flex gap-10 items-center justify-center pr-10 py-3 pb-6">
+            <div className="flex gap-8 items-center justify-center pr-10 py-3 pb-6">
             <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) =><SettingSVG active={isActive} darkMode={darkMode} />}</NavLink>
             <img  onClick={darkModee} src={!dark ? '/icons/navbar/dark.png' : '/icons/navbar/dark_active.png'} className="w-6 h-6 self-center cursor-pointer" alt='dark' />
             <span className="cursor-pointer text-red"  onClick={() => {

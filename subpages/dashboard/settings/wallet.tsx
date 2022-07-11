@@ -17,13 +17,24 @@ import WalletItem from './wallet/walletItem'
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
+import { SetComma } from 'utils'
 
-export interface IWalletData {
+export interface IWallets {
     id: number;
+    image: string | null,
     name: string;
     mail: string;
-    value: string;
+    value: number;
+    signers:{
+        image: string | null;
+    }[],
+
 }[]
+
+export interface IWalletData {
+    total: number;
+    wallets:IWallets[]
+}
 
 export interface IFormInput {
     nftAddress?: string;
@@ -53,20 +64,43 @@ const WalletSetting = () => {
     const [removable, setRemovable] = useState({ name: "", address: "" })
 
 
-    const walletData: IWalletData[] = [
-        {
-            id: 0,
-            name: 'Orkhan Aslanov',
-            mail: 'Orkhan.sol',
-            value: '$150.00'
-        },
-        {
-            id: 1,
-            name: 'Tuncay Huseynov',
-            mail: 'Tuncay.sol',
-            value: '$480.00'
-        },
-    ]
+    const walletData: IWalletData = {
+        total: 500000,
+        wallets:[
+            {
+                id: 0,
+                image: null,
+                name: 'Orkhan Aslanov',
+                mail: 'Orkhan.sol',
+                value: 15000,
+                signers:[
+                    {
+                        image:null,
+                    },
+                    {
+                        image:null,
+                    },
+                    
+                ],
+            },
+            {
+                id: 1,
+                image: null,
+                name: 'Tuncay Huseynov',
+                mail: 'Tuncay.sol',
+                value: 48034,
+                signers:[
+                    {
+                        image:null,
+                    },
+                    {
+                        image:null,
+                    },
+                    
+                ],
+            },
+        ]
+    }
 
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
@@ -74,13 +108,12 @@ const WalletSetting = () => {
         console.log(data,Photo)
     }
 
-
     return <div className="flex flex-col space-y-7 ">
         <div className="w-full border-b dark:border-[#aaaaaa] py-6">
             <div className="text-greylish">Total Balance</div>
-            <div className="text-3xl font-semibold">$500.00</div>
+            <div className="text-3xl font-semibold">${SetComma(walletData.total)}</div>
         </div>
-        {walletData.map((item, index) => {
+        {walletData.wallets.map((item, index) => {
             return <WalletItem item={item} key={index} setReplaceOwnerModal={setReplaceOwnerModal} setRemovable={setRemovable} setRemoveModal={setRemoveModal} />
         })}
         {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} animatedModal={false} disableX={true} className={' py-6 !w-[40%]'}>
@@ -88,34 +121,34 @@ const WalletSetting = () => {
                 <div className="font-bold text-2xl text-center">Edit Wallet</div>
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Choose Profile Photo Type</span>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] '} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                         setSelectedPayment(e)
                         if (e.name === "NFT") setUserIsUpload(false)
                         else setUserIsUpload(true)
                     }} />
                 </div>
                 {<div className="flex flex-col mb-4 space-y-1 w-full">
-                    <div className="text-xs text-left  dark:text-white">{!userIsUpload ? "NFT Address" : "Your Photo"} </div>
+                    <div className=" text-left text-greylish ">{!userIsUpload ? "NFT Address" : "Your Photo"} </div>
                     <div className={`  w-full border rounded-lg`}>
                         {!userIsUpload ?  <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
                     </div>
                 </div>}
                 {blockchain === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
-                    <div className="text-xs text-left  dark:text-white">Token ID</div>
+                    <div className=" text-left text-greylish">Token ID</div>
                     <div className={`w-full border rounded-lg`}>
-                        <input type="number"  {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                        <input type="number"  {...register("nftTokenId", {required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                     </div>
                 </div>}
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Wallet Name</span>
                     <div>
-                        <input type="text" {...register("name", { required: true })} className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
+                        <input type="text" {...register("name", {required: true })} className="w-full px-3 py-3 border rounded-lg dark:bg-darkSecond" />
                     </div>
                 </div>
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Wallet Address</span>
                     <div>
-                        <input type="text" readOnly  className="w-full px-3 py-3 border rounded-lg bg-greylish bg-opacity-10 dark:bg-darkSecond" />
+                        <input type="text" readOnly  className="w-full px-3 py-3 border rounded-lg bg-greylish bg-opacity-10 dark:bg-greylish" />
                     </div>
                 </div>
                 <div className="flex justify-center">
