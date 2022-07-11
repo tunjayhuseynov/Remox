@@ -6,7 +6,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { IuseContributor } from "rpcHooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { GetTime } from "utils";
-import { addContributor ,SelectStorage } from "redux/slices/account/remoxData";
+import { addContributor , SelectStorage } from "redux/slices/account/remoxData";
 
 export interface IFormInput {
     name: string;

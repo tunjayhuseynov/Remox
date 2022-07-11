@@ -23,6 +23,17 @@ export default {
             }
         }
     },
+    updateMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
+        if (action.payload !== undefined) {
+            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
+            if (contributor !== undefined) {
+                let selectedMemberIndex = contributor.members.findIndex((member) => member.id === action.payload.member.id);
+                if (selectedMemberIndex !== -1) {
+                   contributor.members[selectedMemberIndex] = action.payload.member; 
+                }
+            }
+        }
+    },
     setContributors: (state: IRemoxData, action: { payload: { data: IuseContributor[]; secretKey?: string } }) => {
         if (action.payload.secretKey !== undefined) {
             const teams = action.payload.data.map((contributor) => ({
@@ -32,6 +43,14 @@ export default {
 
         }
     },
+    updateContributor: (state: IRemoxData, action: { payload: { name: string, id: string} }) => {
+        if (action.payload !== undefined) {
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if (contributorIndex !== -1) {
+                state.contributors[contributorIndex].name = action.payload.name;
+            }
+        }
+    }, 
     removeContributor: (state: IRemoxData, action: { payload: string }) => {
         if (action.payload !== undefined) {
             state.contributors = state.contributors.filter((contributor) => contributor.id !== action.payload);

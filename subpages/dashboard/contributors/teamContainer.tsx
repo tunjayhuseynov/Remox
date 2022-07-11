@@ -6,9 +6,12 @@ import TeamItem from "./teamItem";
 import { IuseContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import useGelato from "rpcHooks/useGelato";
-import { useAppSelector } from 'redux/hooks';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useModalSideExit } from "hooks";
+import { removeContributor } from "redux/slices/account/remoxData";
+
+
 
 const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
     const [deleteModal, setDeleteModal] = useState(false)
@@ -18,6 +21,7 @@ const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
     const [num, setNum] = useState(15)
     const [details, setDetails] = useState(false)
     const dark = useAppSelector(selectDarkMode)
+    const dispatch = useAppDispatch()
 
     const DeleteTeam = async () => {
         try {
@@ -28,6 +32,7 @@ const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
                 }
             }
             await removeTeam(props.id)
+            dispatch(removeContributor(props.id));
             //setDeleteModal(false)
         } catch (error) {
             console.error(error)

@@ -224,13 +224,14 @@ export const SelectIsRemoxDataFetching = createDraftSafeSelector(
 
 
 export const {
-    setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget,
+    setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor,
     addBudget, addBudgetExercise, addSubBudget, deleteBudget, deleteBudgetExercise,
     deleteSubBudget, setBudgetExercises, updateBudget, updateBudgetExercise, updateSubBudget,
     addContributor, removeContributor, setContributors, setBlockchain,
     addAccount, addOwner, addTx, removeAccount, removeOwner, setThreshold,
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
-    addMemberToContributor, removeMemberFromContributor, setProviderAddress
+    addMemberToContributor, removeMemberFromContributor, setProviderAddress,
+    setProviderID, updateContributor
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;
