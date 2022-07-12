@@ -118,7 +118,7 @@ const TeamItem = (props: IMember & { teamName: string, index: 'Active' | 'Full T
                 <span ref={exceptRef} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold"><span className=" text-primary pb-4">...</span>
                     {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-8 -bottom-8 w-[8rem]  rounded-lg shadow-xl z-50 ">
                         <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all  text-sm border-b border-greylish border-opacity-20 flex w-full px-2 pr-6 py-2 gap-3" onClick={() => {
-                            navigate.push('/dashboard/edit-member?secondAnimation=true')
+                            navigate.push('/dashboard/contributors/edit-member?secondAnimation=true')
                             setModalVisible(false)
                         }}>
                             <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Edit</span>
@@ -183,7 +183,7 @@ const TeamItem = (props: IMember & { teamName: string, index: 'Active' | 'Full T
                     <span onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold"><span className=" text-primary pb-4">...</span>
                         {details && <div className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-8 -bottom-8 w-[8rem]  rounded-lg shadow-xl z-50 ">
                             <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all  text-sm border-b border-greylish border-opacity-20 flex w-full px-2 pr-6 py-2 gap-3" onClick={() => {
-                                navigate.push('/dashboard/edit-member?secondAnimation=true')
+                                navigate.push('/dashboard/contributors/edit-member?secondAnimation=true')
                                 setModalVisible(false)
                             }}>
                                 <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Edit</span>
@@ -247,7 +247,7 @@ const TeamItem = (props: IMember & { teamName: string, index: 'Active' | 'Full T
                     <span onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold"><span className=" text-primary pb-4">...</span>
                         {details && <div className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-8 -bottom-8 w-[8rem]  rounded-lg shadow-xl z-50 ">
                             <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all  text-sm border-b border-greylish border-opacity-20 flex w-full px-2 pr-6 py-2 gap-3" onClick={() => {
-                                navigate.push('/dashboard/edit-member?secondAnimation=true')
+                                navigate.push('/dashboard/contributors/edit-member?secondAnimation=true')
                                 setModalVisible(false)
                             }}>
                                 <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Edit</span>

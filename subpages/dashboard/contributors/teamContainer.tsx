@@ -52,7 +52,7 @@ const TeamContainer = (props: (IuseContributor) & {index:number}) => {
             <div className="flex items-end justify-end">
                 <span ref={exceptRef} onClick={() =>{setDetails(!details)}} className=" text-3xl flex items-center relative cursor-pointer  font-bold"><span className="rotate-90 text-primary">...</span>
                 {details && <div ref={divRef} className="flex flex-col items- justify-start bg-white dark:bg-dark  absolute right-6 -top-16  translate-y-full rounded-lg shadow-xl z-50 ">
-                <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm border-b border-greylish border-opacity-20 flex items-center min-w-[8rem] px-2 pr-6 py-2 gap-2" onClick={() => navigate.push('/dashboard/edit-team')}>
+                <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm border-b border-greylish border-opacity-20 flex items-center min-w-[8rem] px-2 pr-6 py-2 gap-2" onClick={() => navigate.push('/dashboard/contributors/edit-team')}>
                     <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt=""  /> <span>Edit</span>
                 </div>
                 <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm flex items-center  px-2 pr-6 w-full py-2 gap-2" onClick={() => setDeleteModal(true)}>
