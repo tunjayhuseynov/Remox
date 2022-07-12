@@ -1,4 +1,4 @@
-import { IMember, IuseContributor } from "rpcHooks/useContributors";
+import { IMember, IContributor } from "rpcHooks/useContributors";
 import { useState } from "react";
 import TeamItem from "./stopItem";
 

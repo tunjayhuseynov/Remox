@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IuseContributor } from 'rpcHooks/useContributors';
+import { IContributor } from 'rpcHooks/useContributors';
 import { decryptMessage } from 'utils/hashing';
 import { RootState } from '../../store';
 
-export interface IContributorState { contributors: IuseContributor[]; isFetched: boolean; }
+export interface IContributorState { contributors: IContributor[]; isFetched: boolean; }
 
 const initialState: IContributorState = {
 	contributors: [],
@@ -14,12 +14,12 @@ export const contributorSlice = createSlice({
 	name: 'contributors',
 	initialState: initialState,
 	reducers: {
-		addContributor: (state: IContributorState, action: { payload: IuseContributor[] }) => {
+		addContributor: (state: IContributorState, action: { payload: IContributor[] }) => {
 			if (action.payload !== undefined) {
 				state.contributors.push(...action.payload);
 			}
 		},
-		setContributors: (state: IContributorState, action: { payload: { data: IuseContributor[]; secretKey?: string } }) => {
+		setContributors: (state: IContributorState, action: { payload: { data: IContributor[]; secretKey?: string } }) => {
 			if (action.payload.secretKey !== undefined) {
 				const teams = action.payload.data.map((contributor) => ({
 					...contributor

@@ -3,7 +3,7 @@ import Modal from "../../../components/general/modal";
 import Delete from "./buttons/delete";
 // import EditTeam from './buttons/editTeam'
 import TeamItem from "./teamItem";
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import useGelato from "rpcHooks/useGelato";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 
 
 
-const TeamContainer = (props: (IuseContributor) & {index:number}) => {
+const TeamContainer = (props: (IContributor) & { index: number }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const { removeTeam } = useContributors()
     const { cancelTask } = useGelato()
@@ -43,7 +43,7 @@ const TeamContainer = (props: (IuseContributor) & {index:number}) => {
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
 
     return <>
-       {props.index === 4 && <div className=" rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-w-[23.5rem] min-h-[12rem] items-start justify-between pl-5">
+        {props.index === 4 && <div className=" rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-w-[23.5rem] min-h-[12rem] items-start justify-between pl-5">
             <div className="flex flex-col justify-between w-full h-full">
                 <div className="flex items-start justify-between w-full">
                 <div className="font-semibold text-[1.5rem] overflow-hidden whitespace-nowrap">
@@ -63,19 +63,19 @@ const TeamContainer = (props: (IuseContributor) & {index:number}) => {
             </div>
                 </div>
                 <div className="flex pl-3 w-full">
-                {props.members[1]?.image && props.members[1].image?.imageUrl !== null && <img src={`${props.members[1].image.imageUrl}`} className={` absolute z-[1] border bg-gray-400 w-8 h-8 rounded-full`} />}
-                {props.members[0]?.image && props.members[0].image?.imageUrl !== null && <img src={`${props.members[0].image.imageUrl}`} className={`relative z-[0] right-[10px] bg-gray-300  border  w-8 h-8 rounded-full`} />}
-                {props.members[2]?.image && props.members[2].image?.imageUrl !== null && <img src={`${props.members[2].image.imageUrl}`} className={` relative z-[1] -left-[15px] bg-gray-500  border  w-8 h-8 rounded-full`} />}
-                {props.members.length > 3 && <div className="bg-dark relative z-[1] -left-[25px]  border flex items-center justify-center text-primary w-8 h-8 rounded-full">+{props.members.length - 3}</div>}
-            </div>
+                    {props.members[1]?.image && props.members[1].image?.imageUrl !== null && <img src={`${props.members[1].image.imageUrl}`} className={` absolute z-[1] border bg-gray-400 w-8 h-8 rounded-full`} />}
+                    {props.members[0]?.image && props.members[0].image?.imageUrl !== null && <img src={`${props.members[0].image.imageUrl}`} className={`relative z-[0] right-[10px] bg-gray-300  border  w-8 h-8 rounded-full`} />}
+                    {props.members[2]?.image && props.members[2].image?.imageUrl !== null && <img src={`${props.members[2].image.imageUrl}`} className={` relative z-[1] -left-[15px] bg-gray-500  border  w-8 h-8 rounded-full`} />}
+                    {props.members.length > 3 && <div className="bg-dark relative z-[1] -left-[25px]  border flex items-center justify-center text-primary w-8 h-8 rounded-full">+{props.members.length - 3}</div>}
+                </div>
             </div>
         </div>}
-        {props.members && props.index  !== 4 &&   props.members.slice(0, num).map(w =>
+        {props.members && props.index !== 4 && props.members.slice(0, num).map(w =>
             <div key={w.id}>
-                <TeamItem teamName={props.name}  index={  props.index === 1 ? 'Full Time' : props.index === 2 ? 'Part Time' : props.index === 3 ? 'Bounty' : props.index === 4 ? 'Team' : 'Active'} {...w} />
+                <TeamItem teamName={props.name} index={props.index === 1 ? 'Full Time' : props.index === 2 ? 'Part Time' : props.index === 3 ? 'Bounty' : props.index === 4 ? 'Team' : 'Active'} {...w} />
             </div>
         )}
-        {props.members && props.index  !== 4 &&  props.members.length > 15 && num !== 100 ? <button className="py-3 pb-5  font-bold text-primary" onClick={() => setNum(100)}>
+        {props.members && props.index !== 4 && props.members.length > 15 && num !== 100 ? <button className="py-3 pb-5  font-bold text-primary" onClick={() => setNum(100)}>
             Show More
         </button> : null}
         {!props.members ? <div className="b-5 px-5 border-b border-black pb-5">No Team Member Yet</div> : undefined}

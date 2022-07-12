@@ -1,6 +1,6 @@
 import { FirestoreRead, FirestoreWrite } from "../rpcHooks/useFirebase";
 import { v4 as uuidv4 } from 'uuid'
-import { IMember, IuseContributor } from "rpcHooks/useContributors";
+import { IMember, IContributor } from "rpcHooks/useContributors";
 import { auth } from "firebaseConfig";
 import { useState } from "react";
 import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore";
@@ -8,15 +8,15 @@ import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore";
 export default function useContributors() {
     const [isLoading, setLoading] = useState(false)
 
-    const addTeam = async (team: IuseContributor) => {
+    const addTeam = async (team: IContributor) => {
         setLoading(true)
-        await FirestoreWrite<IuseContributor>().createDoc("contributors", team.id, team)
+        await FirestoreWrite<IContributor>().createDoc("contributors", team.id, team)
         setLoading(false)
     }
 
     const removeTeam = async (id: string) => {
         setLoading(true)
-        await FirestoreWrite<IuseContributor>().deleteDocument("contributors", id)
+        await FirestoreWrite<IContributor>().deleteDocument("contributors", id)
         setLoading(false)
     }
 
@@ -32,7 +32,7 @@ export default function useContributors() {
     const getMember = async (teamId: string, memberId: string) => {
         try {
             setLoading(true)
-            const doc = await FirestoreRead<IuseContributor>("contributors", teamId)
+            const doc = await FirestoreRead<IContributor>("contributors", teamId)
             setLoading(false)
             return doc?.members.find(m => m.id === memberId)
         } catch (error) {
@@ -50,7 +50,7 @@ export default function useContributors() {
 
     const removeMember = async (teamId: string, memberId: string) => {
         setLoading(true)
-        await FirestoreRead<IuseContributor>("contributors", teamId).then(async (team) => {
+        await FirestoreRead<IContributor>("contributors", teamId).then(async (team) => {
             if (team) {
                 const member = team.members.find(m => m.id === memberId)
                 if (member) {
@@ -65,7 +65,7 @@ export default function useContributors() {
 
     const editMember = async (teamId: string, memberId: string, updatedMember: IMember) => {
         setLoading(true)
-        await FirestoreRead<IuseContributor>("contributors", teamId).then(async (team) => {
+        await FirestoreRead<IContributor>("contributors", teamId).then(async (team) => {
             if (team) {
                 const member = team.members.find(m => m.id === memberId)
                 if (member) {

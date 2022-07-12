@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react'
-import { DateInterval, ExecutionType, IMember, IuseContributor } from "rpcHooks/useContributors";
+import { DateInterval, ExecutionType, IMember, IContributor } from "rpcHooks/useContributors";
 import { useState } from "react";
 import TeamItem from "../../payroll/teamItem";
 import Runitem from './runitem';
@@ -7,7 +7,7 @@ import Avatar from "components/avatar";
 import dateFormat from "dateformat";
 import { CeloCoins } from "types";
 
-function Runpayroll(props: IuseContributor & { memberState:[IMember[], Dispatch<SetStateAction<IMember[]>>],runmodal:boolean }) {
+function Runpayroll(props: IContributor & { memberState:[IMember[], Dispatch<SetStateAction<IMember[]>>],runmodal:boolean }) {
    const [num, setNum] = useState(5)
 
    
