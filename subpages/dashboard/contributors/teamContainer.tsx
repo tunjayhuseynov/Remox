@@ -3,7 +3,7 @@ import Modal from "../../../components/general/modal";
 import Delete from "./buttons/delete";
 import EditTeam from './buttons/editTeam'
 import TeamItem from "./teamItem";
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import useGelato from "rpcHooks/useGelato";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
@@ -13,7 +13,7 @@ import { removeContributor } from "redux/slices/account/remoxData";
 
 
 
-const TeamContainer = (props: (IuseContributor) & {selectbar:string}) => {
+const TeamContainer = (props: (IContributor) & {selectbar:string}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const { removeTeam } = useContributors()
     const [editModal, setEditModal] = useState(false)

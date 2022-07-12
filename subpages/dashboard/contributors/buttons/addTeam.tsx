@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "redux/hooks"
 import Button from "../../../../components/button";
 import useContributors from "hooks/useContributors";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { GetTime } from "utils";
 import { addContributor , SelectStorage } from "redux/slices/account/remoxData";
@@ -24,7 +24,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         if (data.name.trim()) {
             try {
                 setError(false)
-                const team : IuseContributor = {
+                const team : IContributor = {
                     id: uuidv4(),
                     name: data.name.trim(),
                     members: [],

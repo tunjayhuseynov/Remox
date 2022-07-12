@@ -1,9 +1,9 @@
-import { IMember, IuseContributor, ExecutionType } from "rpcHooks/useContributors";
+import { IMember, IContributor, ExecutionType } from "rpcHooks/useContributors";
 import { useState } from "react";
 import TeamItem from "../automations/teamItem";
 
 
-const TeamContainer = (props: IuseContributor & { memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {
+const TeamContainer = (props: IContributor & { memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {
 
     const [num, setNum] = useState(3)
 

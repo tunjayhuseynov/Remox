@@ -1,22 +1,22 @@
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 
 
 export default async function handle(
     req: NextApiRequest,
-    res: NextApiResponse<IuseContributor[]>
+    res: NextApiResponse<IContributor[]>
 ) {
     try {
         const id = req.query.id;
 
         if (!id) throw new Error("No id provided")
 
-        const list: IuseContributor[] = []
+        const list: IContributor[] = []
         const collection = await adminApp.firestore().collection("contributors").where("userId", "==", id).get()
 
         for (const doc of collection.docs) {
-            const contributor = doc.data() as IuseContributor
+            const contributor = doc.data() as IContributor
             if (!contributor) continue
             list.push(contributor);
         }

@@ -8,7 +8,7 @@ import { PublicKey } from "@solana/web3.js";
 import { decryptMessage } from "utils/hashing";
 import { Create_Individual, individualCollectionName } from "crud/individual";
 import { GetTime } from "utils";
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 import { adminApp } from "firebaseConfig/admin";
 import { Get_Budget_Exercise_Ref } from "crud/budget_exercise";
 import { accountCollectionName, Get_Account_Ref } from "crud/account";
@@ -93,7 +93,7 @@ async function handler(
                 // ])
 
                 for (const doc of contributors.docs) {
-                    const con = doc.data() as IuseContributor;
+                    const con = doc.data() as IContributor;
                     adminApp.firestore().collection("contributors").doc(con.id).update({
                         ...con,
                         members: con.members.map(m => ({

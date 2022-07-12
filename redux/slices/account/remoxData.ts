@@ -4,7 +4,7 @@ import { ISpendingResponse } from "pages/api/calculation/spending";
 import { IStorage } from "./storage";
 import { RootState } from "redux/store";
 import { IBudgetExerciseORM, IBudgetORM } from "pages/api/budget";
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 import { launchApp } from "./thunks/launch";
 import type { IAccountMultisig } from 'pages/api/multisig'
 import StatsReducers from './reducers/stats'
@@ -18,6 +18,7 @@ import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk } from ".
 import { IMember } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 
 export type IAccountType = "individual" | "organization";
 
@@ -38,7 +39,12 @@ export interface IRemoxData {
     isFetching: boolean;
     stats: ISpendingResponse | null; // +
     budgetExercises: IBudgetExerciseORM[], // +
-    contributors: IuseContributor[], // +
+    contributors: IContributor[], // +
+    requests: {
+        pendingRequests: IRequest[],
+        approvedRequests: IRequest[],
+        rejectedRequests: IRequest[],
+    }, // +
     blockchain: BlockchainType | null,
     accounts: IAccountORM[], // ++
     totalBalance: number, // +
@@ -57,6 +63,11 @@ const init = (): IRemoxData => {
         stats: null,
         budgetExercises: [],
         contributors: [],
+        requests: {
+            pendingRequests: [],
+            approvedRequests: [],
+            rejectedRequests: [],
+        },
         blockchain: null,
         accounts: [],
         totalBalance: 0,
@@ -118,6 +129,11 @@ const remoxDataSlice = createSlice({
             state.stats = action.payload.Spending;
             state.budgetExercises = action.payload.Budgets;
             state.contributors = action.payload.Contributors;
+            state.requests = {
+                pendingRequests: action.payload.Requests.filter(request => request.status === RequestStatus.pending),
+                approvedRequests: action.payload.Requests.filter(request => request.status === RequestStatus.approved),
+                rejectedRequests: action.payload.Requests.filter(request => request.status === RequestStatus.rejected),
+            };
             state.blockchain = action.payload.Blockchain;
             state.accounts = action.payload.RemoxAccount.accounts;
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
@@ -153,6 +169,11 @@ const remoxDataSlice = createSlice({
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (storage) => storage
+)
+
+export const SelectRequests = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.requests,
+    (requests) => requests
 )
 
 export const SelectCumlativeTxs = createDraftSafeSelector(

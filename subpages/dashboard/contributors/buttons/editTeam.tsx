@@ -1,4 +1,4 @@
-import { IuseContributor } from "rpcHooks/useContributors";
+import { IContributor } from "rpcHooks/useContributors";
 import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
@@ -13,7 +13,7 @@ import {
 import { GetTime } from "utils";
 
 const EditTeam = (
-  props: IuseContributor & { onCurrentModal: Dispatch<boolean> }
+  props: IContributor & { onCurrentModal: Dispatch<boolean> }
 ) => {
   const { register, handleSubmit } = useForm<IFormInput>();
   const { editTeam, isLoading } = useContributors();

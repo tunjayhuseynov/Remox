@@ -1,8 +1,8 @@
-import { IMember, IuseContributor } from "rpcHooks/useContributors";
+import { IMember, IContributor } from "rpcHooks/useContributors";
 import { IRemoxData } from "../remoxData";
 
 export default {
-    addContributor: (state: IRemoxData, action: { payload: IuseContributor[] }) => {
+    addContributor: (state: IRemoxData, action: { payload: IContributor[] }) => {
         if (action.payload !== undefined) {
             state.contributors.push(...action.payload);
         }
@@ -34,7 +34,7 @@ export default {
             }
         }
     },
-    setContributors: (state: IRemoxData, action: { payload: { data: IuseContributor[]; secretKey?: string } }) => {
+    setContributors: (state: IRemoxData, action: { payload: { data: IContributor[]; secretKey?: string } }) => {
         if (action.payload.secretKey !== undefined) {
             const teams = action.payload.data.map((contributor) => ({
                 ...contributor

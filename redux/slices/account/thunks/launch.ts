@@ -5,19 +5,21 @@ import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import type { IRemoxAccountORM } from "pages/api/account/multiple";
 import type { IBudgetExerciseORM } from "pages/api/budget";
 import type { ISpendingResponse } from "pages/api/calculation/spending";
-import type { IuseContributor } from "rpcHooks/useContributors";
+import type { IContributor } from "rpcHooks/useContributors";
 import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
 import { IAccountMultisig } from "pages/api/multisig";
+import { IRequest } from "rpcHooks/useRequest";
 
 type LaunchResponse = {
     RemoxAccount: IRemoxAccountORM,
     Budgets: IBudgetExerciseORM[],
     Spending: ISpendingResponse,
-    Contributors: IuseContributor[],
+    Contributors: IContributor[],
     Blockchain: BlockchainType,
     Storage: IStorage,
     Transactions: IFormattedTransaction[],
+    Requests: IRequest[],
     multisigAccounts: {
         all: IAccountMultisig[],
         multisigTxs: IAccountMultisig["txs"],
@@ -69,14 +71,20 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         }
     });
 
-    const contributors = axios.get<IuseContributor[]>("/api/contributors", {
+    const contributors = axios.get<IContributor[]>("/api/contributors", {
+        params: {
+            id: id,
+        }
+    })
+
+    const requests = axios.get<IRequest[]>("/api/requests", {
         params: {
             id: id,
         }
     })
 
 
-    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions]);
+    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests]);
     
 
     const accounts = accountRes.data;
@@ -121,6 +129,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         Blockchain: blockchain,
         Storage: storage,
         Transactions: transactionsRes.data,
+        Requests: requestRes.data,
         multisigAccounts: {
             all: multisigAccounts,
             multisigTxs: multisigRequests,

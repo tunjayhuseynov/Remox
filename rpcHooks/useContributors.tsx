@@ -12,7 +12,7 @@ export enum DateInterval {
   monthly = "monthly",
 }
 
-export interface IuseContributor {
+export interface IContributor {
   id: string;
   userId: string;
   name: string;
@@ -49,7 +49,7 @@ export interface IMember {
 
 export default function useContributors() {
   const storage = useNextSelector(selectStorage)
-  const { data } = useFirestoreReadMultiple<IuseContributor>("contributors", [
+  const { data } = useFirestoreReadMultiple<IContributor>("contributors", [
     {
       firstQuery: "userId",
       condition: "==",
