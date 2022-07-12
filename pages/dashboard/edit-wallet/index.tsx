@@ -9,6 +9,7 @@ import { useWalletKit } from "hooks";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter } from "next/router";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -27,15 +28,19 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
     const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
     const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-
+    const navigate = useRouter()
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
         const photo = file;
         console.log(data, photo)
     }
 
-    return (
-        <div className="flex flex-col  w-1/2  mx-auto items-center justify-center gap-7">
+    return (<div className="w-full mx-auto relative">
+        <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
+            <span className="text-4xl pb-1">&#171;</span> Back
+        </button>
+        <div className="flex flex-col  w-1/2  mx-auto items-center justify-center gap-7 ">
+
             <div className="text-2xl font-bold pb-2 pt-5">Edit Wallet</div>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-8">
                 <div className="flex flex-col gap-1">
@@ -67,7 +72,7 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                     <div className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond bg-greylish bg-opacity-30">{AddressReducer(selectedAccount)}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-x-10 pt-5 justify-center">
-                    <Button version="second" className="px-8 py-2 rounded-md" onClick={() => { onDisable(false) }}>
+                    <Button version="second" className="px-8 py-2 rounded-md" onClick={() => navigate.back()} >
                         Close
                     </Button>
                     <Button type='submit' className="px-8 py-2 rounded-md"  >
@@ -76,6 +81,7 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
                 </div>
             </form>
         </div>
+    </div>
     )
 }
 

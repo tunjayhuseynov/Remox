@@ -6,7 +6,6 @@ import useNextSelector from "hooks/useNextSelector";
 import useStorage from "hooks/storage/useStorage";
 import AllWallets from "./allWallets";
 import Modal from 'components/general/modal'
-import NewWalletModal from "./newWalletModal";
 import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
 import { SelectStats } from "redux/slices/account/remoxData";
@@ -49,7 +48,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
             <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
                 <div className="flex justify-between w-full">
                     <div className="text-2xl font-semibold">Connected Wallets</div>
-                    <Button className="text-xs sm:text-base !py-0 !px-7 !rounded-xl" onClick={() => {
+                    <Button className="text-xs sm:text-base !py-0 !px-7 " onClick={() => {
                         route.push("/dashboard/new-wallet?secondAnimation=true")
                     }}>+ Add Wallet</Button>
                 </div>

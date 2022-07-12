@@ -9,6 +9,7 @@ import { selectDarkMode } from "redux/slices/notificationSlice";
 import { useAppSelector } from '../../../redux/hooks';
 import { TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
+import { useRouter } from 'next/router';
 
 const variants = {
     black: {
@@ -58,17 +59,15 @@ const Assets = () => {
     const prevBalance = useRef(selectBalance)
     const darkMode = useSelector(selectDarkMode)
     const [style, setStyle] = useState({});
-    const [text, setText] = useState('Tokens')
 
     let totalBalance = useAppSelector(SelectTotalBalance)
     let balance;
     if (totalBalance !== undefined) balance = parseFloat(`${totalBalance}`).toFixed(2)
     const balanceRedux = useAppSelector(SelectBalances)
+    const navigate = useRouter()
+    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
 
 
-    const CoinType = () => {
-
-    }
 
     const TypeCoin = [
         {
@@ -83,13 +82,13 @@ const Assets = () => {
         }
 
     ]
-    const paymentdata = [
+    const assetType = [
         {
-            to: "",
+            to: "/dashboard/assets",
             text: "Tokens"
         },
         {
-            to: "",
+            to: "/dashboard/assets?index=1&secondAnimation=true",
             text: "NFTs"
         }
     ]
@@ -117,13 +116,13 @@ const Assets = () => {
             <div className="font-bold text-4xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
-                    <AnimatedTabBar data={paymentdata} index={0} setText={setText} />
+                    <AnimatedTabBar data={assetType} index={0} className={'text-2xl'}/>
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
-                    <div className="font-bold text-2xl">{text === "Tokens" ? 'Token Balances' : "NFT Balances"}</div>
-                    {text === "Tokens" ? <div className="font-bold text-2xl">{(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <Loader />}</div> : <div className="font-bold text-2xl">$143.2</div>}
+                    <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
+                    {index === 0 ? <div className="font-bold text-2xl">{(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <Loader />}</div> : <div className="font-bold text-2xl">$143.2</div>}
                 </div>
-                {text === "Tokens" ? <div className=" pb-5 ">
+                {index === 0 ? <div className=" pb-5 ">
                     {TypeCoin.map((i, index) => {
                         return <div key={index}>
                             <div className="flex items-center justify-between py-3">

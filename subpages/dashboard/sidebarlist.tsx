@@ -36,7 +36,7 @@ const Sidebarlist = () => {
     }
 
     return <>
-        <ul className="pt-24">
+        <ul className="pt-20">
             <NavLink to="/dashboard" end={true} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><DashboardSVG active={isActive} darkMode={darkMode} />Dashboard</Li>}</NavLink>
             {blockchain !== "solana" && <>
                 <NavLink to="/dashboard/payroll" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li><PayrollSVG active={isActive} darkMode={darkMode} />Payroll</Li>}</NavLink>
