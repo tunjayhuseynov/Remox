@@ -99,7 +99,7 @@ function ChooseBudget() {
                     <Button version="second" className={'!py-2 px-9 w-full rounded-xl'} onClick={() => { navigator.back() }}>Close</Button>
                     {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}
                     <div className="w-full">
-                        <Button type="submit" className={'!py-2 px-10 w-full rounded-xl'} onClick={() => { }}>Next</Button>
+                        <Button type="submit" className={'!py-2 px-10 w-full rounded-xl'} onClick={() => { navigator.push("/dashboard/pay")}}>Next</Button>
                     </div>
                 </div>
             </div>
