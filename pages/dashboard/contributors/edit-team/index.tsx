@@ -3,7 +3,7 @@ import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { changeError, changeSuccess } from "redux/slices/notificationSlice";
-import Button from "../../../components/button";
+import Button from "../../../../components/button";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IFormInput } from "../add-team";
 import {
@@ -26,7 +26,6 @@ const EditTeam = (
     if (data.name.trim()) {
       try {
         setError(false);
-
         await editTeam(props.id, data.name.trim());
         dispatch(updateContributor({ name: data.name.trim(), id: props.id }));
         navigate.back()

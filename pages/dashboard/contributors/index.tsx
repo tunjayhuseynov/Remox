@@ -57,8 +57,8 @@ const Contributors = () => {
                     Contributors
                 </div>
                 <div className={`pt-2 flex ${contributors.length > 0 && 'gap-5'} `}>
-                    <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/add-team?secondAnimation=true')}>Add Team</Button>
-                    {contributors.length > 0 && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/add-member?secondAnimation=true')}>Add People</Button>}
+                    <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-team?secondAnimation=true')}>Add Team</Button>
+                    {contributors.length > 0 && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-member?secondAnimation=true')}>Add People</Button>}
                 </div>
             </div>
             {/* <button className="px-5 py-2 bg-greylish bg-opacity-5 rounded-xl">
@@ -69,7 +69,7 @@ const Contributors = () => {
             </div>
         </div>
 
-        {index !== 4 ? <div className="w-full  pt-4 pb-6">
+        {index !== 4 && contributors.filter(w => w.members && w.members.length > 0)  ? <div className="w-full  pt-4 pb-6">
             <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[17%,15%,19%,19%,17%,23%] rounded-xl bg-light  dark:bg-dark  sm:mb-5 pl-10">
                 <div className="font-semibold py-3">Name</div>
                 <div className="font-semibold py-3 hidden lg:block">Team</div>
@@ -81,10 +81,10 @@ const Contributors = () => {
             <div>
                 {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w}  index={index}/></Fragment> : undefined)}
                 {contributors.map(w => w && (!w?.members || w?.members?.length === 0) ? <Fragment key={w.id}><TeamContainer {...w} index={index} /></Fragment> : undefined)}
-                {contributors.length === 0 && isContributorFetched && <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+                {/* {contributors.filter(w => w.members && w.members.length === 0) && <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
                     <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
                     <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
-                </div>}
+                </div>} */}
             </div>
         </div> : <div className="flex flex-wrap gap-16">
             {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={generate()}><TeamContainer {...w} index={index} /></Fragment> : undefined)}
@@ -92,7 +92,7 @@ const Contributors = () => {
         </div>
 
         }
-
+{/* length === 0 && isContributorFetched &&  */}
 
 
 

@@ -30,7 +30,7 @@ export interface IFormInput {
     role: string;
 }
 
-export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
+export default () => {
     const navigate = useRouter()
     const { register, handleSubmit } = useForm<IFormInput>();
     const [userIsUpload, setUserIsUpload] = useState<boolean>(true);
@@ -149,9 +149,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             };
 
             await addMember(Team.id!, sent);
-
             dispatch(addMemberToContributor({ id: Team.id!, member: sent }));
-
             navigate.back()
         } catch (error: any) {
             console.error(error);
@@ -293,7 +291,7 @@ export default ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                     </div>
                     {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
                     <div className="grid grid-cols-2 gap-x-10 justify-center">
-                        <Button type="submit" version="second" className="px-8 py-3" onClick={() => { onDisable(false) }}>
+                        <Button type="submit" version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
                         <Button type="submit" className="px-8 py-3" isLoading={isLoading || loading || allowLoading}>

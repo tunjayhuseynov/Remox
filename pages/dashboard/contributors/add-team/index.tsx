@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "redux/hooks"
-import Button from "../../../components/button";
+import Button from "../../../../components/button";
 import useContributors from "hooks/useContributors";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IContributor } from "rpcHooks/useContributors";
@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 export interface IFormInput {
     name: string;
 }
-const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
+const AddTeams = () => {
     const navigate = useRouter()
     const { register, handleSubmit } = useForm<IFormInput>();
     const { addTeam, isLoading } = useContributors()
@@ -35,7 +35,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
                 }   
                 await addTeam(team);
                 dispatch(addContributor([team]));
-                onDisable(false)
+                navigate.back()
             } catch (error) {
                 console.error(error)
                 setError(true)
@@ -58,7 +58,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             {error && <div className="text-red-600"> Something went wrong</div>}
         </div>
         <div className="flex  gap-x-10 justify-center w-full">
-            <Button version="second" onClick={() => onDisable(false)} className="px-14 !py-2 font-light">
+            <Button version="second" onClick={() => navigate.back()} className="px-14 !py-2 font-light">
                 Close
             </Button>
             <Button type="submit" isLoading={isLoading} className="px-14 !py-2 font-light">
