@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "redux/hooks"
-import Button from "../../../../components/button";
+import Button from "../../../components/button";
 import useContributors from "hooks/useContributors";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IContributor } from "rpcHooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { GetTime } from "utils";
 import { addContributor , SelectStorage } from "redux/slices/account/remoxData";
+import { useRouter } from 'next/router';
 
 export interface IFormInput {
     name: string;
 }
 const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
+    const navigate = useRouter()
     const { register, handleSubmit } = useForm<IFormInput>();
     const { addTeam, isLoading } = useContributors()
     const [error, setError] = useState(false)
@@ -41,7 +43,12 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         }
     }
 
-    return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
+    return <div className="w-full mx-auto relative">
+    <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
+    {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+    <span className="text-4xl pb-1">&#171;</span> Back
+</button>
+     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
         <div className="text-2xl self-center pt-5 font-semibold ">Enter Your Team</div>
         <div className="flex flex-col w-[85%]">
             <div>Team Name</div>
@@ -59,6 +66,7 @@ const AddTeams = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
             </Button>
         </div>
     </form>
+    </div>
 }
 
 export default AddTeams;

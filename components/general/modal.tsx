@@ -11,10 +11,9 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
 
     useEffect(() => {
         if (openNotify) {
-            setMainAnimate(1)
+        
             document.querySelector('body')!.style.overflowY = "hidden"
         } else {
-            setMainAnimate(0)
             document.querySelector('body')!.style.overflowY = ""
         }
 

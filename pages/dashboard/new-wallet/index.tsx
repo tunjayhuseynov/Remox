@@ -68,7 +68,6 @@ function NewWalletModal() {
             {/* <img src="/icons/cross_greylish.png" alt="" /> */}
             <span className="text-4xl pb-1">&#171;</span> Back
         </button>
-
         <div className=" w-1/2 mx-auto sm:flex flex-col items-center justify-center ">
             <div className=" text-center w-full pt-4">
                 <div className="text-2xl font-bold">Add New Wallet</div>

@@ -68,7 +68,7 @@ const Sidebar = () => {
 
     return <>
         <div className="h-full hidden md:block z-[1] md:col-span-2 w-[17.188rem] flex-none fixed pt-28 bg-light dark:bg-dark">
-            <div className="grid grid-rows-[100%,1fr] pb-4 pl-4 lg:pl-10 h-full">
+            <div className="grid grid-rows-[95%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 <div className="absolute  flex items-center gap-5 ">
                     <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {
                         setItem(w)
@@ -76,7 +76,7 @@ const Sidebar = () => {
                 </div>
                 <div>
                     <Siderbarlist />
-                    <Button className="px-8 !py-1 ml-7  min-w-[60%] !rounded-xl" onClick={() => {
+                    <Button className="px-8 !py-1 ml-7  min-w-[60%]" onClick={() => {
                         navigator.push("/dashboard/choose-budget")
                     }}>Send</Button>
 

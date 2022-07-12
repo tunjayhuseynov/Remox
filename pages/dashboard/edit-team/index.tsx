@@ -3,14 +3,15 @@ import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { changeError, changeSuccess } from "redux/slices/notificationSlice";
-import Button from "../../../../components/button";
+import Button from "../../../components/button";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { IFormInput } from "./addTeam";
+import { IFormInput } from "../add-team";
 import {
   SelectContributors,
   updateContributor,
 } from "redux/slices/account/remoxData";
 import { GetTime } from "utils";
+import { useRouter } from "next/router";
 
 const EditTeam = (
   props: IContributor & { onCurrentModal: Dispatch<boolean> }
@@ -20,7 +21,7 @@ const EditTeam = (
   const [error, setError] = useState(false);
   const [input, setInput] = useState<string>("");
   const dispatch = useAppDispatch();
-
+  const navigate = useRouter()
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     if (data.name.trim()) {
       try {
@@ -28,6 +29,7 @@ const EditTeam = (
 
         await editTeam(props.id, data.name.trim());
         dispatch(updateContributor({ name: data.name.trim(), id: props.id }));
+        navigate.back()
       } catch (error) {
         console.error(error);
         setError(true);
@@ -35,10 +37,14 @@ const EditTeam = (
     }
   };
 
-  return (
+  return (<div className="w-full mx-auto relative">
+    <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
+      {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+      <span className="text-4xl pb-1">&#171;</span> Back
+    </button>
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col items-center justify-center space-y-10"
+      className="flex flex-col w-[35%] mx-auto  pt-24 items-center justify-center space-y-10"
     >
       <div className="flex items-center justify-center text-xl">
         <div className="text-2xl self-center pt-2 font-semibold ">
@@ -62,7 +68,7 @@ const EditTeam = (
           version="second"
           className="px-14 !py-2 font-light"
           onClick={() => {
-            props.onCurrentModal(false);
+            navigate.back()
           }}
         >
           Close
@@ -76,6 +82,7 @@ const EditTeam = (
         </Button>
       </div>
     </form>
+  </div>
   );
 };
 
