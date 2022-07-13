@@ -12,7 +12,7 @@ export default function AnimatedTabBar({ data, index, className }: { data: { to:
             {
                 data.map((item, i) => {
                     return <div key={i}>
-                        <Link href={`${item.to}`}>
+                        <Link href={`${item.to}`} replace={true}>
                             <span className="relative">
                                 <motion.div className={`${className} transition-all hover:!text-primary hover:transition-all tiflex gap-x-3  cursor-pointer pb-2 text-base font-bold  tracking-widertle relative  ${i === selected ? "selected text-primary" : "text-[#aaaaaa]   dark:text-[#aaaaaa] "}`} onClick={() => setSelected(i)} >
                                     <span className="">{item.text}</span>

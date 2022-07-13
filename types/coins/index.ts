@@ -8,7 +8,7 @@ export interface AltCoins {
 	type: TokenType;
 	contractAddress: string;
 	color: string;
-	decimals?: number;
+	decimals: number;
 }
 
 export enum TokenType {

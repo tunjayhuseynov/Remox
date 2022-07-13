@@ -1,22 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
 import Modal from 'components/general/modal';
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
-import { changeAccount, SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { DropDownItem } from 'types';
 import Create from '../multisig/create';
 import Button from 'components/button';
 import useMultisig, { SolanaMultisigData } from 'hooks/walletSDK/useMultisig';
-import { BiLogOut } from 'react-icons/bi'
-import useMultiWallet from 'hooks/useMultiWallet';
-import { WordSplitter } from 'utils';
 import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
-import Pay from 'subpages/pay/pay';
-
-import useNextSelector from 'hooks/useNextSelector';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccountType } from 'redux/slices/account/remoxData';
 
@@ -77,7 +70,7 @@ const Sidebar = () => {
                 <div>
                     <Siderbarlist />
                     <Button className="px-8 !py-1 ml-7  min-w-[60%]" onClick={() => {
-                        navigator.push("/dashboard/choose-budget")
+                        navigator.push("/dashboard/choose-budget?page=pay")
                     }}>Send</Button>
 
                 </div>

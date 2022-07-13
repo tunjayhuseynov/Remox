@@ -1,80 +1,48 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
-import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";
 import { useDispatch } from "react-redux";
-import { addPayInput, changePayInput, removePayInput, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
-import { generate } from "shortid";
+import { changeAddress, changeAmount, changeName, changeSecondAmount, changeSecondWallet, changeWallet, IPayInput, removePayInput, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
 import { useSelector } from "react-redux";
-import Loader from "components/Loader";
-import Paydropdown from '../../subpages/pay/paydropdown';
 
-const Input = ({ incomingIndex, index, stream, request = false, setSelectedType, onChangeType }: { incomingIndex: string, index: number, stream?: boolean, request?: boolean, setSelectedType?: Dispatch<SetStateAction<boolean>>, onChangeType?: (value: boolean) => void }) => {
+const Input = ({ payInput, index, stream, request = false, setSelectedType, onChangeType }: { payInput: IPayInput, index: number, stream?: boolean, request?: boolean, setSelectedType?: Dispatch<SetStateAction<boolean>>, onChangeType?: (value: boolean) => void }) => {
     const { GetCoins } = useWalletKit()
     const dispatch = useDispatch()
 
     const isBasedOnDollar = useSelector(SelectIsBaseOnDollar)
     const inputAmounts = useSelector(SelectInputAmount)
-    const [value, setValue] = useState('Pay with Token Amounts')
-    const [id] = useState<string>(incomingIndex)
-    const [name, setName] = useState<string>("")
-    const [surname, setSurname] = useState<string>("")
-    const [address, setAddress] = useState<string>("")
-    const [amount, setAmount] = useState<number>()
-    const [wallet, setWallet] = useState<DropDownItem>()
+    const coins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
 
-    const [amount2, setAmount2] = useState<number>()
-    const [wallet2, setWallet2] = useState<DropDownItem>()
 
     const [anotherToken, setAnotherToken] = useState(false)
 
-    useEffect(() => {
-        dispatch(changePayInput({
-            index: id,
-            name,
-            surname,
-            address,
-            amount,
-            wallet,
-            amount2,
-            wallet2,
-        }))
-    }, [name, surname, address, amount, wallet, amount2, wallet2])
 
-    const paymentname = ["Pay with USD-based Amounts", "Pay with Token Amounts"]
 
     return <>
-
         <div className="flex flex-col">
             <span className="text-left text-sm pb-1 ml-1"> {request ? "First Name" : "Receiver Name"} <span className="text-greylish" >(Optional)</span> </span>
-            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={name} type="text" name={`name__${index}`} onChange={(e) => { setName(e.target.value) }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
+            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={payInput.name} type="text" name={`name__${index}`}
+                onChange={(e) => { dispatch(changeName({ index: payInput.index, name: e.target.value })) }} />
         </div>
-        {request && <><div className="flex flex-col ">
-            <span className="text-left text-sm pb-1 ml-1"> Last Surname<span className="text-greylish"> (Optional)</span> </span>
-            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="Surname" defaultValue={surname} type="text" name={`name__${index}`} onChange={(e) => { setSurname(e.target.value) }} /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
-        </div>
-            <div className="flex flex-col">
-                <span className="text-left pb-2 ml-1">Amount Type</span>
-                <Paydropdown setSelectedType={setSelectedType} onChangeType={onChangeType} paymentname={paymentname} value={value} setValue={setValue} />
-            </div> </>}
         <div className="flex flex-col">
             <div className="flex relative">
                 <span className="text-left text-sm pb-1 ml-1" >{request ? "Wallet Adress" : "Receiver Wallet Adress"}</span>
                 <div className="absolute -top-[-3.75rem] -right-[2rem]">
                     {inputAmounts > 1 && <BsFillTrashFill className="text-red-500 cursor-pointer w-5 h-5" onClick={() => {
-                        dispatch(removePayInput(id))
-                        //setRefreshPage(generate())
+                        dispatch(removePayInput(payInput.index))
                     }} />}
-                </div></div>
-            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="0x30....c40d263" defaultValue={address} type="text" name={`address__${index}`} onChange={(e) => { setAddress(e.target.value) }} required /> {/* onBlur={(e) => setRefreshPage(generate())}*/}
+                </div>
+            </div>
+            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="0x30....c40d263" defaultValue={payInput.address} type="text" name={`address__${index}`} onChange={(e) => { dispatch(changeAddress({ index: payInput.index, address: e.target.value })) }} required />
         </div>
         <div className="flex flex-col ">
             <span className="text-left text-sm m pb-1 ml-1" >Token</span>
-            {!wallet && !GetCoins ? <Loader /> : <Dropdown className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md" onSelect={val => {
-                setWallet(val)
-            }} nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
-            {!anotherToken && (index === 0 || request) && <div className="text-primary text-sm cursor-pointer pt-4" onClick={() => setAnotherToken(true)}>
+            {<Dropdown className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md" onSelect={val => dispatch(changeWallet({ index: payInput.index, wallet: val }))} nameActivation={true} selected={payInput.wallet ?? coins[0]} list={coins} />}
+            {!anotherToken && (index === 0 || request) && <div className="text-primary text-sm cursor-pointer pt-4" onClick={() => {
+                setAnotherToken(true)
+                dispatch(changeSecondWallet({ index: payInput.index, wallet: coins[0] }))
+            }}>
                 <span className="flex gap-2 bg-opacity-5 font-semibold  pl-1 text-center rounded-xl ">
                     <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token
                 </span>
@@ -82,26 +50,24 @@ const Input = ({ incomingIndex, index, stream, request = false, setSelectedType,
         </div>
         <div className="flex flex-col ">
             <span className="text-left text-sm m pb-1 ml-1" >Amount</span>
-            {stream && index === 1 ? <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border   bg-gray-300 dark:bg-gray-600 dark:border-darkSecond  text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                <input className="outline-none unvisibleArrow  bg-gray-300 dark:bg-gray-600 pl-2 dark:text-white" readOnly defaultValue={amount} type="number" name={`amount__${index}`} />
+            {stream && index === 1 ? <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border bg-gray-300 dark:bg-gray-600 dark:border-darkSecond  text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+                <input className="outline-none unvisibleArrow  bg-gray-300 dark:bg-gray-600 pl-2 dark:text-white" readOnly defaultValue={payInput.amount} type="number" name={`amount__${index}`} />
                 {isBasedOnDollar && <span className="text-xs self-center bg-white dark:bg-darkSecond  text-right opacity-70 dark:text-white">USD as</span>}
             </div> : <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border  bg-white dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                <input className="outline-none unvisibleArrow bg-white pl-2 dark:bg-darkSecond dark:text-white" placeholder="Your Amount here" defaultValue={amount} type="number" name={`amount__${index}`} onChange={(e) => {
-                    setAmount(Number(e.target.value))
+                <input className="outline-none unvisibleArrow bg-white pl-2 dark:bg-darkSecond dark:text-white" placeholder="Your Amount here" defaultValue={payInput.amount} type="number" name={`amount__${index}`} onChange={(e) => {
+                    dispatch(changeAmount({ index: payInput.index, amount: Number(e.target.value) }))
                 }} required step={'any'} min={0} />
                 {isBasedOnDollar && <span className="text-xs self-center bg-white text-right opacity-70 dark:text-white">USD as</span>}
             </div>}
         </div>
-
-
-        {amount2 || anotherToken && <>
+        {(!!(payInput.amount2) || anotherToken) && <>
             <div className="flex flex-col ">
                 <span className="text-left text-sm pb-1 ml-1" >Token</span>
-                {!wallet2 && !GetCoins ? <Loader /> : <Dropdown className="sm:h-[3rem] bg-white dark:bg-darkSecond border text-sm !rounded-md" onSelect={val => {
-                    setWallet2(val)
-                }} nameActivation={true} selected={wallet2 ?? Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} />}
+                <Dropdown className="sm:h-[3rem] bg-white dark:bg-darkSecond border text-sm !rounded-md" onSelect={val => {
+                    dispatch(changeSecondWallet({ index: payInput.index, wallet: val }))
+                }} nameActivation={true} selected={payInput.wallet2 ?? coins[0]} list={coins} />
             </div>
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
                 <div className="flex justify-between relative">
                     <span className="text-left text-sm pb-1 ml-2" >Amount</span>
                     <div className="absolute  -top-[-2.75rem] -right-[2rem]">
@@ -109,26 +75,19 @@ const Input = ({ incomingIndex, index, stream, request = false, setSelectedType,
                             setAnotherToken(false)
                             //setRefreshPage(generate())
                         }} />}
-                    </div></div>
-                {stream && index === 1 ?
-                    <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-gray-300 border dark:border-darkSecond dark:bg-gray-300 text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                        <input className="outline-none unvisibleArrow bg-gray-300 dark:bg-gray-600 pl-2 dark:text-white" readOnly defaultValue={amount2} type="number" name={`amount__${index + 1}`} />
-                        {isBasedOnDollar && <span className="text-xs  self-center opacity-70 dark:text-white">USD as</span>}
                     </div>
-                    :
+                </div>
+                <div>
+                    {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
                     <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-white border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                        <input className="outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white" placeholder="Your Amount here" defaultValue={amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
-                            setAmount2(Number(e.target.value))
+                        <input className={`${stream && index === 1 ? "bg-gray-300 dark:bg-gray-600" : ""} outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white`} readOnly={stream && index === 1} placeholder="Your Amount here" defaultValue={payInput.amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
+                            dispatch(changeSecondAmount({ index: payInput.index, amount: Number(e.target.value) }))
                         }} step={'any'} min={0} />
-                        {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
                     </div>
-                }
+                </div>
             </div>
         </>
-
         }
-
-
     </>
 }
 export default Input;

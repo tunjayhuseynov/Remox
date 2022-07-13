@@ -2,6 +2,7 @@ import { GOKI_ADDRESSES, GOKI_IDLS, Programs } from "@gokiprotocol/client";
 import { newProgramMap } from "@saberhq/anchor-contrib";
 import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { SolanaSerumEndpoint } from "components/Wallet";
 import { Contract, ethers } from "ethers";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -21,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (blockchain === 'solana') {
             const pb = new PublicKey(multisigAddress)
 
-            const connection = new Connection("https://solana-api.projectserum.com", "finalized");
+            const connection = new Connection(SolanaSerumEndpoint, "finalized");
             const provider = new SolanaReadonlyProvider(connection)
 
             const allAddresses = { ...GOKI_ADDRESSES, SmartWallet: pb };

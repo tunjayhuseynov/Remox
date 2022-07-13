@@ -15,6 +15,7 @@ import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
 import { lamport } from "utils/ray";
 import { u64 } from "@saberhq/token-utils";
 import { GetTime } from "utils";
+import { SolanaSerumEndpoint } from "components/Wallet";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ITransactionMultisig[]>) {
@@ -28,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             const pb = new PublicKey(multisigAddress)
 
-            const connection = new Connection("https://solana-api.projectserum.com", "finalized");
+            const connection = new Connection(SolanaSerumEndpoint, "finalized");
             const provider = new SolanaReadonlyProvider(connection)
 
             const allAddresses = { ...GOKI_ADDRESSES, SmartWallet: pb };

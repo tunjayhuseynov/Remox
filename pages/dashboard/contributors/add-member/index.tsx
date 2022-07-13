@@ -291,7 +291,7 @@ export default () => {
                     </div>
                     {/* {isError && <Error onClose={(val)=>dispatch(changeError({activate: val, text: ''}))} />} */}
                     <div className="grid grid-cols-2 gap-x-10 justify-center">
-                        <Button type="submit" version="second" className="px-8 py-3" onClick={() => navigate.back()}>
+                        <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
                         <Button type="submit" className="px-8 py-3" isLoading={isLoading || loading || allowLoading}>

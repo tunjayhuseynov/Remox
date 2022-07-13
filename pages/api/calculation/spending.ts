@@ -3,10 +3,12 @@ import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from 
 import { NextApiRequest, NextApiResponse } from "next";
 import date from 'date-and-time'
 import axios from "axios";
-import { ATag } from "subpages/dashboard/insight/boxmoney";
 import { Tag } from "rpcHooks/useTags";
 import { FirestoreRead } from "rpcHooks/useFirebase";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
+
+export type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
+
 
 export interface IFlowDetail {
     [key: string]: number,

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createDraftSafeSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { generate } from 'shortid';
 import { DropDownItem } from "types/dropdown";
 import type { RootState } from '../store'
@@ -9,7 +9,7 @@ export interface IPayInput {
     surname?: string;
     address?: string;
     amount?: number;
-    wallet?: DropDownItem;
+    wallet: DropDownItem;
     amount2?: number;
     wallet2?: DropDownItem;
 }
@@ -21,10 +21,8 @@ interface IPayInputs {
 }
 
 const PayInputs: IPayInputs = {
-    inputs: [
-        { index: generate() }
-    ],
-    inputAmount: 1,
+    inputs: [],
+    inputAmount: 0,
     isBasedOnDollar: false,
 }
 
@@ -49,28 +47,81 @@ const PayInputSlice = createSlice({
                 input.wallet2 = action.payload.wallet2;
             }
         },
-        addPayInput: (state, action: { payload: IPayInput }) => {
+        changeWallet: (state: IPayInputs, action: { payload: { index: string, wallet: DropDownItem } }) => {
+            const { index, wallet } = action.payload;
+            const input = state.inputs.find(i => i.index === index);
+            if (input) {
+                input.wallet = wallet;
+            }
+        },
+        changeSecondWallet: (state: IPayInputs, action: { payload: { index: string, wallet: DropDownItem } }) => {
+            const { index, wallet } = action.payload;
+            const input = state.inputs.find(i => i.index === index);
+            if (input) {
+                input.wallet2 = wallet;
+            }
+        },
+        changeAmount: (state: IPayInputs, action: { payload: { index: string, amount: number } }) => {
+            const { index, amount } = action.payload;
+            const input = state.inputs.find(i => i.index === index);
+            if (input) {
+                input.amount = amount;
+            }
+        },
+        changeSecondAmount: (state: IPayInputs, action: { payload: { index: string, amount: number } }) => {
+            const { index, amount } = action.payload;
+            const input = state.inputs.find(i => i.index === index);
+            if (input) {
+                input.amount2 = amount;
+            }
+        },
+        changeAddress: (state: IPayInputs, action: { payload: { index: string, address: string } }) => {
+            const { index, address } = action.payload;
+            const input = state.inputs.find(i => i.index === index);
+            if (input) {
+                input.address = address;
+            }
+        },
+        changeName: (state: IPayInputs, action: { payload: { index: string, name: string } }) => {
+            const { index, name } = action.payload;
+            const input = state.inputs.find(i => i.index === index);
+            if (input) {
+                input.name = name;
+            }
+        },
+        addPayInput: (state: IPayInputs, action: { payload: IPayInput }) => {
             state.inputs.push(action.payload)
             state.inputAmount += 1
         },
-        removePayInput: (state, action: { payload: string }) => {
+        removePayInput: (state: IPayInputs, action: { payload: string }) => {
             state.inputs = state.inputs.filter(input => input.index !== action.payload)
             state.inputAmount -= 1
         },
-        resetPayInput: (state) => {
+        resetPayInput: (state: IPayInputs) => {
             state.inputs = [
-                {index: generate()}
+
             ]
-            state.inputAmount = 1
+            state.inputAmount = 0
             state.isBasedOnDollar = false
         }
     }
 })
 
-export const { addPayInput, removePayInput, changePayInput, changeBasedValue, resetPayInput } = PayInputSlice.actions
+export const {
+    addPayInput, removePayInput, changeName, changeSecondAmount, changeSecondWallet, changeWallet,
+    changePayInput, changeBasedValue, resetPayInput, changeAddress, changeAmount } = PayInputSlice.actions
 
-export const SelectInputs = (state: RootState) => state.payInputs.inputs;
-export const SelectIsBaseOnDollar = (state: RootState) => state.payInputs.isBasedOnDollar;
-export const SelectInputAmount = (state: RootState) => state.payInputs.inputAmount;
+export const SelectInputs = createDraftSafeSelector(
+    (state: RootState) => state.payInputs.inputs,
+    (inputs) => inputs
+);
+export const SelectIsBaseOnDollar = createDraftSafeSelector(
+    (state: RootState) => state.payInputs.isBasedOnDollar,
+    (isBasedOnDollar) => isBasedOnDollar
+);
+export const SelectInputAmount = createDraftSafeSelector(
+    (state: RootState) => state.payInputs.inputAmount,
+    (inputAmount) => inputAmount
+);
 
 export default PayInputSlice.reducer;

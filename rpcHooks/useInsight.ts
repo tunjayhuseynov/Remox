@@ -1,11 +1,10 @@
 import { auth } from 'firebaseConfig'
 import { useWalletKit } from 'hooks'
-import { IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/spending'
+import { ATag, IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/spending'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useLazyGetAccountSpendingQuery } from 'redux/api'
 import { setAccountRawStats } from 'redux/slices/account/accountstats'
-import { ATag } from 'subpages/dashboard/insight/boxmoney'
 
 
 export default function useInsight({ selectedDate, selectedAccounts }: { selectedDate: number, selectedAccounts: string[] }) {

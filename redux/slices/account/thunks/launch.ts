@@ -10,6 +10,7 @@ import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
 import { IAccountMultisig } from "pages/api/multisig";
 import { IRequest } from "rpcHooks/useRequest";
+import { Tag } from "rpcHooks/useTags";
 
 type LaunchResponse = {
     RemoxAccount: IRemoxAccountORM,
@@ -20,6 +21,7 @@ type LaunchResponse = {
     Storage: IStorage,
     Transactions: IFormattedTransaction[],
     Requests: IRequest[],
+    Tags: Tag[],
     multisigAccounts: {
         all: IAccountMultisig[],
         multisigTxs: IAccountMultisig["txs"],
@@ -83,8 +85,14 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         }
     })
 
+    const tags = axios.get<Tag[]>("/api/tags", {
+        params: {
+            id: id,
+        }
+    })
 
-    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests]);
+
+    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags]);
     
 
     const accounts = accountRes.data;
@@ -130,6 +138,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         Storage: storage,
         Transactions: transactionsRes.data,
         Requests: requestRes.data,
+        Tags: tagsRes.data,
         multisigAccounts: {
             all: multisigAccounts,
             multisigTxs: multisigRequests,

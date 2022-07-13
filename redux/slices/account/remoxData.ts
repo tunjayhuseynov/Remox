@@ -13,12 +13,15 @@ import ContributorsReducers from './reducers/contributors'
 import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
+import TagReducers from './reducers/tag'
+import RequestReducers from './reducers/requests'
 import { IAccountORM } from "pages/api/account";
 import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk } from "./thunks/account";
-import { IMember } from "firebaseConfig";
+import { IAccount, IBudget, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
+import { Tag } from "rpcHooks/useTags";
 
 export type IAccountType = "individual" | "organization";
 
@@ -37,6 +40,7 @@ export interface IMultisigStats {
 // Bizim webapp'in merkezi datalari
 export interface IRemoxData {
     isFetching: boolean;
+    tags: Tag[],
     stats: ISpendingResponse | null; // +
     budgetExercises: IBudgetExerciseORM[], // +
     contributors: IContributor[], // +
@@ -55,12 +59,18 @@ export interface IRemoxData {
     multisigStats: IMultisigStats | null,
     transactions: IFormattedTransaction[],
     cumulativeTransactions: (IFormattedTransaction | ITransactionMultisig)[],
+    selectedAccountAndBudget: {
+        account: IAccount | null,
+        budget: IBudget | null,
+        subbudget: ISubBudget | null,
+    }
 }
 
 const init = (): IRemoxData => {
     return {
         isFetching: true,
         stats: null,
+        tags: [],
         budgetExercises: [],
         contributors: [],
         requests: {
@@ -78,6 +88,11 @@ const init = (): IRemoxData => {
         providerID: null,
         transactions: [],
         cumulativeTransactions: [],
+        selectedAccountAndBudget: {
+            account: null,
+            budget: null,
+            subbudget: null,
+        }
     }
 }
 
@@ -91,6 +106,8 @@ const remoxDataSlice = createSlice({
         ...BlockchainReducers,
         ...AccountsReducer,
         ...StorageReducers,
+        ...TagReducers,
+        ...RequestReducers,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
         },
@@ -99,6 +116,16 @@ const remoxDataSlice = createSlice({
         },
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
+        },
+        setSelectedAccountAndBudget: (state: IRemoxData, action: { payload: { account: IAccount | null, budget: IBudget | null, subbudget: ISubBudget | null } }) => {
+            state.selectedAccountAndBudget = action.payload;
+        },
+        deleteSelectedAccountAndBudget: (state: IRemoxData) => {
+            state.selectedAccountAndBudget = {
+                account: null,
+                budget: null,
+                subbudget: null,
+            }
         }
     },
     extraReducers: builder => {
@@ -139,6 +166,7 @@ const remoxDataSlice = createSlice({
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
             state.storage = action.payload.Storage;
             state.transactions = action.payload.Transactions;
+            state.tags = action.payload.Tags;
 
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
@@ -171,6 +199,11 @@ export const SelectStorage = createDraftSafeSelector(
     (storage) => storage
 )
 
+export const SelectSelectedAccountAndBudget = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.selectedAccountAndBudget,
+    (selectedAccountAndBudget) => selectedAccountAndBudget
+)
+
 export const SelectRequests = createDraftSafeSelector(
     (state: RootState) => state.remoxData.requests,
     (requests) => requests
@@ -199,6 +232,11 @@ export const SelectID = createDraftSafeSelector(
 export const SelectAccounts = createDraftSafeSelector(
     (state: RootState) => state.remoxData.accounts,
     (accounts) => accounts
+)
+
+export const SelectSingleAccounts = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.accounts,
+    (accounts) => accounts.filter(account => account.signerType === "single")
 )
 
 export const SelectBlockchain = createDraftSafeSelector(
@@ -250,10 +288,16 @@ export const SelectIsRemoxDataFetching = createDraftSafeSelector(
     (isFetching) => isFetching
 )
 
+export const SelectTags = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.tags,
+    (tags) => tags
+)
 
 
 
 export const {
+    addApprovedRequest, addPendingRequest, addRejectedRequest, removeApprovedRequest, removePendingRequest, removeRejectedRequest,
+    addTag, removeTag, updateTag, addTransactionHashToTag, removeTransactionHashFromTag, setTags,
     setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor,
     addBudget, addBudgetExercise, addSubBudget, deleteBudget, deleteBudgetExercise,
     deleteSubBudget, setBudgetExercises, updateBudget, updateBudgetExercise, updateSubBudget,
@@ -261,7 +305,8 @@ export const {
     addAccount, addOwner, addTx, removeAccount, removeOwner, setThreshold,
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
     addMemberToContributor, removeMemberFromContributor, setProviderAddress,
-    setProviderID, updateContributor
+    setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
+
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

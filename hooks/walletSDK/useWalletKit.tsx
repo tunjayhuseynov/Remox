@@ -275,26 +275,7 @@ export default function useWalletKit() {
         if (blockchain === 'celo') {
             return await Pay({ coin, amount, recipient, comment })
         } else if (blockchain === 'solana' && publicKey && signAllTransactions && signTransaction) {
-            let params: any = {
-                fromPubkey: publicKey,
-                toPubkey: new PublicKey(recipient),
-                lamports: toLamport(amount),
-            };
-
-            if (coin.contractAddress) {
-                const user = spl.Wallet.fromWallet(connection, {
-                    publicKey,
-                    signAllTransactions,
-                    signTransaction
-                })
-                return await user.transferToken(new PublicKey(coin.contractAddress), new PublicKey(recipient), Number(amount))
-            }
-
-            const transaction = new Transaction().add(SystemProgram.transfer(params))
-
-            const signature = await sendTransaction(transaction, connection);
-
-            return await connection.confirmTransaction(signature, 'processed');
+            
         }
     }, [blockchain, publicKey, address])
 

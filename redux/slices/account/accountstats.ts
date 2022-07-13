@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ISpendingResponse } from "pages/api/calculation/spending";
+import { ATag, ISpendingResponse } from "pages/api/calculation/spending";
 import { RootState } from "redux/store";
-import { ATag } from "subpages/dashboard/insight/boxmoney";
 
 
 

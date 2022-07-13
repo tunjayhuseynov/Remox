@@ -1,18 +1,18 @@
-import { useState, useRef, useEffect, SyntheticEvent, useContext } from "react";
-import shortid, { generate } from 'shortid'
+import { useState, useRef, useEffect, SyntheticEvent, useMemo } from "react";
+import { generate } from 'shortid'
 import { MultipleTransactionData } from "types/sdk";
 import { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { selectStorage } from "redux/slices/account/storage";
 import Input from "subpages/pay/payinput";
 import { useAppDispatch } from "redux/hooks";
-import { changeError, selectDarkMode, selectError } from "redux/slices/notificationSlice";
+import { changeError, selectDarkMode } from "redux/slices/notificationSlice";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
-import { SelectBalances, SelectTotalBalance } from "redux/slices/currencies";
+import { SelectBalances } from "redux/slices/currencies";
 import Button from "components/button";
 import { PaymentInput } from "rpcHooks/useCeloPay";
 import useMultisig from 'hooks/walletSDK/useMultisig'
-import Select, { StylesConfig } from 'react-select';
+import Select from 'react-select';
 import { Tag } from "rpcHooks/useTags";
 import { selectTags } from "redux/slices/tags";
 import { AltCoins, Coins } from "types";
@@ -26,66 +26,57 @@ import { DropDownItem } from 'types';
 import { useForm, SubmitHandler } from "react-hook-form";
 import Dropdown from 'components/general/dropdown';
 import { colourStyles, SelectType } from "utils/const";
+import { SelectSelectedAccountAndBudget, SelectStats, SelectTags } from "redux/slices/account/remoxData";
+import useLoading from "hooks/useLoading";
 
 export interface IFormInput {
-    nftAddress?: string;
-    nftTokenId?: number;
-    name?: string;
-
+    description?: string;
 }
 
 const Pay = () => {
-    const { register, handleSubmit } = useForm<IFormInput>();
-    const storage = useSelector(selectStorage)
-    const selectedAccount = useSelector(SelectSelectedAccount)
+    let totalBalance = useAppSelector(SelectStats)?.TotalBalance
+    const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
+    const walletBalance = useSelector(SelectBalances)
+    const tags = useSelector(SelectTags)
+    const dark = useSelector(selectDarkMode)
     const MyInputs = useSelector(SelectInputs)
+
+    let balance = parseFloat(`${totalBalance ?? 0}`).toFixed(2)
+
+
+    const { register, handleSubmit } = useForm<IFormInput>();
     const [stream, setStream] = useState(false)
 
     const dispatch = useAppDispatch()
     const router = useRouter();
-    const { GetCoins, blockchain, SendTransaction, SendBatchTransaction } = useWalletKit()
-
-    const balance = useSelector(SelectBalances)
-    const prevBalance = useRef(balance)
+    const { GetCoins, SendTransaction, SendBatchTransaction } = useWalletKit()
 
     const { submitTransaction } = useMultisig()
 
-    const [isPaying, setIsPaying] = useState(false)
-    const [isSuccess, setSuccess] = useState(false)
-    const [selectedType, setSelectedType] = useState(false)
     const [selectedTags, setSelectedTags] = useState<Tag[]>([])
 
-    const tags = useSelector(selectTags)
-    const dark = useSelector(selectDarkMode)
 
     const [csvImport, setCsvImport] = useState<csvFormat[]>([]);
 
     const fileInput = useRef<HTMLInputElement>(null);
 
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })
-    const paymentname: DropDownItem[] = [{ name: "CELO" }, { name: "SOLANA" }]
-    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-    const paymentname2: DropDownItem[] = [{ name: "Security" }, { name: "Development" }]
-    const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
-    const paymentname3: DropDownItem[] = [{ name: "Pay with USD-based Amounts" }, { name: "Pay with Token Amounts" }]
-    const [selectedPayment3, setSelectedPayment3] = useState(paymentname3[0])
-    const paymentname4: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
-    const [selectedPayment4, setSelectedPayment4] = useState(paymentname4[0])
+    const amountTypeList: DropDownItem[] = [{ name: "Pay with Token Amounts", id: 0 }, { name: "Pay with USD-based Amounts", id: 1 }]
+    const [selectedAmountType, setSelectedAmountType] = useState(amountTypeList[0])
+
+
+    const timeInterval: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
+    const [selectedTimeInterval, setSelectedTimeInterval] = useState(timeInterval[0])
+    const coins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
 
     useEffect(() => {
+        dispatch(addPayInput({
+            index: generate(),
+            wallet: coins[0]
+        }))
         return () => {
             dispatch(resetPayInput())
         }
     }, [])
-
-    let totalBalance = useAppSelector(SelectTotalBalance)
-    let balance2;
-    if (totalBalance !== undefined) balance2 = parseFloat(`${totalBalance}`).toFixed(2)
-    const balanceRedux = useAppSelector(SelectBalances)
-
-    useEffect(() => {
-        prevBalance.current = balance
-    }, [balance])
 
 
 
@@ -115,17 +106,21 @@ const Pay = () => {
 
     const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
-        setIsPaying(true)
-
         try {
+            const account = selectedAccountAndBudget.account
+
+            if (!account) {
+                throw new Error("No account selected")
+            }
+
             const result: Array<MultipleTransactionData> = []
 
             for (let index = 0; index < MyInputs.length; index++) {
                 const one = MyInputs[index]
                 if (one.address && one.amount && one.wallet?.name) {
                     let amount = one.amount;
-                    if (selectedType) {
-                        let value = (balance[one.wallet.name as keyof typeof balance]?.tokenPrice ?? 1)
+                    if (selectedAmountType.id === 1) {
+                        let value = (walletBalance[one.wallet.name as keyof typeof walletBalance]?.tokenPrice ?? 1)
                         amount = amount / value
                     }
                     result.push({
@@ -136,7 +131,7 @@ const Pay = () => {
                 }
             }
             if (!GetCoins) return
-            if (storage?.lastSignedProviderAddress.toLowerCase() === selectedAccount.toLowerCase()) {
+            if (account.signerType === "single") {
                 if (result.length === 1) {
                     // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
                     await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins] as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
@@ -154,7 +149,7 @@ const Pay = () => {
                 }
             } else {
                 if (result.length === 1) {
-                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
+                    await submitTransaction(account.address, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
                 }
                 else if (result.length > 1) {
                     const arr: Array<PaymentInput> = result.map(w => ({
@@ -164,32 +159,16 @@ const Pay = () => {
                         from: true
                     }))
 
-                    await submitTransaction(selectedAccount, arr)
+                    await submitTransaction(account.address, arr)
                 }
             }
-            setSuccess(true);
             //refetch()
 
         } catch (error: any) {
             console.error(error)
             dispatch(changeError({ activate: true, text: error.message }));
         }
-
-        setIsPaying(false);
     }
-
-
-
-
-    const onChange = (value: any) => {
-        setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
-    }
-
-    const onChangeType = (value: boolean) => {
-        setSelectedType(value)
-        dispatch(changeBasedValue(value))
-    }
-
 
     const index = router.query.name ? (router.query.name as string[]).includes("recurring") ? 1 : 0 : 0
 
@@ -204,18 +183,20 @@ const Pay = () => {
         }
     ]
 
-
-
-    const [openNotify, setNotify] = useState(false)
-    const [openNotify2, setNotify2] = useState(false)
+    const onTagChange = (value: any) => {
+        setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
+    }
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
-        const Wallet = selectedItem
-        const Budget = selectedPayment
-        const subBudget = selectedPayment2
-        console.log(Wallet, Budget, subBudget)
+        const Wallet = selectedAccountAndBudget.account
+        const Budget = selectedAccountAndBudget.budget
+        const subBudget = selectedAccountAndBudget.subbudget
+        console.log(MyInputs, data)
 
     }
+
+    const [isLoading, submit] = useLoading(onSubmit)
+
 
     return <>
         <div className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
@@ -224,7 +205,7 @@ const Pay = () => {
                     {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                     <span className="text-4xl pb-1">&#171;</span> Back
                 </button>
-                <form onSubmit={handleSubmit(onSubmit)} >
+                <form onSubmit={handleSubmit(submit)} >
                     <div className="sm:flex flex-col items-center justify-center min-h-screen">
                         <div className="sm:min-w-[50vw] min-h-[75vh] h-auto ">
                             <div className="pt-12 pb-4 text-center w-full">
@@ -237,19 +218,18 @@ const Pay = () => {
                                 <div className={`grid ${index === 1 ? "grid-cols-[30%,30%,40%]" : "grid-cols-[40%,60%]"} `}>
                                     <div className="flex flex-col gap-2 mb-4 border-r">
                                         <div className="font-semibold text-lg text-greylish dark:text-white ">Total Treasury</div>
-                                        <div className="text-2xl font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
+                                        <div className="text-2xl font-bold">{(balance) || (balance !== undefined && parseFloat(balance) === 0) ? `$${balance} USD` : <Loader />}</div>
 
                                     </div>
-                                    {index === 1 && <div className="flex flex-col gap-2 mb-4 border-r">
+                                    {index === 0 && <div className="flex flex-col gap-2 mb-4 border-r">
                                         <div className="font-semibold pl-5 text-lg text-greylish dark:text-white ">Wallet Balance</div>
-                                        <div className="text-xl pl-5  font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
+                                        <div className="text-xl pl-5  font-bold">{(balance) || (balance !== undefined && parseFloat(balance) === 0) ? `$${balance} USD` : <Loader />}</div>
 
                                     </div>}
-                                    <div className="flex flex-col gap-2 mb-4">
+                                    {index === 1 && <div className="flex flex-col gap-2 mb-4">
                                         <div className="font-semibold pl-5 text-lg text-greylish dark:text-white ">Token Allocation</div>
-                                        <div className="text-2xl font-bold">{(balance2 && balanceRedux) || (balance2 !== undefined && parseFloat(balance2) === 0 && balanceRedux) ? `$${balance2} USD` : <Loader />}</div>
-
-                                    </div>
+                                        <div className="text-2xl font-bold">{(balance) || (balance !== undefined && parseFloat(balance) === 0) ? `$${balance} USD` : <Loader />}</div>
+                                    </div>}
                                 </div>
                             </div>
                             <div className="sm:flex flex-col gap-3  py-5 xl:py-10">
@@ -257,12 +237,11 @@ const Pay = () => {
                                     <div className="grid grid-cols-2 gap-8">
                                         <div className="flex flex-col">
                                             <span className="text-left pb-1 text-sm ml-1 font-semibold">Amount Type</span>
-                                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={paymentname3} selected={selectedPayment3} onSelect={(e) => {
-                                                setSelectedPayment3(e)
+                                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={amountTypeList} selected={selectedAmountType} onSelect={(e) => {
+                                                setSelectedAmountType(e)
+                                                dispatch(changeBasedValue(e.id === 1))
                                             }} />
-
                                         </div>
-
                                         <div className="flex flex-col">
                                             <span className="text-left pb-1 text-sm ml-1 font-semibold">Transaction Tags</span>
                                             <div className="w-full  gap-x-3 sm:gap-x-10 ">
@@ -272,7 +251,7 @@ const Pay = () => {
                                                     isClearable={false}
                                                     options={tags.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
                                                     styles={colourStyles(dark)}
-                                                // onChange={onChange}
+                                                    onChange={onTagChange}
                                                 />}
                                                 {tags.length === 0 && <div>No tag yet</div>}
                                             </div>
@@ -283,12 +262,8 @@ const Pay = () => {
                                         {/* <div className="flex space-x-5 sm:space-x-0 sm:justify-between py-4 items-center">
                                         <input ref={fileInput} type="file" className="hidden" onChange={(e) => e.target.files!.length > 0 ? CSV.Import(e.target.files![0]).then(e => setCsvImport(e)).catch(e => console.error(e)) : null} />
                                     </div> */}
-
                                         <div className="grid grid-cols-2  gap-8">
-                                            {MyInputs.map((e, i) => {
-                                                return <Input key={e.index} index={index} stream={stream} incomingIndex={e.index} />
-                                            })
-                                            }
+                                            {MyInputs.map((e, i) => <Input key={e.index} index={index} stream={stream} payInput={e} />)}
                                         </div>
                                     </div>
                                     {index === 1 && <div className="w-full grid grid-cols-2 gap-8">
@@ -313,7 +288,8 @@ const Pay = () => {
                                         {index === 0 ? <div className="w-[50%] flex gap-4">
                                             <Button version="second" className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                                 dispatch(addPayInput({
-                                                    index: shortid()
+                                                    index: generate(),
+                                                    wallet: coins[0]
                                                 }))
                                             }}>
                                                 + Add More
@@ -354,8 +330,8 @@ const Pay = () => {
                                             </div>
                                             <div className="flex flex-col ml-2">
                                                 <span className="text-left text-sm ml-1 font-semibold pb-1">Time interval</span>
-                                                <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg '} className={'!rounded-lg !py-1 h-[2.75rem]'} list={paymentname4} selected={selectedPayment4} onSelect={(e) => {
-                                                    setSelectedPayment4(e)
+                                                <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg '} className={'!rounded-lg !py-1 h-[2.75rem]'} list={timeInterval} selected={selectedTimeInterval} onSelect={(e) => {
+                                                    setSelectedTimeInterval(e)
                                                 }} />
                                             </div>
                                         </div>
@@ -363,14 +339,14 @@ const Pay = () => {
                                     <div className="flex flex-col space-y-3">
                                         <span className="text-left">Description <span className="text-greylish">(Optional)</span></span>
                                         <div className="grid grid-cols-1">
-                                            <textarea placeholder="Paid 50 CELO to Ermak....." className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
+                                            <textarea placeholder="Paid 50 CELO to Ermak....." {...register("description")} className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-center pt-5">
                                     <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
-                                        <Button version="second" onClick={() => setNotify2(false)}>Close</Button>
-                                        <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isPaying}>Send</Button>
+                                        <Button version="second" onClick={() => router.back()}>Close</Button>
+                                        <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading}>Send</Button>
                                     </div>
                                 </div>
                             </div>
