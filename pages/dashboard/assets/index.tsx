@@ -10,6 +10,7 @@ import { useAppSelector } from '../../../redux/hooks';
 import { TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
+import { SetComma } from 'utils';
 
 const variants = {
     black: {
@@ -53,12 +54,23 @@ const variants = {
         }
     }
 }
+export interface INftData {
+    totalBalance: number;
+    nft: {
+        name: string;
+        text: string;
+        currency: number;
+        value: number;
+    }[];
+}
 
 const Assets = () => {
     const selectBalance = useSelector(SelectBalances)
     const prevBalance = useRef(selectBalance)
     const darkMode = useSelector(selectDarkMode)
     const [style, setStyle] = useState({});
+    const [Spot,setSpot] = useState<number>(0)
+    const [Yield,setYield] = useState<number>(0)
 
     let totalBalance = useAppSelector(SelectTotalBalance)
     let balance;
@@ -72,12 +84,12 @@ const Assets = () => {
     const TypeCoin = [
         {
             header: "Spot Assets",
-            balance: "$50.41",
+            balance: 50.41,
             tokenTypes: TokenType.YieldToken,
         },
         {
             header: "Yield Bearing Assets",
-            balance: "$50.41",
+            balance: 50.41,
             tokenTypes: TokenType.YieldToken,
         }
 
@@ -92,54 +104,60 @@ const Assets = () => {
             text: "NFTs"
         }
     ]
-    const nftdata = [
-        {
-            name: "Bored Rmx #31",
-            currency: 71,
-            value: 876,
-        },
-        {
-            name: "Bored Rmx #32",
-            currency: 42,
-            value: 623,
-        },
-        {
-            name: "Bored Rmx #33",
-            currency: 37,
-            value: 945,
-        },
+    const nftdata:INftData = {
+        totalBalance: 3453,
+        nft: [
+            {
+                name: "Bored Rmx #31",
+                text: "Bored Ape Yacht Club",
+                currency: 71,
+                value: 876,
+            },
+            {
+                name: "Bored Rmx #32",
+                text: "Bored Ape Yacht Club",
+                currency: 42,
+                value: 623,
+            },
+            {
+                name: "Bored Rmx #33",
+                text: "Bored Ape Yacht Club",
+                currency: 37,
+                value: 945,
+            },
+        ]
 
-    ]
+    }
 
+console.log(Spot,Yield)
     return <>
         <div className="">
             <div className="font-bold text-4xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
-                    <AnimatedTabBar data={assetType} index={0} className={'text-2xl'}/>
+                    <AnimatedTabBar data={assetType} index={0} className={'text-2xl'} />
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <Loader />}</div> : <div className="font-bold text-2xl">$143.2</div>}
+                    {index === 0 ? <div className="font-bold text-2xl">{(balance && balanceRedux) || (balance !== undefined && parseFloat(balance) === 0 && balanceRedux) ? `$${balance}` : <Loader />}</div> : <div className="font-bold text-2xl">${SetComma(nftdata.totalBalance)}</div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     {TypeCoin.map((i, index) => {
                         return <div key={index}>
                             <div className="flex items-center justify-between py-3">
                                 <div className="font-bold text-lg">{i.header}</div>
-                                <div className="font-bold text-lg">{i.balance}</div>
+                                <div className="font-bold text-lg">${i.balance}</div>
                             </div>
-                             <div id="header" className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  py-4 pl-4">
+                            <div id="header" className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  py-4 pl-4">
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl">Asset</div>
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl">Balance</div>
                                 <div className="hidden font-semibold text-greylish dark:text-white sm:block sm:text-xl">Price</div>
                                 <div className="hidden font-semibold text-greylish dark:text-white sm:block sm:text-xl">24h</div>
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl pl-2">Value</div>
-                            </div> 
+                            </div>
                             {Object.entries(selectBalance).map(([key, item]: [string, IBalanceItem | undefined], index) => {
                                 if (!item && index == 0) return <div key={index} className="flex justify-center py-1  pr-2"> <Loader /></div>
                                 if (!item || (i.header === "Spot Assets" ? item.coins.type === i.tokenTypes : item.coins.type !== i.tokenTypes)) return <Fragment key={index}></Fragment>
-
 
                                 let price = 0;
                                 let per24 = 0;
@@ -162,11 +180,11 @@ const Assets = () => {
                                 }, 200);
 
                                 return item.amount > 0 && <> <div key={index} className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%] pl-4">
-                                   <div className="flex space-x-3 items-center">
+                                    <div className="flex space-x-3 items-center">
                                         <div><img src={item?.coins?.coinUrl} width={20} height={20} alt="" className="rounded-full" /></div>
                                         <div className="font-semibold">{item?.coins?.name}</div>
                                     </div>
-                                    <motion.div className={`font-semibold `}  variants={variants} animate={amount === 0 ? `${darkMode ? "white" : "black"}` : amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
+                                    <motion.div className={`font-semibold `} variants={variants} animate={amount === 0 ? `${darkMode ? "white" : "black"}` : amount > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
                                         {(item.amount || 0).toFixed(2)}
                                     </motion.div>
                                     <motion.div variants={variants} className="hidden sm:block font-semibold" animate={price === 0 ? `${darkMode ? "white" : "black"}` : price > 0 ? `${darkMode ? "greenDark" : "green"}` : `${darkMode ? "redDark" : "red"}`}>
@@ -185,14 +203,15 @@ const Assets = () => {
                                         </div>
                                         <div className="ml-2"> {(item.percent || 0).toFixed(2)}%</div>
                                     </div>
-                                </>}
+                                </>
+                            }
                             )}
                         </div>
                     })}
                 </div> :
 
                     <div className="w-full h-full  grid grid-cols-3 gap-20 ">
-                        {nftdata.map((i, index) => {
+                        {nftdata.nft.map((i, index) => {
                             return <div key={index} className=" h-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
                                 <div className="w-full   rounded-xl">
                                     <img src="/icons/nftmonkey.png" alt="" className="w-full max-h-[16rem] object-cover rounded-xl" />
@@ -200,7 +219,7 @@ const Assets = () => {
                                 <div className="flex justify-between items-center py-3 px-2 border-b dark:border-b-greylish">
                                     <div className="flex flex-col items-start justify-center">
                                         <div className="text-xl font-semibold">{i.name}</div>
-                                        <div className="text-sm text-greylish">Bored Ape Yacht Club</div>
+                                        <div className="text-sm text-greylish">{i.text}</div>
                                     </div>
                                     <div className=" text-xl font-medium flex gap-1">{i.currency} <span><img src="/icons/celoicon.svg" alt="" w-2 h-2 /></span> CELO</div>
                                 </div>

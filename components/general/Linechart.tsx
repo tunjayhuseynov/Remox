@@ -83,7 +83,7 @@ function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: str
     },
   };
 
-  return <div className="flex items-center justify-center h-[80%] w-[80%]  xl:h-full xl:w-full bg-white dark:bg-darkSecond rounded-full">
+  return <div className="flex items-center justify-center h-[80%] w-[80%] box-border xl:h-full xl:w-full bg-white dark:bg-darkSecond rounded-full">
     <ReactApexChart
       options={options}
       series={series}

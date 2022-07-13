@@ -4,10 +4,9 @@ import Dropdown from "../../../../components/general/dropdown";
 import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch } from "redux/hooks";
-import { addSubInput, SelectInputs, resetSubInput, changeSubInput, ISubInput } from "redux/slices/subinput";
 import shortid, { generate } from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
-import Subinput from '../subinput';
+import { useRouter } from 'next/router';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { Coins } from 'types/coins';
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -22,7 +21,7 @@ interface IFormInput {
     amount2?: number;
     subName: string;
 }
-interface IsubInputs {
+export interface IsubInputs {
     id: string;
     name: string;
     amount: number;
@@ -33,7 +32,7 @@ interface IsubInputs {
 }[]
 
 
-function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, setNewBudget: React.Dispatch<boolean>, setSign?: React.Dispatch<boolean> }) {
+function NewBudgets() {
 
     const { register, handleSubmit, setValue } = useForm<IFormInput>();
     const { GetCoins } = useWalletKit()
@@ -41,10 +40,10 @@ function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, set
     const dark = useNextSelector(selectDarkMode)
     const [anotherToken, setAnotherToken] = useState(false)
     const { create_budget } = useBudgetExercise()
-
+    const navigate = useRouter()
     const DropDownCoins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
-    // const [SubAnotherToken, setSubAnotherToken] = useState<boolean>(false)
-
+    const { parentId } = navigate.query as { parentId: string }
+    
     const [wallet, setWallet] = useState<DropDownItem>(DropDownCoins[0])
     const [wallet2, setWallet2] = useState<DropDownItem>(DropDownCoins[0])
 
@@ -53,7 +52,7 @@ function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, set
         const coin2 = wallet2
         const subbudgets = inputs
         console.log(coin, coin2, data, subbudgets);
-
+        
         let secondCoin = null, secondAmount = null, id = generate();
 
         if (data.amount2 && data.amount2 > 0) {
@@ -84,7 +83,7 @@ function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, set
             })),
         })
 
-        setNewBudget(false)
+        navigate.push('/dashboard/budgets')
     }
 
 
@@ -131,8 +130,12 @@ function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, set
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
 
-    return (
-        <div>
+    return <div className="w-full relative pt-20">
+        <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
+            {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+            <span className="text-4xl pb-1">&#171;</span> Back
+        </button>
+        <div className="w-1/2 mx-auto">
             <div className="text-2xl text-center font-bold">Add Budgets</div>
             <form onSubmit={handleSubmit(OnSubmit)} className="px-12 flex flex-col gap-4">
                 <div className="flex flex-col">
@@ -231,12 +234,12 @@ function NewBudgets({ parentId, setNewBudget, setSign }: { parentId: string, set
                 }
                 {inputs.length < 10 && <div className="text-primary border border-primary rounded-lg px-3 py-1 text-center w-[30.8%] transition hover:bg-primary hover:transition hover:text-white cursor-pointer" onClick={addNewInput}  >Add Subbudget</div>}
                 <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8  pt-6">
-                    <Button version="second" className="!rounded-xl" onClick={() => { setNewBudget(false) }}>Cancel</Button>
+                    <Button version="second" className="!rounded-xl" onClick={() => { navigate.back() }}>Cancel</Button>
                     <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading}>Create</Button>
                 </div>
             </form>
         </div>
-    )
+        </div>
 }
 
-export default NewBudgets
+        export default NewBudgets

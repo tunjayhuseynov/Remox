@@ -36,7 +36,7 @@ const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCoun
                     {dataCount === 1 ? "1 Payment" : `${dataCount} Payments`}
                 </div>
                 <div className="text-sm text-greylish">
-                    {method}
+                   - {method}
                     {direction !== undefined && date &&
                         <>
                             {TransactionDirection.Swap === direction ? "Swapped" : ""}

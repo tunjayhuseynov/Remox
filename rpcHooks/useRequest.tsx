@@ -13,14 +13,14 @@ export interface IRequest {
     address: string;
     amount: string;
     currency: CoinsName;
-    secondaryAmount?: string;
-    secondaryCurrency?: CoinsName;
+    secondaryAmount: string | null;
+    secondaryCurrency: CoinsName | null;
 
     requestType: string;
     nameOfService: string;
     serviceDate: number;
-    attachLink?: string;
-    uploadedLink?: string;
+    attachLink: string | null;
+    uploadedLink: string | null;
 
     usdBase: boolean;
     timestamp: number;

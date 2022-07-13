@@ -2,7 +2,6 @@ import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { IRequest, RequestStatus } from "rpcHooks/useRequest"
 import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore"
 import { useState } from "react"
-import { generate } from "shortid"
 
 export default function useRequest() {
 
@@ -33,33 +32,18 @@ export default function useRequest() {
         isLoading(false)
     }
 
-    const addRequest = async (documentId: string, params: Omit<IRequest, "id" | "status" | "timestamp">) => {
+    const addRequest = async (documentId: string, request : IRequest) => {
         isLoading(true)
-        const request: IRequest = {
-            id: generate(),
-            usdBase: params.usdBase,
-            name: params.name,
-            surname:params.surname,
-            address: params.address,
-            amount: params.amount,
-            currency: params.currency,
-
-            requestType: params.requestType,
-            nameOfService: params.nameOfService,
-            serviceDate: params.serviceDate,
-
-            timestamp: Math.floor(new Date().getTime() / 1e3),
-            status: RequestStatus.pending,
+        
+        if (request.secondaryAmount && request.secondaryCurrency) {
+            request.secondaryAmount = request.secondaryAmount
+            request.secondaryCurrency = request.secondaryCurrency
         }
-        if (params.secondaryAmount && params.secondaryCurrency) {
-            request.secondaryAmount = params.secondaryAmount
-            request.secondaryCurrency = params.secondaryCurrency
+        if (request.attachLink) {
+            request.attachLink = request.attachLink
         }
-        if (params.attachLink) {
-            request.attachLink = params.attachLink
-        }
-        if (params.uploadedLink) {
-            request.uploadedLink = params.uploadedLink
+        if (request.uploadedLink) {
+            request.uploadedLink = request.uploadedLink
         }
 
         try {

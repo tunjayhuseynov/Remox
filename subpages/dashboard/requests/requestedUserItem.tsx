@@ -12,6 +12,9 @@ import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
 import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
+import { RequestSlice } from 'redux/slices/requests';
+import { useAppDispatch } from 'redux/hooks';
+  
 
 
 const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,setSelected2 }: { request: IRequest, selected: IRequest[], setSelected: Dispatch<IRequest[]>,selected2: IRequest[], setSelected2: Dispatch<IRequest[]>, payment?: boolean }) => {
@@ -20,7 +23,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
     const [isLoading, setLoading] = useState(false)
     const [detect, setDetect] = useState(true);
     const divRef = useRef<HTMLDivElement>(null)
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
     const { approveRequest, rejectRequest } = useRequest()
     const selectedAccount = useSelector(SelectSelectedAccount)
     const currency = useSelector(SelectCurrencies)
@@ -35,13 +38,12 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
     const Reject = async () => {
         setLoading(true)
         try {
-            await rejectRequest(selectedAccount.toLowerCase(), request)
+            await rejectRequest(request.id, request)
+            
             setLoading(false)
-            dispatch(changeSuccess({ activate: true, text: 'Request rejected' }))
         } catch (error: any) {
             setLoading(false)
             console.error(error.message)
-            dispatch(changeError({ activate: true, text: 'Something went wrong' }))
         }
         setModal(false)
     }
@@ -49,13 +51,11 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
     const Approve = async () => {
         setLoading(true)
         try {
-            await approveRequest(selectedAccount.toLowerCase(), request)
+            await approveRequest(request.id, request)
             setLoading(false)
-            dispatch(changeSuccess({ activate: true, text: 'Request approved' }))
         } catch (error: any) {
             setLoading(false)
             console.error(error.message)
-            dispatch(changeError({ activate: true, text: 'Something went wrong' }))
         }
         setModal(false)
     }
@@ -213,8 +213,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                                             {request?.amount}
                                         </div>
                                         <div className="flex gap-x-2 items-center">
-                                            {request?.currency && GetCoins ? <img src={GetCoins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""}
-                                            {request?.currency  && GetCoins? GetCoins[request.currency as keyof Coins].name : ""}
+                                            {/* {request?.currency && GetCoins ? <img src={GetCoins[request.currency as keyof Coins].coinUrl} className="rounded-xl w-[1.25rem] h-[1.25rem]" /> : ""} */}
+                                            {/* {request?.currency  && GetCoins? GetCoins[request.currency as keyof Coins].name : ""} */}
                                         </div>
                                     </div>
                                 </div>

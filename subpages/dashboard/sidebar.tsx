@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccountType } from 'redux/slices/account/remoxData';
+import { DashboardContext } from 'layouts/dashboard';
 
 const Sidebar = () => {
 
@@ -19,18 +20,22 @@ const Sidebar = () => {
     const { importMultisigAccount } = useMultisig()
     const navigator = useRouter()
     const accountType = useAppSelector(SelectAccountType)
-
+    const [showBar, setShowBar] = useState<boolean>(true)
     const dispatch = useDispatch()
 
     const [isAccountModal, setAccountModal] = useState(false)
     const [isImportModal, setImportModal] = useState(false)
     const [isCreateModal, setCreateModal] = useState(false)
-
-
+    // const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<boolean>> }
+    // if(showBar){
+    //     setMainAnimate(true)
+    // }else{
+    //     setMainAnimate(false)
+    // }
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })
+    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "/icons/nftmonkey" })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -60,19 +65,25 @@ const Sidebar = () => {
     }, [])
 
     return <>
-        <div className="h-full hidden md:block z-[1] md:col-span-2 w-[17.188rem] flex-none fixed pt-28 bg-light dark:bg-dark">
+        <div className={`h-full hidden md:block z-[1] md:col-span-2 transitiion-all ${showBar ? 'w-[17.188rem] ' : 'w-[6rem]'} flex-none fixed pt-28 bg-light dark:bg-dark`}>
             <div className="grid grid-rows-[95%,1fr] pb-4 pl-4 lg:pl-10 h-full">
-                <div className="absolute  flex items-center gap-5 ">
-                    <Dropdown className="min-w-[14.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {
+                {showBar ? <div className="absolute  flex items-center gap-3 ">
+                    <Dropdown className="min-w-[13.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {
                         setItem(w)
                     }} />
-                </div>
+                    <span className="text-white pb-[2px] pr-[2px] bg-greylish transition-all rounded-full text-3xl flex items-center justify-center w-6 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8249;</span>
+                </div> : <div className="absolute -right-12  flex items-center gap-2 ">
+                    <div className="bg-white dark:bg-darkSecond  border rounded-lg flex flex-col items-center justify-center pt-1  min-w-[5rem]  min-h-[4rem]">
+                        <img src={`${selectedItem.photo}.png`} className={`rounded-full w-7 h-7 bg-light dark:bg-greylish`} />
+                        <div className="text-[1rem] font-semibold ">{selectedItem.name.slice(0,8)+'.'}</div>
+                        <div className="text-[0.75rem] text-greylish dark:text-white font-semibold">{selectedItem.totalValue}</div>
+                    </div>
+                    <span className="text-white pb-[2px] pl-[8px] bg-greylish transition-all rounded-full text-3xl flex items-center  px-2 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8250;</span></div>}
                 <div>
-                    <Siderbarlist />
+                    <Siderbarlist showbar={showBar}/>
                     <Button className="px-8 !py-1 ml-7  min-w-[60%]" onClick={() => {
                         navigator.push("/dashboard/choose-budget?page=pay")
                     }}>Send</Button>
-
                 </div>
 
             </div>

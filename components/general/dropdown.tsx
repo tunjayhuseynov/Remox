@@ -28,7 +28,7 @@ const variants = {
 const Li = forwardRef<HTMLLIElement, { children: Array<any> | any, onClick: MouseEventHandler, className: string, style?: React.CSSProperties | undefined }>(function Li({ children, onClick, className, style }, ref) { return <li ref={ref} style={style} onClick={onClick} className={`${className} text-left border dark:border-darkSecond last:rounded-b-xl first:rounded-t-xl px-3 py-2 bg-white dark:bg-darkSecond dark:hover:bg-dark dark:text-white hover:bg-gray-200 cursor-pointer`}>{children}</li> })
 
 export const DropDownViewer = ({ parentClass, displayName, name, totalValue, coinUrl, className, photo, disableAddressDisplay, photoDisplay }: { photoDisplay?: boolean, parentClass?: string, displayName?: string, name?: string, totalValue?: string, address?: string, coinUrl?: CoinsURL, className?: string, disableAddressDisplay?: boolean, photo?: string }) => <>
-    {photoDisplay && name !== "Add Organization" && totalValue && photo ? <img src={`/icons/${photo && photo}.png`} className={`rounded-full w-10 h-10 bg-light dark:bg-greylish`} /> : photoDisplay && name !== "Add Organization" && totalValue && <div className="rounded-full w-10 h-10 bg-light dark:bg-greylish"></div>}
+    {photoDisplay && name !== "Add Organization" && totalValue && photo ? <img src={`${photo && photo}.png`} className={`rounded-full w-10 h-10 bg-light dark:bg-greylish`} /> : photoDisplay && name !== "Add Organization" && totalValue && <div className="rounded-full w-10 h-10 bg-light dark:bg-greylish"></div>}
     <div className={`${parentClass ?? ""} flex flex-col`}>
 
         {displayName && <div className="items-center text-sm text-greylish opacity-80">
