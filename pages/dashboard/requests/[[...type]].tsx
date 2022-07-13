@@ -8,14 +8,18 @@ import AnimatedTabBar from 'components/animatedTabBar';
 import DynamicRequest from 'subpages/dashboard/requests/dynamicRequests';
 import { useRouter } from 'next/router';
 import { BASE_URL } from 'utils/api';
+import { useAppSelector } from 'redux/hooks';
+import { SelectBlockchain, SelectStorage } from 'redux/slices/account/remoxData';
 
 export default function RequestLayout() {
     const [modalVisibility, setModalVisible] = useState(false)
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
     const selectedAccount = useSelector(SelectSelectedAccount)
+    const selectedBlockchain = useAppSelector(SelectBlockchain)
+    const storage = useAppSelector(SelectStorage);
     const { type } = useRouter().query as { type: string[] | undefined }
-
+    
     const data = [
         {
             to: "/dashboard/requests",
@@ -55,11 +59,11 @@ export default function RequestLayout() {
                     </div>
                     <div className="bg-greylish bg-opacity-10 flex justify-between items-center   w-1/2 rounded-xl">
                         <div className="truncate w-3/4 py-2 pl-1">
-                            {BASE_URL}/requests/{selectedAccount}
+                            {BASE_URL}/requests/id={storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin={selectedBlockchain}
                         </div>
                         <div ref={setDivRef}>
                         <Button  className="!py-1 px-2   tracking-wider flex items-center"onClick={() => {
-                            navigator.clipboard.writeText(BASE_URL + "/requests/" + selectedAccount)
+                            navigator.clipboard.writeText(BASE_URL + "/requests/?" + `id=${storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin=${selectedBlockchain}` )
                             setTooltip(true)
                             setTimeout(() => {
                                 setTooltip(false)

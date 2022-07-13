@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useAppSelector } from "redux/hooks"
 import { SelectBalances } from "redux/slices/currencies"
 import { changeError, selectError, changeSuccess } from "redux/slices/notificationSlice"
-import { SelectRequests } from "redux/slices/requests"
+import { SelectRequests } from "redux/slices/account/remoxData"
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount"
 import { selectStorage } from "redux/slices/account/storage"
 import RequestedUserItem from "subpages/dashboard/requests/requestedUserItem"
@@ -31,6 +31,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
 
 
+    
     const [aprovedActive, setAprovedActive] = useState(false);
     const [modal, setModal] = useState(false)
     const [requestmodal, setRequestModal] = useState(false)
@@ -55,13 +56,11 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
         page = RequestStatus.rejected
     }
 
-    let selector = useSelector(SelectRequests)
-    const penders = page === RequestStatus.pending ? selector.pending : page === RequestStatus.approved ? selector.approved : selector.rejected
-    console.log(penders)
+    let selector = useAppSelector(SelectRequests)
+    const penders = page === RequestStatus.pending ? selector.pendingRequests : page === RequestStatus.approved ? selector.approvedRequests : selector.rejectedRequests
     const [selected, setSelected] = useState<IRequest[]>([]);
     const [selected2, setSelected2] = useState<IRequest[]>([]);
     const balance = useAppSelector(SelectBalances)
-    const storage = useAppSelector(selectStorage)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { GetCoins } = useWalletKit()
 
