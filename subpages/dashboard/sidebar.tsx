@@ -71,7 +71,7 @@ const Sidebar = () => {
                     <Dropdown className="min-w-[13.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {
                         setItem(w)
                     }} />
-                    <span className="text-white pb-[2px] pr-[2px] bg-greylish transition-all rounded-full text-3xl flex items-center justify-center w-6 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8249;</span>
+                    {/* <span className="text-white pb-[2px] pr-[2px] bg-greylish transition-all rounded-full text-3xl flex items-center justify-center w-6 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8249;</span> */}
                 </div> : <div className="absolute -right-12  flex items-center gap-2 ">
                     <div className="bg-white dark:bg-darkSecond  border rounded-lg flex flex-col items-center justify-center pt-1  min-w-[5rem]  min-h-[4rem]">
                         <img src={`${selectedItem.photo}.png`} className={`rounded-full w-7 h-7 bg-light dark:bg-greylish`} />

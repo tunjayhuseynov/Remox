@@ -31,7 +31,7 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
     return <>
 
         <div onClick={() => { setNotify(!openNotify) }}>
-            <img src="/icons/next_budgets.png" alt="" className="w-10 h-10 cursor-pointer" />
+            <span className="text-white pb-[3px]  bg-primary transition-all rounded-full text-5xl flex items-center justify-center w-8 h-8 cursor-pointer hover:bg-[#ff5413] hover:transition-all">&#8250;</span>
         </div>
         <AnimatePresence>
             {openNotify &&
