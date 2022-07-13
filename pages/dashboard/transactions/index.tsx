@@ -9,7 +9,7 @@ import _ from "lodash";
 import { selectTags } from "redux/slices/tags";
 import { WalletDropdown } from "components/general/walletdropdown"
 import { TransactionDirectionDeclare } from "utils";
-import { useWalletKit } from "hooks";
+import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { selectDarkMode } from "redux/slices/notificationSlice";
@@ -21,6 +21,7 @@ import { InView, useInView } from 'react-intersection-observer'
 import { SelectCumlativeTxs as SelectCumulativeTxs, SelectMultisig, SelectProviderAddress, SelectTransactions } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import Loader from "components/Loader";
+import { motion, AnimatePresence } from "framer-motion"
 
 const Transactions = () => {
     const selectedAccount = useAppSelector(SelectProviderAddress)
@@ -46,7 +47,7 @@ const Transactions = () => {
     const list = useAppSelector(SelectTransactions)
 
     const [changedAccount, setChangedAccount] = useState<string[]>([])
-
+    const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
     return <>
         <div>
             <div className="flex flex-col space-y-5 gap-14" >
@@ -82,12 +83,12 @@ const Transactions = () => {
                             </div>
                         </>
                         <div className="relative">
-                            <div onClick={() => setOpen(!isOpen)} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
+                            <div ref={exceptRef} onClick={() => setOpen(!isOpen)} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                                 <img className={`w-[1.5rem] h-[1.5rem] !m-0`} src={darkMode ? '/icons/filter_white.png' : '/icons/filter.png'} alt='Import' />
                             </div>
-                            {isOpen && <div className='absolute bg-white dark:bg-darkSecond  w-[26rem] h-[15rem] rounded-xl sm:-right-0 -bottom-1 translate-y-full shadow-xl z-50'>
+                            {isOpen &&  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={filterRef} className='absolute bg-white dark:bg-darkSecond  w-[30rem] h-[18rem] rounded-2xl sm:-right-0 -bottom-1 translate-y-full shadow-xl z-50'>
                                 <Filter />
-                            </div>}
+                            </motion.div>}
                         </div>
                     </div>
                 </div>
@@ -113,7 +114,7 @@ const Transactions = () => {
                                 }
                                 if ((tx as IFormattedTransaction)['hash']) {
                                     const txData = (tx as IFormattedTransaction)
-                                    return <ProcessAccordion {...obj} key={txData.rawData.hash} transaction={txData} accounts={changedAccount} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[22%,26%,30%,22%]"} color={"bg-white dark:bg-darkSecond"} />
+                                    return <ProcessAccordion {...obj} key={txData.rawData.hash} transaction={txData} accounts={changedAccount} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[18%,30%,30%,22%]"} color={"bg-white dark:bg-darkSecond"} />
                                 } else {
                                     const txData = (tx as ITransactionMultisig)
                                     return <MultisigTx key={(txData.timestamp?.toString() ?? Math.random().toString()) + txData.data}  {...obj} Address={Address!} GetCoins={GetCoins} tx={tx as ITransactionMultisig} />
@@ -179,8 +180,8 @@ const MultisigTx = forwardRef<HTMLDivElement, { Address: string, GetCoins: Coins
         return acc + w;
     }, '')
 
-    return <Accordion ref={ref} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[28%,26.5%,45.5%]"} dataCount={1} method={method} status={tx.executed ? TransactionStatus.Completed : tx.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}>
-        <div className="grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[28.5%,26%,25%,20.5%] min-h-[75px] py-6 items-center">
+    return <Accordion ref={ref} grid={"grid-cols-[22%,48%,30%] sm:grid-cols-[26%,28.5%,45.5%]"} dataCount={1} method={method} status={tx.executed ? TransactionStatus.Completed : tx.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}>
+        <div className="grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[26.5%,28%,25%,20.5%] min-h-[75px] py-6 items-center">
             <div>
                 {tx.executed ? <div className="text-white bg-green-500 border-2 border-green-500 rounded-xl px-3 py-1 text-center text-xs w-[125px]">Submitted</div> : null}
                 {tx.executed ? null : tx.confirmations.includes(Address!) ? <div className="text-white bg-primary border-2 border-primary rounded-xl px-3 py-1 text-center text-xs max-w-[175px]">You&apos;ve Confirmed</div> : <div className="border-2 text-center border-primary  px-3 py-1 rounded-xl text-xs max-w-[175px]">You&apos;ve not confirmed yet</div>}

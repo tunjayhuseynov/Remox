@@ -57,110 +57,35 @@ const RequestId = () => {
         DropDownCoins[0]
     );
     const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>();
-    const [amount, setAmount] = useState<number>(0);
-    const [amount2, setAmount2] = useState<number>(0);
     const paymentname3: DropDownItem[] = [
         { name: "Pay with Token Amounts" },
         { name: "Pay with USD-based Amounts" },
     ];
     const [selectedPayment3, setSelectedPayment3] = useState(paymentname3[0]);
-
     const [file, setFile] = useState<File>()
     const [selectedType, setSelectedType] = useState(false)
     const [serviceDate, setServiceDate] = useState<Date>(new Date());
-    // const MyInput = useSelector(SelectInputs)[0]
-
-    const dispatch = useDispatch()
     const router = useRouter();
 
     const [modal, setModal] = useState(false)
 
 
     const [result, setResult] = useState<Omit<IRequest, "id" | "status" | "timestamp">>()
-
-    useEffect(() => {
-        if (data) {
-            dispatch(updateAllCurrencies(data))
-        }
-    }, [])
-
+ // useEffect(() => {
+    //     if (data) {
+    //         dispatch(updateAllCurrencies(data))
+    //     }
+    // }, [])
     const [currentCurrency, setCurrentCurrency] = useState<ICoinMembers>(currency)
-
-
     useEffect(() => {
         if (currency) {
             setCurrentCurrency(currency)
         }
     }, [currency])
 
-    // const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
-    //     e.preventDefault()
-    //     const { requestType, nameService, attachLink } = e.target as HTMLFormElement;
 
-    //     const request = requestType.value
-    //     const serviceName = nameService.value
-    //     const link = attachLink.value
 
-    //     const amount = MyInput.amount
-    //     const name = MyInput.name
-    //     const surname = MyInput.surname
-    //     const address = MyInput.address
-    //     const wallet = MyInput.wallet
-    //     if (!isAddress(address ?? "") && !address?.includes('.nom')) {
-    //         toast.error(<div className="dark:text-white"><strong>Address is invalid</strong> <br /> Please, use valid address or Nomspace name</div>, {
-    //             position: "top-right",
-    //             autoClose: 5000,
-    //             hideProgressBar: false,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             progress: undefined,
-    //             bodyClassName: "dark:border-darkSecond dark:bg-darkSecond",
-    //             className: "dark:bg-darkSecond",
-    //         });
-    //         return
-    //     }
-    //     if (request && serviceName && startDate && amount && address && wallet && wallet.name) {
-    //         setResult({
-    //             address,
-    //             amount: amount.toFixed(4),
-    //             currency: wallet.name as CoinsName,
-    //             name: name ?? "",
-    //             surname: surname ?? "",
-    //             requestType: request,
-    //             nameOfService: serviceName,
-    //             serviceDate: startDate.getTime(),
-    //             attachLink: link ?? "",
-    //             secondaryAmount: MyInput.amount2 ? MyInput.amount2.toFixed(4) : undefined,
-    //             secondaryCurrency: MyInput.wallet2?.name as CoinsName | undefined,
-    //             usdBase: selectedType,
-    //             uploadedLink: file?.name ?? undefined
-    //         })
-
-    //         setModal(true)
-    //     }
-
-    // }
-    // const onChangeType = (value: boolean) => {
-    //     setSelectedType(value)
-    //     dispatch(changeBasedValue(value))
-    // }
-
-    // const Send = async () => {
-    //     if (result) {
-    //         try {
-    //             await addRequest(id.toLowerCase(), result)
-    //             setModal(false)
-    //             dispatch(changeSuccess({ activate: true, text: "Request has been sent" }))
-    //             router.push("/dashboard")
-    //         } catch (error: any) {
-    //             console.error(error.message)
-    //             setModal(false)
-    //             dispatch(changeError({ activate: true, text: error.message ?? "Something went wrong" }))
-    //         }
-    //     }
-    // }
-    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => { 
         const Invoice = file;
         const Wallet = selectedWallet;
         const Wallet2 = selectedWallet2;
@@ -227,7 +152,7 @@ const RequestId = () => {
                                         <div className="text-greylish">Amount</div>
                                         <div className={`border w-full text-black py-1 h-full bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
                                             {selectedType && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
-                                            <input type="number" {...register("amount", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond py-2  dark:text-white " required step={'any'} min={0} onChange={(e) => { setAmount(parseInt(e.target.value)) }} />
+                                            <input type="number" {...register("amount", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond py-2  dark:text-white " required step={'any'} min={0} />
                                         </div>
                                     </div>
                                 </div>
@@ -243,13 +168,10 @@ const RequestId = () => {
                                         <div className="text-greylish">Amount</div>
                                         <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
                                             {selectedType && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
-                                            <input type="number" {...register("amount2", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 py-2 bg-white dark:bg-darkSecond dark:text-white" step={'any'} min={0} onChange={(e) => { setAmount2(parseInt(e.target.value)) }} />
+                                            <input type="number" {...register("amount2", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 py-2 bg-white dark:bg-darkSecond dark:text-white" step={'any'} min={0}  />
                                         </div>
                                         </div>
                                     </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}> <span className="px-2 text-primary border-primary ">+</span> Add another token</div>}
-                                {/* <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                                    <Input incomingIndex={MyInput.index} />
-                                </div> */}
                                 <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                                     <span className="text-left text-2xl font-bold tracking-wide">Details</span>
                                     <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-10 sm:gap-y-7">
@@ -266,7 +188,7 @@ const RequestId = () => {
                                                 Name of service
                                             </div>
                                             <div>
-                                                <input type="text" name="nameService" className="mb-0 sm:w-full sm:h-[3.15rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
+                                                <input type="text"  {...register('serviceName',{required:true})} className="mb-0 sm:w-full sm:h-[3.15rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none" required />
                                             </div>
                                         </div>
                                         <div className="flex flex-col space-y-1">

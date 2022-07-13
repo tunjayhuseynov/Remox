@@ -24,7 +24,7 @@ const Navbar = () => {
 
     return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr] gap-12 pl-4 pr-20">
         <div className="h-[50px] flex justify-center md:justify-start items-center  lg:pl-6">
-            <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
+            <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="165" />
         </div>
         <div className="hidden md:block place-self-end">
             <div className="flex gap-x-5">

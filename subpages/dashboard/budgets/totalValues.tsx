@@ -41,7 +41,7 @@ function TotalValues({ total }: { total: IBudgetExerciseORM }) {
                 </div>
             </div>
             <div className="flex items-center justify-center">
-                <TotalDetails total={total} />
+                {total.budgets.length > 0 &&<TotalDetails total={total} />}
             </div>
         </div>
     </div>

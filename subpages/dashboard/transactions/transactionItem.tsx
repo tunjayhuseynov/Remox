@@ -23,8 +23,6 @@ import { useAppSelector } from "redux/hooks";
 const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
 
     const [detect, setDetect] = useState(true);
-    const [details, setDetails] = useState(false)
-    const [value, setValue] = useState('Marketing')
 
     const currencies = useAppSelector(SelectCurrencies)
 
@@ -39,6 +37,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const [Transaction, setTransaction] = useState(transaction);
     const [IsMultiple, setIsMultiple] = useState(isMultiple);
     const { GetCoins, fromMinScale } = useWalletKit()
+    const [budgetSelected, setBudgetSelected] = useState(true);
     const router = useRouter()
     const darkMode = useSelector(selectDarkMode)
 
@@ -105,24 +104,20 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
             <div className="flex space-x-3 items-center overflow-hidden">
                 <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} ${!isSwap && !IsMultiple && ''} justify-center`}>
                     <div className={`bg-greylish bg-opacity-10 ${detect ? "w-[2.813rem] h-[2.813rem] text-lg" : "w-[1.563rem] h-[1.563rem] text-xs"} flex items-center justify-center rounded-full font-bold `}>
-                        {!isSwap ? <span> {isComment ? (Comment as string).slice(0, 2) : "Un"} </span> : <span>S</span>}
+                        {!isSwap ? <span> {isComment ? (Comment as string).slice(0, 2) : "T V"} </span> : <span>S</span>}
                     </div>
                 </div>
                 <div className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"} items-start `}>
                     <div className="text-greylish text-base font-semibold dark:text-white">
                         {!isSwap ? <span> {isComment ? `${Comment}` : "Treasury Vault"} </span> : <span> Swap </span>}
                     </div>
-                    {/* {peer && !isSwap && <div className="text-sm text-greylish dark:text-white">
-                        {AddressReducer(peer)}
-                    </div>} */}
                 </div>
             </div>
-            {detect &&
-                //   <Paydropdown className2={''} className={''} paymentname={paymentname}  value={value} setValue={setValue} />
-                <Dropdown parentClass={' w-[65%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]'} childClass={'rounded-lg  bg-light dark:bg-darkSecond'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+            {detect && <>
+                {budgetSelected ? <div className="w-1/2  bg-light dark:bg-darkSecond rounded-lg border-2 py-1 px-2">{(paymentname[0].name).slice(0,8)+'.'}</div> :  <Dropdown className={'w-[70%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]'} childClass={' w-[70%]  !z-[9999] rounded-lg  bg-light dark:bg-darkSecond'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
                     setSelectedPayment(e)
-                }} />
-
+                }} />}
+            </>
             }
             <div className="flex items-center  gap-1"><img src={`/icons/${type2Ref.current?.innerText.toLowerCase()}.png`} className="rounded-full w-[2.5rem] h-[2.5rem]" />
                 {detect && <div className="">
@@ -150,7 +145,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                                 {TransactionDirection.AutomationIn === direction ? "Receive (A)" : ""}
                                 {TransactionDirection.Out === direction ? "Remox" : ""}
                             </>
-                            }
+                        }
                         </div>
                         </span>
                     </div>

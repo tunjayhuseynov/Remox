@@ -72,10 +72,10 @@ export function NegativeChart({ data, type, chartDate, setChartDate,box=true }: 
     <div className="w-full  pr-4 py-3 pl-2  flex justify-between items-center">
       <div className=" font-medium text-lg text-greylish dark:text-white tracking-wide">Cash In/Out</div>
       <div className="flex gap-3 ">
-        <span className={` ${chartDate === "week" && '!text-primary text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide text-sm`} onClick={() => setChartDate("week")}>1W</span>
-        <span className={` ${chartDate === "month" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white  text-opacity-40 tracking-wide text-sm`} onClick={() => setChartDate("month")}>1M</span>
-        <span className={` ${chartDate === "quart" && '!text-primary text-opacity-100'} text-greylish hover:!text-primary cursor-pointer dark:text-white text-opacity-40 tracking-wide text-sm`} onClick={() => setChartDate("quart")}>3M</span>
-        <span className={` ${chartDate === "year" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide text-sm`} onClick={() => setChartDate("year")}>1Y</span>
+        <span className={` ${chartDate === "week" && '!text-primary text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide ${!box ? 'text-xl' : 'text-sm'} `} onClick={() => setChartDate("week")}>1W</span>
+        <span className={` ${chartDate === "month" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white  text-opacity-40 tracking-wide ${!box ? 'text-xl' : 'text-sm'} `} onClick={() => setChartDate("month")}>1M</span>
+        <span className={` ${chartDate === "quart" && '!text-primary text-opacity-100'} text-greylish hover:!text-primary cursor-pointer dark:text-white text-opacity-40 tracking-wide ${!box ? 'text-xl' : 'text-sm'} `} onClick={() => setChartDate("quart")}>3M</span>
+        <span className={` ${chartDate === "year" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide ${!box ? 'text-xl' : 'text-sm'} `} onClick={() => setChartDate("year")}>1Y</span>
       </div>
     </div>
     <div className={`flex items-center justify-center w-full h-full`}>

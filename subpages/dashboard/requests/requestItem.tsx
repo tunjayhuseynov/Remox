@@ -34,7 +34,7 @@ const RequestItem = (props: { request: IRequest, requestState: [IRequest[], Reac
                 }
                 } />
                 <div className="hover:cursor-pointer flex items-center space-x-1">
-                    <Avatar name={props.request.name} />
+                    <Avatar name={props.request.name} surname={props.request.surname} />
                     <div>
                         {props.request.name}
                     </div>

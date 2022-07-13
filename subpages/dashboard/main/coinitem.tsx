@@ -1,4 +1,5 @@
 import { MouseEventHandler } from "react";
+import { SetComma } from "utils";
 
 
 
@@ -11,17 +12,8 @@ const CoinItem = ({ title, coin, usd, percent, rate, img, setSelectcoin, selectc
             <img width="25" height="25" src={img} alt="" className="rounded-xl" /></div> 
         <div className="font-semibold text-sm">{title}</div>
     </div>
-    <div className=" font-normal">{`${coin}`}</div>
+    <div className=" font-normal">{`${SetComma(parseInt(coin))}`}</div>
     <div className=" font-light">{percent}%</div>
-                {/* <div className="font-semibold  text-base">${usd}</div> */}
-                
-
-                
-           {/* <div className="text-greylish opacity-70 text-xs font-light">{`${title} ${coin}`}</div> */}
-            {/* <div className="flex flex-col justify-between items-end">
-                <div className="font-semibold text-gray-500 text-sm">{rate?.toFixed(2)}%</div>
-                <div className="text-greylish opacity-70 text-xs font-light">24h</div>
-            </div> */}
         </div>
     </div>
 }

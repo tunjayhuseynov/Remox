@@ -12,7 +12,7 @@ import useAsyncEffect from 'hooks/useAsyncEffect'
 import { Get_Individual } from 'crud/individual'
 import { AnimatePresence, motion } from 'framer-motion'
 
-export const DashboardContext = createContext<{ refetch: () => void, setMainAnimate?: Dispatch<number>, mainAnimate?: number }>({ refetch: () => { } })
+export const DashboardContext = createContext<{ refetch: () => void, setMainAnimate?: Dispatch<boolean>, mainAnimate?: boolean }>({ refetch: () => { } })
 
 
 
@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const accountType = useAppSelector(SelectAccountType)
     const address = useAppSelector(SelectProviderAddress)
     const blockchain = useAppSelector(SelectBlockchain)
-    const [mainAnimate, setMainAnimate] = useState<number>(0)
+    const [mainAnimate, setMainAnimate] = useState<boolean>(true)
 
     useAsyncEffect(async () => {
         if (!auth.currentUser) return router.push("/")
@@ -86,7 +86,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                         exitBeforeEnter
                         initial={false}
                     >
-                        <motion.main key={router.route} variants={noAnimation ? {} : variants} exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden pl-[14.188rem] xl:pl-[17.188rem] pt-28`}>
+                        <motion.main key={router.route} variants={noAnimation ? {} : variants} exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden transition-all ${mainAnimate ? " pl-[14.188rem] xl:pl-[17.188rem] " : " pl-[6rem] xl:pl-[8rem] transition-all"} pt-28`}>
                             {children}
                         </motion.main>
                     </AnimatePresence>
