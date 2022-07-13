@@ -16,6 +16,7 @@ import {
 } from '@solana/wallet-adapter-react-ui';
 import { BASE_URL } from 'utils/api';
 
+export const CeloEndpoint = 'https://forno.celo.org';
 export const SolanaEndpoint = "https://explorer-api.mainnet-beta.solana.com/"
 export const SolanaSerumEndpoint = "https://solana-api.projectserum.com"
 export default function Wallet({ children }: { children: JSX.Element }) {

@@ -27,6 +27,7 @@ import { useWalletKit } from "hooks";
 import Dropdown from "components/general/dropdown";
 import { useAppDispatch } from "redux/hooks";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
+import useLoading from "hooks/useLoading";
 
 export interface IFormInput {
   name: string;
@@ -206,6 +207,8 @@ const RequestId = () => {
     }
   };
 
+  const [isLoading, SetModalVisible] = useLoading(setModalVisible)
+
   return (
     <>
       <header className="flex justify-start h-[4.688rem] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
@@ -221,7 +224,7 @@ const RequestId = () => {
         </div>
       </header>
       <div className="px-8 ">
-        <form onSubmit={handleSubmit(setModalVisible)}>
+        <form onSubmit={handleSubmit(SetModalVisible)}>
           <div className="py-0 pt-24 flex flex-col items-center justify-center min-h-screen sm:py-24">
             <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
               <div className="py-2 text-center w-full">
@@ -505,6 +508,7 @@ const RequestId = () => {
                     </Button>
                     <Button
                       type="submit"
+                      isLoading={isLoading}
                       className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg"
                     >
                       Submit
@@ -556,7 +560,7 @@ const RequestId = () => {
                               : 0}
                           </div>
                           <div className="flex gap-x-2 items-center">
-                            {request?.currency ? (
+                            {!!(request?.currency) && (
                               <img
                                 src={
                                   CeloCoins[request.currency as keyof Coins]
@@ -564,12 +568,8 @@ const RequestId = () => {
                                 }
                                 className="rounded-xl w-[1.25rem] h-[1.25rem]"
                               />
-                            ) : (
-                              ""
                             )}
-                            {request?.currency
-                              ? CeloCoins[request.currency as keyof Coins].name
-                              : ""}
+                            {!!(request?.currency) && CeloCoins[request.currency as keyof Coins].name}
                           </div>
                         </div>
                       </div>
