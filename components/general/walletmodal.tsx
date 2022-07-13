@@ -21,7 +21,7 @@ function Walletmodal({ setNotify2, setNotify, openNotify, openNotify2, setItem, 
     const navigator = useRouter()
     const selectedAccount = useSelector(SelectSelectedAccount)
     const { addWallet, data: wallets, Wallet, walletSwitch } = useMultiWallet()
-    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<number>> }
+
     const [list, setList] = useState<DropDownItem[]>([])
     const dispatch = useDispatch()
     const [isAccountModal, setAccountModal] = useState(false)
@@ -29,15 +29,12 @@ function Walletmodal({ setNotify2, setNotify, openNotify, openNotify2, setItem, 
 
     useEffect(() => {
         if (openNotify) {
-            setMainAnimate(1)
             document.querySelector('body')!.style.overflowY = "hidden"
         }
         else if (openNotify2) {
-            setMainAnimate(2)
         }
          else {
-            document.querySelector('body')!.style.overflowY = ""    
-            setMainAnimate(0)       
+            document.querySelector('body')!.style.overflowY = ""       
         }
     }, [openNotify])
 

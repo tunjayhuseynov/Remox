@@ -3,11 +3,11 @@ import { useAppSelector } from '../../redux/hooks';
 import { selectDarkMode } from 'redux/slices/notificationSlice';
 import ReactDOM, { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from "framer-motion"
-import { DashboardContext } from 'layouts/dashboard';
+
 
 const Modal = ({ children, onDisable, title, className, disableX = false, animatedModal = true, openNotify, animateClass, setNotify2 }: { children?: JSX.Element | JSX.Element[], onDisable: React.Dispatch<React.SetStateAction<boolean>>, title?: string, className?: string, disableX?: boolean, openNotify?: boolean, animatedModal?: boolean, animateClass?: string, setNotify2?: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const dark = useAppSelector(selectDarkMode)
-    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<number>> }
+
 
     useEffect(() => {
         if (openNotify) {
