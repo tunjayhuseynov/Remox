@@ -1,7 +1,7 @@
 import dateFormat from "dateformat";
 import { useEffect, useState } from "react";
 import Dropdown from "components/general/dropdown";
-import { useAppSelector } from "redux/hooks";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectCurrencies } from "redux/slices/currencies";
 import { DropDownItem } from "types/dropdown";
 import { AddressReducer } from 'utils'
@@ -13,25 +13,27 @@ import { selectTags } from "redux/slices/tags";
 import { useSelector } from "react-redux";
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
-import useTags, { Tag } from "rpcHooks/useTags";
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import useGelato from "rpcHooks/useGelato";
 import { CoinsURL } from "types";
 import { useRouter } from "next/router";
 import Loader from "components/Loader";
+import { AddTransactionToTag, RemoveTransactionFromTag } from "redux/slices/account/thunks/tags";
+import { SelectID } from "redux/slices/account/remoxData";
 
 const Details = () => {
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const currencies = useAppSelector(SelectCurrencies)
+    const id = useAppSelector(SelectID)
+    const dispatch = useAppDispatch()
 
     const [transactions] = useTransactionProcess()
     const { getDetails } = useGelato()
-    const { GetCoins, fromMinScale } = useWalletKit()
+    const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
 
     const tags = useSelector(selectTags)
     const dark = useSelector(selectDarkMode)
 
-    const { removeTransactions, addTransaction } = useTags()
 
     let params = useRouter().query as { id: string | undefined }
 
@@ -40,7 +42,7 @@ const Details = () => {
         totalAmount: string,
         fee: string,
         date: string,
-        type:string,
+        type: string,
         walletAddress: string[],
 
     }>()
@@ -66,7 +68,7 @@ const Details = () => {
                         let paidTo, totalAmount, walletAddress;
                         let fee = `${fromMinScale((parseInt(txFind.rawData.gasUsed) * parseInt(txFind.rawData.gasPrice)).toString())} ${!isBatch && txFind.rawData.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`;
                         let date = dateFormat(new Date(parseInt(txFind.rawData.timeStamp) * 1e3), "dd/mm/yyyy hh:MM:ss")
-                        let type =  isSwap ? "Swap" : isAutomated ? "Automated" :  isTransfer ? "Send" :isTransferFrom ? "Require" : "Unknown"
+                        let type = isSwap ? "Swap" : isAutomated ? "Automated" : isTransfer ? "Send" : isTransferFrom ? "Require" : "Unknown"
 
                         if (isBatch) {
                             const batch = txFind as IBatchRequest
@@ -214,19 +216,28 @@ const Details = () => {
 
     const onChange = async (value: any) => {
         setTagLoading(true)
+        if(!id) return
         const selectedTags = value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault }))
 
         const deletedTags = tx?.tags?.filter(s => !selectedTags.find((t: any) => t.id === s.id))
 
         if (selectedTags && selectedTags.length > 0) {
             for (const tag of selectedTags) {
-                await addTransaction(tag.id, tx!.hash)
+                dispatch(AddTransactionToTag({
+                    id: id,
+                    tagId: tag.id,
+                    transactionId: tx!.hash
+                }))
             }
         }
 
         if (deletedTags && deletedTags.length > 0) {
             for (const tag of deletedTags) {
-                await removeTransactions(tag.id, tx!.hash!.toLocaleLowerCase())
+                dispatch(RemoveTransactionFromTag({
+                    id: id,
+                    tagId: tag.id,
+                    transactionId: tx!.hash
+                }))
             }
         }
         setTagLoading(false)

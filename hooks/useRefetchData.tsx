@@ -4,7 +4,6 @@ import useCurrency from '../rpcHooks/useCurrency'
 import { IBalanceMembers, setOrderBalance, updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/slices/currencies'
 import useRequest from 'rpcHooks/useRequest'
 import { addRequests } from 'redux/slices/requests'
-import { useListenTags } from 'rpcHooks/useTags'
 import { setTags } from 'redux/slices/tags'
 import useWalletKit from './walletSDK/useWalletKit'
 import { useLazyGetAccountBalancePriceQuery } from 'redux/api'
@@ -21,19 +20,10 @@ const useRefetchData = () => {
 
     const fetchedCurrencies = useCurrency()
 
-    const tagData = useListenTags()
     const { blockchain } = useWalletKit()
 
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
 
-
-    useEffect(() => {
-        if (tagData && tagData?.tags && tagData?.tags.length > 0) {
-            setTimeout(() => {
-                dispatch(setTags(tagData.tags))
-            }, 1500)
-        }
-    }, [tagData])
 
     useAsyncEffect(async () => {
         if (selectedAccount) {

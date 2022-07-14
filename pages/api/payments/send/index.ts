@@ -3,6 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { BatchPay, GenerateTx } from "./_celo";
 import { solanaInstructions } from "./_solana";
+import { Contracts } from "rpcHooks/Contracts/Contracts";
+import { CeloCoins } from "types";
 
 export interface IPaymentInput {
     coin: string,
@@ -12,19 +14,24 @@ export interface IPaymentInput {
     from?: string
 }
 
-interface IBody {
+export interface IPaymentDataBody {
     blockchain: BlockchainType,
     executer: string,
     requests: IPaymentInput[]
 }
 
+export interface ISendTx {
+    data: string | TransactionInstruction[],
+    destination: string | null
+}
+
 export default async function Send(
     req: NextApiRequest,
-    res: NextApiResponse
+    res: NextApiResponse<ISendTx>
 ) {
     try {
         if (req.method !== 'POST') throw new Error('Only POST method is allowed')
-        const { blockchain, requests, executer } = req.body as IBody
+        const { blockchain, requests, executer } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
         if (requests.length === 0) throw new Error("requests is required");
 
@@ -32,18 +39,28 @@ export default async function Send(
             const instructions: TransactionInstruction[] = []
             const instructionsRes = await Promise.all(requests.map(request => solanaInstructions(request.from ?? executer, request.recipient, request.coin, request.amount)))
             instructionsRes.forEach(res => instructions.push(...res))
-            return res.json(instructions);
+            return res.json({
+                data: instructions,
+                destination: null
+            });
         } else if (blockchain === "celo") {
             if (requests.length > 1) {
                 const data = await BatchPay(requests, executer)
-                return res.json(data)
+                return res.json({
+                    data: data,
+                    destination: Contracts.BatchRequest.address
+                })
             } else {
                 const data = await GenerateTx(requests[0], executer)
-                return res.json(data)
+                const coin = CeloCoins[requests[0].coin]
+                return res.json({
+                    data: data,
+                    destination: coin.contractAddress
+                })
             }
         }
     } catch (error) {
-        return res.status(400).json({ error: (error as any).message })
+        return res.status(400).json({ error: (error as any).message } as any)
     }
 }
 

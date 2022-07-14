@@ -18,7 +18,7 @@ export default function useRemoxAccount(address: string, blockchain: BlockchainT
             return storage.organization
         }
         return storage?.individual
-    }, [address, blockchain])
+    }, [address, blockchain, storage])
 
     const remoxAccountType: "organization" | "individual" = useMemo(() => {
         if (storage?.organization) {

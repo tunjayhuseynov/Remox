@@ -5,23 +5,14 @@ import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { auth, IAccount, IIndividual, Image, IMember, IOrganization } from 'firebaseConfig';
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
-import { useSelector } from "react-redux";
 import { addAccount, selectStorage } from "redux/slices/account/storage";
-import { useDispatch } from "react-redux";
 import { setInternalSign, setSign } from "redux/slices/account/multisig";
-import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
-import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { fromWei, lamport, toLamport } from "utils/ray";
 import * as borsh from '@project-serum/borsh';
-import { selectBlockchain } from "redux/slices/account/network";
 import *  as spl from 'easy-spl'
-import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import BN from 'bn.js'
 import { GokiSDK } from '@gokiprotocol/client'
-import { BorshInstructionCoder } from "@project-serum/anchor";
-import { MultisigTxParser } from "utils/multisig";
-import BigNumber from "bignumber.js";
 import { SolanaCoins } from "types";
 import useSolanaProvider from "./useSolanaProvider";
 import useNextSelector from "hooks/useNextSelector";
@@ -29,9 +20,10 @@ import { GetTime } from "utils";
 import { process } from "uniqid"
 import { Create_Account } from "crud/account";
 import useRemoxAccount from "hooks/accounts/useRemoxAccount";
-import useLoading from "hooks/useLoading";
 import { Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "redux/slices/account/thunks/account";
-import { useAppDispatch } from "redux/hooks";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import { IPaymentInput } from "pages/api/payments/send";
+import { SelectBlockchain } from "redux/slices/account/remoxData";
 
 // import {
 //     Payment
@@ -106,13 +98,13 @@ export default function useMultisig() {
 
 
     let selectedAccount = useNextSelector(SelectSelectedAccount, "")
-    const blockchain = useNextSelector(selectBlockchain, "celo")
+    const blockchain = useAppSelector(SelectBlockchain)
     const storage = useNextSelector(selectStorage, null)
 
     const dispatch = useAppDispatch()
     const [transactions, setTransactions] = useState<ITransactionMultisig[]>()
 
-    const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount } = useRemoxAccount(selectedAccount, blockchain)
+    const { Add_Account_2_Organization, Add_Account_2_Individual, remoxAccount } = useRemoxAccount(selectedAccount, blockchain ?? "celo")
 
     // const { data } = useFirestoreRead<MultisigType>("multisigs", auth.currentUser?.uid ?? "")
 
@@ -120,7 +112,6 @@ export default function useMultisig() {
 
     //Celo
     const { address, kit } = useContractKit()
-    const { GenerateBatchPay } = useCeloPay()
 
 
     //solana
@@ -266,6 +257,7 @@ export default function useMultisig() {
     const createMultisigAccount = useCallback(async (owners: string[], name: string, sign: string, internalSign: string, image: Image | null, type: "organization" | "individual") => {
         const { sdk } = await initGokiSolana();
         let proxyAddress, provider: IAccount["provider"];
+        if(!blockchain) throw new Error("Blockchain is not selected")
         if (blockchain === 'solana' && publicKey) {
             const smartWalletBase = Keypair.generate();
             const wlt = await sdk.newSmartWallet({
@@ -362,6 +354,7 @@ export default function useMultisig() {
 
     const importMultisigAccount = async (contractAddress: string, name = "", image: Image | null, type: "organization" | "individual") => {
         try {
+            if(!blockchain) throw new Error("Blockchain is not selected")
             if ((remoxAccount?.accounts as IAccount[]).some(s => s.address.toLowerCase() === contractAddress.toLowerCase())) throw new Error("This address already exist");
             let members: string[] = [], provider: IAccount["provider"] = null;
             if (blockchain === 'solana') {
@@ -701,7 +694,7 @@ export default function useMultisig() {
 
 
 
-    const submitTransaction = async (multisigAddress: string, inputs: PaymentInput[]) => {
+    const submitTransaction = async (multisigAddress: string, inputs: IPaymentInput[]) => {
         let token;
         try {
             if (blockchain === 'solana') {
@@ -751,8 +744,8 @@ export default function useMultisig() {
                 if (wallet.data) {
                     const txs = new Transaction()
                     for (let index = 0; index < inputs.length; index++) {
-                        const { amount, coin, recipient } = inputs[index];
-
+                        const { amount, coin: Coin, recipient } = inputs[index];
+                        const coin = SolanaCoins[Coin]
                         if (coin.contractAddress && publicKey && signAllTransactions && signTransaction) {
                             // const tx = await spl.token.transferTokenInstructions(connection, new PublicKey(coin.contractAddress), new PublicKey(selectedAccount), new PublicKey(recipient), Number(amount))
                             const tx = spl.token.transferTokenRawInstructions(new PublicKey(coin.contractAddress), new PublicKey(selectedAccount), new PublicKey(recipient), publicKey, toLamport(amount), 9)
@@ -778,8 +771,9 @@ export default function useMultisig() {
             const web3MultiSig = await kit._web3Contracts.getMultiSig(multisigAddress);
 
             if (inputs.length === 1) {
-                const { amount, recipient: toAddress, coin } = inputs[0]
-                let value = kit.web3.utils.toWei(amount, 'ether');
+                const { amount, recipient: toAddress, coin: Coin } = inputs[0]
+                const coin = SolanaCoins[Coin]
+                let value = kit.web3.utils.toWei(amount.toString(), 'ether');
 
                 token = await kit.contracts.getErc20(coin.contractAddress)
 
@@ -791,13 +785,13 @@ export default function useMultisig() {
 
                 await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             } else {
-                const data = await GenerateBatchPay(inputs)
-                const txs = toTransactionObject(
-                    kit.connection,
-                    web3MultiSig.methods.submitTransaction(Contracts.BatchRequest.address, "0", stringToSolidityBytes(data.txo.encodeABI())),
-                );
+                // const data = await GenerateBatchPay(inputs) /// It is batch for Multisig
+                // const txs = toTransactionObject(
+                //     kit.connection,
+                //     web3MultiSig.methods.submitTransaction(Contracts.BatchRequest.address, "0", stringToSolidityBytes(data.txo.encodeABI())),
+                // );
 
-                await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+                // await txs.sendAndWaitForReceipt({ from: address!, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             }
             return { message: "sucess" }
         } catch (e: any) {

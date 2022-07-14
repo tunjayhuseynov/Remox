@@ -1,6 +1,8 @@
 -1. Gas fee Label (tag) 
 -2. Swap tag, 
 -3. Payroll tag => Those are default
+12. tags meselesi hell olunmalidi
+********************************************************************************************************************* <= Done 
 
 3. createAccount is not okay with react hook form
 4. Budget Card duzgun datalar ile provide edilmeyib
@@ -11,4 +13,4 @@
 9. multisig ve ya individial sendlerde duzelis elemek lazimdi => storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
 10. editMember ve addMember taskId heleki null di 
 11. remox pay'de table'lar duzgun formada deyil
-12. tags meselesi hell olunmalidi
+13. gelato meselesi hell olunmalidi

@@ -33,14 +33,6 @@ const Home = () => {
     { name: blockchain?.split("").reduce((a, c, i) => { if (i === 0) { return a.toUpperCase() + c } return a + c }, '') ?? "Celo", address: blockchain ?? "celo", coinUrl: blockchain === "celo" || !blockchain ? CoinsURL.CELO : CoinsURL.SOL }
   )
 
-
-  // useEffect(() => {
-  //   const key = PROVIDERS["Private key"]
-  //   key.description = "Sign into Poof.cash with your private key";
-  //   key.name = "Poof.cash";
-  //   key.icon = "https://poof.cash/images/LogoMark.svg";
-  // }, [])
-
   const connectEvent = async () => {
     try {
       if (!address) {

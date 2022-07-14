@@ -10,10 +10,8 @@ import { changeError, selectDarkMode } from "redux/slices/notificationSlice";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { SelectBalances } from "redux/slices/currencies";
 import Button from "components/button";
-import { PaymentInput } from "rpcHooks/useCeloPay";
 import useMultisig from 'hooks/walletSDK/useMultisig'
 import Select from 'react-select';
-import { Tag } from "rpcHooks/useTags";
 import { selectTags } from "redux/slices/tags";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
@@ -28,6 +26,8 @@ import Dropdown from 'components/general/dropdown';
 import { colourStyles, SelectType } from "utils/const";
 import { SelectSelectedAccountAndBudget, SelectStats, SelectTags } from "redux/slices/account/remoxData";
 import useLoading from "hooks/useLoading";
+import { IPaymentInput } from "pages/api/payments/send";
+import { ITag } from "pages/api/tags";
 
 export interface IFormInput {
     description?: string;
@@ -49,11 +49,11 @@ const Pay = () => {
 
     const dispatch = useAppDispatch()
     const router = useRouter();
-    const { GetCoins, SendTransaction, SendBatchTransaction } = useWalletKit()
+    const { GetCoins, SendTransaction } = useWalletKit()
 
     const { submitTransaction } = useMultisig()
 
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+    const [selectedTags, setSelectedTags] = useState<ITag[]>([])
 
 
     const [csvImport, setCsvImport] = useState<csvFormat[]>([]);
@@ -104,71 +104,71 @@ const Pay = () => {
     }, [csvImport])
 
 
-    const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        try {
-            const account = selectedAccountAndBudget.account
+    // const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
+    //     e.preventDefault()
+    //     try {
+    //         const account = selectedAccountAndBudget.account
 
-            if (!account) {
-                throw new Error("No account selected")
-            }
+    //         if (!account) {
+    //             throw new Error("No account selected")
+    //         }
 
-            const result: Array<MultipleTransactionData> = []
+    //         const result: Array<MultipleTransactionData> = []
 
-            for (let index = 0; index < MyInputs.length; index++) {
-                const one = MyInputs[index]
-                if (one.address && one.amount && one.wallet?.name) {
-                    let amount = one.amount;
-                    if (selectedAmountType.id === 1) {
-                        let value = (walletBalance[one.wallet.name as keyof typeof walletBalance]?.tokenPrice ?? 1)
-                        amount = amount / value
-                    }
-                    result.push({
-                        toAddress: one.address,
-                        amount: amount.toFixed(4),
-                        tokenName: one.wallet.name,
-                    })
-                }
-            }
-            if (!GetCoins) return
-            if (account.signerType === "single") {
-                if (result.length === 1) {
-                    // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
-                    await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins] as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
-                }
-                else if (result.length > 1) {
-                    const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: (GetCoins[w.tokenName as keyof Coins]) as AltCoins,
-                        recipient: w.toAddress,
-                        amount: w.amount,
-                        from: true
-                    }))
+    //         for (let index = 0; index < MyInputs.length; index++) {
+    //             const one = MyInputs[index]
+    //             if (one.address && one.amount && one.wallet?.name) {
+    //                 let amount = one.amount;
+    //                 if (selectedAmountType.id === 1) {
+    //                     let value = (walletBalance[one.wallet.name as keyof typeof walletBalance]?.tokenPrice ?? 1)
+    //                     amount = amount / value
+    //                 }
+    //                 result.push({
+    //                     toAddress: one.address,
+    //                     amount: amount.toFixed(4),
+    //                     tokenName: one.wallet.name,
+    //                 })
+    //             }
+    //         }
+    //         if (!GetCoins) return
+    //         if (account.signerType === "single") {
+    //             if (result.length === 1) {
+    //                 // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
+    //                 await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins] as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
+    //             }
+    //             else if (result.length > 1) {
+    //                 const arr: Array<PaymentInput> = result.map(w => ({
+    //                     coin: (GetCoins[w.tokenName as keyof Coins]) as AltCoins,
+    //                     recipient: w.toAddress,
+    //                     amount: w.amount,
+    //                     from: true
+    //                 }))
 
-                    // await BatchPay(arr, undefined, selectedTags)
-                    await SendBatchTransaction(arr, undefined, selectedTags)
-                }
-            } else {
-                if (result.length === 1) {
-                    await submitTransaction(account.address, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
-                }
-                else if (result.length > 1) {
-                    const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: GetCoins[w.tokenName as keyof Coins],
-                        recipient: w.toAddress,
-                        amount: w.amount,
-                        from: true
-                    }))
+    //                 // await BatchPay(arr, undefined, selectedTags)
+    //                 await SendBatchTransaction(arr, undefined, selectedTags)
+    //             }
+    //         } else {
+    //             if (result.length === 1) {
+    //                 await submitTransaction(account.address, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
+    //             }
+    //             else if (result.length > 1) {
+    //                 const arr: Array<PaymentInput> = result.map(w => ({
+    //                     coin: GetCoins[w.tokenName as keyof Coins],
+    //                     recipient: w.toAddress,
+    //                     amount: w.amount,
+    //                     from: true
+    //                 }))
 
-                    await submitTransaction(account.address, arr)
-                }
-            }
-            //refetch()
+    //                 await submitTransaction(account.address, arr)
+    //             }
+    //         }
+    //         //refetch()
 
-        } catch (error: any) {
-            console.error(error)
-            dispatch(changeError({ activate: true, text: error.message }));
-        }
-    }
+    //     } catch (error: any) {
+    //         console.error(error)
+    //         dispatch(changeError({ activate: true, text: error.message }));
+    //     }
+    // }
 
     const index = router.query.name ? (router.query.name as string[]).includes("recurring") ? 1 : 0 : 0
 
@@ -187,11 +187,32 @@ const Pay = () => {
         setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
     }
 
-    const onSubmit: SubmitHandler<IFormInput> = data => {
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         const Wallet = selectedAccountAndBudget.account
         const Budget = selectedAccountAndBudget.budget
         const subBudget = selectedAccountAndBudget.subbudget
         console.log(MyInputs, data)
+
+        const pays: IPaymentInput[] = []
+        for (const input of MyInputs) {
+            const { wallet, amount, address, amount2, wallet2 } = input;
+            if (wallet && amount && address) {
+                pays.push({
+                    coin: wallet.name,
+                    recipient: address,
+                    amount: amount,
+                })
+            }
+            if (wallet2 && amount2 && address) {
+                pays.push({
+                    coin: wallet2.name,
+                    recipient: address,
+                    amount: amount2,
+                })
+            }
+        }
+
+        await SendTransaction(pays)
 
     }
 

@@ -6,7 +6,6 @@ import { changeAccount } from "../redux/slices/account/selectedAccount";
 import { setStorage } from "../redux/slices/account/storage";
 import { decryptMessage, encryptMessage, hashing } from "../utils/hashing";
 import { FirestoreRead, FirestoreWrite, useFirestoreSearchField } from "../rpcHooks/useFirebase";
-import useTags from "rpcHooks/useTags";
 import useWalletKit from "./walletSDK/useWalletKit";
 
 
@@ -17,7 +16,6 @@ export default function useSignInOrUp() {
     const [user, setUser] = useState<User>();
     const [isLoading, setLoading] = useState<boolean>(false);
     const dispatch = useDispatch()
-    const { checkTag } = useTags()
 
 
     const executeSign = async (address: string, password: string, dataForSignUp?: IUser) => {
@@ -58,7 +56,6 @@ export default function useSignInOrUp() {
                 await FirestoreWrite<{ addresses: { name: string, address: string }[] }>().createDoc('multisigs', user.uid, {
                     addresses: []
                 })
-                await checkTag()
                 // dispatch(setStorage({
                 //     accountAddress: address,
                 //     allAccounts: [address],
@@ -98,7 +95,6 @@ export default function useSignInOrUp() {
                         ]
                     })
                 }
-                await checkTag()
                 // dispatch(setStorage({
                 //     accountAddress: address,
                 //     allAccounts: incomingData.address,

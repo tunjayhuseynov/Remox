@@ -10,7 +10,6 @@ import Contributors from './slices/account/contributors';
 import Requests from './slices/requests';
 import Tags from './slices/tags';
 import Moola from './slices/moola';
-import Network from './slices/account/network';
 import Masspay from './slices/masspay';
 import Stats from './slices/account/accountstats';
 import PayInputs from './slices/payinput';
@@ -34,7 +33,6 @@ const store = configureStore({
 		selectedAccount: SelectedAcount,
 		multisig: Multisig,
 		contributors: Contributors,
-		network: Network,
 		requests: Requests,
 		masspay: Masspay,
 		accountstats: Stats,

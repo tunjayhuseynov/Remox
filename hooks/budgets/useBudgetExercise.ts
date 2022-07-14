@@ -18,8 +18,6 @@ export default function useBudgetExercise() {
     const budget = useBudgets()
     const subbudget = useSubbudgets()
 
-    const budgetState = useAppSelector(SelectBudgetExercises)
-
     const { remoxAccountType, remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
 
     const create_exercise = async (budgetExercise: IBudgetExercise) => {

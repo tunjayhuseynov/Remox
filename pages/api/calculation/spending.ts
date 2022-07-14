@@ -3,11 +3,11 @@ import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from 
 import { NextApiRequest, NextApiResponse } from "next";
 import date from 'date-and-time'
 import axios from "axios";
-import { Tag } from "rpcHooks/useTags";
 import { FirestoreRead } from "rpcHooks/useFirebase";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
+import { ITag } from "../tags";
 
-export type ATag = Tag & { txs: IFormattedTransaction[], totalAmount: number }
+export type ATag = ITag & { txs: IFormattedTransaction[], totalAmount: number }
 
 
 export interface IFlowDetail {
@@ -99,7 +99,7 @@ export default async function handler(
             }
         })
 
-        const myTags = await FirestoreRead<{ tags: Tag[] }>("tags", authId)
+        const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
         const coinsSpending = CoinsAndSpending(specificTxs?.data, parsedAddress, prices.data.AllPrices, blockchain)
         const average = AverageMonthlyAndTotalSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
@@ -358,10 +358,10 @@ const TotalBalanceChangePercent = (currencies: IPrice) => {
     return 0;
 }
 
-const SpendingAccordingTags = (tags: Tag[], transactions: IFormattedTransaction[], selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
+const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction[], selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
     let outATag: ATag[] = []
     let inATag: ATag[] = []
-    tags.forEach((tag: Tag) => {
+    tags.forEach((tag: ITag) => {
         let newInTag: ATag;
         let newOutTag: ATag;
         newInTag = {

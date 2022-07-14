@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Tag } from 'rpcHooks/useTags';
 import { IFormattedTransaction } from 'hooks/useTransactionProcess';
+import { ITag } from 'pages/api/tags';
 import { Transactions } from '../../../types/sdk/blockscout';
 import { RootState } from '../../store';
 
@@ -30,13 +30,13 @@ export const TransactionAPI = createSlice({
 		removeTransactions: (state: InitialTransaction) => {
 			state.transactions = [];
 		},
-		addTag: (state: InitialTransaction, action: { payload: { transactionId: string, tag: Tag } }) => {
+		addTag: (state: InitialTransaction, action: { payload: { transactionId: string, tag: ITag } }) => {
 			const tx = state.parsedTransactoins.find(s => s.hash.toLowerCase() === action.payload.transactionId)
 			if (tx && action.payload.tag && !tx.tags?.some(s => s.id === action.payload.tag.id)) {
 				tx.tags?.push(action.payload.tag)
 			}
 		},
-		removeTag: (state: InitialTransaction, action: { payload: { transactionId: string, tag: Tag } }) => {
+		removeTag: (state: InitialTransaction, action: { payload: { transactionId: string, tag: ITag } }) => {
 			const tx = state.parsedTransactoins.find(s => s.hash.toLowerCase() === action.payload.transactionId)
 			if (tx && action.payload.tag) {
 				tx.tags = tx.tags?.filter(s => s.id !== action.payload.tag.id)

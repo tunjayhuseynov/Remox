@@ -13,13 +13,13 @@ import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
 
-export interface BalanceAPI {
+export interface IBalanceAPI {
     [key: string]: string
 }
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<any>
+    res: NextApiResponse<IBalanceAPI>
 ) {
     try {
         const addresses = req.query["addresses[]"];
@@ -33,8 +33,7 @@ export default async function handler(
         }
         res.status(500).json({ error: "Something went wrong" });
     } catch (error) {
-        throw new Error(error as any)
-        res.status(405).end()
+        res.status(500).json({ error: (error as any).message });
     }
 }
 
@@ -47,8 +46,7 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
         for (const addressItem of addresses) {
             for (const i of Object.values(Coins)) {
                 const item = i as AltCoins
-                // const ethers = await kit.contracts.getErc20(item.contractAddress);
-                // let balance = await ethers.balanceOf(addressItem);
+
                 let altcoinBalance = await GetBalance(item, addressItem, blockchain)
 
                 if (!balances[item.name]) {
@@ -63,29 +61,13 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     }
 
     const address = addresses[0];
-    // if (walletType === "PrivateKey") {
-    //     let cEUR_v2, cREAL_v2, CELO_v2, cUSD_v2, cEUR_v1, CELO_v1, cUSD_v1;
-    //     await Promise.all([pastEvents("CELO_v2"), pastEvents("cUSD_v2"), pastEvents("cEUR_v2"), pastEvents("cREAL_v2"), pastEvents("CELO_v1"), pastEvents("cUSD_v1"), pastEvents("cEUR_v1")])
-    //     const values = await Promise.all([balance("CELO_v2"), balance("cUSD_v2"), balance("cEUR_v2"), balance("cREAL_v2"), balance("CELO_v1"), balance("cUSD_v1"), balance("cEUR_v1")])
-    //     CELO_v2 = values[0]
-    //     cUSD_v2 = values[1]
-    //     cEUR_v2 = values[2]
-    //     cREAL_v2 = values[3]
-    //     CELO_v1 = values[4]
-    //     cUSD_v1 = values[5]
-    //     cEUR_v1 = values[6]
 
-    //     balances = { CELO_v2, cEUR_v2, cUSD_v2, cREAL_v2, cEUR_v1, cUSD_v1, CELO_v1 }
-    // } else {
     for (const i of Object.values(Coins)) {
         const item = i as AltCoins
-        // const ethers = await kit.contracts.getErc20(item.contractAddress);
-        // let balance = await ethers.balanceOf(address);
         let altcoinBalance = await GetBalance(item, address, blockchain)
 
         balances = Object.assign(balances, { [item.name]: altcoinBalance });
     }
-    // }
     return balances;
 }
 
