@@ -11,9 +11,9 @@ export interface IRequest {
     name: string;
     surname: string;
     address: string;
-    amount: string;
+    amount: number;
     currency: CoinsName;
-    secondaryAmount: string | null;
+    secondaryAmount: number | null;
     secondaryCurrency: CoinsName | null;
 
     requestType: string;

@@ -13,9 +13,10 @@ import {
 import { GetTime } from "utils";
 import { useRouter } from "next/router";
 
-const EditTeam = (
-  props: IContributor & { onCurrentModal: Dispatch<boolean> }
-) => {
+const EditTeam = () => {
+  const { id, name } = useRouter().query as { id : string, name: string }
+  console.log(id);
+  
   const { register, handleSubmit } = useForm<IFormInput>();
   const { editTeam, isLoading } = useContributors();
   const [error, setError] = useState(false);
@@ -26,8 +27,8 @@ const EditTeam = (
     if (data.name.trim()) {
       try {
         setError(false);
-        await editTeam(props.id, data.name.trim());
-        dispatch(updateContributor({ name: data.name.trim(), id: props.id }));
+        await editTeam(id, data.name.trim());
+        dispatch(updateContributor({ name: data.name.trim(), id: id }));
         navigate.back()
       } catch (error) {
         console.error(error);
@@ -56,7 +57,7 @@ const EditTeam = (
         <input
           type="text"
           {...register("name", { required: true })}
-          defaultValue={props.name}
+          defaultValue={name}
           onChange={(e) => setInput(e.target.value)}
           className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond"
           required

@@ -12,6 +12,7 @@ import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { SetComma } from 'utils';
 
+
 const variants = {
     black: {
         color: "#000000",
@@ -65,22 +66,29 @@ export interface INftData {
 }
 
 const Assets = () => {
-    const selectBalance = useSelector(SelectBalances)
+    const selectBalance = useAppSelector(SelectBalances)
+
+    
+
     const prevBalance = useRef(selectBalance)
+
+    
     const darkMode = useSelector(selectDarkMode)
     const [style, setStyle] = useState({});
-    const [Spot,setSpot] = useState<number>(0)
-    const [Yield,setYield] = useState<number>(0)
+    // const [Spot,setSpot] = useState<number>(0)
+    // const [Yield,setYield] = useState<number>(0)
 
     let totalBalance = useAppSelector(SelectTotalBalance)
+    
     let balance;
     if (totalBalance !== undefined) balance = parseFloat(`${totalBalance}`).toFixed(2)
     const balanceRedux = useAppSelector(SelectBalances)
     const navigate = useRouter()
-    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
+    const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
 
 
 
+    
     const TypeCoin = [
         {
             header: "Spot Assets",
@@ -94,6 +102,7 @@ const Assets = () => {
         }
 
     ]
+    
     const assetType = [
         {
             to: "/dashboard/assets",
@@ -129,7 +138,7 @@ const Assets = () => {
 
     }
 
-console.log(Spot,Yield)
+// console.log(Spot,Yield)
     return <>
         <div className="">
             <div className="font-bold text-4xl">Assets</div>
@@ -156,8 +165,8 @@ console.log(Spot,Yield)
                                 <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl pl-2">Value</div>
                             </div>
                             {Object.entries(selectBalance).map(([key, item]: [string, IBalanceItem | undefined], index) => {
-                                if (!item && index == 0) return <div key={index} className="flex justify-center py-1  pr-2"> <Loader /></div>
-                                if (!item || (i.header === "Spot Assets" ? item.coins.type === i.tokenTypes : item.coins.type !== i.tokenTypes)) return <Fragment key={index}></Fragment>
+                                if (!item && index == 0) return <div key={key} className="flex justify-center py-1  pr-2"> <Loader /></div>
+                                if (!item || (i.header === "Spot Assets" ? item.coins.type === i.tokenTypes : item.coins.type !== i.tokenTypes)) return <Fragment key={key}></Fragment>
 
                                 let price = 0;
                                 let per24 = 0;
@@ -179,7 +188,7 @@ console.log(Spot,Yield)
                                     setStyle(newStyle);
                                 }, 200);
 
-                                return item.amount > 0 && <> <div key={index} className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%] pl-4">
+                                return item.amount > 0 && <> <div key={key} className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%] pl-4">
                                     <div className="flex space-x-3 items-center">
                                         <div><img src={item?.coins?.coinUrl} width={20} height={20} alt="" className="rounded-full" /></div>
                                         <div className="font-semibold">{item?.coins?.name}</div>

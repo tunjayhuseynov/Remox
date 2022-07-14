@@ -59,11 +59,11 @@ export default function RequestLayout() {
                     </div>
                     <div className="bg-greylish bg-opacity-10 flex justify-between items-center   w-1/2 rounded-xl">
                         <div className="truncate w-3/4 py-2 pl-1">
-                            {BASE_URL}/requests/id={storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin={selectedBlockchain}
+                            {BASE_URL}/requests/id={storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin={selectedBlockchain}&signer={storage?.signType}
                         </div>
                         <div ref={setDivRef}>
                         <Button  className="!py-1 px-2   tracking-wider flex items-center"onClick={() => {
-                            navigator.clipboard.writeText(BASE_URL + "/requests/?" + `id=${storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin=${selectedBlockchain}` )
+                            navigator.clipboard.writeText(BASE_URL + "/requests/?" + `id=${storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin=${selectedBlockchain}&signer=${storage?.signType}` )
                             setTooltip(true)
                             setTimeout(() => {
                                 setTooltip(false)

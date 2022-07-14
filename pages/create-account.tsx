@@ -9,7 +9,7 @@ import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IIndividual } from "firebaseConfig";
-import { UploadImageForUser } from "hooks/singingProcess/utils";
+import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
 import { GetTime } from "utils";
 import useLoading from "hooks/useLoading";
 import useNextSelector from "hooks/useNextSelector";
@@ -43,7 +43,7 @@ const CreateAccount = () => {
 
     if (!address) return ToastRun(<>Please. sign in first</>)
     try {
-      let image: Parameters<typeof UploadImageForUser>[0] | undefined;
+      let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
       if (File || data.nftAddress) {
         image =
         {
@@ -56,7 +56,7 @@ const CreateAccount = () => {
           },
           name: `individuals/${data.name}`
         }
-        await UploadImageForUser(image)
+        await UploadNFTorImageForUser(image)
       }
 
       let user: Omit<IIndividual, "id" | "created_date"> = {

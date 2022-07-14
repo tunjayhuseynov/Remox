@@ -25,13 +25,8 @@ import Loader from "components/Loader"
 import ModalRequestItem from "./modalRequestItem"
 import Walletmodal from "components/general/walletmodal"
 import { DropDownItem } from 'types';
-import { motion, AnimatePresence } from "framer-motion"
 
 export default function DynamicRequest({ type }: { type: "approved" | "pending" | "rejected" }) {
-
-
-
-    
     const [aprovedActive, setAprovedActive] = useState(false);
     const [modal, setModal] = useState(false)
     const [requestmodal, setRequestModal] = useState(false)
@@ -83,92 +78,92 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
     }, [openNotify])
 
-    const Submit = async () => {
-        const result: Array<MultipleTransactionData & { member?: IRequest }> = []
+    // const Submit = async () => {
+    //     const result: Array<MultipleTransactionData & { member?: IRequest }> = []
 
-        const mems = selected;
+    //     const mems = selected;
 
-        if (mems.length) {
-            for (let index = 0; index < mems.length; index++) {
-                let amount;
-                if (mems[index].usdBase) {
-                    amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
-                } else {
-                    amount = mems[index].amount
-                }
-                result.push({
-                    toAddress: mems[index].address,
-                    amount,
-                    tokenName: mems[index].currency,
-                    member: mems[index]
-                })
+    //     if (mems.length) {
+    //         for (let index = 0; index < mems.length; index++) {
+    //             let amount;
+    //             if (mems[index].usdBase) {
+    //                 amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
+    //             } else {
+    //                 amount = mems[index].amount
+    //             }
+    //             result.push({
+    //                 toAddress: mems[index].address,
+    //                 amount,
+    //                 tokenName: mems[index].currency,
+    //                 member: mems[index]
+    //             })
 
-                let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
+    //             let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
 
-                if (secAmount && secCurrency) {
-                    if (mems[index].secondaryAmount) {
-                        secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
-                    }
+    //             if (secAmount && secCurrency) {
+    //                 if (mems[index].secondaryAmount) {
+    //                     secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
+    //                 }
 
-                    result.push({
-                        toAddress: mems[index].address,
-                        amount: secAmount,
-                        tokenName: secCurrency,
-                    })
-                }
-            }
-        }
-        setIsPaying(true)
+    //                 result.push({
+    //                     toAddress: mems[index].address,
+    //                     amount: secAmount,
+    //                     tokenName: secCurrency,
+    //                 })
+    //             }
+    //         }
+    //     }
+    //     setIsPaying(true)
 
-        try {
-            if (selectedAccount) { //storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
-                if (result.length === 1) {
-                    // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
-                    await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
-                }
-                else if (result.length > 1) {
-                    const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: GetCoins[w.tokenName as keyof Coins],
-                        recipient: w.toAddress,
-                        amount: w.amount,
-                        from: true
-                    }))
+    //     try {
+    //         if (selectedAccount) { //storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
+    //             if (result.length === 1) {
+    //                 // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+    //                 await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+    //             }
+    //             else if (result.length > 1) {
+    //                 const arr: Array<PaymentInput> = result.map(w => ({
+    //                     coin: GetCoins[w.tokenName as keyof Coins],
+    //                     recipient: w.toAddress,
+    //                     amount: w.amount,
+    //                     from: true
+    //                 }))
 
-                    // await BatchPay(arr)
-                    await SendBatchTransaction(arr)
-                }
-            } else {
-                if (result.length === 1) {
-                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: GetCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
-                }
-                else if (result.length > 1) {
-                    const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: GetCoins[w.tokenName as keyof Coins],
-                        recipient: w.toAddress,
-                        amount: w.amount,
-                        from: true
-                    }))
+    //                 // await BatchPay(arr)
+    //                 await SendBatchTransaction(arr)
+    //             }
+    //         } else {
+    //             if (result.length === 1) {
+    //                 await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: GetCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
+    //             }
+    //             else if (result.length > 1) {
+    //                 const arr: Array<PaymentInput> = result.map(w => ({
+    //                     coin: GetCoins[w.tokenName as keyof Coins],
+    //                     recipient: w.toAddress,
+    //                     amount: w.amount,
+    //                     from: true
+    //                 }))
 
-                    await submitTransaction(selectedAccount, arr)
-                }
-            }
+    //                 await submitTransaction(selectedAccount, arr)
+    //             }
+    //         }
 
-            await FirestoreWrite<{ requests: FieldValue }>().updateDoc("requests", selectedAccount.toLowerCase(), {
-                requests: arrayRemove(...selected)
-            })
+    //         await FirestoreWrite<{ requests: FieldValue }>().updateDoc("requests", selectedAccount.toLowerCase(), {
+    //             requests: arrayRemove(...selected)
+    //         })
 
-            setSuccess(true);
-            setSelected([])
-            refetch()
-            setModal(false)
+    //         setSuccess(true);
+    //         setSelected([])
+    //         refetch()
+    //         setModal(false)
 
-        } catch (error: any) {
-            console.error(error)
-            dispatch(changeError({ activate: true, text: error.message }));
-        }
+    //     } catch (error: any) {
+    //         console.error(error)
+    //         dispatch(changeError({ activate: true, text: error.message }));
+    //     }
 
-        setIsPaying(false);
-    }
+    //     setIsPaying(false);
+    // }
 
 
     return <>
@@ -289,7 +284,7 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
                                     </div>
                                 </div>
                                 <div className="w-full pb-6 pt-6">
-                                    <Button className="w-full text-xl font-semibold" isLoading={isPaying} onClick={Submit}>
+                                    <Button className="w-full text-xl font-semibold" isLoading={isPaying} >
                                         Confirm and Create Transactions
                                     </Button>
                                 </div>

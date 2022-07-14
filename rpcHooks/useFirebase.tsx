@@ -126,7 +126,7 @@ export function useFirestoreSearchField() {
     return { search, isLoading };
 }
 
-export const UploadImage = async (folder: string, image: File) => {
+export const UploadFile = async (folder: string, image: File) => {
     const reference = ref(storage, `${folder}/${image.name}`);
     await uploadBytes(reference, image);
     return await getDownloadURL(reference)
