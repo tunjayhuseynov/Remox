@@ -44,6 +44,38 @@ export const SelectSpotBalance = createDraftSafeSelector(
     }
 )
 
+export const SelectSpotTotalBalance = createDraftSafeSelector( 
+    (state: RootState) => state.remoxData.balances,
+    (balances) => {
+        if (balances) {
+            return Object.entries(balances).reduce<number>((a, c) => {
+                if (c[1].coins.type !== TokenType.YieldToken) {
+                    a += c[1].tokenPrice * c[1].amount;
+
+                }
+                return a;
+            }, 0)
+        }
+        return 0;
+    }
+)
+
+export const SelectYieldTotalBalance = createDraftSafeSelector( 
+    (state: RootState) => state.remoxData.balances,
+    (balances) => {
+        if (balances) {
+            return Object.entries(balances).reduce<number>((a, c) => {
+                if (c[1].coins.type === TokenType.YieldToken) {
+                    a += c[1].tokenPrice * c[1].amount;
+
+                }
+                return a;
+            }, 0)
+        }
+        return 0;
+    }
+)
+
 // This is for choose-budget Page
 export const SelectSelectedAccountAndBudget = createDraftSafeSelector(
     (state: RootState) => state.remoxData.selectedAccountAndBudget,

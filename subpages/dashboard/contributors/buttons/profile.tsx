@@ -21,7 +21,7 @@ const Profile = (props: IMember & { teamName: string, onDeleteModal: Dispatch<bo
                     <div className="font-bold">Name</div>
                     <div>
                         <div className="flex space-x-2 items-center">
-                            <Avatar name={props.name} />
+                            <Avatar name={props.name} surname={""} />
                             <div>
                             {props.name}
                             </div>

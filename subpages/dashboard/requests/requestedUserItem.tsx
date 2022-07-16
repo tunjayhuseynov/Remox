@@ -12,7 +12,7 @@ import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
 import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
-import { RequestSlice } from 'redux/slices/requests';
+import { addRejectedRequest, addApprovedRequest, removePendingRequest } from 'redux/slices/account/remoxData';
 import { useAppDispatch } from 'redux/hooks';
   
 
@@ -39,7 +39,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
         setLoading(true)
         try {
             await rejectRequest(request.id, request)
-            
+            dispatch(removePendingRequest(request.id))
+            dispatch(addRejectedRequest(request))
             setLoading(false)
         } catch (error: any) {
             setLoading(false)
@@ -52,6 +53,8 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
         setLoading(true)
         try {
             await approveRequest(request.id, request)
+            dispatch(removePendingRequest(request.id))
+            dispatch(addApprovedRequest(request))
             setLoading(false)
         } catch (error: any) {
             setLoading(false)
@@ -105,7 +108,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
             <div className="flex h-full items-center justify-start">
                 {request.serviceDate && 
                     <div className="text-greyish dark:text-white tracking-wide">
-                        {dateFormat(request.serviceDate, "mmmm dd, yyyy")}
+                        {dateFormat((request.serviceDate * 1000 ), "mmmm dd, yyyy")}
                     </div>
                 }
             </div>
@@ -115,7 +118,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                 <div className={`flex ${detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"} items-center space-x-4`}>
                     <div className={`flex ${detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"} gap-x-1 items-center`}>
                         <span>
-                            {parseFloat(request.amount).toFixed(2)}
+                            {request.amount}
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-1 items-center`}>
@@ -138,7 +141,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                             <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(request.secondaryAmount).toFixed(2)}
+                                {request.secondaryAmount}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
@@ -268,7 +271,7 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
                                 Date of service
                             </div>
                             <div>
-                                {dateFormat(new Date(request?.serviceDate ?? 0), `dd mmmm yyyy`)}
+                                {dateFormat((request.serviceDate * 1000), `dd mmmm yyyy`)}
                             </div>
                         </div>
                         {!!request?.attachLink && <div className="flex justify-between">

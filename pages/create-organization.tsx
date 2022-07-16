@@ -12,7 +12,7 @@ import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastRun } from "utils/toast";
 import useSignUp from "hooks/singingProcess/useSignUp";
-import { UploadImageForUser } from "hooks/singingProcess/utils";
+import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
 import { IOrganization } from "firebaseConfig";
 import { GetTime } from "utils";
 import { generate } from "shortid";
@@ -43,7 +43,7 @@ const CreateOrganization = () => {
       if (!address) return ToastRun(<>Please, sign in first</>)
       if (organizationIsUpload && !File) throw new Error("No organization file uploaded")
 
-      let image: Parameters<typeof UploadImageForUser>[0] | undefined;
+      let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
       if (File || data.nftAddress) {
         image =
         {

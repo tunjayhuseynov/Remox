@@ -66,7 +66,7 @@ const RequestItem = (props: { request: IRequest, requestState: [IRequest[], Reac
         <div className="flex space-x-8">
             {props.request.timestamp && <>
                 <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate">
-                    {dateFormat(new Date(props.request.timestamp), `dd mmmm yyyy`)}
+                    {dateFormat(new Date(props.request.timestamp * 1000), `dd mmmm yyyy`)}
                 </div>
             </>}
         </div>

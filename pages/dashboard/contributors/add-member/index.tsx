@@ -15,7 +15,7 @@ import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
 import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { UploadImageForUser } from "hooks/singingProcess/utils";
+import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
 import { addMemberToContributor } from "redux/slices/account/remoxData";
 import { useRouter } from 'next/router';
 
@@ -109,7 +109,7 @@ export default () => {
         const dateEnd = endDate;
 
         try {
-            let image: Parameters<typeof UploadImageForUser>[0] | undefined;
+            let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
             if (Photo || data.nftAddress) {
                 image = {
                     image: {
@@ -121,7 +121,7 @@ export default () => {
                     },
                     name: `individuals/${data.name}`,
                 };
-                await UploadImageForUser(image);
+                await UploadNFTorImageForUser(image);
             }
 
             let sent: IMember = {
@@ -136,7 +136,7 @@ export default () => {
                 compensation: Compensation,
                 currency: Wallet.name as CoinsName,
                 amount: data.amount.toString(),
-                teamId: Team.id!,
+                teamId: Team.id!.toString(),
                 usdBase: selectedType,
                 execution:
                     PaymentType === "Auto" ? ExecutionType.auto : ExecutionType.manual,
@@ -148,8 +148,8 @@ export default () => {
                 secondaryUsdBase: data.amount2 ? selectedType : null,
             };
 
-            await addMember(Team.id!, sent);
-            dispatch(addMemberToContributor({ id: Team.id!, member: sent }));
+            await addMember(Team.id!.toString(), sent);
+            dispatch(addMemberToContributor({ id: Team.id!.toString(), member: sent }));
             navigate.back()
         } catch (error: any) {
             console.error(error);

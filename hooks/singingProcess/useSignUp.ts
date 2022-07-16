@@ -1,6 +1,6 @@
 import { Create_Individual, Get_Individual_Ref } from "crud/individual";
 import { useCallback } from "react";
-import { isIndividualExisting, isOrganizationExisting, UploadImageForUser } from "./utils";
+import { isIndividualExisting, isOrganizationExisting, UploadNFTorImageForUser } from "./utils";
 import { process } from "uniqid"
 import { auth, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { Create_Organization } from "crud/organization";
@@ -27,7 +27,7 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
     const RegisterIndividual = useCallback(async (individual: Omit<IIndividual, "id" | "created_date">) => {
         if (await isIndividualExisting(address)) throw new Error("User already registered");
         if (!auth.currentUser) throw new Error("User not logged in");
-        await UploadImageForUser(individual);
+        await UploadNFTorImageForUser(individual);
 
         const id = auth.currentUser.uid;
 

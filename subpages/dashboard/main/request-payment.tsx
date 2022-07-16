@@ -5,6 +5,7 @@ import { useAppSelector } from 'redux/hooks'
 import { selectContributors } from 'redux/slices/account/contributors';
 import { ExecutionType } from 'types/dashboard/contributors';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
+import { SelectRequests } from 'redux/slices/account/remoxData';
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
@@ -12,8 +13,10 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     // const teams = useAppSelector(selectContributors).contributors.map(s => ({ ...s, members: s.members.filter(m => m.) }))
     const dark = useAppSelector(selectDarkMode)
     const router = useRouter()
+    let requests = useAppSelector(SelectRequests)
 
     // useAppSelector()
+
 
 
     const data = [
@@ -26,13 +29,13 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         {
             header: "Pending Requests",
             icon: dark ? "payment_white" : "payment",
-            value: 10,
+            value: requests.pendingRequests.length ,
             router:"/dashboard/requests"
         },
         {
             header: "Approve Requests",
             icon: dark ? "charity_white" : "charity",
-            value: 15,
+            value: requests.approvedRequests.length,
             router:"/dashboard/requests/approved"
         },
         {

@@ -28,6 +28,9 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch } from "redux/hooks";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import useLoading from "hooks/useLoading";
+import { UploadImage } from "rpcHooks/useFirebase";
+import { storage } from "firebaseConfig/firebase";
+import { ref, StorageReference, deleteObject } from "firebase/storage";
 
 export interface IFormInput {
   name: string;
@@ -40,8 +43,12 @@ export interface IFormInput {
   requestType: string;
 }
 
-const RequestId = () => {
-  const { id, coin } = useRouter().query as { id: string; coin: string };
+export default function RequestId() {
+  const { id, coin, signer } = useRouter().query as {
+    id: string;
+    coin: string;
+    signer: string;
+  };
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
   const router = useRouter();
@@ -52,22 +59,19 @@ const RequestId = () => {
 
   dispatch(setBlockchain(coin as BlockchainType));
 
-
   const dark = useSelector(selectDarkMode);
   const currency = useSelector(SelectCurrencies);
   const [secondActive, setSecondActive] = useState(false);
   const { GetCoins, blockchain } = useWalletKit();
+  const [DropDownCoins, setDropDownCoins] = useState<DropDownItem[]>([]);
 
-  const DropDownCoins = useMemo(
-    () =>
-      Object.values(GetCoins!).map((w) => ({
-        name: w.name,
-        coinUrl: w.coinUrl,
-      })),
-    [GetCoins]
-  );
-
-  // console.log(DropDownCoins);
+  useEffect(() => {
+    const DropDownCoins = Object.values(GetCoins!).map((w) => ({
+      name: w.name,
+      coinUrl: w.coinUrl,
+    }));
+    setDropDownCoins(DropDownCoins);
+  }, []);
 
   const [selectedWallet, setSelectedWallet] = useState<DropDownItem>(
     DropDownCoins[0]
@@ -75,8 +79,6 @@ const RequestId = () => {
   const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>(
     DropDownCoins[0]
   );
-  const [amount, setAmount] = useState<number>(0);
-  const [amount2, setAmount2] = useState<number>(0);
   const paymentname3: DropDownItem[] = [
     { name: "Pay with Token Amounts" },
     { name: "Pay with USD-based Amounts" },
@@ -85,9 +87,11 @@ const RequestId = () => {
 
   const [file, setFile] = useState<File>();
   const [selectedType, setSelectedType] = useState(false);
-  const [serviceDate, setServiceDate] = useState<Date>(new Date())
+  const [serviceDate, setServiceDate] = useState<Date>(new Date());
+  const [fileName, setFileName] = useState<string>("");
+  const [imageRef, setImageRef] = useState<StorageReference>();
+  const [imageUrl, setImageUrl] = useState<string>("");
   // const MyInput = useSelector(SelectInputs)[0]
-
 
   const [modal, setModal] = useState(false);
   const [request, setRequest] = useState<IRequest>();
@@ -107,73 +111,18 @@ const RequestId = () => {
     }
   }, [currency]);
 
-  // const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
-  //     e.preventDefault()
-  //     const { requestType, nameService, attachLink } = e.target as HTMLFormElement;
+  const closeModal = async () => {
+    try {
+      if (file) {
+        await deleteObject(imageRef!);
 
-  //     const request = requestType.value
-  //     const serviceName = nameService.value
-  //     const link = attachLink.value
+      }
 
-  //     const amount = MyInput.amount
-  //     const name = MyInput.name
-  //     const surname = MyInput.surname
-  //     const address = MyInput.address
-  //     const wallet = MyInput.wallet
-  //     if (!isAddress(address ?? "") && !address?.includes('.nom')) {
-  //         toast.error(<div className="dark:text-white"><strong>Address is invalid</strong> <br /> Please, use valid address or Nomspace name</div>, {
-  //             position: "top-right",
-  //             autoClose: 5000,
-  //             hideProgressBar: false,
-  //             closeOnClick: true,
-  //             pauseOnHover: true,
-  //             draggable: true,
-  //             progress: undefined,
-  //             bodyClassName: "dark:border-darkSecond dark:bg-darkSecond",
-  //             className: "dark:bg-darkSecond",
-  //         });
-  //         return
-  //     }
-  //     if (request && serviceName && startDate && amount && address && wallet && wallet.name) {
-  //         setResult({
-  //             address,
-  //             amount: amount.toFixed(4),
-  //             currency: wallet.name as CoinsName,
-  //             name: name ?? "",
-  //             surname: surname ?? "",
-  //             requestType: request,
-  //             nameOfService: serviceName,
-  //             serviceDate: startDate.getTime(),
-  //             attachLink: link ?? "",
-  //             secondaryAmount: MyInput.amount2 ? MyInput.amount2.toFixed(4) : undefined,
-  //             secondaryCurrency: MyInput.wallet2?.name as CoinsName | undefined,
-  //             usdBase: selectedType,
-  //             uploadedLink: file?.name ?? undefined
-  //         })
-
-  //         setModal(true)
-  //     }
-
-  // }
-  // const onChangeType = (value: boolean) => {
-  //     setSelectedType(value)
-  //     dispatch(changeBasedValue(value))
-  // }
-
-  // const Send = async () => {
-  //     if (result) {
-  //         try {
-  //             await addRequest(id.toLowerCase(), result)
-  //             setModal(false)
-  //             dispatch(changeSuccess({ activate: true, text: "Request has been sent" }))
-  //             router.push("/dashboard")
-  //         } catch (error: any) {
-  //             console.error(error.message)
-  //             setModal(false)
-  //             dispatch(changeError({ activate: true, text: error.message ?? "Something went wrong" }))
-  //         }
-  //     }
-  // }
+      setModal(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
@@ -182,32 +131,53 @@ const RequestId = () => {
     const ServDate = serviceDate;
 
     try {
-      const result: IRequest = {
+      if(Invoice){
+        const url = await UploadImage(`/requests/${signer}/${id}`, Invoice!);
+        setImageUrl(url);
+        setImageRef(ref(storage, url));
+      }
+
+      console.log(data.amount);
+      
+      const result : IRequest = {
         id: id,
         name: data.name,
         surname: data.surname,
         address: data.address,
-        amount: amount.toString(),
-        currency: Wallet.name as CoinsName,
+        amount: data.amount,
+        currency: Wallet === undefined ? (coin === "solano" ? CoinsName.SOL : CoinsName.CELO) : Wallet.name as CoinsName,
         requestType: data.requestType,
         nameOfService: data.serviceName,
         serviceDate: GetTime(ServDate),
         usdBase: selectedType,
         timestamp: GetTime(),
-        secondaryAmount: amount2 ? amount2.toString() : null,
-        secondaryCurrency: Wallet2 ? (Wallet2?.name as CoinsName) : null,
+        secondaryAmount: data.amount2 ? data.amount2 : null,
+        secondaryCurrency: Wallet2 === undefined ? (coin === "solano" ? CoinsName.SOL : CoinsName.CELO) : Wallet2.name as CoinsName,
         status: RequestStatus.pending,
         attachLink: data.link ? data.link : null,
-        uploadedLink: Invoice ? Invoice.name : null,
+        uploadedLink: Invoice ? imageUrl : null,
       };
-
-      await addRequest(id, result);
+      setRequest(result);
+      setFileName(Invoice?.name ?? "");
+      setModal(true);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const [isLoading, SetModalVisible] = useLoading(setModalVisible)
+  const [isLoading, SetModalVisible] = useLoading(setModalVisible);
+
+  const submit = async () => {
+    try {
+      if (request) {
+        await addRequest(id, request);
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("An error occured while adding request");
+    }
+  };
 
   return (
     <>
@@ -224,7 +194,7 @@ const RequestId = () => {
         </div>
       </header>
       <div className="px-8 ">
-        <form onSubmit={handleSubmit(SetModalVisible)}>
+        <form onSubmit={handleSubmit(SetModalVisible)} >
           <div className="py-0 pt-24 flex flex-col items-center justify-center min-h-screen sm:py-24">
             <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
               <div className="py-2 text-center w-full">
@@ -344,9 +314,6 @@ const RequestId = () => {
                           required
                           step={"any"}
                           min={0}
-                          onChange={(e) => {
-                            setAmount(parseInt(e.target.value));
-                          }}
                         />
                       </div>
                     </div>
@@ -402,9 +369,6 @@ const RequestId = () => {
                             className="outline-none unvisibleArrow pl-2 py-2 bg-white dark:bg-darkSecond dark:text-white"
                             step={"any"}
                             min={0}
-                            onChange={(e) => {
-                              setAmount2(parseInt(e.target.value));
-                            }}
                           />
                         </div>
                       </div>
@@ -525,7 +489,10 @@ const RequestId = () => {
               disableX={true}
               className="lg:min-w-[50%] !pt-5"
             >
-              <form className="flex flex-col space-y-8 px-2">
+              <form
+                onSubmit={handleSubmit(submit)}
+                className="flex flex-col space-y-8 px-2"
+              >
                 <div className="font-semibold">Your Information</div>
                 <div className="flex flex-col space-y-5">
                   {!!request?.name && (
@@ -552,15 +519,15 @@ const RequestId = () => {
                               ? TotalUSDAmount(
                                   [request as IRequest],
                                   currentCurrency
-                                ).toFixed(2)
+                                )
                               : request?.amount &&
                                 CeloCoins[request.currency as keyof Coins]
                                   .name === "cUSD"
                               ? request.amount
-                              : 0}
+                              : 10}
                           </div>
                           <div className="flex gap-x-2 items-center">
-                            {!!(request?.currency) && (
+                            {!!request?.currency && (
                               <img
                                 src={
                                   CeloCoins[request.currency as keyof Coins]
@@ -569,7 +536,8 @@ const RequestId = () => {
                                 className="rounded-xl w-[1.25rem] h-[1.25rem]"
                               />
                             )}
-                            {!!(request?.currency) && CeloCoins[request.currency as keyof Coins].name}
+                            {!!request?.currency &&
+                              CeloCoins[request.currency as keyof Coins].name}
                           </div>
                         </div>
                       </div>
@@ -641,7 +609,7 @@ const RequestId = () => {
                     <div className="text-greylish">Date of service</div>
                     <div>
                       {dateFormat(
-                        new Date(request!.serviceDate),
+                        new Date(request!.serviceDate * 1000),
                         `dd mmmm yyyy`
                       )}
                     </div>
@@ -675,7 +643,7 @@ const RequestId = () => {
                           rel="noreferrer"
                           target="_blank"
                         >
-                          {request?.uploadedLink}
+                          {fileName}
                         </a>
                       ) : (
                         "No file uploaded"
@@ -687,7 +655,7 @@ const RequestId = () => {
                   <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[25rem] sm:justify-center sm:gap-5">
                     <Button
                       version="second"
-                      onClick={() => setModal(false)}
+                      onClick={() => closeModal()}
                       className="w-[9.375rem] sm:w-full"
                     >
                       Back
@@ -713,4 +681,3 @@ const RequestId = () => {
 RequestId.disableLayout = true;
 RequestId.disableGuard = true;
 
-export default RequestId;

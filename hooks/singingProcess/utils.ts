@@ -59,7 +59,7 @@ export const isAddressNftOwner = async (address: string, nft: string, blockchain
     (await nftOwner(nft, blockchain, tokenId)).trim().toLowerCase() === address.trim().toLowerCase()
 }
 
-export const UploadImageForUser = async (props: { image: Image | null, name: string }) => {
+export const UploadNFTorImageForUser = async (props: { image: Image | null, name: string }) => {
     if (props.image) {
         const { imageUrl, nftUrl, blockchain, type, tokenId } = props.image;
         if (imageUrl && typeof imageUrl !== "string" && type === "image") {
