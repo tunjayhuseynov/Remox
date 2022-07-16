@@ -1,11 +1,17 @@
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Tag } from "rpcHooks/useTags";
 
+export interface ITag {
+    id: string;
+    name: string;
+    color: string;
+    transactions: string[],
+    isDefault: boolean;
+}
 
 export default async function FetchTags(
     req: NextApiRequest,
-    res: NextApiResponse<Tag[]>
+    res: NextApiResponse<ITag[]>
 ) {
     try {
         const id = req.query.id;
@@ -13,9 +19,9 @@ export default async function FetchTags(
 
         const tagRefs = await adminApp.firestore().collection("tags").doc(id as string).get()
 
-        const tagContainer = tagRefs.data() as { tags: Tag[] }
+        const tagContainer = tagRefs.data() as { tags: ITag[] }
 
-        const tags: Tag[] = []
+        const tags: ITag[] = []
         if (tagContainer) {
             tags.push(...tagContainer.tags)
         }

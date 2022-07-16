@@ -196,7 +196,7 @@ const EditMember = () => {
   return (
     <>
       <div>
-        {!isLoading && member ? (
+        {member ? (
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="relative w-full mx-auto"
@@ -371,6 +371,7 @@ const EditMember = () => {
                     type="text"
                     {...register("role", { required: true })}
                     placeholder="Role"
+                    defaultValue={member?.role}
                     className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond"
                     required
                   />

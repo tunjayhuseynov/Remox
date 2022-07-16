@@ -1,26 +1,25 @@
 import { useContractKit, useContractKitContext, localStorageKeys, WalletTypes, PROVIDERS } from '@celo-tools/use-contractkit'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useLazyGetTransactionsQuery } from 'redux/api';
-import { selectBlockchain, updateBlockchain } from 'redux/slices/account/network';
-import { AltCoins, CeloCoins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
-import { Transactions } from 'types/sdk';
-import { fromLamport, fromWei, toLamport } from 'utils/ray';
-import { ERC20MethodIds } from '../useTransactionProcess';
-import useCeloPay, { PaymentInput, Task } from 'rpcHooks/useCeloPay'
-import { Tag } from 'rpcHooks/useTags';
-
+import { AltCoins, CeloCoins, Coins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
+import { fromLamport, fromWei, toLamport, toWei } from 'utils/ray';
 import * as spl from 'easy-spl'
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { useFirestoreSearchField } from 'rpcHooks/useFirebase';
-import { changePrivateToken } from 'redux/slices/account/selectedAccount';
 import { TextDecoder, TextEncoder } from 'util';
 import { GetSignedMessage } from 'utils';
-import { SelectBlockchain } from 'redux/slices/account/remoxData';
-
+import { SelectBlockchain, setBlockchain as SetBlockchain } from 'redux/slices/account/remoxData';
+import { FetchPaymentData } from 'redux/slices/account/thunks/payment';
+import { useAppDispatch } from 'redux/hooks';
+import { IPaymentInput } from 'pages/api/payments/send';
+import Web3 from 'web3'
+import { Contracts } from 'rpcHooks/Contracts/Contracts';
+import useAllowance from 'rpcHooks/useAllowance';
+import useGelato from 'rpcHooks/useGelato';
+import { DateInterval } from 'rpcHooks/useContributors';
+import { ITag } from 'pages/api/tags';
 
 
 export enum CollectionName {
@@ -28,18 +27,23 @@ export enum CollectionName {
     Solana = "solanaCurrencies"
 }
 
+export interface Task {
+    interval: DateInterval | "instant",
+    startDate: number,
+}
+
 export type BlockchainType = "celo" | "solana"
 
 export default function useWalletKit() {
     const blockchain = useSelector(SelectBlockchain) as BlockchainType;
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
+
+    const { allow } = useAllowance()
+    const { createTask, getTaskIDs } = useGelato()
 
     const { setVisible } = useWalletModal();
-    const { Pay, BatchPay } = useCeloPay()
 
     const [transactionTrigger] = useLazyGetTransactionsQuery()
-
-    // const { search, isLoading } = useFirestoreSearchField()
 
     //Celo
     const { address, destroy, kit, walletType, connect, initialised } = useContractKit()
@@ -52,16 +56,16 @@ export default function useWalletKit() {
 
 
     const setBlockchain = (bc: BlockchainType) => {
-        dispatch(updateBlockchain(bc))
+        dispatch(SetBlockchain(bc))
     }
 
     const setBlockchainAuto = () => {
         if (address) {
             localStorage.setItem('blockchain', "celo")
-            dispatch(updateBlockchain("celo"))
+            dispatch(SetBlockchain("celo"))
         } else if (publicKey) {
             localStorage.setItem('blockchain', "solana")
-            dispatch(updateBlockchain("solana"))
+            dispatch(SetBlockchain("solana"))
         }
     }
 
@@ -100,67 +104,6 @@ export default function useWalletKit() {
 
         return SolanaCoins;
     }, [blockchain])
-
-    const GetTransactions = useCallback(async (customAddress?: string) => {
-        if (blockchain === "solana" && publicKey) {
-            const txsList: Transactions[] = []
-            // new PublicKey("So11111111111111111111111111111111111111112")
-            const sings = await connection.getConfirmedSignaturesForAddress2(customAddress ? new PublicKey(customAddress) : publicKey, { limit: 1000 })
-            const txs = await connection.getParsedTransactions(sings.map(s => s.signature))
-            const tokens = await connection.getTokenAccountsByOwner(publicKey, { programId: TOKEN_PROGRAM_ID })
-
-            for (const tx of txs) {
-                const arr = tx?.transaction.message.instructions
-                if (arr) {
-                    const arrLen = arr.length;
-                    let amount, from, to, token: CoinsName = CoinsName.SOL;
-                    for (let index = 0; index < arrLen - 1; index++) {
-                        if ((arr[index] as any)?.["parsed"]?.["type"]) {
-                            from = (arr[index] as any)["parsed"]["info"]["source"] ?? ""
-                            to = (arr[index] as any)["parsed"]["info"]["destination"] ?? ""
-                            if ((arr[index] as any)["parsed"]["info"]?.["mint"]) {
-                                token = Object.values(SolanaCoins).find(c => c.contractAddress.toLowerCase() === (arr[index] as any)["parsed"]["info"]["mint"]?.toLowerCase())?.name ?? CoinsName.noCoin
-                                amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]?.amount
-                            } else {
-                                token = CoinsName.SOL
-                                amount = (arr[index] as any)["parsed"]["info"]["lamports"] ?? "0"
-                            }
-                        }
-                    }
-                    let parsedTx: Transactions = {
-                        from,
-                        to,
-                        blockHash: tx?.transaction.message.recentBlockhash ?? "",
-                        blockNumber: "",
-                        confirmations: "",
-                        gas: tx?.meta?.fee.toString() ?? "",
-                        gasPrice: "1",
-                        gasUsed: "1",
-                        hash: tx?.transaction.signatures[0] ?? "",
-                        input: ERC20MethodIds.noInput ?? "",
-                        nonce: "",
-                        timeStamp: (tx?.blockTime ?? Math.floor(new Date().getTime() / 1e3)).toString(),
-                        contractAddress: SolanaCoins.SOL.contractAddress ?? "",
-                        value: amount,
-                        cumulativeGasUsed: "",
-                        logIndex: "",
-                        tokenDecimal: "",
-                        tokenName: token,
-                        tokenSymbol: token,
-                        transactionIndex: "",
-                    }
-                    txsList.push(parsedTx)
-                }
-            }
-
-            return txsList
-        }
-
-        const txs = await transactionTrigger(customAddress ?? (address ?? ""))
-            .unwrap()
-        return txs.result
-
-    }, [blockchain, publicKey, address])
 
     const GetBalance = useCallback(async (item?: AltCoins, addressParams?: string) => {
         try {
@@ -221,38 +164,10 @@ export default function useWalletKit() {
             }
 
             let connection = await connect();
-            // if (localStorage.getItem(localStorageKeys.lastUsedWalletType) === "PrivateKey") {
-            //     const str = localStorage.getItem(localStorageKeys.lastUsedWalletArguments)
-            //     if (str) {
-            //         const key = JSON.parse(str)
-
-            //         if (key[0] !== "GoldToken") {
-            //             kit.addAccount(key[0])
-            //             const accounts = kit.getWallet()?.getAccounts()
-            //             if (accounts) {
-            //                 kit.defaultAccount = accounts[0]
-            //                 const connector = ctx.connector;
-            //                 connector.type = WalletTypes.PrivateKey;
-            //                 await search("users", [
-            //                     {
-            //                         field: 'address',
-            //                         searching: accounts[0],
-            //                         indicator: "array-contains"
-            //                     }
-            //                 ])
-
-            //                 dispatch(changePrivateToken(key[0]))
-            //                 setState("setConnector", connector)
-            //                 setState("setAddress", accounts[0])
-            //             }
-            //         }
-            //     }
-            // }
             return connection;
         } catch (error) {
             console.error(error)
         }
-        //throw new Error("Blockchain not supported")
     }, [blockchain])
 
     const Wallet = useMemo(() => {
@@ -271,61 +186,58 @@ export default function useWalletKit() {
         return CollectionName.Celo
     }, [blockchain])
 
-    const SendTransaction = useCallback(async ({ coin, amount, recipient, comment }: PaymentInput, task?: Task, tags?: Tag[]) => {
-        if (blockchain === 'celo') {
-            return await Pay({ coin, amount, recipient, comment })
-        } else if (blockchain === 'solana' && publicKey && signAllTransactions && signTransaction) {
-            let params: any = {
-                fromPubkey: publicKey,
-                toPubkey: new PublicKey(recipient),
-                lamports: toLamport(amount),
-            };
+    const SendTransaction = useCallback(async (inputArr: IPaymentInput[], { task, tags }: { task?: Task, tags?: ITag[] } = {}) => {
+        if (!Address) throw new Error("Address not set")
+        if (inputArr.length === 0) throw new Error("No inputs")
+        const txData = await dispatch(FetchPaymentData({
+            blockchain,
+            executer: Address,
+            requests: inputArr,
+        })).unwrap()
 
-            if (coin.contractAddress) {
-                const user = spl.Wallet.fromWallet(connection, {
-                    publicKey,
-                    signAllTransactions,
-                    signTransaction
-                })
-                return await user.transferToken(new PublicKey(coin.contractAddress), new PublicKey(recipient), Number(amount))
+        if (blockchain === 'celo') {
+            const destination = txData.destination as string;
+            const data = txData.data as string;
+            const web3 = new Web3((window as any).celo);
+            // let contract: Contract = new web3.eth.Contract((inputArr.length > 1 ? BatchRequestABI.abi : ERC20ABI) as AbiItem[], destination);
+            let option = {
+                data,
+                gas: "500000",
+                from: Address,
+                to: destination,
+                gasPrice: "500000000",
+                value: "0",
             }
 
-            const transaction = new Transaction().add(SystemProgram.transfer(params))
+            const approveArr = await GroupCoinsForApprove(inputArr, GetCoins)
+            if (inputArr.length > 1) {
+                for (let index = 0; index < approveArr.length; index++) {
+                    await allow(Address, approveArr[index].coin.contractAddress, Contracts.BatchRequest.address, approveArr[index].amount.toString())
+                }
+            }
 
-            const signature = await sendTransaction(transaction, connection);
+            if (task) {
+                const abi = data;
+                for (let index = 0; index < approveArr.length; index++) {
+                    await allow(Address, approveArr[index].coin.contractAddress, Contracts.Gelato.address, approveArr[index].amount.toString())
+                }
+                await createTask(task.startDate, task.interval, Contracts.BatchRequest.address, abi);
+            }
 
-            return await connection.confirmTransaction(signature, 'processed');
-        }
-    }, [blockchain, publicKey, address])
+            const recipet = await web3.eth.sendTransaction(option)
+            const hash = recipet.transactionHash
 
-    const SendBatchTransaction = useCallback(async (inputArr: PaymentInput[], task?: Task, tags?: Tag[]) => {
-        if (blockchain === 'celo') {
-            await BatchPay(inputArr, task, tags)
         } else if (blockchain === 'solana' && publicKey && signTransaction && signAllTransactions) {
             const transaction = new Transaction()
-            for (const item of inputArr) {
-                let params: any = {
-                    fromPubkey: publicKey,
-                    toPubkey: new PublicKey(item.recipient),
-                    lamports: toLamport(item.amount),
-                }
-                if (item.coin.contractAddress) {
-                    transaction.add(
-                        ...(await spl.token.transferTokenInstructions(
-                            connection, new PublicKey(item.coin.contractAddress),
-                            publicKey, new PublicKey(item.recipient),
-                            Number(item.amount)
-                        ))
-                    )
-                } else {
-                    transaction.add(
-                        SystemProgram.transfer(params)
-                    )
-                }
-            }
-            const signature = await sendTransaction(transaction, connection);
+            transaction.add(...(txData.data as TransactionInstruction[]))
 
-            await connection.confirmTransaction(signature, 'processed');
+            const signature = await sendTransaction(transaction, connection);
+            const latestBlockHash = await connection.getLatestBlockhash();
+            await connection.confirmTransaction({
+                blockhash: latestBlockHash.blockhash,
+                lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+                signature: signature
+            });
         }
         return
     }, [blockchain, publicKey, address])
@@ -334,8 +246,24 @@ export default function useWalletKit() {
     return {
         Address, Disconnect, GetBalance, blockchain,
         Wallet, setBlockchain, Connect, Connected,
-        GetCoins, GetTransactions, SendTransaction,
-        SendBatchTransaction, Collection, setBlockchainAuto,
+        GetCoins,
+        SendTransaction, Collection, setBlockchainAuto,
         fromMinScale, signMessageInWallet
     }
+}
+
+export const GroupCoinsForApprove = async (inputArr: IPaymentInput[], GetCoin: Coins) => {
+    const approveArr: { coin: AltCoins, amount: number }[] = []
+
+    for (let index = 0; index < inputArr.length; index++) {
+        const element = inputArr[index];
+        const coin = GetCoin[element.coin]
+        if (!approveArr.some(e => e.coin.name === coin.name)) {
+            approveArr.push({ coin: coin, amount: element.amount })
+        } else {
+            approveArr.find(e => e.coin.name === coin.name)!.amount += element.amount
+        }
+    }
+
+    return approveArr;
 }

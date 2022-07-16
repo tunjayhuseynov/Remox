@@ -1,6 +1,6 @@
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { PublicKey, Connection } from "@solana/web3.js"
-import { FirestoreRead, FirestoreReadMultiple, Indicator, UploadFile, useFirestoreSearchField } from "rpcHooks/useFirebase"
+import { FirestoreRead, FirestoreReadMultiple, Indicator, UploadImage, useFirestoreSearchField } from "rpcHooks/useFirebase"
 import axios from "axios"
 import { SolanaEndpoint } from "components/Wallet"
 import { individualCollectionName } from "crud/individual"
@@ -63,7 +63,7 @@ export const UploadNFTorImageForUser = async (props: { image: Image | null, name
     if (props.image) {
         const { imageUrl, nftUrl, blockchain, type, tokenId } = props.image;
         if (imageUrl && typeof imageUrl !== "string" && type === "image") {
-            props.image.imageUrl = await UploadFile(props.name, imageUrl);
+            props.image.imageUrl = await UploadImage(props.name, imageUrl);
         } else if (nftUrl && type === "nft") {
             if (blockchain === "celo") {
                 if (!tokenId) throw new Error("Token ID is required for Celo NFTs")

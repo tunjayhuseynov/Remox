@@ -30,7 +30,7 @@ export interface IMember {
   name: string,
   first: string,
   last: string,
-  role:string,
+  role: string,
   image: Image | null,
   address: string,
   compensation: string,

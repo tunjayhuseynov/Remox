@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Tag } from 'rpcHooks/useTags';
+import { ITag } from 'pages/api/tags';
 import { RootState } from '../store';
 
 interface IContainer {
-	tags: Tag[];
+	tags: ITag[];
 }
 
 const initialState: IContainer = {
@@ -14,7 +14,7 @@ export const tagSlice = createSlice({
 	name: 'tag',
 	initialState: initialState,
 	reducers: {
-		setTags: (state, action: { payload: Tag[] }) => {
+		setTags: (state, action: { payload: ITag[] }) => {
 			state.tags = action.payload;
 		}
 	}

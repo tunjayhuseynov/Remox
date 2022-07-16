@@ -1,25 +1,33 @@
-import { useContractKit } from '@celo-tools/use-contractkit'
 import { useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { toWei } from 'utils/ray'
+import Web3 from 'web3'
+import ERC20 from 'rpcHooks/ABI/erc20.json'
+import { AbiItem } from './ABI/AbiItem'
 
 export default function useAllowance() {
-    const { kit, address } = useContractKit()
+    // const { kit, address } = useContractKit()
     const [loading, setLoading] = useState(false)
 
-    const allow = async (contract: string, spender: string, etherAmount: string) => {
+    const allow = async (address: string, contractAddress: string, spender: string, etherAmount: string) => {
         setLoading(true)
         try {
-            const tokenContract = await kit.contracts.getErc20(contract)
 
+            const web3 = new Web3((window as any).celo)
+
+            const contract = new web3.eth.Contract(ERC20 as AbiItem[], contractAddress)
+            const allowance = await contract.methods.allowance(address, spender).call()
             const amount = new BigNumber(toWei(etherAmount))
+            const approve = await contract.methods.approve(spender, amount.plus(allowance).toString()).send({ from: address, gas: 300000, gasPrice: "500000000" })
+            // const tokenContract = await kit.contracts.getErc20(contractAddress)
 
-            const allowance = await tokenContract.allowance(address!, spender)
+
+            // const allowance = await tokenContract.allowance(address!, spender)
 
 
-            const approve = tokenContract.approve(spender, (amount.plus(allowance)).toString())
+            // const approve = tokenContract.approve(spender, (amount.plus(allowance)).toString())
 
-            await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            // await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLoading(false)
         } catch (error: any) {
             console.error(error)
@@ -28,19 +36,27 @@ export default function useAllowance() {
         }
     }
 
-    const disallow = async (contract: string, spender: string, etherAmount: string) => {
+    const disallow = async (address: string, contractAddress: string, spender: string, etherAmount: string) => {
         setLoading(true)
         try {
-            const tokenContract = await kit.contracts.getErc20(contract)
+            const web3 = new Web3((window as any).celo)
 
+            const contract = new web3.eth.Contract(ERC20 as AbiItem[], contractAddress)
+            const allowance = await contract.methods.allowance(address, spender).call()
             const amount = new BigNumber(toWei(etherAmount))
-
-            const allowance = await tokenContract.allowance(address!, spender)
-
             const sum = amount.minus(allowance)
+            const approve = await contract.methods.approve(spender, sum.toString()).send({ from: address, gas: 300000, gasPrice: "500000000" })
 
-            const approve = tokenContract.approve(spender, sum.toString())
-            await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            // const tokenContract = await kit.contracts.getErc20(contract)
+
+            // const amount = new BigNumber(toWei(etherAmount))
+
+            // const allowance = await tokenContract.allowance(address!, spender)
+
+            // const sum = amount.minus(allowance)
+
+            // const approve = tokenContract.approve(spender, sum.toString())
+            // await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
             setLoading(false)
         } catch (error: any) {
             console.error(error)

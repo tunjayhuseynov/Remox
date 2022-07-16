@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux';
 import { Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
-import { Tag } from 'rpcHooks/useTags';
 import { selectTags } from 'redux/slices/tags';
 import useWalletKit from './walletSDK/useWalletKit';
+import { ITag } from 'pages/api/tags';
 
 
 export const ERC20MethodIds = {
@@ -30,7 +30,7 @@ export interface IFormattedTransaction {
     method: string;
     hash: string,
     id: string;
-    tags?: Tag[]
+    tags?: ITag[]
 }
 
 export interface ITransfer extends IFormattedTransaction { // aw, Moola Borrow
@@ -81,7 +81,7 @@ const useTransactionProcess = (): [IFormattedTransaction[]] | [] => {
 }
 
 
-export const InputReader = (input: string, transaction: Transactions, tags: Tag[], Coins: Coins) => {
+export const InputReader = (input: string, transaction: Transactions, tags: ITag[], Coins: Coins) => {
     const theTags = tags.filter(s => s.transactions.includes(transaction.hash.toLowerCase()))
     if (input === null || input === ERC20MethodIds.noInput) {
         return {

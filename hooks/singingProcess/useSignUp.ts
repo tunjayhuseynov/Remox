@@ -6,10 +6,11 @@ import { auth, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { Create_Organization } from "crud/organization";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { GetTime } from "utils";
-import { useDispatch } from "react-redux";
-import { UploadFile } from "rpcHooks/useFirebase";
+import { UploadImage } from "rpcHooks/useFirebase";
 import { useSelector } from "react-redux";
 import { SelectIndividual, setStorage } from "redux/slices/account/remoxData";
+import { useAppDispatch } from "redux/hooks";
+import { CreateTag } from "redux/slices/account/thunks/tags";
 
 interface IOrganizationCreate {
     organizationIsUpload: boolean;
@@ -20,7 +21,7 @@ interface IOrganizationCreate {
 }
 
 export default function useSignUp(address: string, blockchain: BlockchainType) {
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
     const individual = useSelector(SelectIndividual)
 
     const RegisterIndividual = useCallback(async (individual: Omit<IIndividual, "id" | "created_date">) => {
@@ -36,6 +37,22 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
             created_date: Math.floor(new Date().getTime() / 1000),
             members: [address],
         }
+
+        dispatch(CreateTag({
+            id,
+            color: "#0ffff7",
+            name: "Gas Fee"
+        }))
+        dispatch(CreateTag({
+            id,
+            color: "#ff0ae6",
+            name: "Swap"
+        }))
+        dispatch(CreateTag({
+            id,
+            color: "#23c4ff",
+            name: "Payroll"
+        }))
 
         dispatch(setStorage({
             individual: individualState,
@@ -64,7 +81,7 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
             if (!input.organizationNFTTokenId) throw new Error("No Organization Token Id")
         } else {
             if (!input.organizationFile) throw new Error("No Organization File Upload")
-            const organizationURL = await UploadFile(`${input.organizationName}/nft`, input.organizationFile)
+            const organizationURL = await UploadImage(`${input.organizationName}/nft`, input.organizationFile)
             organizationImageObject = {
                 blockchain,
                 imageUrl: organizationURL,
@@ -93,6 +110,23 @@ export default function useSignUp(address: string, blockchain: BlockchainType) {
             creator: Get_Individual_Ref(individual.id),
             created_date: GetTime(),
         })
+
+        dispatch(CreateTag({
+            id,
+            color: "#0ffff7",
+            name: "Gas Fee"
+        }))
+        dispatch(CreateTag({
+            id,
+            color: "#ff0ae6",
+            name: "Swap"
+        }))
+        dispatch(CreateTag({
+            id,
+            color: "#23c4ff",
+            name: "Payroll"
+        }))
+
         dispatch(setStorage({
             individual: individual,
             uid: auth.currentUser?.uid,

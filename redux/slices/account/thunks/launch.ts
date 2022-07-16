@@ -10,9 +10,11 @@ import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
 import { IAccountMultisig } from "pages/api/multisig";
 import { IRequest } from "rpcHooks/useRequest";
-import { Tag } from "rpcHooks/useTags";
+import { IPriceResponse } from "pages/api/calculation/price";
+import { ITag } from "pages/api/tags";
 
 type LaunchResponse = {
+    Balance: IPriceResponse;
     RemoxAccount: IRemoxAccountORM,
     Budgets: IBudgetExerciseORM[],
     Spending: ISpendingResponse,
@@ -21,7 +23,7 @@ type LaunchResponse = {
     Storage: IStorage,
     Transactions: IFormattedTransaction[],
     Requests: IRequest[],
-    Tags: Tag[],
+    Tags: ITag[],
     multisigAccounts: {
         all: IAccountMultisig[],
         multisigTxs: IAccountMultisig["txs"],
@@ -47,6 +49,13 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
             addresses: addresses,
             blockchain: blockchain,
             id: id,
+        }
+    });
+
+    const balances = axios.get<IPriceResponse>("/api/calculation/price", {
+        params: {
+            addresses: addresses,
+            blockchain: blockchain,
         }
     });
 
@@ -85,14 +94,14 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         }
     })
 
-    const tags = axios.get<Tag[]>("/api/tags", {
+    const tags = axios.get<ITag[]>("/api/tags", {
         params: {
             id: id,
         }
     })
 
 
-    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags]);
+    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes, balanceRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags, balances]);
     
 
     const accounts = accountRes.data;
@@ -130,6 +139,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
     let allCumulativeTransactions = [...transactionsRes.data, ...multisigRequests].sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
 
     const res: LaunchResponse = {
+        Balance: balanceRes.data,
         RemoxAccount: accountRes.data,
         Budgets: budgetRes.data,
         Spending: spendingRes.data,

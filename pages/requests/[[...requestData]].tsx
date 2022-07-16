@@ -28,7 +28,7 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch } from "redux/hooks";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import useLoading from "hooks/useLoading";
-import { UploadFile } from "rpcHooks/useFirebase";
+import { UploadImage } from "rpcHooks/useFirebase";
 import { storage } from "firebaseConfig/firebase";
 import { ref, StorageReference, deleteObject } from "firebase/storage";
 
@@ -132,7 +132,7 @@ export default function RequestId() {
 
     try {
       if(Invoice){
-        const url = await UploadFile(`/requests/${signer}/${id}`, Invoice!);
+        const url = await UploadImage(`/requests/${signer}/${id}`, Invoice!);
         setImageUrl(url);
         setImageRef(ref(storage, url));
       }

@@ -5,13 +5,13 @@ import { CeloCoins, CoinsName, PoofCoins, SolanaCoins } from 'types';
 import { GetTransactions, Transactions } from 'types/sdk'
 import * as solanaWeb3 from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Tag } from 'rpcHooks/useTags';
 import _ from 'lodash';
 import { SolanaEndpoint } from 'components/Wallet';
 import { CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
 import { FirestoreRead, FirestoreReadMultiple } from 'rpcHooks/useFirebase';
 import { adminApp } from 'firebaseConfig/admin';
 import { BlockchainType } from 'hooks/walletSDK/useWalletKit';
+import { ITag } from './tags';
 
 
 
@@ -35,7 +35,7 @@ export default async function handler(
 
     let myTags;
     if (authId) {
-      myTags = (await adminApp.firestore().collection("tags").doc(authId).get()).data() as { tags: Tag[] }
+      myTags = (await adminApp.firestore().collection("tags").doc(authId).get()).data() as { tags: ITag[] }
       // myTags = await FirestoreRead<{tags: Tag[]}>("tags", authId)
     }
 
@@ -50,7 +50,7 @@ export default async function handler(
   }
 }
 
-const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType, inTxs?: string[]) => {
+const GetTxs = async (address: string, tags: ITag[], blockchain: BlockchainType, inTxs?: string[]) => {
   let txList: Transactions[] = []
 
   if (blockchain === "solana") {
@@ -129,7 +129,7 @@ const GetTxs = async (address: string, tags: Tag[], blockchain: BlockchainType, 
   return parsedTxs
 }
 
-const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType, tags: Tag[]) => {
+const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType, tags: ITag[]) => {
   const Coins = GetCoins(blockchain)
   let result: Transactions[] = [...transactions]
 

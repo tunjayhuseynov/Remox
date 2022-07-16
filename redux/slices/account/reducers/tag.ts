@@ -1,17 +1,17 @@
-import { Tag } from "rpcHooks/useTags";
+import { ITag } from "pages/api/tags";
 import { IRemoxData } from "../remoxData";
 
 export default {
-    setTags: (state: IRemoxData, action: { payload: Tag[] }) => {
+    setTags: (state: IRemoxData, action: { payload: ITag[] }) => {
         state.tags = action.payload;
     },
-    addTag: (state: IRemoxData, action: { payload: Tag }) => {
+    addTag: (state: IRemoxData, action: { payload: ITag }) => {
         state.tags = [...state.tags, action.payload];
     },
     removeTag: (state: IRemoxData, action: { payload: string }) => {
         state.tags = state.tags.filter(tag => tag.id !== action.payload);
     },
-    updateTag: (state: IRemoxData, action: { payload: Tag }) => {
+    updateTag: (state: IRemoxData, action: { payload: ITag }) => {
         state.tags = state.tags.map(tag => {
             if (tag.id === action.payload.id) {
                 return action.payload;

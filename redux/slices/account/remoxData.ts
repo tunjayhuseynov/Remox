@@ -21,7 +21,10 @@ import { IAccount, IBudget, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { Tag } from "rpcHooks/useTags";
+import { IPriceCoin } from "pages/api/calculation/price";
+import { AddTransactionToTag, CreateTag, DeleteTag, RemoveTransactionFromTag, UpdateTag } from "./thunks/tags";
+import { ITag } from "pages/api/tags";
+import { TokenType } from "types";
 
 export type IAccountType = "individual" | "organization";
 
@@ -40,7 +43,8 @@ export interface IMultisigStats {
 // Bizim webapp'in merkezi datalari
 export interface IRemoxData {
     isFetching: boolean;
-    tags: Tag[],
+    balances: { [name: string]: IPriceCoin } | null;
+    tags: ITag[],
     stats: ISpendingResponse | null; // +
     budgetExercises: IBudgetExerciseORM[], // +
     contributors: IContributor[], // +
@@ -73,6 +77,7 @@ const init = (): IRemoxData => {
         tags: [],
         budgetExercises: [],
         contributors: [],
+        balances: null,
         requests: {
             pendingRequests: [],
             approvedRequests: [],
@@ -129,6 +134,32 @@ const remoxDataSlice = createSlice({
         }
     },
     extraReducers: builder => {
+        builder.addCase(CreateTag.fulfilled, (state, action) => {
+            state.tags = [...state.tags, action.payload];
+        })
+        builder.addCase(UpdateTag.fulfilled, (state, action) => {
+            state.tags = [...state.tags.filter(tag => tag.id !== action.payload.oldTag.id), action.payload.newTag];
+        })
+        builder.addCase(DeleteTag.fulfilled, (state, action) => {
+            state.tags = [...state.tags.filter(tag => tag.id !== action.payload.id)];
+        })
+        builder.addCase(AddTransactionToTag.fulfilled, (state, action) => {
+            state.tags = [...state.tags.map(tag => {
+                if (tag.id === action.payload.tagId) {
+                    tag.transactions = [...tag.transactions, action.payload.transactionId];
+                }
+                return tag;
+            })];
+        })
+        builder.addCase(RemoveTransactionFromTag.fulfilled, (state, action) => {
+            state.tags = [...state.tags.map(tag => {
+                if (tag.id === action.payload.tagId) {
+                    tag.transactions = [...tag.transactions.filter(transactionId => transactionId !== action.payload.transactionId)];
+                }
+                return tag;
+            })];
+        })
+
         builder.addCase(Remove_Member_From_Account_Thunk.fulfilled, (state, action) => {
             const index = state.accounts.findIndex(account => account.id === action.payload.accountAddress)
             if (index !== -1) {
@@ -167,6 +198,7 @@ const remoxDataSlice = createSlice({
             state.storage = action.payload.Storage;
             state.transactions = action.payload.Transactions;
             state.tags = action.payload.Tags;
+            state.balances = action.payload.Balance.AllPrices;
 
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
@@ -197,6 +229,74 @@ const remoxDataSlice = createSlice({
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (storage) => storage
+)
+
+export const SelectBalance = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.balances,
+    (balances) => balances
+)
+
+export const SelectYieldBalance = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.balances,
+
+    (balances) => {
+        if (balances) {
+            return Object.entries(balances).reduce<{ [name: string]: IPriceCoin }>((a, c) => {
+                if (c[1].coins.type === TokenType.YieldToken) {
+                    a[c[0]] = c[1];
+                }
+                return a;
+            }, {})
+        }
+        return null;
+    }
+)
+
+export const SelectSpotTotalBalance = createDraftSafeSelector( 
+    (state: RootState) => state.remoxData.balances,
+    (balances) => {
+        if (balances) {
+            return Object.entries(balances).reduce<number>((a, c) => {
+                if (c[1].coins.type !== TokenType.YieldToken) {
+                    a += c[1].tokenPrice * c[1].amount;
+
+                }
+                return a;
+            }, 0)
+        }
+        return 0;
+    }
+)
+
+export const SelectYieldTotalBalance = createDraftSafeSelector( 
+    (state: RootState) => state.remoxData.balances,
+    (balances) => {
+        if (balances) {
+            return Object.entries(balances).reduce<number>((a, c) => {
+                if (c[1].coins.type === TokenType.YieldToken) {
+                    a += c[1].tokenPrice * c[1].amount;
+
+                }
+                return a;
+            }, 0)
+        }
+        return 0;
+    }
+)
+
+export const SelectSpotBalance = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.balances,
+    (balances) => {
+        if (balances) {
+            return Object.entries(balances).reduce<{ [name: string]: IPriceCoin }>((a, c) => {
+                if (c[1].coins.type !== TokenType.YieldToken) {
+                    a[c[0]] = c[1];
+                }
+                return a;
+            }, {})
+        }
+        return null;
+    }
 )
 
 export const SelectSelectedAccountAndBudget = createDraftSafeSelector(

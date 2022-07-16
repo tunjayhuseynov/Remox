@@ -16,7 +16,7 @@ import { ToastRun } from 'utils/toast';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import useNextSelector from 'hooks/useNextSelector';
 import { selectStorage } from 'redux/slices/account/storage';
-import { UploadFile } from 'rpcHooks/useFirebase';
+import { UploadImage } from 'rpcHooks/useFirebase';
 import { UploadNFTorImageForUser } from 'hooks/singingProcess/utils';
 import { IAccount, Image } from 'firebaseConfig';
 

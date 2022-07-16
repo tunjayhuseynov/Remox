@@ -1,54 +1,56 @@
-import useTags from 'rpcHooks/useTags'
 import Button from 'components/button'
-import Error from 'components/general/error'
 import Modal from 'components/general/modal'
-import Success from 'components/general/success'
 import { useModalSideExit } from 'hooks'
 import { useRef, useState } from 'react'
 import { TwitterPicker } from 'react-color'
 import { AiOutlineDown } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
-import { changeError, changeSuccess, selectError, selectSuccess } from 'redux/slices/notificationSlice'
 import { selectTags } from 'redux/slices/tags'
 import TagItem from 'subpages/dashboard/settings/labels/tagItem'
 import { useForm, SubmitHandler } from "react-hook-form";
+import useLoading from 'hooks/useLoading'
+import { useAppDispatch, useAppSelector } from 'redux/hooks'
+import { CreateTag } from 'redux/slices/account/thunks/tags'
+import { SelectID } from 'redux/slices/account/remoxData'
 
 export interface IFormInput {
-    name:string;
-    color:string;
-  }
+    name: string;
+    color: string;
+}
 
 export default function TagsSetting() {
-  const { register, handleSubmit } = useForm<IFormInput>();
+    const { register, handleSubmit } = useForm<IFormInput>();
     const tags = useSelector(selectTags)
-    const isSuccess = useSelector(selectSuccess)
-    const isError = useSelector(selectError)
-    const dispatch = useDispatch()
+
+    const id = useAppSelector(SelectID);
+    const dispatch = useAppDispatch()
 
     const [showModal, setShowModal] = useState(false)
     const [colorPicker, setColorPicker] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
     const [color, setColor] = useState('')
-    const [ref, exceptRef] = useModalSideExit<boolean>(colorPicker, setColorPicker,false)
+    const [ref, exceptRef] = useModalSideExit<boolean>(colorPicker, setColorPicker, false)
 
-    const { createTag, isLoading } = useTags()
 
-    const create = async () => {
-        const name = inputRef.current?.value
-        if (color && name) {
-            await createTag(name, color)
-        }
-        setShowModal(false)
-    }
 
     const colorHandler = (color: { hex: string }) => {
         setColor(color.hex)
     }
 
-    const onSubmit: SubmitHandler<IFormInput> = data => {
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         const Color = color
-        console.log(data,Color)
+        if (!id) return
+
+        if (Color && data.name) {
+            dispatch(CreateTag({
+                color: Color,
+                id: id,
+                name: data.name
+            }))
+        }
     }
+
+    const [isLoading, OnSubmit] = useLoading(onSubmit)
 
     return (
         <>
@@ -69,7 +71,7 @@ export default function TagsSetting() {
             </div>
             {showModal &&
                 <Modal onDisable={setShowModal} animatedModal={false} disableX={true} className="!pt-5 overflow-visible">
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-12 items-center">
+                    <form onSubmit={handleSubmit(OnSubmit)} className="flex flex-col space-y-12 items-center">
                         <div className="flex  font-semibold tracking-wider text-2xl">
                             Create a New Tag
                         </div>
@@ -91,11 +93,11 @@ export default function TagsSetting() {
                                     <div className="border-l border-greylish px-2 py-2 " ref={exceptRef}>
                                         <AiOutlineDown />
                                     </div>
-                                        {colorPicker &&
-                                            <div className="absolute -bottom-3 left-0 translate-y-full z-50" ref={ref}>
-                                                <TwitterPicker onChange={colorHandler} />
-                                            </div>
-                                        }
+                                    {colorPicker &&
+                                        <div className="absolute -bottom-3 left-0 translate-y-full z-50" ref={ref}>
+                                            <TwitterPicker onChange={colorHandler} />
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -103,7 +105,7 @@ export default function TagsSetting() {
                             <Button type="submit" version="second" onClick={() => setShowModal(false)} className="px-8 !py-2">
                                 Back
                             </Button>
-                            <Button type="submit" onClick={create}  className=" !py-2 " isLoading={isLoading} >
+                            <Button type="submit" className=" !py-2 " isLoading={isLoading} >
                                 Create
                             </Button>
                         </div>
