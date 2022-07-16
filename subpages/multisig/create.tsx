@@ -41,8 +41,8 @@ export default function Create({ setCreateModal }: { setCreateModal: Dispatch<bo
                 await createMultisigAccount(
                     owners.map(owner => owner.address),
                     name,
-                    sign.toString(),
-                    internalSign.toString(),
+                    sign,
+                    internalSign,
                     null,
                     accountType!
                 )

@@ -2,7 +2,7 @@ import { Fragment, useState, useMemo } from 'react';
 import { useAppSelector } from 'redux/hooks'
 import { selectContributors } from 'redux/slices/account/contributors';
 import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
-import { DateInterval, ExecutionType, IMember } from 'rpcHooks/useContributors';
+import { DateInterval, ExecutionType, IMember } from 'types/dashboard/contributors';
 import AddStopModal from 'subpages/dashboard/automations/buttons/addStop';
 import Modal from 'components/general/modal';
 import TeamContainer from 'subpages/dashboard/automations/teamContainer'

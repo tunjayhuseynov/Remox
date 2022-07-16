@@ -3,9 +3,9 @@ import Modal from "../../../components/general/modal";
 import Delete from "./buttons/delete";
 // import EditTeam from './buttons/editTeam'
 import TeamItem from "./teamItem";
-import { IContributor } from "rpcHooks/useContributors";
+import { IContributor } from "types/dashboard/contributors";
 import useContributors from "hooks/useContributors";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useModalSideExit } from "hooks";
@@ -17,7 +17,7 @@ import { useRouter } from "next/router";
 const TeamContainer = (props: (IContributor) & { index: number }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const { removeTeam } = useContributors()
-    const { cancelTask } = useGelato()
+    const { cancelTask } = useTasking()
     const [num, setNum] = useState(15)
     const [details, setDetails] = useState(false)
     const dark = useAppSelector(selectDarkMode)

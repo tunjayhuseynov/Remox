@@ -1,7 +1,7 @@
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
 import { db, IAccount, IIndividual } from "firebaseConfig";
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise";
-import { arrayUnion, doc, DocumentReference, FieldValue } from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, DocumentReference, FieldValue } from "firebase/firestore";
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account";
 
 export const individualCollectionName = "individuals"
@@ -67,6 +67,12 @@ export const Update_Individual = async (individualFreeze: IIndividual) => {
 export const Add_New_Individual_Account = async (individual: IIndividual, account: IAccount) => {
     await FirestoreWrite<{ accounts: FieldValue }>().updateDoc(individualCollectionName, individual.id, {
         accounts: arrayUnion(Get_Account_Ref(account.id))
+    })
+}
+
+export const Remove_Individual_Account = async (individual: IIndividual, account: IAccount) => {
+    await FirestoreWrite<{ accounts: FieldValue }>().updateDoc(individualCollectionName, individual.id, {
+        accounts: arrayRemove(Get_Account_Ref(account.id))
     })
 }
 

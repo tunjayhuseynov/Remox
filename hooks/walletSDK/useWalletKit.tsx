@@ -1,12 +1,11 @@
 import { useContractKit, useContractKitContext, localStorageKeys, WalletTypes, PROVIDERS } from '@celo-tools/use-contractkit'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { useCallback, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { useLazyGetTransactionsQuery } from 'redux/api';
-import { AltCoins, CeloCoins, Coins, CoinsName, PoofCoins, SolanaCoins, TokenType } from 'types';
-import { fromLamport, fromWei, toLamport, toWei } from 'utils/ray';
+import { useSelector } from 'react-redux';
+import { AltCoins, CeloCoins, Coins, PoofCoins, SolanaCoins, TokenType } from 'types';
+import { fromLamport, fromWei } from 'utils/ray';
 import * as spl from 'easy-spl'
 import { TextDecoder, TextEncoder } from 'util';
 import { GetSignedMessage } from 'utils';
@@ -17,9 +16,11 @@ import { IPaymentInput } from 'pages/api/payments/send';
 import Web3 from 'web3'
 import { Contracts } from 'rpcHooks/Contracts/Contracts';
 import useAllowance from 'rpcHooks/useAllowance';
-import useGelato from 'rpcHooks/useGelato';
-import { DateInterval } from 'rpcHooks/useContributors';
+import useTasking from 'rpcHooks/useTasking';
+import { DateInterval } from 'types/dashboard/contributors';
 import { ITag } from 'pages/api/tags';
+import { IAccount } from 'firebaseConfig';
+import useMultisig from './useMultisig';
 
 
 export enum CollectionName {
@@ -34,16 +35,28 @@ export interface Task {
 
 export type BlockchainType = "celo" | "solana"
 
+export const MULTISIG_PROVIDERS = [
+    {
+        name: "Celo Terminal",
+        type: "celoTerminal",
+        blockchain: "celo"
+    },
+    {
+        name: "Goki",
+        type: "goki",
+        blockchain: "solana"
+    },
+]
+
 export default function useWalletKit() {
     const blockchain = useSelector(SelectBlockchain) as BlockchainType;
     const dispatch = useAppDispatch()
 
     const { allow } = useAllowance()
-    const { createTask, getTaskIDs } = useGelato()
+    const { createTask } = useTasking()
+    const { submitTransaction } = useMultisig()
 
     const { setVisible } = useWalletModal();
-
-    const [transactionTrigger] = useLazyGetTransactionsQuery()
 
     //Celo
     const { address, destroy, kit, walletType, connect, initialised } = useContractKit()
@@ -58,6 +71,14 @@ export default function useWalletKit() {
     const setBlockchain = (bc: BlockchainType) => {
         dispatch(SetBlockchain(bc))
     }
+
+    const getMultisigProviders = useMemo(() => {
+        if (blockchain === "celo") {
+            return MULTISIG_PROVIDERS.filter(p => p.blockchain === "celo")
+        }
+
+        return MULTISIG_PROVIDERS.filter(p => p.blockchain === "solana")
+    }, [blockchain])
 
     const setBlockchainAuto = () => {
         if (address) {
@@ -186,13 +207,17 @@ export default function useWalletKit() {
         return CollectionName.Celo
     }, [blockchain])
 
-    const SendTransaction = useCallback(async (inputArr: IPaymentInput[], { task, tags }: { task?: Task, tags?: ITag[] } = {}) => {
+    const SendTransaction = useCallback(async (account: IAccount, inputArr: IPaymentInput[], { task, tags, isStreaming = false, startTime, endTime }: { isStreaming?: boolean, task?: Task, tags?: ITag[], startTime?: number, endTime?: number, } = {}) => {
+        const Address = account.address;
         if (!Address) throw new Error("Address not set")
         if (inputArr.length === 0) throw new Error("No inputs")
         const txData = await dispatch(FetchPaymentData({
             blockchain,
             executer: Address,
             requests: inputArr,
+            endTime: endTime ?? null,
+            startTime: startTime ?? null,
+            isStreaming,
         })).unwrap()
 
         if (blockchain === 'celo') {
@@ -216,20 +241,32 @@ export default function useWalletKit() {
                 }
             }
 
-            if (task) {
+            if (task) { // Need Multisig
                 const abi = data;
                 for (let index = 0; index < approveArr.length; index++) {
                     await allow(Address, approveArr[index].coin.contractAddress, Contracts.Gelato.address, approveArr[index].amount.toString())
                 }
-                await createTask(task.startDate, task.interval, Contracts.BatchRequest.address, abi);
+                await createTask(account, task.startDate, task.interval, Contracts.BatchRequest.address, abi);
+                return
             }
 
-            const recipet = await web3.eth.sendTransaction(option)
-            const hash = recipet.transactionHash
+            if (account.signerType === "single") {
+                const recipet = await web3.eth.sendTransaction(option)
+                const hash = recipet.transactionHash
+            } else {
+                await submitTransaction(account.address, data, destination)
+            }
 
         } else if (blockchain === 'solana' && publicKey && signTransaction && signAllTransactions) {
+            const data = txData.data as TransactionInstruction[]
+            const destination = txData.destination
+
+            if (account.signerType === "multi") {
+                await submitTransaction(account.address, data, destination)
+                return
+            }
             const transaction = new Transaction()
-            transaction.add(...(txData.data as TransactionInstruction[]))
+            transaction.add(...data)
 
             const signature = await sendTransaction(transaction, connection);
             const latestBlockHash = await connection.getLatestBlockhash();
@@ -246,7 +283,7 @@ export default function useWalletKit() {
     return {
         Address, Disconnect, GetBalance, blockchain,
         Wallet, setBlockchain, Connect, Connected,
-        GetCoins,
+        GetCoins, getMultisigProviders,
         SendTransaction, Collection, setBlockchainAuto,
         fromMinScale, signMessageInWallet
     }

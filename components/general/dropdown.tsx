@@ -62,7 +62,7 @@ const Dropdown = ({ selected, list, toTop = false, nameActivation = false, onSel
                     {DropDownViewer({ name: selected?.name, photo: selected?.photo, photoDisplay: photoDisplay, totalValue: selected?.totalValue, address: selected?.address ?? selected?.amount, coinUrl: selected?.coinUrl, className: selected?.className, disableAddressDisplay: disableAddressDisplay, displayName })}
                 </div> : <Loader />
                 }
-                {list && list.length > 0 && <div className="ml-1">
+                {list && list.length > 1 && <div className="ml-1">
                     <IoIosArrowDown className='transition' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                 </div>}
             </div>

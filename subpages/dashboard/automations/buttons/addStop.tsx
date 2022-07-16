@@ -1,9 +1,9 @@
-import { ExecutionType, IMember } from "rpcHooks/useContributors";
+import { ExecutionType, IMember } from "types/dashboard/contributors";
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from "components/button";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import TeamItem from "./stopItem";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/slices/account/storage";
 
@@ -11,7 +11,7 @@ import { selectStorage } from "redux/slices/account/storage";
 const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<boolean>, memberState: IMember[] }) => {
 
     const dispatch = useAppDispatch()
-    const { cancelTask, loading } = useGelato()
+    const { cancelTask, loading } = useTasking()
     const { removeMember, isLoading, editMember } = useContributors()
     const storage = useAppSelector(selectStorage)
 

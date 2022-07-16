@@ -1,6 +1,5 @@
 import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransactionWallet"
 import { ethers } from "ethers"
-import { PaymentInput } from "rpcHooks/useCeloPay"
 import { fromWei, toWei } from "utils/ray"
 import nomAbi from "rpcHooks/ABI/nom.json"
 import { CeloEndpoint } from "components/Wallet"

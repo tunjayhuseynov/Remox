@@ -8,7 +8,7 @@ import { PublicKey } from "@solana/web3.js";
 import { decryptMessage } from "utils/hashing";
 import { Create_Individual, individualCollectionName } from "crud/individual";
 import { GetTime } from "utils";
-import { IContributor } from "rpcHooks/useContributors";
+import { IContributor } from "types/dashboard/contributors";
 import { adminApp } from "firebaseConfig/admin";
 import { Get_Budget_Exercise_Ref } from "crud/budget_exercise";
 import { accountCollectionName, Get_Account_Ref } from "crud/account";

@@ -40,12 +40,15 @@ function CreateMultisig() {
     const storage = useNextSelector(selectStorage)
 
     const navigate = useRouter()
+    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
+    const isCreate = index === 0;
+
     const addressRef = useRef<HTMLInputElement>(null)
     const nameRef = useRef<HTMLInputElement>(null)
     const dark = useAppSelector(selectDarkMode)
     const [sign, setSign] = useState<number | undefined>(1)
     const [newOwner, setNewOwner] = useState(false)
-    const [text, setText] = useState('Create Multisig')
+
     const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
     const [file, setFile] = useState<File>()
     const [multisigIsUpload, setMultisigIsUpload] = useState<boolean>(true)
@@ -77,13 +80,13 @@ function CreateMultisig() {
             }
 
             let multisig: IAccount;
-            if (text === "Create Multisig") {
+            if (isCreate) {
                 multisig =
                     await createMultisigAccount(
                         Owners.map(s => s.address),
                         data.name,
-                        data.confirmOwners?.toString() ?? "0",
-                        data.confirmOwners?.toString() ?? "0",
+                        data.confirmOwners ?? 1,
+                        data.confirmOwners ?? 1,
                         image?.image ?? null,
                         storage?.organization ? "organization" : "individual"
                     )
@@ -116,13 +119,13 @@ function CreateMultisig() {
     }
 
 
-    const paymentdata = [
+    const pages = [
         {
-            to: "",
+            to: "/create-multisig",
             text: "Create Multisig"
         },
         {
-            to: "",
+            to: "/create-multisig?index=1&noAnimation=true",
             text: "Import Multisig"
         }
     ]
@@ -139,7 +142,7 @@ function CreateMultisig() {
                 <div className="flex flex-col items-center justify-center gap-4">
                     <div className="text-xl sm:text-3xl  dark:text-white text-center font-semibold">Set Account Details</div>
                     <div className="flex  pt-2 w-full justify-between">
-                        <AnimatedTabBar data={paymentdata} index={0}  setText={setText} className={'!text-lg'} />
+                        <AnimatedTabBar data={pages} index={index} className={'!text-lg'} />
                     </div>
                 </div>
                 <div className="flex flex-col px-3 gap-1 items-center justify-center min-w-[25%]">
@@ -162,10 +165,10 @@ function CreateMultisig() {
                     {blockchain === 'celo' && !multisigIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Token ID</div>
                         <div className={`w-full border rounded-lg`}>
-                            <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+                            <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                         </div>
                     </div>}
-                    {text === "Import Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
+                    {!isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs  text-left  dark:text-white">Multisig Adress</div>
                         <div className={` flex items-center gap-3 w-full border rounded-lg`}>
                             <input type="text" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Multisig Address" />
@@ -177,7 +180,7 @@ function CreateMultisig() {
                             {<input type="text"  {...register("name", { required: true })} placeholder="Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />}
                         </div>
                     </div>
-                    {newOwner && text === "Create Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
+                    {newOwner && isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <span className="text-greylish opacity-35">Add Owners</span>
                         <div className="flex gap-5">
                             <div className={` w-[25%]`}>
@@ -210,10 +213,10 @@ function CreateMultisig() {
                             </div>
                         </div>
                     </div>
-                    {!newOwner && text === "Create Multisig" && <div className="flex flex-col items-start mb-4  w-full ">
+                    {!newOwner && isCreate && <div className="flex flex-col items-start mb-4  w-full ">
                         <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => { setNewOwner(true) }}>+ Add to Owner</div>
                     </div>}
-                    {text === "Create Multisig" && owners.map((w, i) => {
+                    {isCreate && owners.map((w, i) => {
                         return <div key={i} className="flex flex-col  space-y-1 w-full">
                             <div className="flex gap-5">
                                 <div className={` w-[25%]`}>
@@ -229,17 +232,17 @@ function CreateMultisig() {
                             </div>
                         </div>
                     })}
-                    {text === "Create Multisig" && <div className="flex flex-col mb-4 space-y-1 w-full">
+                    {isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
                         <div className="w-ful flex justify-start items-center">
-                            <input type="number" {...register("confirmOwners", { required: true, valueAsNumber: true  })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" max={owners.length + 1} value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
+                            <input type="number" {...register("confirmOwners", { required: true, valueAsNumber: true })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" max={owners.length + 1} value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
                             <p className="text-greylish w-[30%]">out of {owners.length + 1} owners</p>
                         </div>
                     </div>}
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 min-w-[26%] pb-5">
                     <Button version="second" onClick={() => navigate.push('/create-organisation')}>Back</Button>
-                    {text === "Create Multisig" ? <Button type="submit">Create</Button> : <Button type="submit">Import</Button>}
+                    {isCreate ? <Button type="submit">Create</Button> : <Button type="submit">Import</Button>}
                 </div>
             </section>
         </form>

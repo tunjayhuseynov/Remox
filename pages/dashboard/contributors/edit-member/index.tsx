@@ -5,14 +5,13 @@ import Dropdown from "components/general/dropdown";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "components/button";
-import { DateInterval, ExecutionType, IMember } from "rpcHooks/useContributors";
+import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
 import { useAppSelector } from "redux/hooks";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/slices/account/storage";
 import useAllowance from "rpcHooks/useAllowance";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 
-import useCeloPay from "rpcHooks/useCeloPay";
 import { SelectBalances } from "redux/slices/currencies";
 import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
@@ -68,7 +67,6 @@ const EditMember = (
     const balance = useAppSelector(SelectBalances);
 
     const { allow, loading: allowLoading } = useAllowance();
-    const { GenerateBatchPay } = useCeloPay();
     const {
         updateAddress,
         updateCommand,
@@ -76,7 +74,7 @@ const EditMember = (
         createTask,
         cancelTask,
         loading,
-    } = useGelato();
+    } = useTasking();
 
     const contributors = useAppSelector(SelectContributors);
 

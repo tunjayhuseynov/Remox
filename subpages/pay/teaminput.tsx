@@ -2,7 +2,7 @@ import { Dispatch, useEffect, useState } from "react";
 import { DropDownItem } from "../../types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { CoinsName } from "../../types";
-import { IMember } from "rpcHooks/useContributors";
+import { IMember } from "types/dashboard/contributors";
 import { IRequest } from "rpcHooks/useRequest";
 import { useWalletKit } from "hooks";
 import Loader from "components/Loader";

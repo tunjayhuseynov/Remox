@@ -4,9 +4,9 @@ import Profile from "subpages/dashboard/contributors/buttons/profile"
 
 import Avatar from "../../../components/avatar";
 import Delete from './buttons/delete'
-import { IMember } from "rpcHooks/useContributors";
+import { IMember } from "types/dashboard/contributors";
 import useContributors from "hooks/useContributors";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';
@@ -47,7 +47,7 @@ const TeamItem = (props: IMember & { teamName: string, index: 'Active' | 'Full T
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [details, setDetails] = useState(false)
-    const { cancelTask } = useGelato()
+    const { cancelTask } = useTasking()
     const { GetCoins } = useWalletKit()
     const dark = useAppSelector(selectDarkMode)
     const dispatch = useDispatch();

@@ -1,4 +1,4 @@
-import { IMember, IContributor } from "rpcHooks/useContributors";
+import { IMember, IContributor } from "types/dashboard/contributors";
 import { IRemoxData } from "../remoxData";
 
 export default {

@@ -1,7 +1,5 @@
 import { FirestoreRead, FirestoreWrite } from "../rpcHooks/useFirebase";
-import { v4 as uuidv4 } from 'uuid'
-import { IMember, IContributor } from "rpcHooks/useContributors";
-import { auth } from "firebaseConfig";
+import { IMember, IContributor } from "types/dashboard/contributors";
 import { useState } from "react";
 import { arrayRemove, arrayUnion, FieldValue } from "firebase/firestore";
 

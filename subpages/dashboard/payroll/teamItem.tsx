@@ -1,6 +1,6 @@
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
-import { DateInterval, ExecutionType, IMember } from "rpcHooks/useContributors";
+import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
 import { CeloCoins } from "types";
 import { AddressReducer } from "../../../utils";
 

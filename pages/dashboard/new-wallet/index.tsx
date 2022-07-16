@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Button from "components/button";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useState, useEffect } from "react";
@@ -9,6 +9,7 @@ import Upload from "components/upload";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { UploadImageForUser } from 'hooks/singingProcess/utils';
 
 export interface IFormInput {
     nftAddress?: string;
@@ -19,16 +20,21 @@ export interface IFormInput {
 }
 function NewWalletModal() {
     const { register, handleSubmit } = useForm<IFormInput>();
+    
+
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
-    const { blockchain } = useWalletKit();
+    const { blockchain, getMultisigProviders } = useWalletKit();
     const { addWallet } = useMultiWallet()
     const [file, setFile] = useState<File>()
     const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
-    const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
-    const paymentname2: DropDownItem[] = [{ name: "Celo" }, { name: "Solana" }]
-    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-    const [selectedPayment2, setSelectedPayment2] = useState(paymentname2[0])
+
+    const imageType: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+    const walletProviders: DropDownItem[] = useMemo(()=> getMultisigProviders.map((provider) => ({ name: provider.name, id: provider.type })), [getMultisigProviders])
+
+    const [selectedImageType, setSelectedImageType] = useState(imageType[0])
+    const [selectedWalletProvider, setSelectedWalletProvider] = useState(walletProviders[0])
+
 
     const data = [
         {
@@ -57,10 +63,28 @@ function NewWalletModal() {
     }, [index])
 
 
-    const onSubmit: SubmitHandler<IFormInput> = data => {
-        const photo = file;
-        const provider = selectedPayment2.name;
-        console.log(data, photo, provider)
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        const Photo = file;
+        const provider = selectedWalletProvider.name;
+        console.log(data, Photo, provider)
+
+        let image: Parameters<typeof UploadImageForUser>[0] | undefined;
+        if (Photo || data.nftAddress) {
+            image = {
+                image: {
+                    blockchain,
+                    imageUrl: Photo ?? data.nftAddress ?? "",
+                    nftUrl: data.nftAddress ?? "",
+                    tokenId: data.nftTokenId ?? null,
+                    type: imageType ? "image" : "nft",
+                },
+                name: `individuals/${data.name}`,
+            };
+            await UploadImageForUser(image);
+        }
+
+        
+        
     }
 
     return <div className="w-full mx-auto relative">
@@ -77,8 +101,8 @@ function NewWalletModal() {
             {index === 0 && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Profile Photo Type</div>
-                    <Dropdown parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]  dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
-                        setSelectedPayment(e)
+                    <Dropdown parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]  dark:border-white'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} onSelect={(e) => {
+                        setSelectedImageType(e)
                         if (e.name === "NFT") setOrganizationIsUpload(false)
                         else setOrganizationIsUpload(true)
                     }} />
@@ -97,8 +121,8 @@ function NewWalletModal() {
                 </div>}
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Wallet Provider</div>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
-                        setSelectedPayment2(e)
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={walletProviders} selected={selectedWalletProvider} onSelect={(e) => {
+                        setSelectedWalletProvider(e)
                     }} />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -118,10 +142,7 @@ function NewWalletModal() {
                     </Button>
                 </div>
             </form>}
-
         </div>
-
-
     </div>
 }
 

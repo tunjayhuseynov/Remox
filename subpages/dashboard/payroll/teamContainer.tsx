@@ -1,4 +1,4 @@
-import { ExecutionType, IMember, IContributor } from "rpcHooks/useContributors";
+import { ExecutionType, IMember, IContributor } from "types/dashboard/contributors";
 import { useState } from "react";
 import TeamItem from "../payroll/teamItem";
 

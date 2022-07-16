@@ -2,7 +2,7 @@ import { IRequest } from "rpcHooks/useRequest";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { ICoinMembers, ICurrencyInternal, SelectCurrencies, SelectTotalBalance } from "redux/slices/currencies";
-import { IMember } from 'rpcHooks/useContributors';
+import { IMember } from 'types/dashboard/contributors';
 
 export const TotalUSDAmount = (coinList: (IRequest | IMember)[], currency: ICoinMembers) => {
     return coinList.reduce((acc, curr) => {

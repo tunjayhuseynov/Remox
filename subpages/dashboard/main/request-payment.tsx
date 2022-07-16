@@ -3,7 +3,7 @@ import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
 import { selectContributors } from 'redux/slices/account/contributors';
-import { ExecutionType } from 'rpcHooks/useContributors';
+import { ExecutionType } from 'types/dashboard/contributors';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 
 

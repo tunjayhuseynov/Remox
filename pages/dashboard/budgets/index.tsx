@@ -1,5 +1,5 @@
 import Modal from 'components/general/modal'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import TotalValues from 'subpages/dashboard/budgets/totalValues'
 import { IoIosArrowDown } from 'react-icons/io';
 import DeleteBudget from 'subpages/dashboard/budgets/Modals/deleteBudgets';
@@ -13,19 +13,20 @@ import { useRouter } from 'next/router';
 
 const Budgets = () => {
 
-    const { GetCoins } = useWalletKit()
+    // const { GetCoins } = useWalletKit()
     const [delBudget, setDelBudget] = useState(false)
     const [exercise, setExercise] = useState(false)
     const [isOpen, setOpen] = useState(false)
     const navigate = useRouter()
     const budget_exercises = useAppSelector(SelectBudgetExercises)
-    
+
     const [selectedExerciseId, setSelectedExerciseId] = useState(budget_exercises[0].id)
     let selectedExercise = budget_exercises.find(exercise => exercise.id === selectedExerciseId)!
 
     const hasExercises = (budget_exercises?.length ?? 0) > 0
 
     const [customRef, expectRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
+
     // if (!budget_exercises || !budget_exercises?.[0]) return <>No Data</>
     return <div className="mb-6 w-full h-full">
         <div className="w-full h-full">
@@ -35,7 +36,7 @@ const Budgets = () => {
                 </div>
             </div>
             {!hasExercises && <div className=" rounded-lg   shadow hover:bg-greylish hover:bg-opacity-5 hover:transition-all transition-all  bg-white dark:bg-darkSecond cursor-pointer flex items-center space-x-1 w-[25rem] h-[12.5rem]" onClick={() => { navigate.push('/dashboard/budgets/new-exercise') }} >
-                <div className="mx-auto w-[58%] h-[70%] peer flex flex-col items-center justify-center gap-5" onMouseOver={() => { setExercise(true)}} onMouseOut={() => { setExercise(false)}}>
+                <div className="mx-auto w-[58%] h-[70%] peer flex flex-col items-center justify-center gap-5" onMouseOver={() => { setExercise(true) }} onMouseOut={() => { setExercise(false) }}>
                     <div className={`w-[5rem] h-[5rem] ${exercise && 'text-primary !border-primary'} flex items-center justify-center text-5xl text-greylish dark:text-white border-2 border-greylish dark:border-white rounded-full`}>+</div>
                     <span className={`text-greylish ${exercise && 'text-primary border-primary'}  text-2xl`}>Create Budget Cycle</span>
                 </div>
@@ -68,7 +69,6 @@ const Budgets = () => {
                                     </li>
                                 </ul>
                             </div>}
-
                         </div>
                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-sm px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center ">May 2022</div>
                     </div>
@@ -83,8 +83,7 @@ const Budgets = () => {
                     <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
                 </div>}
                 <div className={` grid grid-cols-2 gap-12`}>
-                    {selectedExercise.budgets.map((item) => <BudgetCard key={item.id} item={item}  setDelBudget={setDelBudget} />)}
-
+                    {selectedExercise.budgets.map((item) => <BudgetCard key={item.id} item={item} setDelBudget={setDelBudget} />)}
                 </div >
                 {
                     delBudget &&

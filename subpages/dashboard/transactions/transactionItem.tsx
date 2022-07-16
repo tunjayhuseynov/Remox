@@ -5,7 +5,7 @@ import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { SelectBalances, SelectCurrencies, SelectTotalBalance } from 'redux/slices/currencies';
 import { AddressReducer } from "../../../utils";
 import Button from "components/button";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 import { selectTags } from "redux/slices/tags";
 import { BN } from "utils/ray";
 import { useModalSideExit, useWalletKit } from "hooks";
@@ -32,7 +32,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const tagcolorRef = useRef<HTMLDivElement>(null)
     const tagnameRef = useRef<HTMLDivElement>(null)
     const selectedAccount = useSelector(SelectSelectedAccount)
-    const { getDetails } = useGelato()
+    const { getDetails } = useTasking()
     const tags = useSelector(selectTags);
     const [Transaction, setTransaction] = useState(transaction);
     const [IsMultiple, setIsMultiple] = useState(isMultiple);

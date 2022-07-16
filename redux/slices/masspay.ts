@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IMember } from 'rpcHooks/useContributors';
+import { IMember } from 'types/dashboard/contributors';
 import { IRequest } from 'rpcHooks/useRequest';
 import { RootState } from '../store';
 

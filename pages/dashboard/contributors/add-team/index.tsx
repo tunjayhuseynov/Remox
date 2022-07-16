@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "redux/hooks"
 import Button from "../../../../components/button";
 import useContributors from "hooks/useContributors";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { IContributor } from "rpcHooks/useContributors";
+import { IContributor } from "types/dashboard/contributors";
 import { v4 as uuidv4 } from "uuid";
 import { GetTime } from "utils";
 import { addContributor , SelectStorage } from "redux/slices/account/remoxData";

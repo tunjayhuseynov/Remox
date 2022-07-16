@@ -3,7 +3,7 @@ import { IAccount, IBudgetExercise, IOrganization } from "firebaseConfig"
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account"
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise"
 import { Get_Individual } from "./individual"
-import { arrayUnion } from "firebase/firestore"
+import { arrayRemove, arrayUnion } from "firebase/firestore"
 import type { DocumentReference, FieldValue } from "firebase/firestore"
 
 export const organizationCollectionName = "organizations"
@@ -68,8 +68,13 @@ export const Update_Organization = async (organization: IOrganization) => {
 }
 
 export const Add_New_Organization_Account = async (organization: IOrganization, account: IAccount) => {
-
     await FirestoreWrite<{ accounts: FieldValue }>().updateDoc(organizationCollectionName, organization.id, {
         accounts: arrayUnion(Get_Account_Ref(account.id))
+    })
+}
+
+export const Remove_Organization_Account = async (organization: IOrganization, account: IAccount) => {
+    await FirestoreWrite<{ accounts: FieldValue }>().updateDoc(organizationCollectionName, organization.id, {
+        accounts: arrayRemove(Get_Account_Ref(account.id))
     })
 }

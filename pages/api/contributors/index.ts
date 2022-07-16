@@ -1,7 +1,6 @@
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
-import { IContributor } from "rpcHooks/useContributors";
-
+import { IContributor } from "types/dashboard/contributors";
 
 export default async function handle(
     req: NextApiRequest,

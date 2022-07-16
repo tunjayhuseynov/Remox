@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
 import { selectDarkMode } from "redux/slices/notificationSlice";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 import { CoinsURL } from "types";
 import { useRouter } from "next/router";
 import Loader from "components/Loader";
@@ -28,7 +28,7 @@ const Details = () => {
     const dispatch = useAppDispatch()
 
     const [transactions] = useTransactionProcess()
-    const { getDetails } = useGelato()
+    const { getDetails } = useTasking()
     const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
 
     const tags = useSelector(selectTags)

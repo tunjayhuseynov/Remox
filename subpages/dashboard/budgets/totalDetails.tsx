@@ -1,35 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
-import { useModalSideExit } from "hooks";
-import useProfile from 'rpcHooks/useProfile';
 import { IBudgetExerciseORM } from 'pages/api/budget';
 import { SetComma } from 'utils';
 
 function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
-    const { profile, UpdateSeenTime } = useProfile()
     const [openNotify, setNotify] = useState(false)
 
-    useEffect(() => {
-        if (openNotify) {
-            UpdateSeenTime(new Date().getTime())
-        }
-    }, [openNotify])
 
     useEffect(() => {
         if (openNotify) {
-            UpdateSeenTime(new Date().getTime())
             document.querySelector('body')!.style.overflowY = "hidden"
         } else {
             document.querySelector('body')!.style.overflowY = ""
         }
-
-
     }, [openNotify])
 
 
 
     return <>
-
         <div onClick={() => { setNotify(!openNotify) }}>
             <span className="text-white pb-[3px]  bg-primary transition-all rounded-full text-5xl flex items-center justify-center w-8 h-8 cursor-pointer hover:bg-[#ff5413] hover:transition-all">&#8250;</span>
         </div>
@@ -83,7 +71,6 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
                             </div>
                         </div>
                     </div>
-
                 </motion.div>}
         </AnimatePresence>
     </>

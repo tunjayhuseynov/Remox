@@ -1,22 +1,18 @@
 
-import React, { Dispatch, SetStateAction } from 'react'
-import { Fragment, useEffect, useState, useRef } from "react";
+import React from 'react'
+import { useEffect, useState } from "react";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types/dropdown";
 import _ from "lodash";
-import { useTransactionProcess, useWalletKit } from "hooks";
+import { useWalletKit } from "hooks";
 import { useSelector } from "react-redux";
 import { selectDarkMode } from "redux/slices/notificationSlice";
-import useProfile from "rpcHooks/useProfile";
-import { useModalSideExit } from "hooks";
-import Paydropdown from 'subpages/pay/paydropdown';
-import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { addSplitInput, SelectInputs, resetSplitInput, changeSplitInput, ISplitInput, removeSplitInput } from "redux/slices/split";
+import { useAppDispatch } from "redux/hooks";
+import { changeSplitInput, removeSplitInput } from "redux/slices/split";
 
 function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: number; }) {
     const { GetCoins, fromMinScale } = useWalletKit()
     const dark = useSelector(selectDarkMode)
-    const { profile, UpdateSeenTime } = useProfile()
     const [openNotify, setNotify] = useState(false)
     const [index] = useState<string>(incomingIndex)
     const dispatch = useAppDispatch()
@@ -26,12 +22,6 @@ function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: numbe
 
     const paymentname: DropDownItem[] = [{ name: "Select" }, { name: "Security" }, { name: "Development" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-
-    useEffect(() => {
-        if (openNotify) {
-            UpdateSeenTime(new Date().getTime())
-        }
-    }, [openNotify])
 
     useEffect(() => {
         dispatch(changeSplitInput({

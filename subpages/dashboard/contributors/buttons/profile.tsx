@@ -1,7 +1,7 @@
 import { Dispatch } from "react";
 import Avatar from 'components/avatar'
 import Button from "components/button";
-import { IMember } from "rpcHooks/useContributors";
+import { IMember } from "types/dashboard/contributors";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";

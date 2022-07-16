@@ -5,7 +5,7 @@ import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import type { IRemoxAccountORM } from "pages/api/account/multiple";
 import type { IBudgetExerciseORM } from "pages/api/budget";
 import type { ISpendingResponse } from "pages/api/calculation/spending";
-import type { IContributor } from "rpcHooks/useContributors";
+import type { IContributor } from "types/dashboard/contributors";
 import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
 import { IAccountMultisig } from "pages/api/multisig";

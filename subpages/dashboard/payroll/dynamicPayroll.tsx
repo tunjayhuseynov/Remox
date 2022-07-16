@@ -4,14 +4,13 @@ import TeamContainer from 'subpages/dashboard/payroll/teamContainer'
 import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
 import { Coins } from 'types';
 import { selectContributors } from 'redux/slices/account/contributors';
-import { DateInterval, ExecutionType, IMember } from 'rpcHooks/useContributors';
+import { DateInterval, ExecutionType, IMember } from 'types/dashboard/contributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import useAllowance from "rpcHooks/useAllowance";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
-import useCeloPay, { PaymentInput } from "rpcHooks/useCeloPay";
-import useGelato from "rpcHooks/useGelato";
+import useTasking from "rpcHooks/useTaskingg";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from 'redux/slices/account/storage';
 import { useWalletKit } from 'hooks';
@@ -40,8 +39,7 @@ export default function DynamicPayroll() {
     const router = useRouter()
     const dispatch = useDispatch()
     const balance = useAppSelector(SelectBalances)
-    const { GenerateBatchPay } = useCeloPay()
-    const { createTask, loading } = useGelato()
+    const { createTask, loading } = useTasking()
     const { editMember, isLoading } = useContributors()
     const storage = useAppSelector(selectStorage)
     const { allow, loading: allowLoading } = useAllowance()
@@ -181,75 +179,75 @@ export default function DynamicPayroll() {
                 </div>
                 <Button className={'w-full py-3 mt-10'} onClick={
                     async () => {
-                        const arr = [...memberState[0]]
-                        arr.forEach(curr => {
-                            if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
-                                const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
-                                let amount = parseFloat(curr.amount)
-                                if (curr.interval === DateInterval.weekly) {
-                                    amount *= Math.max(1, Math.floor(days / 7))
-                                } else if (curr.interval === DateInterval.monthly) {
-                                    amount *= Math.max(1, Math.floor(days / 30))
-                                }
-                                curr = { ...curr, amount: amount.toString() }
-                            }
-                        })
+                    //     const arr = [...memberState[0]]
+                    //     arr.forEach(curr => {
+                    //         if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                    //             const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
+                    //             let amount = parseFloat(curr.amount)
+                    //             if (curr.interval === DateInterval.weekly) {
+                    //                 amount *= Math.max(1, Math.floor(days / 7))
+                    //             } else if (curr.interval === DateInterval.monthly) {
+                    //                 amount *= Math.max(1, Math.floor(days / 30))
+                    //             }
+                    //             curr = { ...curr, amount: amount.toString() }
+                    //         }
+                    //     })
 
-                        dispatch(setMemberList({ data: arr, request: false }))
-                        router.push('/dashboard/masspayout')
+                    //     dispatch(setMemberList({ data: arr, request: false }))
+                    //     router.push('/dashboard/masspayout')
 
-                        try {
-                            for (let index = 0; index < arr.length; index++) {
-                                const curr = arr[index];
+                    //     try {
+                    //         for (let index = 0; index < arr.length; index++) {
+                    //             const curr = arr[index];
 
-                                let hash;
-                                const interval = curr!.interval
-                                const days = Math.abs(date.subtract(new Date(curr.paymantDate), new Date(curr.paymantEndDate)).toDays());
-                                const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
-                                let realMoney = Number(curr.amount) * realDays
+                    //             let hash;
+                    //             const interval = curr!.interval
+                    //             const days = Math.abs(date.subtract(new Date(curr.paymantDate), new Date(curr.paymantEndDate)).toDays());
+                    //             const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
+                    //             let realMoney = Number(curr.amount) * realDays
 
-                                if (curr.usdBase) {
-                                    realMoney *= (balance[GetCoins[curr.currency].name]?.tokenPrice ?? 1)
-                                }
-                                await allow(GetCoins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                                const paymentList: PaymentInput[] = []
+                    //             if (curr.usdBase) {
+                    //                 realMoney *= (balance[GetCoins[curr.currency].name]?.tokenPrice ?? 1)
+                    //             }
+                    //             await allow(GetCoins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                    //             const paymentList: PaymentInput[] = []
 
-                                paymentList.push({
-                                    coin: GetCoins[curr.currency],
-                                    recipient: curr.address.trim(),
-                                    amount: curr.amount.trim()
-                                })
+                    //             paymentList.push({
+                    //                 coin: GetCoins[curr.currency],
+                    //                 recipient: curr.address.trim(),
+                    //                 amount: curr.amount.trim()
+                    //             })
 
-                                if (curr.secondaryAmount && curr.secondaryCurrency) {
-                                    let realMoney = Number(curr.secondaryAmount) * realDays
-                                    if (curr.usdBase) {
-                                        realMoney *= (balance[GetCoins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
-                                    }
-                                    await allow(GetCoins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                                    paymentList.push({
-                                        coin: GetCoins[curr.secondaryCurrency],
-                                        recipient: curr.address.trim(),
-                                        amount: curr.secondaryAmount.trim()
-                                    })
-                                }
+                    //             if (curr.secondaryAmount && curr.secondaryCurrency) {
+                    //                 let realMoney = Number(curr.secondaryAmount) * realDays
+                    //                 if (curr.usdBase) {
+                    //                     realMoney *= (balance[GetCoins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
+                    //                 }
+                    //                 await allow(GetCoins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
+                    //                 paymentList.push({
+                    //                     coin: GetCoins[curr.secondaryCurrency],
+                    //                     recipient: curr.address.trim(),
+                    //                     amount: curr.secondaryAmount.trim()
+                    //                 })
+                    //             }
 
-                                const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-                                hash = await createTask(Math.floor((new Date(curr.paymantDate).getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
+                    //             const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
+                    //             hash = await createTask(Math.floor((new Date(curr.paymantDate).getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
 
-                                let user = { ...curr }
-                                user.name = `${user.name}`
-                                user.address = user.address
-                                user.amount = user.amount
-                                if (user.secondaryAmount) {
-                                    user.secondaryAmount = user.secondaryAmount
-                                }
+                    //             let user = { ...curr }
+                    //             user.name = `${user.name}`
+                    //             user.address = user.address
+                    //             user.amount = user.amount
+                    //             if (user.secondaryAmount) {
+                    //                 user.secondaryAmount = user.secondaryAmount
+                    //             }
 
 
-                                await editMember(user.teamId, user.id, { ...user, taskId: hash })
-                            }
-                        } catch (error) {
-                            console.error(error)
-                        }
+                    //             await editMember(user.teamId, user.id, { ...user, taskId: hash })
+                    //         }
+                    //     } catch (error) {
+                    //         console.error(error)
+                    //     }
 
                     }
                 }>Confirm and Run Payroll</Button>

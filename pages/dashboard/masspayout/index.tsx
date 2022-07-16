@@ -12,8 +12,7 @@ import { changeError, selectDarkMode, selectError } from "redux/slices/notificat
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useRefetchData, useWalletKit } from "hooks";
 import Button from "components/button";
-import { DateInterval, IMember } from "rpcHooks/useContributors";
-import { PaymentInput } from "rpcHooks/useCeloPay";
+import { DateInterval, IMember } from "types/dashboard/contributors";
 import useMultisig from "rpcHooks/useMultisig";
 import { selectContributors } from "redux/slices/account/contributors";
 import useContributors from "hooks/useContributors";
@@ -25,6 +24,7 @@ import { useSelector } from "react-redux";
 import { selectMasspay } from "redux/slices/masspay";
 import { useRouter } from "next/router";
 import Loader from "components/Loader";
+import { IPaymentInput } from "pages/api/payments/send";
 
 
 const MassPay = () => {
@@ -45,7 +45,7 @@ const MassPay = () => {
     const { fetching } = useRefetchData()
 
     // const { BatchPay, Pay } = usePay()
-    const { SendBatchTransaction, SendTransaction } = useWalletKit()
+    const { SendTransaction } = useWalletKit()
     const { submitTransaction } = useMultisig()
 
     const contributors = useAppSelector(selectContributors).contributors
@@ -77,116 +77,116 @@ const MassPay = () => {
     }, [selectedTeam, contributors])
 
     const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault()
+        // e.preventDefault()
 
-        const result: Array<MultipleTransactionData & { member?: IMember | IRequest }> = []
+        // const result: Array<MultipleTransactionData & { member?: IMember | IRequest }> = []
 
-        const mems = resMember.filter(w => selectedId.includes(w.id))
+        // const mems = resMember.filter(w => selectedId.includes(w.id))
 
-        if (mems.length) {
-            for (let index = 0; index < mems.length; index++) {
-                let amount;
-                if (mems[index].usdBase && GetCoins) {
-                    amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
-                } else {
-                    amount = mems[index].amount
-                }
-                result.push({
-                    toAddress: mems[index].address,
-                    amount,
-                    tokenName: mems[index].currency,
-                    member: mems[index]
-                })
+        // if (mems.length) {
+        //     for (let index = 0; index < mems.length; index++) {
+        //         let amount;
+        //         if (mems[index].usdBase && GetCoins) {
+        //             amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
+        //         } else {
+        //             amount = mems[index].amount
+        //         }
+        //         result.push({
+        //             toAddress: mems[index].address,
+        //             amount,
+        //             tokenName: mems[index].currency,
+        //             member: mems[index]
+        //         })
 
-                let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
+        //         let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
 
-                if (secAmount && secCurrency && GetCoins) {
-                    if (mems[index].secondaryAmount) {
-                        secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
-                    }
+        //         if (secAmount && secCurrency && GetCoins) {
+        //             if (mems[index].secondaryAmount) {
+        //                 secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
+        //             }
 
-                    result.push({
-                        toAddress: mems[index].address,
-                        amount: secAmount,
-                        tokenName: secCurrency,
-                    })
-                }
-            }
-        }
-        setIsPaying(true)
+        //             result.push({
+        //                 toAddress: mems[index].address,
+        //                 amount: secAmount,
+        //                 tokenName: secCurrency,
+        //             })
+        //         }
+        //     }
+        // }
+        // setIsPaying(true)
 
-        try {
-            if (Address?.toLowerCase() === selectedAccount.toLowerCase() && GetCoins) {
-                if (result.length === 1) {
-                    // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
-                    await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
+        // try {
+        //     if (Address?.toLowerCase() === selectedAccount.toLowerCase() && GetCoins) {
+        //         if (result.length === 1) {
+        //             // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
+        //             await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount }, { interval: "instant" }, [tags.find(w => w.id === "Payroll")!])
 
-                    if (result[0].member && !request) {
-                        let member = { ...result[0].member! } as IMember;
-                        const isMonthly = member.interval === DateInterval.monthly;
-                        const isOverdue = new Date(member.paymantDate).getTime() < new Date().getTime();
-                        member.paymantDate = isMonthly ? date.addMonths(isOverdue ? new Date() : new Date(member.paymantDate), 1).toISOString() : date.addDays(isOverdue ? new Date() : new Date(member.paymantDate), 7).toISOString();
-                        member.name = `${member.name}`
-                        member.address = member.address
-                        member.amount = member.amount
-                        if (member.secondaryAmount) {
-                            member.secondaryAmount = member.secondaryAmount
-                        }
-                        await editMember(member.teamId, member.id, member)
-                    }
-                }
-                else if (result.length > 1 && GetCoins) {
-                    const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: GetCoins[w.tokenName as keyof Coins],
-                        recipient: w.toAddress,
-                        amount: w.amount,
-                        from: true
-                    }))
+        //             if (result[0].member && !request) {
+        //                 let member = { ...result[0].member! } as IMember;
+        //                 const isMonthly = member.interval === DateInterval.monthly;
+        //                 const isOverdue = new Date(member.paymantDate).getTime() < new Date().getTime();
+        //                 member.paymantDate = isMonthly ? date.addMonths(isOverdue ? new Date() : new Date(member.paymantDate), 1).toISOString() : date.addDays(isOverdue ? new Date() : new Date(member.paymantDate), 7).toISOString();
+        //                 member.name = `${member.name}`
+        //                 member.address = member.address
+        //                 member.amount = member.amount
+        //                 if (member.secondaryAmount) {
+        //                     member.secondaryAmount = member.secondaryAmount
+        //                 }
+        //                 await editMember(member.teamId, member.id, member)
+        //             }
+        //         }
+        //         else if (result.length > 1 && GetCoins) {
+        //             const arr: Array<IPaymentInput> = result.map(w => ({
+        //                 coin: GetCoins[w.tokenName as keyof Coins],
+        //                 recipient: w.toAddress,
+        //                 amount: w.amount,
+        //                 from: true
+        //             }))
 
-                    // await BatchPay(arr, undefined, [tags.find(w => w.id === "Payroll")!])
-                    await SendBatchTransaction(arr, undefined, [tags.find(w => w.id === "Payroll")!]);
+        //             // await BatchPay(arr, undefined, [tags.find(w => w.id === "Payroll")!])
+        //             await SendBatchTransaction(arr, undefined, [tags.find(w => w.id === "Payroll")!]);
 
-                    for (let index = 0; index < result.length; index++) {
-                        if (result[index].member && !request) {
-                            let member = { ...result[index].member! } as IMember;
-                            const isMonthly = member.interval === DateInterval.monthly;
-                            const isOverdue = new Date(member.paymantDate).getTime() < new Date().getTime();
-                            member.paymantDate = isMonthly ? date.addMonths(isOverdue ? new Date() : new Date(member.paymantDate), 1).toISOString() : date.addDays(isOverdue ? new Date() : new Date(member.paymantDate), 7).toISOString();
-                            member.name = `${member.name}`
-                            member.address = member.address
-                            member.amount = member.amount
-                            if (member.secondaryAmount) {
-                                member.secondaryAmount = member.secondaryAmount
-                            }
+        //             for (let index = 0; index < result.length; index++) {
+        //                 if (result[index].member && !request) {
+        //                     let member = { ...result[index].member! } as IMember;
+        //                     const isMonthly = member.interval === DateInterval.monthly;
+        //                     const isOverdue = new Date(member.paymantDate).getTime() < new Date().getTime();
+        //                     member.paymantDate = isMonthly ? date.addMonths(isOverdue ? new Date() : new Date(member.paymantDate), 1).toISOString() : date.addDays(isOverdue ? new Date() : new Date(member.paymantDate), 7).toISOString();
+        //                     member.name = `${member.name}`
+        //                     member.address = member.address
+        //                     member.amount = member.amount
+        //                     if (member.secondaryAmount) {
+        //                         member.secondaryAmount = member.secondaryAmount
+        //                     }
 
-                            await editMember(member.teamId, member.id, member)
-                        }
-                    }
-                }
-            } else {
-                if (result.length === 1 && GetCoins) {
-                    await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
-                }
-                else if (result.length > 1 && GetCoins) {
-                    const arr: Array<PaymentInput> = result.map(w => ({
-                        coin: GetCoins[w.tokenName as keyof Coins],
-                        recipient: w.toAddress,
-                        amount: w.amount,
-                        from: true
-                    }))
+        //                     await editMember(member.teamId, member.id, member)
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         if (result.length === 1 && GetCoins) {
+        //             await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
+        //         }
+        //         else if (result.length > 1 && GetCoins) {
+        //             const arr: Array<PaymentInput> = result.map(w => ({
+        //                 coin: GetCoins[w.tokenName as keyof Coins],
+        //                 recipient: w.toAddress,
+        //                 amount: w.amount,
+        //                 from: true
+        //             }))
 
-                    await submitTransaction(selectedAccount, arr)
-                }
-            }
-            setSuccess(true);
-            fetching()
+        //             await submitTransaction(selectedAccount, arr)
+        //         }
+        //     }
+        //     setSuccess(true);
+        //     fetching()
 
-        } catch (error: any) {
-            console.error(error)
-            dispatch(changeError({ activate: true, text: error.message }));
-        }
+        // } catch (error: any) {
+        //     console.error(error)
+        //     dispatch(changeError({ activate: true, text: error.message }));
+        // }
 
-        setIsPaying(false);
+        // setIsPaying(false);
     }
 
 
@@ -235,7 +235,7 @@ const MassPay = () => {
                                     <div className="hidden sm:block font-semibold">Address</div>
                                     <div className="hidden sm:block font-semibold">Disbursement</div>
                                     <div className="hidden sm:block"></div>
-                                    {contributors && resMember && members && members.length > 0 ? resMember.map((w, i) => <TeamInput  selectedId={selectedId} setSelectedId={setSelectedId} key={w.id} index={i} {...w} members={resMember as any} setMembers={setResMember} />) : 'No Member Yet'}
+                                    {contributors && resMember && members && members.length > 0 ? resMember.map((w, i) => <TeamInput selectedId={selectedId} setSelectedId={setSelectedId} key={w.id} index={i} {...w} members={resMember as any} setMembers={setResMember} />) : 'No Member Yet'}
                                 </div>
                             </div>
                             <span className="text-lg">Total: $ {Object.values(resMember.filter(s => selectedId.includes(s.id))).reduce((a, e, i) => {

@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react'
-import { DateInterval, ExecutionType, IMember, IContributor } from "rpcHooks/useContributors";
+import { DateInterval, ExecutionType, IMember, IContributor } from "types/dashboard/contributors";
 import { useState } from "react";
 import TeamItem from "../../payroll/teamItem";
 import Runitem from './runitem';

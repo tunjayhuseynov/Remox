@@ -1,4 +1,4 @@
-import { IContributor } from "rpcHooks/useContributors";
+import { IContributor } from "types/dashboard/contributors";
 import useContributors from "hooks/useContributors";
 import { Dispatch, useState } from "react";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
@@ -10,7 +10,6 @@ import {
   SelectContributors,
   updateContributor,
 } from "redux/slices/account/remoxData";
-import { GetTime } from "utils";
 import { useRouter } from "next/router";
 
 const EditTeam = (
