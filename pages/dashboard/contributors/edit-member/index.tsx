@@ -10,7 +10,7 @@ import {
   ExecutionType,
   IContributor,
   IMember,
-} from "rpcHooks/useContributors";
+} from "types/dashboard/contributors";
 import { useAppSelector } from "redux/hooks";
 import useContributors from "hooks/useContributors";
 import useAllowance from "rpcHooks/useAllowance";
@@ -300,14 +300,14 @@ const EditMember = () => {
                       list={
                         contributors.length > 0
                           ? [
-                              ...contributors.map((w) => {
-                                return {
-                                  name: w.name,
-                                  coinUrl: CoinsURL.None,
-                                  id: w.id,
-                                };
-                              }),
-                            ]
+                            ...contributors.map((w) => {
+                              return {
+                                name: w.name,
+                                coinUrl: CoinsURL.None,
+                                id: w.id,
+                              };
+                            }),
+                          ]
                           : []
                       }
                       nameActivation={true}
@@ -400,9 +400,8 @@ const EditMember = () => {
                   />
                 }
                 <div
-                  className={`border w-full text-black py-1 rounded-md grid ${
-                    selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"
-                  }`}
+                  className={`border w-full text-black py-1 rounded-md grid ${selectedType ? "grid-cols-[80%,20%]" : "grid-cols-[50%,50%]"
+                    }`}
                 >
                   <input
                     type="number"
@@ -447,11 +446,10 @@ const EditMember = () => {
                     />
                   }
                   <div
-                    className={`border w-full text-black py-1 rounded-md grid ${
-                      selectedType
+                    className={`border w-full text-black py-1 rounded-md grid ${selectedType
                         ? "grid-cols-[80%,20%]"
                         : "grid-cols-[50%,50%]"
-                    }`}
+                      }`}
                   >
                     <input
                       type="number"
