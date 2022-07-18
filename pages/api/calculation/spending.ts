@@ -69,6 +69,11 @@ export default async function handler(
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
         const inTxs = req.query["txs[]"];
+
+        if (!inTxs) {
+            return res.status(200).json(TxNull());
+        }
+
         const parsedtxs = typeof inTxs === "string" ? [inTxs] : inTxs;
 
         const blockchain = req.query.blockchain as BlockchainType;
@@ -163,10 +168,10 @@ export default async function handler(
             }
         })
     } catch (error) {
-        res.json({
+        console.error((error as any).message)
+        res.status(500).json({
             "message": (error as any).message
         } as any)
-        res.status(405).end()
     }
 }
 
@@ -411,3 +416,67 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
         outATag
     }
 }
+
+const TxNull: () => ISpendingResponse = () => ({
+    AccountAge: 0,
+    AccountIn: {
+        currentMonth: {
+            total: 0,
+        },
+        month: {
+            total: 0,
+        },
+        quart: {
+            total: 0,
+        },
+        week: {
+            total: 0,
+        },
+        year: {
+            total: 0,
+        }
+    },
+    AccountInTag: {
+        currentMonth: [],
+        month: [],
+        quart: [],
+        week: [],
+        year: []
+    },
+    AccountOut: {
+        currentMonth: {
+            total: 0,
+        },
+        month: {
+            total: 0,
+        },
+        quart: {
+            total: 0,
+        },
+        week: {
+            total: 0,
+        },
+        year: {
+            total: 0,
+        }
+    },
+    AccountOutTag: {
+        currentMonth: [],
+        month: [],
+        quart: [],
+        week: [],
+        year: []
+    },
+    AccountTotalBalanceChangePercent: 0,
+    AverageSpend: 0,
+    CoinStats: [],
+    TotalBalance: 0,
+    TotalBalanceByDay: {
+        currentMonth: {},
+        month: {},
+        quart: {},
+        week: {},
+        year: {}
+    },
+    TotalSpend: 0,
+}) 

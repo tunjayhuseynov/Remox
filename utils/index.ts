@@ -9,7 +9,7 @@ export const AddressReducer = (address: string) => {
 
 export const ProgressBarWidth = (num: number) => ({ width: num + "%" })
 
-export const SetComma = (num :number | undefined) => (Number(num).toLocaleString())
+export const SetComma = (num: number | undefined) => (Number(num).toLocaleString())
 
 export const WordSplitter = (word: string) => {
 	return word.split('').reduce((a, c) => {

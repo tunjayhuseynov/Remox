@@ -2,20 +2,16 @@ import { useState } from "react";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { useAppSelector } from "redux/hooks";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import Upload from "components/upload";
 import useLoading from "hooks/useLoading";
-import useOrganization from "hooks/accounts/useOrganization";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastRun } from "utils/toast";
-import useSignUp from "hooks/singingProcess/useSignUp";
-import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
-import { IOrganization } from "firebaseConfig";
-import { GetTime } from "utils";
-import { generate } from "shortid";
+import { Create_Organization_Thunk } from "redux/slices/account/thunks/organization";
+import { SelectIndividual } from "redux/slices/account/selector";
 
 export interface IFormInput {
   nftAddress?: string;
@@ -26,78 +22,36 @@ export interface IFormInput {
 const CreateOrganization = () => {
   const { register, handleSubmit } = useForm<IFormInput>();
   const { Address: address, blockchain, Wallet } = useWalletKit();
-  const { RegisterOrganization } = useSignUp(address ?? "0", blockchain)
 
+  const individual = useAppSelector(SelectIndividual)
+  const dispatch = useAppDispatch()
   const navigate = useRouter()
   const dark = useAppSelector(selectDarkMode)
-  const [organizationIsUpload, setOrganizationIsUpload] = useState<boolean>(true)
   const [organizationFile, setOrganizationFile] = useState<File>()
 
-  const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
+  const imageType: DropDownItem[] = [{ name: "Upload Photo", id: "image" }, { name: "NFT", id: "nft" }]
 
-  const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+  const [selectedImageType, setSelectedImageType] = useState(imageType[0])
+  const organizationIsUpload = selectedImageType.id === "image"
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     try {
       const File = organizationFile;
+      if (!individual) throw new Error("No Individual")
       if (!address) return ToastRun(<>Please, sign in first</>)
       if (organizationIsUpload && !File) throw new Error("No organization file uploaded")
 
-      let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
-      if (File || data.nftAddress) {
-        image =
-        {
-          image: {
-            blockchain,
-            imageUrl: File ?? data.nftAddress!,
-            nftUrl: data.nftAddress ?? "",
-            tokenId: data.nftTokenId ?? null,
-            type: organizationIsUpload ? "image" : "nft"
-          },
-          name: `organizations/${data.name}`
-        }
-      }
-
-      let user: Omit<IOrganization, "id" | "created_date" | "creator"> = {
+      await dispatch(Create_Organization_Thunk({
+        address: address,
         blockchain,
-        accounts: [
-          {
-            address: address,
-            blockchain,
-            created_date: GetTime(),
-            name: Wallet,
-            id: address,
-            image: null,
-            members: [
-              {
-                address,
-                id: generate(),
-                image: null,
-                mail: null,
-                name: data.name,
-              }
-            ],
-            provider: null,
-            signerType: "single",
-          }
-        ],
-        budget_execrises: [],
-        image: image?.image ?? null,
-        members: [address],
+        file: File ?? null,
+        individual,
         name: data.name,
-      }
-      // organizationFile: orgFile,
-      //   organizationIsUpload: organizationIsUpload,
-      //   organizationName: data.name,
-      //   organizationNFTAddress: data.nftAddress,
-      //   organizationNFTTokenId: data.nftTokenId
-      await RegisterOrganization(user, {
-        organizationFile: File,
-        organizationIsUpload: organizationIsUpload,
-        organizationName: data.name,
-        organizationNFTAddress: data.nftAddress,
-        organizationNFTTokenId: data.nftTokenId
-      })
+        newAccountName: Wallet,
+        nftAddress: data.nftAddress ?? null,
+        nftTokenId: data.nftTokenId ?? null,
+        uploadType: organizationIsUpload ? "image" : "nft"
+      }))
 
       navigate.push('/create-multisig')
     } catch (error) {
@@ -124,10 +78,8 @@ const CreateOrganization = () => {
           <div className="flex flex-col mb-4 space-y-1 w-full">
             <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
             <div className={` flex items-center gap-3 w-full rounded-lg`}>
-              <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
-                setSelectedPayment(e)
-                if (e.name === "NFT") setOrganizationIsUpload(false)
-                else setOrganizationIsUpload(true)
+              <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} onSelect={(e) => {
+                setSelectedImageType(e)
               }} />
             </div>
           </div>
@@ -140,7 +92,7 @@ const CreateOrganization = () => {
           {blockchain === 'celo' && !organizationIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
             <div className="text-xs text-left  dark:text-white">Token ID</div>
             <div className={`w-full border rounded-lg`}>
-              <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true  })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
+              <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
             </div>
           </div>}
           <div className="flex flex-col mb-4 space-y-1 w-full">

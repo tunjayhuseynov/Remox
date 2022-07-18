@@ -14,3 +14,6 @@
 10. editMember ve addMember taskId heleki null di 
 11. remox pay'de table'lar duzgun formada deyil
 13. gelato meselesi hell olunmalidi
+14. Budget, subbudget thunklarda update ve delete remoxData'da deyismir deyisersen
+15. Budget and txhash meselesi recurring yeni tasking meselelerinde botlar terefinden hell olunmalidi, ve multisig meselesi ise pending ucun vacib meseledi
+16. zebece sooy

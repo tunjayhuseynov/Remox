@@ -4,9 +4,9 @@ import Navbar from 'subpages/dashboard/navbar'
 import { useRefetchData } from 'hooks'
 import Loader from 'components/Loader'
 import { useAppDispatch, useAppSelector } from 'redux/hooks'
-import { SelectAccountType, SelectBlockchain, SelectIsRemoxDataFetching, SelectProviderAddress } from 'redux/slices/account/remoxData'
+import { SelectAccountType, SelectBlockchain, SelectIsRemoxDataFetching, SelectProviderAddress, SelectRemoxAccount } from 'redux/slices/account/remoxData'
 import { launchApp } from 'redux/slices/account/thunks/launch'
-import { auth } from 'firebaseConfig'
+import { auth, IAccount, IOrganization } from 'firebaseConfig'
 import { useRouter } from 'next/router'
 import useAsyncEffect from 'hooks/useAsyncEffect'
 import { Get_Individual } from 'crud/individual'
@@ -35,28 +35,29 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     }
 
     const isFetching = useAppSelector(SelectIsRemoxDataFetching)
+    const [mainAnimate, setMainAnimate] = useState<boolean>(true)
 
     const dispatch = useAppDispatch()
     const accountType = useAppSelector(SelectAccountType)
     const address = useAppSelector(SelectProviderAddress)
+    const remoxAccount = useAppSelector(SelectRemoxAccount)
     const blockchain = useAppSelector(SelectBlockchain)
-    const [mainAnimate, setMainAnimate] = useState<boolean>(true)
 
     useAsyncEffect(async () => {
         if (!auth.currentUser) return router.push("/")
         const individual = await Get_Individual(auth.currentUser.uid)
-        if (address && auth.currentUser && blockchain && individual && accountType && accountType === "individual") {
+        if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
             dispatch(launchApp({
                 accountType: accountType,
-                addresses: [address],
+                addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
                 blockchain: blockchain,
-                id: auth.currentUser.uid,
+                id: remoxAccount.id,
                 storage: {
                     lastSignedProviderAddress: address,
                     signType: accountType,
                     uid: auth.currentUser.uid,
                     individual: individual,
-                    organization: null
+                    organization: accountType === "organization" ? (remoxAccount as IOrganization) : null,
                 }
             }))
         } else {

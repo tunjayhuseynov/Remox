@@ -52,8 +52,8 @@ function CreateMultisig() {
     const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
     const [file, setFile] = useState<File>()
     const [multisigIsUpload, setMultisigIsUpload] = useState<boolean>(true)
-    const paymentname: DropDownItem[] = [{ id: "image", name: "Upload Photo" }, { id: "nft", name: "NFT" }]
-    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+    const imageTypes: DropDownItem[] = [{ id: "image", name: "Upload Photo" }, { id: "nft", name: "NFT" }]
+    const [selectedImage, setSelectedImage] = useState(imageTypes[0])
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
@@ -149,8 +149,8 @@ function CreateMultisig() {
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
-                                setSelectedPayment(e)
+                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={imageTypes} selected={selectedImage} onSelect={(e) => {
+                                setSelectedImage(e)
                                 if (e.name === "NFT") setMultisigIsUpload(false)
                                 else setMultisigIsUpload(true)
                             }} />

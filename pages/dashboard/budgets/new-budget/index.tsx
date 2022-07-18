@@ -10,9 +10,9 @@ import { useRouter } from 'next/router';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { Coins } from 'types/coins';
 import { useForm, SubmitHandler } from "react-hook-form";
-import useBudgetExercise from 'hooks/budgets/useBudgetExercise';
 import { GetTime } from 'utils';
 import useLoading from 'hooks/useLoading';
+import { Create_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 
 
 interface IFormInput {
@@ -39,11 +39,10 @@ function NewBudgets() {
     const dispatch = useAppDispatch()
     const dark = useNextSelector(selectDarkMode)
     const [anotherToken, setAnotherToken] = useState(false)
-    const { create_budget } = useBudgetExercise()
     const navigate = useRouter()
     const DropDownCoins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
     const { parentId } = navigate.query as { parentId: string }
-    
+
     const [wallet, setWallet] = useState<DropDownItem>(DropDownCoins[0])
     const [wallet2, setWallet2] = useState<DropDownItem>(DropDownCoins[0])
 
@@ -52,7 +51,7 @@ function NewBudgets() {
         const coin2 = wallet2
         const subbudgets = inputs
         console.log(coin, coin2, data, subbudgets);
-        
+
         let secondCoin = null, secondAmount = null, id = generate();
 
         if (data.amount2 && data.amount2 > 0) {
@@ -60,28 +59,30 @@ function NewBudgets() {
             secondAmount = data.amount2
         }
 
-        await create_budget({
-            txs: [],
-            id: id,
-            amount: data.amount,
-            created_at: GetTime(),
-            name: data.name,
-            parentId,
-            token: coin.name,
-            secondAmount,
-            secondToken: secondCoin,
-            subbudgets: subbudgets.map(s => ({
-                amount: s.amount,
-                created_at: GetTime(),
-                id: s.id,
-                name: s.name,
-                parentId: id,
-                secondAmount: s.amount2 ?? null,
-                secondToken: s.amount2 && s.wallet2 && s.amount2 > 0 ? s.wallet2.name : null,
-                token: s.wallet.name,
+        await dispatch(Create_Budget_Thunk({
+            budget: {
                 txs: [],
-            })),
-        })
+                id: id,
+                amount: data.amount,
+                created_at: GetTime(),
+                name: data.name,
+                parentId,
+                token: coin.name,
+                secondAmount,
+                secondToken: secondCoin,
+                subbudgets: subbudgets.map(s => ({
+                    amount: s.amount,
+                    created_at: GetTime(),
+                    id: s.id,
+                    name: s.name,
+                    parentId: id,
+                    secondAmount: s.amount2 ?? null,
+                    secondToken: s.amount2 && s.wallet2 && s.amount2 > 0 ? s.wallet2.name : null,
+                    token: s.wallet.name,
+                    txs: [],
+                })),
+            }
+        }))
 
         navigate.push('/dashboard/budgets')
     }
@@ -239,7 +240,7 @@ function NewBudgets() {
                 </div>
             </form>
         </div>
-        </div>
+    </div>
 }
 
-        export default NewBudgets
+export default NewBudgets

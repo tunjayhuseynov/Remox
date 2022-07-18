@@ -1,5 +1,4 @@
 import { useDispatch } from "react-redux";
-import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Avatar from "components/avatar";
 import Button from "components/button";
@@ -7,7 +6,6 @@ import Button from "components/button";
 
 const RemoveOwner = ({ name, address, onDisable }: { name: string, address: string, onDisable: React.Dispatch<boolean> }) => {
 
-    const { refetch, isLoading, removeOwner } = useMultisigProcess();
 
     const dispatch = useDispatch()
 

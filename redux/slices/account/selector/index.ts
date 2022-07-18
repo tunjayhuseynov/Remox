@@ -44,7 +44,7 @@ export const SelectSpotBalance = createDraftSafeSelector(
     }
 )
 
-export const SelectSpotTotalBalance = createDraftSafeSelector( 
+export const SelectSpotTotalBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.balances,
     (balances) => {
         if (balances) {
@@ -60,7 +60,7 @@ export const SelectSpotTotalBalance = createDraftSafeSelector(
     }
 )
 
-export const SelectYieldTotalBalance = createDraftSafeSelector( 
+export const SelectYieldTotalBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.balances,
     (balances) => {
         if (balances) {
@@ -117,6 +117,11 @@ export const SelectAccounts = createDraftSafeSelector(
     (accounts) => accounts
 )
 
+export const SelectIndividualAccounts = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.storage?.individual.accounts,
+    (accounts) => accounts
+)
+
 export const SelectSingleAccounts = createDraftSafeSelector(
     (state: RootState) => state.remoxData.accounts,
     (accounts) => accounts.filter(account => account.signerType === "single")
@@ -145,6 +150,12 @@ export const SelectAllBudgets = createDraftSafeSelector(
     }, [])
 )
 
+
+
+export const SelectAllOrganizations = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.organizations,
+    (organizations) => organizations
+)
 
 export const SelectStats = createDraftSafeSelector(
     (state: RootState) => state.remoxData.stats,

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { individualCollectionName } from "crud/individual";
 import { organizationCollectionName } from "crud/organization";
-import { IAccount, IIndividual, IOrganization, IUser } from "firebaseConfig";
+import { IIndividual, IOrganization } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BASE_URL } from "utils/api";

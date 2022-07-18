@@ -15,7 +15,6 @@ export default function RequestLayout() {
     const [modalVisibility, setModalVisible] = useState(false)
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
-    const selectedAccount = useSelector(SelectSelectedAccount)
     const selectedBlockchain = useAppSelector(SelectBlockchain)
     const storage = useAppSelector(SelectStorage);
     const { type } = useRouter().query as { type: string[] | undefined }

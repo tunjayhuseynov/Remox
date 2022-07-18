@@ -1,4 +1,4 @@
-import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
+import { FirestoreRead, FirestoreReadMultiple, FirestoreWrite } from "rpcHooks/useFirebase"
 import { IAccount, IBudgetExercise, IOrganization } from "firebaseConfig"
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account"
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise"
@@ -31,6 +31,18 @@ export const Get_Organization = async (id: string) => {
     return organization;
 }
 
+export const Get_Organizations = async (address: string) => {
+    const organization = await FirestoreReadMultiple<IOrganization>(organizationCollectionName, [
+        {
+            firstQuery: "members",
+            condition: "array-contains",
+            secondQuery: address
+        }
+    ])
+
+    return organization;
+}
+
 export const Create_Organization = async (organization: IOrganization) => {
     let accountRefs: DocumentReference[] = []
     for (let account of organization.accounts) {
@@ -46,7 +58,7 @@ export const Create_Organization = async (organization: IOrganization) => {
 
 
 export const Update_Organization = async (organization: IOrganization) => {
-    
+
     let accountRefs: DocumentReference[] = []
     for (let account of organization.accounts) {
         if (!(await Get_Account(account.id))) {
@@ -59,7 +71,7 @@ export const Update_Organization = async (organization: IOrganization) => {
     for (let exercise of organization.budget_execrises) {
         exec.push(Get_Budget_Exercise_Ref(exercise.id));
     }
-    
+
     organization.budget_execrises = exec;
     organization.accounts = accountRefs;
 

@@ -3,9 +3,11 @@ import { useWalletKit } from 'hooks';
 import * as anchor from "@project-serum/anchor";
 import { SolanaProvider } from "@saberhq/solana-contrib";
 import { useMemo } from 'react';
+import { useAppSelector } from 'redux/hooks';
+import { SelectBlockchain } from 'redux/slices/account/selector';
 
 export default function useSolanaProvider() {
-  const { blockchain } = useWalletKit()
+  const blockchain = useAppSelector(SelectBlockchain)
   const { connection } = useConnection();
   const { publicKey, signTransaction, signAllTransactions, sendTransaction } = useWallet();
 

@@ -1,7 +1,4 @@
 import { useDispatch, useSelector } from "react-redux"
-import useMultisigProcess from 'hooks/useMultisigProcess'
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount"
-import { selectStorage } from "redux/slices/account/storage"
 import { useEffect, useState } from "react"
 import { AltCoins } from "types"
 import { changeError, selectError } from "redux/slices/notificationSlice"
@@ -19,7 +16,6 @@ const MultisigTransaction = () => {
     const selectedAddress = useSelector(SelectProviderAddress)!
     const storage = useSelector(SelectStorage)
     const selectMultisig = useSelector(selectMultisigTransactions)
-    const { signAndInternal: signData, owners, refetch: refreshMultisig, confirmTransaction, revokeTransaction, isLoading } = useMultisigProcess()
     const transactionData = selectMultisig?.find(t => t.id === parseInt(id!))
     const { GetCoins } = useWalletKit()
 

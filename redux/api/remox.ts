@@ -3,7 +3,6 @@ import { IBudgetExercise } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { IPriceResponse } from "pages/api/calculation/price";
 import { ISpendingResponse } from "pages/api/calculation/spending";
-import { IOrganizationORM } from "types/orm";
 
 interface Params { addresses: string[], blockchain: string, authId?: string }
 

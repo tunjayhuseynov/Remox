@@ -5,15 +5,15 @@ import Button from "components/button";
 import useNextSelector from "hooks/useNextSelector";
 import useStorage from "hooks/storage/useStorage";
 import AllWallets from "./allWallets";
-import Modal from 'components/general/modal'
 import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
 import { SelectStats } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
 import { SetComma } from "utils";
+import { useAppSelector } from "redux/hooks";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
-    const stats = useNextSelector(SelectStats)
+    const stats = useAppSelector(SelectStats)
     const route = useRouter()
     const { getName } = useStorage()
 

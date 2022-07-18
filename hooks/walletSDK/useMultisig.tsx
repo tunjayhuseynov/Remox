@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { IAccount, Image, IMember } from 'firebaseConfig';
+import { auth, IAccount, Image, IMember } from 'firebaseConfig';
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import * as borsh from '@project-serum/borsh';
 import BN from 'bn.js'
@@ -12,7 +12,7 @@ import { GetTime } from "utils";
 import { process } from "uniqid"
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "redux/slices/account/thunks/account";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectBlockchain, SelectOrganization, SelectRemoxAccount } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectBlockchain, SelectOrganization, SelectProviderAddress, SelectRemoxAccount } from "redux/slices/account/remoxData";
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import Web3 from 'web3'
 import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
@@ -131,6 +131,7 @@ export default function useMultisig() {
         let proxyAddress, provider: IAccount["provider"];
 
         if (!blockchain) throw new Error("Blockchain is not selected")
+        if(!auth.currentUser) throw new Error("User is not logged in")
 
         if (type === "organization") {
             if (!organization) throw new Error("Organization is not selected")
@@ -222,6 +223,7 @@ export default function useMultisig() {
         let myResponse: IAccount = {
             created_date: GetTime(),
             blockchain: blockchain,
+            createdBy: auth.currentUser?.uid,
             address: proxyAddress,
             id: process(name.split(" ").join("")),
             members: owners.map<IMember>(s => ({
@@ -258,6 +260,7 @@ export default function useMultisig() {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (accounts.some(s => s.address.toLowerCase() === contractAddress.toLowerCase())) throw new Error("This address already exist");
             if (!publicKey) throw new Error("Public key is not selected")
+            if (!auth.currentUser) throw new Error("User is not logged in")
 
             let members: string[] = [], provider: IAccount["provider"] = null;
 
@@ -291,6 +294,7 @@ export default function useMultisig() {
                 created_date: GetTime(),
                 blockchain: blockchain,
                 address: contractAddress,
+                createdBy: auth.currentUser.uid,
                 id: process(name.split(" ").join("")),
                 members: members.map<IMember>(s => ({
                     address: s,
@@ -537,8 +541,8 @@ export default function useMultisig() {
                     const txs = new Transaction()
                     txs.add(...(data as TransactionInstruction[]))
                     const pending = await wallet.newTransaction({ instructions: txs.instructions })
-                    await pending.tx.confirm()
-                    return { message: "sucess" }
+                    const reciept = await pending.tx.confirm()
+                    return reciept.signature
                 }
                 throw new Error("Wallet has no data")
             }
@@ -551,13 +555,13 @@ export default function useMultisig() {
 
             const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
 
-            await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
+            const txHash = await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
                 from: address,
                 gas: 250000,
                 gasPrice: "5000000000",
             })
 
-            return { message: "sucess" }
+            return txHash as string
         } catch (e: any) {
             throw new Error(e);
         }

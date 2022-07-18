@@ -114,6 +114,7 @@ export interface IAccount {
     signerType: "single" | "multi";
     provider: "Goki" | "CeloTerminal" | null;
     blockchain: BlockchainType;
+    createdBy: string;
     address: string;
     name: string;
     members: IMember[];

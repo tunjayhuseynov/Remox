@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import Avatar from "components/avatar";
 import Button from "components/button";
@@ -9,21 +8,14 @@ import { useWalletKit } from 'hooks'
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { IOwnerFormInput } from ".";
 
 
-export interface IFormInput {
-    nftAddress?: string;
-    nftTokenId?: number;
-    name: string;
-    address:string;
-    email?:string;
 
-}
 
 const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
-    const { register, handleSubmit } = useForm<IFormInput>();
+    const { register, handleSubmit } = useForm<IOwnerFormInput>();
     const { blockchain } = useWalletKit();
-    const { signAndInternal, owners, addOwner, isLoading, refetch } = useMultisigProcess()
     const [pageIndex, setPageIndex] = useState(0);
     const [file, setFile] = useState<File>()
     const dispatch = useDispatch()
@@ -35,7 +27,7 @@ const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
 
 
 
-    const onSubmit: SubmitHandler<IFormInput> = data => {
+    const onSubmit: SubmitHandler<IOwnerFormInput> = data => {
         const Photo = file
         console.log(data,Photo)
 

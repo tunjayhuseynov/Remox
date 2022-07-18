@@ -108,21 +108,21 @@ export default function useTasking() {
             )
 
             if (account.signerType === "multi") {
-                await submitTransaction(account.address, createProcess.encodeABI(), Contracts.Gelato.address)
+                const txHash = await submitTransaction(account.address, createProcess.encodeABI(), Contracts.Gelato.address)
 
-                return 1;
+                return txHash;
             }
 
-            await createProcess.send({
+            const taskIdHash = await createProcess.send({
                 from: account.address,
                 gas: 300000,
                 gasPrice: '50000000000'
             })
 
-            const resolverHash = await contract.methods.getResolverHash(address!, executionCommand).call()
-            const taskIdHash = await contract.methods.getTaskId(address!, executionAddress, executionCommand.slice(0, 10), false, executionAddress, resolverHash).call()
+            // const resolverHash = await contract.methods.getResolverHash(address!, executionCommand).call()
+            // await contract.methods.getTaskId(address!, executionAddress, executionCommand.slice(0, 10), false, executionAddress, resolverHash).call()
 
-            return taskIdHash;
+            return taskIdHash as string;
         } catch (error: any) {
             console.error(error)
             throw new Error("You've already created a task with this command")

@@ -8,7 +8,6 @@ import Success from "components/general/success";
 import Error from "components/general/error";
 import Modal from "components/general/modal";
 import { useModalSideExit, useWalletKit } from 'hooks';
-import useMultisigProcess from "hooks/useMultisigProcess";
 import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";
 import { motion, AnimatePresence } from "framer-motion"
@@ -25,7 +24,6 @@ const Swap = () => {
         setToken2(Object.values(GetCoins)[1])
     }, [GetCoins])
 
-    const { isMultisig } = useMultisigProcess()
 
     const token1Input = useRef<HTMLInputElement>(null)
 
@@ -120,7 +118,6 @@ const Swap = () => {
         }
     }
 
-    if (isMultisig) return <div className="text-center py-2">We are working on bringing Swap into MultiSig account. Please, select a wallet account until we finish it</div>
     if(!token1 || !token2) return <></>
     return <>
         <div className="flex justify-start">

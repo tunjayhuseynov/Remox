@@ -1,41 +1,65 @@
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import Button from "components/button";
 import { useRouter } from 'next/router';
-import { SelectExisting } from 'redux/slices/account/selectedAccount';
-import { selectStorage, setStorage } from 'redux/slices/account/storage';
 import useNextSelector from 'hooks/useNextSelector';
 import useAsyncEffect from 'hooks/useAsyncEffect';
-import { useSelector } from "react-redux";
-import { auth } from "firebaseConfig";
+import { auth, IOrganization } from "firebaseConfig";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectBlockchain, SelectProviderAddress, setAccountType } from "redux/slices/account/remoxData";
+import { SelectAllOrganizations, SelectBlockchain, SelectProviderAddress, setAccountType, setOrganizations, setProviderID, setStorage } from "redux/slices/account/remoxData";
 import useIndividual from "hooks/accounts/useIndividual";
+import { useState } from "react";
+import Loader from "components/Loader";
+import { Get_Organizations } from "crud/organization";
+import { Get_Organizations_Thunk } from "redux/slices/account/thunks/organization";
+import { IOrganizationORM } from "types/orm";
 
 
 function ChooseType() {
   const navigate = useRouter()
   const dark = useNextSelector(selectDarkMode)
+  const organizations = useAppSelector(SelectAllOrganizations)
 
   const dispatch = useAppDispatch()
   const address = useAppSelector(SelectProviderAddress)
   const blockchain = useAppSelector(SelectBlockchain)
 
+  const [organizationLoading, setOrganizationLoading] = useState(false)
+
   const { individual, isIndividualFetching } = useIndividual(address ?? "0", blockchain ?? "celo")
 
   useAsyncEffect(async () => {
+    setOrganizationLoading(true)
     if (!auth?.currentUser || !address || !blockchain) {
-      navigate.push("/")
+      await navigate.push("/")
     }
+    const organizations = await dispatch(Get_Organizations_Thunk(address!)).unwrap()
+    dispatch(setOrganizations(organizations))
+    setOrganizationLoading(false)
   }, [])
 
   const individualLogin = async () => {
     if (address && auth.currentUser && blockchain && !isIndividualFetching && individual) {
       dispatch(setAccountType("individual"))
+      dispatch(setProviderID(individual.id));
       navigate.push("/dashboard")
     }
   }
 
-  const data: { name: string, value: string }[] = []
+  const organizationLogin = async (organization: IOrganizationORM) => {
+    if (address && auth.currentUser && blockchain && !isIndividualFetching && individual) {
+      dispatch(setAccountType("organization"))
+      dispatch(setProviderID(organization.id));
+      dispatch(setStorage({
+        individual: individual,
+        organization: organization,
+        lastSignedProviderAddress: address,
+        signType: "organization",
+        uid: auth.currentUser.uid,
+      }))
+      await navigate.push("/dashboard")
+    }
+  }
+
 
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
@@ -49,16 +73,17 @@ function ChooseType() {
         <div className="flex gap-8">
           <div className="h-full cursor-pointer border border-b-0 dark:border-greylish transition-all hover:transition-all hover:!border-primary rounded-lg w-full">
             <div className="bg-white dark:bg-darkSecond rounded-lg overflow-auto h-[13.1rem] w-full relative">
-              {data.map((i, id) => {
-                return <div key={id} className={` ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === data.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
+              {organizations.map((i, id) => {
+                return <div key={i.id} onClick={() => organizationLogin(i)} className={` ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === organizations.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
                   <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
-                  <div className="flex  flex-col">
+                  <div className="flex flex-col">
                     <p className="text-base">{i.name}</p>
-                    <p className="text-sm text-greylish">{i.value}</p>
+                    <p className="text-sm text-greylish">{i.totalBalance}</p>
                   </div>
                 </div>
               })}
-              {data.length === 0 && <div className="bg-white dark:bg-darkSecond absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Data Exists</div>}
+              {(organizations.length === 0 && !organizationLoading) && <div className="bg-white dark:bg-darkSecond absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Data Exists</div>}
+              {(organizationLoading) && <div className="bg-white dark:bg-darkSecond absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"><Loader /></div>}
             </div>
             <Button className="top-0 w-full rounded-t-none !border-0" onClick={() => navigate.push("/create-organization")}>Add Organisation</Button>
           </div>

@@ -24,6 +24,7 @@ import { IPriceCoin } from "pages/api/calculation/price";
 import { AddTransactionToTag, CreateTag, DeleteTag, RemoveTransactionFromTag, UpdateTag } from "./thunks/tags";
 import { ITag } from "pages/api/tags";
 import { generate } from "shortid";
+import { IOrganizationORM } from "types/orm";
 
 export type IAccountType = "individual" | "organization";
 
@@ -41,6 +42,7 @@ export interface IMultisigStats {
 
 // Bizim webapp'in merkezi datalari
 export interface IRemoxData {
+    organizations: IOrganizationORM[],
     isFetching: boolean;
     balances: { [name: string]: IPriceCoin } | null;
     tags: ITag[],
@@ -72,6 +74,7 @@ export interface IRemoxData {
 const init = (): IRemoxData => {
     return {
         isFetching: true,
+        organizations: [],
         stats: null,
         tags: [],
         budgetExercises: [],
@@ -117,6 +120,9 @@ const remoxDataSlice = createSlice({
         },
         setProviderID: (state: IRemoxData, action: { payload: string }) => {
             state.providerID = action.payload;
+        },
+        setOrganizations: (state: IRemoxData, action: { payload: IOrganizationORM[] }) => {
+            state.organizations = action.payload;
         },
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
@@ -270,6 +276,7 @@ const remoxDataSlice = createSlice({
 
 export * from './selector'
 export const {
+    setOrganizations,
     addApprovedRequest, addPendingRequest, addRejectedRequest, removeApprovedRequest, removePendingRequest, removeRejectedRequest,
     addTag, removeTag, updateTag, addTransactionHashToTag, removeTransactionHashFromTag, setTags,
     setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor,

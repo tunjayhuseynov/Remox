@@ -52,7 +52,9 @@ export default async function handler(
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
+        if (!addresses) return res.status(200).json([]);
         if (!parentId || !blockchain || !parsedAddress) throw new Error("unavailable params")
+
 
         const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", parentId).get();
         let budget_exercises: IBudgetExercise[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise);
@@ -84,7 +86,7 @@ export default async function handler(
                     params: {
                         addresses: addresses,
                         blockchain: blockchain,
-                        txs: budget.txs.map(s => s.hash)
+                        txs: Array.from(new Set(budget.txs.map(s => s.hash)))
                     }
                 })
 
@@ -117,7 +119,7 @@ export default async function handler(
                         params: {
                             addresses: addresses,
                             blockchain: blockchain,
-                            txs: subbudget.txs.map(s => s.hash)
+                            txs: Array.from(new Set(subbudget.txs.map(s => s.hash)))
                         }
                     })
 

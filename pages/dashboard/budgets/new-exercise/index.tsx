@@ -3,7 +3,6 @@ import Button from '../../../../components/button';
 import { useForm, SubmitHandler } from "react-hook-form";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
-import useBudgetExercise from 'hooks/budgets/useBudgetExercise';
 import { useWalletKit } from 'hooks';
 import { GetTime } from 'utils';
 import useRemoxAccount from 'hooks/accounts/useRemoxAccount';
@@ -11,6 +10,9 @@ import { process } from 'uniqid'
 import { ToastRun } from 'utils/toast';
 import useLoading from 'hooks/useLoading';
 import { useRouter } from 'next/router';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { Create_Budget_Exercise_Thunk } from 'redux/slices/account/thunks/budgetThunks/budgetExercise';
+import { SelectAccountType, SelectRemoxAccount } from 'redux/slices/account/selector';
 
 interface IFormInput {
     name: string;
@@ -23,10 +25,13 @@ function NewExercise() {
     const { register, handleSubmit } = useForm<IFormInput>();
     const paymentname: DropDownItem[] = [{ name: "Current full Year" }, { name: "Custom period" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-    const { create_exercise } = useBudgetExercise()
     const { blockchain, Address } = useWalletKit()
-    const { remoxAccount, remoxAccountType } = useRemoxAccount(Address ?? "0x", blockchain)
+    // const { remoxAccount, remoxAccountType } = useRemoxAccount(Address ?? "0x", blockchain)
+    const remoxAccount = useAppSelector(SelectRemoxAccount)
+    const remoxAccountType = useAppSelector(SelectAccountType)
+
     const navigate = useRouter()
+    const dispatch = useAppDispatch()
     let today = new Date()
     let From = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate();
     let To = (today.getFullYear() + 1) + '/' + (today.getMonth() + 1) + '/' + today.getDate();
@@ -34,21 +39,26 @@ function NewExercise() {
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
+            if (!remoxAccountType) return ToastRun(<>Please. sign in first</>)
             if (!remoxAccount) throw new Error("No remox account found")
             const fromDate = new Date(From);
             const toDate = new Date(To);
 
-            await create_exercise({
-                blockchain,
-                budgets: [],
-                created_at: GetTime(),
-                from: GetTime(fromDate),
-                to: GetTime(toDate),
-                id: process(),
-                name: data.name,
-                parentId: remoxAccount.id,
-                parentType: remoxAccountType,
-            })
+            await dispatch(Create_Budget_Exercise_Thunk({
+                budgetExercise: {
+                    blockchain,
+                    budgets: [],
+                    created_at: GetTime(),
+                    from: GetTime(fromDate),
+                    to: GetTime(toDate),
+                    id: process(),
+                    name: data.name,
+                    parentId: remoxAccount.id,
+                    parentType: remoxAccountType,
+                },
+                remoxAccount,
+                remoxAccountType,
+            }))
             navigate.push('/dashboard/budgets')
         } catch (error) {
             console.error(error as any)

@@ -4,7 +4,6 @@ import { AddOwner, RemoveOwner, ReplaceOwner, ChangeTreshold } from 'subpages/da
 import Avatar from 'components/avatar'
 import Button from 'components/button'
 import Modal from 'components/general/modal'
-import useMultisigProcess from 'hooks/useMultisigProcess'
 import { useSelector } from 'react-redux'
 import { selectStorage } from 'redux/slices/account/storage'
 import { useAppSelector } from 'redux/hooks';
@@ -27,7 +26,6 @@ const OwnerSetting = () => {
 
     const storage = useSelector(selectStorage)
     const dark = useAppSelector(selectDarkMode)
-    const { owners, isMultisig, signAndInternal } = useMultisigProcess()
     const [details, setDetails] = useState(false)
     const [addOwnerModal, setAddOwnerModal] = useState(false)
     const [replaceOwnerModal, setReplaceOwnerModal] = useState(false)

@@ -20,7 +20,7 @@ const Budgets = () => {
     const navigate = useRouter()
     const budget_exercises = useAppSelector(SelectBudgetExercises)
 
-    const [selectedExerciseId, setSelectedExerciseId] = useState(budget_exercises[0].id)
+    const [selectedExerciseId, setSelectedExerciseId] = useState(budget_exercises.length > 0 ? budget_exercises[0].id : undefined)
     let selectedExercise = budget_exercises.find(exercise => exercise.id === selectedExerciseId)!
 
     const hasExercises = (budget_exercises?.length ?? 0) > 0

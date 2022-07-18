@@ -4,6 +4,7 @@ import { SolanaSerumEndpoint } from "components/Wallet"
 import { token } from "easy-spl"
 import { SolanaCoins } from "types"
 import * as INSTRUCTIONS from "@zebec-protocol/stream/src/instructions";
+import { adminApp } from "firebaseConfig/admin"
 
 export const solanaInstructions = async (publicKey: string, recipient: string, coin: string, amount: number, isStreaming: boolean, start_time?: number, end_time?: number) => {
     const solanaCoin = SolanaCoins[coin]
@@ -36,6 +37,14 @@ export const solanaInstructions = async (publicKey: string, recipient: string, c
             end_time,
             amount
         )
+
+        await adminApp.firestore().collection("recurring").add({
+            taskId: escrowAddress.publicKey.toBase58(),
+            sender: senderAddress.toBase58(),
+            recipient: recipientAddress.toBase58(),
+            blockchain: "solana",
+            protocol: "zebec"
+        })
 
         return [ix];
     }

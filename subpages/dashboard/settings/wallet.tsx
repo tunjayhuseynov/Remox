@@ -4,7 +4,6 @@ import { AddOwner, RemoveOwner, ReplaceOwner, ChangeTreshold } from 'subpages/da
 import Avatar from 'components/avatar'
 import Button from 'components/button'
 import Modal from 'components/general/modal'
-import useMultisigProcess from 'hooks/useMultisigProcess'
 import { useSelector } from 'react-redux'
 import { selectStorage } from 'redux/slices/account/storage'
 import { useAppSelector } from 'redux/hooks';
@@ -53,7 +52,6 @@ const WalletSetting = () => {
     const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
 
-    const { owners, isMultisig, signAndInternal } = useMultisigProcess()
 
     const [addOwnerModal, setAddOwnerModal] = useState(false)
     const [replaceOwnerModal, setReplaceOwnerModal] = useState(false)

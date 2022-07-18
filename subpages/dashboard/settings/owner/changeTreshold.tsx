@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Dropdown from "components/general/dropdown";
-import useMultisigProcess from "hooks/useMultisigProcess";
 import { changeError, changeSuccess } from "redux/slices/notificationSlice";
 import { DropDownItem } from "types";
 import Button from "components/button";
@@ -10,7 +9,6 @@ import Loader from "components/Loader";
 
 const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
 
-    const { signAndInternal, isMultisig, owners, isLoading, changeSigns, refetch } = useMultisigProcess()
 
     const [sign, setSign] = useState<DropDownItem>({ name: (signAndInternal?.sign.toString() ?? "1"), address: '' })
     const [internalSign, setInternalSign] = useState<DropDownItem>({ name: (signAndInternal?.internalSigns.toString() ?? "1"), address: '' })
@@ -28,7 +26,7 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
 
 
 
-    return owners ? <div className="-my-5 flex flex-col space-y-7">
+    return <div className="-my-5 flex flex-col space-y-7">
         <div className="font-bold text-xl">Replace Owner</div>
         <div className="flex flex-col space-y-3">
             <span>Any transaction requires the confirmation of: </span>
@@ -53,7 +51,6 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                                 !(signAndInternal?.sign === parseInt(sign.name)),
                                 !(signAndInternal?.internalSigns === parseInt(internalSign.name))
                             )
-                            refetch()
                             dispatch(changeSuccess({ activate: true, text: "Successfully" }))
                             onDisable(false)
                         } catch (error: any) {
@@ -67,7 +64,7 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
                 </Button>
             </div>
         </div>
-    </div> : <div> <Loader /> </div>
+    </div>
 }
 
 export default ChangeTreshold;

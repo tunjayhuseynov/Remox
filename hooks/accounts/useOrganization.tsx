@@ -1,7 +1,6 @@
 import { Get_Individual_Ref } from "crud/individual";
 import { Add_New_Organization_Account, Update_Organization } from "crud/organization";
 import type { IAccount, Image, IOrganization } from "firebaseConfig";
-import useSignUp from "hooks/singingProcess/useSignUp";
 import useNextSelector from "hooks/useNextSelector";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { selectStorage } from "redux/slices/account/storage";
@@ -9,10 +8,6 @@ import { selectStorage } from "redux/slices/account/storage";
 
 export default function useOrganization(address: string, blockchain: BlockchainType) {
     const storage = useNextSelector(selectStorage)
-    const individual = storage?.individual;
-
-    const { RegisterOrganization } = useSignUp(address, blockchain)
-
 
     const Add_Account_2_Organization = async (account: IAccount) => {
         if (!storage?.organization) throw new Error("organization is not defined")

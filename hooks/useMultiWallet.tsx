@@ -27,7 +27,7 @@ export default function useMultiWallet() {
     const { initConnector } = useContractKitInternal()
     const dispatch = useDispatch()
     const storage = useSelector(selectStorage)
-    // const data = useFirestoreRead<IUser>('users', auth.currentUser!.uid).data?.multiwallets;
+
     const { remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {

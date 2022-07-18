@@ -5,7 +5,6 @@ import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useMultiWallet from "hooks/useMultiWallet";
 import useInsight from "rpcHooks/useInsight";
 import Loader from "components/Loader";
-import useMultisigProcess from "hooks/useMultisigProcess";
 import { useAppSelector } from "redux/hooks";
 import { selectDarkMode } from "redux/slices/notificationSlice";
 import { CSVLink } from "react-csv";
@@ -81,7 +80,6 @@ interface IInsightData {
 const Insight = () => {
     const darkMode = useSelector(selectDarkMode)
     const { data: wallets } = useMultiWallet()
-    const { refetch, isMultisig } = useMultisigProcess()
     const [selectedDate, setSelectedDate] = useState<number>(30)
     const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { data } = useMultiWallet()
@@ -245,7 +243,7 @@ const Insight = () => {
                             setChangedAccount([...wallets.map((wallet) => wallet.address)])
                         }} /> 
                     </div>}*/}
-                    {!isMultisig && <> <div className="">
+                    {<> <div className="">
                         <CSVLink data={''} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                             <div className={'hidden'}>Export</div>
                             <img className={`w-[1.5rem] h-[1.5rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />

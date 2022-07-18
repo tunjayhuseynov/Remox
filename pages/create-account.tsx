@@ -14,9 +14,10 @@ import { GetTime } from "utils";
 import useLoading from "hooks/useLoading";
 import useNextSelector from "hooks/useNextSelector";
 import { process } from "uniqid";
-import useSignUp from "hooks/singingProcess/useSignUp";
 import { useAppDispatch } from "redux/hooks";
 import { CreateTag } from "redux/slices/account/thunks/tags";
+import { useDispatch } from "react-redux";
+import { Create_Individual_Thunk } from "redux/slices/account/thunks/individual";
 
 interface IFormInput {
   nftAddress?: string;
@@ -30,67 +31,32 @@ const CreateAccount = () => {
   const { Address, Wallet, blockchain } = useWalletKit();
   const [address] = useState(Address)
 
-  const { RegisterIndividual } = useSignUp(address ?? "0", blockchain)
-
+  const dispatch = useAppDispatch()
   const navigate = useRouter()
   const dark = useNextSelector(selectDarkMode)
 
   const [file, setFile] = useState<File>()
-  const [individualIsUpload, setIndividualIsUpload] = useState<boolean>(true)
-  const paymentname: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
-  const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+
+  const imageType: DropDownItem[] = [{ name: "Upload Photo", id: 'image' }, { name: "NFT", id: "nft" }]
+  const [selectedImageType, setSelectedImageType] = useState(imageType[0])
+  const individualIsUpload = selectedImageType.id === "image"
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     const File = file
 
     if (!address) return ToastRun(<>Please. sign in first</>)
     try {
-      let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
-      if (File || data.nftAddress) {
-        image =
-        {
-          image: {
-            blockchain,
-            imageUrl: File ?? data.nftAddress!,
-            nftUrl: data.nftAddress ?? "",
-            tokenId: data.nftTokenId ?? null,
-            type: individualIsUpload ? "image" : "nft"
-          },
-          name: `individuals/${data.name}`
-        }
-        await UploadNFTorImageForUser(image)
-      }
 
-      let user: Omit<IIndividual, "id" | "created_date"> = {
-        accounts: [
-          {
-            address: address,
-            blockchain,
-            created_date: GetTime(),
-            name: Wallet,
-            id: address,
-            image: null,
-            members: [
-              {
-                address,
-                id: process(),
-                image: null,
-                mail: null,
-                name: data.name,
-              }
-            ],
-            provider: null,
-            signerType: "single",
-          }
-        ],
-        budget_execrises: [],
-        image: image?.image ?? null,
-        members: [address],
+      await dispatch(Create_Individual_Thunk({
+        address,
+        blockchain,
+        file: File ?? null,
         name: data.name,
-        seenTime: GetTime()
-      }
-
-      await RegisterIndividual(user)
+        newAccountName: Wallet,
+        nftAddress: data.nftAddress ?? null,
+        nftTokenId: data.nftTokenId ?? null,
+        uploadType: individualIsUpload ? "image" : "nft",
+      }))
 
       navigate.push('/choose-type')
     } catch (error) {
@@ -117,10 +83,8 @@ const CreateAccount = () => {
           <div className="flex flex-col mb-4 space-y-1 w-full">
             <div className="text-xs text-left text-black  dark:text-white">Choose Profile Photo Type</div>
             <div className={` flex items-center gap-3 w-full`}>
-              <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
-                setSelectedPayment(e)
-                if (e.name === "NFT") setIndividualIsUpload(false)
-                else setIndividualIsUpload(true)
+              <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} onSelect={(e) => {
+                setSelectedImageType(e)
               }} />
             </div>
           </div>

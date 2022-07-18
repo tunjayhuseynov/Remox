@@ -23,7 +23,7 @@ export interface IBalanceMembers {
 }
 
 interface ICurrency {
-	celoCoins: ICoinMembers;
+	allCoins: ICoinMembers;
 	balances: IBalanceMembers;
 	orderBalance: IBalanceItem[];
 	totalBalance: number | undefined;
@@ -34,7 +34,7 @@ export interface ICoinMembers {
 }
 
 const State: ICurrency = {
-	celoCoins: {},
+	allCoins: {},
 	balances: {},
 	orderBalance: [],
 	totalBalance: undefined
@@ -47,7 +47,7 @@ export const CurrencySlice = createSlice({
 		updateAllCurrencies: (state: ICurrency, action: { payload: IuseCurrency[] }) => {
 			if (!action.payload) return;
 
-			state.celoCoins = action.payload.reduce<{ [name: string]: ICurrencyInternal }>((a, c) => {
+			state.allCoins = action.payload.reduce<{ [name: string]: ICurrencyInternal }>((a, c) => {
 				a[c.name] = c;
 
 				return a;
@@ -57,7 +57,7 @@ export const CurrencySlice = createSlice({
 			state.totalBalance = action.payload;
 		},
 		deleteBalance: (state: ICurrency) => {
-			state.celoCoins = {};
+			state.allCoins = {};
 			state.balances = {};
 		},
 		updateUserBalance: (state: ICurrency, action: any) => {
@@ -75,12 +75,12 @@ export const CurrencySlice = createSlice({
 
 export const { updateAllCurrencies, updateUserBalance, deleteBalance, updateTotalBalance, setOrderBalance } = CurrencySlice.actions;
 
-export const SelectCurrencies = (state: RootState): ICoinMembers => state.currencyandbalance.celoCoins;
+export const SelectCurrencies = (state: RootState): ICoinMembers => state.currencyandbalance.allCoins;
 export const SelectOrderBalance = (state: RootState): IBalanceItem[] => state.currencyandbalance.orderBalance;
 export const SelectBalances = (state: RootState): IBalanceMembers => state.currencyandbalance.balances;
 export const SelectTotalBalance = (state: RootState) => state.currencyandbalance.totalBalance;
-export const SelectCelo = (state: RootState) => state.currencyandbalance.celoCoins.CELO;
-export const SelectCusd = (state: RootState) => state.currencyandbalance.celoCoins.cUSD;
-export const SelectCeur = (state: RootState) => state.currencyandbalance.celoCoins.cEUR;
+export const SelectCelo = (state: RootState) => state.currencyandbalance.allCoins.CELO;
+export const SelectCusd = (state: RootState) => state.currencyandbalance.allCoins.cUSD;
+export const SelectCeur = (state: RootState) => state.currencyandbalance.allCoins.cEUR;
 
 export default CurrencySlice.reducer;

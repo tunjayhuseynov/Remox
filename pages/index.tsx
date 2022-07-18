@@ -26,7 +26,6 @@ const Home = () => {
   const [buttonText, setButtonText] = useState("Connect to a wallet")
   useEffect(() => {
     setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
-    dispatch(setBlockchain("celo"))
   }, [])
 
   const [selected, setSelected] = useState<DropDownItem>(
