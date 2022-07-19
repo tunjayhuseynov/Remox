@@ -6,7 +6,7 @@ import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { IPriceResponse } from "../calculation/price";
 import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import { ISpendingResponse } from "../calculation/spending";
+import { ISpendingResponse } from "../calculation/_spendingType";
 
 interface IBudgetCoin {
     coin: string,
@@ -59,6 +59,8 @@ export default async function handler(
         const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", parentId).get();
         let budget_exercises: IBudgetExercise[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise);
 
+
+
         const prices = await axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
             params: {
                 addresses: parsedAddress,
@@ -76,7 +78,6 @@ export default async function handler(
             const budget_snapshots = await adminApp.firestore().collection("budgets").where("parentId", "==", budget_exercise.id).get();
             budget_exercise.budgets = budget_snapshots.docs.map(snapshot => snapshot.data() as IBudget);
 
-
             /*Budget Calculation */
             /*Budget Calculation */
             /*Budget Calculation */
@@ -84,18 +85,18 @@ export default async function handler(
                 let totalBudget: number = 0, totalBudgetUsed: number = 0, totalBudgetPending: number = 0, totalBudgetAvailable: number = 0;
                 const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
                     params: {
-                        addresses: addresses,
+                        addresses: parsedAddress,
                         blockchain: blockchain,
-                        txs: Array.from(new Set(budget.txs.map(s => s.hash)))
+                        txs: Array.from(new Set(budget.txs.map(s => s.hash))),
+                        id: parentId
                     }
                 })
-
 
                 totalBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 0)));
                 let budgetCoin: IBudgetCoin = {
                     coin: budget.token,
                     totalAmount: budget.amount,
-                    totalUsedAmount: spending.data.CoinStats?.[0].totalSpending ?? 0,
+                    totalUsedAmount: spending.data.CoinStats?.[0]?.totalSpending ?? 0,
                     second: budget.secondToken && budget.secondAmount && spending.data.CoinStats?.[1] ? {
                         secondTotalAmount: budget.secondAmount,
                         secondCoin: budget.secondToken,
@@ -117,9 +118,10 @@ export default async function handler(
                     let totalSubBudget: number = 0, totalSubUsed: number = 0, totalSubPending: number = 0, totalSubAvailable: number = 0;
                     const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
                         params: {
-                            addresses: addresses,
+                            addresses: parsedAddress,
                             blockchain: blockchain,
-                            txs: Array.from(new Set(subbudget.txs.map(s => s.hash)))
+                            txs: Array.from(new Set(subbudget.txs.map(s => s.hash))), 
+                            id: parentId
                         }
                     })
 
@@ -128,7 +130,7 @@ export default async function handler(
                     let budgetCoin: IBudgetCoin = {
                         coin: subbudget.token,
                         totalAmount: subbudget.amount,
-                        totalUsedAmount: spending.data.CoinStats?.[0].totalSpending ?? 0,
+                        totalUsedAmount: spending.data.CoinStats?.[0]?.totalSpending ?? 0,
                         second: subbudget.secondToken && subbudget.secondAmount && spending.data.CoinStats?.[1] ? {
                             secondTotalAmount: subbudget.secondAmount,
                             secondCoin: subbudget.secondToken,
@@ -192,7 +194,7 @@ export default async function handler(
 
         res.status(200).json(exercises)
     } catch (error) {
-        res.json(error as any)
-        res.status(405).end()
+        console.log(error)
+        res.status(500).json({message: (error as any).message} as any)
     }
 }

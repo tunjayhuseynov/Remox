@@ -24,7 +24,7 @@ export default async function handler(
     try {
         const addresses = req.query["addresses[]"];
         const blockchain = req.query.blockchain as BlockchainType;
-
+        
         let parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
         const balance = await GetAllBalance(parsedAddress, blockchain)
@@ -33,6 +33,7 @@ export default async function handler(
         }
         res.status(500).json({ error: "Something went wrong" });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: (error as any).message });
     }
 }

@@ -150,8 +150,6 @@ export const SelectAllBudgets = createDraftSafeSelector(
     }, [])
 )
 
-
-
 export const SelectAllOrganizations = createDraftSafeSelector(
     (state: RootState) => state.remoxData.organizations,
     (organizations) => organizations

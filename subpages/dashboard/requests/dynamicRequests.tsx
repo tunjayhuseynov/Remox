@@ -1,10 +1,6 @@
-import { FirestoreWrite } from "rpcHooks/useFirebase"
-import useMultisig from "rpcHooks/useMultisig"
-import { PaymentInput } from "rpcHooks/useCeloPay"
 import { IRequest, RequestStatus } from "rpcHooks/useRequest"
 import Button from "components/button"
 import Modal from "components/general/modal"
-import { arrayRemove, FieldValue } from "firebase/firestore"
 import { useWalletKit } from "hooks"
 import useRequest from "hooks/useRequest"
 import { useContext, useEffect, useState } from "react"
@@ -18,8 +14,6 @@ import { selectStorage } from "redux/slices/account/storage"
 import RequestedUserItem from "subpages/dashboard/requests/requestedUserItem"
 import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "subpages/dashboard/requests/totalAmount"
-import { Coins } from "types"
-import { MultipleTransactionData } from "types/sdk"
 import { DashboardContext } from "layouts/dashboard"
 import Loader from "components/Loader"
 import ModalRequestItem from "./modalRequestItem"
@@ -33,10 +27,8 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
     const [isLoading, setLoading] = useState(false)
     const [isPaying, setIsPaying] = useState(false)
     // const [walletModals, setWalletModals] = useState(false)
-    const { submitTransaction } = useMultisig()
     const { genLoading } = useRequest()
     // const { BatchPay, Pay } = usePay()
-    const { SendBatchTransaction, SendTransaction } = useWalletKit()
     const dispatch = useDispatch()
     const isError = useAppSelector(selectError)
     const [isSuccess, setSuccess] = useState(false)

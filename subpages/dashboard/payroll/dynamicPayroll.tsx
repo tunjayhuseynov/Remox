@@ -10,7 +10,7 @@ import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import useAllowance from "rpcHooks/useAllowance";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
-import useTasking from "rpcHooks/useTaskingg";
+import useTasking from "rpcHooks/useTasking";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from 'redux/slices/account/storage';
 import { useWalletKit } from 'hooks';
@@ -39,7 +39,7 @@ export default function DynamicPayroll() {
     const router = useRouter()
     const dispatch = useDispatch()
     const balance = useAppSelector(SelectBalances)
-    const { createTask, loading } = useTasking()
+    const { createTask } = useTasking()
     const { editMember, isLoading } = useContributors()
     const storage = useAppSelector(selectStorage)
     const { allow, loading: allowLoading } = useAllowance()

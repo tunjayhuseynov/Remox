@@ -26,9 +26,7 @@ export default async function handler(
 
     const addresses = req.query["addresses[]"];
     const txs = req.query["txs[]"];
-    if (!txs) {
-      return res.status(200).json(txList)
-    }
+   
     const parsedtxs = typeof txs === "string" ? [txs] : txs;
     const authId = req.query.id as string;
     const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;

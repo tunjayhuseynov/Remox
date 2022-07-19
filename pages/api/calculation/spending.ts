@@ -6,59 +6,7 @@ import axios from "axios";
 import { FirestoreRead } from "rpcHooks/useFirebase";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { ITag } from "../tags";
-
-export type ATag = ITag & { txs: IFormattedTransaction[], totalAmount: number }
-
-
-export interface IFlowDetail {
-    [key: string]: number,
-    total: number,
-}
-
-export interface ITagFlow {
-    week: ATag[],
-    month: ATag[]
-    quart: ATag[]
-    year: ATag[],
-    currentMonth: ATag[]
-}
-
-
-export interface IMoneyFlow {
-    week: IFlowDetail
-    month: IFlowDetail
-    quart: IFlowDetail
-    year: IFlowDetail,
-    currentMonth: IFlowDetail
-}
-
-export interface ITotalBalanceByDay {
-    week: Omit<IFlowDetail, "total">
-    month: Omit<IFlowDetail, "total">
-    quart: Omit<IFlowDetail, "total">
-    year: Omit<IFlowDetail, "total">,
-    currentMonth: Omit<IFlowDetail, "total">
-}
-
-export interface CoinStats {
-    coin: string
-    totalSpending: number
-}
-
-export interface ISpendingResponse {
-    CoinStats: CoinStats[],
-    AverageSpend: number,
-    AccountAge: number,
-    TotalBalance: number,
-    TotalSpend: number,
-    TotalBalanceByDay: ITotalBalanceByDay,
-    AccountTotalBalanceChangePercent: number,
-    AccountIn: IMoneyFlow,
-    AccountOut: IMoneyFlow,
-    AccountInTag: ITagFlow,
-    AccountOutTag: ITagFlow,
-}
-
+import { ATag, CoinStats, ISpendingResponse } from "./_spendingType";
 
 export default async function handler(
     req: NextApiRequest,
@@ -70,9 +18,9 @@ export default async function handler(
 
         const inTxs = req.query["txs[]"];
 
-        if (!inTxs) {
-            return res.status(200).json(TxNull());
-        }
+        // if (!parsedAddress) {
+        //     return res.status(200).json(TxNull());
+        // }
 
         const parsedtxs = typeof inTxs === "string" ? [inTxs] : inTxs;
 
@@ -87,7 +35,7 @@ export default async function handler(
         })
 
         let specificTxs;
-        if (parsedtxs) {
+        if (parsedtxs && parsedtxs.length > 0) {
             specificTxs = await axios.get(BASE_URL + "/api/transactions", {
                 params: {
                     addresses: parsedAddress,
@@ -106,22 +54,24 @@ export default async function handler(
 
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
-        const coinsSpending = CoinsAndSpending(specificTxs?.data, parsedAddress, prices.data.AllPrices, blockchain)
-        const average = AverageMonthlyAndTotalSpending(txs.data, parsedAddress, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInYear, AccountOut: AccountOutYear, TotalInOut: TotalYear } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInCM, AccountOut: AccountOuCM, TotalInOut: TotalCM } = await AccountInOut(txs.data, prices.data.TotalBalance, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
+        const allTxs = specificTxs?.data ?? txs.data
 
-        const { inATag: inATag7, outATag: outATag7 } = SpendingAccordingTags(myTags?.tags ?? [], txs.data, parsedAddress, 7, prices.data.AllPrices, blockchain)
-        const { inATag: inATag30, outATag: outATag30 } = SpendingAccordingTags(myTags?.tags ?? [], txs.data, parsedAddress, 30, prices.data.AllPrices, blockchain)
-        const { inATag: inATag90, outATag: outATag90 } = SpendingAccordingTags(myTags?.tags ?? [], txs.data, parsedAddress, 90, prices.data.AllPrices, blockchain)
-        const { inATag: inATag365, outATag: outATag365 } = SpendingAccordingTags(myTags?.tags ?? [], txs.data, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        const { inATag: inATagCM, outATag: outATagCM } = SpendingAccordingTags(myTags?.tags ?? [], txs.data, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
+        const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
+        const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
+        const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
+        const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
+        const { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
+        const { AccountIn: AccountInYear, AccountOut: AccountOutYear, TotalInOut: TotalYear } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 365, prices.data.AllPrices, blockchain)
+        const { AccountIn: AccountInCM, AccountOut: AccountOuCM, TotalInOut: TotalCM } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
+
+        const { inATag: inATag7, outATag: outATag7 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
+        const { inATag: inATag30, outATag: outATag30 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
+        const { inATag: inATag90, outATag: outATag90 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 90, prices.data.AllPrices, blockchain)
+        const { inATag: inATag365, outATag: outATag365 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
+        const { inATag: inATagCM, outATag: outATagCM } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
 
 
-        const age = AccountAge(txs.data)
+        const age = AccountAge(allTxs)
         const percentChange = TotalBalanceChangePercent(prices.data.AllPrices)
 
         res.status(200).json({

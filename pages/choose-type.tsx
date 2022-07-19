@@ -3,13 +3,12 @@ import Button from "components/button";
 import { useRouter } from 'next/router';
 import useNextSelector from 'hooks/useNextSelector';
 import useAsyncEffect from 'hooks/useAsyncEffect';
-import { auth, IOrganization } from "firebaseConfig";
+import { auth } from "firebaseConfig";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectAllOrganizations, SelectBlockchain, SelectProviderAddress, setAccountType, setOrganizations, setProviderID, setStorage } from "redux/slices/account/remoxData";
 import useIndividual from "hooks/accounts/useIndividual";
 import { useState } from "react";
 import Loader from "components/Loader";
-import { Get_Organizations } from "crud/organization";
 import { Get_Organizations_Thunk } from "redux/slices/account/thunks/organization";
 import { IOrganizationORM } from "types/orm";
 
@@ -41,8 +40,15 @@ function ChooseType() {
     if (address && auth.currentUser && blockchain && !isIndividualFetching && individual) {
       dispatch(setAccountType("individual"))
       dispatch(setProviderID(individual.id));
+      dispatch(setStorage({
+        individual: individual,
+        organization: null,
+        lastSignedProviderAddress: address,
+        signType: "individual",
+        uid: auth.currentUser.uid,
+      }))
       navigate.push("/dashboard")
-    }
+    } 
   }
 
   const organizationLogin = async (organization: IOrganizationORM) => {
@@ -56,7 +62,7 @@ function ChooseType() {
         signType: "organization",
         uid: auth.currentUser.uid,
       }))
-      await navigate.push("/dashboard")
+      navigate.push("/dashboard")
     }
   }
 

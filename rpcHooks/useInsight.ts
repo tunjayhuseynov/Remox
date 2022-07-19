@@ -1,6 +1,6 @@
 import { auth } from 'firebaseConfig'
 import { useWalletKit } from 'hooks'
-import { ATag, IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/spending'
+import { ATag, IMoneyFlow, ISpendingResponse, ITagFlow } from 'pages/api/calculation/_spendingType'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useLazyGetAccountSpendingQuery } from 'redux/api'
@@ -21,39 +21,39 @@ export default function useInsight({ selectedDate, selectedAccounts }: { selecte
     const [accountOutTag, setAccountOutTag] = useState<ITagFlow>()
     const [TotalBalancePercentage, setTotalBalancePercentage] = useState<number>(0);
 
-    const [spendingFetch] = useLazyGetAccountSpendingQuery()
+    // const [spendingFetch] = useLazyGetAccountSpendingQuery()
 
     useEffect(() => {
         if (selectedAccounts.length > 0) {
-            setLoading(true)
-            spendingFetch({
-                addresses: [...selectedAccounts],
-                blockchain!,
-                authId: auth.currentUser?.uid
-            }).unwrap().then(response => {
-                const {
-                    AverageSpend,
-                    AccountIn,
-                    AccountOut,
-                    AccountAge,
-                    AccountTotalBalanceChangePercent,
-                    TotalBalance,
-                    AccountInTag,
-                    AccountOutTag
-                } = response
+            // setLoading(true)
+            // spendingFetch({
+            //     addresses: [...selectedAccounts],
+            //     blockchain!,
+            //     authId: auth.currentUser?.uid
+            // }).unwrap().then(response => {
+            //     const {
+            //         AverageSpend,
+            //         AccountIn,
+            //         AccountOut,
+            //         AccountAge,
+            //         AccountTotalBalanceChangePercent,
+            //         TotalBalance,
+            //         AccountInTag,
+            //         AccountOutTag
+            //     } = response
 
-                dispatch(setAccountRawStats(response))
+            //     dispatch(setAccountRawStats(response))
 
-                setTotalBalance(TotalBalance)
-                setAverageSpend(AverageSpend)
-                setAccountAge(AccountAge)
-                setIn(AccountIn)
-                setOut(AccountOut)
-                setAccountInTag(AccountInTag)
-                setAccountOutTag(AccountOutTag)
-                setTotalBalancePercentage(AccountTotalBalanceChangePercent)
-                setLoading(false)
-            })
+            //     setTotalBalance(TotalBalance)
+            //     setAverageSpend(AverageSpend)
+            //     setAccountAge(AccountAge)
+            //     setIn(AccountIn)
+            //     setOut(AccountOut)
+            //     setAccountInTag(AccountInTag)
+            //     setAccountOutTag(AccountOutTag)
+            //     setTotalBalancePercentage(AccountTotalBalanceChangePercent)
+            //     setLoading(false)
+            // })
         }
     }, [selectedAccounts, selectedDate])
 

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import { ISpendingResponse } from "pages/api/calculation/spending";
+import { ISpendingResponse } from "pages/api/calculation/_spendingType";
 import { IStorage } from "./storage";
 import { IBudgetExerciseORM } from "pages/api/budget";
 import { IContributor } from "types/dashboard/contributors";

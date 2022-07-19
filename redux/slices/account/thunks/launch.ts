@@ -4,7 +4,7 @@ import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import type { IRemoxAccountORM } from "pages/api/account/multiple";
 import type { IBudgetExerciseORM } from "pages/api/budget";
-import type { ISpendingResponse } from "pages/api/calculation/spending";
+import type { ISpendingResponse } from "pages/api/calculation/_spendingType";
 import type { IContributor } from "types/dashboard/contributors";
 import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
