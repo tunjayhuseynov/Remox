@@ -12,7 +12,7 @@ import { GetSignedMessage, GetTime } from 'utils';
 import { SelectBlockchain, setBlockchain as SetBlockchain } from 'redux/slices/account/remoxData';
 import { FetchPaymentData } from 'redux/slices/account/thunks/payment';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { IPaymentInput } from 'pages/api/payments/send';
+import { IPaymentInput, ISwap } from 'pages/api/payments/send';
 import Web3 from 'web3'
 import { Contracts } from 'rpcHooks/Contracts/Contracts';
 import useAllowance from 'rpcHooks/useAllowance';
@@ -25,6 +25,7 @@ import { AddTransactionToTag } from 'redux/slices/account/thunks/tags';
 import { Add_Tx_To_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { Add_Tx_To_Subbudget_Thunk } from 'redux/slices/account/thunks/budgetThunks/subbudget';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget';
+import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh';
 
 
 export enum CollectionName {
@@ -33,7 +34,7 @@ export enum CollectionName {
 }
 
 export interface Task {
-    interval: DateInterval | "instant",
+    interval: DateInterval | "instant" | number,
     startDate: number,
 }
 
@@ -212,8 +213,8 @@ export default function useWalletKit() {
 
     const SendTransaction = useCallback(
         async (account: IAccount, inputArr: IPaymentInput[],
-            { task, tags, isStreaming = false, startTime, endTime, budget, subbudget }:
-                { budget?: IBudgetORM, subbudget?: ISubbudgetORM, isStreaming?: boolean, task?: Task, tags?: ITag[], startTime?: number, endTime?: number, } = {}
+            { task, tags, isStreaming = false, startTime, endTime, budget, subbudget, swap }:
+                { budget?: IBudgetORM, subbudget?: ISubbudgetORM, isStreaming?: boolean, task?: Task, tags?: ITag[], startTime?: number, endTime?: number, swap?: ISwap } = {}
         ) => {
             let txhash;
             const Address = account.address;
@@ -227,13 +228,14 @@ export default function useWalletKit() {
                 endTime: endTime ?? null,
                 startTime: startTime ?? null,
                 isStreaming,
+                swap: swap ?? null,
             })).unwrap()
 
             if (blockchain === 'celo') {
                 const destination = txData.destination as string;
                 const data = txData.data as string;
                 const web3 = new Web3((window as any).celo);
-                // let contract: Contract = new web3.eth.Contract((inputArr.length > 1 ? BatchRequestABI.abi : ERC20ABI) as AbiItem[], destination);
+
                 let option = {
                     data,
                     gas: "500000",
@@ -243,6 +245,10 @@ export default function useWalletKit() {
                     value: "0",
                 }
 
+                if (swap) {
+                    await allow(Address, swap.inputCoin.contractAddress, "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121", swap.amount)
+                }
+
                 const approveArr = await GroupCoinsForApprove(inputArr, GetCoins)
                 if (inputArr.length > 1) {
                     for (let index = 0; index < approveArr.length; index++) {
@@ -250,45 +256,13 @@ export default function useWalletKit() {
                     }
                 }
 
-                if (task) { // Need Multisig
-                    const abi = data;
+                if (task) {
+                    const command = data;
                     for (let index = 0; index < approveArr.length; index++) {
                         await allow(Address, approveArr[index].coin.contractAddress, Contracts.Gelato.address, approveArr[index].amount.toString())
                     }
-                    const txHash = await createTask(account, task.startDate, task.interval, Contracts.BatchRequest.address, abi);
-                    if (tags && tags.length > 0) {
-                        for (const tag of tags) {
-                            await dispatch(AddTransactionToTag({ id: account.id, tagId: tag.id, transactionId: txHash }))
-                        }
-                    }
-                    // if (budget) {
-                    //     const coins = await GroupCoinsForApprove(inputArr, GetCoins)
-                    //     for (const coin of coins) {
-                    //         await dispatch(Add_Tx_To_Budget_Thunk({
-                    //             budget: budget,
-                    //             tx: {
-                    //                 isSendingOut: true,
-                    //                 hash: txHash,
-                    //                 amount: coin.amount,
-                    //                 token: coin.coin.name,
-                    //                 timestamp: GetTime()
-                    //             },
-                    //         }))
-
-                    //         if (subbudget) {
-                    //             await dispatch(Add_Tx_To_Subbudget_Thunk({
-                    //                 subbudget: subbudget,
-                    //                 tx: {
-                    //                     isSendingOut: true,
-                    //                     hash: txHash,
-                    //                     amount: coin.amount,
-                    //                     token: coin.coin.name,
-                    //                     timestamp: GetTime()
-                    //                 },
-                    //             }))
-                    //         }
-                    //     }
-                    // }
+                    const txHash = await createTask(account, task.startDate, task.interval, Contracts.BatchRequest.address, command);
+                    dispatch(Refresh_Data_Thunk())
                     return
                 }
 
@@ -304,11 +278,6 @@ export default function useWalletKit() {
                 } else {
                     const txHash = await submitTransaction(account.address, data, destination)
                     txhash = txHash
-                    // if (tags && tags.length > 0) {
-                    //     for (const tag of tags) {
-                    //         await dispatch(AddTransactionToTag({ id: account.id, tagId: tag.id, transactionId: txHash }))
-                    //     }
-                    // }
                 }
 
             } else if (blockchain === 'solana' && publicKey && signTransaction && signAllTransactions) {
@@ -317,11 +286,7 @@ export default function useWalletKit() {
 
                 if (account.signerType === "multi") {
                     const txHash = await submitTransaction(account.address, data, destination)
-                    // if (tags && tags.length > 0) {
-                    //     for (const tag of tags) {
-                    //         await dispatch(AddTransactionToTag({ id: account.id, tagId: tag.id, transactionId: txHash }))
-                    //     }
-                    // }
+                    dispatch(Refresh_Data_Thunk())
                     return
                 }
                 const transaction = new Transaction()
@@ -370,6 +335,7 @@ export default function useWalletKit() {
                     }
                 }
             }
+            dispatch(Refresh_Data_Thunk())
             return
         }, [blockchain, publicKey, address])
 

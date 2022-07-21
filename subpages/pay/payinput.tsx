@@ -3,10 +3,10 @@ import { BsFillTrashFill } from "react-icons/bs";
 import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";
 import { useDispatch } from "react-redux";
-import { changeAddress, changeAmount, changeName, changeSecondAmount, changeSecondWallet, changeWallet, IPayInput, removePayInput, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
+import { changeAddress, changeAmount, changeName, changeSecondAmount, changeSecondWallet, changeWallet, IPayInput, removePayInput, removeSeconField, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
 import { useSelector } from "react-redux";
 
-const Input = ({ payInput, index, stream, request = false, setSelectedType, onChangeType }: { payInput: IPayInput, index: number, stream?: boolean, request?: boolean, setSelectedType?: Dispatch<SetStateAction<boolean>>, onChangeType?: (value: boolean) => void }) => {
+const Input = ({ payInput, index, request = false }: { payInput: IPayInput, index: number, request?: boolean }) => {
     const { GetCoins } = useWalletKit()
     const dispatch = useDispatch()
 
@@ -16,7 +16,6 @@ const Input = ({ payInput, index, stream, request = false, setSelectedType, onCh
 
 
     const [anotherToken, setAnotherToken] = useState(false)
-
 
 
     return <>
@@ -50,15 +49,12 @@ const Input = ({ payInput, index, stream, request = false, setSelectedType, onCh
         </div>
         <div className="flex flex-col ">
             <span className="text-left text-sm m pb-1 ml-1" >Amount</span>
-            {stream && index === 1 ? <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border bg-gray-300 dark:bg-gray-600 dark:border-darkSecond  text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                <input className="outline-none unvisibleArrow  bg-gray-300 dark:bg-gray-600 pl-2 dark:text-white" readOnly defaultValue={payInput.amount} type="number" name={`amount__${index}`} />
-                {isBasedOnDollar && <span className="text-xs self-center bg-white dark:bg-darkSecond  text-right opacity-70 dark:text-white">USD as</span>}
-            </div> : <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border  bg-white dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
+            <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border  bg-white dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
                 <input className="outline-none unvisibleArrow bg-white pl-2 dark:bg-darkSecond dark:text-white" placeholder="Your Amount here" defaultValue={payInput.amount} type="number" name={`amount__${index}`} onChange={(e) => {
                     dispatch(changeAmount({ index: payInput.index, amount: Number(e.target.value) }))
                 }} required step={'any'} min={0} />
                 {isBasedOnDollar && <span className="text-xs self-center bg-white text-right opacity-70 dark:text-white">USD as</span>}
-            </div>}
+            </div>
         </div>
         {(!!(payInput.amount2) || anotherToken) && <>
             <div className="flex flex-col ">
@@ -70,17 +66,17 @@ const Input = ({ payInput, index, stream, request = false, setSelectedType, onCh
             <div className="flex flex-col">
                 <div className="flex justify-between relative">
                     <span className="text-left text-sm pb-1 ml-2" >Amount</span>
-                    <div className="absolute  -top-[-2.75rem] -right-[2rem]">
+                    <div className="absolute -top-[-2.75rem] -right-[2rem]">
                         {<BsFillTrashFill className="text-red-500 cursor-pointer w-5 h-5" onClick={() => {
                             setAnotherToken(false)
-                            //setRefreshPage(generate())
+                            dispatch(removeSeconField(payInput.index))
                         }} />}
                     </div>
                 </div>
                 <div>
                     {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
                     <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-white border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                        <input className={`${stream && index === 1 ? "bg-gray-300 dark:bg-gray-600" : ""} outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white`} readOnly={stream && index === 1} placeholder="Your Amount here" defaultValue={payInput.amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
+                        <input className={` outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white`} placeholder="Your Amount here" defaultValue={payInput.amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
                             dispatch(changeSecondAmount({ index: payInput.index, amount: Number(e.target.value) }))
                         }} step={'any'} min={0} />
                     </div>

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux'
 import { useContractKit } from '@celo-tools/use-contractkit'
 import { removeTransactions } from 'redux/slices/account/transactions'
 import { useAppSelector } from 'redux/hooks';
+import React from "react";
 
 const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-semibold text-[1.2rem] 2xl:text-lg 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`} title={`${showbar ? '' : text}`} >
     <div className="flex gap-3 items-center">{children}</div>
@@ -34,16 +35,16 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
         <ul className={`${showbar ? 'pt-20' : 'pt-24'}`}>
             <NavLink to="/dashboard" end={true} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Dashboard"} showbar={showbar}><DashboardSVG active={isActive} darkMode={darkMode} />{showbar && 'Dashboard'}</Li>}</NavLink>
             {blockchain !== "solana" && <>
-                <NavLink to="/dashboard/choose-budget?page=payroll" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Payroll"} showbar={showbar}><PayrollSVG active={isActive} darkMode={darkMode} />{showbar && 'Payroll'}</Li>}</NavLink>
-                <NavLink to="/dashboard/choose-budget?page=requests" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Request"} showbar={showbar}><RequestsSVG active={isActive} darkMode={darkMode} />{showbar && 'Requests'}</Li>}</NavLink>
+                <NavLink to="/dashboard/choose-budget?page=payroll" customPath="/dashboard/payroll" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Payroll"} showbar={showbar}><PayrollSVG active={isActive} darkMode={darkMode} />{showbar && 'Payroll'}</Li>}</NavLink>
+                <NavLink to="/dashboard/choose-budget?page=requests" customPath="/dashboard/requests" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Request"} showbar={showbar}><RequestsSVG active={isActive} darkMode={darkMode} />{showbar && 'Requests'}</Li>}</NavLink>
                 <NavLink to="/dashboard/contributors" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Contributors"} showbar={showbar}><TeamsSVG active={isActive} darkMode={darkMode} />{showbar && 'Contributors'}</Li>}</NavLink>
                 <NavLink to="/dashboard/budgets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Budgets"} showbar={showbar}><BudgetsSVG active={isActive} darkMode={darkMode} />{showbar && 'Budgets'}</Li>}</NavLink>
             </>}
             <NavLink to="/dashboard/transactions" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Transactions"} showbar={showbar}><TransactionsSVG active={isActive} darkMode={darkMode} />{showbar && 'Transactions'}</Li>}</NavLink>
             <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Assets"} showbar={showbar}><AssetsSVG active={isActive} darkMode={darkMode} />{showbar && 'Assets'}</Li>}</NavLink>
             <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Insight"} showbar={showbar}><InsightSVG active={isActive} darkMode={darkMode} />{showbar && 'Insights'}</Li>}</NavLink>
-            <NavLink to="/dashboard/choose-budget?page=swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
-            {blockchain !== 'solana' && <NavLink to="/dashboard/choose-budget?page=lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend - Borrow'}</Li>}</NavLink>}
+            <NavLink to="/dashboard/choose-budget?page=swap" customPath="/dashboard/swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
+            {blockchain !== 'solana' && <NavLink to="/dashboard/choose-budget?page=lend-and-borrow" customPath="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend - Borrow'}</Li>}</NavLink>}
             {blockchain !== 'solana' && <NavLink to="/dashboard/automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Recurring"} showbar={showbar}><AutomationsSVG active={isActive} darkMode={darkMode} />{showbar && 'Recurring'}</Li>}</NavLink>}
             {showbar && <><div className="w-full border-b my-4"></div>
 
@@ -62,15 +63,15 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
     </>
 }
 
-const NavLink = ({ children, to, className, end = false }: { end?: boolean, to: string, className: ({ isActive }: { isActive: boolean }) => string, children: ({ isActive }: { isActive: boolean }) => JSX.Element }) => {
+const NavLink = ({ children, to, className, end = false, customPath }: { end?: boolean, to: string, customPath?: string, className: ({ isActive }: { isActive: boolean }) => string, children: ({ isActive }: { isActive: boolean }) => JSX.Element }) => {
     const router = useRouter()
-    const path = router.pathname
+    const path = router.asPath
 
-    return <a href="placeholder" className={className({ isActive: end ? path === to : path.includes(to) })} onClick={(e) => {
+    return <a href="placeholder" className={className({ isActive: end ? (path === (customPath) || path === (to)) : (path.includes(to) || path.includes(customPath ?? "@")) })} onClick={(e) => {
         e.preventDefault()
         router.push(to)
     }}>
-        {children({ isActive: end ? path === to : path.includes(to) })}
+        {children({ isActive: end ? (path === (customPath) || path === (to)) : (path.includes(to) || path.includes(customPath ?? "@")) })}
     </a>
 
 }
@@ -100,6 +101,7 @@ const SettingSVG = ({ active = false, darkMode = true }) => <img className={`w-[
 const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.60rem] h-[1.60rem]`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
 
 const LogoutSVG = ({ darkMode = true }) => <img className={`w-[1.60rem] h-[1.60rem]`} src={darkMode ? '/icons/sidebar/power_white.png' : '/icons/sidebar/power.png'} alt="logout" />
+
 export default Sidebarlist;
 
 

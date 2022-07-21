@@ -21,6 +21,7 @@ import { newProgramMap } from "@saberhq/anchor-contrib";
 import { utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
 import { SelectIndividual } from 'redux/slices/account/remoxData';
+import { Multisig_Fetch_Thunk } from "redux/slices/account/thunks/multisig";
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/Multisig.json")
@@ -131,7 +132,7 @@ export default function useMultisig() {
         let proxyAddress, provider: IAccount["provider"];
 
         if (!blockchain) throw new Error("Blockchain is not selected")
-        if(!auth.currentUser) throw new Error("User is not logged in")
+        if (!auth.currentUser) throw new Error("User is not logged in")
 
         if (type === "organization") {
             if (!organization) throw new Error("Organization is not selected")
@@ -320,6 +321,12 @@ export default function useMultisig() {
                     individual: individual!
                 }))
             }
+
+            await dispatch(Multisig_Fetch_Thunk({
+                accounts: accounts,
+                blockchain: blockchain,
+                addresses: accounts.filter(s => s.signerType === "multi").map(s => s.address),
+            }))
 
             return myResponse
         } catch (e: any) {
@@ -613,7 +620,7 @@ export default function useMultisig() {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
-                    const tx = await wallet.approveTransaction(new PublicKey(transactionId), publicKey!)
+                    const tx = wallet.approveTransaction(new PublicKey(transactionId), publicKey!)
                     const pending = await wallet.newTransactionFromEnvelope({ tx })
                     await pending.tx.confirm()
                     return { message: "sucess" }

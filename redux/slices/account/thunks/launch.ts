@@ -12,6 +12,7 @@ import { IAccountMultisig } from "pages/api/multisig";
 import { IRequest } from "rpcHooks/useRequest";
 import { IPriceResponse } from "pages/api/calculation/price";
 import { ITag } from "pages/api/tags";
+import { Multisig_Fetch_Thunk } from "./multisig";
 
 type LaunchResponse = {
     Balance: IPriceResponse;
@@ -43,7 +44,7 @@ interface LaunchParams {
     storage: IStorage,
 }
 
-export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxData/launch", async ({ addresses, blockchain, id, accountType, storage }) => {
+export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxData/launch", async ({ addresses, blockchain, id, accountType, storage }, api) => {
     const spending = axios.get<ISpendingResponse>("/api/calculation/spending", {
         params: {
             addresses: addresses,
@@ -102,39 +103,23 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
 
 
     const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes, balanceRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags, balances]);
-    
+
 
     const accounts = accountRes.data;
-
-    const promiseMultisigAccounts = accounts.accounts.filter(s => s.signerType === "multi").map(s => axios.get<IAccountMultisig>("/api/multisig", {
-        params: {
-            blockchain: blockchain,
-            Skip: 0,
-            Take: 100,
-            address: s.address
-        }
-    }))
-
-    const multisigAccountsRef = await Promise.all(promiseMultisigAccounts);
-    const multisigAccounts = multisigAccountsRef.map(s => s.data);
-
-    let multisigRequests: IAccountMultisig["txs"] = [];
-    let pendingRequests: IAccountMultisig["txs"] = [];
-    let approvedRequests: IAccountMultisig["txs"] = [];
-    let rejectedRequests: IAccountMultisig["txs"] = [];
-    let signingNeedRequests: IAccountMultisig["txs"] = [];
-
-    multisigAccounts.forEach(s => {
-        const txs = s.txs;
-        const Pendings = txs.filter(s => s.executed === false)
-        const Approveds = txs.filter(s => s.executed === true)
-
-        pendingRequests = [...pendingRequests, ...Pendings];
-        rejectedRequests = [...rejectedRequests, ...Pendings.filter(s => s.confirmations.length === 0)]
-        approvedRequests = [...approvedRequests, ...Approveds];
-        signingNeedRequests = [...signingNeedRequests, ...Pendings.filter(s => !s.confirmations.some(s => addresses.includes(s)))]
-        multisigRequests = [...multisigRequests, ...txs]
-    })
+    const multi = accounts.accounts.filter(s => s.signerType === "multi")
+    
+    const {
+        approvedRequests,
+        multisigRequests,
+        pendingRequests,
+        rejectedRequests,
+        signingNeedRequests,
+        multisigAccounts
+    } = await api.dispatch(Multisig_Fetch_Thunk({
+        accounts: multi,
+        blockchain: blockchain,
+        addresses: multi.map(s => s.address),
+    })).unwrap()
 
     let allCumulativeTransactions = [...transactionsRes.data, ...multisigRequests].sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
 

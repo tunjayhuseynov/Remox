@@ -6,7 +6,7 @@ import Avatar from "../../../components/avatar";
 import Delete from './buttons/delete'
 import { IMember } from "types/dashboard/contributors";
 import useContributors from "hooks/useContributors";
-import useTasking from "rpcHooks/useTaskingg";
+import useTasking from "rpcHooks/useTasking";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';

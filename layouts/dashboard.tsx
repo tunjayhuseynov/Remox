@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                         exitBeforeEnter
                         initial={false}
                     >
-                        <motion.main key={router.route} variants={noAnimation ? {} : variants} exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden transition-all  pl-[14.188rem] xl:pl-[17.188rem] pt-28`}>
+                        <motion.main key={router.asPath} variants={noAnimation ? {} : variants} exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden transition-all  pl-[14.188rem] xl:pl-[17.188rem] pt-28`}>
                             {children}
                         </motion.main>
                     </AnimatePresence>

@@ -30,7 +30,7 @@ const Unlock = () => {
     const Submit = async () => {
         if (!Connected && !Address) {
             dispatch(removeTransactions())
-            ToastRun(<div className="dark:text-white"><strong>You&apos;ve not signed into your wallet yet</strong> <br /> Please, sign in first</div>)
+            ToastRun(<div className="dark:text-white"><strong>You&apos;ve not signed into your wallet yet</strong> <br /> Please, sign in first</div>, "error")
         }
         if (inputRef.current && Address && Connected) {
             setIncorrect(false);

@@ -39,7 +39,7 @@ function NewExercise() {
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
-            if (!remoxAccountType) return ToastRun(<>Please. sign in first</>)
+            if (!remoxAccountType) return ToastRun(<>Please. sign in first</>, "warning")
             if (!remoxAccount) throw new Error("No remox account found")
             const fromDate = new Date(From);
             const toDate = new Date(To);
@@ -62,7 +62,7 @@ function NewExercise() {
             navigate.push('/dashboard/budgets')
         } catch (error) {
             console.error(error as any)
-            ToastRun(<div>{(error as any).message}</div>)
+            ToastRun(<div>{(error as any).message}</div>, "error")
         }
     };
 

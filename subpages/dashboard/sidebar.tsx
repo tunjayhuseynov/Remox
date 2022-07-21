@@ -12,11 +12,9 @@ import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccountType } from 'redux/slices/account/remoxData';
-import { DashboardContext } from 'layouts/dashboard';
 
 const Sidebar = () => {
 
-    const { Disconnect, blockchain } = useWalletKit()
     const { importMultisigAccount } = useMultisig()
     const navigator = useRouter()
     const accountType = useAppSelector(SelectAccountType)
@@ -54,8 +52,6 @@ const Sidebar = () => {
     const [list, setList] = useState<DropDownItem[]>([])
 
     useEffect(() => {
-
-
         setList([
             { name: "Treasury vault 0", totalValue: '$2,800', photo: "nftmonkey" },
             { name: "Treasury vault 1", totalValue: '$3,700', photo: "" },

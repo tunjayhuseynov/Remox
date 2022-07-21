@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { BlockchainType } from "hooks/walletSDK/useWalletKit";
 import { ISpendingResponse } from "pages/api/calculation/_spendingType";
 import { IStorage } from "./storage";
-import { IBudgetExerciseORM } from "pages/api/budget";
+import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget";
 import { IContributor } from "types/dashboard/contributors";
 import { launchApp } from "./thunks/launch";
 import type { IAccountMultisig } from 'pages/api/multisig'
@@ -25,6 +25,8 @@ import { AddTransactionToTag, CreateTag, DeleteTag, RemoveTransactionFromTag, Up
 import { ITag } from "pages/api/tags";
 import { generate } from "shortid";
 import { IOrganizationORM } from "types/orm";
+import { Multisig_Fetch_Thunk } from "./thunks/multisig";
+import { Refresh_Data_Thunk } from "./thunks/refresh";
 
 export type IAccountType = "individual" | "organization";
 
@@ -66,8 +68,8 @@ export interface IRemoxData {
     cumulativeTransactions: (IFormattedTransaction | ITransactionMultisig)[],
     selectedAccountAndBudget: {
         account: IAccount | null,
-        budget: IBudget | null,
-        subbudget: ISubBudget | null,
+        budget: IBudgetORM | null,
+        subbudget: ISubbudgetORM | null,
     }
 }
 
@@ -127,7 +129,7 @@ const remoxDataSlice = createSlice({
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
         },
-        setSelectedAccountAndBudget: (state: IRemoxData, action: { payload: { account: IAccount | null, budget: IBudget | null, subbudget: ISubBudget | null } }) => {
+        setSelectedAccountAndBudget: (state: IRemoxData, action: { payload: { account: IAccount | null, budget: IBudgetORM | null, subbudget: ISubbudgetORM | null } }) => {
             state.selectedAccountAndBudget = action.payload;
         },
         deleteSelectedAccountAndBudget: (state: IRemoxData) => {
@@ -136,7 +138,7 @@ const remoxDataSlice = createSlice({
                 budget: null,
                 subbudget: null,
             }
-        }
+        },
     },
     extraReducers: builder => {
         /* Tag */
@@ -223,6 +225,32 @@ const remoxDataSlice = createSlice({
             }
         })
 
+        builder.addCase(Multisig_Fetch_Thunk.fulfilled, (state, action) => {
+            state.multisigStats = {
+                all: action.payload.multisigAccounts,
+                multisigTxs: action.payload.multisigRequests,
+                pendingTxs: action.payload.pendingRequests,
+                approvedTxs: action.payload.approvedRequests,
+                rejectedTxs: action.payload.rejectedRequests,
+                signingNeedTxs: action.payload.signingNeedRequests
+            }
+        })
+
+
+        //*****************************************************************************************
+        // REFRESH
+
+        builder.addCase(Refresh_Data_Thunk.fulfilled, (state, action) => {
+            state.stats = action.payload.spending;
+            state.accounts = action.payload.RemoxAccount.accounts;
+            state.totalBalance = action.payload.RemoxAccount.totalBalance;
+            state.transactions = action.payload.transactions;
+            state.balances = action.payload.balance.AllPrices;
+        })
+
+
+
+        //*****************************************************************************************
 
         /* Launch */
         /* Launch */
@@ -261,7 +289,7 @@ const remoxDataSlice = createSlice({
 
             state.accountType = action.payload.Storage.signType;
             if (action.payload.Storage.signType === "individual") {
-                state.providerID = action.payload.Storage.individual.accounts[0].id;
+                // state.providerID = action.payload.Storage.individual.accounts[0].id;
             } else if (action.payload.Storage.signType === "organization" && action.payload.Storage.organization) {
                 state.providerID = action.payload.Storage.organization.id
             }

@@ -44,7 +44,7 @@ const CreateAccount = () => {
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     const File = file
 
-    if (!address) return ToastRun(<>Please. sign in first</>)
+    if (!address) return ToastRun(<>Please. sign in first</>, "warning")
     try {
 
       await dispatch(Create_Individual_Thunk({
@@ -61,7 +61,7 @@ const CreateAccount = () => {
       navigate.push('/choose-type')
     } catch (error) {
       console.error(error)
-      ToastRun(<>{(error as any).message}</>)
+      ToastRun(<>{(error as any).message}</>, "error")
     }
 
   }

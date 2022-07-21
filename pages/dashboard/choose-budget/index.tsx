@@ -41,7 +41,7 @@ function ChooseBudget() {
         name: currentWallet?.name || currentWallet?.address || "Select a wallet",
         id: currentWallet?.id
     });
-    
+
     const [selectedBudget, setBudget] = useState<DropDownItem>();
     const [selectedSubbudget, setSubbudget] = useState<DropDownItem>();
 
@@ -58,8 +58,8 @@ function ChooseBudget() {
     const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         const page = router.query.page;
-        if (!page) return ToastRun(<>Page not found</>)
-        if (!selectedAccount) return ToastRun(<>Wallet not selected</>)
+        if (!page) return ToastRun(<>Page not found</>, "error")
+        if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
         const budget = budgetState.find(b => b.id === selectedBudget?.id);
         dispatch(setSelectedAccountAndBudget({
             account: accounts.find(w => w.id === selectedAccount.id) ?? null,

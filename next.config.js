@@ -5,6 +5,20 @@ const nextConfig = {
   reactStrictMode: true,
   webpack5: true,
   webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(ts)x?$/, // Just `tsx?` file only
+      use: [
+        // options.defaultLoaders.babel, I don't think it's necessary to have this loader too
+        {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true,
+            experimentalWatchApi: true,
+            onlyCompileBundledFiles: true,
+          },
+        },
+      ],
+    });
     config.resolve.fallback = { 
       "crypto": require.resolve("crypto-browserify"),
       "fs": false,

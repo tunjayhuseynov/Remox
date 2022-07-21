@@ -1,17 +1,47 @@
-import { Connection, Keypair, PublicKey } from "@solana/web3.js"
+import { Connection, Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js"
 import { WITHDRAW_TOKEN_STRING, ZEBEC_PROGRAM_ID } from "@zebec-protocol/stream"
 import { SolanaSerumEndpoint } from "components/Wallet"
 import { token } from "easy-spl"
 import { SolanaCoins } from "types"
 import * as INSTRUCTIONS from "@zebec-protocol/stream/src/instructions";
 import { adminApp } from "firebaseConfig/admin"
+import { ISwap } from "."
+import { Jupiter } from "@jup-ag/core"
+import JSBI from "jsbi"
 
-export const solanaInstructions = async (publicKey: string, recipient: string, coin: string, amount: number, isStreaming: boolean, start_time?: number, end_time?: number) => {
+export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming: boolean, start_time: number, end_time: number): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number) {
+    const connection = new Connection(SolanaSerumEndpoint) 
+    if (swap) {
+        const jupiter = await Jupiter.load({
+            connection,
+            cluster: "mainnet-beta",
+            // user: new PublicKey(account.address), // or public key
+            // platformFeeAndAccounts:  NO_PLATFORM_FEE,
+            routeCacheDuration: 10_000, // Will not refetch data on computeRoutes for up to 10 seconds
+        });
+        const routes = await jupiter.computeRoutes({
+            inputMint: new PublicKey(swap.inputCoin.contractAddress), // Mint address of the input token
+            outputMint: new PublicKey(swap.outputCoin.contractAddress), // Mint address of the output token
+            amount: JSBI.BigInt(parseFloat(swap.amount) * (10 ** swap.inputCoin.decimals!)), // raw input amount of tokens
+            slippage: parseFloat(swap.slippage), // The slippage in % terms
+            forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
+        })
+
+        const { transactions } = await jupiter.exchange({
+            routeInfo: routes.routesInfos[0],
+            userPublicKey: new PublicKey(swap.account)
+        })
+
+        return transactions.swapTransaction.instructions
+    }
+
     const solanaCoin = SolanaCoins[coin]
 
     const from = new PublicKey(publicKey)
     const to = new PublicKey(recipient)
-    const connection = new Connection(SolanaSerumEndpoint)
 
     if (isStreaming && start_time && end_time) {
 

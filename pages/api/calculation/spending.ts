@@ -27,12 +27,7 @@ export default async function handler(
         const blockchain = req.query.blockchain as BlockchainType;
         const authId = req.query.id as string;
 
-        const txs = await axios.get(BASE_URL + "/api/transactions", {
-            params: {
-                addresses: parsedAddress,
-                blockchain: blockchain,
-            }
-        })
+
 
         let specificTxs;
         if (parsedtxs && parsedtxs.length > 0) {
@@ -41,6 +36,13 @@ export default async function handler(
                     addresses: parsedAddress,
                     blockchain: blockchain,
                     txs: parsedtxs
+                }
+            })
+        } else {
+            specificTxs = await axios.get(BASE_URL + "/api/transactions", {
+                params: {
+                    addresses: parsedAddress,
+                    blockchain: blockchain,
                 }
             })
         }
@@ -54,7 +56,7 @@ export default async function handler(
 
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
-        const allTxs = specificTxs?.data ?? txs.data
+        const allTxs = specificTxs.data
 
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
         const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)

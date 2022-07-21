@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import Select, { StylesConfig } from 'react-select';
 import chroma from 'chroma-js';
 import { selectDarkMode } from "redux/slices/notificationSlice";
-import useTasking from "rpcHooks/useTaskingg";
+import useTasking from "rpcHooks/useTasking";
 import { CoinsURL } from "types";
 import { useRouter } from "next/router";
 import Loader from "components/Loader";

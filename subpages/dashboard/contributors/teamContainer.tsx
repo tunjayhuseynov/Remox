@@ -5,7 +5,7 @@ import Delete from "./buttons/delete";
 import TeamItem from "./teamItem";
 import { IContributor } from "types/dashboard/contributors";
 import useContributors from "hooks/useContributors";
-import useTasking from "rpcHooks/useTaskingg";
+import useTasking from "rpcHooks/useTasking";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
 import { useModalSideExit } from "hooks";

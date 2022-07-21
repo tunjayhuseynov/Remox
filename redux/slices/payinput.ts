@@ -97,6 +97,13 @@ const PayInputSlice = createSlice({
             state.inputs = state.inputs.filter(input => input.index !== action.payload)
             state.inputAmount -= 1
         },
+        removeSeconField: (state: IPayInputs, action: { payload: string }) => {
+            const input = state.inputs.find(i => i.index === action.payload);
+            if (input) {
+                input.amount2 = undefined;
+                input.wallet2 = undefined;
+            }
+        },
         resetPayInput: (state: IPayInputs) => {
             state.inputs = [
 
@@ -108,7 +115,7 @@ const PayInputSlice = createSlice({
 })
 
 export const {
-    addPayInput, removePayInput, changeName, changeSecondAmount, changeSecondWallet, changeWallet,
+    addPayInput, removePayInput, changeName, changeSecondAmount, changeSecondWallet, changeWallet, removeSeconField,
     changePayInput, changeBasedValue, resetPayInput, changeAddress, changeAmount } = PayInputSlice.actions
 
 export const SelectInputs = createDraftSafeSelector(

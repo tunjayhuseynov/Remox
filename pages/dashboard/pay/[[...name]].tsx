@@ -28,6 +28,8 @@ import { SelectSelectedAccountAndBudget, SelectStats, SelectTags } from "redux/s
 import useLoading from "hooks/useLoading";
 import { IPaymentInput } from "pages/api/payments/send";
 import { ITag } from "pages/api/tags";
+import { ToastRun } from "utils/toast";
+import { GetTime } from "utils";
 
 export interface IFormInput {
     description?: string;
@@ -45,13 +47,18 @@ const Pay = () => {
 
 
     const { register, handleSubmit } = useForm<IFormInput>();
-    const [stream, setStream] = useState(false)
+    // const [stream, setStream] = useState(false)
 
     const dispatch = useAppDispatch()
     const router = useRouter();
     const { GetCoins, SendTransaction } = useWalletKit()
 
-    const { submitTransaction } = useMultisig()
+
+    const [startDateState, setStartDate] = useState<string>()
+    const [startTime, setStartTime] = useState<string>()
+
+    const [endDateState, setEndDate] = useState<string>()
+    const [endTime, setEndTime] = useState<string>()
 
     const [selectedTags, setSelectedTags] = useState<ITag[]>([])
 
@@ -64,8 +71,8 @@ const Pay = () => {
     const [selectedAmountType, setSelectedAmountType] = useState(amountTypeList[0])
 
 
-    const timeInterval: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
-    const [selectedTimeInterval, setSelectedTimeInterval] = useState(timeInterval[0])
+    // const timeInterval: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
+    // const [selectedTimeInterval, setSelectedTimeInterval] = useState(timeInterval[0])
     const coins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
 
     useEffect(() => {
@@ -104,72 +111,6 @@ const Pay = () => {
     }, [csvImport])
 
 
-    // const Submit = async (e: SyntheticEvent<HTMLFormElement>) => {
-    //     e.preventDefault()
-    //     try {
-    //         const account = selectedAccountAndBudget.account
-
-    //         if (!account) {
-    //             throw new Error("No account selected")
-    //         }
-
-    //         const result: Array<MultipleTransactionData> = []
-
-    //         for (let index = 0; index < MyInputs.length; index++) {
-    //             const one = MyInputs[index]
-    //             if (one.address && one.amount && one.wallet?.name) {
-    //                 let amount = one.amount;
-    //                 if (selectedAmountType.id === 1) {
-    //                     let value = (walletBalance[one.wallet.name as keyof typeof walletBalance]?.tokenPrice ?? 1)
-    //                     amount = amount / value
-    //                 }
-    //                 result.push({
-    //                     toAddress: one.address,
-    //                     amount: amount.toFixed(4),
-    //                     tokenName: one.wallet.name,
-    //                 })
-    //             }
-    //         }
-    //         if (!GetCoins) return
-    //         if (account.signerType === "single") {
-    //             if (result.length === 1) {
-    //                 // await Pay({ coin: (isPrivate ? PoofCoins[result[0].tokenName as keyof PoofCoins] : CeloCoins[result[0].tokenName as keyof Coins]) as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
-    //                 await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins] as AltCoins, recipient: result[0].toAddress, amount: result[0].amount }, undefined, selectedTags)
-    //             }
-    //             else if (result.length > 1) {
-    //                 const arr: Array<PaymentInput> = result.map(w => ({
-    //                     coin: (GetCoins[w.tokenName as keyof Coins]) as AltCoins,
-    //                     recipient: w.toAddress,
-    //                     amount: w.amount,
-    //                     from: true
-    //                 }))
-
-    //                 // await BatchPay(arr, undefined, selectedTags)
-    //                 await SendBatchTransaction(arr, undefined, selectedTags)
-    //             }
-    //         } else {
-    //             if (result.length === 1) {
-    //                 await submitTransaction(account.address, [{ recipient: result[0].toAddress, amount: result[0].amount, coin: GetCoins[result[0].tokenName as keyof Coins] }])
-    //             }
-    //             else if (result.length > 1) {
-    //                 const arr: Array<PaymentInput> = result.map(w => ({
-    //                     coin: GetCoins[w.tokenName as keyof Coins],
-    //                     recipient: w.toAddress,
-    //                     amount: w.amount,
-    //                     from: true
-    //                 }))
-
-    //                 await submitTransaction(account.address, arr)
-    //             }
-    //         }
-    //         //refetch()
-
-    //     } catch (error: any) {
-    //         console.error(error)
-    //         dispatch(changeError({ activate: true, text: error.message }));
-    //     }
-    // }
-
     const index = router.query.name ? (router.query.name as string[]).includes("recurring") ? 1 : 0 : 0
 
     const data = [
@@ -188,37 +129,66 @@ const Pay = () => {
     }
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-        const Wallet = selectedAccountAndBudget.account
-        const Budget = selectedAccountAndBudget.budget
-        const subBudget = selectedAccountAndBudget.subbudget
-        console.log(MyInputs, data)
+        try {
+            const Wallet = selectedAccountAndBudget.account
+            if (!Wallet) throw new Error("No wallet selected")
+            const Budget = selectedAccountAndBudget.budget
+            const subBudget = selectedAccountAndBudget.subbudget
+            console.log(MyInputs, data)
 
-        const pays: IPaymentInput[] = []
-        for (const input of MyInputs) {
-            const { wallet, amount, address, amount2, wallet2 } = input;
-            if (wallet && amount && address) {
-                pays.push({
-                    coin: wallet.name,
-                    recipient: address,
-                    amount: amount,
-                })
+            const pays: IPaymentInput[] = []
+            for (const input of MyInputs) {
+                const { wallet, amount, address, amount2, wallet2 } = input;
+                if (wallet && amount && address) {
+                    pays.push({
+                        coin: wallet.name,
+                        recipient: address,
+                        amount: amount,
+                    })
+                }
+                if (wallet2 && amount2 && address) {
+                    pays.push({
+                        coin: wallet2.name,
+                        recipient: address,
+                        amount: amount2,
+                    })
+                }
             }
-            if (wallet2 && amount2 && address) {
-                pays.push({
-                    coin: wallet2.name,
-                    recipient: address,
-                    amount: amount2,
-                })
+            let startDate: Date | null = null;
+            let endDate: Date | null = null;
+            if (startDateState && startTime) {
+                startDate = new Date(`${startDateState} ${startTime}`)
             }
+            if (endDateState && endTime) {
+                endDate = new Date(`${endDateState} ${endTime}`)
+            }
+            if (index === 1 && (!startDate || !endDate)) {
+                throw new Error("Please select start and end date")
+            }
+
+            await SendTransaction(Wallet, pays, {
+                budget: Budget ?? undefined,
+                subbudget: subBudget ?? undefined,
+                task: startDate && endDate ? {
+                    startDate: GetTime(startDate),
+                    interval: GetTime(endDate),
+                } : undefined,
+                isStreaming: index === 1,
+                endTime: index === 1 && endDate ? GetTime(endDate) : undefined,
+                startTime: index === 1 && startDate ? GetTime(startDate) : undefined,
+                tags: selectedTags,
+            })
+        } catch (error) {
+            const message = (error as any).message || "Something went wrong"
+            console.error(error)
+            ToastRun(<>{message}</>, "error")
         }
-
-        await SendTransaction(pays)
 
     }
 
     const [isLoading, submit] = useLoading(onSubmit)
 
-
+    const isSingle = selectedAccountAndBudget.account?.signerType === "single"
     return <>
         <div className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
             <div className="relative bg-light dark:bg-dark">
@@ -266,7 +236,7 @@ const Pay = () => {
                                         <div className="flex flex-col">
                                             <span className="text-left pb-1 text-sm ml-1 font-semibold">Transaction Tags</span>
                                             <div className="w-full  gap-x-3 sm:gap-x-10 ">
-                                                {tags && tags.length > 0 && <Select
+                                                {isSingle && tags && tags.length > 0 && <Select
                                                     closeMenuOnSelect={true}
                                                     isMulti
                                                     isClearable={false}
@@ -274,7 +244,8 @@ const Pay = () => {
                                                     styles={colourStyles(dark)}
                                                     onChange={onTagChange}
                                                 />}
-                                                {tags.length === 0 && <div>No tag yet</div>}
+                                                {isSingle && tags.length === 0 && <div>No tag yet</div>}
+                                                {!isSingle && <div>You can only add tags after execution of the transaction</div>}
                                             </div>
                                         </div>
                                     </div>
@@ -284,29 +255,11 @@ const Pay = () => {
                                         <input ref={fileInput} type="file" className="hidden" onChange={(e) => e.target.files!.length > 0 ? CSV.Import(e.target.files![0]).then(e => setCsvImport(e)).catch(e => console.error(e)) : null} />
                                     </div> */}
                                         <div className="grid grid-cols-2  gap-8">
-                                            {MyInputs.map((e, i) => <Input key={e.index} index={index} stream={stream} payInput={e} />)}
+                                            {MyInputs.map((e, i) => <Input key={e.index} index={index} payInput={e} />)}
                                         </div>
                                     </div>
-                                    {index === 1 && <div className="w-full grid grid-cols-2 gap-8">
-                                        <div className="w-full flex flex-col">
-                                            <span className="text-left text-sm pb-1 ml-1 font-semibold">Start time</span>
-                                            <div className="w-full grid grid-cols-[60%,35%] gap-5">
-                                                <input type="date" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg " />
-                                                <input type="time" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg" />
-                                            </div>
-                                        </div>
-
-                                        <div className="w-full flex flex-col">
-                                            <span className="text-left text-sm pb-1 ml-1 font-semibold">Completion time</span>
-                                            <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
-                                                {stream && index === 1 ? <input type="date" className=" w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-gray-600" readOnly /> : <input type="date" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg mr-5" />}
-                                                {stream && index === 1 ? <input type="time" className="w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-gray-600" readOnly /> : <input type="time" className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg mr-5" />}
-                                            </div>
-                                        </div>
-                                    </div>}
-
                                     <div className="py-5 sm:py-0 w-full gap-16">
-                                        {index === 0 ? <div className="w-[50%] flex gap-4">
+                                        <div className="w-[50%] flex gap-4">
                                             <Button version="second" className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                                 dispatch(addPayInput({
                                                     index: generate(),
@@ -320,43 +273,35 @@ const Pay = () => {
                                             }} className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
                                                 Import CSV file
                                             </Button>
-                                        </div> : <div className="flex items-center">
-                                            <label htmlFor="toggleB" className="flex items-center cursor-pointer">
-                                                <div className="relative">
-                                                    <input type="checkbox" id="toggleB" className="sr-only peer" onClick={() => { setStream(!stream) }} />
-                                                    <div className="block bg-gray-600 peer-checked:bg-primary w-14 h-8 rounded-full"></div>
-                                                    <div className="peer-checked:transform peer-checked:translate-x-full  absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
-                                                </div>
-                                                <div className="ml-3 text-gray-700 dark:text-white font-semibold">
-                                                    Enable Stream rate
-                                                </div>
-                                            </label>
-                                        </div>}
-                                    </div>
-                                    {stream && index === 1 && <div className="w-full">
-                                        <div className="font-semibold  pb-4">Stream Rate <span className="text-greylish">(Eg. 20 SOL per 2 weeks)</span></div>
-                                        <div className="grid grid-cols-[31%,7%,31%,31%] items-center">
-                                            <div className="w-full flex flex-col">
-                                                <span className="text-left text-sm ml-1 font-semibold pb-1">Token Amount</span>
-                                                <div className="w-full flex ">
-                                                    <input type="number" className="bg-white dark:bg-darkSecond dark:border-none w-full border p-2 rounded-lg unvisibleArrow" placeholder="0.00" />
-                                                </div>
-                                            </div>
-                                            <div className=" pt-7 mx-3 flex justify-center items-center">Per</div>
-                                            <div className="w-full flex flex-col ">
-                                                <span className="text-left text-sm ml-1 font-semibold pb-1">Number of times</span>
-                                                <div className="w-full flex ">
-                                                    <input type="number" className="bg-white dark:bg-darkSecond dark:border-darkSecond w-full border p-2 rounded-lg unvisibleArrow" placeholder="0.00" />
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col ml-2">
-                                                <span className="text-left text-sm ml-1 font-semibold pb-1">Time interval</span>
-                                                <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg '} className={'!rounded-lg !py-1 h-[2.75rem]'} list={timeInterval} selected={selectedTimeInterval} onSelect={(e) => {
-                                                    setSelectedTimeInterval(e)
-                                                }} />
-                                            </div>
                                         </div>
-                                    </div>}
+                                    </div>
+                                    {index === 1 &&
+                                        <div className="w-full grid grid-cols-2 gap-8">
+                                            <div className="w-full flex flex-col">
+                                                <span className="text-left text-sm pb-1 ml-1 font-semibold">Start time</span>
+                                                <div className="w-full grid grid-cols-[60%,35%] gap-5">
+                                                    <input type="date" onChange={(e) => {
+                                                        setStartDate(e.target.value)
+                                                    }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg " />
+                                                    <input type="time" onChange={(e) => {
+                                                        setStartTime(e.target.value)
+                                                    }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg" />
+                                                </div>
+                                            </div>
+
+                                            <div className="w-full flex flex-col">
+                                                <span className="text-left text-sm pb-1 ml-1 font-semibold">Completion time</span>
+                                                <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
+                                                    <input type="date" onChange={(e) => {
+                                                        setEndDate(e.target.value)
+                                                    }} className=" w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-darkSecond" />
+                                                    <input type="time" onChange={(e) => {
+                                                        setEndTime(e.target.value)
+                                                    }} className="w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-darkSecond" />
+                                                </div>
+                                            </div>
+                                        </div>}
+
                                     <div className="flex flex-col space-y-3">
                                         <span className="text-left">Description <span className="text-greylish">(Optional)</span></span>
                                         <div className="grid grid-cols-1">

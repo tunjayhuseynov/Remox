@@ -3,7 +3,7 @@ import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from "components/button";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import TeamItem from "./stopItem";
-import useTasking from "rpcHooks/useTaskingg";
+import useTasking from "rpcHooks/useTasking";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/slices/account/storage";
 
@@ -11,7 +11,7 @@ import { selectStorage } from "redux/slices/account/storage";
 const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<boolean>, memberState: IMember[] }) => {
 
     const dispatch = useAppDispatch()
-    const { cancelTask, loading } = useTasking()
+    const { cancelTask } = useTasking()
     const { removeMember, isLoading, editMember } = useContributors()
     const storage = useAppSelector(selectStorage)
 
@@ -70,7 +70,7 @@ const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<bo
                 <div>
 
                 </div>
-                <Button type="submit" onClick={create} className="w-[85%] self-center py-3 text-2xl !rounded-lg" isLoading={loading || isLoading}>
+                <Button type="submit" onClick={create} className="w-[85%] self-center py-3 text-2xl !rounded-lg" isLoading={isLoading}>
                     Confirm and Cancel Payment
                 </Button>
             </> : <div className="text-2xl font-semibold py-2 pb-8">No Team Member Yet</div>}

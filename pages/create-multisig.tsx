@@ -105,7 +105,7 @@ function CreateMultisig() {
         } catch (error) {
             const err = error as any
             console.error(err)
-            ToastRun(<div>{err}</div>)
+            ToastRun(<div>{err.message}</div>, "error")
         }
     };
 

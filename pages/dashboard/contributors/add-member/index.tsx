@@ -9,7 +9,7 @@ import { SelectContributors } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import useAllowance from "rpcHooks/useAllowance";
-import useTasking from "rpcHooks/useTaskingg";
+import useTasking from "rpcHooks/useTasking";
 import { SelectBalances } from "redux/slices/currencies";
 import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
@@ -56,7 +56,6 @@ export default () => {
 
     const { loading: allowLoading } = useAllowance();
 
-    const { loading } = useTasking();
     const balance = useAppSelector(SelectBalances);
     const { GetCoins, blockchain } = useWalletKit();
     const DropDownCoins = useMemo(
@@ -294,7 +293,7 @@ export default () => {
                         <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
-                        <Button type="submit" className="px-8 py-3" isLoading={isLoading || loading || allowLoading}>
+                        <Button type="submit" className="px-8 py-3" isLoading={isLoading || allowLoading}>
                             Add Person
                         </Button>
                     </div>

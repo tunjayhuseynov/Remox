@@ -38,7 +38,7 @@ const CreateOrganization = () => {
     try {
       const File = organizationFile;
       if (!individual) throw new Error("No Individual")
-      if (!address) return ToastRun(<>Please, sign in first</>)
+      if (!address) return ToastRun(<>Please, sign in first</>, "warning")
       if (organizationIsUpload && !File) throw new Error("No organization file uploaded")
 
       await dispatch(Create_Organization_Thunk({
@@ -56,7 +56,7 @@ const CreateOrganization = () => {
       navigate.push('/create-multisig')
     } catch (error) {
       console.error(error as any)
-      ToastRun(<div>{(error as any).message}</div>)
+      ToastRun(<div>{(error as any).message}</div>, "error")
     }
 
   };

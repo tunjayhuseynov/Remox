@@ -7,7 +7,18 @@ import { IAccount } from 'firebaseConfig';
 import Web3 from 'web3'
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { GetTime } from 'utils';
+import { FirestoreWrite } from './useFirebase';
+import { useAppSelector } from 'redux/hooks';
+import { SelectID } from 'redux/slices/account/selector';
 
+export interface ITasking {
+    accountId: string;
+    taskId: string,
+    sender: string,
+    recipient: string,
+    blockchain: string,
+    protocol: string
+}
 
 export default function useTasking() {
     const { address } = useContractKit()
@@ -113,14 +124,24 @@ export default function useTasking() {
                 return txHash;
             }
 
-            const taskIdHash = await createProcess.send({
+            await createProcess.send({
                 from: account.address,
                 gas: 300000,
                 gasPrice: '50000000000'
             })
 
-            // const resolverHash = await contract.methods.getResolverHash(address!, executionCommand).call()
-            // await contract.methods.getTaskId(address!, executionAddress, executionCommand.slice(0, 10), false, executionAddress, resolverHash).call()
+            const resolverHash = await contract.methods.getResolverHash(address!, executionCommand).call()
+            const taskIdHash = await contract.methods.getTaskId(address!, executionAddress, executionCommand.slice(0, 10), false, executionAddress, resolverHash).call()
+
+            await FirestoreWrite<ITasking>().createDoc("recurring", taskIdHash, {
+                accountId: account.id,
+                taskId: taskIdHash,
+                sender: account.address,
+                recipient: executionAddress,
+                blockchain: "celo",
+                protocol: "gelato"
+            })
+
 
             return taskIdHash as string;
         } catch (error: any) {

@@ -12,6 +12,10 @@ import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";
 import { motion, AnimatePresence } from "framer-motion"
 import Loader from "components/Loader";
+import { useAppSelector } from "redux/hooks";
+import { SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
+import { ToastRun } from "utils/toast";
+import useLoading from "hooks/useLoading";
 
 const Swap = () => {
     const { GetCoins } = useWalletKit()
@@ -46,10 +50,13 @@ const Swap = () => {
     const balances = useSelector(SelectBalances)
     const isSuccess = useSelector(selectSuccess)
     const isError = useSelector(selectError)
+    const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)
+    const account = selectedBudgetAndAccount.account
 
     const dispatch = useDispatch()
 
-    const { Exchange, MinmumAmountOut, isLoading } = useSwap()
+    const { MinmumAmountOut, isLoading } = useSwap()
+    const { SendTransaction } = useWalletKit()
     const [settingRef, exceptRef] = useModalSideExit<boolean>(isSetting, setSetting, false)
 
     const change = useCallback(async (value?: number) => {
@@ -74,28 +81,37 @@ const Swap = () => {
     }, [token1, token2, token1Amount, slippageArr, deadline])
 
     const startSwap = async () => {
-        if (token1!.name && token2!.name && token1Amount && token1Amount > 0) {
+        if (token1!.name && token2!.name && token1Amount && token1Amount > 0 && account) {
             try {
-                const data = await Exchange(
-                    GetCoins[token1!.name as keyof Coins],
-                    GetCoins[token2!.name as keyof Coins],
-                    token1Amount.toString(),
-                    slippageArr.find(item => item.selected)!.value.toString(),
-                    Math.floor(deadline * 60)
-                )
-                dispatch(changeSuccess({
-                    activate: true, text: <div className="flex flex-col items-center space-y-1">
+                const data = await SendTransaction(account, [], {
+                    swap: {
+                        account: account.address,
+                        inputCoin: GetCoins[token1!.name as keyof Coins],
+                        outputCoin: GetCoins[token2!.name as keyof Coins],
+                        amount: token1Amount.toString(),
+                        slippage: slippageArr.find(item => item.selected)!.value.toString(),
+                        deadline: Math.floor(deadline * 60)
+                    }
+                })
+
+                ToastRun(
+                    <div className="flex flex-col items-center space-y-1">
                         <div className="font-semobold text-xl">Successfully Swapped</div>
-                        <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div>
+                        {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
                     </div>
-                }))
+                )
+
                 setOpen(false)
             } catch (error) {
-                console.error(error)
-                dispatch(changeError({ activate: true }))
+                const message = (error as any).message || "Something went wrong"
+                console.error(message)
+                // dispatch(changeError({ activate: true }))
+                ToastRun(<div>{message}</div>)
             }
         }
     }
+
+    const [isSwappingLoading, swapping] = useLoading(startSwap)
 
     useEffect(() => {
         if (token1 && token2) {
@@ -118,7 +134,7 @@ const Swap = () => {
         }
     }
 
-    if(!token1 || !token2) return <></>
+    if (!token1 || !token2) return <></>
     return <>
         <div className="flex justify-start">
             <div className="text-4xl font-bold ">Swap</div>
@@ -271,7 +287,7 @@ const Swap = () => {
                     </div>
                 </div>
                 <div className="text-center ">
-                    <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading}>
+                    <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading || isSwappingLoading}>
                         Swap
                     </Button>
                 </div>
@@ -318,7 +334,7 @@ const Swap = () => {
                         </div>
                     </div>
                     <div className="flex justify-center">
-                        <Button className="w-3/5" onClick={startSwap} isLoading={isLoading}>Confirm Swap</Button>
+                        <Button className="w-3/5" onClick={swapping} isLoading={isLoading || isSwappingLoading}>Confirm Swap</Button>
                     </div>
                 </div>
             </Modal>}
