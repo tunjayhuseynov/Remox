@@ -14,9 +14,10 @@ import useNextSelector from 'hooks/useNextSelector';
 import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 import { setBlockchain, setProviderAddress } from 'redux/slices/account/remoxData';
 import { Get_Individual } from 'crud/individual';
+import useAsyncEffect from 'hooks/useAsyncEffect';
 
 const Home = () => {
-  const { Connect, Address: address } = useWalletKit();
+  const { Connect, Address } = useWalletKit();
   const { processSigning } = useOneClickSign()
   const dark = useNextSelector(selectDarkMode)
   const navigate = useRouter()
@@ -24,11 +25,17 @@ const Home = () => {
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
   const [buttonText, setButtonText] = useState("Connect to a wallet")
-  useEffect(() => {
-    setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
-  }, [])
 
-  const blockchains = [{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]
+  useAsyncEffect(async () => {
+    const address = await Address
+    setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
+  }, [Address])
+
+  const blockchains = [
+    { name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, 
+    { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO },
+    { name: "Polygon", address: "polygon", coinUrl: CoinsURL.AVAX },
+  ]
 
   const [selected, setSelected] = useState<DropDownItem>(
     blockchains?.find(s => s.address === blockchain) ?? blockchains[1],
@@ -43,6 +50,7 @@ const Home = () => {
 
   const connectEvent = async () => {
     try {
+      const address = await Address
       if (!address) {
         await Connect()
       }

@@ -28,16 +28,17 @@ const Unlock = () => {
 
 
     const Submit = async () => {
+        const address = await Address
         if (!Connected && !Address) {
             dispatch(removeTransactions())
             ToastRun(<div className="dark:text-white"><strong>You&apos;ve not signed into your wallet yet</strong> <br /> Please, sign in first</div>, "error")
         }
-        if (inputRef.current && Address && Connected) {
+        if (inputRef.current && address && Connected) {
             setIncorrect(false);
 
             try {
                 // await executeSign(Address, inputRef.current.value)
-                await processSigning(Address!, inputRef.current.value)
+                await processSigning(address!, inputRef.current.value)
                 setBlockchainAuto()
                 dispatch(setUnlock(true))
                 router.push(search && search.split("=")[1].includes("/dashboard") ? search.split("=")[1] : '/dashboard');

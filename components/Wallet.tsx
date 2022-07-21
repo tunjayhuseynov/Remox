@@ -57,6 +57,5 @@ export default function Wallet({ children }: { children: JSX.Element }) {
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
-
     )
 }

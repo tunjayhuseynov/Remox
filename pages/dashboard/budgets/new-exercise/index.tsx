@@ -25,8 +25,8 @@ function NewExercise() {
     const { register, handleSubmit } = useForm<IFormInput>();
     const paymentname: DropDownItem[] = [{ name: "Current full Year" }, { name: "Custom period" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
-    const { blockchain, Address } = useWalletKit()
-    // const { remoxAccount, remoxAccountType } = useRemoxAccount(Address ?? "0x", blockchain)
+    const { blockchain } = useWalletKit()
+
     const remoxAccount = useAppSelector(SelectRemoxAccount)
     const remoxAccountType = useAppSelector(SelectAccountType)
 

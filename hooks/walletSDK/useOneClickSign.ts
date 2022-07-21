@@ -15,11 +15,12 @@ export default function useOneClickSign() {
     }
 
     const processSigning = async (address: string, oldPassword?: string) => {
+        const pubKey = await Address;
         const isOld = await isOldUser(address);
-        const dbUser = await search<IUser>('users', [{ field: 'address', searching: Address!, indicator: "array-contains" }])
+        const dbUser = await search<IUser>('users', [{ field: 'address', searching: (await Address)!, indicator: "array-contains" }])
 
         const reqParams: { publicKey: string, blockchain: string, id?: string, token?: string } = {
-            publicKey: Address!,
+            publicKey: pubKey!,
             blockchain
         };
         if (isOld && dbUser?.[0] && oldPassword) {
@@ -48,7 +49,7 @@ export default function useOneClickSign() {
 
         const parameters: { signature: string, publicKey: string, token?: string, id?: string } = {
             signature: sign.signature,
-            publicKey: Address!,
+            publicKey: pubKey!,
         }
         if (Token) parameters.token = Token
         if (id) parameters.id = id
