@@ -1,19 +1,16 @@
 import axios from 'axios';
 import { ERC20MethodIds, IFormattedTransaction, InputReader } from 'hooks/useTransactionProcess';
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { CeloCoins, CoinsName, PoofCoins, SolanaCoins } from 'types';
+import { CoinsName, SolanaCoins } from 'types';
 import { GetTransactions, Transactions } from 'types/sdk'
 import * as solanaWeb3 from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import _ from 'lodash';
 import { SolanaEndpoint } from 'components/Wallet';
 import { CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
-import { FirestoreRead, FirestoreReadMultiple } from 'rpcHooks/useFirebase';
 import { adminApp } from 'firebaseConfig/admin';
 import { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 import { ITag } from './tags';
-
-
 
 // GET /api/transactions  --params blockchain, address
 
@@ -26,7 +23,7 @@ export default async function handler(
 
     const addresses = req.query["addresses[]"];
     const txs = req.query["txs[]"];
-   
+
     const parsedtxs = typeof txs === "string" ? [txs] : txs;
     const authId = req.query.id as string;
     const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;

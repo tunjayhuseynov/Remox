@@ -13,7 +13,7 @@ export default function useSolanaProvider() {
 
   const Provider = useMemo(() => {
     if (blockchain === 'solana') {
-      if (!publicKey || !signAllTransactions || !signTransaction) throw new Error("Wallet not initialized");
+      if (!publicKey || !signAllTransactions || !signTransaction) return undefined;
       const anchorProvider = new anchor.AnchorProvider(connection, {
         publicKey,
         signAllTransactions,
@@ -35,7 +35,7 @@ export default function useSolanaProvider() {
 
   const AnchorProvider = useMemo(() => {
     if (blockchain === 'solana') {
-      if (!publicKey || !signAllTransactions || !signTransaction) throw new Error("Wallet not initialized");
+      if (!publicKey || !signAllTransactions || !signTransaction) return undefined;
       const anchorProvider = new anchor.AnchorProvider(connection, {
         publicKey,
         signAllTransactions,

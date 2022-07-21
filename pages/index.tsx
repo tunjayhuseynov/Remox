@@ -28,9 +28,18 @@ const Home = () => {
     setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
   }, [])
 
+  const blockchains = [{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]
+
   const [selected, setSelected] = useState<DropDownItem>(
-    { name: blockchain?.split("").reduce((a, c, i) => { if (i === 0) { return a.toUpperCase() + c } return a + c }, '') ?? "Celo", address: blockchain ?? "celo", coinUrl: blockchain === "celo" || !blockchain ? CoinsURL.CELO : CoinsURL.SOL }
+    blockchains?.find(s => s.address === blockchain) ?? blockchains[1],
   )
+
+  useEffect(() => {
+    if (selected) {
+      console.log("selected", selected)
+      dispatch(setBlockchain(selected.address as BlockchainType))
+    }
+  }, [selected])
 
   const connectEvent = async () => {
     try {
@@ -70,7 +79,7 @@ const Home = () => {
           <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
-          <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={setSelected} list={[{ name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO }]} />
+          <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={(e) => setSelected(e)} list={blockchains} />
           <Button onClick={ConnectEvent} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>
