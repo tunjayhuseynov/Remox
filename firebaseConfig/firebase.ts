@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
+import { getAnalytics } from 'firebase/analytics';
 
 
 const firebaseConfig = {
@@ -14,9 +15,16 @@ const firebaseConfig = {
 	measurementId: 'G-7BMKHB905F'
 };
 
+let analytics;
+
 export const app = initializeApp(firebaseConfig, "client");
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
+if (app.name && typeof window !== 'undefined') {
+	analytics = getAnalytics(app);
+}
+
+export { analytics };
 // export const analytics = getAnalytics(app);

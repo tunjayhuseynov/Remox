@@ -43,7 +43,6 @@ const Home = () => {
 
   useEffect(() => {
     if (selected) {
-      console.log("selected", selected)
       dispatch(setBlockchain(selected.address as BlockchainType))
     }
   }, [selected])

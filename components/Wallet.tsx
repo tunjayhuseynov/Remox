@@ -15,16 +15,25 @@ import {
     WalletModalProvider,
 } from '@solana/wallet-adapter-react-ui';
 import { BASE_URL } from 'utils/api';
+import { Web3Provider } from '@ethersproject/providers'
+
 
 export const CeloEndpoint = 'https://forno.celo.org';
 export const SolanaEndpoint = "https://explorer-api.mainnet-beta.solana.com/"
 export const SolanaSerumEndpoint = "https://solana-api.projectserum.com"
+
+function getLibrary(provider: any, connector?: any) {
+    return new Web3Provider(provider) // this will vary according to whether you use e.g. ethers or web3.js
+}
+
+
 export default function Wallet({ children }: { children: JSX.Element }) {
+    // const web3React = useWeb3React()
     const SolNetwork = WalletAdapterNetwork.Mainnet;
 
     // const endpoint = useMemo(() => clusterApiUrl(SolNetwork), [SolNetwork]);
 
-     //"https://solana-api.projectserum.com"
+    //"https://solana-api.projectserum.com"
 
     const solWallets = useMemo(
         () => [
