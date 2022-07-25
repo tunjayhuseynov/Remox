@@ -119,7 +119,7 @@ const WalletSetting = () => {
                 <div className="font-bold text-2xl text-center">Edit Wallet</div>
                 <div className="flex flex-col space-y-3">
                     <span className="text-greylish">Choose Profile Photo Type</span>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] '} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] '} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                         setSelectedPayment(e)
                         if (e.name === "NFT") setUserIsUpload(false)
                         else setUserIsUpload(true)

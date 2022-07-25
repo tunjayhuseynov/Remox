@@ -241,7 +241,7 @@ export default function RequestId() {
                           childClass={"!rounded-lg"}
                           list={paymentname3}
                           selected={selectedPayment3}
-                          onSelect={(e) => {
+                          setSelect={(e) => {
                             setSelectedPayment3(e);
                             if (e.name === "Pay with USD-based Amounts")
                               setSelectedType(true);
@@ -284,7 +284,7 @@ export default function RequestId() {
                             name: w.name,
                             coinUrl: w.coinUrl,
                           }))}
-                          onSelect={(val) => {
+                          setSelect={(val) => {
                             setSelectedWallet(val);
                           }}
                         />
@@ -340,7 +340,7 @@ export default function RequestId() {
                               name: w.name,
                               coinUrl: w.coinUrl,
                             }))}
-                            onSelect={(val) => {
+                            setSelect={(val) => {
                               setSelectedWallet2(val);
                             }}
                           />

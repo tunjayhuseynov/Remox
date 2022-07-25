@@ -262,7 +262,7 @@ const Details = () => {
                         TransactionDetailInput("Wallet Address", `${AddressReducer(info.walletAddress[0])}`, undefined, () => window.navigator.clipboard.writeText(info.walletAddress[0]))
                         :
                         <Dropdown displayName="Wallet Address" className="h-[4.688rem] bg-greylish bg-opacity-10" nameActivation={true} selected={{ name: "Choose to copy an address", coinUrl: CoinsURL.None }}
-                            onSelect={(w: DropDownItem) => {
+                            setSelect={(w: DropDownItem) => {
                                 if (w.name) window.navigator.clipboard.writeText(w.name)
                             }}
                             list={[

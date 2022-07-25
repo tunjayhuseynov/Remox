@@ -159,7 +159,6 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
 
 
     return <>
-    <Walletmodal  openNotify={openNotify} openNotify2={openNotify2} selectedItem={selectedItem} setItem={setItem} setNotify={setNotify} setNotify2={setNotify2} paymentname={paymentname} paymentname2={paymentname2} selectedPayment={selectedPayment} selectedPayment2={selectedPayment2} setSelectedPayment={setSelectedPayment} setSelectedPayment2={setSelectedPayment2} />
         {
             genLoading ? <div className="flex items-center justify-center"><Loader /></div> :
                 penders.length === 0 ? <div className="w-full h-[90%] flex flex-col  items-center justify-center gap-6">

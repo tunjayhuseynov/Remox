@@ -44,6 +44,7 @@ import { IBudgetORM, ISubbudgetORM } from "pages/api/budget";
 import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh";
 import { ethers } from "ethers";
 import useWeb3Connector from "hooks/useWeb3Connector";
+import { BlockchainType } from "types/blockchains";
 
 export enum CollectionName {
     Celo = "currencies",
@@ -55,7 +56,7 @@ export interface Task {
     startDate: number;
 }
 
-export type BlockchainType = "celo" | "solana" | "polygon";
+
 
 export const MULTISIG_PROVIDERS = [
     {
@@ -107,7 +108,7 @@ export default function useWalletKit() {
     };
 
     const getMultisigProviders = useMemo(() => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             return MULTISIG_PROVIDERS.filter((p) => p.blockchain === "celo");
         }
 
@@ -128,7 +129,7 @@ export default function useWalletKit() {
     };
 
     const fromMinScale = useMemo(() => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             return fromWei;
         }
 
@@ -137,7 +138,7 @@ export default function useWalletKit() {
 
     const signMessageInWallet = useCallback(
         async (nonce: number) => {
-            if (blockchain === "celo") {
+            if (blockchain.name === "celo") {
                 const signature = await kit.web3.eth.personal.sign(
                     GetSignedMessage(nonce),
                     (await Address)!,
@@ -149,7 +150,7 @@ export default function useWalletKit() {
                 };
             }
 
-            if (blockchain === "polygon") {
+            if (blockchain.name === "polygon_evm") {
                 return {
                     publicKey: web3Address,
                     signature: await web3SignMessage(GetSignedMessage(nonce))
@@ -168,7 +169,7 @@ export default function useWalletKit() {
     );
 
     const GetCoins = useMemo(() => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             if (
                 typeof localStorage !== "undefined" &&
                 localStorage.getItem(localStorageKeys.lastUsedWalletType) ===
@@ -185,11 +186,11 @@ export default function useWalletKit() {
     const GetBalance = useCallback(
         async (item?: AltCoins, addressParams?: string) => {
             try {
-                if (blockchain === "celo" && item) {
+                if (blockchain.name === "celo" && item) {
                     const ethers = await kit.contracts.getErc20(item.contractAddress);
                     let balance = await ethers.balanceOf(addressParams ?? address ?? "");
                     return fromWei(balance);
-                } else if (blockchain === "solana" && item) {
+                } else if (blockchain.name === "solana" && item) {
                     if (publicKey) {
                         let lamports;
                         if (item.type === TokenType.GoldToken) {
@@ -215,41 +216,41 @@ export default function useWalletKit() {
     );
 
     const Address = useMemo(async (): Promise<string | null> => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             return address;
-        } else if (blockchain === "solana") {
+        } else if (blockchain.name === "solana") {
             return publicKey?.toBase58() ?? null;
-        } else if (blockchain === "polygon") {
+        } else if (blockchain.name === "polygon_evm") {
             return web3Address ?? null;
         }
         return address; // Has to be change to null
     }, [blockchain, publicKey, address]);
 
     const Connected = useMemo(() => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             return initialised;
-        } else if (blockchain === "solana") {
+        } else if (blockchain.name === "solana") {
             return connected;
         }
         return initialised; // Has to be change to null
     }, [blockchain, publicKey, address, initialised, connected]);
 
     const Disconnect = useCallback(async () => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             await destroy();
-        } else if (blockchain === "solana") {
+        } else if (blockchain.name === "solana") {
             await disconnect();
         }
     }, [blockchain]);
 
     const Connect = useCallback(async () => {
         try {
-            if (blockchain === "solana") {
+            if (blockchain.name === "solana") {
                 setVisible(true);
                 return undefined;
             }
 
-            if (blockchain === "polygon") {
+            if (blockchain.name === "polygon_evm") {
                 const connector = await web3Connect()
                 return connector
             }
@@ -262,16 +263,16 @@ export default function useWalletKit() {
     }, [blockchain]);
 
     const Wallet = useMemo(() => {
-        if (blockchain === "solana" && wallet) {
+        if (blockchain.name === "solana" && wallet) {
             return wallet.adapter.name;
         }
         return walletType;
     }, [blockchain, walletType, wallet]);
 
     const Collection = useMemo(() => {
-        if (blockchain === "celo") {
+        if (blockchain.name === "celo") {
             return CollectionName.Celo;
-        } else if (blockchain === "solana" && wallet) {
+        } else if (blockchain.name === "solana" && wallet) {
             return CollectionName.Solana;
         }
         return CollectionName.Celo;
@@ -318,7 +319,7 @@ export default function useWalletKit() {
                 })
             ).unwrap();
 
-            if (blockchain === "celo") {
+            if (blockchain.name === "celo") {
                 const destination = txData.destination as string;
                 const data = txData.data as string;
                 const web3 = new Web3((window as any).celo);
@@ -398,7 +399,7 @@ export default function useWalletKit() {
                     txhash = txHash;
                 }
             } else if (
-                blockchain === "solana" &&
+                blockchain.name === "solana" &&
                 publicKey &&
                 signTransaction &&
                 signAllTransactions

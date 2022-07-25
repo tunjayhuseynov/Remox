@@ -84,20 +84,20 @@ function ChooseBudget() {
                     <div className="flex flex-col gap-2 w-full">
                         <div className="text-greylish dark:text-white">Choose Wallet</div>
                         <div className=" gap-5 w-full">
-                            <Dropdown parentClass={'!rounded-lg'} className="w-full  bg-white dark:bg-darkSecond !rounded-lg h-[3.4rem] truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedAccount} onSelect={(w) => {
+                            <Dropdown parentClass={'!rounded-lg'} className="w-full  bg-white dark:bg-darkSecond !rounded-lg h-[3.4rem] truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedAccount} setSelect={(w) => {
                                 setAccount(w)
                             }} />
                         </div>
                     </div>
                     {budgets.length > 0 && <div className="flex flex-col gap-2 w-full">
                         <div className="text-greylish dark:text-white">Choose Budget</div>
-                        <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={budgets} selected={selectedBudget} onSelect={(e) => {
+                        <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={budgets} selected={selectedBudget} setSelect={(e) => {
                             setBudget(e)
                         }} />
                     </div>}
                     {subbudgets.length > 0 && <div className="flex flex-col gap-2 w-full">
                         <div className="text-greylish dark:text-white">Choose Subbudget</div>
-                        <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={subbudgets} selected={selectedSubbudget} onSelect={(e) => {
+                        <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={subbudgets} selected={selectedSubbudget} setSelect={(e) => {
                             setSubbudget(e)
                         }} />
                     </div>}

@@ -112,7 +112,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                 </div>
             </div>
             {detect && <>
-                {budgetSelected ? <div className="w-1/2  bg-light dark:bg-darkSecond rounded-lg border-2 py-1 px-2">{(paymentname[0].name).slice(0,8)+'.'}</div> :  <Dropdown className={'w-[70%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]'} childClass={' w-[70%]  !z-[9999] rounded-lg  bg-light dark:bg-darkSecond'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                {budgetSelected ? <div className="w-1/2  bg-light dark:bg-darkSecond rounded-lg border-2 py-1 px-2">{(paymentname[0].name).slice(0,8)+'.'}</div> :  <Dropdown className={'w-[70%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]'} childClass={' w-[70%]  !z-[9999] rounded-lg  bg-light dark:bg-darkSecond'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                     setSelectedPayment(e)
                 }} />}
             </>

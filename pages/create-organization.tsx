@@ -76,11 +76,9 @@ const CreateOrganization = () => {
         </div>
         <div className="flex flex-col px-3 gap-1 items-center justify-center min-w-[25%]">
           <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
+            {/* <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div> */}
             <div className={` flex items-center gap-3 w-full rounded-lg`}>
-              <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} onSelect={(e) => {
-                setSelectedImageType(e)
-              }} />
+              <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} label="Choose Organisation Profile Photo Type" list={imageType} selected={selectedImageType} setSelect={setSelectedImageType} />
             </div>
           </div>
           {<div className="flex flex-col mb-4 space-y-1 w-full">

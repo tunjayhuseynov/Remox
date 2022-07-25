@@ -64,7 +64,7 @@ const Sidebar = () => {
         <div className={`h-full hidden md:block z-[1] md:col-span-2 transitiion-all ${showBar ? 'w-[17.188rem] ' : 'w-[6rem]'} flex-none fixed pt-28 bg-light dark:bg-dark`}>
             <div className="grid grid-rows-[95%,1fr] pb-4 pl-4 lg:pl-10 h-full">
                 {showBar ? <div className="absolute  flex items-center gap-3 ">
-                    <Dropdown className="min-w-[13.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} onSelect={(w) => {
+                    <Dropdown className="min-w-[13.5rem]  bg-white dark:bg-darkSecond truncate" photoDisplay={true} childClass="flex gap-2" list={list} selected={selectedItem} setSelect={(w) => {
                         setItem(w)
                     }} />
                     {/* <span className="text-white pb-[2px] pr-[2px] bg-greylish transition-all rounded-full text-3xl flex items-center justify-center w-6 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8249;</span> */}

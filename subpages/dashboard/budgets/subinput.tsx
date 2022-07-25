@@ -74,7 +74,7 @@ function Subinput({ incomingIndex, indexs }: { incomingIndex: string, indexs: nu
                 <div className="flex flex-col w-full">
 
                     <span className="text-left  text-greylish pb-2 ml-1" >Subbudget Token</span>
-                    <Dropdown className="!py-[0.35rem] border bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                    <Dropdown className="!py-[0.35rem] border bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} setSelect={val => {
                         setWallet(val)
                     }} />
                 </div>
@@ -88,7 +88,7 @@ function Subinput({ incomingIndex, indexs }: { incomingIndex: string, indexs: nu
             {anotherToken2 && <div className="flex w-full gap-8  pt-4">
                 <div className="flex flex-col w-full">
                     <span className="text-left  text-greylish pb-2 ml-1" >Subbudget Token</span>
-                    <Dropdown className="!py-[0.35rem] border bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                    <Dropdown className="!py-[0.35rem] border bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} setSelect={val => {
                         setWallet2(val)
                     }} />
                 </div>

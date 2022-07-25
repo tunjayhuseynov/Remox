@@ -48,7 +48,7 @@ function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: numbe
             <div className="flex w-full justify-between">
                 <div className="flex flex-col w-[45%]">
                     <span className="text-left  text-greylish pb-2 pl-1" >Token</span>
-                    <Dropdown className="!py-[0.5rem] border dark:border-none dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                    <Dropdown className="!py-[0.5rem] border dark:border-none dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} setSelect={val => {
                         setWallet(val)
                     }} />
                 </div>
@@ -61,7 +61,7 @@ function Split({ incomingIndex, indexs }: { incomingIndex: string, indexs: numbe
             </div>
             <div className="flex flex-col w-full pb-4">
                 <span className="text-left  text-greylish pb-2 pl-1" >Budget</span>
-                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                     setSelectedPayment(e)
                 }} />
             </div>

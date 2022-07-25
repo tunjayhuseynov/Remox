@@ -82,7 +82,7 @@ function NewExercise() {
                 </div>
                 <div className="flex flex-col pt-6">
                     <span className="text-left  text-greylish pb-2 ml-1" >Dates  of the budgetary exercise</span>
-                    <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3rem]'} className={'!rounded-lg h-[3rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3rem]'} className={'!rounded-lg h-[3rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                         setSelectedPayment(e)
                     }} />
                 </div>

@@ -43,12 +43,13 @@ const CreateAccount = () => {
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     const File = file
+    const Address = await address;
 
-    if (!address) return ToastRun(<>Please. sign in first</>, "warning")
+    if (!Address) return ToastRun(<>Please. sign in first</>, "warning")
     try {
 
       await dispatch(Create_Individual_Thunk({
-        address,
+        address: Address,
         blockchain,
         file: File ?? null,
         name: data.name,
@@ -81,11 +82,9 @@ const CreateAccount = () => {
         </div>
         <div className="flex flex-col px-3 items-center justify-center min-w-[25%]">
           <div className="flex flex-col mb-4 space-y-1 w-full">
-            <div className="text-xs text-left text-black  dark:text-white">Choose Profile Photo Type</div>
+            {/* <div className="text-xs text-left text-black  dark:text-white">Choose Profile Photo Type</div> */}
             <div className={` flex items-center gap-3 w-full`}>
-              <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} onSelect={(e) => {
-                setSelectedImageType(e)
-              }} />
+              <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} label="Choose Profile Photo Type" list={imageType} selected={selectedImageType} setSelect={setSelectedImageType} />
             </div>
           </div>
           {<div className="flex flex-col mb-4 space-y-1 w-full">

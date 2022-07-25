@@ -38,7 +38,7 @@ const AddOwner = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) => {
         {pageIndex === 0 && <form  onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <div className="flex flex-col space-y-1">
                 <span className="text-greylish">Choose Owner Profile Photo</span>
-                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                     setSelectedPayment(e)
                     if (e.name === "NFT") setPhotoIsUpload(false)
                     else setPhotoIsUpload(true)

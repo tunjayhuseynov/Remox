@@ -8,7 +8,7 @@ import shortid, { generate } from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
 import { useRouter } from 'next/router';
 import { changeDarkMode, selectDarkMode } from 'redux/slices/notificationSlice';
-import { Coins } from 'types/coins';
+import { AltCoins, Coins } from 'types/coins';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { GetTime } from 'utils';
 import useLoading from 'hooks/useLoading';
@@ -26,8 +26,8 @@ export interface IsubInputs {
     name: string;
     amount: number;
     amount2?: number;
-    wallet: DropDownItem;
-    wallet2?: DropDownItem;
+    wallet: AltCoins;
+    wallet2?: AltCoins;
     subAnotherToken: boolean;
 }[]
 
@@ -40,11 +40,10 @@ function NewBudgets() {
     const dark = useNextSelector(selectDarkMode)
     const [anotherToken, setAnotherToken] = useState(false)
     const navigate = useRouter()
-    const DropDownCoins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
     const { parentId } = navigate.query as { parentId: string }
 
-    const [wallet, setWallet] = useState<DropDownItem>(DropDownCoins[0])
-    const [wallet2, setWallet2] = useState<DropDownItem>(DropDownCoins[0])
+    const [wallet, setWallet] = useState(GetCoins[0])
+    const [wallet2, setWallet2] = useState(GetCoins[0])
 
     const onSubmit: SubmitHandler<IFormInput> = async data => {
         const coin = wallet
@@ -121,10 +120,10 @@ function NewBudgets() {
         setInputs(inputs.map(s => s.id === id ? { ...s, amount2 } : s))
     }
 
-    const updateInputWallet = (id: string, wallet: DropDownItem) => {
+    const updateInputWallet = (id: string, wallet: AltCoins) => {
         setInputs(inputs.map(s => s.id === id ? { ...s, wallet } : s))
     }
-    const updateInputWallet2 = (id: string, wallet2: DropDownItem) => {
+    const updateInputWallet2 = (id: string, wallet2: AltCoins) => {
         setInputs(inputs.map(s => s.id === id ? { ...s, wallet2 } : s))
     }
 
@@ -145,10 +144,8 @@ function NewBudgets() {
                 </div>
                 <div className="flex w-full gap-8 pt-4">
                     <div className="flex flex-col  w-full">
-                        <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
-                        <Dropdown className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet ?? DropDownCoins[0]} list={DropDownCoins} onSelect={val => {
-                            setWallet(val)
-                        }} />
+                        {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span> */}
+                        <Dropdown className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg" label="Budget Token" selected={wallet} list={Object.values(GetCoins) as AltCoins[]} setSelect={setWallet} />
                     </div>
                     <div className="flex flex-col w-full">
                         <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
@@ -159,9 +156,7 @@ function NewBudgets() {
                     <div className="flex w-full gap-8 pt-4">
                         <div className="flex flex-col w-full">
                             <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
-                            <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={wallet2 ?? DropDownCoins[0]} list={DropDownCoins} onSelect={val => {
-                                setWallet2(val);
-                            }} />
+                            <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" label="Budget Token" selected={wallet2} list={Object.values(GetCoins) as AltCoins[]} setSelect={setWallet2} />
                         </div>
                         <div className="flex flex-col w-full">
                             <div className="flex justify-between relative">
@@ -200,10 +195,7 @@ function NewBudgets() {
                             <div className="flex flex-col w-full">
 
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span>
-                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={input.wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
-                                    updateInputWallet(input.id, val)
-
-                                }} />
+                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" label="Subbudget Token" selected={input.wallet} list={Object.values(GetCoins)} runFn={(val) => ()=> updateInputWallet(input.id, val)} />
                             </div>
                             <div className="flex flex-col w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
@@ -213,9 +205,7 @@ function NewBudgets() {
                         {input.subAnotherToken && <div className="flex w-full gap-8  pt-4">
                             <div className="flex flex-col w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span>
-                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" nameActivation={true} selected={input.wallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
-                                    updateInputWallet2(input.id, val)
-                                }} />
+                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" selected={input.wallet2} list={Object.values(GetCoins)} runFn={val => ()=> updateInputWallet2(input.id, val)} />
                             </div>
                             <div className="flex flex-col w-full">
                                 <div className="flex justify-between relative">

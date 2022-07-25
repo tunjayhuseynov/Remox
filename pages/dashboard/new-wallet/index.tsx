@@ -101,7 +101,7 @@ function NewWalletModal() {
             {index === 0 && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Profile Photo Type</div>
-                    <Dropdown parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]  dark:border-white'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]  dark:border-white'} childClass={'!rounded-lg'} list={imageType} selected={selectedImageType} setSelect={(e) => {
                         setSelectedImageType(e)
                         if (e.name === "NFT") setOrganizationIsUpload(false)
                         else setOrganizationIsUpload(true)
@@ -121,7 +121,7 @@ function NewWalletModal() {
                 </div>}
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Wallet Provider</div>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={walletProviders} selected={selectedWalletProvider} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={walletProviders} selected={selectedWalletProvider} setSelect={(e) => {
                         setSelectedWalletProvider(e)
                     }} />
                 </div>

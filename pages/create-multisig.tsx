@@ -51,9 +51,10 @@ function CreateMultisig() {
 
     const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
     const [file, setFile] = useState<File>()
-    const [multisigIsUpload, setMultisigIsUpload] = useState<boolean>(true)
+    
     const imageTypes: DropDownItem[] = [{ id: "image", name: "Upload Photo" }, { id: "nft", name: "NFT" }]
     const [selectedImage, setSelectedImage] = useState(imageTypes[0])
+    let multisigIsUpload = selectedImage.id === "image"
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
@@ -147,13 +148,9 @@ function CreateMultisig() {
                 </div>
                 <div className="flex flex-col px-3 gap-1 items-center justify-center min-w-[25%]">
                     <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div>
+                        {/* <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div> */}
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={imageTypes} selected={selectedImage} onSelect={(e) => {
-                                setSelectedImage(e)
-                                if (e.name === "NFT") setMultisigIsUpload(false)
-                                else setMultisigIsUpload(true)
-                            }} />
+                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} label="Choose Organisation Profile Photo Type" className={'!rounded-lg h-[3.4rem]'} list={imageTypes} selected={selectedImage} setSelect={setSelectedImage} />
                         </div>
                     </div>
                     {<div className="flex flex-col mb-4 space-y-1 w-full">

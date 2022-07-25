@@ -31,13 +31,13 @@ const ChangeTreshold = ({ onDisable }: { onDisable: React.Dispatch<boolean> }) =
         <div className="flex flex-col space-y-3">
             <span>Any transaction requires the confirmation of: </span>
             <div className="flex items-center gap-x-3">
-                <Dropdown onSelect={setSign} className="px-3 space-x-2" nameActivation={true} list={Array(owners.length).fill('').map((s, i) => ({ name: (i + 1).toString(), address: '' }))} selected={sign} /> out of {owners.length} owners
+                <Dropdown setSelect={setSign} className="px-3 space-x-2" nameActivation={true} list={Array(owners.length).fill('').map((s, i) => ({ name: (i + 1).toString(), address: '' }))} selected={sign} /> out of {owners.length} owners
             </div>
         </div>
         <div className="flex flex-col space-y-3">
             <span>Signatures required to change MultiSig properties: </span>
             <div className="flex items-center gap-x-3">
-                <Dropdown onSelect={setInternalSign} className="px-3 space-x-2" nameActivation={true} list={Array(owners.length).fill('').map((s, i) => ({ name: (i + 1).toString(), address: '' }))} selected={internalSign} /> out of {owners.length} owners
+                <Dropdown setSelect={setInternalSign} className="px-3 space-x-2" nameActivation={true} list={Array(owners.length).fill('').map((s, i) => ({ name: (i + 1).toString(), address: '' }))} selected={internalSign} /> out of {owners.length} owners
             </div>
         </div>
         <div className="flex justify-center">

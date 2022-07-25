@@ -210,7 +210,7 @@ const Swap = () => {
                                     if (w.name === token2.name) {
                                         setToken2(selected)
                                     }
-                                }} parentClass=" bg-white dark:bg-darkSecond rounded-md" onSelect={setToken1} className="border-none py-2 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
+                                }} parentClass=" bg-white dark:bg-darkSecond rounded-md" setSelect={setToken1} className="border-none py-2 space-x-4 text-sm" nameActivation={true} selected={token1} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, id: w.name, className: "text-sm" }))} />
                             </div>
                             <div>
                                 <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
@@ -256,7 +256,7 @@ const Swap = () => {
                                     if (w.name === token1.name) {
                                         setToken1(selected)
                                     }
-                                }} parentClass=" bg-white dark:bg-darkSecond rounded-md" onSelect={setToken2} className="border-none py-2 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
+                                }} parentClass=" bg-white dark:bg-darkSecond rounded-md" setSelect={setToken2} className="border-none py-2 space-x-4 text-sm" nameActivation={true} selected={token2} list={Object.values(GetCoins).map(w => ({ name: w.name, coinUrl: w.coinUrl, className: "text-sm" }))} />
                             </div>
                             <div>
                                 {!(!token1Amount) && (!isLoading ?

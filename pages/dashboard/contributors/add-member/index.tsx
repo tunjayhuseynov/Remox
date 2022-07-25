@@ -169,7 +169,7 @@ export default () => {
                         <div className="flex flex-col mb-4 space-y-1 w-full">
                             <div className=" text-left  text-greylish ">Choose Profile Photo Type</div>
                             <div className={` flex items-center gap-3 w-full`}>
-                                <Dropdown parentClass={'bg-white w-full rounded-lg '} className={'!rounded-lg !border dark:border-white h-[3.15rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedPayment} onSelect={(e) => {
+                                <Dropdown parentClass={'bg-white w-full rounded-lg '} className={'!rounded-lg !border dark:border-white h-[3.15rem]'} childClass={'!rounded-lg'} list={imageType} selected={selectedPayment} setSelect={(e) => {
                                     setSelectedPayment(e)
                                     if (e.name === "NFT") setUserIsUpload(false)
                                     else setUserIsUpload(true)
@@ -203,13 +203,13 @@ export default () => {
                         <div className="flex flex-col">
                             <div className="text-greylish">Team</div>
                             <div className="w-full ">
-                                <Dropdown onSelect={setSelected} selected={selected} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} />
+                                <Dropdown setSelect={setSelected} selected={selected} list={contributors.length > 0 ? [...contributors.map(w => { return { name: w.name, coinUrl: CoinsURL.None, id: w.id } })] : []} nameActivation={true} parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} />
                             </div>
                         </div>
                         <div className="flex flex-col ">
                             <div className="text-greylish">Compensation Type</div>
                             <div className=" w-full ">
-                                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg '} list={paymentname2} selected={selectedPayment2} onSelect={(e) => {
+                                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg '} list={paymentname2} selected={selectedPayment2} setSelect={(e) => {
                                     setSelectedPayment2(e)
 
                                 }} />
@@ -220,7 +220,7 @@ export default () => {
                         <div>
                             <div className="text-greylish">Amount Type</div>
                             <div>
-                                <Dropdown parentClass={'bg-white w-full rounded-lg '} className={'!rounded-lg !h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} list={paymentname3} selected={selectedPayment3} onSelect={(e) => {
+                                <Dropdown parentClass={'bg-white w-full rounded-lg '} className={'!rounded-lg !h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} list={paymentname3} selected={selectedPayment3} setSelect={(e) => {
                                     setSelectedPayment3(e)
                                     if (e.name === "Pay with USD-based Amounts") setSelectedType(true)
                                     else setSelectedType(false)
@@ -233,7 +233,7 @@ export default () => {
                         </div>
                     </div>
                     <div className="flex w-full gap-x-10">
-                        {<Dropdown parentClass={'w-full   border-transparent text-sm dark:text-white'} className="!rounded-md !h-[3.15rem]  border dark:border-white" nameActivation={true} selected={selectedWallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                        {<Dropdown parentClass={'w-full   border-transparent text-sm dark:text-white'} className="!rounded-md !h-[3.15rem]  border dark:border-white" nameActivation={true} selected={selectedWallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} setSelect={val => {
                             setSelectedWallet(val)
                         }} />}
                         <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
@@ -243,7 +243,7 @@ export default () => {
                     </div>
                     {secondActive ?
                         <div className="flex gap-x-10">
-                            {<Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !h-[3.15rem] border dark:border-white" nameActivation={true} selected={selectedWallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} onSelect={val => {
+                            {<Dropdown parentClass={'w-full border-transparent text-sm dark:text-white'} className="!rounded-md !h-[3.15rem] border dark:border-white" nameActivation={true} selected={selectedWallet2 ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} setSelect={val => {
                                 setSelectedWallet2(val)
                             }} />}
                             <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
@@ -260,7 +260,7 @@ export default () => {
                     <div className="flex gap-x-10">
                         <div className="flex flex-col space-y-1 w-full">
                             <div className="text-greylish">Payment Type</div>
-                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} list={paymentname4} selected={selectedPayment4} onSelect={(e) => {
+                            <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.15rem]'} className={'!rounded-lg h-[3.15rem] border dark:border-white'} childClass={'!rounded-lg'} list={paymentname4} selected={selectedPayment4} setSelect={(e) => {
                                 setSelectedPayment4(e)
                                 if (e.name === "Auto") setSelectedExecution(true)
                                 else setSelectedExecution(false)
@@ -270,7 +270,7 @@ export default () => {
                         <div className="flex flex-col space-y-1 w-full">
                             <div className="text-greylish">Payment Frequency</div>
                             <div>
-                                <Dropdown onSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border dark:border-white !rounded-md !py-[0.7rem] " />
+                                <Dropdown setSelect={setSelectedFrequency} selected={selectedFrequency} list={[{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]} nameActivation={true} className="border dark:border-white !rounded-md !py-[0.7rem] " />
                             </div>
                         </div>
                     </div>

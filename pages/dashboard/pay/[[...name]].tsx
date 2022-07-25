@@ -228,7 +228,7 @@ const Pay = () => {
                                     <div className="grid grid-cols-2 gap-8">
                                         <div className="flex flex-col">
                                             <span className="text-left pb-1 text-sm ml-1 font-semibold">Amount Type</span>
-                                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={amountTypeList} selected={selectedAmountType} onSelect={(e) => {
+                                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} list={amountTypeList} selected={selectedAmountType} setSelect={(e) => {
                                                 setSelectedAmountType(e)
                                                 dispatch(changeBasedValue(e.id === 1))
                                             }} />

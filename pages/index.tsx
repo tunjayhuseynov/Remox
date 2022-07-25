@@ -11,10 +11,10 @@ import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { isOldUser } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
-import type { BlockchainType } from 'hooks/walletSDK/useWalletKit';
 import { setBlockchain, setProviderAddress } from 'redux/slices/account/remoxData';
 import { Get_Individual } from 'crud/individual';
 import useAsyncEffect from 'hooks/useAsyncEffect';
+import { Blockchains, BlockchainType } from 'types/blockchains';
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
@@ -31,19 +31,13 @@ const Home = () => {
     setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
   }, [Address])
 
-  const blockchains = [
-    { name: "Solana", address: "solana", coinUrl: CoinsURL.SOL }, 
-    { name: "Celo", address: "celo", coinUrl: CoinsURL.CELO },
-    { name: "Polygon", address: "polygon", coinUrl: CoinsURL.AVAX },
-  ]
-
-  const [selected, setSelected] = useState<DropDownItem>(
-    blockchains?.find(s => s.address === blockchain) ?? blockchains[1],
+  const [selected, setSelected] = useState(
+    Blockchains?.find(s => s.name === blockchain) ?? Blockchains[0],
   )
 
   useEffect(() => {
     if (selected) {
-      dispatch(setBlockchain(selected.address as BlockchainType))
+      dispatch(setBlockchain(selected as BlockchainType))
     }
   }, [selected])
 
@@ -60,7 +54,7 @@ const Home = () => {
         if (auth.currentUser === null) return await processSigning(address);
 
         dispatch(setProviderAddress(address));
-        dispatch(setBlockchain(selected.address as BlockchainType))
+        dispatch(setBlockchain(selected as BlockchainType))
 
         const individual = await Get_Individual(auth.currentUser.uid)
         if (individual) {
@@ -86,7 +80,7 @@ const Home = () => {
           <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
-          <Dropdown className={"border !border-primary w-[200px]"} childClass={`!border-primary mt-1 !text-center`} selected={selected} disableAddressDisplay={true} onSelect={(e) => setSelected(e)} list={blockchains} />
+          <Dropdown className={"border !border-primary w-[200px]"} label="Blockchain" selected={selected} setSelect={setSelected} list={Blockchains} />
           <Button onClick={ConnectEvent} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>

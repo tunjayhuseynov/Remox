@@ -224,7 +224,7 @@ const EditMember = () => {
                       childClass={"!rounded-lg"}
                       list={imageType}
                       selected={selectedPayment}
-                      onSelect={(e) => {
+                      setSelect={(e) => {
                         setSelectedPayment(e);
                         if (e.name === "NFT") setUserIsUpload(false);
                         else setUserIsUpload(true);
@@ -295,7 +295,7 @@ const EditMember = () => {
                   <div className="text-greylish">Team</div>
                   <div className="w-full ">
                     <Dropdown
-                      onSelect={setSelectedTeam}
+                      setSelect={setSelectedTeam}
                       selected={selectedTeam}
                       list={
                         contributors.length > 0
@@ -331,7 +331,7 @@ const EditMember = () => {
                         childClass={"!rounded-lg"}
                         list={paymentname2}
                         selected={selectedPayment2}
-                        onSelect={(e) => {
+                        setSelect={(e) => {
                           setSelectedPayment2(e);
                           if (e.name === "Pay with USD-based Amounts")
                             setSelectedType(true);
@@ -354,7 +354,7 @@ const EditMember = () => {
                       childClass={"!rounded-lg"}
                       list={paymentname3}
                       selected={selectedPayment3}
-                      onSelect={(e) => {
+                      setSelect={(e) => {
                         setSelectedPayment3(e);
                         if (e.name === "Pay with USD-based Amounts")
                           setSelectedType(true);
@@ -394,7 +394,7 @@ const EditMember = () => {
                       name: w.name,
                       coinUrl: w.coinUrl,
                     }))}
-                    onSelect={(val) => {
+                    setSelect={(val) => {
                       setSelectedWallet(val);
                     }}
                   />
@@ -440,7 +440,7 @@ const EditMember = () => {
                         name: w.name,
                         coinUrl: w.coinUrl,
                       }))}
-                      onSelect={(val) => {
+                      setSelect={(val) => {
                         setSelectedWallet2(val);
                       }}
                     />
@@ -499,7 +499,7 @@ const EditMember = () => {
                     childClass={"!rounded-lg"}
                     list={paymentname4}
                     selected={selectedPayment4}
-                    onSelect={(e) => {
+                    setSelect={(e) => {
                       setSelectedPayment4(e);
                       if (e.name === "Auto") setSelectedExecution(true);
                       else setSelectedExecution(false);
@@ -511,7 +511,7 @@ const EditMember = () => {
                   <div className="text-greylish">Payment Frequency</div>
                   <div>
                     <Dropdown
-                      onSelect={setSelectedFrequency}
+                      setSelect={setSelectedFrequency}
                       selected={selectedFrequency}
                       list={[
                         { name: "Monthly", type: DateInterval.monthly },

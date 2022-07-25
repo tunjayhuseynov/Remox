@@ -37,7 +37,7 @@ const Input = ({ payInput, index, request = false }: { payInput: IPayInput, inde
         </div>
         <div className="flex flex-col ">
             <span className="text-left text-sm m pb-1 ml-1" >Token</span>
-            {<Dropdown className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md" onSelect={val => dispatch(changeWallet({ index: payInput.index, wallet: val }))} nameActivation={true} selected={payInput.wallet ?? coins[0]} list={coins} />}
+            {<Dropdown className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md" setSelect={val => dispatch(changeWallet({ index: payInput.index, wallet: val }))} nameActivation={true} selected={payInput.wallet ?? coins[0]} list={coins} />}
             {!anotherToken && (index === 0 || request) && <div className="text-primary text-sm cursor-pointer pt-4" onClick={() => {
                 setAnotherToken(true)
                 dispatch(changeSecondWallet({ index: payInput.index, wallet: coins[0] }))
@@ -59,7 +59,7 @@ const Input = ({ payInput, index, request = false }: { payInput: IPayInput, inde
         {(!!(payInput.amount2) || anotherToken) && <>
             <div className="flex flex-col ">
                 <span className="text-left text-sm pb-1 ml-1" >Token</span>
-                <Dropdown className="sm:h-[3rem] bg-white dark:bg-darkSecond border text-sm !rounded-md" onSelect={val => {
+                <Dropdown className="sm:h-[3rem] bg-white dark:bg-darkSecond border text-sm !rounded-md" setSelect={val => {
                     dispatch(changeSecondWallet({ index: payInput.index, wallet: val }))
                 }} nameActivation={true} selected={payInput.wallet2 ?? coins[0]} list={coins} />
             </div>

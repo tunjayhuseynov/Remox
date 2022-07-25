@@ -32,7 +32,7 @@ function OrgPhoto({ setOrgphoto,orgPhoto }: { setOrgphoto: Dispatch<SetStateActi
         <div className="flex flex-col gap-6 items-end space-x-12 w-full px-4">
             <div className="flex flex-col space-y-3 w-full">
                 <label className="text-xs text-greylish  dark:text-white">Choose Photo</label>
-                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem]'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                     setSelectedPayment(e)
                     if (e.name === "NFT") setPhotoIsUpload(false)
                     else setPhotoIsUpload(true)

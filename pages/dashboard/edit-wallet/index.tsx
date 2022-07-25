@@ -45,7 +45,7 @@ function EditWallet({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-8">
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Choose Profile Picture Photo</div>
-                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} onSelect={(e) => {
+                    <Dropdown parentClass={'bg-white w-full rounded-lg h-[3.4rem]'} className={'!rounded-lg h-[3.4rem] dark:border-white'} childClass={'!rounded-lg'} list={paymentname} selected={selectedPayment} setSelect={(e) => {
                         setSelectedPayment(e)
                         if (e.name === "NFT") setOrganizationIsUpload(false)
                         else setOrganizationIsUpload(true)

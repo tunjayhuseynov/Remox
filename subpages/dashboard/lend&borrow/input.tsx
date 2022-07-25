@@ -26,7 +26,7 @@ const Input = ({ selectedWallet, setWallet, amount, setAmount, customCurreny, ma
                 }
                 else setAmount(amnt)
             }} required step={'any'} />
-            {!selectedWallet ? <Loader /> : blockchain === "solana" ? <DropDownViewer parentClass="items-start justify-center" name="USDC" coinUrl={GetCoins.USDC.coinUrl}/> : <Dropdown className="border-transparent text-sm border-none" onSelect={val => {
+            {!selectedWallet ? <Loader /> : blockchain === "solana" ? <DropDownViewer parentClass="items-start justify-center" name="USDC" coinUrl={GetCoins.USDC.coinUrl}/> : <Dropdown className="border-transparent text-sm border-none" setSelect={val => {
                 const wallet = [...selectedWallet];
                 wallet[0] = val;
                 setWallet(wallet)
