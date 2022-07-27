@@ -1,5 +1,5 @@
 import type { DocumentReference } from "firebase/firestore";
-import { BlockchainType } from "hooks/walletSDK/useWalletKit";
+import { BlockchainType } from "types/blockchains";
 
 export interface IMultiwallet {
     name: string;
@@ -127,7 +127,7 @@ export interface IRegisteredIndividual {
     address: string;
     nonce: number;
     password: string;
-    blockchain: BlockchainType;
+    blockchain: BlockchainType["name"];
     created_date: number;
 }
 

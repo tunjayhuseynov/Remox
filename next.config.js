@@ -4,6 +4,7 @@ const { withSentryConfig } = require('@sentry/nextjs');
 const nextConfig = {
   reactStrictMode: true,
   webpack5: true,
+  pageExtensions: ['page.tsx', 'page.ts', 'api.tsx', 'api.ts'],
   webpack: (config) => {
     config.module.rules.push({
       test: /\.(ts)x?$/, // Just `tsx?` file only

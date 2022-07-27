@@ -21,7 +21,7 @@ export default function useOneClickSign() {
 
         const reqParams: { publicKey: string, blockchain: string, id?: string, token?: string } = {
             publicKey: pubKey!,
-            blockchain
+            blockchain: blockchain.name
         };
         if (isOld && dbUser?.[0] && oldPassword) {
             reqParams.id = dbUser[0].id

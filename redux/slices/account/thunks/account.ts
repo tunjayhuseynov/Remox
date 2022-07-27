@@ -4,7 +4,7 @@ import { Add_Member_To_Account, Create_Account, Remove_Member_From_Account, Upda
 import { Add_New_Individual_Account, Remove_Individual_Account } from "crud/individual";
 import { Add_New_Organization_Account, Remove_Organization_Account, Update_Organization } from "crud/organization";
 import { IAccount, IIndividual, Image, IOrganization } from "firebaseConfig";
-import { IAccountORM } from "pages/api/account";
+import { IAccountORM } from "pages/api/account/index.api";
 
 export const Create_Account_For_Individual = createAsyncThunk<IAccountORM, { account: IAccount, individual: IIndividual }>("remoxData/Add_Account_To_Individual", async ({ account, individual }) => {
     await Create_Account(account);

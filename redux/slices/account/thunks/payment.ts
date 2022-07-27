@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { IPaymentDataBody, ISendTx } from "pages/api/payments/send";
+import { IPaymentDataBody, ISendTx } from "pages/api/payments/send/index.api";
 
 
 export const FetchPaymentData = createAsyncThunk<ISendTx, IPaymentDataBody>("remoxData/fetchPayment", async ({ blockchain, executer, requests, isStreaming, endTime, startTime }) => {

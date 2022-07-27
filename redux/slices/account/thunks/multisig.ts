@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { IAccountORM } from "pages/api/account";
-import { IAccountMultisig } from "pages/api/multisig";
+import { IAccountORM } from "pages/api/account/index.api";
+import { IAccountMultisig } from "pages/api/multisig/index.api";
 
 interface IReturnType {
     multisigRequests: IAccountMultisig["txs"]

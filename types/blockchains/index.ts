@@ -2,9 +2,10 @@ import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import { CoinsURL } from "types/coins";
 
 export type BlockchainType = {
-    name: "celo" | "solana" | "polygon_evm",
-    displayName: "Celo" | "Solana" | "Polygon",
+    name: "celo" | "solana" | "polygon_evm" | "",
+    displayName: "Celo" | "Solana" | "Polygon" | "",
     rpcUrl: string,
+    explorerUrl: string,
     logoUrl: string,
     swapProtocols: {
         name: string;
@@ -39,6 +40,7 @@ export const Blockchains: BlockchainType[] = [
         name: "celo",
         displayName: "Celo",
         rpcUrl: "https://celo-rpc.celo.org",
+        explorerUrl: "https://explorer.celo.org",
         logoUrl: CoinsURL.CELO,
         swapProtocols: [
             {

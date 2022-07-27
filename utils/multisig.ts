@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js"
 import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig"
-import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
+import { BlockchainType } from "types/blockchains";
 import { fromLamport, fromWei } from "./ray"
 
 export const EVM_WALLET_SIZE = 39;
@@ -31,7 +31,7 @@ export const MultisigTxParser = (
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
-            confirmations: string[], Value: BigNumber, blockchain: BlockchainType,
+            confirmations: string[], Value: BigNumber, blockchain: BlockchainType["name"],
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string

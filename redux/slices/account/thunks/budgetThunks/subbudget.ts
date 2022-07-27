@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { Get_Budget, Update_Budget } from "crud/budget"
 import { IBudgetTX, ISubBudget } from "firebaseConfig"
-import { ISubbudgetORM } from "pages/api/budget"
+import { ISubbudgetORM } from "pages/api/budget/index.api"
 import { RootState } from "redux/store"
 import { addTxToSubbudget, updateBudget } from "../../remoxData"
 

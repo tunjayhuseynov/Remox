@@ -3,7 +3,7 @@ import { Create_Budget_Exercise, Delete_Budget_Exercise, Update_Budget_Exercise 
 import { Update_Individual } from "crud/individual";
 import { Update_Organization } from "crud/organization";
 import { IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
-import { IBudgetExerciseORM } from "pages/api/budget";
+import { IBudgetExerciseORM } from "pages/api/budget/index.api";
 import { addBudgetExercise, deleteBudgetExercise, updateBudgetExercise } from "../../remoxData";
 
 interface IBaseExercise {

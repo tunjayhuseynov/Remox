@@ -8,14 +8,14 @@ import { organizationCollectionName } from "crud/organization"
 import { ethers } from "ethers"
 import { IIndividual, Image, IOrganization, IUser } from "firebaseConfig"
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
-import type { BlockchainType } from "hooks/walletSDK/useWalletKit"
+import { BlockchainType } from "types/blockchains"
 
 const isAddressExisting = async <Type extends {}>(collectionName: string, queries: { addressField: string, address: string, indicator?: Indicator }[]) => {
     return await FirestoreReadMultiple<Type>(collectionName, queries.map(s => ({ secondQuery: s.addressField, firstQuery: s.address, condition: (s?.indicator ?? "array-contains") })))
 }
 
 const nftOwner = async (nft: string, blockchain: BlockchainType, tokenId?: number) => {
-    if (blockchain === "celo") {
+    if (blockchain.name === "celo") {
         if (!tokenId) throw new Error("Token ID is required for Celo NFTs")
         const id = tokenId;
         const nftContract = new ethers.Contract(nft, [
@@ -29,7 +29,7 @@ const nftOwner = async (nft: string, blockchain: BlockchainType, tokenId?: numbe
         ], new CeloProvider("https://forno.celo.org"))
 
         return (await nftContract.ownerOf(id)) as string
-    } else if (blockchain === "solana") {
+    } else if (blockchain.name === "solana") {
         const connection = new Connection(SolanaEndpoint)
         let mintPubkey = new PublicKey(nft);
         let tokenmetaPubkey = await Metadata.getPDA(mintPubkey);
@@ -65,7 +65,7 @@ export const UploadNFTorImageForUser = async (props: { image: Image | null, name
         if (imageUrl && typeof imageUrl !== "string" && type === "image") {
             props.image.imageUrl = await UploadImage(props.name, imageUrl);
         } else if (nftUrl && type === "nft") {
-            if (blockchain === "celo") {
+            if (blockchain.name === "celo") {
                 if (!tokenId) throw new Error("Token ID is required for Celo NFTs")
                 const id = tokenId;
                 const nft = new ethers.Contract(nftUrl, [
@@ -81,7 +81,7 @@ export const UploadNFTorImageForUser = async (props: { image: Image | null, name
                 const uri = await nft.tokenURI(id)
                 const res = await axios.get<{ image: string }>(uri)
                 props.image.imageUrl = res.data.image;
-            } else if (blockchain === "solana") {
+            } else if (blockchain.name === "solana") {
                 const connection = new Connection(SolanaEndpoint)
                 let mintPubkey = new PublicKey(nftUrl);
                 let tokenmetaPubkey = await Metadata.getPDA(mintPubkey);

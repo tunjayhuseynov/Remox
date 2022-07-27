@@ -1,10 +1,9 @@
 import { Add_New_Individual_Account, Get_Individual } from "crud/individual"
-import { auth, IAccount, IBudgetExercise, IIndividual } from "firebaseConfig"
-import { BlockchainType } from "hooks/walletSDK/useWalletKit"
+import { auth, IAccount, IIndividual } from "firebaseConfig"
 import { useEffect, useState } from "react"
 import { useAppDispatch } from "redux/hooks"
-import { fetchBudgetExercise } from "redux/slices/account/budgets"
 import { setIndividual } from "redux/slices/account/storage"
+import { BlockchainType } from "types/blockchains"
 
 export default function useIndividual(address: string, blockchain: BlockchainType) {
     const [individual, setIndividualState] = useState<IIndividual | null>()
@@ -21,11 +20,6 @@ export default function useIndividual(address: string, blockchain: BlockchainTyp
                 const individual = await Get_Individual(user.uid)
                 if (individual) {
                     dispatch(setIndividual(individual))
-                    // dispatch(fetchBudgetExercise({
-                    //     addresses: individual.members,
-                    //     blockchain: blockchain,
-                    //     id: individual.id
-                    // }))
                     setIndividualState(individual ?? null)
                 }
                 setLoading(false)

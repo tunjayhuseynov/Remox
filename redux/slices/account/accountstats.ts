@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ATag, ISpendingResponse } from "pages/api/calculation/_spendingType";
+import { ATag, ISpendingResponse } from "pages/api/calculation/_spendingType.api";
 import { RootState } from "redux/store";
 
 

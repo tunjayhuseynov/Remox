@@ -1,12 +1,12 @@
 import React, { useEffect, useContext } from "react";
 import { useAppSelector } from '../../redux/hooks';
-import { selectDarkMode } from 'redux/slices/notificationSlice';
 import ReactDOM, { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from "framer-motion"
+import { SelectDarkMode } from 'redux/slices/account/remoxData';
 
 
 const Modal = ({ children, onDisable, title, className, disableX = false, animatedModal = true, openNotify, animateClass, setNotify2 }: { children?: JSX.Element | JSX.Element[], onDisable: React.Dispatch<React.SetStateAction<boolean>>, title?: string, className?: string, disableX?: boolean, openNotify?: boolean, animatedModal?: boolean, animateClass?: string, setNotify2?: React.Dispatch<React.SetStateAction<boolean>> }) => {
-    const dark = useAppSelector(selectDarkMode)
+    const dark = useAppSelector(SelectDarkMode)
 
 
     useEffect(() => {

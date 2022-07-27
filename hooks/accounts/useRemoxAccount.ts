@@ -1,13 +1,10 @@
-import { BlockchainType } from 'hooks/walletSDK/useWalletKit'
 import { useMemo } from 'react'
 import useIndividual from './useIndividual'
 import useOrganization from './useOrganization'
 import { useAppSelector } from 'redux/hooks'
 import { SelectStorage } from 'redux/slices/account/remoxData'
-import { Add_Member_To_Account, Remove_Member_From_Account, Update_Members_In_Account } from 'crud/account'
-import { IAccount, Image } from 'firebaseConfig'
-import { nanoid } from '@reduxjs/toolkit'
 import { SelectProviderAddress } from 'redux/slices/account/remoxData'
+import { BlockchainType } from 'types/blockchains'
 
 export default function useRemoxAccount(address: string, blockchain: BlockchainType) {
     const storage = useAppSelector(SelectStorage)

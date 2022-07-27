@@ -1,5 +1,6 @@
-import { BlockchainType, CollectionName } from "hooks/walletSDK/useWalletKit";
+import { CollectionName } from "hooks/walletSDK/useWalletKit";
 import { AltCoins, CeloCoins, PoofCoins, SolanaCoins } from "types";
+import { BlockchainType } from "types/blockchains";
 import { fromLamport, fromWei } from "utils/ray";
 
 
@@ -18,16 +19,16 @@ export interface IPrice {
 }
 
 export const Collection = (blockchain: BlockchainType) => {
-    if (blockchain === 'celo') {
+    if (blockchain.name === 'celo') {
         return CollectionName.Celo
-    } else if (blockchain === 'solana') {
+    } else if (blockchain.name === 'solana') {
         return CollectionName.Solana
     }
     return CollectionName.Celo
 }
 
 export const GetCoins = (blockchain: BlockchainType) => {
-    if (blockchain === "celo") {
+    if (blockchain.name === "celo") {
         return CeloCoins;
     }
     // if (blockchain === "poof") return PoofCoins
@@ -36,7 +37,7 @@ export const GetCoins = (blockchain: BlockchainType) => {
 }
 
 export const fromMinScale = (blockchain: BlockchainType) => {
-    if (blockchain === "celo") {
+    if (blockchain.name === "celo") {
         return fromWei
     }
 

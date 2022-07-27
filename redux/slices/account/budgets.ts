@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
-import { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import { IBudgetExerciseORM, IBudgetORM } from "pages/api/budget";
+import { IBudgetExerciseORM, IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
+import { BlockchainType } from "types/blockchains";
 
 export type IBudgetState = {
     isFetched: boolean;
@@ -15,7 +15,7 @@ const initial: IBudgetState = {
 }
 interface ThunkType {
     id: string,
-    blockchain: BlockchainType,
+    blockchain: BlockchainType["name"],
     addresses: string[]
 }
 
@@ -68,9 +68,9 @@ const budgetSlice = createSlice({
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
                 if (budgetIndex !== -1) {
                     const oldBudget = state.budget_exercises[index].budgets[budgetIndex]
-                    state.budget_exercises[index].totalAvailable =- oldBudget.totalAvailable;
-                    state.budget_exercises[index].totalBudget =- oldBudget.totalBudget;
-                    state.budget_exercises[index].totalUsed =- oldBudget.totalUsed;
+                    state.budget_exercises[index].totalAvailable = - oldBudget.totalAvailable;
+                    state.budget_exercises[index].totalBudget = - oldBudget.totalBudget;
+                    state.budget_exercises[index].totalUsed = - oldBudget.totalUsed;
                     state.budget_exercises[index].budgets[budgetIndex] = payload;
                     state.budget_exercises[index].totalAvailable += payload.totalAvailable;
                     state.budget_exercises[index].totalBudget += payload.totalBudget;
@@ -84,9 +84,9 @@ const budgetSlice = createSlice({
                 const budgetIndex = state.budget_exercises[index].budgets.findIndex((budget) => budget.id === payload.id);
                 if (budgetIndex !== -1) {
                     const oldBudget = state.budget_exercises[index].budgets[budgetIndex]
-                    state.budget_exercises[index].totalAvailable =- oldBudget.totalAvailable;
-                    state.budget_exercises[index].totalBudget =- oldBudget.totalBudget;
-                    state.budget_exercises[index].totalUsed =- oldBudget.totalUsed;
+                    state.budget_exercises[index].totalAvailable = - oldBudget.totalAvailable;
+                    state.budget_exercises[index].totalBudget = - oldBudget.totalBudget;
+                    state.budget_exercises[index].totalUsed = - oldBudget.totalUsed;
                     state.budget_exercises[index].budgets.splice(budgetIndex, 1);
                 }
             }

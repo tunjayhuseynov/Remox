@@ -1,6 +1,6 @@
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
-import { IAccountORM } from "pages/api/account";
-import { IMultisigThreshold } from "pages/api/multisig/sign";
+import { IAccountORM } from "pages/api/account/index.api";
+import { IMultisigThreshold } from "pages/api/multisig/sign.api";
 import { IRemoxData } from "../remoxData";
 
 export default {

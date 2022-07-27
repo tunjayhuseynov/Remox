@@ -1,6 +1,4 @@
 import { createContext, Dispatch, useState } from 'react'
-import Sidebar from "subpages/dashboard/sidebar"
-import Navbar from 'subpages/dashboard/navbar'
 import { useRefetchData } from 'hooks'
 import Loader from 'components/Loader'
 import { useAppDispatch, useAppSelector } from 'redux/hooks'
@@ -11,6 +9,8 @@ import { useRouter } from 'next/router'
 import useAsyncEffect from 'hooks/useAsyncEffect'
 import { Get_Individual } from 'crud/individual'
 import { AnimatePresence, motion } from 'framer-motion'
+import Navbar from './_components/navbar'
+import Sidebar from './_components/sidebar'
 
 export const DashboardContext = createContext<{ refetch: () => void, setMainAnimate?: Dispatch<boolean>, mainAnimate?: boolean }>({ refetch: () => { } })
 

@@ -140,7 +140,7 @@ export default function useMultisig() {
             if (!individual) throw new Error("Individual is not selected")
         }
 
-        if (blockchain === 'solana' && publicKey) {
+        if (blockchain.name === 'solana' && publicKey) {
 
             const programs = GokiProgram();
 
@@ -265,7 +265,7 @@ export default function useMultisig() {
 
             let members: string[] = [], provider: IAccount["provider"] = null;
 
-            if (blockchain === 'solana') {
+            if (blockchain.name === 'solana') {
                 const programs = GokiProgram(contractAddress);
 
                 const data = await programs.SmartWallet.account.smartWallet.fetch(new PublicKey(contractAddress));
@@ -276,7 +276,7 @@ export default function useMultisig() {
 
                 provider = "Goki"
 
-            } else if (blockchain === 'celo') {
+            } else if (blockchain.name === 'celo') {
                 const web3 = new Web3((window as any).celo);
 
                 const Multisig = await multisigContract
@@ -324,7 +324,7 @@ export default function useMultisig() {
 
             await dispatch(Multisig_Fetch_Thunk({
                 accounts: accounts,
-                blockchain: blockchain,
+                blockchain: blockchain.name,
                 addresses: accounts.filter(s => s.signerType === "multi").map(s => s.address),
             }))
 
@@ -338,8 +338,9 @@ export default function useMultisig() {
     const removeOwner = useCallback(async (multisigAddress: string, ownerAddress: string) => {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
+            if (!blockchain) throw new Error("Blockchain is not selected")
 
-            if (blockchain === 'solana') {
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -349,7 +350,7 @@ export default function useMultisig() {
                     return true;
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain === 'celo') {
+            } else if (blockchain.name === 'celo') {
                 if (!address) throw new Error("Address is not selected")
 
                 const web3 = new Web3((window as any).celo);
@@ -382,7 +383,8 @@ export default function useMultisig() {
 
     const changeSigns = useCallback(async (multisigAddress: string, sign: number, internalSign: number, isSign = true, isInternal = true) => {
         try {
-            if (blockchain === 'solana') {
+            if (!blockchain) throw new Error("Blockchain is not selected")
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -437,7 +439,8 @@ export default function useMultisig() {
     const addOwner = useCallback(async (multisigAddress: string, newOwner: string, name = "", image: Image | null = null, mail: string | null = null) => {
         if (remoxAccount) {
             try {
-                if (blockchain === 'solana') {
+                if (!blockchain) throw new Error("Blockchain is not selected")
+                if (blockchain.name === 'solana') {
                     const { sdk } = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                     if (wallet.data) {
@@ -453,7 +456,7 @@ export default function useMultisig() {
                         return true;
                     }
                     throw new Error("Wallet has no data")
-                } else if (blockchain === 'celo') {
+                } else if (blockchain.name === 'celo') {
 
                     const web3 = new Web3((window as any).celo);
 
@@ -493,8 +496,9 @@ export default function useMultisig() {
     const replaceOwner = useCallback(async (multisigAddress: string, oldOwner: string, newOwner: string) => {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
+            if (!blockchain) throw new Error("Blockchain is not selected")
 
-            if (blockchain === 'solana') {
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -511,7 +515,7 @@ export default function useMultisig() {
                     return true;
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain === "celo") {
+            } else if (blockchain.name === "celo") {
                 const web3 = new Web3((window as any).celo);
 
                 const Multisig = await multisigContract
@@ -541,7 +545,8 @@ export default function useMultisig() {
 
     const submitTransaction = async (multisigAddress: string, data: string | TransactionInstruction[], destination: string | null) => {
         try {
-            if (blockchain === 'solana') {
+            if (!blockchain) throw new Error("Blockchain is not selected")
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -576,7 +581,8 @@ export default function useMultisig() {
 
     const revokeTransaction = async (multisigAddress: string, transactionId: string) => {
         try {
-            if (blockchain === 'solana') {
+            if (!blockchain) throw new Error("Blockchain is not selected")
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -616,7 +622,8 @@ export default function useMultisig() {
 
     const confirmTransaction = async (multisigAddress: string, transactionId: string | number) => {
         try {
-            if (blockchain === 'solana') {
+            if (!blockchain) throw new Error("Blockchain is not selected")
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -649,7 +656,8 @@ export default function useMultisig() {
 
     const executeTransaction = async (multisigAddress: string, transactionId: string | number) => {
         try {
-            if (blockchain === 'solana') {
+            if (!blockchain) throw new Error("Blockchain is not selected")
+            if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {

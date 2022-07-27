@@ -9,6 +9,8 @@ import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFir
 import { auth, IUser } from 'firebaseConfig';
 import useWalletKit from './walletSDK/useWalletKit';
 import useRemoxAccount from './accounts/useRemoxAccount';
+import { useAppSelector } from 'redux/hooks';
+import { SelectRemoxAccount } from 'redux/slices/account/selector';
 
 
 export enum WalletIds {
@@ -28,7 +30,7 @@ export default function useMultiWallet() {
     const dispatch = useDispatch()
     const storage = useSelector(selectStorage)
 
-    const { remoxAccount } = useRemoxAccount(Address ?? "0x", blockchain)
+    const remoxAccount = useAppSelector(SelectRemoxAccount)
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {
         const incomingData = await FirestoreRead<IUser>("users", auth!.currentUser!.uid)
@@ -57,6 +59,7 @@ export default function useMultiWallet() {
     const addWallet = async () => {
         try {
             const connector = await Connect()
+            if(!connector) throw new Error("No Connector")
             await actionAfterConnectorSet(connector)
             return connector;
         } catch (error: any) {

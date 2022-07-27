@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { IFormattedTransaction } from 'hooks/useTransactionProcess';
-import { ITag } from 'pages/api/tags';
+import { ITag } from 'pages/api/tags/index.api';
 import { Transactions } from '../../../types/sdk/blockscout';
 import { RootState } from '../../store';
 

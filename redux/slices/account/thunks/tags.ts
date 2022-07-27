@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { arrayRemove, arrayUnion } from "firebase/firestore"
-import { ITag } from "pages/api/tags"
+import { ITag } from "pages/api/tags/index.api"
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { generate } from "shortid"
 

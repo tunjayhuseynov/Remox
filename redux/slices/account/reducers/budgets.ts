@@ -1,5 +1,5 @@
 import { IBudget, IBudgetTX, ISubBudget } from "firebaseConfig";
-import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget";
+import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IuseCurrency } from "rpcHooks/useCurrency";
 import { IRemoxData } from "../remoxData";
 

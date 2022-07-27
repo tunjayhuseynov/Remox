@@ -1,9 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
-import { IRemoxAccountORM } from "pages/api/account/multiple";
-import { IPriceResponse } from "pages/api/calculation/price";
-import { ISpendingResponse } from "pages/api/calculation/_spendingType";
+import { IRemoxAccountORM } from "pages/api/account/multiple.api";
+import { IPriceResponse } from "pages/api/calculation/price.api";
+import { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
 import { RootState } from "redux/store";
 
 interface IReturnType {
@@ -18,11 +18,12 @@ export const Refresh_Data_Thunk = createAsyncThunk<IReturnType>("remoxData/refre
     const blockchain = (api.getState() as RootState).remoxData.blockchain;
     const id = (api.getState() as RootState).remoxData.providerID;
     const accountType = (api.getState() as RootState).remoxData.accountType;
+    if (!blockchain) throw new Error("Blockchain is not set");
 
     const spending = axios.get<ISpendingResponse>("/api/calculation/spending", {
         params: {
             addresses: addresses,
-            blockchain: blockchain,
+            blockchain: blockchain.name,
             id: id,
         }
     });
@@ -30,14 +31,14 @@ export const Refresh_Data_Thunk = createAsyncThunk<IReturnType>("remoxData/refre
     const balances = axios.get<IPriceResponse>("/api/calculation/price", {
         params: {
             addresses: addresses,
-            blockchain: blockchain,
+            blockchain: blockchain.name,
         }
     });
 
     const transactions = axios.get<IFormattedTransaction[]>("/api/transactions", {
         params: {
             addresses: addresses,
-            blockchain: blockchain,
+            blockchain: blockchain.name,
             id: id,
         }
     });

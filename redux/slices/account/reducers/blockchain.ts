@@ -1,4 +1,4 @@
-import { BlockchainType } from "hooks/walletSDK/useWalletKit"
+import { BlockchainType } from "types/blockchains"
 import { IRemoxData } from "../remoxData"
 
 export default {

@@ -3,7 +3,7 @@ import { VscError } from 'react-icons/vsc'
 import { Dispatch, useEffect, useState } from 'react'
 import { AddressReducer } from "utils";
 import { UseFormRegister } from 'react-hook-form';
-import { IFormInput } from '../pages/create-organization'
+import { IFormInput } from '../pages/create-organization.page'
 
 const Input = ({ title, name, register, type = "text", value, validation, limit = 0, required = false, className = "" }: { register?: UseFormRegister<IFormInput>, title: string, name: string, value?: string | null, type?: string, validation?: Dispatch<boolean>, limit?: number, required?: boolean, className?: string }) => {
     const [password, setPassword] = useState<string>();

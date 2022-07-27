@@ -1,7 +1,7 @@
 import { Dispatch, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone'
 import { UseFormRegister } from 'react-hook-form';
-import {IFormInput} from '../pages/create-organization'
+import {IFormInput} from '../pages/create-organization.page'
 
 export default function Upload({ setFile,className }: { setFile: Dispatch<File>,className?:string }) {
     const { acceptedFiles, getRootProps, getInputProps } = useDropzone();

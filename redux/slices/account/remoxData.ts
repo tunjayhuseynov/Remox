@@ -1,11 +1,10 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import { ISpendingResponse } from "pages/api/calculation/_spendingType";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
 import { IStorage } from "./storage";
-import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget";
+import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IContributor } from "types/dashboard/contributors";
 import { launchApp } from "./thunks/launch";
-import type { IAccountMultisig } from 'pages/api/multisig'
+import type { IAccountMultisig } from 'pages/api/multisig/index.api'
 import StatsReducers from './reducers/stats'
 import BudgetsReducers from './reducers/budgets'
 import ContributorsReducers from './reducers/contributors'
@@ -14,19 +13,20 @@ import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
 import TagReducers from './reducers/tag'
 import RequestReducers from './reducers/requests'
-import { IAccountORM } from "pages/api/account";
+import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "./thunks/account";
 import { IAccount, IBudget, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { IPriceCoin } from "pages/api/calculation/price";
+import { IPriceCoin } from "pages/api/calculation/price.api";
 import { AddTransactionToTag, CreateTag, DeleteTag, RemoveTransactionFromTag, UpdateTag } from "./thunks/tags";
-import { ITag } from "pages/api/tags";
+import { ITag } from "pages/api/tags/index.api";
 import { generate } from "shortid";
 import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
 import { Refresh_Data_Thunk } from "./thunks/refresh";
+import { BlockchainType } from "types/blockchains";
 
 export type IAccountType = "individual" | "organization";
 
@@ -44,6 +44,7 @@ export interface IMultisigStats {
 
 // Bizim webapp'in merkezi datalari
 export interface IRemoxData {
+    darkMode: boolean,
     organizations: IOrganizationORM[],
     isFetching: boolean;
     balances: { [name: string]: IPriceCoin } | null;
@@ -56,7 +57,7 @@ export interface IRemoxData {
         approvedRequests: IRequest[],
         rejectedRequests: IRequest[],
     }, // +
-    blockchain: BlockchainType | null,
+    blockchain: BlockchainType,
     accounts: IAccountORM[], // ++
     totalBalance: number, // +
     storage: IStorage | null,
@@ -75,6 +76,12 @@ export interface IRemoxData {
 
 const init = (): IRemoxData => {
     return {
+        darkMode: (
+            () => {
+                if (typeof window === 'undefined') return true
+                return localStorage.getItem('darkMode') ? localStorage.getItem('darkMode') === 'true' : true
+            }
+        )(),
         isFetching: true,
         organizations: [],
         stats: null,
@@ -87,7 +94,18 @@ const init = (): IRemoxData => {
             approvedRequests: [],
             rejectedRequests: [],
         },
-        blockchain: null,
+        blockchain: {
+            batchPaymentProtocols: [],
+            displayName: "",
+            explorerUrl: "",
+            lendingProtocols: [],
+            name: "",
+            logoUrl: "",
+            recurringPaymentProtocols: [],
+            rpcUrl: "",
+            streamingProtocols: [],
+            swapProtocols: [],
+        },
         accounts: [],
         totalBalance: 0,
         storage: null,
@@ -139,6 +157,10 @@ const remoxDataSlice = createSlice({
                 subbudget: null,
             }
         },
+        changeDarkMode: (state: IRemoxData, action: PayloadAction<boolean>) => {
+            localStorage.setItem('darkMode', action.payload.toString());
+            state.darkMode = action.payload;
+        }
     },
     extraReducers: builder => {
         /* Tag */
@@ -304,7 +326,7 @@ const remoxDataSlice = createSlice({
 
 export * from './selector'
 export const {
-    setOrganizations,
+    setOrganizations, changeDarkMode,
     addApprovedRequest, addPendingRequest, addRejectedRequest, removeApprovedRequest, removePendingRequest, removeRejectedRequest,
     addTag, removeTag, updateTag, addTransactionHashToTag, removeTransactionHashFromTag, setTags,
     setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor,

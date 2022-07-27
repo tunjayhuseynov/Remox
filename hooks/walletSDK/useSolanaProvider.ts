@@ -12,7 +12,8 @@ export default function useSolanaProvider() {
   const { publicKey, signTransaction, signAllTransactions, sendTransaction } = useWallet();
 
   const Provider = useMemo(() => {
-    if (blockchain === 'solana') {
+    if (!blockchain) return null;
+    if (blockchain.name === 'solana') {
       if (!publicKey || !signAllTransactions || !signTransaction) return undefined;
       const anchorProvider = new anchor.AnchorProvider(connection, {
         publicKey,
@@ -34,7 +35,8 @@ export default function useSolanaProvider() {
   }, [blockchain])
 
   const AnchorProvider = useMemo(() => {
-    if (blockchain === 'solana') {
+    if (!blockchain) return null;
+    if (blockchain.name === 'solana') {
       if (!publicKey || !signAllTransactions || !signTransaction) return undefined;
       const anchorProvider = new anchor.AnchorProvider(connection, {
         publicKey,

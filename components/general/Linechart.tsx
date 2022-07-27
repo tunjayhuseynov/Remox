@@ -1,7 +1,7 @@
 import useNextSelector from 'hooks/useNextSelector';
 import dynamic from 'next/dynamic';
-import { IFlowDetail } from 'pages/api/calculation/_spendingType';
-import { selectDarkMode } from 'redux/slices/notificationSlice';
+import { IFlowDetail } from 'pages/api/calculation/_spendingType.api';
+import { SelectDarkMode } from 'redux/slices/account/remoxData';
 
 const ReactApexChart = dynamic(
   () => import('react-apexcharts'),
@@ -9,7 +9,7 @@ const ReactApexChart = dynamic(
 );
 
 function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: string }) {
-  const dark = useNextSelector(selectDarkMode)
+  const dark = useNextSelector(SelectDarkMode)
   const series = [
     {
       name: "Value",

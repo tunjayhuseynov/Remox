@@ -22,7 +22,7 @@ export default function useSwap() {
             setLoading(true)
 
 
-            if (blockchain === 'solana') {
+            if (blockchain.name === 'solana') {
                 const jupiter = await Jupiter.load({
                     connection,
                     cluster: "mainnet-beta",

@@ -1,10 +1,10 @@
 import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { selectDarkMode } from 'redux/slices/notificationSlice'
+import { SelectDarkMode } from 'redux/slices/account/remoxData';
 
 export default function App({ children }: { children: JSX.Element }) {
-    const darkMode = useSelector(selectDarkMode)
+    const darkMode = useSelector(SelectDarkMode)
     const { setTheme } = useTheme()
     useEffect(() => {
         setTheme(darkMode ? 'dark' : 'light')

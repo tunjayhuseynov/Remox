@@ -1,18 +1,18 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
-import type { BlockchainType } from "hooks/walletSDK/useWalletKit";
-import type { IRemoxAccountORM } from "pages/api/account/multiple";
-import type { IBudgetExerciseORM } from "pages/api/budget";
-import type { ISpendingResponse } from "pages/api/calculation/_spendingType";
+import type { IRemoxAccountORM } from "pages/api/account/multiple.api";
+import type { IBudgetExerciseORM } from "pages/api/budget/index.api";
+import type { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
 import type { IContributor } from "types/dashboard/contributors";
 import type { IAccountType, IRemoxData } from "../remoxData";
 import type { IStorage } from "../storage";
-import { IAccountMultisig } from "pages/api/multisig";
+import { IAccountMultisig } from "pages/api/multisig/index.api";
 import { IRequest } from "rpcHooks/useRequest";
-import { IPriceResponse } from "pages/api/calculation/price";
-import { ITag } from "pages/api/tags";
+import { IPriceResponse } from "pages/api/calculation/price.api";
+import { ITag } from "pages/api/tags/index.api";
 import { Multisig_Fetch_Thunk } from "./multisig";
+import { BlockchainType } from "types/blockchains";
 
 type LaunchResponse = {
     Balance: IPriceResponse;
@@ -48,7 +48,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
     const spending = axios.get<ISpendingResponse>("/api/calculation/spending", {
         params: {
             addresses: addresses,
-            blockchain: blockchain,
+            blockchain: blockchain.name,
             id: id,
         }
     });
@@ -56,14 +56,14 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
     const balances = axios.get<IPriceResponse>("/api/calculation/price", {
         params: {
             addresses: addresses,
-            blockchain: blockchain,
+            blockchain: blockchain.name,
         }
     });
 
     const transactions = axios.get<IFormattedTransaction[]>("/api/transactions", {
         params: {
             addresses: addresses,
-            blockchain: blockchain,
+            blockchain: blockchain.name,
             id: id,
         }
     });
@@ -72,7 +72,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         params: {
             id: id,
             addresses: addresses,
-            blockchain: blockchain
+            blockchain: blockchain.name
         }
     });
 
@@ -107,7 +107,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
 
     const accounts = accountRes.data;
     const multi = accounts.accounts.filter(s => s.signerType === "multi")
-    
+
     const {
         approvedRequests,
         multisigRequests,
@@ -117,7 +117,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         multisigAccounts
     } = await api.dispatch(Multisig_Fetch_Thunk({
         accounts: multi,
-        blockchain: blockchain,
+        blockchain: blockchain.name,
         addresses: multi.map(s => s.address),
     })).unwrap()
 

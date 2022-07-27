@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Create_Budget, Delete_Budget, Update_Budget } from "crud/budget";
 import { Get_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercise";
 import { IBudget, IBudgetTX } from "firebaseConfig";
-import { IBudgetORM } from "pages/api/budget";
+import { IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
 import { addBudget, addTxToBudget, deleteBudget, updateBudget } from "../../remoxData";
 

@@ -8,15 +8,21 @@ interface IProp<T> {
     parentClass?: string,
     className?: string,
     label: string,
-    selected: T,
+    selected?: T,
     list: Array<T>,
     setSelect?: Dispatch<T>,
     runFn?: (val: T) => () => void,
 }
 
-const Dropdown = <T extends { name: string },>({ selected, label, setSelect, list, parentClass = '', runFn }: IProp<T>) => {
+interface IGenericExtendedProp {
+    name: string | number,
+    onClick?: Function,
+    image?: string,
+    secondValue?: string | number
+}
+
+const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, parentClass = '', runFn }: IProp<T>) => {
     const id = useId()
-    type S = T extends Pick<BlockchainType, "logoUrl"> ? { name: string } : T;
 
     return (
         <div className={`relative ${parentClass} `}>
@@ -26,14 +32,16 @@ const Dropdown = <T extends { name: string },>({ selected, label, setSelect, lis
                 value={selected}
                 label={label}
                 onChange={(e) => {
-                    if (setSelect) setSelect(e.target.value as T)
+                    const selected = e.target.value as T;
+                    if (setSelect) setSelect(selected)
+                    if (selected["onClick"]) selected["onClick"]()
                     if (runFn) {
                         runFn(e.target.value as T)
                     }
                 }}
             >
                 {list.map(e => {
-                    return <MenuItem value={e as any}>{e.name}</MenuItem>
+                    return <MenuItem key={e.name} value={e as any}>{e.name}</MenuItem>
                 })}
             </Select>
         </div>

@@ -8,7 +8,7 @@ import BatchRequestABI from 'rpcHooks/ABI/BatchRequest.json'
 import Web3 from 'web3'
 import { AbiItem } from "web3-utils"
 import { Contracts } from "rpcHooks/Contracts/Contracts"
-import { IPaymentInput, ISwap } from "."
+import { IPaymentInput, ISwap } from "./index.api"
 import { CeloCoins } from "types"
 import { ChainId, Fetcher, Fraction, JSBI as UbeJSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
 import { getAddress } from "ethers/lib/utils"

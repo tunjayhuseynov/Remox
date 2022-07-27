@@ -46,12 +46,12 @@ export const notificationSlice = createSlice({
     },
 })
 
-export const { changeError, changeSuccess, changeNotificationSeen, changeDarkMode } = notificationSlice.actions
+export const { changeError, changeSuccess, changeNotificationSeen } = notificationSlice.actions
 
 export const selectError = (state: RootState) => state.notification.onError
 export const selectErrorText = (state: RootState) => state.notification.onErrorText
 export const selectSuccessText = (state: RootState) => state.notification.onSuccessText
 export const selectSuccess = (state: RootState) => state.notification.onSuccess
-export const selectDarkMode = (state: RootState) => state.notification.darkMode
+// export const selectDarkMode = (state: RootState) => state.notification.darkMode
 
 export default notificationSlice.reducer

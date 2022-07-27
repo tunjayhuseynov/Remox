@@ -6,7 +6,7 @@ import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins } from 'types';
 import { selectTags } from 'redux/slices/tags';
 import useWalletKit from './walletSDK/useWalletKit';
-import { ITag } from 'pages/api/tags';
+import { ITag } from 'pages/api/tags/index.api';
 
 
 export const ERC20MethodIds = {

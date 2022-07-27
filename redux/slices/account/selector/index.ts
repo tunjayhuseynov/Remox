@@ -1,6 +1,6 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
-import { IBudgetORM } from "pages/api/budget";
-import { IPriceCoin } from "pages/api/calculation/price";
+import { IBudgetORM } from "pages/api/budget/index.api";
+import { IPriceCoin } from "pages/api/calculation/price.api";
 import { RootState } from "redux/store";
 import { TokenType } from "types";
 
@@ -199,4 +199,13 @@ export const SelectRemoxAccount = createDraftSafeSelector(
 
         return storage?.individual;
     }
+)
+
+
+//////
+// Dark Mode
+
+export const SelectDarkMode = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.darkMode,
+    (darkMode) => darkMode
 )

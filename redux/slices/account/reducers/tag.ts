@@ -1,4 +1,4 @@
-import { ITag } from "pages/api/tags";
+import { ITag } from "pages/api/tags/index.api";
 import { IRemoxData } from "../remoxData";
 
 export default {

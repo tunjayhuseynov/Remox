@@ -1,4 +1,4 @@
-import { ISpendingResponse } from "pages/api/calculation/_spendingType";
+import { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
 import { IAccountStats } from "../accountstats";
 import { IRemoxData } from "../remoxData";
 

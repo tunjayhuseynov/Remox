@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { ITag } from 'pages/api/tags';
+import { ITag } from 'pages/api/tags/index.api';
 import { RootState } from '../store';
 
 interface IContainer {

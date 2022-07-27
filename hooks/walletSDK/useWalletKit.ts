@@ -28,23 +28,23 @@ import {
 } from "redux/slices/account/remoxData";
 import { FetchPaymentData } from "redux/slices/account/thunks/payment";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { IPaymentInput, ISwap } from "pages/api/payments/send";
+import { IPaymentInput, ISwap } from "pages/api/payments/send/index.api";
 import Web3 from "web3";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useAllowance from "rpcHooks/useAllowance";
 import useTasking from "rpcHooks/useTasking";
 import { DateInterval } from "types/dashboard/contributors";
-import { ITag } from "pages/api/tags";
+import { ITag } from "pages/api/tags/index.api";
 import { IAccount, IBudget, ISubBudget } from "firebaseConfig";
 import useMultisig from "./useMultisig";
 import { AddTransactionToTag } from "redux/slices/account/thunks/tags";
 import { Add_Tx_To_Budget_Thunk } from "redux/slices/account/thunks/budgetThunks/budget";
 import { Add_Tx_To_Subbudget_Thunk } from "redux/slices/account/thunks/budgetThunks/subbudget";
-import { IBudgetORM, ISubbudgetORM } from "pages/api/budget";
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh";
 import { ethers } from "ethers";
 import useWeb3Connector from "hooks/useWeb3Connector";
-import { BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType } from "types/blockchains";
 
 export enum CollectionName {
     Celo = "currencies",
@@ -118,13 +118,13 @@ export default function useWalletKit() {
     const setBlockchainAuto = () => {
         if (address) {
             localStorage.setItem("blockchain", "celo");
-            dispatch(SetBlockchain("celo"));
+            dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "celo")!));
         } else if (publicKey) {
             localStorage.setItem("blockchain", "solana");
-            dispatch(SetBlockchain("solana"));
+            dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "solana")!));
         } else if(web3Connected){
-            localStorage.setItem("blockchain", "polygon");
-            dispatch(SetBlockchain("polygon"));
+            localStorage.setItem("blockchain", "polygon_evm");
+            dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "polygon_evm")!));
         }
     };
 
@@ -170,13 +170,6 @@ export default function useWalletKit() {
 
     const GetCoins = useMemo(() => {
         if (blockchain.name === "celo") {
-            if (
-                typeof localStorage !== "undefined" &&
-                localStorage.getItem(localStorageKeys.lastUsedWalletType) ===
-                "PrivateKey"
-            ) {
-                return PoofCoins;
-            }
             return CeloCoins;
         }
 
@@ -309,7 +302,7 @@ export default function useWalletKit() {
             if (inputArr.length === 0) throw new Error("No inputs");
             const txData = await dispatch(
                 FetchPaymentData({
-                    blockchain,
+                    blockchain: blockchain.name,
                     executer: Address,
                     requests: inputArr,
                     endTime: endTime ?? null,

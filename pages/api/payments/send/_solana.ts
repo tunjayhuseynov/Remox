@@ -5,7 +5,7 @@ import { token } from "easy-spl"
 import { SolanaCoins } from "types"
 import * as INSTRUCTIONS from "@zebec-protocol/stream/src/instructions";
 import { adminApp } from "firebaseConfig/admin"
-import { ISwap } from "."
+import { ISwap } from "./index.api"
 import { Jupiter } from "@jup-ag/core"
 import JSBI from "jsbi"
 

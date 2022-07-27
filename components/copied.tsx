@@ -2,12 +2,12 @@ import React, { useEffect } from 'react'
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { useSelector } from 'react-redux';
-import { selectDarkMode } from 'redux/slices/notificationSlice';
+import { SelectDarkMode } from 'redux/slices/account/remoxData';
 
 
 export default function Copied({ tooltip, triggerRef }: { tooltip: boolean, triggerRef: React.SetStateAction<HTMLElement | null> }) {
 
-    const darkMode = useSelector(selectDarkMode)
+    const darkMode = useSelector(SelectDarkMode)
 
 
     const {
