@@ -1,10 +1,31 @@
 import { useTheme } from 'next-themes'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { ThemeProvider as MuiTheme, createTheme } from '@mui/material/styles';
 
 export default function App({ children }: { children: JSX.Element }) {
     const darkMode = useSelector(SelectDarkMode)
+    const theme = useMemo(
+        () =>
+            createTheme({
+                palette: {
+                    mode: darkMode ? 'dark' : 'light',
+                },
+                components: {
+                    MuiSelect: {
+                        styleOverrides: {
+                            select: {
+                                paddingTop: "8px",
+                                paddingBottom: "8px",
+                            }
+                        }
+                    }
+                }
+            }),
+        [darkMode],
+    );
+
     const { setTheme } = useTheme()
     useEffect(() => {
         setTheme(darkMode ? 'dark' : 'light')
@@ -14,7 +35,9 @@ export default function App({ children }: { children: JSX.Element }) {
 
     return (
         <>
-            {children}
+            <MuiTheme theme={theme}>
+                {children}
+            </MuiTheme>
         </>
     )
 }

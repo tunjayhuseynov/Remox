@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
@@ -10,12 +10,20 @@ import useMultisig, { SolanaMultisigData } from 'hooks/walletSDK/useMultisig';
 import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
-import { SelectAccountType } from 'redux/slices/account/remoxData';
+import { SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
 import Create from 'pages/dashboard/multisig/_components/create';
+import { SelectTotalBalance } from 'redux/slices/currencies';
+import { SetComma } from 'utils';
 
 const Sidebar = () => {
 
     const { importMultisigAccount } = useMultisig()
+    const allOrganizations = useAppSelector(SelectAllOrganizations)
+    const organization = useAppSelector(SelectOrganization)
+    const individual = useAppSelector(SelectIndividual)
+    const selectedAccountType = useAppSelector(SelectAccountType)
+    const totalBalance = useAppSelector(SelectTotalBalance)
+
     const navigator = useRouter()
     const accountType = useAppSelector(SelectAccountType)
     const [showBar, setShowBar] = useState<boolean>(true)
@@ -33,7 +41,6 @@ const Sidebar = () => {
 
     const importInputRef = useRef<HTMLInputElement>(null)
     const importNameInputRef = useRef<HTMLInputElement>(null)
-    const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "/icons/nftmonkey" })
 
     const importClick = async () => {
         if (importInputRef.current && importInputRef.current.value) {
@@ -49,32 +56,54 @@ const Sidebar = () => {
         }
     }
 
-    const [list, setList] = useState([
-        { name: "Treasury vault 0", secondValue: '$2,800', image: "nftmonkey" },
-        { name: "Treasury vault 1", secondValue: '$3,700', image: "" },
-        { name: "Add Organization", onClick: () => { navigator.push('/create-organization') } }
-    ])
+    const organizationList = useMemo(() => {
+        if (individual) return []
+        const list = [...allOrganizations.map(e => {
+            return {
+                id: e.id,
+                name: e.name,
+                image: e.image,
+                secondValue: `$${SetComma(e.totalBalance)}`,
+                onClick: () => {
+                    navigator.push(`/organization/${e.id}`)
+                }
+            }
+        })]
+        if (list.length > 0) {
+            list.push({ id: "0", name: "Add Organization", secondValue: "", image: null, onClick: () => { navigator.push('/create-organization') } })
+        }
+        return list;
+    }, [allOrganizations, selectedAccountType])
+
+    // const list = [
+    //     { name: "Treasury vault 0", secondValue: '$2,800', image: "nftmonkey" },
+    //     { name: "Treasury vault 1", secondValue: '$3,700', image: "" },
+    //     { name: "Add Organization", onClick: () => { navigator.push('/create-organization') } }
+    // ]
+
+    const currentOrganization = organization ? organizationList.find(e => e.id === organization.id) : undefined;
+
+    const [selectedItem, setItem] = useState(selectedAccountType === "organization" ? currentOrganization : {
+        id: "0",
+        name: individual?.name ?? "",
+        image: individual?.image ?? null,
+        secondValue: `$${SetComma(totalBalance)}`,
+        onClick: () => { }
+    })
+
 
     return <>
         <div className={`h-full hidden md:block z-[1] md:col-span-2 transitiion-all ${showBar ? 'w-[17.188rem] ' : 'w-[6rem]'} flex-none fixed pt-28 bg-light dark:bg-dark`}>
             <div className="grid grid-rows-[95%,1fr] pb-4 pl-4 lg:pl-10 h-full">
-                {showBar ? <div className="absolute  flex items-center gap-3 ">
-                    <Dropdown
-                        className="min-w-[13.5rem]bg-white dark:bg-darkSecond truncate"
-                        label='Account'
-                        list={list}
-                        selected={selectedItem}
-                        setSelect={setItem}
-                    />
-                    {/* <span className="text-white pb-[2px] pr-[2px] bg-greylish transition-all rounded-full text-3xl flex items-center justify-center w-6 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8249;</span> */}
-                </div> : <div className="absolute -right-12  flex items-center gap-2 ">
-                    <div className="bg-white dark:bg-darkSecond  border rounded-lg flex flex-col items-center justify-center pt-1  min-w-[5rem]  min-h-[4rem]">
-                        <img src={`${selectedItem.photo}.png`} className={`rounded-full w-7 h-7 bg-light dark:bg-greylish`} />
-                        <div className="text-[1rem] font-semibold ">{selectedItem.name.slice(0, 8) + '.'}</div>
-                        <div className="text-[0.75rem] text-greylish dark:text-white font-semibold">{selectedItem.totalValue}</div>
-                    </div>
-                    <span className="text-white pb-[2px] pl-[8px] bg-greylish transition-all rounded-full text-3xl flex items-center  px-2 h-6 cursor-pointer hover:bg-[#ff5413] hover:transition-all" onClick={() => setShowBar(!showBar)}>&#8250;</span></div>}
                 <div>
+                    <Dropdown
+                        // className="min-w-[13.5rem]bg-white dark:bg-darkSecond truncate"
+                        // label='Account'
+                        className="w-full"
+                        list={organizationList as any}
+                        selected={selectedItem as any}
+                        setSelect={setItem as any}
+                    />
                     <Siderbarlist showbar={showBar} />
                     <Button className="px-8 !py-1 ml-7  min-w-[60%]" onClick={() => {
                         navigator.push("/dashboard/choose-budget?page=pay")

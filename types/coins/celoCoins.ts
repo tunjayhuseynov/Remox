@@ -115,20 +115,3 @@ export const CeloCoins: Coins = {
 	}
 };
 
-export interface PoofCoins {
-	CELO_v2: PoofAltCoins;
-	cUSD_v2: PoofAltCoins;
-	cEUR_v2: PoofAltCoins;
-	cREAL_v2: PoofAltCoins;
-	CELO_v1: PoofAltCoins;
-	cUSD_v1: PoofAltCoins;
-	cEUR_v1: PoofAltCoins;
-}
-
-
-export interface PoofAltCoins {
-	name: PoofCoinsName;
-	coinUrl: CoinsURL;
-	type: TokenType;
-	contractAddress: string;
-}

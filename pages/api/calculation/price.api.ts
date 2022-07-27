@@ -35,14 +35,14 @@ export default async function handler(
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
-        const fetchCurrenices = await FirestoreReadMultiple<IuseCurrency>(Collection(blockchain), [
+        const fetchCurrenices = await FirestoreReadMultiple<IuseCurrency>(Collection(blockchain.name), [
             { condition: ">", firstQuery: "price", secondQuery: 0 }
         ])
 
         const balance = await axios.get<Balance>(BASE_URL + '/api/calculation/balance', {
             params: {
                 addresses: parsedAddress,
-                blockchain
+                blockchain: blockchain.name,
             }
         })
 
@@ -62,9 +62,9 @@ export default async function handler(
 const Total = (fetchedCurrencies: IuseCurrency[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0)
 
 const ParseAllPrices = (fetchedCurrencies: IuseCurrency[], balance: Balance, blockchain: BlockchainType) => {
-    return fetchedCurrencies.filter(s => GetCoins(blockchain)[s.name as unknown as keyof Coins]).sort((a, b) => {
-        const aa = GetCoins(blockchain)[a.name as unknown as keyof Coins]
-        const bb = GetCoins(blockchain)[b.name as unknown as keyof Coins]
+    return fetchedCurrencies.filter(s => GetCoins(blockchain.name)[s.name as unknown as keyof Coins]).sort((a, b) => {
+        const aa = GetCoins(blockchain.name)[a.name as unknown as keyof Coins]
+        const bb = GetCoins(blockchain.name)[b.name as unknown as keyof Coins]
         if (aa && bb) {
             if (aa.type !== bb.type && aa.type === TokenType.GoldToken) return -1
             if (aa.type !== bb.type && aa.type === TokenType.StableToken && bb.type === TokenType.Altcoin) return -1
@@ -75,7 +75,7 @@ const ParseAllPrices = (fetchedCurrencies: IuseCurrency[], balance: Balance, blo
         const amount = parseFloat((balance?.[c.name]) ?? "0");
         const price = c.price * amount;
         a[c.name] = {
-            coins: GetCoins(blockchain)[c.name as unknown as keyof Coins],
+            coins: GetCoins(blockchain.name)[c.name as unknown as keyof Coins],
             per_24: c?.percent_24,
             price,
             amount,

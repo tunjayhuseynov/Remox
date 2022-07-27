@@ -129,14 +129,14 @@ const GetTxs = async (address: string, tags: ITag[], blockchain: BlockchainType,
 }
 
 const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType, tags: ITag[]) => {
-  const Coins = GetCoins(blockchain)
+  const Coins = GetCoins(blockchain.name)
   let result: Transactions[] = [...transactions]
 
   const FormattedTransaction: IFormattedTransaction[] = []
 
   const groupedHash = _(result).groupBy("hash").value();
   const uniqueHashs = Object.values(groupedHash).reduce((acc: Transactions[], value: Transactions[]) => {
-    const best = _(value).maxBy((o) => parseFloat(fromMinScale(blockchain)(o.value)));
+    const best = _(value).maxBy((o) => parseFloat(fromMinScale(blockchain.name)(o.value)));
     if (best) acc.push(best)
 
     return acc;

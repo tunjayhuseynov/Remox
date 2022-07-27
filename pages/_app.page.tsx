@@ -11,7 +11,6 @@ import store from 'redux/store';
 import { ReactElement, ReactNode, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { ThemeProvider } from "next-themes";
-import { ThemeProvider as MuiTheme, useTheme, createTheme } from '@mui/material/styles';
 
 
 import App from 'layouts/App'
@@ -19,6 +18,8 @@ import Guard from 'layouts/Guard';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
 import { AnimatePresence } from 'framer-motion';
+import { useAppSelector } from 'redux/hooks';
+import { SelectDarkMode } from 'redux/slices/account/selector';
 const DashboardLayout = dynamic(() => import('layouts/dashboard'))
 
 
@@ -36,23 +37,13 @@ type AppPropsWithLayout = AppProps & {
 function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
   const url = `${router.route}`
 
-  const [mode, setMode] = useState<'light' | 'dark'>('dark');
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-        },
-      }),
-    [mode],
-  );
+  // const [mode, setMode] = useState<'light' | 'dark'>('dark');
+
 
 
   const disableLayout = Component?.disableLayout ?? false
   const disableGuard = Component?.disableGuard ?? false
   return <ThemeProvider enableSystem={false} attribute="class">
-    <MuiTheme theme={theme}>
-
       <Head>
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -81,7 +72,6 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
           </App>
         </Wallet>
       </Provider>
-    </MuiTheme>
   </ThemeProvider>
 }
 

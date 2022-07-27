@@ -1,8 +1,6 @@
 import Loader from "components/Loader"
 import { useTransactionProcess } from "hooks"
-import Payments from "subpages/dashboard/main/request-payment"
-import Statistics from 'subpages/dashboard/main/statistics'
-import TransactionHistory from "subpages/dashboard/main/transactionHistory"
+import { Payments, Statistics } from "./_components"
 
 
 export default function Dashboard() {

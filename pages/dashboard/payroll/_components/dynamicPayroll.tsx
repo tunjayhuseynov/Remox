@@ -1,6 +1,5 @@
 import Button from 'components/button';
 import { Fragment, useState, useMemo } from 'react';
-import TeamContainer from 'subpages/dashboard/payroll/teamContainer'
 import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
 import { Coins } from 'types';
 import { selectContributors } from 'redux/slices/account/contributors';
@@ -19,9 +18,10 @@ import { useDispatch } from 'react-redux';
 import { setMemberList } from 'redux/slices/masspay';
 import Loader from 'components/Loader';
 import Runpayroll from './modalpay/Runpayroll';
-import Modal from "../../../components/general/modal";
-import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
+import TeamContainer from './teamContainer';
+import Modal from 'components/general/modal';
+import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
 
 
 export default function DynamicPayroll() {

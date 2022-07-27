@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { Fragment, useState, useRef, forwardRef } from "react";
+import { Fragment, useState, forwardRef } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { TransactionDirection, TransactionStatus } from "../types";
 import dateFormat from 'dateformat';
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { TransactionDirectionDeclare } from "utils";
-import TransactionItem from "../subpages/dashboard/transactions/transactionItem";
 import _ from "lodash";
+import TransactionItem from "pages/dashboard/transactions/_components/transactionItem";
 
 const variants = {
     close: {

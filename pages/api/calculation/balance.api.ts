@@ -24,7 +24,8 @@ export default async function handler(
     try {
         const addresses = req.query["addresses[]"];
         const blockchainName = req.query.blockchain as BlockchainType["name"];
-        const blockchain = Blockchains.find(b => b.name === blockchainName)!;
+        const blockchain = Blockchains.find(b => b.name === blockchainName);
+        if(!blockchain) throw new Error("Blockchain not found");
 
         let parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
@@ -43,7 +44,7 @@ export default async function handler(
 
 
 const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) => {
-    const Coins = GetCoins(blockchain)
+    const Coins = GetCoins(blockchain.name)
     let balances: { [name: string]: string } = {};
     if (addresses.length > 1) {
         for (const addressItem of addresses) {

@@ -27,6 +27,15 @@ export default {
                 data.signType = "individual"
                 localStorage.setItem("remoxUser", JSON.stringify(data))
             }
+        } else {
+            state.storage = {
+                individual: action.payload,
+                signType: "individual",
+                lastSignedProviderAddress: "",
+                organization: null,
+                uid: "",
+            }
+            localStorage.setItem("remoxUser", JSON.stringify(state.storage))
         }
     },
     setStorage: (state: IRemoxData, action: { payload: IStorage }) => {

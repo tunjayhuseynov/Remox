@@ -3,11 +3,11 @@ import Button from 'components/button';
 import Modal from 'components/general/modal';
 import Copied from "components/copied";
 import AnimatedTabBar from 'components/animatedTabBar';
-import DynamicRequest from 'subpages/dashboard/requests/dynamicRequests';
 import { useRouter } from 'next/router';
 import { BASE_URL } from 'utils/api';
 import { useAppSelector } from 'redux/hooks';
 import { SelectBlockchain, SelectStorage } from 'redux/slices/account/remoxData';
+import DynamicRequest from './_components/dynamicRequests';
 
 export default function RequestLayout() {
     const [modalVisibility, setModalVisible] = useState(false)

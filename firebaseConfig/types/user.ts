@@ -113,7 +113,7 @@ export interface IAccount {
     image: Image | null,
     signerType: "single" | "multi";
     provider: "Goki" | "CeloTerminal" | null;
-    blockchain: BlockchainType;
+    blockchain: BlockchainType["name"];
     createdBy: string;
     address: string;
     name: string;

@@ -1,9 +1,10 @@
 import AnimatedTabBar from "components/animatedTabBar";
 import { useRouter } from "next/router";
-import OwnerSetting from "subpages/dashboard/settings/owner";
-import ProfileSetting from "subpages/dashboard/settings/profile";
-import TagsSetting from "subpages/dashboard/settings/tags";
-import WalletSetting from "subpages/dashboard/settings/wallet";
+import OwnerSetting from "./_components/owner";
+import ProfileSetting from "./_components/profile";
+import TagsSetting from "./_components/tags";
+import WalletSetting from "./_components/wallet";
+
 
 
 const SettingLayout = () => {

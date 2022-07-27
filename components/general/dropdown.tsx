@@ -2,12 +2,14 @@ import { Dispatch, useId } from 'react'
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { BlockchainType } from 'types/blockchains';
+import { CoinsURL } from 'types';
+import { FormControl, InputLabel } from '@mui/material';
 
 
 interface IProp<T> {
     parentClass?: string,
     className?: string,
-    label: string,
+    label?: string,
     selected?: T,
     list: Array<T>,
     setSelect?: Dispatch<T>,
@@ -18,32 +20,54 @@ interface IGenericExtendedProp {
     name: string | number,
     onClick?: Function,
     image?: string,
+    coinUrl?: CoinsURL,
+    logoUrl?: string,
     secondValue?: string | number
 }
 
-const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, parentClass = '', runFn }: IProp<T>) => {
+const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn }: IProp<T>) => {
     const id = useId()
+    const labelId = useId()
+
 
     return (
         <div className={`relative ${parentClass} `}>
-            <Select
-                labelId={id}
-                id={id}
-                value={selected}
-                label={label}
-                onChange={(e) => {
-                    const selected = e.target.value as T;
-                    if (setSelect) setSelect(selected)
-                    if (selected["onClick"]) selected["onClick"]()
-                    if (runFn) {
-                        runFn(e.target.value as T)
+            <FormControl className={className}>
+                {label && <InputLabel id={labelId + "-label"}>{label}</InputLabel>}
+                <Select
+                    labelId={labelId + "-label"}
+                    value={selected}
+                    renderValue={(selected: T) =>
+                        <div className={`flex flex-col`}>
+                            <div className="flex items-center">
+                                {selected.coinUrl && <img className="w-4 h-4 mr-2" src={`${selected.coinUrl}`} />}
+                                {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
+                                {selected.image && <img className="w-4 h-4 mr-2" src={`${selected.image}`} />}
+                                <span>{selected.name}</span>
+                            </div>
+                            {selected.secondValue && <span className="text-[.75rem]">{selected.secondValue}</span>}
+                        </div>
                     }
-                }}
-            >
-                {list.map(e => {
-                    return <MenuItem key={e.name} value={e as any}>{e.name}</MenuItem>
-                })}
-            </Select>
+                    label={label}
+                    onChange={(e) => {
+                        const selected = e.target.value as T;
+                        if (setSelect) setSelect(selected)
+                        if (selected["onClick"]) selected["onClick"]()
+                        if (runFn) {
+                            runFn(e.target.value as T)
+                        }
+                    }}
+                >
+                    {list.map(e => {
+                        return <MenuItem key={e.name} value={e as any} className="flex items-center">
+                            {e.coinUrl && <img className="w-4 h-4 mr-2" src={`${e.coinUrl}`} />}
+                            {e.logoUrl && <img className="w-4 h-4 mr-2" src={`${e.logoUrl}`} />}
+                            {e.image && <img className="w-4 h-4 mr-2" src={`${e.image}`} />}
+                            <span>{e.name}</span>
+                        </MenuItem>
+                    })}
+                </Select>
+            </FormControl>
         </div>
     )
 }

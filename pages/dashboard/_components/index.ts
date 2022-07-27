@@ -1,0 +1,6 @@
+export { default as AllWallets } from './allWallets'
+export { default as CoinItem } from './coinitem'
+export { default as DeleteWallet } from './deleteWallet'
+export { default as Payments } from './request-payment'
+export { default as Statistics } from './statistics'
+export { default as TransactionHistory } from './transactionHistory'

@@ -3,20 +3,18 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { SelectBalances, SelectCurrencies, SelectTotalBalance } from 'redux/slices/currencies';
-import { AddressReducer } from "../../../utils";
 import Button from "components/button";
 import useTasking from "rpcHooks/useTasking";
 import { selectTags } from "redux/slices/tags";
 import { BN } from "utils/ray";
 import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { TransactionDirection, TransactionStatus } from "../../../types";
-import { selectDarkMode } from "redux/slices/notificationSlice";
 import Details from "pages/dashboard/transactions/_components/details";
 import dateFormat from 'dateformat';
 import Dropdown from 'components/general/dropdown';
-import { DropDownItem } from 'types';
+import { DropDownItem, TransactionDirection } from 'types';
 import { useAppSelector } from "redux/hooks";
+import { AddressReducer } from "utils";
 
 const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
 
@@ -27,8 +25,6 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const divRef = useRef<HTMLDivElement>(null)
     const typeRef = useRef<HTMLDivElement>(null)
     const type2Ref = useRef<HTMLDivElement>(null)
-    const tagcolorRef = useRef<HTMLDivElement>(null)
-    const tagnameRef = useRef<HTMLDivElement>(null)
     const selectedAccount = useSelector(SelectSelectedAccount)
     const { getDetails } = useTasking()
     const tags = useSelector(selectTags);
@@ -37,7 +33,6 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const { GetCoins, fromMinScale } = useWalletKit()
     const [budgetSelected, setBudgetSelected] = useState(true);
     const router = useRouter()
-    const darkMode = useSelector(selectDarkMode)
 
     const paymentname: DropDownItem[] = [{ name: "Development" }, { name: "Security" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])

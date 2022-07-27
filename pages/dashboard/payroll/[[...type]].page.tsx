@@ -1,9 +1,7 @@
 import {useState} from 'react'
-import AnimatedTabBar from 'components/animatedTabBar';
-import DynamicPayroll from 'subpages/dashboard/payroll/dynamicPayroll';
 import { useRouter } from 'next/router';
 import {  IMember } from 'types/dashboard/contributors';
-import Button from 'components/button';
+import DynamicPayroll from './_components/dynamicPayroll';
 
 const Payroll = () => {
     const memberState = useState<IMember[]>([])

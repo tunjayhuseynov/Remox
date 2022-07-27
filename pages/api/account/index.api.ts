@@ -35,7 +35,7 @@ export default async function handler(
         const { data: balance } = await axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
             params: {
                 addresses: [account.address],
-                blockchain: account.blockchain.name
+                blockchain: account.blockchain
             }
         })
 
@@ -45,7 +45,7 @@ export default async function handler(
             const { data: multisig } = await axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
                 params: {
                     address: account.address,
-                    blockchain: account.blockchain.name,
+                    blockchain: account.blockchain,
                     Skip: 0,
                     Take: 10
                 }

@@ -10,15 +10,13 @@ import { SelectBalances } from "redux/slices/currencies"
 import { changeError, selectError, changeSuccess } from "redux/slices/notificationSlice"
 import { SelectRequests } from "redux/slices/account/remoxData"
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount"
-import { selectStorage } from "redux/slices/account/storage"
-import RequestedUserItem from "subpages/dashboard/requests/requestedUserItem"
-import TokenBalance from "subpages/dashboard/requests/tokenBalance"
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
 import { DashboardContext } from "layouts/dashboard"
 import Loader from "components/Loader"
 import ModalRequestItem from "./modalRequestItem"
-import Walletmodal from "components/general/walletmodal"
 import { DropDownItem } from 'types';
+import TokenBalance from "./tokenBalance"
+import RequestedUserItem from "./requestedUserItem"
 
 export default function DynamicRequest({ type }: { type: "approved" | "pending" | "rejected" }) {
     const [aprovedActive, setAprovedActive] = useState(false);

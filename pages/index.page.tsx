@@ -4,7 +4,6 @@ import { useAppDispatch } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { CoinsURL, DropDownItem } from 'types';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
@@ -81,7 +80,13 @@ const Home = () => {
           <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
         </div>
         <div className="flex flex-col items-center justify-center gap-14">
-          <Dropdown className={"border !border-primary w-[200px]"} label="Blockchain" selected={selected} setSelect={setSelected} list={Blockchains} />
+          <Dropdown
+            // className={"w-full"}
+            label="Blockchain"
+            selected={selected}
+            setSelect={setSelected}
+            list={Blockchains}
+          />
           <Button onClick={ConnectEvent} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>

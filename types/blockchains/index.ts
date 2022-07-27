@@ -44,28 +44,22 @@ export const Blockchains: BlockchainType[] = [
         logoUrl: CoinsURL.CELO,
         swapProtocols: [
             {
-                name: "CeloSwap",
+                name: "Ubeswap",
                 contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
                 abi: []
             }
         ],
         lendingProtocols: [
             {
-                name: "CeloLending",
+                name: "Moola",
                 contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
                 abi: []
             }
         ],
-        streamingProtocols: [
-            {
-                name: "CeloStreaming",
-                contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
-                abi: []
-            }
-        ],
+        streamingProtocols: [],
         batchPaymentProtocols: [
             {
-                name: "CeloBatchPayment",
+                name: "Remox Batch Payment",
                 contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
                 abi: []
             }
@@ -76,6 +70,44 @@ export const Blockchains: BlockchainType[] = [
                 contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
                 abi: []
             }
+        ]
+    },
+    {
+        name: "solana",
+        displayName: "Solana",
+        rpcUrl: "https://solana-api.projectserum.com",
+        explorerUrl: "https://explorer-api.mainnet-beta.solana.com/",
+        logoUrl: CoinsURL.SOL,
+        swapProtocols: [
+            {
+                name: "Jupiter",
+                contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
+                abi: []
+            }
+        ],
+        lendingProtocols: [
+            {
+                name: "Castle Finance",
+                contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
+                abi: []
+            }
+        ],
+        streamingProtocols: [
+            {
+                name: "Zebec",
+                contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
+                abi: []
+            }
+        ],
+        batchPaymentProtocols: [
+            {
+                name: "Solana",
+                contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
+                abi: []
+            }
+        ],
+        recurringPaymentProtocols: [
+ 
         ]
     }
 ]

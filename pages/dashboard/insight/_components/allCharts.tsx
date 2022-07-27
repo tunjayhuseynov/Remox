@@ -3,14 +3,13 @@ import Paydropdown from "pages/dashboard/pay/_components/paydropdown";
 import { BasicCharts } from "./charts/basicChart";
 import { NegativeChart } from "./charts/negativeChart";
 import { StackedChart } from "./charts/stackedChart";
-import Budgets from "subpages/dashboard/insight/Budgets";
-import Labels from "subpages/dashboard/insight/Labels";
 import Modal from 'components/general/modal';
-import { IBudgets } from '../../../pages/dashboard/insight/index.page';
-import { ILabels } from '../../../pages/dashboard/insight/index.page';
 import { motion, AnimatePresence } from "framer-motion"
 import ReactDOM, { createPortal } from 'react-dom';
 import { DashboardContext } from 'layouts/dashboard';
+import { IBudgets, ILabels } from "../index.page";
+import Labels from "./Labels";
+import Budgets from "./Budgets";
 
 function AllCharts({ budgets }: { budgets: IBudgets[] }) {
     const [chartDate, setChartDate] = useState<"week" | "month" | "quart" | "year">("week")
@@ -23,22 +22,6 @@ function AllCharts({ budgets }: { budgets: IBudgets[] }) {
 
 
     let BudgetData: number[] = []
-    const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<number>> }
-    useEffect(() => {
-        if (openNotify5) {
-            setMainAnimate(1)
-            document.querySelector('body')!.style.overflowY = "hidden"
-        }else {
-            document.querySelector('body')!.style.overflowY = ""
-            setMainAnimate(0)
-        }
-        // else if (openNotify2) {
-        //     setMainAnimate(2)
-        // }
-
-
-
-    }, [openNotify5])
 
 
     const labels: { name: string; color: string }[] = [

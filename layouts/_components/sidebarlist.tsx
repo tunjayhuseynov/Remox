@@ -31,7 +31,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
     }
 
     return <>
-        <ul className={`${showbar ? 'pt-20' : 'pt-24'}`}>
+        <ul className={`pt-10`}>
             <NavLink to="/dashboard" end={true} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Dashboard"} showbar={showbar}><DashboardSVG active={isActive} darkMode={darkMode} />{showbar && 'Dashboard'}</Li>}</NavLink>
             {blockchain.name !== "solana" && <>
                 <NavLink to="/dashboard/choose-budget?page=payroll" customPath="/dashboard/payroll" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Payroll"} showbar={showbar}><PayrollSVG active={isActive} darkMode={darkMode} />{showbar && 'Payroll'}</Li>}</NavLink>
