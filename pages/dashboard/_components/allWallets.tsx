@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { IBalanceItem, SelectOrderBalance } from 'redux/slices/currencies';
-import { AddressReducer } from "../../../utils";
+import { AddressReducer, SetComma } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
 import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Modal from 'components/general/modal'
@@ -13,8 +13,9 @@ import useModalSideExit from 'hooks/useModalSideExit';
 import { IAccount } from "firebaseConfig";
 import { SelectAccountStats } from "redux/slices/account/accountstats";
 import { useRouter } from "next/router";
+import { IAccountORM } from "pages/api/account/index.api";
 
-function AllWallets({ item }: { item: IAccount }) {
+function AllWallets({ item }: { item: IAccountORM }) {
     const [details, setDetails] = useState<boolean>(false)
     const selectedAccount = useNextSelector(SelectSelectedAccount)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
@@ -88,41 +89,47 @@ function AllWallets({ item }: { item: IAccount }) {
                     </div>
                 </div>
                 <div className="flex ">
-                    <div className="border-r dark:border-greylish min-w-[28%]  flex flex-col gap-3 py-2 px-3">
+                    <div className="border-r dark:border-greylish min-w-[28%] flex flex-col gap-3 py-2 px-3">
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Total Value</div>
-                            <div className="text-lg"> {!isLoading ? "9999" : <Loader />}</div>
+                            <div className="text-lg">$ {SetComma(item.totalValue)}</div>
                         </div>
                         <div className="flex flex-col">
                             <div className="text-greylish dark:text-white">Signers</div>
                             <div className="flex pl-3">
-                                {item.members[1] && item.members[1].image !== null ? <img src={`${item.members[1].image}`} className={` absolute z-[1] border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-400  absolute z-[1] border  w-5 h-5 rounded-full"></div>}
-                                {item.members[0] && item.members[0].image !== null ? <img src={`${item.members[0].image}`} className={`relative z-[0] right-[10px]  border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-300  relative z-[0] right-[10px]  border  w-5 h-5 rounded-full"></div>}
-                                {item.members[2] && item.members[2].image !== null ? <img src={`${item.members[2].image}`} className={` relative z-[1] -left-[5px]  border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-500   relative z-[1] -left-[5px]  border  w-5 h-5 rounded-full"></div>}
+                                {
+                                    item.members.map((member, index) => {
+                                        return member.image ? <img src={`${item.members[1].image}`} className={`z-[1] border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-400 z-[1] border  w-5 h-5 rounded-full"></div>
+                                    })
+                                }
                             </div>
                         </div>
                     </div>
                     <div className="w-[75%] rounded-xl">
                         {
-                            balance && orderBalance4 !== undefined ?
-                                <div className="flex flex-col  w-full" ref={customRef}>
-                                    {orderBalance4.map((item, index) => {
-                                        return <div className="border-b dark:border-greylish w-full" key={index} >
-                                            <CoinItem key={item.coins.contractAddress + item.coins.name} setSelectcoin={setSelectcoin} onClick={() => {
+                            <div className="flex flex-col  w-full" ref={customRef}>
+
+                                {[...item.coins].sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
+                                    return <div className="border-b dark:border-greylish w-full" key={index} >
+                                        <CoinItem
+                                            key={item.coins.contractAddress + item.coins.name}
+                                            setSelectcoin={setSelectcoin}
+                                            onClick={() => {
                                                 if (item.amount) {
                                                     setSelectcoin(item.coins.name)
                                                 }
                                             }}
-                                                selectcoin={selectcoin}
-                                                title={item.coins.name}
-                                                coin={item.amount.toFixed(2)}
-                                                usd={((item.tokenPrice ?? 0) * item.amount).toFixed(2)}
-                                                percent={(item.percent || 0).toFixed(1)}
-                                                rate={item.per_24}
-                                                img={item.coins.coinUrl} />
-                                        </div>
-                                    })}
-                                </div> : <Loader />
+                                            selectcoin={selectcoin}
+                                            title={item.coins.name}
+                                            coin={item.amount}
+                                            usd={((item.tokenPrice ?? 0) * item.amount)}
+                                            percent={(item.percent || 0).toFixed(1)}
+                                            rate={item.per_24}
+                                            img={item.coins.coinUrl}
+                                        />
+                                    </div>
+                                })}
+                            </div>
                         }
                     </div>
                 </div>

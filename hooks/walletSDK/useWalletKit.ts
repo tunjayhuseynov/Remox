@@ -1,7 +1,3 @@
-import {
-    useContractKit,
-    localStorageKeys,
-} from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import {
@@ -14,7 +10,6 @@ import {
     AltCoins,
     CeloCoins,
     Coins,
-    PoofCoins,
     SolanaCoins,
     TokenType,
 } from "types";
@@ -45,6 +40,7 @@ import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh";
 import { ethers } from "ethers";
 import useWeb3Connector from "hooks/useWeb3Connector";
 import { Blockchains, BlockchainType } from "types/blockchains";
+import { useCelo } from "@celo/react-celo";
 
 export enum CollectionName {
     Celo = "currencies",
@@ -55,21 +51,6 @@ export interface Task {
     interval: DateInterval | "instant" | number;
     startDate: number;
 }
-
-
-
-export const MULTISIG_PROVIDERS = [
-    {
-        name: "Celo Terminal",
-        type: "celoTerminal",
-        blockchain: "celo",
-    },
-    {
-        name: "Goki",
-        type: "goki",
-        blockchain: "solana",
-    },
-];
 
 export default function useWalletKit() {
     const blockchain = useAppSelector(SelectBlockchain) as BlockchainType;
@@ -83,7 +64,7 @@ export default function useWalletKit() {
 
     //Celo
     const { address, destroy, kit, walletType, connect, initialised } =
-        useContractKit();
+        useCelo();
 
     //solana
     const { connection } = useConnection();
@@ -107,14 +88,6 @@ export default function useWalletKit() {
         dispatch(SetBlockchain(bc));
     };
 
-    const getMultisigProviders = useMemo(() => {
-        if (blockchain.name === "celo") {
-            return MULTISIG_PROVIDERS.filter((p) => p.blockchain === "celo");
-        }
-
-        return MULTISIG_PROVIDERS.filter((p) => p.blockchain === "solana");
-    }, [blockchain]);
-
     const setBlockchainAuto = () => {
         if (address) {
             localStorage.setItem("blockchain", "celo");
@@ -122,7 +95,7 @@ export default function useWalletKit() {
         } else if (publicKey) {
             localStorage.setItem("blockchain", "solana");
             dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "solana")!));
-        } else if(web3Connected){
+        } else if (web3Connected) {
             localStorage.setItem("blockchain", "polygon_evm");
             dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "polygon_evm")!));
         }
@@ -139,10 +112,11 @@ export default function useWalletKit() {
     const signMessageInWallet = useCallback(
         async (nonce: number) => {
             if (blockchain.name === "celo") {
-                const signature = await kit.web3.eth.personal.sign(
-                    GetSignedMessage(nonce),
+                const wallet = kit.getWallet()
+                if(!wallet) throw new Error("No wallet")
+                const signature = await wallet.signPersonalMessage(
                     (await Address)!,
-                    ""
+                    GetSignedMessage(nonce),
                 );
                 return {
                     publicKey: Address!,
@@ -176,47 +150,15 @@ export default function useWalletKit() {
         return SolanaCoins;
     }, [blockchain]);
 
-    const GetBalance = useCallback(
-        async (item?: AltCoins, addressParams?: string) => {
-            try {
-                if (blockchain.name === "celo" && item) {
-                    const ethers = await kit.contracts.getErc20(item.contractAddress);
-                    let balance = await ethers.balanceOf(addressParams ?? address ?? "");
-                    return fromWei(balance);
-                } else if (blockchain.name === "solana" && item) {
-                    if (publicKey) {
-                        let lamports;
-                        if (item.type === TokenType.GoldToken) {
-                            lamports = fromLamport(await connection.getBalance(publicKey));
-                        } else {
-                            const tok = await spl.mint.getBalance(
-                                connection,
-                                new PublicKey(item.contractAddress),
-                                publicKey
-                            );
-                            // lamports = await connection.getTokenAccountsByOwner(publicKey, {programId: new PublicKey(item.contractAddress)})
-                            lamports = tok ?? 0;
-                        }
-                        return lamports;
-                    }
-                    return 0;
-                }
-            } catch (error: any) {
-                console.error(item?.name, error.message);
-            }
-        },
-        [blockchain, publicKey, address]
-    );
-
     const Address = useMemo(async (): Promise<string | null> => {
         if (blockchain.name === "celo") {
-            return address;
+            return address ?? null;
         } else if (blockchain.name === "solana") {
             return publicKey?.toBase58() ?? null;
         } else if (blockchain.name === "polygon_evm") {
             return web3Address ?? null;
         }
-        return address; // Has to be change to null
+        return address ?? null; // Has to be change to null
     }, [blockchain, publicKey, address]);
 
     const Connected = useMemo(() => {
@@ -474,14 +416,12 @@ export default function useWalletKit() {
     return {
         Address,
         Disconnect,
-        GetBalance,
         blockchain,
         Wallet,
         setBlockchain,
         Connect,
         Connected,
         GetCoins,
-        getMultisigProviders,
         SendTransaction,
         Collection,
         setBlockchainAuto,

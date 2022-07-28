@@ -1,16 +1,28 @@
-import { MetaMaskConnector, CeloExtensionWalletConnector, LedgerConnector, WalletConnectConnector, PrivateKeyConnector } from '@celo-tools/use-contractkit/lib/connectors/connectors'
-import { Mainnet, useContractKit, useContractKitInternal, Connector, WalletTypes } from "@celo-tools/use-contractkit";
+import {
+    MetaMaskConnector,
+    CeloExtensionWalletConnector,
+    LedgerConnector,
+    WalletConnectConnector,
+    PrivateKeyConnector,
+    InjectedConnector
+} from '@celo/react-celo/lib/connectors/connectors'
 import { CeloContract } from '@celo/contractkit'
 import { useDispatch, useSelector } from 'react-redux';
 import { changeAccount } from "../redux/slices/account/selectedAccount";
 import { selectStorage, setStorage } from "../redux/slices/account/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFirebase';
-import { auth, IUser } from 'firebaseConfig';
+import { auth, IIndividual, IOrganization, IUser } from 'firebaseConfig';
 import useWalletKit from './walletSDK/useWalletKit';
-import useRemoxAccount from './accounts/useRemoxAccount';
-import { useAppSelector } from 'redux/hooks';
-import { SelectRemoxAccount } from 'redux/slices/account/selector';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { SelectAccounts, SelectAccountType, SelectProviderAddress, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { Connector, Mainnet, WalletTypes } from '@celo/react-celo';
+import { useCeloInternal } from '@celo/react-celo/lib/use-celo';
+import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
+import { GetTime } from 'utils';
+import { generate } from 'shortid';
+import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh';
+import { setProviderAddress } from 'redux/slices/account/remoxData';
 
 
 export enum WalletIds {
@@ -26,42 +38,69 @@ const getDeepLink = (uri: string) => {
 
 export default function useMultiWallet() {
     const { Connect, blockchain, Wallet, Address } = useWalletKit()
-    const { initConnector } = useContractKitInternal()
-    const dispatch = useDispatch()
+    const { initConnector } = useCeloInternal()
+    const dispatch = useAppDispatch()
     const storage = useSelector(selectStorage)
 
+    const providerAddress = useAppSelector(SelectProviderAddress)
     const remoxAccount = useAppSelector(SelectRemoxAccount)
+    const accountType = useAppSelector(SelectAccountType)
+    const accounts = useAppSelector(SelectAccounts)
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {
-        const incomingData = await FirestoreRead<IUser>("users", auth!.currentUser!.uid)
+        const isOrganization = accountType === 'organization'
+        if (!remoxAccount) throw new Error("No remox account selected")
+        if (!providerAddress) throw new Error("No provider address selected")
+        const incomingData = await FirestoreRead<IUser>(isOrganization ? "organizations" : "individuals", remoxAccount.id)
         if (!incomingData) {
             throw new Error("No Data In Users")
         }
 
         if (connector && connector.account && storage) {
-            if (!incomingData.address.some(address => address === connector.account) && !incomingData.multiwallets.some(s => s.address === connector.account)) {
-                const arr = [...incomingData.address, connector.account]
-                await FirestoreWrite<Pick<IUser, "address" | "multiwallets">>().updateDoc("users", auth!.currentUser!.uid, {
-                    address: arr,
-                    multiwallets: [...incomingData.multiwallets, { name: connector.type, address: connector.account, blockchain }]
-                })
+            if (providerAddress === connector.account) throw new Error("Provider address already set")
+
+            const account = connector.account
+
+            if (account) {
+                if (!isOrganization) {
+                    await dispatch(Create_Account_For_Individual({
+                        individual: remoxAccount as IIndividual,
+                        account: {
+                            address: account,
+                            blockchain: blockchain.name,
+                            created_date: GetTime(),
+                            createdBy: auth.currentUser?.uid ?? providerAddress,
+                            id: generate(),
+                            image: null,
+                            name: `Remox #${accounts.length}`,
+                            members: [
+                                {
+                                    address: account,
+                                    id: generate(),
+                                    image: null,
+                                    name: `Remox #${Math.round(Math.random() * 100)}`,
+                                    mail: null,
+                                }
+                            ],
+                            provider: null,
+                            signerType: "single",
+                        }
+                    }))
+                }
+                await dispatch(Refresh_Data_Thunk())
+                // dispatch(setProviderAddress(account))
             }
-            dispatch(setStorage({
-                ...storage,
-                lastSignedProviderAddress: connector.account,
-                signType: "individual",
-                organization: null
-            }))
-            dispatch(changeAccount(connector.account))
         }
     }
 
     const addWallet = async () => {
         try {
-            const connector = await Connect()
-            if(!connector) throw new Error("No Connector")
-            await actionAfterConnectorSet(connector)
-            return connector;
+            if (blockchain.name === "celo") {
+                const connector = await Connect()
+                if (!connector) throw new Error("No Connector")
+                await actionAfterConnectorSet(connector as Connector)
+                return connector;
+            }
         } catch (error: any) {
             console.error(error)
             throw new Error(error.message)
@@ -77,9 +116,9 @@ export default function useMultiWallet() {
 
             await initConnector(connector)
 
-            if (connector) {
-                await actionAfterConnectorSet(connector)
-            }
+            // if (connector) {
+            //     await actionAfterConnectorSet(connector)
+            // }
         } catch (error: any) {
             console.error(error)
             throw new Error(error.message)
@@ -90,6 +129,8 @@ export default function useMultiWallet() {
         switch (type) {
             case WalletTypes.MetaMask:
                 return new MetaMaskConnector(Mainnet, CeloContract.GoldToken)
+            case WalletTypes.Injected:
+                return new InjectedConnector(Mainnet, CeloContract.GoldToken)
             case WalletTypes.PrivateKey:
                 return new PrivateKeyConnector(Mainnet, (privateKey ?? ""), CeloContract.GoldToken)
             case WalletTypes.CeloExtensionWallet:

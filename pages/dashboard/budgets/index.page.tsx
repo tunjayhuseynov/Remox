@@ -58,7 +58,7 @@ const Budgets = () => {
                                     <li className="flex flex-col items-center text-center justify-center w-full bg-white dark:bg-darkSecond space-y-1 transition rounded-xl cursor-pointer  ">
                                         <div className="flex flex-col w-full">
                                             {budget_exercises.map((item, index) => {
-                                                return <label onClick={() => setSelectedExerciseId(item.id)} key={index} className=" hover:bg-greylish hover:bg-opacity-5 hover:transition-all transition-all text-start flex items-center justify-start cursor-pointer w-full  border-b dark:border-greylish pl-3 pr-6 py-2">
+                                                return <label onClick={() => setSelectedExerciseId(item.id)} key={index} className="hover:bg-greylish hover:bg-opacity-5 hover:transition-all transition-all text-start flex items-center justify-start cursor-pointer w-full  border-b dark:border-greylish pl-3 pr-6 py-2">
                                                     <div className="flex items-center gap-3"><span className="font-semibold">{item.name}</span> <div className="border text-sm border-primary text-primary rounded-md px-1 py-1">Active</div> <span className=" font-semibold">{SetComma(item.totalBudget)}</span> </div>
                                                 </label>
                                             })}
@@ -70,7 +70,7 @@ const Budgets = () => {
                                 </ul>
                             </div>}
                         </div>
-                        <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-sm px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center ">May 2022</div>
+                        <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-sm px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center ">{new Date(selectedExercise.created_at * 1e3).toLocaleDateString('en-us', { year: "numeric", month: "short" })}</div>
                     </div>
                     <div className="flex gap-5">
                         {selectedExercise.budgets.length > 0 && <div className="text-primary border border-primary px-3 py-2 rounded-xl cursor-pointer">Current Month</div>}

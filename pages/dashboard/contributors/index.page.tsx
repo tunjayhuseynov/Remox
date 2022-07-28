@@ -1,12 +1,10 @@
 import { Fragment, useState } from 'react';
 import TeamContainer from 'pages/dashboard/contributors/_components/teamContainer'
-import Modal from 'components/general/modal'
 import { generate } from 'shortid';
 import { useAppSelector, useAppDispatch } from 'redux/hooks'
 import { selectError, selectSuccess } from 'redux/slices/notificationSlice'
 import Button from 'components/button';
 import { selectContributors } from 'redux/slices/account/contributors';
-import { motion, AnimateSharedLayout } from "framer-motion";
 import { SelectContributors, SelectStorage } from 'redux/slices/account/remoxData';
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';

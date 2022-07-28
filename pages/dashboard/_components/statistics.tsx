@@ -7,7 +7,7 @@ import useStorage from "hooks/storage/useStorage";
 import AllWallets from "./allWallets";
 import useMultiWallet from "hooks/useMultiWallet";
 import { IAccount } from "firebaseConfig";
-import { SelectStats } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectStats } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
 import { SetComma } from "utils";
 import { useAppSelector } from "redux/hooks";
@@ -21,7 +21,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
 
     // const [openNotify, setNotify] = useState<boolean>(false)
 
-    const { data } = useMultiWallet()
+    const accounts = useAppSelector(SelectAccounts)
 
     return <>
         {/* <Modal onDisable={setNotify} openNotify={openNotify} >
@@ -53,8 +53,8 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                     }}>+ Add Wallet</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
-                    {data && data.map((item, id) => {
-                        return <AllWallets item={item as IAccount} key={id} />
+                    {accounts.map((item) => {
+                        return <AllWallets item={item} key={item.id} />
                     })}
                 </div>
 

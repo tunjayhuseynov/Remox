@@ -368,26 +368,6 @@
   resolved "https://registry.yarnpkg.com/@celo-tools/celo-ethers-wrapper/-/celo-ethers-wrapper-0.1.1.tgz#046632ae082e5ed07bb6aba3dd0be48e1287120e"
   integrity sha512-kf/UykMf7byi+gO8OlHhufDqtXfTgXC5D6KdiMN4ibkDSqhicoqtWMh1N/9JnjIC2Qa9BBrrY61Z18gNYTDZwA==
 
-"@celo-tools/use-contractkit@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@celo-tools/use-contractkit/-/use-contractkit-3.1.0.tgz#3ce63000fae334e50d8c476c952a652e10860a31"
-  integrity sha512-XSLvtGaz9iGoCNGg0Parpzd/PsEzm5zbAq0dg/CDLXYeSAOeqvW8O/maplMyfJpitTT9PJgEYJu9fFpzIKnrrA==
-  dependencies:
-    "@celo/utils" "^2.0.0"
-    "@celo/wallet-base" "^2.0.0"
-    "@celo/wallet-ledger" "^2.0.0"
-    "@celo/wallet-local" "^2.0.0"
-    "@celo/wallet-remote" "^2.0.0"
-    "@celo/wallet-walletconnect-v1" "3.1.0"
-    "@ethersproject/providers" "^5.5.2"
-    "@ledgerhq/hw-transport-webusb" "^5.43.0"
-    isomorphic-fetch "^3.0.0"
-    qrcode.react "^1.0.1"
-    react-device-detect "^2.1.2"
-    react-loader-spinner "^5.0.10"
-    react-modal "^3.14.4"
-    unstated-next "^1.1.0"
-
 "@celo/base@2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@celo/base/-/base-2.0.0.tgz#2cf054759ac37faea2a7e8bed7868e45adce24a5"
@@ -431,6 +411,25 @@
   dependencies:
     openzeppelin-solidity "2.5.0"
     solidity-bytes-utils "0.0.7"
+
+"@celo/react-celo@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@celo/react-celo/-/react-celo-4.0.1.tgz#8f8f682b47e5378df2e2783d0b346fed3b4deb70"
+  integrity sha512-7/fTV0vEOnVWqqpfW+/aGZC+7yTXyc82vgWJYwmNJ34X4eFDlx/iP/DE6K1HBZOhZtVkYx3Ob0qg19jkP19rcQ==
+  dependencies:
+    "@celo/utils" "^2.0.0"
+    "@celo/wallet-base" "^2.0.0"
+    "@celo/wallet-ledger" "^2.0.0"
+    "@celo/wallet-local" "^2.0.0"
+    "@celo/wallet-remote" "^2.0.0"
+    "@celo/wallet-walletconnect-v1" "4.0.1"
+    "@ethersproject/providers" "^5.5.2"
+    "@ledgerhq/hw-transport-webusb" "^5.43.0"
+    isomorphic-fetch "^3.0.0"
+    qrcode "^1.5.0"
+    react-device-detect "^2.1.2"
+    react-helmet "^6.1.0"
+    react-modal "^3.14.4"
 
 "@celo/utils@2.0.0", "@celo/utils@^2.0.0":
   version "2.0.0"
@@ -505,10 +504,10 @@
     eth-lib "^0.2.8"
     ethereumjs-util "^5.2.0"
 
-"@celo/wallet-walletconnect-v1@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@celo/wallet-walletconnect-v1/-/wallet-walletconnect-v1-3.1.0.tgz#38d2c8b8f721283bb2186dd66208d34eae40a633"
-  integrity sha512-1f4mSRQaDKvGIX7+ZsRLPv022H1otUUdAamKeAljow+OHb/kNH9K3Ni8G57sGD6aNCf17XDwDiWZQoJKcL+7mQ==
+"@celo/wallet-walletconnect-v1@4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@celo/wallet-walletconnect-v1/-/wallet-walletconnect-v1-4.0.1.tgz#eb79479b7d6b05465040080399cdc4c0cf86d577"
+  integrity sha512-Xy3ljUepwYMrPUqtcVofOgPWRaaAkEoCjRDp4MDJXMy1XxbH+p0xF3uhC6e0IRn/8FVD2NK5l/Oj4iLA0PAPuA==
   dependencies:
     "@walletconnect/client-v1" "npm:@walletconnect/client@1.6.6"
     "@walletconnect/types-v1" "npm:@walletconnect/types@1.6.6"
@@ -7851,6 +7850,11 @@ emoji-regex@^9.2.2:
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-9.2.2.tgz#840c8803b0d8047f4ff0cf963176b32d4ef3ed72"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
 
+encode-utf8@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/encode-utf8/-/encode-utf8-1.0.3.tgz#f30fdd31da07fb596f281beb2f6b027851994cda"
+  integrity sha512-ucAnuBEhUK4boH2HjVYG5Q2mQyPorvv0u/ocS+zhdw0S8AlHYY+GOFhP1Gio5z4icpP2ivFSvhtFjQi8+T9ppw==
+
 encodeurl@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
@@ -13248,6 +13252,11 @@ pngjs@^3.3.0:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
+pngjs@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-5.0.0.tgz#e79dd2b215767fd9c04561c01236df960bce7fbb"
+  integrity sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==
+
 popmotion@11.0.3:
   version "11.0.3"
   resolved "https://registry.yarnpkg.com/popmotion/-/popmotion-11.0.3.tgz#565c5f6590bbcddab7a33a074bb2ba97e24b0cc9"
@@ -13641,20 +13650,6 @@ pure-rand@^5.0.1:
   resolved "https://registry.yarnpkg.com/pure-rand/-/pure-rand-5.0.1.tgz#97a287b4b4960b2a3448c0932bf28f2405cac51d"
   integrity sha512-ksWccjmXOHU2gJBnH0cK1lSYdvSZ0zLoCMSz/nTGh6hDvCSgcRxDyIcOBD6KNxFz3xhMPm/T267Tbe2JRymKEQ==
 
-qr.js@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
-  integrity sha1-ys6GOG9ZoNuAUPqQ2baw6IoeNk8=
-
-qrcode.react@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/qrcode.react/-/qrcode.react-1.0.1.tgz#2834bb50e5e275ffe5af6906eff15391fe9e38a5"
-  integrity sha512-8d3Tackk8IRLXTo67Y+c1rpaiXjoz/Dd2HpcMdW//62/x8J1Nbho14Kh8x974t9prsLHN6XqVgcnRiBGFptQmg==
-  dependencies:
-    loose-envify "^1.4.0"
-    prop-types "^15.6.0"
-    qr.js "0.0.0"
-
 qrcode@1.4.4:
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.4.4.tgz#f0c43568a7e7510a55efc3b88d9602f71963ea83"
@@ -13667,6 +13662,16 @@ qrcode@1.4.4:
     isarray "^2.0.1"
     pngjs "^3.3.0"
     yargs "^13.2.4"
+
+qrcode@^1.5.0:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.1.tgz#0103f97317409f7bc91772ef30793a54cd59f0cb"
+  integrity sha512-nS8NJ1Z3md8uTjKtP+SGGhfqmTCs5flU/xR623oI0JX+Wepz9R8UrRVCTBTJm3qGw3rH6jJ6MUHjkDx15cxSSg==
+  dependencies:
+    dijkstrajs "^1.0.1"
+    encode-utf8 "^1.0.3"
+    pngjs "^5.0.0"
+    yargs "^15.3.1"
 
 qs@6.10.3:
   version "6.10.3"
@@ -13889,10 +13894,20 @@ react-dropzone@^12.0.0:
     file-selector "^0.5.0"
     prop-types "^15.8.1"
 
-react-fast-compare@^3.0.1:
+react-fast-compare@^3.0.1, react-fast-compare@^3.1.1:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
+
+react-helmet@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/react-helmet/-/react-helmet-6.1.0.tgz#a750d5165cb13cf213e44747502652e794468726"
+  integrity sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==
+  dependencies:
+    object-assign "^4.1.1"
+    prop-types "^15.7.2"
+    react-fast-compare "^3.1.1"
+    react-side-effect "^2.1.0"
 
 react-hook-form@^7.32.1:
   version "7.32.1"
@@ -13938,11 +13953,6 @@ react-lifecycles-compat@^3.0.0:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
-
-react-loader-spinner@^5.0.10:
-  version "5.1.4"
-  resolved "https://registry.yarnpkg.com/react-loader-spinner/-/react-loader-spinner-5.1.4.tgz#1f08e21aa6b721b6c303658a294f4afbf8ad8d05"
-  integrity sha512-qjS/5/+tWX4gPJXdA1LB2HzTHv/CX/2ic+DBLLbacM+S7gVTfS7L7gJ7IOZMzVXETaiItdCUh3f8Y2GoYG5o8Q==
 
 react-modal@^3.14.4:
   version "3.15.1"
@@ -14000,6 +14010,11 @@ react-select@^5.2.2:
     memoize-one "^5.0.0"
     prop-types "^15.6.0"
     react-transition-group "^4.3.0"
+
+react-side-effect@^2.1.0:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/react-side-effect/-/react-side-effect-2.1.2.tgz#dc6345b9e8f9906dc2eeb68700b615e0b4fe752a"
+  integrity sha512-PVjOcvVOyIILrYoyGEpDN3vmYNLdy1CajSFNt4TDsVQC5KpTijDvWVoR+/7Rz2xT978D8/ZtFceXxzsPwZEDvw==
 
 react-spinners@^0.11.0:
   version "0.11.0"
@@ -16104,11 +16119,6 @@ unset-value@^1.0.0:
   dependencies:
     has-value "^0.3.1"
     isobject "^3.0.0"
-
-unstated-next@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/unstated-next/-/unstated-next-1.1.0.tgz#7bb4911a12fdf3cc8ad3eb11a0b315e4a8685ea8"
-  integrity sha512-AAn47ZncPvgBGOvMcn8tSRxsrqwf2VdAPxLASTuLJvZt4rhKfDvUkmYZLGfclImSfTVMv7tF4ynaVxin0JjDCA==
 
 update-browserslist-db@^1.0.4:
   version "1.0.5"

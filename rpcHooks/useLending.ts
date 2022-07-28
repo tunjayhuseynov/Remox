@@ -1,4 +1,3 @@
-import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/slices/lending";
@@ -14,12 +13,15 @@ import { VaultClient, VaultConfig } from '@castlefinance/vault-sdk'
 import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";
 import { PublicKey } from "@solana/web3.js";
 import { IAccount } from "firebaseConfig";
+import { useCelo } from "@celo/react-celo";
+import Web3 from "web3";
 
 
 const MoolaProxy = import("./ABI/MoolaProxy.json")
 const Moola = import("./ABI/Moola.json")
 const MoolaData = import("./ABI/MoolaData.json")
 const MoolaPriceOracle = import("./ABI/MoolaPriceOracle.json")
+const ERC20 = import("./ABI/erc20.json")
 
 export enum InterestRateMode {
     Stable = "1",
@@ -31,7 +33,7 @@ export const LendingType = (type: string) => type === "withdraw" ? "Withdrawn" :
 
 
 export default function useLending(account: IAccount) {
-    const { kit } = useContractKit()
+    const { kit } = useCelo()
     const contractRef = useRef<string>()
     const priceOracleRef = useRef<string>()
     const { allow } = useAllowance()
@@ -53,7 +55,10 @@ export default function useLending(account: IAccount) {
         try {
             setLaoding(true)
             const abi = await MoolaProxy
-            const proxy = new kit.web3.eth.Contract(abi.abi as AbiItem[], Contracts.MoolaProxy.address)
+
+            const web3 = new Web3((window as any).celo)
+
+            const proxy = new web3.eth.Contract(abi.abi as AbiItem[], Contracts.MoolaProxy.address)
 
             const tx = await proxy.methods.getLendingPool()
             const address = await tx.call()
@@ -72,7 +77,9 @@ export default function useLending(account: IAccount) {
     const getBorrowLimit = async () => {
         try {
             const abi = await Moola
-            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
+
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
             return (await moola.methods.getUserAccountData(account.address).call()).availableBorrowsETH
         } catch (error: any) {
             console.error(error)
@@ -83,7 +90,8 @@ export default function useLending(account: IAccount) {
     const getPrice = async (asset: string) => {
         try {
             const abi = await MoolaPriceOracle
-            const contract = new kit.web3.eth.Contract(abi.abi as AbiItem[], priceOracleRef.current)
+            const web3 = new Web3((window as any).celo)
+            const contract = new web3.eth.Contract(abi.abi as AbiItem[], priceOracleRef.current)
             return await contract.methods.getAssetPrice(asset).call()
         } catch (error: any) {
             console.error("getPrice", error)
@@ -118,12 +126,13 @@ export default function useLending(account: IAccount) {
                 await getContract()
             }
             const abi = await Moola
-            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
             const deposit = await moola.methods.deposit(asset, weiAmount, (account.address), 0)
             await allow(account.address, asset, contractRef.current!, amount.toString())
-            const res = await deposit.send({ from: account.address, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await deposit.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei('0.5', 'gwei') })
 
             setLaoding(false)
 
@@ -161,12 +170,13 @@ export default function useLending(account: IAccount) {
                 await getContract()
             }
             const abi = await Moola
-            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
             const withdraw = await moola.methods.withdraw(asset, weiAmount, account.address)
             await allow(account.address, asset, contractRef.current!, amount.toString())
-            const res = await withdraw.send({ from: account.address, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await withdraw.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
 
             return res.transactionHash
@@ -184,12 +194,13 @@ export default function useLending(account: IAccount) {
                 await getContract()
             }
             const abi = await Moola
-            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
             const borrow = await moola.methods.borrow(asset, weiAmount, interestRateMode, 0, account.address)
             await allow(account.address, asset, contractRef.current!, amount.toString())
-            const res = await borrow.send({ from: account.address, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await borrow.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash
         } catch (error: any) {
@@ -206,12 +217,13 @@ export default function useLending(account: IAccount) {
                 await getContract()
             }
             const abi = await Moola
-            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
             const repay = await moola.methods.repay(asset, weiAmount, interestRateMode, account.address)
             await allow(account.address, asset, contractRef.current!, amount.toString())
-            const res = await repay.send({ from: account.address, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            const res = await repay.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash
         } catch (error: any) {
@@ -227,7 +239,8 @@ export default function useLending(account: IAccount) {
                 await getContract()
             }
             const abi = await MoolaData
-            const moola = new kit.web3.eth.Contract(abi.abi as AbiItem[], Contracts.MoolaDataProxy.address)
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], Contracts.MoolaDataProxy.address)
 
             const data = await moola.methods.getReserveData(asset)
             const ltv = await moola.methods.getReserveConfigurationData(asset).call()
@@ -271,8 +284,8 @@ export default function useLending(account: IAccount) {
     const getUserAccountData = async (asset: string): Promise<LendingUserData> => {
         try {
             const MoolaDataAbi = await MoolaData
-
-            const moola = new kit.web3.eth.Contract(MoolaDataAbi.abi as AbiItem[], Contracts.MoolaDataProxy.address)
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(MoolaDataAbi.abi as AbiItem[], Contracts.MoolaDataProxy.address)
             const data = await moola.methods.getUserReserveData(asset, account.address) //(walletAddress ?? address!)
 
             const userData = await data.call()
@@ -360,9 +373,12 @@ export default function useLending(account: IAccount) {
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
+            const web3 = new Web3((window as any).celo)
+
+            const erc20 = await ERC20
             const element = currency;
-            const contract = await kit.contracts.getErc20(element.contractAddress)
-            const weiBalance = await contract.balanceOf(account.address)
+            const contract = new web3.eth.Contract(erc20 as AbiItem[], element.contractAddress)
+            const weiBalance = await contract.methods.balanceOf(account.address).call()
             const balance = fromMinScale(weiBalance)
             const price = currencies[element.name].price
             const celoPerToken = await getPrice(element.contractAddress)

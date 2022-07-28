@@ -1,4 +1,3 @@
-import { Alfajores, ContractKitProvider, Mainnet } from '@celo-tools/use-contractkit'
 import { useMemo } from 'react';
 import {
     LedgerWalletAdapter,
@@ -16,6 +15,7 @@ import {
 } from '@solana/wallet-adapter-react-ui';
 import { BASE_URL } from 'utils/api';
 import { Web3Provider } from '@ethersproject/providers'
+import { CeloProvider } from '@celo/react-celo';
 
 
 export const CeloEndpoint = 'https://forno.celo.org';
@@ -52,17 +52,16 @@ export default function Wallet({ children }: { children: JSX.Element }) {
         <ConnectionProvider endpoint={SolanaEndpoint} >
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
-                    <ContractKitProvider
+                    <CeloProvider
                         dapp={{
                             name: 'Remox DAO',
                             icon: `${BASE_URL}/favicon.png`,
                             description: 'Remox - Contributor and Treasury Management Platform',
                             url: `${BASE_URL}`,
                         }}
-                        networks={[Mainnet, Alfajores]}
                     >
                         {children}
-                    </ContractKitProvider>
+                    </CeloProvider>
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>

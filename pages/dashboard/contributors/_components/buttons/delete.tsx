@@ -2,7 +2,7 @@ import { Dispatch, useState } from "react";
 
 import { changeSuccess } from "redux/slices/notificationSlice";
 import { useAppDispatch } from "redux/hooks";
-import Button from "../../../../components/button";
+import Button from "components/button";
 
 const Delete = ({ name, onCurrentModal, onDelete, onSuccess }: { name: string, onCurrentModal: Dispatch<boolean>, onDelete: () => Promise<void>, onSuccess?: Dispatch<boolean> }) => {
     const [loading, setLoading] = useState(false)

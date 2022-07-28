@@ -7,8 +7,8 @@ import { fromLamport, fromWei } from "utils/ray";
 import * as solanaWeb3 from '@solana/web3.js';
 import { SolanaEndpoint } from "components/Wallet";
 import * as spl from 'easy-spl'
-import { Mainnet } from "@celo-tools/use-contractkit";
 import { Blockchains, BlockchainType } from "types/blockchains";
+import { Mainnet } from "@celo/react-celo";
 
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)

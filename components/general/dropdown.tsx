@@ -9,6 +9,7 @@ import { FormControl, InputLabel } from '@mui/material';
 interface IProp<T> {
     parentClass?: string,
     className?: string,
+    selectClass?: string,
     label?: string,
     selected?: T,
     list: Array<T>,
@@ -25,20 +26,20 @@ interface IGenericExtendedProp {
     secondValue?: string | number
 }
 
-const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn }: IProp<T>) => {
+const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn, selectClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
 
 
     return (
         <div className={`relative ${parentClass} `}>
-            <FormControl className={className}>
+            <FormControl className={`${className} w-full`}>
                 {label && <InputLabel id={labelId + "-label"}>{label}</InputLabel>}
                 <Select
                     labelId={labelId + "-label"}
                     value={selected}
                     renderValue={(selected: T) =>
-                        <div className={`flex flex-col`}>
+                        <div className={`${selectClass} flex flex-col items-center`}>
                             <div className="flex items-center">
                                 {selected.coinUrl && <img className="w-4 h-4 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}

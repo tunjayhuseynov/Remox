@@ -7,6 +7,9 @@ export type BlockchainType = {
     rpcUrl: string,
     explorerUrl: string,
     logoUrl: string,
+    multisigProviders: {
+        name: string;
+    }[],
     swapProtocols: {
         name: string;
         contractAddress: string;
@@ -42,6 +45,11 @@ export const Blockchains: BlockchainType[] = [
         rpcUrl: "https://celo-rpc.celo.org",
         explorerUrl: "https://explorer.celo.org",
         logoUrl: CoinsURL.CELO,
+        multisigProviders: [
+            {
+                name: "Celo Terminal",
+            }
+        ],
         swapProtocols: [
             {
                 name: "Ubeswap",
@@ -78,6 +86,11 @@ export const Blockchains: BlockchainType[] = [
         rpcUrl: "https://solana-api.projectserum.com",
         explorerUrl: "https://explorer-api.mainnet-beta.solana.com/",
         logoUrl: CoinsURL.SOL,
+        multisigProviders: [
+            {
+                name: "Goki",
+            }
+        ],
         swapProtocols: [
             {
                 name: "Jupiter",
@@ -107,7 +120,7 @@ export const Blockchains: BlockchainType[] = [
             }
         ],
         recurringPaymentProtocols: [
- 
+
         ]
     }
 ]

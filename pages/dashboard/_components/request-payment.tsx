@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
 import { selectContributors } from 'redux/slices/account/contributors';
 import { ExecutionType } from 'types/dashboard/contributors';
-import { SelectDarkMode, SelectRequests } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectMultisig, SelectRequests } from 'redux/slices/account/remoxData';
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
@@ -12,7 +12,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     // const teams = useAppSelector(selectContributors).contributors.map(s => ({ ...s, members: s.members.filter(m => m.) }))
     const dark = useAppSelector(SelectDarkMode)
     const router = useRouter()
-    let requests = useAppSelector(SelectRequests)
+    let multisig = useAppSelector(SelectMultisig)
 
     // useAppSelector()
 
@@ -22,19 +22,19 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         {
             header: "Signings Needed",
             icon: dark ? "signature_white" : "signature",
-            value: 2,
+            value: multisig?.signingNeedTxs?.length ?? 0,
             router:"/dashboard"
         },
         {
             header: "Pending Requests",
             icon: dark ? "payment_white" : "payment",
-            value: requests.pendingRequests.length ,
+            value: multisig?.pendingTxs.length ?? 0,
             router:"/dashboard/requests"
         },
         {
             header: "Approve Requests",
             icon: dark ? "charity_white" : "charity",
-            value: requests.approvedRequests.length,
+            value: multisig?.approvedTxs.length ?? 0,
             router:"/dashboard/requests/approved"
         },
         {
@@ -64,7 +64,5 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     }
 )}
   </>
-
-//
 }
 export default Payments

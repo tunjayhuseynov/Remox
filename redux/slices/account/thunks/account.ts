@@ -25,7 +25,7 @@ export const Remove_Account_From_Individual = createAsyncThunk<IAccount, { accou
     return account;
 })
 
-export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { account: IAccount, organization: IOrganization }>("remoxData/Add_Account_To_Organization", async ({ account, organization }) => {
+export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { account: IAccount, organization: IOrganization }>("remoxData/Add_Account_To_Organization", async ({ account, organization }, api) => {
     await Create_Account(account);
     const org = organization;
     const members = Array.from(new Set([...org.members, ...account.members.map(m => m.address)]));

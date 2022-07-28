@@ -25,6 +25,7 @@ function ChooseBudget() {
     const currentWallet = useMemo(() => accounts.find(s => s.address === providerAddress), [providerAddress])
 
     const [selectedAccount, setAccount] = useState(currentWallet);
+    useEffect(() => setAccount(currentWallet), [currentWallet])
 
     const [selectedBudget, setBudget] = useState<IBudgetORM>();
     const [selectedSubbudget, setSubbudget] = useState<ISubbudgetORM>();
@@ -61,13 +62,11 @@ function ChooseBudget() {
                 <div className="text-2xl font-semibold py-6 text-center">
                     Remox Pay
                 </div>
-                <form onSubmit={onSubmit}>
+                <form onSubmit={onSubmit} className='flex flex-col space-y-5'>
                     <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Wallet</div> */}
                         <div className=" gap-5 w-full">
                             <Dropdown
-                                parentClass={'!rounded-lg'}
-                                className="w-fullbg-white dark:bg-darkSecond !rounded-lg h-[3.4rem] truncate"
                                 label="Choose Wallet"
                                 list={accounts as any[]}
                                 selected={selectedAccount as any}
@@ -76,11 +75,22 @@ function ChooseBudget() {
                     </div>
                     {budgets.length > 0 && <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Budget</div> */}
-                        <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} label="Choose Budget" className={'!rounded-lg h-[3.4rem]'} list={budgets} selected={selectedBudget} setSelect={setBudget} />
+                        <Dropdown
+                            selectClass={'py-2'}
+                            label="Choose Budget"
+                            list={budgets}
+                            selected={selectedBudget}
+                            setSelect={setBudget}
+                        />
                     </div>}
                     {subbudgets.length > 0 && <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Subbudget</div> */}
-                        <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} label="Choose Subbudget" className={'!rounded-lg h-[3.4rem]'} list={subbudgets} selected={selectedSubbudget} setSelect={setSubbudget} />
+                        <Dropdown
+                            label="Choose Subbudget"
+                            list={subbudgets}
+                            selected={selectedSubbudget}
+                            setSelect={setSubbudget}
+                        />
                     </div>}
                     <div className="grid grid-cols-2 w-full pt-4 gap-4 ">
                         <Button version="second" className={'!py-2 px-9 w-full rounded-xl'} onClick={() => { router.back() }}>Close</Button>

@@ -95,6 +95,7 @@ const init = (): IRemoxData => {
             rejectedRequests: [],
         },
         blockchain: {
+            multisigProviders: [],
             batchPaymentProtocols: [],
             displayName: "",
             explorerUrl: "",

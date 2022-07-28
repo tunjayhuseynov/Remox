@@ -3,11 +3,11 @@ import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
 import { removeStorage } from 'redux/slices/account/storage'
 import { useDispatch } from 'react-redux'
-import { useContractKit } from '@celo-tools/use-contractkit'
 import { removeTransactions } from 'redux/slices/account/transactions'
 import { useAppSelector } from 'redux/hooks';
 import React from "react";
 import { changeDarkMode, SelectDarkMode } from 'redux/slices/account/remoxData';
+import { useCelo } from "@celo/react-celo";
 
 const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-1 mb-2 pl-4 text-left font-semibold text-[1.2rem] 2xl:text-lg 2xl:mb-3 cursor-pointer ${className} hover:bg-greylish hover:bg-opacity-5`} title={`${showbar ? '' : text}`} >
     <div className="flex gap-3 items-center">{children}</div>
@@ -15,7 +15,7 @@ const Li = ({ children, onClick, className, text, showbar }: { children?: Array<
 
 const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
     const { blockchain } = useWalletKit()
-    const { destroy } = useContractKit()
+    const { destroy } = useCelo()
     const dispatch = useDispatch()
     const darkMode = useAppSelector(SelectDarkMode)
     const router = useRouter()

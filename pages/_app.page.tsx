@@ -1,5 +1,5 @@
 import '../dist/index.css'
-import '@celo-tools/use-contractkit/lib/styles.css';
+import '@celo/react-celo/lib/styles.css';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-toastify/dist/ReactToastify.css';
 import '@solana/wallet-adapter-react-ui/styles.css';

@@ -24,17 +24,17 @@ function NewWalletModal() {
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
-    const { blockchain, getMultisigProviders } = useWalletKit();
+    const { blockchain } = useWalletKit();
+    const providers = blockchain.multisigProviders;
+
     const { addWallet } = useMultiWallet()
     const [file, setFile] = useState<File>()
-
-    const walletProviders: DropDownItem[] = useMemo(() => getMultisigProviders.map((provider) => ({ name: provider.name, id: provider.type })), [getMultisigProviders])
 
     const imageType: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
     const [selectedImageType, setSelectedImageType] = useState(imageType[0])
     const organizationIsUpload = selectedImageType.name === "Upload Photo"
 
-    const [selectedWalletProvider, setSelectedWalletProvider] = useState(walletProviders[0])
+    const [selectedWalletProvider, setSelectedWalletProvider] = useState(providers.length > 0 ? providers[0] : undefined)
 
 
     const data = [
@@ -65,9 +65,10 @@ function NewWalletModal() {
 
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        if (!selectedWalletProvider) throw new Error("No provider selected")
+
         const Photo = file;
         const provider = selectedWalletProvider.name;
-        console.log(data, Photo, provider)
 
         let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
         if (Photo || data.nftAddress) {
@@ -103,8 +104,8 @@ function NewWalletModal() {
                 <div className="flex flex-col gap-1">
                     {/* <div className="text-sm">Choose Profile Photo Type</div> */}
                     <Dropdown
-                        parentClass={'bg-white dark:bg-darkSecond  w-full rounded-lg h-[3.4rem]'}
-                        className={'!rounded-lg h-[3.4rem]  dark:border-white'}
+                        selectClass='py-2'
+                        className={'w-full'}
                         label="Choose Profile Photo Type"
                         list={imageType}
                         selected={selectedImageType}
@@ -125,9 +126,10 @@ function NewWalletModal() {
                 <div className="flex flex-col gap-1">
                     {/* <div className="text-sm">Choose Wallet Provider</div> */}
                     <Dropdown
-                        parentClass={'bg-white w-full rounded-lg h-[3.4rem]'}
-                        className={'!rounded-lg h-[3.4rem] dark:border-white'}
-                        list={walletProviders}
+                        // parentClass={'w-full rounded-lg h-[3.4rem]'}
+                        className={'w-full'}
+                        selectClass={'py-2'}
+                        list={providers}
                         label="Choose Wallet Provider"
                         selected={selectedWalletProvider}
                         setSelect={setSelectedWalletProvider}

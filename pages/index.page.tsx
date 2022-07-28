@@ -54,7 +54,7 @@ const Home = () => {
 
         dispatch(setProviderAddress(address));
         dispatch(setBlockchain(selected as BlockchainType))
-
+ 
         const individual = await Get_Individual(auth.currentUser.uid)
         if (individual) {
           dispatch(setIndividual(individual))

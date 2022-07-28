@@ -18,6 +18,9 @@ export default function App({ children }: { children: JSX.Element }) {
                             select: {
                                 paddingTop: "8px",
                                 paddingBottom: "8px",
+                                height: "40px", 
+                                display: "flex",
+                                alignItems: "center",
                             }
                         }
                     }

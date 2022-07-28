@@ -1,4 +1,3 @@
-import { useContractKit } from '@celo-tools/use-contractkit';
 import Gelato from 'rpcHooks/ABI/Gelato.json'
 import { AbiItem } from './ABI/AbiItem';
 import { Contracts } from './Contracts/Contracts';
@@ -10,6 +9,7 @@ import { GetTime } from 'utils';
 import { FirestoreWrite } from './useFirebase';
 import { useAppSelector } from 'redux/hooks';
 import { SelectID } from 'redux/slices/account/selector';
+import { useCelo } from '@celo/react-celo';
 
 export interface ITasking {
     accountId: string;
@@ -21,7 +21,7 @@ export interface ITasking {
 }
 
 export default function useTasking() {
-    const { address } = useContractKit()
+    const { address } = useCelo()
     const { submitTransaction } = useMultisig()
 
     const cancelTask = async (taskId: string) => {

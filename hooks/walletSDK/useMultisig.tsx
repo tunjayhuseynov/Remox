@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
-import { useContractKit } from "@celo-tools/use-contractkit";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { auth, IAccount, Image, IMember } from 'firebaseConfig';
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
@@ -22,6 +21,7 @@ import { utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
 import { SelectIndividual } from 'redux/slices/account/remoxData';
 import { Multisig_Fetch_Thunk } from "redux/slices/account/thunks/multisig";
+import { useCelo } from "@celo/react-celo";
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/Multisig.json")
@@ -99,7 +99,7 @@ export default function useMultisig() {
     const dispatch = useAppDispatch()
 
     //Celo
-    const { address } = useContractKit()
+    const { address } = useCelo()
 
     //solana
     const { connection } = useConnection();
@@ -223,7 +223,7 @@ export default function useMultisig() {
 
         let myResponse: IAccount = {
             created_date: GetTime(),
-            blockchain: blockchain,
+            blockchain: blockchain.name,
             createdBy: auth.currentUser?.uid,
             address: proxyAddress,
             id: process(name.split(" ").join("")),
@@ -293,7 +293,7 @@ export default function useMultisig() {
 
             let myResponse: IAccount = {
                 created_date: GetTime(),
-                blockchain: blockchain,
+                blockchain: blockchain.name,
                 address: contractAddress,
                 createdBy: auth.currentUser.uid,
                 id: process(name.split(" ").join("")),

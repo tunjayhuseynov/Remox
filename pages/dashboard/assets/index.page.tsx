@@ -47,11 +47,11 @@ const Assets = () => {
     ]
     const assetType = [
         {
-            to: "/dashboard/assets",
+            to: "/dashboard/assets?index=0&noAnimation=true",
             text: "Tokens"
         },
         {
-            to: "/dashboard/assets?index=1&secondAnimation=true",
+            to: "/dashboard/assets?index=1&noAnimation=true",
             text: "NFTs"
         }
     ]
@@ -85,7 +85,7 @@ const Assets = () => {
             <div className="font-bold text-4xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
-                    <AnimatedTabBar data={assetType} index={0} className={'text-2xl'} />
+                    <AnimatedTabBar data={assetType} index={index} className={'text-2xl'} />
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>

@@ -10,7 +10,7 @@ import useMultisig, { SolanaMultisigData } from 'hooks/walletSDK/useMultisig';
 import { useRouter } from 'next/router';
 import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
 import Create from 'pages/dashboard/multisig/_components/create';
 import { SelectTotalBalance } from 'redux/slices/currencies';
 import { SetComma } from 'utils';
@@ -23,6 +23,7 @@ const Sidebar = () => {
     const individual = useAppSelector(SelectIndividual)
     const selectedAccountType = useAppSelector(SelectAccountType)
     const totalBalance = useAppSelector(SelectTotalBalance)
+    const accounts = useAppSelector(SelectAccounts)
 
     const navigator = useRouter()
     const accountType = useAppSelector(SelectAccountType)
@@ -87,7 +88,7 @@ const Sidebar = () => {
         id: "0",
         name: individual?.name ?? "",
         image: individual?.image ?? null,
-        secondValue: `$${SetComma(totalBalance)}`,
+        secondValue: `$${SetComma(accounts.reduce((acc, e) => acc + e.totalValue, 0))}`,
         onClick: () => { }
     })
 
