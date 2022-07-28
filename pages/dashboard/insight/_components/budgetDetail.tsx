@@ -1,20 +1,25 @@
 import React,{useState} from 'react'
-import { IBudgets } from '../../../pages/dashboard/insight/index.page'
 import AnimatedTabBar from 'components/animatedTabBar';
-import { ProgressBarWidth } from '../../../utils'
+import { IBudgets } from '../index.page';
+import { ProgressBarWidth } from 'utils';
+import { useRouter } from 'next/router';
 
 function BudgetDetail({ budgets }: { budgets: IBudgets }) {
     const [text, setText] = useState('Subbudgets')
     const paymentdata = [
         {
-            to: "",
+            to: "/dashboard/budget?noAnimation=true",
             text: "Subbudgets"
         },
         {
-            to: "",
+            to: "/dashboard/budget?index=1&noAnimation=true",
             text: "Labels"
         }
     ]
+
+    const navigate = useRouter()
+
+    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
 
 
     return <div className="w-[70%]  mx-auto">
@@ -43,7 +48,7 @@ function BudgetDetail({ budgets }: { budgets: IBudgets }) {
             {budgets.amount2 && <div className="flex items-center justify-center text-greylish"> <img src={`/icons/currencies/${budgets.amount2.coinUrl}.svg`} className="w-5 h-5 mr-2" alt="" />{budgets.amount2.value} </div>}
         </div>
         <div className="flex  py-8 w-full items-center gap-16">
-            <AnimatedTabBar data={paymentdata} index={0} setText={setText} className={'!text-lg'} />
+            <AnimatedTabBar data={paymentdata} index={index} className={'!text-lg'} />
         </div>
         {text === "Subbudgets" ?  <div className="w-full">
             <div className={` text-greylish dark:text-white border-b grid  px-0 grid-cols-[15%,15%,15%,55%] w-full py-4  `}>
@@ -53,7 +58,7 @@ function BudgetDetail({ budgets }: { budgets: IBudgets }) {
               <span className="flex justify-end">Transactions</span>
             </div>
             <div className="">
-                { budgets.subbudgets.map((budget, index) => {
+                {budgets.subbudgets.map((budget, index) => {
                     return <div key={index}  className={`w-full grid grid-cols-[15%,15%,10%,52.5%,7.5%] py-4 cursor-pointer `}>
                         <div className="font-semibold">{budget.name}</div>
                         <div className={`flex ${budget.amount2 && 'flex-col gap-2'}`}>
@@ -87,7 +92,7 @@ function BudgetDetail({ budgets }: { budgets: IBudgets }) {
                 })}
             </div>
         </div> : <div className="w-full">
-        <div className={` text-greylish dark:text-white border-b grid px-0 grid-cols-[15%,15%,15%,55%] w-full py-4  `}>
+        <div className={` text-greylish dark:text-white border-b grid px-0 grid-cols-[15%,15%,15%,55%] w-full py-4`}>
             <span>Name</span>
             <span>Amount</span>
             <span>% of Total</span>
@@ -95,7 +100,7 @@ function BudgetDetail({ budgets }: { budgets: IBudgets }) {
         </div>
         <div className="">
             {budgets.labels.map((label, index) => {
-                return <div key={index} className={`w-full grid  grid-cols-[15%,15%,10%,52.5%,7.5%] py-4   `}>
+                return <div key={index} className={`w-full grid  grid-cols-[15%,15%,10%,52.5%,7.5%] py-4`}>
                     <div className="font-semibold">{label.name}</div>
                     <span className="font-semibold">{label.value}</span>
                     <div className="font-semibold justify-start">{label.percent}%</div>

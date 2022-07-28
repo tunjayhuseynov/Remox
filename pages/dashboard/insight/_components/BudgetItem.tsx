@@ -1,20 +1,17 @@
 import React, { useState } from 'react'
-import AnimatedTabBar from 'components/animatedTabBar';
-import { ProgressBarWidth } from '../../../utils'
 import Modal from 'components/general/modal';
 import BudgetDetail from './budgetDetail';
-import { IBudgets, ISubbudgets } from '../../../pages/dashboard/insight/index.page'
+import { ProgressBarWidth } from 'utils';
+import { IBudgets } from '../index.page';
 
 function BudgetItem({ budget, box, id, setNotify2 }: { budget: IBudgets, box: boolean, id: number, setNotify2: React.Dispatch<React.SetStateAction<boolean>> }) {
     const [openNotify, setNotify] = useState<boolean>(false)
-
-
 
     return <>
       <Modal onDisable={setNotify} openNotify={openNotify} setNotify2={setNotify2} >
             <BudgetDetail budgets={budget} />
         </Modal>
-        <div key={id} onClick={() => { !box && setNotify(!openNotify); !box && setNotify2(false) }} className={`w-full grid ${box ? 'px-5 grid-cols-[33%,33%,34%] py-2' : id === 4 && box ? 'hidden' : 'grid-cols-[15%,15%,10%,52.5%,7.5%] py-4'}    cursor-pointer `}>
+        <div key={id} onClick={() => { !box && setNotify(!openNotify); !box && setNotify2(false) }} className={`w-full grid ${box ? 'px-5 grid-cols-[33%,33%,34%] py-2' : id === 4 && box ? 'hidden' : 'grid-cols-[15%,15%,10%,52.5%,7.5%] py-4'} cursor-pointer `}>
             <div className="font-semibold">{budget.name}</div>
             <div className={`flex ${budget.amount2 && 'flex-col gap-2'}`}>
                 <div className="flex gap-1 items-center justify-start">

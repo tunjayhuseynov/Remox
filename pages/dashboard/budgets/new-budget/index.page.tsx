@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
-import { DropDownItem } from "../../../../types/dropdown";
 import Dropdown from "../../../../components/general/dropdown";
 import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
-import { useAppDispatch } from "redux/hooks";
-import shortid, { generate } from 'shortid'
-import useNextSelector from "hooks/useNextSelector";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import { generate } from 'shortid'
 import { useRouter } from 'next/router';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 
@@ -35,10 +33,10 @@ export interface ISubInputs {
 
 function NewBudgets() {
 
-    const { register, handleSubmit, setValue } = useForm<IFormInput>();
+    const { register, handleSubmit } = useForm<IFormInput>();
     const { GetCoins } = useWalletKit()
     const dispatch = useAppDispatch()
-    const dark = useNextSelector(SelectDarkMode)
+    const dark = useAppSelector(SelectDarkMode)
     const [anotherToken, setAnotherToken] = useState(false)
     const navigate = useRouter()
     const { parentId } = navigate.query as { parentId: string }
@@ -50,8 +48,7 @@ function NewBudgets() {
         const coin = wallet
         const coin2 = wallet2
         const subbudgets = inputs
-        console.log(coin, coin2, data, subbudgets);
-
+        console.log(subbudgets);
         let secondCoin = null, secondAmount = null, id = generate();
 
         if (data.amount2 && data.amount2 > 0) {
@@ -122,6 +119,7 @@ function NewBudgets() {
     }
 
     const updateInputWallet = (id: string, wallet: AltCoins) => {
+        console.log(id, wallet);
         setInputs(inputs.map(s => s.id === id ? { ...s, wallet } : s))
     }
     const updateInputWallet2 = (id: string, wallet2: AltCoins) => {
@@ -146,7 +144,13 @@ function NewBudgets() {
                 <div className="flex w-full gap-8 pt-4">
                     <div className="flex flex-col  w-full">
                         {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span> */}
-                        <Dropdown className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg" label="Budget Token" selected={wallet} list={Object.values(GetCoins) as AltCoins[]} setSelect={setWallet} />
+                        <Dropdown
+                            className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg"
+                            label="Budget Token"
+                            selected={wallet}
+                            list={Object.values(GetCoins) as AltCoins[]}
+                            setSelect={setWallet}
+                        />
                     </div>
                     <div className="flex flex-col w-full">
                         <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
@@ -157,7 +161,12 @@ function NewBudgets() {
                     <div className="flex w-full gap-8 pt-4">
                         <div className="flex flex-col w-full">
                             <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
-                            <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" label="Budget Token" selected={wallet2} list={Object.values(GetCoins) as AltCoins[]} setSelect={setWallet2} />
+                            <Dropdown
+                                className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
+                                label="Budget Token"
+                                selected={wallet2}
+                                list={Object.values(GetCoins) as AltCoins[]}
+                                setSelect={setWallet2} />
                         </div>
                         <div className="flex flex-col w-full">
                             <div className="flex justify-between relative">
@@ -181,32 +190,45 @@ function NewBudgets() {
                 }
                 {inputs.map((input, index) => {
                     // return <Subinput key={e.index} incomingIndex={e.index} indexs={i} />
-                    return <div key={input.id}> <div className="flex flex-col">
-                        <div className="flex justify-between relative">
-                            <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Name</span>
-                            <div className="absolute -top-[-2.5rem] -right-[2rem]">
-                                {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => {
-                                    deleteInput(input.id)
-                                    //setRefreshPage(generate())
-                                }} />}
-                            </div></div>
-                        <input type="text" className="bg-white dark:bg-darkSecond border w-full py-2 px-1 rounded-lg" onChange={(e) => updateInputName(input.id, e.target.value)} />
-                    </div>
+                    return <div key={input.id}>
+                        <div className="flex flex-col">
+                            <div className="flex justify-between relative">
+                                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Name</span>
+                                <div className="absolute -top-[-2.5rem] -right-[2rem]">
+                                    {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => {
+                                        deleteInput(input.id)
+                                        //setRefreshPage(generate())
+                                    }} />}
+                                </div></div>
+                            <input type="text" className="bg-white dark:bg-darkSecond border w-full py-2 px-1 rounded-lg" onChange={(e) => updateInputName(input.id, e.target.value)} />
+                        </div>
                         <div className="flex w-full gap-8  pt-4">
                             <div className="flex flex-col w-full">
 
-                                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span>
-                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" label="Subbudget Token" selected={input.wallet} list={Object.values(GetCoins)} runFn={(val) => ()=> updateInputWallet(input.id, val)} />
+                                {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
+                                <Dropdown
+                                    // className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
+                                    label="Subbudget Token"
+                                    selected={input.wallet}
+                                    list={Object.values(GetCoins)}
+                                    runFn={(val) => () => updateInputWallet(input.id, val)}
+                                />
                             </div>
                             <div className="flex flex-col w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
-                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseInt(e.target.value))} />
+                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseFloat(e.target.value))} />
                             </div>
                         </div>
                         {input.subAnotherToken && <div className="flex w-full gap-8  pt-4">
                             <div className="flex flex-col w-full">
                                 {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
-                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" label='Subbudget Token' selected={input.wallet2} list={Object.values(GetCoins) as AltCoins[]} runFn={val => ()=> updateInputWallet2(input.id, val)} />
+                                <Dropdown
+                                    // className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
+                                    label='Subbudget Token'
+                                    selected={input.wallet2}
+                                    list={Object.values(GetCoins) as AltCoins[]}
+                                    runFn={val => () => updateInputWallet2(input.id, val)}
+                                />
                             </div>
                             <div className="flex flex-col w-full">
                                 <div className="flex justify-between relative">
@@ -215,8 +237,10 @@ function NewBudgets() {
                                         {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => updateAnotherToken(input.id, false)} />}
                                     </div>
                                 </div>
-                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount2(input.id, parseInt(e.target.value))} />
-                            </div> </div>}
+                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount2(input.id, parseFloat(e.target.value))} />
+                            </div>
+                        </div>
+                        }
                         {!input.subAnotherToken && <div className="text-primary  cursor-pointer " onClick={() => updateAnotherToken(input.id, true)}>
                             <span className="flex gap-2 bg-opacity-5 font-semibold py-3 pl-1 text-center rounded-xl ">
                                 <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another subbuget

@@ -52,12 +52,11 @@ function BudgetCard({ setDelBudget, item, }: { item: IBudgetORM, setDelBudget: R
                     </div>}
                 </span>
             </div>
-            <div ref={exceptRef} onClick={() => { setDetailModal(true) }} className=" rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-xl" >
+            <div ref={exceptRef} onClick={() => { setDetailModal(true) }} className=" rounded-xl shadow-lg px-4 py-4 bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313] hover:shadow-xl" >
                 <div className="flex items-center justify-between w-full">
                     <div className="text-xl font-bold">{item.name}</div>
                     <div className="flex items-center gap-5">
-                        <div className="text-xl font-bold pr-4">{SetComma(coin.totalUsedAmount * 100 / coin.totalAmount)}</div>
-
+                        <div className="text-xl font-bold pr-4">{SetComma(coin.totalUsedAmount * 100 / coin.totalAmount)}%</div>
                     </div>
                 </div>
                 <div>
@@ -65,10 +64,10 @@ function BudgetCard({ setDelBudget, item, }: { item: IBudgetORM, setDelBudget: R
                         <span className="text-2xl font-bold flex items-center gap-1">
                             <img src={GetCoins[coin.coin].coinUrl} alt="" className="rounded-full w-4 h-4" />{SetComma(coin.totalUsedAmount)}</span>impacted on
                         <span className="text-lg flex items-center gap-1">
-                            <img src={GetCoins[coin.coin].coinUrl} className="rounded-full w-4 h-4" alt="" />{SetComma(coin.totalUsedAmount)}
+                            <img src={GetCoins[coin.coin].coinUrl} className="rounded-full w-4 h-4" alt="" />{SetComma(coin.totalAmount)}
                         </span>
                     </div>
-                    <div className=" rounded-xl relative w-full h-[1.2rem] flex    bg-greylish bg-opacity-40">
+                    <div className=" rounded-xl relative w-full h-[1.2rem] flex bg-greylish bg-opacity-40">
                         <div className=" h-full bg-primary rounded-l-xl" style={usedPercent}></div>
                         <div className="stripe-1 ml-2 object-cover h-full"></div>
                         <div className=" w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
@@ -93,10 +92,10 @@ function BudgetCard({ setDelBudget, item, }: { item: IBudgetORM, setDelBudget: R
                             <img src={GetCoins[coin.second.secondCoin].coinUrl} alt="" className="rounded-full w-4 h-4" />{SetComma(coin.second.secondTotalUsedAmount)}</span>impacted on<span className="text-lg flex items-center gap-1 ">
                                 <img src="/icons/currencies/celodollar.svg" className="rounded-full w-4 h-4" alt="" />{SetComma(coin.second.secondTotalAmount)}</span>
                         </div>
-                        <div className=" rounded-xl relative w-full h-[1.2rem] flex    bg-greylish bg-opacity-40">
-                            <div className=" w-[27.5%] h-full bg-primary  rounded-l-xl"></div>
-                            <div className="stripe-1 ml-2 object-cover h-full" style={ProgressBarWidth(coin.totalUsedAmount * 100 / coin.totalAmount)}></div>
-                            <div className=" w-[45%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
+                        <div className=" rounded-xl relative w-full h-[1.2rem] flex bg-greylish bg-opacity-40">
+                            <div className="h-full bg-primary rounded-l-xl" style={ProgressBarWidth(coin.second.secondTotalUsedAmount * 100 / coin.second.secondTotalAmount)}></div>
+                            {/* <div className="stripe-1 ml-2 object-cover h-full" ></div> */}
+                            <div className="w-[45%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
                         </div>
                         <div className="grid grid-cols-4 px-3 justify-between items-center py-4">
                             <div className="flex flex-col gap-2">

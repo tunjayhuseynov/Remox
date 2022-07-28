@@ -5,6 +5,7 @@ import useProfile from "rpcHooks/useProfile";
 import { ProgressBarWidth } from 'utils';
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { useWalletKit } from 'hooks';
+import SubBudgets from './subBudgets';
 
 interface IProps {
     item: IBudgetORM,
@@ -84,13 +85,13 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibil
                             </div>
                         </>}
                     </div>
-                    {/* {item.subbudgets && <>
+                    {item.subbudgets && <>
                         <div className="text-2xl font-bold text-start pb-4">Subbudgets</div>
                         {item.subbudgets.map((item, id) => <div key={id}>
                             <SubBudgets item={item} />
                         </div>
                         )}
-                    </>} */}
+                    </>}
                     {/* {item.labels && <>
                         <div className="text-2xl font-bold text-start pb-4">Expense Labels</div>
                         {item.labels.map((item, id) => {

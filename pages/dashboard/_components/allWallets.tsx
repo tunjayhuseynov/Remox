@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Fragment } from "react";
 import { IBalanceItem, SelectOrderBalance } from 'redux/slices/currencies';
 import { AddressReducer, SetComma } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
@@ -99,7 +99,9 @@ function AllWallets({ item }: { item: IAccountORM }) {
                             <div className="flex pl-3">
                                 {
                                     item.members.map((member, index) => {
-                                        return member.image ? <img src={`${item.members[1].image}`} className={`z-[1] border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-400 z-[1] border  w-5 h-5 rounded-full"></div>
+                                        return <Fragment key={member.id}>
+                                            {member.image ? <img src={`${item.members[1].image}`} className={`z-[1] border  w-5 h-5 rounded-full`} /> : <div className="bg-gray-400 z-[1] border  w-5 h-5 rounded-full"></div>}
+                                        </Fragment>
                                     })
                                 }
                             </div>
@@ -110,7 +112,7 @@ function AllWallets({ item }: { item: IAccountORM }) {
                             <div className="flex flex-col  w-full" ref={customRef}>
 
                                 {[...item.coins].sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
-                                    return <div className="border-b dark:border-greylish w-full" key={index} >
+                                    return <div className="border-b dark:border-greylish w-full" key={item.coins.contractAddress} >
                                         <CoinItem
                                             key={item.coins.contractAddress + item.coins.name}
                                             setSelectcoin={setSelectcoin}

@@ -30,14 +30,20 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
     const id = useId()
     const labelId = useId()
 
+    // const props: { value?: T } = {}
+    // if (selected) {
+    //     props.value = selected
+    // }
 
     return (
         <div className={`relative ${parentClass} `}>
             <FormControl className={`${className} w-full`}>
                 {label && <InputLabel id={labelId + "-label"}>{label}</InputLabel>}
                 <Select
+                    id={id}
                     labelId={labelId + "-label"}
-                    value={selected}
+                    value={selected ?? ""}
+                    // {...props}
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center`}>
                             <div className="flex items-center">
@@ -55,7 +61,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                         if (setSelect) setSelect(selected)
                         if (selected["onClick"]) selected["onClick"]()
                         if (runFn) {
-                            runFn(e.target.value as T)
+                            runFn(e.target.value as T)()
                         }
                     }}
                 >
