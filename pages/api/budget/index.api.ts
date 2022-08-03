@@ -11,6 +11,7 @@ import { BlockchainType } from "types/blockchains";
 interface IBudgetCoin {
     coin: string,
     totalAmount: number,
+    totalPending: number,
     totalUsedAmount: number,
     second: {
         secondCoin: string,
@@ -22,6 +23,7 @@ interface IBudgetCoin {
 export interface IBudgetORM extends IBudget {
     totalBudget: number,
     totalUsed: number,
+    totalPending: number,
     totalAvailable: number,
     budgetCoins: IBudgetCoin,
     subbudgets: ISubbudgetORM[],
@@ -30,6 +32,7 @@ export interface IBudgetORM extends IBudget {
 export interface ISubbudgetORM extends ISubBudget {
     totalBudget: number,
     totalUsed: number,
+    totalPending: number,
     totalAvailable: number,
     budgetCoins: IBudgetCoin,
 }
@@ -88,7 +91,8 @@ export default async function handler(
                         addresses: parsedAddress,
                         blockchain: blockchain,
                         txs: Array.from(new Set(budget.txs.map(s => s.hash))),
-                        id: parentId
+                        id: parentId,
+                        isTxNecessery: true
                     }
                 })
 
@@ -96,6 +100,7 @@ export default async function handler(
                 let budgetCoin: IBudgetCoin = {
                     coin: budget.token,
                     totalAmount: budget.amount,
+                    totalPending: 0,
                     totalUsedAmount: spending.data.CoinStats?.[0]?.totalSpending ?? 0,
                     second: budget.secondToken && budget.secondAmount && spending.data.CoinStats?.[1] ? {
                         secondTotalAmount: budget.secondAmount,
@@ -121,7 +126,8 @@ export default async function handler(
                             addresses: parsedAddress,
                             blockchain: blockchain,
                             txs: Array.from(new Set(subbudget.txs.map(s => s.hash))), 
-                            id: parentId
+                            id: parentId,
+                            isTxNecessery: true
                         }
                     })
 
@@ -130,6 +136,7 @@ export default async function handler(
                     let budgetCoin: IBudgetCoin = {
                         coin: subbudget.token,
                         totalAmount: subbudget.amount,
+                        totalPending: 0,
                         totalUsedAmount: spending.data.CoinStats?.[0]?.totalSpending ?? 0,
                         second: subbudget.secondToken && subbudget.secondAmount && spending.data.CoinStats?.[1] ? {
                             secondTotalAmount: subbudget.secondAmount,
@@ -144,6 +151,7 @@ export default async function handler(
                     subbudgets.push({
                         ...subbudget,
                         totalBudget: totalSubBudget,
+                        totalPending: totalSubPending,
                         budgetCoins: budgetCoin,
                         totalAvailable: totalSubAvailable,
                         totalUsed: totalSubUsed,
@@ -158,6 +166,7 @@ export default async function handler(
                     totalBudget,
                     totalUsed: totalBudgetUsed,
                     totalAvailable: totalBudgetAvailable,
+                    totalPending: totalBudgetPending,
                     budgetCoins: budgetCoin,
                     subbudgets: subbudgets
                 })

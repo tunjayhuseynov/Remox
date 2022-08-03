@@ -15,7 +15,7 @@ export default async function handler(
     try {
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
-
+        const isTxNecessery = req.query["isTxNecessery"] === "true";
         const inTxs = req.query["txs[]"];
 
         // if (!parsedAddress) {
@@ -42,6 +42,9 @@ export default async function handler(
                 }
             })
         } else {
+            if (isTxNecessery) {
+                return res.status(200).json(TxNull());
+            }
             specificTxs = await axios.get(BASE_URL + "/api/transactions", {
                 params: {
                     addresses: parsedAddress,

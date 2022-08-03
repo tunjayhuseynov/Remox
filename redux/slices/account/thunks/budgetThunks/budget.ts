@@ -33,6 +33,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
     api.dispatch(addBudget({
         ...budget,
         totalBudget,
+        totalPending: 0,
         totalUsed: 0,
         totalAvailable: totalBudget,
         subbudgets: budget.subbudgets.map(sub => {
@@ -42,10 +43,12 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
                 totalBudget,
                 totalAvailable: totalBudget,
                 totalUsed: 0,
+                totalPending: 0,
                 budgetCoins: {
                     coin: sub.token,
                     totalAmount: sub.amount,
                     totalUsedAmount: 0,
+                    totalPending: 0,
                     second: sub.secondToken && sub.secondAmount ? {
                         secondCoin: sub.secondToken,
                         secondAmount: sub.secondAmount,
@@ -58,6 +61,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
         budgetCoins: {
             coin: budget.token,
             totalAmount: budget.amount,
+            totalPending: 0,
             totalUsedAmount: 0,
             second: budget.secondToken && budget.secondAmount ? {
                 secondCoin: budget.secondToken,

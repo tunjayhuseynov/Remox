@@ -60,7 +60,7 @@ function ChooseBudget() {
                     <span className="text-4xl pb-1">&#171;</span> Back
                 </button>
                 <div className="text-2xl font-semibold py-6 text-center">
-                    Remox Pay
+                    Choose Payment Method
                 </div>
                 <form onSubmit={onSubmit} className='flex flex-col space-y-5'>
                     <div className="flex flex-col gap-2 w-full">

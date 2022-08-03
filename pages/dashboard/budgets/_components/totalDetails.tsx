@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
 import { IBudgetExerciseORM } from 'pages/api/budget/index.api';
 import { SetComma } from 'utils';
+import { useWalletKit } from 'hooks';
 
 function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
     const [openNotify, setNotify] = useState(false)
-
+    const { GetCoins } = useWalletKit()
 
     useEffect(() => {
         if (openNotify) {
@@ -34,10 +35,21 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
                             <div className="flex justify-between px-2"><span className="text-greylish dark:text-white text-xl">{SetComma(total.totalBudget)}</span><span className="font-bold text-xl">Total budget</span></div>
                             <div className="flex justify-between px-2">
                                 <span className="text-greylish dark:text-white text-xl">Token Breakdown</span>
-                                {/* <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-1"><span className="text-xl font-bold">{item.token.value}</span> <img src={`/icons/currencies/${item.token.coinUrl}.svg`} className="w-5 h-5 rounded-full" alt="" /> <span className="text-xl font-bold">{item.token.name}</span> </div>
-                                    {item.token2 && <div className="flex items-center gap-1"><span className="text-xl font-bold">{item.token2.value}</span> <img src={`/icons/currencies/${item.token2.coinUrl}.svg`} className="w-5 h-5 rounded-full" alt="" /> <span className="text-xl font-bold">{item.token2.name}</span> </div>}
-                                </div> */}
+                                <div className="flex flex-col gap-2">
+                                    {total.budgetCoins.map((budget, index) => {
+                                        const Coin = GetCoins[budget.coin]
+                                        const SecondCoin = budget.second ? GetCoins[budget.second.secondCoin] : null
+                                        return <>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-xl font-bold">{budget.totalAmount}</span> <img src={Coin.coinUrl} className="w-5 h-5 rounded-full" alt="" /> <span className="text-xl font-bold">{Coin.name}</span>
+                                            </div>
+                                            {budget.second && SecondCoin && <div className="flex items-center gap-1">
+                                                <span className="text-xl font-bold">{budget.second?.secondTotalAmount}</span> <img src={`/icons/currencies/${SecondCoin.coinUrl}.svg`} className="w-5 h-5 rounded-full" alt="" /> <span className="text-xl font-bold">{SecondCoin.name}</span>
+                                            </div>}
+                                        </>
+                                    }
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b">

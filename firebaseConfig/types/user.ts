@@ -36,6 +36,7 @@ export interface IBudgetExercise {
 }
 
 export interface IBudgetTX{
+    contractAddress: string;
     hash: string,
     timestamp: number,
     isSendingOut: boolean,
