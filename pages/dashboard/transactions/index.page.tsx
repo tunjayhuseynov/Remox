@@ -181,7 +181,7 @@ export const ProcessAccordion = forwardRef<HTMLDivElement, { transaction: IForma
 
 const MultisigTx = forwardRef<HTMLDivElement, { Address: string | undefined, GetCoins: Coins, tx: ITransactionMultisig }>(({ Address, GetCoins, tx }, ref) => {
 
-    const method = tx.method!.split('').reduce((acc, w, i) => {
+    const method = tx.method?.split('').reduce((acc, w, i) => {
         if (i === 0) return acc + w.toUpperCase()
         if (w !== w.toLowerCase() && i > 0) return acc + " " + w
         return acc + w;

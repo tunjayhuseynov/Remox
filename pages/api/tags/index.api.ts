@@ -1,11 +1,17 @@
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 
+export interface ITxTag {
+    id: string;
+    address: string;
+    value: string;
+}
+
 export interface ITag {
     id: string;
     name: string;
     color: string;
-    transactions: string[],
+    transactions: ITxTag[],
     isDefault: boolean;
 }
 

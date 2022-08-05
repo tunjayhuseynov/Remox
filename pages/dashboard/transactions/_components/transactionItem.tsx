@@ -15,8 +15,9 @@ import Dropdown from 'components/general/dropdown';
 import { DropDownItem, TransactionDirection } from 'types';
 import { useAppSelector } from "redux/hooks";
 import { AddressReducer } from "utils";
+import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 
-const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
+const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction | ITransactionMultisig, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
 
     const [detect, setDetect] = useState(true);
 
@@ -34,6 +35,8 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const [budgetSelected, setBudgetSelected] = useState(true);
     const router = useRouter()
 
+    const isMultisig = 'destination' in transaction
+
     const paymentname: DropDownItem[] = [{ name: "Development" }, { name: "Security" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
 
@@ -45,8 +48,9 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
         ERC20MethodIds.transfer, ERC20MethodIds.transferFrom,
         ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit,
         ERC20MethodIds.moolaWithdraw, ERC20MethodIds.moolaRepay
-    ].indexOf(Transaction.id) > -1;
-    let peer = Transaction.rawData.from.toLowerCase() === selectedAccount.toLowerCase() ? Transaction.rawData.to : Transaction.rawData.from;
+    ].indexOf(isMultisig ? ERC20MethodIds[(Transaction as ITransactionMultisig).method as keyof typeof ERC20MethodIds] : (Transaction as IFormattedTransaction).id) > -1;
+    let peer = isMultisig ?  (Transaction as ITransactionMultisig).data :
+        (Transaction as IFormattedTransaction).rawData.from.toLowerCase() === selectedAccount.toLowerCase() ? (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
     let SwapData;
     let TransferData;
     let MultipleData;
@@ -71,12 +75,12 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
         if (divRef.current && window.innerWidth / divRef.current.clientWidth > 2) {
             setDetect(false)
         }
-        if (isAutomation) {
+        if (isAutomation && !isMultisig) {
             (
                 async () => {
                     const data = Transaction as IAutomationTransfer
                     const details = await getDetails(data.taskId)
-                    const reader = InputReader(details[1], Transaction.rawData, tags, GetCoins)
+                    const reader = InputReader(details[1], (Transaction as IFormattedTransaction).rawData, tags, GetCoins)
 
                     if (reader && reader.id === ERC20MethodIds.moolaRepay) console.log(reader)
                     const formattedTx = {

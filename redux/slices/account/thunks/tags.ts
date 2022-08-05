@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { arrayRemove, arrayUnion } from "firebase/firestore"
-import { ITag } from "pages/api/tags/index.api"
+import { ITag, ITxTag } from "pages/api/tags/index.api"
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { generate } from "shortid"
 
@@ -48,9 +48,9 @@ export const DeleteTag = createAsyncThunk<ITag, { id: string, tag: ITag }>("remo
     return tag;
 })
 
-export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: string }, { id: string, tagId: string, transactionId: string }>("remoxData/addTransactionToTag", async ({ id, tagId, transactionId }) => {
+export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: string }, { id: string, tagId: ITxTag, transactionId: string }>("remoxData/addTransactionToTag", async ({ id, tagId, transactionId }) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
-    const tag = res?.tags.find(t => t.id === tagId)
+    const tag = res?.tags.find(t => t.id === tagId.id)
 
     if (tag && !tag.transactions.includes(transactionId)) {
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {

@@ -6,21 +6,24 @@ import { useModalSideExit, useWalletKit } from "hooks";
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { useRouter } from 'next/router';
 import { ProgressBarWidth, SetComma } from 'utils';
+import Modal from 'components/general/modal';
+import DeleteBudget from './Modals/deleteBudgets';
 
-function BudgetCard({ setDelBudget, item, }: { item: IBudgetORM, setDelBudget: React.Dispatch<boolean> }) {
+function BudgetCard({ item, }: { item: IBudgetORM }) {
     // const [openNotify, setNotify] = useState(false)
     const [details, setDetails] = useState(false)
     const [detailModal, setDetailModal] = useState(false)
     const { GetCoins } = useWalletKit()
     const dark = useAppSelector(SelectDarkMode)
     const navigate = useRouter()
+    const [delBudget, setDelBudget] = useState(false)
 
     const [divRef, exceptRef] = useModalSideExit(detailModal, setDetailModal, false)
 
     const coin = item.budgetCoins;
     const usedPercent = useMemo(() => ProgressBarWidth(coin.totalUsedAmount * 100 / coin.totalAmount), [item])
 
-        
+
     useEffect(() => {
         if (detailModal) {
             document.querySelector('body')!.style.overflowY = "hidden"
@@ -107,6 +110,12 @@ function BudgetCard({ setDelBudget, item, }: { item: IBudgetORM, setDelBudget: R
                 </div>
             </div>
         </div>
+        {
+            delBudget &&
+            <Modal onDisable={setDelBudget} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>
+                <DeleteBudget onDisable={setDelBudget} budget={item} />
+            </Modal>
+        }
     </>
 }
 

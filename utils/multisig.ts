@@ -27,14 +27,14 @@ export const MultisigTxParser = (
     {
         index, destination, data, executed,
         confirmations, Value, blockchain, parsedData, timestamp, contractAddress,
-        contractOwnerAmount, contractThreshold, contractInternalThreshold, name
+        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
             confirmations: string[], Value: BigNumber, blockchain: BlockchainType["name"],
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
-            contractInternalThreshold: number, name: string
+            contractInternalThreshold: number, name: string, created_at: number
         }
 ) => {
     let size = 0;
@@ -49,10 +49,12 @@ export const MultisigTxParser = (
         confirmations: confirmations,
         value: Value.toString(),
         timestamp: timestamp,
+        created_at: created_at,
         contractAddress: contractAddress,
         contractInternalThresholdAmount: contractInternalThreshold,
         contractOwnerAmount: contractOwnerAmount,
         contractThresholdAmount: contractThreshold,
+        method: ""
     }
 
     let value = from(Value)

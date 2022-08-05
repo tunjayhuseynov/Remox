@@ -2,9 +2,7 @@ import Modal from 'components/general/modal'
 import React, { useState } from 'react'
 import TotalValues from 'pages/dashboard/budgets/_components/totalValues'
 import { IoIosArrowDown } from 'react-icons/io';
-import DeleteBudget from 'pages/dashboard/budgets/_components/Modals/deleteBudgets';
 import BudgetCard from 'pages/dashboard/budgets/_components/budgetCard';
-import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
 import { SelectBudgetExercises } from 'redux/slices/account/remoxData';
 import { SetComma } from 'utils';
@@ -14,7 +12,6 @@ import { useRouter } from 'next/router';
 const Budgets = () => {
 
     // const { GetCoins } = useWalletKit()
-    const [delBudget, setDelBudget] = useState(false)
     const [exercise, setExercise] = useState(false)
     const [isOpen, setOpen] = useState(false)
     const navigate = useRouter()
@@ -83,14 +80,8 @@ const Budgets = () => {
                     <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
                 </div>}
                 <div className={` grid grid-cols-2 gap-12`}>
-                    {selectedExercise.budgets.map((item) => <BudgetCard key={item.id} item={item} setDelBudget={setDelBudget} />)}
-                </div >
-                {
-                    delBudget &&
-                    <Modal onDisable={setDelBudget} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>
-                        <DeleteBudget onDisable={setDelBudget} />
-                    </Modal>
-                }
+                    {selectedExercise.budgets.map((item) => <BudgetCard key={item.id} item={item}/>)}
+                </div>
             </>}
         </div >
     </div >

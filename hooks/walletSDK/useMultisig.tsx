@@ -42,8 +42,9 @@ export interface ITransactionMultisig {
     owner?: string,
     newOwner?: string,
     valueOfTransfer?: string,
-    method?: string,
+    method: string,
     timestamp: number,
+    created_at: number,
 }
 
 export enum MethodIds {
