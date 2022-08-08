@@ -1,10 +1,23 @@
 import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Add_Member_To_Account, Create_Account, Remove_Member_From_Account, Update_Members_In_Account } from "crud/account";
+import { Add_Member_To_Account, Create_Account, Remove_Member_From_Account, Update_Account, Update_Members_In_Account } from "crud/account";
 import { Add_New_Individual_Account, Remove_Individual_Account } from "crud/individual";
 import { Add_New_Organization_Account, Remove_Organization_Account, Update_Organization } from "crud/organization";
 import { IAccount, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { IAccountORM } from "pages/api/account/index.api";
+
+export const Update_Account_Name = createAsyncThunk<IAccount, { account: IAccount, name: string }>("remoxData/Update_Account_Name", async ({ account, name }) => {
+    await Update_Account({ ...account, name });
+    return account;
+})
+
+export const Update_Account_Mail = createAsyncThunk<IAccount, { account: IAccount, mail: string }>("remoxData/Update_Account_Mail", async ({ account, mail }) => {
+    account.mail = mail;
+    await Update_Account(account);
+
+    return account;
+})
+
 
 export const Create_Account_For_Individual = createAsyncThunk<IAccountORM, { account: IAccount, individual: IIndividual }>("remoxData/Add_Account_To_Individual", async ({ account, individual }) => {
     await Create_Account(account);
@@ -19,11 +32,13 @@ export const Create_Account_For_Individual = createAsyncThunk<IAccountORM, { acc
     return accountReq.data;
 })
 
+
 export const Remove_Account_From_Individual = createAsyncThunk<IAccount, { account: IAccount, individual: IIndividual }>("remoxData/Remove_Account_From_Individual", async ({ account, individual }) => {
     await Remove_Individual_Account(individual, account)
 
     return account;
 })
+
 
 export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { account: IAccount, organization: IOrganization }>("remoxData/Add_Account_To_Organization", async ({ account, organization }, api) => {
     await Create_Account(account);

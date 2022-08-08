@@ -3,7 +3,7 @@ import { SelectParsedTransactions, SelectTransactions } from '../redux/slices/ac
 import { useSelector } from 'react-redux';
 import { Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
-import { AltCoins, Coins } from 'types';
+import { AltCoins, Coins, CoinsName } from 'types';
 import { selectTags } from 'redux/slices/tags';
 import useWalletKit from './walletSDK/useWalletKit';
 import { ITag } from 'pages/api/tags/index.api';
@@ -80,9 +80,32 @@ const useTransactionProcess = (): [IFormattedTransaction[]] | [] => {
     }, [transactions, tags])
 }
 
+export const GenerateTransaction = (transaction: Partial<Transactions>): Transactions => ({
+    blockHash: transaction.blockHash ?? "",
+    blockNumber: transaction.blockNumber ?? "0",
+    confirmations: transaction.confirmations ?? "0",
+    contractAddress: transaction.contractAddress ?? "",
+    cumulativeGasUsed: transaction.cumulativeGasUsed ?? '0',
+    from: transaction.from ?? "",
+    gas: transaction.gas ?? "0",
+    gasPrice: transaction.gasPrice ?? "0",
+    gasUsed: transaction.gasUsed ?? "0",
+    hash: transaction.hash ?? "",
+    input: transaction.input ?? "",
+    logIndex: transaction.logIndex ?? "0",
+    nonce: transaction.nonce ?? "0",
+    to: transaction.to ?? "",
+    timeStamp: transaction.timeStamp ?? "0",
+    tokenDecimal: transaction.tokenDecimal ?? "0",
+    tokenName: transaction.tokenName ?? "",
+    tokenSymbol: transaction.tokenSymbol ?? CoinsName.CELO,
+    transactionIndex: transaction.transactionIndex ?? "0",
+    value: transaction.value ?? "0",
+})
 
-export const InputReader = (input: string, transaction: Transactions, tags: ITag[], Coins: Coins) => {
-    const theTags = tags.filter(s => s.transactions.includes(transaction.hash.toLowerCase()))
+interface IReader { transaction: Transactions, tags: ITag[], Coins: Coins }
+export const InputReader = (input: string, { transaction, tags, Coins }: IReader) => {
+    const theTags = tags.filter(s => s.transactions.some(t => t.hash === transaction.hash));
     if (input === null || input === ERC20MethodIds.noInput) {
         return {
             method: "noInput",
@@ -168,7 +191,6 @@ export const InputReader = (input: string, transaction: Transactions, tags: ITag
     }
     else if (input.startsWith(ERC20MethodIds.automatedTransfer)) {
         const len = ERC20MethodIds.automatedTransfer.length
-
         return {
             method: "automatedTransfer",
             id: ERC20MethodIds.automatedTransfer,

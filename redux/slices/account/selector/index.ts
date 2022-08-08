@@ -1,8 +1,10 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
+import { IMember, IMemberORM } from "firebaseConfig";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { IPriceCoin } from "pages/api/calculation/price.api";
 import { RootState } from "redux/store";
 import { TokenType } from "types";
+import { ExecutionType } from "types/dashboard/contributors";
 
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
@@ -117,6 +119,16 @@ export const SelectAccounts = createDraftSafeSelector(
     (accounts) => accounts
 )
 
+export const SelectOwners = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.accounts,
+    (accounts) => {
+        if (accounts && accounts.length > 0) {
+            return [...accounts.reduce<IMemberORM[]>((a, c) => [...a, ...c.members.map(s => ({ ...s, parent: c }))], [])]
+        }
+        return []
+    }
+)
+
 export const SelectIndividualAccounts = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage?.individual.accounts,
     (accounts) => accounts
@@ -135,6 +147,17 @@ export const SelectBlockchain = createDraftSafeSelector(
 export const SelectContributors = createDraftSafeSelector(
     (state: RootState) => state.remoxData.contributors,
     (contributors) => contributors
+)
+
+export const SelectContributorsAutoPayment = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.contributors,
+    (contributors) => contributors.filter(s => ({ ...s, members: s.members.filter(m => m.execution === ExecutionType.auto) }))
+)
+
+// Reccuring Tasks
+export const SelectRecurringTasks = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.recurringTasks,
+    (recurringTasks) => recurringTasks
 )
 
 export const SelectBudgetExercises = createDraftSafeSelector(

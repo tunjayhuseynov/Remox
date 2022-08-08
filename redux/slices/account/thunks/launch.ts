@@ -13,6 +13,8 @@ import { IPriceResponse } from "pages/api/calculation/price.api";
 import { ITag } from "pages/api/tags/index.api";
 import { Multisig_Fetch_Thunk } from "./multisig";
 import { BlockchainType } from "types/blockchains";
+import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
+import { ITasking } from "rpcHooks/useTasking";
 
 type LaunchResponse = {
     Balance: IPriceResponse;
@@ -25,6 +27,7 @@ type LaunchResponse = {
     Transactions: IFormattedTransaction[],
     Requests: IRequest[],
     Tags: ITag[],
+    RecurringTasks: ITasking[],
     multisigAccounts: {
         all: IAccountMultisig[],
         multisigTxs: IAccountMultisig["txs"],
@@ -101,8 +104,16 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         }
     })
 
+    const recurrings = FirestoreReadMultiple<ITasking>("recurrings", [
+        {
+            firstQuery: "accountId",
+            secondQuery: id,
+            condition: "==",
+        }
+    ])
 
-    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes, balanceRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags, balances]);
+
+    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes, balanceRes, recurringsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags, balances, recurrings]);
 
 
     const accounts = accountRes.data;
@@ -134,6 +145,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxDa
         Transactions: transactionsRes.data,
         Requests: requestRes.data,
         Tags: tagsRes.data,
+        RecurringTasks: recurringsRes,
         multisigAccounts: {
             all: multisigAccounts,
             multisigTxs: multisigRequests,

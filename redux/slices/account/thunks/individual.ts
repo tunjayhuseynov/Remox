@@ -45,8 +45,9 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
     let individualState: IIndividual = {
         accounts: [
             {
+                mail: null,
                 address: address,
-                blockchain,
+                blockchain: blockchain.name,
                 created_date: GetTime(),
                 createdBy: id,
                 name: newAccountName,

@@ -7,9 +7,8 @@ import Web3 from 'web3'
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { GetTime } from 'utils';
 import { FirestoreWrite } from './useFirebase';
-import { useAppSelector } from 'redux/hooks';
-import { SelectID } from 'redux/slices/account/selector';
 import { useCelo } from '@celo/react-celo';
+import { IPaymentInput } from 'pages/api/payments/send/index.api';
 
 export interface ITasking {
     accountId: string;
@@ -17,7 +16,11 @@ export interface ITasking {
     sender: string,
     recipient: string,
     blockchain: string,
-    protocol: string
+    protocol: string,
+    from: number,
+    to: number,
+    interval: DateInterval | null,
+    inputs: IPaymentInput[],
 }
 
 export default function useTasking() {
@@ -90,7 +93,7 @@ export default function useTasking() {
     }
 
     // CELO
-    const createTask = async (account: IAccount, startDate: number, interval: DateInterval | "instant" | number, executionAddress: string, executionCommand: string) => {
+    const createTask = async (account: IAccount, startDate: number, interval: DateInterval | "instant" | number, executionAddress: string, executionCommand: string, inputs: IPaymentInput[]) => {
         try {
             let timeInterval;
             if (interval === DateInterval.daily) {
@@ -139,7 +142,11 @@ export default function useTasking() {
                 sender: account.address,
                 recipient: executionAddress,
                 blockchain: "celo",
-                protocol: "gelato"
+                protocol: "gelato",
+                from: startDate,
+                to: timeInterval,
+                interval: typeof interval === "string" && interval != "instant" ? interval : null,
+                inputs,
             })
 
 

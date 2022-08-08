@@ -48,11 +48,11 @@ export const DeleteTag = createAsyncThunk<ITag, { id: string, tag: ITag }>("remo
     return tag;
 })
 
-export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: string }, { id: string, tagId: ITxTag, transactionId: string }>("remoxData/addTransactionToTag", async ({ id, tagId, transactionId }) => {
+export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transaction: ITxTag }>("remoxData/addTransactionToTag", async ({ id, tagId, transaction: transactionId }) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
-    const tag = res?.tags.find(t => t.id === tagId.id)
+    const tag = res?.tags.find(t => t.id === tagId)
 
-    if (tag && !tag.transactions.includes(transactionId)) {
+    if (tag && !tag.transactions.some(t => t.address === transactionId.address && t.hash === transactionId.hash)) {
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
             tags: arrayRemove(tag)
         })
@@ -65,7 +65,7 @@ export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transaction
     return { tagId, transactionId };
 })
 
-export const RemoveTransactionFromTag = createAsyncThunk<{ tagId: string, transactionId: string }, { id: string, tagId: string, transactionId: string }>("remoxData/removeTransactionFromTag", async ({ id, tagId, transactionId }) => {
+export const RemoveTransactionFromTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transactionId: ITxTag }>("remoxData/removeTransactionFromTag", async ({ id, tagId, transactionId }) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     const tag = res?.tags.find(t => t.id === tagId)
 
@@ -73,7 +73,7 @@ export const RemoveTransactionFromTag = createAsyncThunk<{ tagId: string, transa
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
             tags: arrayRemove(tag)
         })
-        tag.transactions = tag.transactions.filter(t => t !== transactionId)
+        tag.transactions = tag.transactions.filter(t => t.id !== transactionId.id)
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
             tags: arrayUnion(tag)
         })

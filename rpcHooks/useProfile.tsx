@@ -1,63 +1,45 @@
-import { auth, IUser } from 'firebaseConfig';
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { selectStorage } from 'redux/slices/account/storage';
-import { Blockchains } from 'types/blockchains';
-import { decryptMessage, encryptMessage } from 'utils/hashing';
-import { FirestoreWrite, useFirestoreRead } from './useFirebase';
+import { accountInfoToSenchaPoolState } from '@jup-ag/core/dist/lib/sencha/swapLayout';
+import { useAppSelector } from 'redux/hooks';
+import { SelectAccountType, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { FirestoreWrite } from './useFirebase';
 
 export default function useProfile() {
-  const [isLoading, setLoading] = useState(false)
-  const storage = useSelector(selectStorage)
+  const accountType = useAppSelector(SelectAccountType)
+  const account = useAppSelector(SelectRemoxAccount)
+  const collection = accountType === 'individual' ? 'individuals' : 'organizations'
 
-  let { data } = useFirestoreRead<IUser>('users', auth.currentUser!.uid)
-  let profile: IUser | undefined;
-  if (data && storage) {
-    profile = {
-      address: data!.address,
-      id: data!.id,
-      multiwallets: data.multiwallets,
-      name: data!.name,
-      surname: data!.surname,
-      companyName: data!.companyName,
-      seenTime: data?.seenTime ?? 0,
-      timestamp: data!.timestamp,
-      blockchain: data?.blockchain ?? Blockchains.find(b => b.name === "celo")!,
+
+  const UpdateName = async (name: string) => {
+    try {
+      if (!account?.id) throw new Error('Account is not defined')
+      await FirestoreWrite<{
+        name: string,
+      }>().updateDoc('individuals', account.id, {
+        name: name,
+      })
+    } catch (error) {
+      console.log(error)
     }
   }
 
-  const UpdateNameSurname = async (name: string, surname: string) => {
-    setLoading(true)
+  const UpdateOrganizationName = async (company: string) => {
+    if (!account?.id) throw new Error('Account is not defined')
     await FirestoreWrite<{
       name: string,
-      surname: string,
-    }>().updateDoc("users", auth.currentUser!.uid, {
-      name: name,
-      surname: surname,
+    }>().updateDoc('organizations', account.id, {
+      name: company,
     })
-    setLoading(false)
-  }
-
-  const UpdateCompany = async (company: string) => {
-    setLoading(true)
-    await FirestoreWrite<{
-      companyName: string,
-    }>().updateDoc("users", auth.currentUser!.uid, {
-      companyName: company,
-    })
-    setLoading(false)
   }
 
   const UpdateSeenTime = async (time: number) => {
-    setLoading(true)
+    if (!account?.id) throw new Error('Account is not defined')
     await FirestoreWrite<{
       seenTime: number,
-    }>().updateDoc("users", auth.currentUser!.uid, {
+    }>().updateDoc(collection, account.id, {
       seenTime: time,
     })
-    setLoading(false)
   }
 
 
-  return { isLoading, UpdateCompany, UpdateNameSurname, UpdateSeenTime, profile }
+  return { UpdateOrganizationName, UpdateName, UpdateSeenTime }
 };

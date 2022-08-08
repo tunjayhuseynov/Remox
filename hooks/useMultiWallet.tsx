@@ -66,6 +66,7 @@ export default function useMultiWallet() {
                     await dispatch(Create_Account_For_Individual({
                         individual: remoxAccount as IIndividual,
                         account: {
+                            mail: null,
                             address: account,
                             blockchain: blockchain.name,
                             created_date: GetTime(),

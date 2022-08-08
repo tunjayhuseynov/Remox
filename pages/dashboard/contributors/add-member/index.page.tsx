@@ -9,7 +9,6 @@ import { SelectContributors } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import useAllowance from "rpcHooks/useAllowance";
-import useTasking from "rpcHooks/useTasking";
 import { SelectBalances } from "redux/slices/currencies";
 import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
@@ -57,7 +56,7 @@ export default () => {
     const { loading: allowLoading } = useAllowance();
 
     const balance = useAppSelector(SelectBalances);
-    const { GetCoins, blockchain } = useWalletKit();
+    const { GetCoins, blockchain, SendTransaction } = useWalletKit();
 
 
     const contributors = useAppSelector(SelectContributors);
@@ -145,6 +144,7 @@ export default () => {
 
             await addMember(Team.id!.toString(), sent);
             dispatch(addMemberToContributor({ id: Team.id!.toString(), member: sent }));
+
             navigate.back()
         } catch (error: any) {
             console.error(error);

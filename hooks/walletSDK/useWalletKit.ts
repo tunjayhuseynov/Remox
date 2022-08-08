@@ -41,6 +41,7 @@ import { ethers } from "ethers";
 import useWeb3Connector from "hooks/useWeb3Connector";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { useCelo } from "@celo/react-celo";
+import { generate } from "shortid";
 
 export enum CollectionName {
     Celo = "currencies",
@@ -113,11 +114,14 @@ export default function useWalletKit() {
         async (nonce: number) => {
             if (blockchain.name === "celo") {
                 const wallet = kit.getWallet()
-                if(!wallet) throw new Error("No wallet")
-                const signature = await wallet.signPersonalMessage(
-                    (await Address)!,
+                if (!wallet) throw new Error("No wallet")
+                const address = ethers.utils.getAddress((await Address)!);
+
+                const signature = await kit.connection.web3.eth.personal.sign(
                     GetSignedMessage(nonce),
-                );
+                    address,
+                    ""
+                )
                 return {
                     publicKey: Address!,
                     signature,
@@ -244,6 +248,7 @@ export default function useWalletKit() {
             if (inputArr.length === 0) throw new Error("No inputs");
             const txData = await dispatch(
                 FetchPaymentData({
+                    accountId: account.id,
                     blockchain: blockchain.name,
                     executer: Address,
                     requests: inputArr,
@@ -304,7 +309,8 @@ export default function useWalletKit() {
                         task.startDate,
                         task.interval,
                         Contracts.BatchRequest.address,
-                        command
+                        command,
+                        inputArr
                     );
                     dispatch(Refresh_Data_Thunk());
                     return;
@@ -320,7 +326,11 @@ export default function useWalletKit() {
                                 AddTransactionToTag({
                                     id: account.id,
                                     tagId: tag.id,
-                                    transactionId: hash,
+                                    transaction: {
+                                        id: generate(),
+                                        address: account.address,
+                                        hash: hash,
+                                    },
                                 })
                             );
                         }
@@ -368,7 +378,11 @@ export default function useWalletKit() {
                             AddTransactionToTag({
                                 id: account.id,
                                 tagId: tag.id,
-                                transactionId: signature,
+                                transaction: {
+                                    id: generate(),
+                                    address: account.address,
+                                    hash: signature,
+                                },
                             })
                         );
                     }
@@ -376,16 +390,18 @@ export default function useWalletKit() {
                 txhash = signature;
             }
             if (budget && txhash) {
-                const coins = await GroupCoinsForApprove(inputArr, GetCoins);
-                for (const coin of coins) {
+                for (const input of inputArr) {
                     await dispatch(
                         Add_Tx_To_Budget_Thunk({
                             budget: budget,
                             tx: {
+                                protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
+                                contractAddress: account.address,
+                                contractType: account.signerType,
                                 isSendingOut: true,
-                                hash: txhash,
-                                amount: coin.amount,
-                                token: coin.coin.name,
+                                hashOrIndex: txhash,
+                                amount: input.amount,
+                                token: input.coin,
                                 timestamp: GetTime(),
                             },
                         })
@@ -396,10 +412,13 @@ export default function useWalletKit() {
                             Add_Tx_To_Subbudget_Thunk({
                                 subbudget: subbudget,
                                 tx: {
+                                    protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
+                                    contractAddress: account.address,
+                                    contractType: account.signerType,
                                     isSendingOut: true,
-                                    hash: txhash,
-                                    amount: coin.amount,
-                                    token: coin.coin.name,
+                                    hashOrIndex: txhash,
+                                    amount: input.amount,
+                                    token: input.coin,
                                     timestamp: GetTime(),
                                 },
                             })

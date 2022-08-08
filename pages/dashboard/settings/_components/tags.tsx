@@ -11,7 +11,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import useLoading from 'hooks/useLoading'
 import { useAppDispatch, useAppSelector } from 'redux/hooks'
 import { CreateTag } from 'redux/slices/account/thunks/tags'
-import { SelectID } from 'redux/slices/account/remoxData'
+import { SelectID, SelectTags } from 'redux/slices/account/remoxData'
 
 export interface IFormInput {
     name: string;
@@ -19,15 +19,14 @@ export interface IFormInput {
 }
 
 export default function TagsSetting() {
-    const { register, handleSubmit } = useForm<IFormInput>();
-    const tags = useSelector(selectTags)
+    const { register, handleSubmit, reset } = useForm<IFormInput>();
+    const tags = useSelector(SelectTags)
 
     const id = useAppSelector(SelectID);
     const dispatch = useAppDispatch()
 
     const [showModal, setShowModal] = useState(false)
     const [colorPicker, setColorPicker] = useState(false)
-    const inputRef = useRef<HTMLInputElement>(null)
     const [color, setColor] = useState('')
     const [ref, exceptRef] = useModalSideExit<boolean>(colorPicker, setColorPicker, false)
 
@@ -40,14 +39,14 @@ export default function TagsSetting() {
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         const Color = color
         if (!id) return
-
         if (Color && data.name) {
-            dispatch(CreateTag({
+            await dispatch(CreateTag({
                 color: Color,
                 id: id,
                 name: data.name
             }))
         }
+        reset({ name: "" })
     }
 
     const [isLoading, OnSubmit] = useLoading(onSubmit)
@@ -78,7 +77,7 @@ export default function TagsSetting() {
                         <div className="flex items-end space-x-12">
                             <div className="flex flex-col space-y-3">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
-                                <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="Marketing" ref={inputRef} />
+                                <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="Marketing" />
                             </div>
                             <div className="flex flex-col space-y-3 ">
                                 <label className="text-greylish bg-opacity-50"></label>
@@ -87,7 +86,6 @@ export default function TagsSetting() {
                                         <div className="w-[18px] h-[18px] rounded-full" style={{
                                             backgroundColor: color,
                                         }}>
-
                                         </div>
                                     </div>
                                     <div className="border-l border-greylish px-2 py-2 " ref={exceptRef}>

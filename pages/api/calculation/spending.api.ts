@@ -338,7 +338,7 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
             totalAmount: 0
         }
         tag.transactions.forEach(transaction => {
-            const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.toLowerCase())
+            const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.hash.toLowerCase())
             if (tx && currencies) {
                 const tTime = new Date(parseInt(tx.rawData.timeStamp) * 1e3)
                 if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDay) {

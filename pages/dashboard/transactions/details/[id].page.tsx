@@ -18,11 +18,13 @@ import { CoinsURL } from "types";
 import { useRouter } from "next/router";
 import Loader from "components/Loader";
 import { AddTransactionToTag, RemoveTransactionFromTag } from "redux/slices/account/thunks/tags";
-import { SelectDarkMode, SelectID } from "redux/slices/account/remoxData";
+import { SelectDarkMode, SelectID, SelectRemoxAccount } from "redux/slices/account/remoxData";
 import { ToastRun } from "utils/toast";
+import { generate } from "shortid";
+import { IAccount } from "firebaseConfig";
 
 const Details = () => {
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
+    const selectedAccount = useAppSelector(SelectRemoxAccount)
     const currencies = useAppSelector(SelectCurrencies)
     const id = useAppSelector(SelectID)
     const dispatch = useAppDispatch()
@@ -100,7 +102,7 @@ const Details = () => {
                                     const single = reader as ITransfer
                                     paidTo = "1 person"
                                     totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
-                                    walletAddress = single.to.toLowerCase() === selectedAccount.toLowerCase() ? [data.rawData.from] : [single.to]
+                                    walletAddress = (selectedAccount?.accounts as IAccount[]).some(s => s.address.toLowerCase() === single.to.toLowerCase()) ? [data.rawData.from] : [single.to]
                                 }
 
                                 setInfo({
@@ -120,7 +122,7 @@ const Details = () => {
                             const single = txFind as ITransfer
                             paidTo = "1 person"
                             totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
-                            walletAddress = single.to.toLowerCase() === selectedAccount.toLowerCase() ? [single.rawData.from] : [single.to]
+                            walletAddress = (selectedAccount?.accounts as IAccount[]).some(s => s.address.toLowerCase() === single.to.toLowerCase()) ? [single.rawData.from] : [single.to]
                         }
 
                         setInfo({
@@ -226,7 +228,11 @@ const Details = () => {
                 dispatch(AddTransactionToTag({
                     id: id,
                     tagId: tag.id,
-                    transactionId: tx!.hash
+                    transaction: {
+                        address: ,
+                        id: generate(),
+                        hash: tx?.hash ?? "",
+                    }
                 }))
             }
         }

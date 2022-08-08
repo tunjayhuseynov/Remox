@@ -22,6 +22,7 @@ import BigNumber from "bignumber.js";
 import { SelectIndividual } from 'redux/slices/account/remoxData';
 import { Multisig_Fetch_Thunk } from "redux/slices/account/thunks/multisig";
 import { useCelo } from "@celo/react-celo";
+import { ITag } from "pages/api/tags/index.api";
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/Multisig.json")
@@ -29,6 +30,7 @@ const multisigContract = import("rpcHooks/ABI/Multisig.json")
 export interface ITransactionMultisig {
     name: string;
     destination: string,
+    hashOrIndex: string,
     contractAddress: string,
     contractOwnerAmount: number,
     contractThresholdAmount: number,
@@ -45,6 +47,7 @@ export interface ITransactionMultisig {
     method: string,
     timestamp: number,
     created_at: number,
+    tags: ITag[]
 }
 
 export enum MethodIds {
@@ -226,6 +229,7 @@ export default function useMultisig() {
             created_date: GetTime(),
             blockchain: blockchain.name,
             createdBy: auth.currentUser?.uid,
+            mail: null,
             address: proxyAddress,
             id: process(name.split(" ").join("")),
             members: owners.map<IMember>(s => ({
@@ -296,6 +300,7 @@ export default function useMultisig() {
                 created_date: GetTime(),
                 blockchain: blockchain.name,
                 address: contractAddress,
+                mail: null,
                 createdBy: auth.currentUser.uid,
                 id: process(name.split(" ").join("")),
                 members: members.map<IMember>(s => ({

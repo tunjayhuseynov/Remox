@@ -1,5 +1,6 @@
 import { createDraftSafeSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { generate } from 'shortid';
+import { CoinsURL } from 'types';
 import { DropDownItem } from "types/dropdown";
 import type { RootState } from '../store'
 
@@ -9,9 +10,9 @@ export interface IPayInput {
     surname?: string;
     address?: string;
     amount?: number;
-    wallet: DropDownItem;
+    wallet: { name: string, coinUrl: CoinsURL };
     amount2?: number;
-    wallet2?: DropDownItem;
+    wallet2?: { name: string, coinUrl: CoinsURL };
 }
 
 interface IPayInputs {
@@ -47,14 +48,14 @@ const PayInputSlice = createSlice({
                 input.wallet2 = action.payload.wallet2;
             }
         },
-        changeWallet: (state: IPayInputs, action: { payload: { index: string, wallet: DropDownItem } }) => {
+        changeWallet: (state: IPayInputs, action: { payload: { index: string, wallet: { name: string, coinUrl: CoinsURL } } }) => {
             const { index, wallet } = action.payload;
             const input = state.inputs.find(i => i.index === index);
             if (input) {
                 input.wallet = wallet;
             }
         },
-        changeSecondWallet: (state: IPayInputs, action: { payload: { index: string, wallet: DropDownItem } }) => {
+        changeSecondWallet: (state: IPayInputs, action: { payload: { index: string, wallet: { name: string, coinUrl: CoinsURL } } }) => {
             const { index, wallet } = action.payload;
             const input = state.inputs.find(i => i.index === index);
             if (input) {

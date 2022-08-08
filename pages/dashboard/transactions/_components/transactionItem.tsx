@@ -49,7 +49,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
         ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit,
         ERC20MethodIds.moolaWithdraw, ERC20MethodIds.moolaRepay
     ].indexOf(isMultisig ? ERC20MethodIds[(Transaction as ITransactionMultisig).method as keyof typeof ERC20MethodIds] : (Transaction as IFormattedTransaction).id) > -1;
-    let peer = isMultisig ?  (Transaction as ITransactionMultisig).data :
+    let peer = isMultisig ? (Transaction as ITransactionMultisig).owner ?? "" :
         (Transaction as IFormattedTransaction).rawData.from.toLowerCase() === selectedAccount.toLowerCase() ? (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
     let SwapData;
     let TransferData;
@@ -80,7 +80,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                 async () => {
                     const data = Transaction as IAutomationTransfer
                     const details = await getDetails(data.taskId)
-                    const reader = InputReader(details[1], (Transaction as IFormattedTransaction).rawData, tags, GetCoins)
+                    const reader = InputReader(details[1], { transaction: (Transaction as IFormattedTransaction).rawData, tags, Coins: GetCoins })
 
                     if (reader && reader.id === ERC20MethodIds.moolaRepay) console.log(reader)
                     const formattedTx = {
@@ -266,8 +266,12 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                             <div className="!ml-1 text-base">{tag.name}</div>
                         </div>
                     })}
-                    {<div className="flex items-center gap-2 text-primary font-bold cursor-pointer "> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add Label</div>}
-                </div>}
+                    {<div className="flex items-center gap-2 text-primary font-bold cursor-pointer">
+                        <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add Label
+                    </div>
+                    }
+                </div>
+            }
             <div className=" flex justify-end cursor-pointer items-start md:pr-0 gap-5">
                 <Button className="shadow-none px-8 py-1 !rounded-md">Sign</Button>
 

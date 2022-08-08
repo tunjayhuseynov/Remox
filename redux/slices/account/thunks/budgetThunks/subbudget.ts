@@ -30,13 +30,16 @@ export const Create_Subbudget_Thunk = createAsyncThunk<void, IBaseSubbudget>("re
             ...subbudget,
             totalBudget: totalBudget,
             totalUsed: 0,
+            totalPending: 0,
             totalAvailable: totalBudget,
             budgetCoins: {
                 coin: subbudget.token,
                 totalAmount: subbudget.amount,
+                totalPending: 0,
                 totalUsedAmount: 0,
                 second: subbudget.secondToken && subbudget.secondAmount ? {
                     secondCoin: subbudget.secondToken,
+                    secondTotalPending: 0,
                     secondTotalAmount: subbudget.secondAmount,
                     secondTotalUsedAmount: 0,
                 } : null,

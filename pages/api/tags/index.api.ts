@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 export interface ITxTag {
     id: string;
     address: string;
-    value: string;
+    hash: string;
 }
 
 export interface ITag {

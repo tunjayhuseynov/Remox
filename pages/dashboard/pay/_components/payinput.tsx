@@ -12,7 +12,10 @@ const Input = ({ payInput, index, request = false }: { payInput: IPayInput, inde
 
     const isBasedOnDollar = useSelector(SelectIsBaseOnDollar)
     const inputAmounts = useSelector(SelectInputAmount)
-    const coins = Object.values(GetCoins)
+    const coins = useMemo(() => Object.values(GetCoins).map(s => ({
+        coinUrl: s.coinUrl,
+        name: s.name as string,
+    })), [GetCoins])
 
 
     const [anotherToken, setAnotherToken] = useState(false)
@@ -35,13 +38,12 @@ const Input = ({ payInput, index, request = false }: { payInput: IPayInput, inde
             </div>
             <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="0x30....c40d263" defaultValue={payInput.address} type="text" name={`address__${index}`} onChange={(e) => { dispatch(changeAddress({ index: payInput.index, address: e.target.value })) }} required />
         </div>
-        <div className="flex flex-col ">
-            {/* <span className="text-left text-sm m pb-1 ml-1" >Token</span> */}
+        <div>
             <Dropdown
                 label="Token"
-                className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md"
-                runFn={val => () => dispatch(changeWallet({ index: payInput.index, wallet: val }))}
-                selected={payInput.wallet}
+                className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md z-50"
+                runFn={val => () => dispatch(changeWallet({ index: payInput.index, wallet: { coinUrl: val.coinUrl!, name: val.name.toString() } }))}
+                selected={{ coinUrl: payInput.wallet.coinUrl!, name: payInput.wallet.name }}
                 list={coins}
             />
             {!anotherToken && (index === 0 || request) && <div className="text-primary text-sm cursor-pointer pt-4" onClick={() => {

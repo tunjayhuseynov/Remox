@@ -16,13 +16,14 @@ import { addSplitInput, SelectInputs, resetSplitInput } from "redux/slices/split
 import shortid from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { ITransactionMultisig } from 'hooks/walletSDK/useMultisig';
 
 
 interface IFormInput {
     name?: string;
 }
 
-function Details({ Transaction, TransferData, status, time, address, isSwap, isComment, Comment, Type }: { Transaction: IFormattedTransaction, Type: string | undefined, isSwap: boolean, isComment: boolean, Comment: string | undefined, address: string, time: string, TransferData: ITransfer | undefined, status: string }) {
+function Details({ Transaction, TransferData, status, time, address, isSwap, isComment, Comment, Type }: { Transaction: IFormattedTransaction | ITransactionMultisig, Type: string | undefined, isSwap: boolean, isComment: boolean, Comment: string | undefined, address: string, time: string, TransferData: ITransfer | undefined, status: string }) {
     const { register, handleSubmit } = useForm<IFormInput>();
     const MyInputs = useNextSelector(SelectInputs)
     const dispatch = useAppDispatch()
@@ -30,6 +31,8 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
 
     const { GetCoins, fromMinScale } = useWalletKit()
     const [openNotify, setNotify] = useState(false)
+
+    const isMultisig = 'destination' in Transaction
 
 
     const [divRef, exceptRef] = useModalSideExit(openNotify, setNotify, false)
@@ -219,7 +222,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                             </div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Gas fee</div>{TransferData?.coin && <><div className="flex gap-1 items-center">0.001 <img src={TransferData.coin.coinUrl} className="w-4 h-4" alt="" />{TransferData.coin.name ?? "Unknown Coin"}</div></>}</div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Type</div><div>{Type !== undefined && Type}</div></div>
-                            <div className="flex justify-between items-center w-full"><div className="text-greylish">Tx Hash</div><div>{AddressReducer(Transaction.rawData.hash)}</div></div>
+                            <div className="flex justify-between items-center w-full"><div className="text-greylish">Tx Hash</div><div>{isMultisig ? (Transaction as ITransactionMultisig).hashOrIndex : AddressReducer(Transaction.rawData.hash)}</div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Budget</div><div>Marketing</div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Tags</div><div className="flex">{Transaction.tags && Transaction.tags.map((tag, index) => {
                                 return <div key={tag.id} className="flex space-x-1 items-center">

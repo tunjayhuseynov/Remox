@@ -8,12 +8,13 @@ import { adminApp } from "firebaseConfig/admin"
 import { ISwap } from "./index.api"
 import { Jupiter } from "@jup-ag/core"
 import JSBI from "jsbi"
+import { ITasking } from "rpcHooks/useTasking"
 
-export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null): Promise<TransactionInstruction[]>;
-export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number): Promise<TransactionInstruction[]>;
-export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming: boolean, start_time: number, end_time: number): Promise<TransactionInstruction[]>;
-export async function solanaInstructions(publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number) {
-    const connection = new Connection(SolanaSerumEndpoint) 
+export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming: boolean, start_time: number, end_time: number): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number) {
+    const connection = new Connection(SolanaSerumEndpoint)
     if (swap) {
         const jupiter = await Jupiter.load({
             connection,
@@ -73,8 +74,20 @@ export async function solanaInstructions(publicKey: string, recipient: string, c
             sender: senderAddress.toBase58(),
             recipient: recipientAddress.toBase58(),
             blockchain: "solana",
-            protocol: "zebec"
-        })
+            protocol: "zebec",
+            from: start_time,
+            to: end_time,
+            accountId,
+            interval: null,
+            inputs: [
+                {
+                    amount,
+                    coin,
+                    recipient
+                }
+            ],
+
+        } as ITasking)
 
         return [ix];
     }

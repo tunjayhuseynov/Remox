@@ -51,6 +51,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
                     totalPending: 0,
                     second: sub.secondToken && sub.secondAmount ? {
                         secondCoin: sub.secondToken,
+                        secondTotalPending: 0,
                         secondAmount: sub.secondAmount,
                         secondTotalAmount: sub.secondAmount,
                         secondTotalUsedAmount: 0,
@@ -65,6 +66,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
             totalUsedAmount: 0,
             second: budget.secondToken && budget.secondAmount ? {
                 secondCoin: budget.secondToken,
+                secondTotalPending: 0,
                 secondTotalAmount: budget.secondAmount,
                 secondTotalUsedAmount: 0,
             } : null,

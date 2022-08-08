@@ -17,9 +17,7 @@ import App from 'layouts/App'
 import Guard from 'layouts/Guard';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
-import { AnimatePresence } from 'framer-motion';
-import { useAppSelector } from 'redux/hooks';
-import { SelectDarkMode } from 'redux/slices/account/selector';
+
 const DashboardLayout = dynamic(() => import('layouts/dashboard'))
 
 

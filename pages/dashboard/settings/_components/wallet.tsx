@@ -15,12 +15,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { SetComma } from 'utils'
+import { SelectAccounts } from 'redux/slices/account/selector'
+import { IAccountORM } from 'pages/api/account/index.api'
 
 export interface IWallets {
     id: number;
     image: string | null,
     name: string;
-    mail: string;
     value: number;
     signers: {
         image: string | null;
@@ -30,71 +31,36 @@ export interface IWallets {
 
 export interface IWalletData {
     total: number;
-    wallets: IWallets[]
+    wallets: IAccountORM[]
 }
 
 export interface IFormInput {
     nftAddress?: string;
     nftTokenId?: number;
     name: string;
-
 }
 
 const WalletSetting = () => {
+    const accounts = useAppSelector(SelectAccounts)
     const { register, handleSubmit } = useForm<IFormInput>();
     const { blockchain } = useWalletKit();
-    const [value, setValue] = useState('')
-    const storage = useSelector(selectStorage)
 
     const imageType: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
     const [selectedImageType, setImageType] = useState(imageType[0])
     const userIsUpload = selectedImageType.name === "Upload Photo"
 
-    const [addOwnerModal, setAddOwnerModal] = useState(false)
+
     const [replaceOwnerModal, setReplaceOwnerModal] = useState(false)
-    const [changeTresholdModal, setChangeTresholdModal] = useState(false)
+
     const [removeModal, setRemoveModal] = useState(false)
     const [file, setFile] = useState<File>()
-    const [selectedOwner, setSelectedOwner] = useState("")
+
     const [removable, setRemovable] = useState({ name: "", address: "" })
 
 
     const walletData: IWalletData = {
-        total: 500000,
-        wallets: [
-            {
-                id: 0,
-                image: null,
-                name: 'Orkhan Aslanov',
-                mail: 'Orkhan.sol',
-                value: 15000,
-                signers: [
-                    {
-                        image: null,
-                    },
-                    {
-                        image: null,
-                    },
-
-                ],
-            },
-            {
-                id: 1,
-                image: null,
-                name: 'Tuncay Huseynov',
-                mail: 'Tuncay.sol',
-                value: 48034,
-                signers: [
-                    {
-                        image: null,
-                    },
-                    {
-                        image: null,
-                    },
-
-                ],
-            },
-        ]
+        total: accounts.reduce((s, c) => s + c.totalValue, 0),
+        wallets: accounts
     }
 
 
@@ -109,13 +75,13 @@ const WalletSetting = () => {
             <div className="text-3xl font-semibold">${SetComma(walletData.total)}</div>
         </div>
         {walletData.wallets.map((item, index) => {
-            return <WalletItem item={item} key={index} setReplaceOwnerModal={setReplaceOwnerModal} setRemovable={setRemovable} setRemoveModal={setRemoveModal} />
+            return <WalletItem item={item} key={item.id} setReplaceOwnerModal={setReplaceOwnerModal} setRemovable={setRemovable} setRemoveModal={setRemoveModal} />
         })}
-        {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} animatedModal={false} disableX={true} className={' py-6 !w-[40%]'}>
+        {/* {replaceOwnerModal && <Modal onDisable={setReplaceOwnerModal} animatedModal={false} disableX={true} className={' py-6 !w-[40%]'}>
             <form onSubmit={handleSubmit(onSubmit)} className="-my-5 flex flex-col space-y-7 px-20">
                 <div className="font-bold text-2xl text-center">Edit Wallet</div>
                 <div className="flex flex-col space-y-3">
-                    {/* <span className="text-greylish">Choose Profile Photo Type</span> */}
+                    {/* <span className="text-greylish">Choose Profile Photo Type</span> 
                     <Dropdown
                         label="Choose Profile Photo Type"
                         parentClass={'bg-white w-full rounded-lg h-[3.4rem]'}
@@ -158,7 +124,7 @@ const WalletSetting = () => {
                     </div>
                 </div>
             </form>
-        </Modal>}
+        </Modal>} */}
         {removeModal && <Modal onDisable={setRemoveModal} animatedModal={false} disableX={true} className={'!pt-6'}>
             <div className="flex flex-col space-y-8 items-center">
                 <div className="text-2xl text-primary">Are You Sure?</div>

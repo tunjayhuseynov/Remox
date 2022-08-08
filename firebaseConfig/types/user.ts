@@ -37,7 +37,9 @@ export interface IBudgetExercise {
 
 export interface IBudgetTX{
     contractAddress: string;
-    hash: string,
+    contractType: 'single'| 'multi';
+    protocol: string;
+    hashOrIndex: string,
     timestamp: number,
     isSendingOut: boolean,
     token: string,
@@ -109,15 +111,20 @@ export interface IMember {
     image: Image | null;
 }
 
+export interface IMemberORM extends IMember {
+    parent: IAccount
+}
+
 export interface IAccount {
     id: string;
     image: Image | null,
     signerType: "single" | "multi";
-    provider: "Goki" | "CeloTerminal" | null;
+    provider: string | null;
     blockchain: BlockchainType["name"];
     createdBy: string;
     address: string;
     name: string;
+    mail: string | null;
     members: IMember[];
     created_date: number;
 }

@@ -172,6 +172,8 @@ const Pay = () => {
                 startTime: index === 1 && startDate ? GetTime(startDate) : undefined,
                 tags: selectedTags,
             })
+
+            ToastRun(<>Successfully processed</>, "success")
         } catch (error) {
             const message = (error as any).message || "Something went wrong"
             console.error(error)
@@ -184,9 +186,9 @@ const Pay = () => {
 
     const isSingle = selectedAccountAndBudget.account?.signerType === "single"
     return <>
-        <div className="overflow-hidden z-[9999] fixed  h-[87.5%] pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
+        <div >
             <div className="relative bg-light dark:bg-dark">
-                <button onClick={() => { router.back() }} className=" absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
+                <button onClick={() => { router.back() }} className="absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
                     {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                     <span className="text-4xl pb-1">&#171;</span> Back
                 </button>
@@ -199,7 +201,7 @@ const Pay = () => {
                             <div className="w-full flex justify-center py-4">
                                 <div className="flex justify-between w-[30%] xl:w-[23%] "><AnimatedTabBar data={data} index={index} className={'!text-lg'} /></div>
                             </div>
-                            <div className="w-full flex flex-col   px-3 py-2">
+                            <div className="w-full flex flex-col px-3 py-2">
                                 <div className={`grid ${index === 1 ? "grid-cols-[30%,30%,40%]" : "grid-cols-[40%,60%]"} `}>
                                     <div className="flex flex-col gap-2 mb-4 border-r">
                                         <div className="font-semibold text-lg text-greylish dark:text-white ">Total Treasury</div>
@@ -217,10 +219,10 @@ const Pay = () => {
                                     </div>}
                                 </div>
                             </div>
-                            <div className="sm:flex flex-col gap-3  py-5 xl:py-10">
+                            <div className="sm:flex flex-col gap-3 py-5 xl:py-10">
                                 <div className="sm:flex flex-col  gap-y-10  ">
                                     <div className="grid grid-cols-2 gap-8">
-                                        <div className="flex flex-col">
+                                        <div>
                                             {/* <span className="text-left pb-1 text-sm ml-1 font-semibold">Amount Type</span> */}
                                             <Dropdown
                                                 parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'}

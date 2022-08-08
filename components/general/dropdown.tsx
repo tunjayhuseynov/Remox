@@ -5,6 +5,16 @@ import { BlockchainType } from 'types/blockchains';
 import { CoinsURL } from 'types';
 import { FormControl, InputLabel } from '@mui/material';
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
 
 interface IProp<T> {
     parentClass?: string,
@@ -14,7 +24,7 @@ interface IProp<T> {
     selected?: T,
     list: Array<T>,
     setSelect?: Dispatch<T>,
-    runFn?: (val: T) => () => void,
+    runFn?: (val: T) => () => any,
 }
 
 interface IGenericExtendedProp {
@@ -42,6 +52,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                 <Select
                     id={id}
                     labelId={labelId + "-label"}
+                    MenuProps={MenuProps}
                     value={selected ?? ""}
                     // {...props}
                     renderValue={(selected: T) =>

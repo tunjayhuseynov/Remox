@@ -144,7 +144,7 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
 
   uniqueHashs.forEach((transaction: Transactions) => {
     const input = transaction.input;
-    const formatted = InputReader(input, transaction, tags, Coins);
+    const formatted = InputReader(input, { transaction, tags, Coins });
 
     if (formatted) {
       FormattedTransaction.push({

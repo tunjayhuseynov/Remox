@@ -1,12 +1,12 @@
+import { IMemberORM } from 'firebaseConfig'
 import { useModalSideExit } from 'hooks'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { useAppSelector } from 'redux/hooks'
 import { SelectDarkMode } from 'redux/slices/account/selector'
-import { IOwnerData } from '../owner'
 
 
 function OwnerItem({ item, setReplaceOwnerModal, setRemoveModal, setRemovable }: {
-    item: IOwnerData, setReplaceOwnerModal: Dispatch<SetStateAction<boolean>>, setRemoveModal: Dispatch<SetStateAction<boolean>>, setRemovable: Dispatch<SetStateAction<{
+    item: IMemberORM, setReplaceOwnerModal: Dispatch<SetStateAction<boolean>>, setRemoveModal: Dispatch<SetStateAction<boolean>>, setRemovable: Dispatch<SetStateAction<{
         name: string;
         address: string;
     }>>
@@ -17,12 +17,12 @@ function OwnerItem({ item, setReplaceOwnerModal, setRemoveModal, setRemovable }:
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
 
 
-    return <div className={` grid grid-cols-[20%,20%,20%,20%,20%] ${item.id === 0 && 'border-t'} border-b  py-10  relative`}>
+    return <div className={` grid grid-cols-[20%,20%,20%,20%,20%] border-b  py-10  relative`}>
         <div className="flex items-center justify-start gap-2" >
-        {item.image ? <img src={`${item.image}`} className={` border bg-gray-600 w-12 h-12 rounded-full`} /> : <div className=" border bg-gray-600 w-12 h-12 rounded-full"></div> }
+            {item.image ? <img src={`${item.image}`} className={` border bg-gray-600 w-12 h-12 rounded-full`} /> : <div className=" border bg-gray-600 w-12 h-12 rounded-full"></div>}
             <div className="flex flex-col gap-1">
                 <div className="font-semibold">{item.name}</div>
-                <div className="text-greylish dark:text-white text-sm">{item.text}</div>
+                <div className="text-greylish dark:text-white text-sm">{item.address}</div>
             </div>
         </div>
         <div className="flex items-center justify-center">
@@ -31,8 +31,8 @@ function OwnerItem({ item, setReplaceOwnerModal, setRemoveModal, setRemovable }:
             </div>
         </div>
         <div className="flex gap-4 items-center justify-center">
-        {item.orgImage ? <img src={`${item.orgImage}`} className={` border bg-gray-600 w-12 h-12 rounded-full`} /> : <div className=" border bg-gray-600 w-12 h-12 rounded-full"></div> }
-            <div className="">{item.wallet}</div>
+            {item.parent.image ? <img src={`${item.parent.image.imageUrl as String}`} className={` border bg-gray-600 w-12 h-12 rounded-full`} /> : <div className=" border bg-gray-600 w-12 h-12 rounded-full"></div>}
+            <div>{item.parent.name}</div>
         </div>
         <div className="text-greylish dark:text-white flex items-center justify-center">{item.mail}</div>
         <div className="flex space-x-3 justify-end">
@@ -51,7 +51,6 @@ function OwnerItem({ item, setReplaceOwnerModal, setRemoveModal, setRemovable }:
                     </div>
                 </div>}
             </span>
-
         </div>
 
     </div>

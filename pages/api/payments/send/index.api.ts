@@ -24,6 +24,7 @@ export interface ISwap {
 }
 
 export interface IPaymentDataBody {
+    accountId: string,
     blockchain: BlockchainType["name"],
     executer: string,
     requests: IPaymentInput[],
@@ -44,22 +45,22 @@ export default async function Send(
 ) {
     try {
         if (req.method !== 'POST') throw new Error('Only POST method is allowed')
-        const { blockchain, requests, executer, isStreaming, endTime, startTime, swap } = req.body as IPaymentDataBody
+        const { blockchain, requests, executer, isStreaming, endTime, startTime, swap, accountId } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
         if (requests.length === 0 && !swap) throw new Error("requests is required");
 
         if (blockchain === "solana") {
             const instructions: TransactionInstruction[] = []
             if (swap) {
-                const tx = await solanaInstructions(executer, "", "", 0, swap)
+                const tx = await solanaInstructions(accountId, executer, "", "", 0, swap)
                 instructions.push(...tx)
             }
             const instructionsRes = await Promise.all(requests.map(request => {
                 if (isStreaming && startTime && endTime) {
-                    return solanaInstructions(executer, request.recipient, request.coin, request.amount, swap, isStreaming, startTime, endTime)
+                    return solanaInstructions(accountId, executer, request.recipient, request.coin, request.amount, swap, isStreaming, startTime, endTime)
                 }
 
-                return solanaInstructions(executer, request.recipient, request.coin, request.amount, swap)
+                return solanaInstructions(accountId, executer, request.recipient, request.coin, request.amount, swap)
             }))
             instructionsRes.forEach(res => instructions.push(...res))
             return res.json({

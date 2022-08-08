@@ -16,13 +16,17 @@ import { u64 } from "@saberhq/token-utils";
 import { GetTime } from "utils";
 import { SolanaSerumEndpoint } from "components/Wallet";
 import { BlockchainType } from "types/blockchains";
+import { adminApp } from "firebaseConfig/admin";
+import { ITag } from "../tags/index.api";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ITransactionMultisig[]>) {
     try {
-        const { blockchain, address: multisigAddress, Skip, Take, name } = req.query as { blockchain: BlockchainType["name"], address: string, Skip: string, Take: string, name: string };
+        const { id, blockchain, address: multisigAddress, Skip, Take, name } = req.query as { blockchain: BlockchainType["name"], id: string, address: string, Skip: string, Take: string, name: string };
         const skip = +Skip;
         const take = +Take;
+
+        let tags = (await adminApp.firestore().collection("tags").doc(id).get()).data() as { tags: ITag[] }
 
         let transactionArray: ITransactionMultisig[] = []
         if (blockchain === 'solana') {
@@ -109,6 +113,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
                             const parsedTx = MultisigTxParser({
                                 contractAddress: pb.toBase58(),
+                                txHashOrIndex: txKey.toBase58(),
                                 contractInternalThreshold: data.threshold.toNumber(),
                                 contractThreshold: data.threshold.toNumber(),
                                 contractOwnerAmount: owners.length,
@@ -127,7 +132,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                                     requiredCount
                                 },
                                 timestamp,
-                                name
+                                name,
+                                tags: tags?.tags ?? []
                             })
                             transactionArray.push(parsedTx)
 
@@ -143,23 +149,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             const contract = new Contract(multisigAddress, Multisig.abi, provider)
 
-            // const owners = await contract.getOwners() as string[]
-
             let Total = await contract.transactionCount.call() as BigNumber
-            // let Total = (await contract.getTransactionCount(true, true)) as BigNumber
             let total = Total.toNumber();
-            // const kitMultiSig = await kit.contracts.getMultiSig(multisigAddress);
-            // let total = await kitMultiSig.getTransactionCount(true, true)
             if (total > skip) {
                 total -= skip;
             }
             let limit = total - take - 1 > 0 ? total - take - 1 : 0;
-            // for (let index = total - 1; index > limit; index--) {
 
-            // }
             const GetTx = async (index: number) => {
                 const tx = await contract.transactions(index)
-                // if (!tx || (tx && !tx['data'])) continue;
 
                 let confirmations: string[] = []
 
@@ -167,6 +165,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
                 const obj = MultisigTxParser({
                     parsedData: null,
+                    txHashOrIndex: index.toString(),
                     index, destination: tx.destination,
                     created_at: GetTime(),
                     data: tx.data, executed: tx.executed,
@@ -177,7 +176,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     contractInternalThreshold: contract.internalRequired.toNumber(),
                     contractThreshold: contract.required.toNumber(),
                     contractOwnerAmount: contract.getOwners().length,
-                    name
+                    name,
+                    tags: tags?.tags ?? []
                 })
 
                 return obj;

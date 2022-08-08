@@ -10,6 +10,14 @@ import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UploadNFTorImageForUser } from 'hooks/singingProcess/utils';
+import { auth, IAccount, IIndividual, IMember, IOrganization } from 'firebaseConfig';
+import { GetTime } from 'utils';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { SelectAccountType, SelectBlockchain, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
+import { generate } from 'shortid';
+import axios from 'axios';
+import { ToastRun } from 'utils/toast';
 
 export interface IFormInput {
     nftAddress?: string;
@@ -21,10 +29,14 @@ export interface IFormInput {
 function NewWalletModal() {
     const { register, handleSubmit } = useForm<IFormInput>();
 
+    const type = useAppSelector(SelectAccountType)
+    const account = useAppSelector(SelectRemoxAccount)
+    const blockchain = useAppSelector(SelectBlockchain)
+
+    const dispatch = useAppDispatch()
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
-    const { blockchain } = useWalletKit();
     const providers = blockchain.multisigProviders;
 
     const { addWallet } = useMultiWallet()
@@ -65,28 +77,70 @@ function NewWalletModal() {
 
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-        if (!selectedWalletProvider) throw new Error("No provider selected")
+        try {
+            if (!selectedWalletProvider) throw new Error("No provider selected")
+            if (!auth.currentUser) throw new Error("No user signed in")
 
-        const Photo = file;
-        const provider = selectedWalletProvider.name;
+            const Photo = file;
 
-        let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
-        if (Photo || data.nftAddress) {
-            image = {
-                image: {
-                    blockchain,
-                    imageUrl: Photo ?? data.nftAddress ?? "",
-                    nftUrl: data.nftAddress ?? "",
-                    tokenId: data.nftTokenId ?? null,
-                    type: imageType ? "image" : "nft",
-                },
-                name: `individuals/${data.name}`,
-            };
-            await UploadNFTorImageForUser(image);
+            let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+            if (Photo || data.nftAddress) {
+                image = {
+                    image: {
+                        blockchain,
+                        imageUrl: Photo ?? data.nftAddress ?? "",
+                        nftUrl: data.nftAddress ?? "",
+                        tokenId: data.nftTokenId ?? null,
+                        type: imageType ? "image" : "nft",
+                    },
+                    name: `organizations/${data.name}`,
+                };
+                await UploadNFTorImageForUser(image);
+            }
+
+
+            const contract = (await axios.get<{ owners: string[] }>("/api/multisig/owners", {
+                params: {
+                    blockchain: blockchain.name,
+                    address: data.address,
+                }
+            })).data;
+
+            let myResponse: IAccount = {
+                created_date: GetTime(),
+                blockchain: blockchain.name,
+                address: data.address,
+                mail: null,
+                createdBy: auth.currentUser.uid,
+                id: generate(),
+                members: contract.owners.map<IMember>(s => ({
+                    address: s,
+                    id: generate(),
+                    name: "",
+                    image: null,
+                    mail: "",
+                })),
+                image: image?.image ?? null,
+                name: data.name,
+                provider: selectedWalletProvider.name,
+                signerType: "multi"
+            }
+
+            if (type === "organization") {
+                dispatch(Create_Account_For_Organization({
+                    account: myResponse,
+                    organization: (account as IOrganization)
+                }))
+            } else if (type === "individual") {
+                dispatch(Create_Account_For_Individual({
+                    account: myResponse,
+                    individual: (account as IIndividual)
+                }))
+            }
+        } catch (error) {
+            console.error(error)
+            ToastRun(<>Please, be sure your address belongs to a multisig account</>, "error")
         }
-
-
-
     }
 
     return <div className="w-full mx-auto relative">

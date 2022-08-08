@@ -1,4 +1,4 @@
-import { ITag } from "pages/api/tags/index.api";
+import { ITag, ITxTag } from "pages/api/tags/index.api";
 import { IRemoxData } from "../remoxData";
 
 export default {
@@ -19,13 +19,13 @@ export default {
             return tag;
         });
     },
-    addTransactionHashToTag: (state: IRemoxData, action: { payload: { tagId: string; transactionId: string } }) => {
+    addTransactionHashToTag: (state: IRemoxData, action: { payload: { tagId: string; transactionId: ITxTag } }) => {
         const tagIndex = state.tags.findIndex(tag => tag.id === action.payload.tagId);
         if (tagIndex === -1) {
             state.tags[tagIndex].transactions = [...state.tags[tagIndex].transactions, action.payload.transactionId];
         }
     },
-    removeTransactionHashFromTag: (state: IRemoxData, action: { payload: { tagId: string; transactionId: string } }) => {
+    removeTransactionHashFromTag: (state: IRemoxData, action: { payload: { tagId: string; transactionId: ITxTag } }) => {
         const tagIndex = state.tags.findIndex(tag => tag.id === action.payload.tagId);
         if (tagIndex === -1) {
             state.tags[tagIndex].transactions = state.tags[tagIndex].transactions.filter(

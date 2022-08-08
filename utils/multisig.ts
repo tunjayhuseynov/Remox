@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js"
 import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig"
+import { ITag } from "pages/api/tags/index.api";
 import { BlockchainType } from "types/blockchains";
 import { fromLamport, fromWei } from "./ray"
 
@@ -26,23 +27,27 @@ export interface ParsedMultisigData {
 export const MultisigTxParser = (
     {
         index, destination, data, executed,
+        tags, txHashOrIndex,
         confirmations, Value, blockchain, parsedData, timestamp, contractAddress,
         contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
+            tags: ITag[], txHashOrIndex: string,
             confirmations: string[], Value: BigNumber, blockchain: BlockchainType["name"],
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string, created_at: number
         }
 ) => {
+
     let size = 0;
     if (blockchain === 'solana') size = SOLANA_WALLET_SIZE
     else size = EVM_WALLET_SIZE
     let from = blockchain === "solana" ? fromLamport : fromWei
     let obj: ITransactionMultisig = {
         name,
+        hashOrIndex: txHashOrIndex,
         destination: destination,
         data: data,
         executed: executed,
@@ -54,7 +59,8 @@ export const MultisigTxParser = (
         contractInternalThresholdAmount: contractInternalThreshold,
         contractOwnerAmount: contractOwnerAmount,
         contractThresholdAmount: contractThreshold,
-        method: ""
+        method: "",
+        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase()))
     }
 
     let value = from(Value)

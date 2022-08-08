@@ -5,16 +5,19 @@ import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
 import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { IPriceResponse } from "../calculation/price.api";
-import { ISpendingResponse } from "../calculation/_spendingType.api";
 import { BlockchainType } from "types/blockchains";
+import { CalculateBudget } from "./budgetCal";
 
-interface IBudgetCoin {
+const CeloTerminal = import("rpcHooks/ABI/Multisig.json")
+
+export interface IBudgetCoin {
     coin: string,
     totalAmount: number,
     totalPending: number,
     totalUsedAmount: number,
     second: {
         secondCoin: string,
+        secondTotalPending: number,
         secondTotalAmount: number
         secondTotalUsedAmount: number,
     } | null
@@ -77,6 +80,7 @@ export default async function handler(
         for (let budget_exercise of budget_exercises) {
             const orm: IBudgetORM[] = [];
             let totalBudgetCoin: IBudgetCoin[] = []
+            let blockchainType = budget_exercise.blockchain;
 
             const budget_snapshots = await adminApp.firestore().collection("budgets").where("parentId", "==", budget_exercise.id).get();
             budget_exercise.budgets = budget_snapshots.docs.map(snapshot => snapshot.data() as IBudget);
@@ -84,94 +88,11 @@ export default async function handler(
             /*Budget Calculation */
             /*Budget Calculation */
             /*Budget Calculation */
-            for (let budget of budget_exercise.budgets) {
-                let totalBudget: number = 0, totalBudgetUsed: number = 0, totalBudgetPending: number = 0, totalBudgetAvailable: number = 0;
-                const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
-                    params: {
-                        addresses: parsedAddress,
-                        blockchain: blockchain,
-                        txs: Array.from(new Set(budget.txs.map(s => s.hash))),
-                        id: parentId,
-                        isTxNecessery: true
-                    }
-                })
-
-                totalBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 0)));
-                let budgetCoin: IBudgetCoin = {
-                    coin: budget.token,
-                    totalAmount: budget.amount,
-                    totalPending: 0,
-                    totalUsedAmount: spending.data.CoinStats?.[0]?.totalSpending ?? 0,
-                    second: budget.secondToken && budget.secondAmount && spending.data.CoinStats?.[1] ? {
-                        secondTotalAmount: budget.secondAmount,
-                        secondCoin: budget.secondToken,
-                        secondTotalUsedAmount: spending.data.CoinStats[1].totalSpending
-                    } : null
-                }
-
-                totalBudgetCoin.push(budgetCoin)
-
-
-                totalBudgetUsed += spending.data.TotalSpend;
-                totalBudgetAvailable += totalBudget - totalBudgetUsed;
-
-                /*Subbudget Calculation */
-                /*Subbudget Calculation */
-                /*Subbudget Calculation */
-                let subbudgets: ISubbudgetORM[] = [];
-                for (const subbudget of budget.subbudgets) {
-                    let totalSubBudget: number = 0, totalSubUsed: number = 0, totalSubPending: number = 0, totalSubAvailable: number = 0;
-                    const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
-                        params: {
-                            addresses: parsedAddress,
-                            blockchain: blockchain,
-                            txs: Array.from(new Set(subbudget.txs.map(s => s.hash))), 
-                            id: parentId,
-                            isTxNecessery: true
-                        }
-                    })
-
-                    totalSubBudget += ((budget.amount * prices.data.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.data.AllPrices[budget.secondToken].price : 1)));
-
-                    let budgetCoin: IBudgetCoin = {
-                        coin: subbudget.token,
-                        totalAmount: subbudget.amount,
-                        totalPending: 0,
-                        totalUsedAmount: spending.data.CoinStats?.[0]?.totalSpending ?? 0,
-                        second: subbudget.secondToken && subbudget.secondAmount && spending.data.CoinStats?.[1] ? {
-                            secondTotalAmount: subbudget.secondAmount,
-                            secondCoin: subbudget.secondToken,
-                            secondTotalUsedAmount: spending.data.CoinStats[1].totalSpending
-                        } : null
-                    }
-
-                    totalSubUsed += spending.data.TotalSpend;
-                    totalSubAvailable += totalSubBudget - totalSubUsed;;
-
-                    subbudgets.push({
-                        ...subbudget,
-                        totalBudget: totalSubBudget,
-                        totalPending: totalSubPending,
-                        budgetCoins: budgetCoin,
-                        totalAvailable: totalSubAvailable,
-                        totalUsed: totalSubUsed,
-                    })
-                }
-                /*Subbudget Calculation END*/
-                /*Subbudget Calculation END*/
-                /*Subbudget Calculation END */
-
-                orm.push({
-                    ...budget,
-                    totalBudget,
-                    totalUsed: totalBudgetUsed,
-                    totalAvailable: totalBudgetAvailable,
-                    totalPending: totalBudgetPending,
-                    budgetCoins: budgetCoin,
-                    subbudgets: subbudgets
-                })
-
-            }
+            const budgetResulst = await Promise.all(budget_exercise.budgets.map(budget => CalculateBudget(budget, parentId, parsedAddress, blockchain, blockchainType, prices.data)))
+            budgetResulst.forEach(budget => {
+                orm.push(budget.orm)
+                totalBudgetCoin.push(budget.totalBudgetCoin)
+            })
             /*Budget Calculation END*/
             /*Budget Calculation END*/
             /*Budget Calculation END*/
@@ -204,6 +125,6 @@ export default async function handler(
         res.status(200).json(exercises)
     } catch (error) {
         console.log(error)
-        res.status(500).json({message: (error as any).message} as any)
+        res.status(500).json({ message: (error as any).message } as any)
     }
 }

@@ -12,9 +12,10 @@ import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
 import TagReducers from './reducers/tag'
+import RecurringTaks from './reducers/tasks'
 import RequestReducers from './reducers/requests'
 import { IAccountORM } from "pages/api/account/index.api";
-import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "./thunks/account";
+import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail } from "./thunks/account";
 import { IAccount, IBudget, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
@@ -27,6 +28,7 @@ import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
 import { Refresh_Data_Thunk } from "./thunks/refresh";
 import { BlockchainType } from "types/blockchains";
+import { ITasking } from "rpcHooks/useTasking";
 
 export type IAccountType = "individual" | "organization";
 
@@ -71,7 +73,8 @@ export interface IRemoxData {
         account: IAccount | null,
         budget: IBudgetORM | null,
         subbudget: ISubbudgetORM | null,
-    }
+    },
+    recurringTasks: ITasking[]
 }
 
 const init = (): IRemoxData => {
@@ -120,7 +123,8 @@ const init = (): IRemoxData => {
             account: null,
             budget: null,
             subbudget: null,
-        }
+        },
+        recurringTasks: []
     }
 }
 
@@ -135,6 +139,7 @@ const remoxDataSlice = createSlice({
         ...AccountsReducer,
         ...StorageReducers,
         ...TagReducers,
+        ...RecurringTaks,
         ...RequestReducers,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
@@ -196,6 +201,24 @@ const remoxDataSlice = createSlice({
         /* Account */
         /* Account */
         /* Account */
+
+        builder.addCase(Update_Account_Name.fulfilled, (state, action) => {
+            state.accounts = [...state.accounts.map(account => {
+                if (account.id === action.payload.id) {
+                    account.name = action.payload.name;
+                }
+                return account;
+            })]
+        })
+
+        builder.addCase(Update_Account_Mail.fulfilled, (state, action) => {
+            state.accounts = [...state.accounts.map(account => {
+                if (account.id === action.payload.id) {
+                    account.mail = action.payload.mail;
+                }
+                return account;
+            })]
+        })
 
         builder.addCase(Create_Account_For_Individual.fulfilled, (state, action) => {
             state.accounts = [...state.accounts, action.payload];
@@ -298,6 +321,7 @@ const remoxDataSlice = createSlice({
             state.transactions = action.payload.Transactions;
             state.tags = action.payload.Tags;
             state.balances = action.payload.Balance.AllPrices;
+            state.recurringTasks = action.payload.RecurringTasks;
 
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
@@ -327,7 +351,7 @@ const remoxDataSlice = createSlice({
 
 export * from './selector'
 export const {
-    setOrganizations, changeDarkMode,
+    setOrganizations, changeDarkMode, addRecurringTask, removeRecurringTask,
     addApprovedRequest, addPendingRequest, addRejectedRequest, removeApprovedRequest, removePendingRequest, removeRejectedRequest,
     addTag, removeTag, updateTag, addTransactionHashToTag, removeTransactionHashFromTag, setTags,
     setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor,

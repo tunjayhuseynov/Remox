@@ -4,54 +4,24 @@ import Modal from 'components/general/modal'
 import OwnerItem from './owner/ownerItem'
 import RemoveOwner from './owner/removeOwner'
 import ChangeTreshold from './owner/changeTreshold'
-import ReplaceOwner from './owner/replaceOwner'
 import AddOwner from './owner/addOwner'
+import { useAppSelector } from 'redux/hooks'
+import { SelectOwners } from 'redux/slices/account/selector'
+import { Image } from 'firebaseConfig'
 
-
-export interface IOwnerData {
-    id: number;
-    image:string |null,
-    orgImage:string |null,
-    name: string;
-    text:string;
-    wallet:string;
-    mail: string;
-}[]
 
 const OwnerSetting = () => {
+
+    const owners = useAppSelector(SelectOwners)
 
     const [addOwnerModal, setAddOwnerModal] = useState(false)
     const [replaceOwnerModal, setReplaceOwnerModal] = useState(false)
     const [changeTresholdModal, setChangeTresholdModal] = useState(false)
     const [removeModal, setRemoveModal] = useState(false)
 
-    const [selectedOwner, setSelectedOwner] = useState("")
     const [removable, setRemovable] = useState({ name: "", address: "" })
 
     // if (!isMultisig) return <div className="text-center">Please, select a MultiSig account</div>
-
-
-    const walletData: IOwnerData[] = [
-        {
-            id: 0,
-            image:null,
-            orgImage:null,
-            name: 'Orkhan Aslanov (you)',
-            text: 'Orkhan.sol',
-            wallet: 'Treasury Vault 0',
-            mail: 'Orkhan.remox.io',
-
-        },
-        {
-            id: 1,
-            image:null,
-            orgImage:null,
-            name: 'Tuncay Huseynov',
-            text: 'Tuncay.sol',
-            wallet: 'Treasury Vault 1',
-            mail: 'Tuncay.remox.io',
-        },
-    ]
 
     return <div className="flex flex-col space-y-7 ">
         <div className="flex flex-col space-y-2">
@@ -68,7 +38,7 @@ const OwnerSetting = () => {
                 </div>
             </div>
         </div>
-        {walletData.map((item,index)=>{
+        {owners.map((item, index) => {
             return <OwnerItem key={index} item={item} setReplaceOwnerModal={setReplaceOwnerModal} setRemoveModal={setRemoveModal} setRemovable={setRemovable} />
         })}
 
