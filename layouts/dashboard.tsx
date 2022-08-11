@@ -18,21 +18,21 @@ export const DashboardContext = createContext<{ refetch: () => void, setMainAnim
 
 export default function DashboardLayout({ children }: { children: JSX.Element }) {
     const router = useRouter()
-    const isSecondAnimation = router.query.secondAnimation == 'true'
-    const noAnimation = router.query.noAnimation === 'true'
-    const variants = {
-        hidden: { opacity: 0, x: isSecondAnimation ? 1000 : -1000, y: 0 },
-        enter: {
-            opacity: 1, x: 0, y: 0, transition: {
-                duration: 0.33,
-            }
-        },
-        exit: {
-            opacity: 0, x: isSecondAnimation ? -1000 : -1000, y: 0, transition: {
-                duration: 0.33,
-            }
-        },
-    }
+    // const isSecondAnimation = router.query.secondAnimation == 'true'
+    // const noAnimation = router.query.noAnimation === 'true'
+    // const variants = {
+    //     hidden: { opacity: 0, x: isSecondAnimation ? 1000 : -1000, y: 0 },
+    //     enter: {
+    //         opacity: 1, x: 0, y: 0, transition: {
+    //             duration: 0.33,
+    //         }
+    //     },
+    //     exit: {
+    //         opacity: 0, x: isSecondAnimation ? -1000 : -1000, y: 0, transition: {
+    //             duration: 0.33,
+    //         }
+    //     },
+    // }
 
     const isFetching = useAppSelector(SelectIsRemoxDataFetching)
     const [mainAnimate, setMainAnimate] = useState<boolean>(true)
@@ -83,17 +83,15 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 </div>
                 <div className="flex space-x-11 flex-shrink flex-grow ">
                     <Sidebar />
-                    <AnimatePresence
-                        exitBeforeEnter
-                        initial={false}
-                    >
-                        <motion.main key={router.asPath} variants={noAnimation ? {} : variants} exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden transition-all  pl-[14.188rem] xl:pl-[17.188rem] pt-28`}>
-                            {children}
-                        </motion.main>
-                    </AnimatePresence>
+
+                    <main key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-20 overflow-hidden transition-all  pl-[14.188rem] xl:pl-[17.188rem] pt-28`}>
+                        {children}
+                    </main>
 
                 </div>
             </div>
         </DashboardContext.Provider>
     </>
 }
+
+//variants={noAnimation ? {} : variants}  exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }}

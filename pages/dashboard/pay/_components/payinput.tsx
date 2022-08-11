@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";

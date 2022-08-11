@@ -30,7 +30,7 @@ export interface IMember {
     address: string,
     compensation: string,
     currency: CoinsName,
-    amount: string,
+    amount: number,
     teamId: string,
     execution: ExecutionType,
     paymantDate: string,
@@ -38,7 +38,7 @@ export interface IMember {
     interval: DateInterval,
     usdBase: boolean,
     secondaryCurrency: CoinsName | null,
-    secondaryAmount: string | null,
+    secondaryAmount: number | null,
     secondaryUsdBase: boolean | null,
     taskId: string | null,
 }

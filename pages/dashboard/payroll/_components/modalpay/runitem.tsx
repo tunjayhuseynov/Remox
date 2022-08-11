@@ -10,7 +10,7 @@ const Runitem = (props: { member: IMember, teamName: string,runmodal:boolean, me
     <div className="pl-[2px] flex items-center">
             <div className="flex space-x-3 items-center">
                 <div className="hover:cursor-pointer flex items-center space-x-1">
-                    <Avatar name={props.member.name} />
+                    <Avatar name={props.member.name} surname=""/>
                     <div className=" text-base">
                         {props.member.name}
                     </div>

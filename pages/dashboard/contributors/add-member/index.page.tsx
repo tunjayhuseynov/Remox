@@ -49,9 +49,11 @@ export default () => {
         { name: "Pay with USD-based Amounts" },
     ];
     const [selectedPaymentBase, setSelectedPaymentBase] = useState(paymentBase[0]);
+    const paymentBaseIsToken = selectedPaymentBase.name === "Pay with Token Amounts";
 
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);
+    const isAutoPayment = selectedPaymentType.name === "Auto";
 
     const { loading: allowLoading } = useAllowance();
 
@@ -67,8 +69,6 @@ export default () => {
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [endDate, setEndDate] = useState<Date>(new Date());
 
-    const [selectedExecution, setSelectedExecution] = useState(false);
-    const [selectedType, setSelectedType] = useState(false);
 
     const [selectedTeam, setSelectedTeam] = useState<DropDownItem>(
         contributors.length > 0
@@ -97,8 +97,8 @@ export default () => {
         const Compensation = selectedSchedule.name;
         const Wallet = selectedWallet;
         const Wallet2 = selectedWallet2;
-        const PaymentType = selectedExecution ? "Auto" : "Manual";
-        const Frequency = selectedFrequency.name;
+        const PaymentType = selectedPaymentType ? "Auto" : "Manual";
+        const Frequency = selectedFrequency.type;
         const dateStart = startDate;
         const dateEnd = endDate;
 
@@ -129,17 +129,16 @@ export default () => {
                 image: image ? image.image : null,
                 compensation: Compensation,
                 currency: Wallet.name as CoinsName,
-                amount: data.amount.toString(),
+                amount: data.amount,
                 teamId: Team.id!.toString(),
-                usdBase: selectedType,
-                execution:
-                    PaymentType === "Auto" ? ExecutionType.auto : ExecutionType.manual,
+                usdBase: !paymentBaseIsToken,
+                execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
                 interval: Frequency as DateInterval,
                 paymantDate: dateStart!.toISOString(),
                 paymantEndDate: dateEnd!.toISOString(),
-                secondaryAmount: data.amount2 ? data.amount2.toString() : null,
+                secondaryAmount: data.amount2 ? data.amount2 : null,
                 secondaryCurrency: Wallet2?.name ? (Wallet2.name as CoinsName) : null,
-                secondaryUsdBase: data.amount2 ? selectedType : null,
+                secondaryUsdBase: data.amount2 ? !paymentBaseIsToken : null,
             };
 
             await addMember(Team.id!.toString(), sent);
@@ -255,8 +254,8 @@ export default () => {
                             setSelect={setSelectedWallet}
                         />
                         }
-                        <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
-                            {selectedType && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
+                        <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${!paymentBaseIsToken ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
+                            {!paymentBaseIsToken && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
                             <input type="number" {...register("amount", { required: true, valueAsNumber: true })} placeholder="Amount" className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required step={'any'} min={0} />
                         </div>
                     </div>
@@ -272,8 +271,8 @@ export default () => {
                                     setSelect={setSelectedWallet2}
                                 />
                             }
-                            <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedType ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
-                                {selectedType && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
+                            <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${!paymentBaseIsToken ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>
+                                {!paymentBaseIsToken && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">USD as</span>}
                                 <input type="number" {...register("amount2", { required: true, valueAsNumber: true })} placeholder="Amount" className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond dark:text-white" step={'any'} min={0} />
                             </div>
                         </div> : <div className="text-primary cursor-pointer" onClick={() => setSecondActive(true)}> <span className="px-2 text-primary border-primary ">+</span> Add another token</div>}

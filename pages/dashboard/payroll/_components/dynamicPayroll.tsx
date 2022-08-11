@@ -1,27 +1,26 @@
 import Button from 'components/button';
-import { Fragment, useState, useMemo } from 'react';
+import { Fragment, useState, useMemo, useEffect } from 'react';
 import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
 import { Coins } from 'types';
 import { selectContributors } from 'redux/slices/account/contributors';
-import { DateInterval, ExecutionType, IMember } from 'types/dashboard/contributors';
+import { DateInterval, IMember } from 'types/dashboard/contributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import useAllowance from "rpcHooks/useAllowance";
-import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useTasking from "rpcHooks/useTasking";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from 'redux/slices/account/storage';
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
-import { setMemberList } from 'redux/slices/masspay';
 import Loader from 'components/Loader';
 import Runpayroll from './modalpay/Runpayroll';
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
-import TeamContainer from './teamContainer';
 import Modal from 'components/general/modal';
 import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
+import { SelectContributorMembers, SelectContributors } from 'redux/slices/account/selector';
+import TeamItem from './teamItem';
 
 
 export default function DynamicPayroll() {
@@ -32,9 +31,18 @@ export default function DynamicPayroll() {
     if (totalBalance !== undefined) balance2 = parseFloat(`${totalBalance}`).toFixed(2)
     const balanceRedux = useAppSelector(SelectBalances)
 
+    let contributors = useAppSelector(SelectContributorMembers)
+    const [selectedContributors, setSelectedContributors] = useState<IMember[]>([])
 
-    let contributors = useAppSelector(selectContributors).contributors.map(s => ({ ...s, members: s.members.filter(m => m.execution) }))
-    const memberState = useState<IMember[]>([])
+    useEffect(() => {
+        if (!runmodal) {
+            setSelectedContributors([])
+        }
+    }, [runmodal])
+
+
+
+
     const { GetCoins } = useWalletKit()
     const router = useRouter()
     const dispatch = useDispatch()
@@ -45,19 +53,14 @@ export default function DynamicPayroll() {
     const { allow, loading: allowLoading } = useAllowance()
 
     const totalPrice: { [name: string]: number } = useMemo(() => {
-        if (contributors && balance.CELO) {
+        if (contributors) {
             const list: IMember[] = [];
-            contributors.forEach(team => {
-                team.members?.forEach(member => {
-                    list.push(member)
-                })
-            })
             const first = Object.entries(_(list).groupBy('currency').value()).map(([currency, members]) => {
                 let totalAmount = members.reduce((acc, curr) => {
                     if (new Date(curr.paymantDate).getTime() > new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                         return acc;
                     }
-                    let amount = parseFloat(curr.amount)
+                    let amount = curr.amount
                     if (curr.usdBase) {
                         amount /= (balance[GetCoins[curr.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                     }
@@ -92,7 +95,7 @@ export default function DynamicPayroll() {
                     if (new Date(curr.paymantDate).getTime() > new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                         return acc;
                     }
-                    let amount = (parseFloat(curr!.secondaryAmount!))
+                    let amount = curr!.secondaryAmount!
                     if (curr.secondaryUsdBase) {
                         amount /= (balance[GetCoins[curr.secondaryCurrency! as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                     }
@@ -132,22 +135,182 @@ export default function DynamicPayroll() {
         }
     }, [contributors, balance])
 
+    const monthlyTotalPayment = useMemo(() => {
+        return Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
+            a += amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
+            return a;
+        }, 0).toFixed(2)
+    }, [totalPrice, balance])
+
+    const tokenAllocation = useMemo(() => {
+        return Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {
+            return <div key={currency} className="flex space-x-2 relative h-fit">
+                <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
+                <div className="font-semibold text-xl flex gap-1 items-center">
+                    <img src={GetCoins[currency as keyof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
+                    {GetCoins[currency as keyof Coins].name}</div>
+                <div>
+                </div>
+                <div className="absolute -left-1 -bottom-6 text-sm text-greylish opacity-75 text-left">
+                    ${(amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
+                </div>
+            </div>
+        })
+    }, [totalPrice, balance])
+
     const confirmFunc = () => {
         setConfirm(!confirm)
-        if (confirm && memberState[0].length > 0) {
+        if (confirm && contributors.length > 0) {
             setRunmodal(true)
         }
     }
 
+
+    const confirmSubmit = async () => {
+        const arr = [...selectedContributors]
+        arr.forEach(curr => {
+            if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
+                let amount = curr.amount
+                if (curr.interval === DateInterval.weekly) {
+                    amount *= Math.max(1, Math.floor(days / 7))
+                } else if (curr.interval === DateInterval.monthly) {
+                    amount *= Math.max(1, Math.floor(days / 30))
+                }
+                curr = { ...curr, amount: amount }
+            }
+        })
+
+        console.log(arr)
+        // try {
+        //     for (let index = 0; index < arr.length; index++) {
+        //         const curr = arr[index];
+
+        //         let hash;
+        //         const interval = curr!.interval
+        //         const days = Math.abs(date.subtract(new Date(curr.paymantDate), new Date(curr.paymantEndDate)).toDays());
+        //         const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
+        //         let realMoney = Number(curr.amount) * realDays
+
+        //         if (curr.usdBase) {
+        //             realMoney *= (balance[GetCoins[curr.currency].name]?.tokenPrice ?? 1)
+        //         }
+        //         await allow(GetCoins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
+        //         const paymentList: PaymentInput[] = []
+
+        //         paymentList.push({
+        //             coin: GetCoins[curr.currency],
+        //             recipient: curr.address.trim(),
+        //             amount: curr.amount.trim()
+        //         })
+
+        //         if (curr.secondaryAmount && curr.secondaryCurrency) {
+        //             let realMoney = Number(curr.secondaryAmount) * realDays
+        //             if (curr.usdBase) {
+        //                 realMoney *= (balance[GetCoins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
+        //             }
+        //             await allow(GetCoins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
+        //             paymentList.push({
+        //                 coin: GetCoins[curr.secondaryCurrency],
+        //                 recipient: curr.address.trim(),
+        //                 amount: curr.secondaryAmount.trim()
+        //             })
+        //         }
+
+        //         const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
+        //         hash = await createTask(Math.floor((new Date(curr.paymantDate).getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
+
+        //         let user = { ...curr }
+        //         user.name = `${user.name}`
+        //         user.address = user.address
+        //         user.amount = user.amount
+        //         if (user.secondaryAmount) {
+        //             user.secondaryAmount = user.secondaryAmount
+        //         }
+
+
+        //         await editMember(user.teamId, user.id, { ...user, taskId: hash })
+        //     }
+        // } catch (error) {
+        //     console.error(error)
+        // }
+
+    }
+
     return <div className="w-full h-full flex flex-col space-y-4">
 
-        {runmodal && <Modal onDisable={setRunmodal} animatedModal={false} className={`${memberState[0].length > 0 && '!w-[75%] !pt-4 px-8'} px-2`} >
-
-            {memberState[0].length > 0 ? <div className="px-10">
-                <div className="text-2xl font-semibold py-2 pb-8">Run Payroll</div>
-                <div className="w-full shadow-custom px-5 pt-4 pb-6 ">
-                    <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] sm:grid-cols-[16%,13%,14%,17%,12%,12%,18%]   sm:mb-5 px-5 " >
-                        <div className="font-semibold py-3">Name</div>
+        {runmodal &&
+            <Modal onDisable={setRunmodal} animatedModal={false} className={`${selectedContributors.length > 0 && '!w-[75%] !pt-4 px-8'} px-2`}>
+                {selectedContributors.length > 0 ? <div className="px-10">
+                    <div className="text-2xl font-semibold py-2 pb-8">Run Payroll</div>
+                    <div className="w-full shadow-custom px-5 pt-4 pb-6 ">
+                        <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] sm:grid-cols-[16%,13%,14%,17%,12%,12%,18%]   sm:mb-5 px-5 " >
+                            <div className="font-semibold py-3">Name</div>
+                            <div className="font-semibold py-3">Start Date</div>
+                            <div className="font-semibold py-3">End Date</div>
+                            <div className="font-semibold py-3 ">Salary</div>
+                            <div className="font-semibold py-3">Frequency</div>
+                            <div className="font-semibold py-3">Status</div>
+                            <div className="font-semibold py-3">Compensation Type</div>
+                        </div>
+                        <div>
+                            {
+                                selectedContributors.map(w =>
+                                    <Fragment key={w.id}>
+                                        <Runpayroll {...w} runmodal={runmodal} memberState={[selectedContributors, setSelectedContributors]} />
+                                    </Fragment>
+                                )
+                            }
+                        </div>
+                    </div>
+                    <div className="flex flex-col space-y-3 pt-10">
+                        <div className="text-2xl font-semibold tracking-wide">Review Treasury Impact</div>
+                        <div className="w-full flex flex-col p-5 ">
+                            <div className="grid grid-cols-[20%,80%]  pb-2">
+                                <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
+                                <div className="font-semibold text-lg text-greylish">Token Allucation</div>
+                            </div>
+                            <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
+                                <div className="flex flex-col items-start   mb-3">
+                                    <TotalAmount coinList={selectedContributors} />
+                                </div>
+                                <div>
+                                    <TokenBalance coinList={selectedContributors} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <Button className={'w-full py-3 mt-10'} onClick={confirmSubmit}>Confirm and Run Payroll</Button>
+                </div> :
+                    <div className="text-primary text-2xl font-semibold pt-12  px-2">Please, choose members</div>}
+            </Modal>
+        }
+        {contributors.length > 0 ?
+            <>
+                <div className="w-full relative">
+                    <Button className={"absolute right-0 -top-[3.75rem]  rounded-xl px-5 py-1"} onClick={confirmFunc}>
+                        {selectedContributors.length > 0 && confirm ? 'Confirm' : 'Run Payroll'}
+                    </Button>
+                </div>
+                <div className=" px-5 py-6 border-b">
+                    <div className='flex '>
+                        <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r'>
+                            <div className='text-xl text-greylish dark:text-white font-bold'>Monthly Total Payment</div>
+                            <div className='text-3xl font-bold !mt-1'>
+                                ${monthlyTotalPayment} USD
+                            </div>
+                        </div>
+                        <div className="flex flex-col space-y-5 pl-8 !mt-0">
+                            <div className='text-xl text-greylish dark:text-white font-bold'>Token Allocation</div>
+                            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12'>
+                                {tokenAllocation}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="w-full  px-5 pt-4 pb-6 ">
+                    <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,12%,12%,18%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
+                        <div className="font-semibold py-3 pl-8 ">Name</div>
                         <div className="font-semibold py-3">Start Date</div>
                         <div className="font-semibold py-3">End Date</div>
                         <div className="font-semibold py-3 ">Salary</div>
@@ -156,161 +319,19 @@ export default function DynamicPayroll() {
                         <div className="font-semibold py-3">Compensation Type</div>
                     </div>
                     <div>
-                        {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><Runpayroll {...w} runmodal={runmodal} memberState={memberState} /></Fragment> : undefined)}
-                    </div>
-                </div>
-                <div className="flex flex-col space-y-3 pt-10">
-                    <div className="text-2xl font-semibold tracking-wide">Review Treasury Impact</div>
-                    <div className="w-full flex flex-col   p-5 ">
-                        <div className="grid grid-cols-[20%,80%]  pb-2">
-                            <div className="font-semibold text-lg text-greylish">Treasury Balance</div>
-                            <div className="font-semibold text-lg text-greylish">Token Allucation</div>
-                        </div>
-                        <div className="grid grid-cols-[20%,20%,20%,20%,20%]">
-                            <div className="flex flex-col items-start   mb-3">
-                                <TotalAmount coinList={memberState[0]} />
-
+                        {contributors.map(w =>
+                            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,12%,12%,18%] py-6 border-b border-greylish border-opacity-10 pb-5 px-5 text-sm">
+                                <TeamItem member={w} memberState={[selectedContributors, setSelectedContributors]} confirm={confirm} />
                             </div>
-                            <>
-                                <TokenBalance coinList={memberState[0]} />
-                            </>
-                        </div>
+                        )}
                     </div>
                 </div>
-                <Button className={'w-full py-3 mt-10'} onClick={
-                    async () => {
-                    //     const arr = [...memberState[0]]
-                    //     arr.forEach(curr => {
-                    //         if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
-                    //             const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
-                    //             let amount = parseFloat(curr.amount)
-                    //             if (curr.interval === DateInterval.weekly) {
-                    //                 amount *= Math.max(1, Math.floor(days / 7))
-                    //             } else if (curr.interval === DateInterval.monthly) {
-                    //                 amount *= Math.max(1, Math.floor(days / 30))
-                    //             }
-                    //             curr = { ...curr, amount: amount.toString() }
-                    //         }
-                    //     })
-
-                    //     dispatch(setMemberList({ data: arr, request: false }))
-                    //     router.push('/dashboard/masspayout')
-
-                    //     try {
-                    //         for (let index = 0; index < arr.length; index++) {
-                    //             const curr = arr[index];
-
-                    //             let hash;
-                    //             const interval = curr!.interval
-                    //             const days = Math.abs(date.subtract(new Date(curr.paymantDate), new Date(curr.paymantEndDate)).toDays());
-                    //             const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
-                    //             let realMoney = Number(curr.amount) * realDays
-
-                    //             if (curr.usdBase) {
-                    //                 realMoney *= (balance[GetCoins[curr.currency].name]?.tokenPrice ?? 1)
-                    //             }
-                    //             await allow(GetCoins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                    //             const paymentList: PaymentInput[] = []
-
-                    //             paymentList.push({
-                    //                 coin: GetCoins[curr.currency],
-                    //                 recipient: curr.address.trim(),
-                    //                 amount: curr.amount.trim()
-                    //             })
-
-                    //             if (curr.secondaryAmount && curr.secondaryCurrency) {
-                    //                 let realMoney = Number(curr.secondaryAmount) * realDays
-                    //                 if (curr.usdBase) {
-                    //                     realMoney *= (balance[GetCoins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
-                    //                 }
-                    //                 await allow(GetCoins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
-                    //                 paymentList.push({
-                    //                     coin: GetCoins[curr.secondaryCurrency],
-                    //                     recipient: curr.address.trim(),
-                    //                     amount: curr.secondaryAmount.trim()
-                    //                 })
-                    //             }
-
-                    //             const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-                    //             hash = await createTask(Math.floor((new Date(curr.paymantDate).getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
-
-                    //             let user = { ...curr }
-                    //             user.name = `${user.name}`
-                    //             user.address = user.address
-                    //             user.amount = user.amount
-                    //             if (user.secondaryAmount) {
-                    //                 user.secondaryAmount = user.secondaryAmount
-                    //             }
-
-
-                    //             await editMember(user.teamId, user.id, { ...user, taskId: hash })
-                    //         }
-                    //     } catch (error) {
-                    //         console.error(error)
-                    //     }
-
-                    }
-                }>Confirm and Run Payroll</Button>
-            </div> : <div className="text-primary text-2xl font-semibold pt-12  px-2">please choose some of the members.!</div>}
-        </Modal>}
-        {contributors.length > 0 ? <>
-            <div className="w-full relative">
-                <Button className={"absolute right-0 -top-[3.75rem]  rounded-xl px-5 py-1"} onClick={confirmFunc}>
-                    {memberState[0].length > 0 && confirm ? 'Confirm' : 'Run Payroll'}
-                </Button>
+            </> :
+            <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
+                <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
+                <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
             </div>
-            <div className=" px-5 py-6 border-b">
-                <div className='flex '>
-                    <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r'>
-                        <div className='text-xl text-greylish dark:text-white font-bold'>Monthly Total Payment</div>
-                        {totalPrice ? <div className='text-3xl font-bold !mt-1'>
-                            ${Object.entries(totalPrice).filter(s => s[1]).reduce((a, [currency, amount]) => {
-                                a += amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
-                                return a;
-                            }, 0).toFixed(2)} USD
-                        </div> : <div><Loader /></div>}
-                    </div>
-                    <div className="flex flex-col space-y-5 pl-8 !mt-0">
-                        <div className='text-xl text-greylish dark:text-white font-bold'>Token Allocation</div>
-                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12'>
-                            {totalPrice ?
-                                Object.entries(totalPrice).filter(s => s[1]).map(([currency, amount]) => {
-                                    return <div key={currency} className="flex space-x-2 relative h-fit">
-                                        <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
-                                        <div className="font-semibold text-xl flex gap-1 items-center">
-                                            <img src={GetCoins[currency as keyof Coins].coinUrl} className="w-[1.563rem] h-[1.563rem] rounded-full" alt="" />
-                                            {GetCoins[currency as keyof Coins].name}</div>
-                                        <div>
-                                        </div>
-                                        <div className="absolute -left-1 -bottom-6 text-sm text-greylish opacity-75 text-left">
-                                            ${(amount * (balance[GetCoins[currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(2)} USD
-                                        </div>
-                                    </div>
-                                }) : <div className="flex py-1 justify-center"><Loader /></div>
-                            }
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div className="w-full  px-5 pt-4 pb-6 ">
-                <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,12%,12%,18%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
-                    <div className="font-semibold py-3 pl-8 ">Name</div>
-                    <div className="font-semibold py-3">Start Date</div>
-                    <div className="font-semibold py-3">End Date</div>
-                    <div className="font-semibold py-3 ">Salary</div>
-                    <div className="font-semibold py-3">Frequency</div>
-                    <div className="font-semibold py-3">Status</div>
-                    <div className="font-semibold py-3">Compensation Type</div>
-                </div>
-                <div>
-                    {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} confirm={confirm} /></Fragment> : undefined)}
-                </div>
-            </div>
-        </> : <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
-            <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
-            <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
-        </div>}
+        }
 
     </div>
 

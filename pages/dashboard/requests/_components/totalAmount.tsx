@@ -8,13 +8,23 @@ export const TotalUSDAmount = (coinList: (IRequest | IMember)[], currency: ICoin
     return coinList.reduce((acc, curr) => {
         const coin = Object.entries(currency).find(c => c[0] === curr.currency) as [string, ICurrencyInternal] | undefined
         if (coin) {
-            const amount = parseFloat(curr.amount)
-            acc += ((coin[1]?.price ?? 1) * amount)
+            const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
+
+            if (curr.usdBase) {
+                acc + amount
+            } else {
+                acc += ((coin[1]?.price ?? 1) * amount)
+            }
+
             if (curr.secondaryCurrency && curr.secondaryAmount) {
                 const secondaryCoin = Object.entries(currency).find(c => c[0] === curr.secondaryCurrency) as [string, ICurrencyInternal] | undefined
                 if (secondaryCoin) {
-                    const secondaryAmount = parseFloat(curr.secondaryAmount)
-                    acc += ((secondaryCoin[1]?.price ?? 1) * secondaryAmount)
+                    const secondaryAmount = typeof curr.secondaryAmount === "string" ? parseFloat(curr.secondaryAmount) : curr.secondaryAmount
+                    if (curr.usdBase) {
+                        acc + secondaryAmount
+                    } else {
+                        acc += ((secondaryCoin[1]?.price ?? 1) * secondaryAmount)
+                    }
                 }
             }
         }

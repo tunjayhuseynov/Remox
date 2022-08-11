@@ -152,7 +152,7 @@ const EditMember = () => {
         role: `${data.role}`,
         address: data.address,
         compensation: Compensation,
-        amount: data.amount.toString(),
+        amount: data.amount,
         currency: Wallet.name as CoinsName,
         teamId: Team.id ? Team.id!.toString() : teamId.toString(),
         usdBase: selectedType,
@@ -161,7 +161,7 @@ const EditMember = () => {
           selectedPaymentType.name === "Auto" ? ExecutionType.auto : ExecutionType.manual,
         paymantDate: dateStart!.toISOString(),
         paymantEndDate: dateEnd!.toISOString(),
-        secondaryAmount: data.amount2 ? data.amount2.toString() : null,
+        secondaryAmount: data.amount2 ? data.amount2 : null,
         secondaryCurrency: Wallet2?.name ? (Wallet2.name as CoinsName) : null,
         secondaryUsdBase: data.amount2 ? selectedType : null,
       };

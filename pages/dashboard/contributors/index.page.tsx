@@ -14,14 +14,6 @@ import { useRouter } from 'next/router';
 const Contributors = () => {
     const contributors = useAppSelector(SelectContributors)
 
-
-
-    const isContributorFetched = useAppSelector(selectContributors).isFetched
-    const isSuccess = useAppSelector(selectSuccess)
-    const isError = useAppSelector(selectError)
-    const dispatch = useAppDispatch()
-    const [addTeamModal, setAddTeamModal] = useState(false)
-    const [addMemberModal, setAddMemberModal] = useState(false)
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
 
@@ -32,19 +24,19 @@ const Contributors = () => {
             text: "Active"
         },
         {
-            to: "/dashboard/contributors?index=1&secondAnimation=true",
+            to: "/dashboard/contributors?index=1",
             text: "Full Time"
         },
         {
-            to: "/dashboard/contributors?index=2&secondAnimation=true",
+            to: "/dashboard/contributors?index=2",
             text: "Part Time"
         },
         {
-            to: "/dashboard/contributors?index=3&secondAnimation=true",
+            to: "/dashboard/contributors?index=3",
             text: "Bounty"
         },
         {
-            to: "/dashboard/contributors?index=4&secondAnimation=true",
+            to: "/dashboard/contributors?index=4",
             text: "Team"
         },
     ]
@@ -55,8 +47,8 @@ const Contributors = () => {
                     Contributors
                 </div>
                 <div className={`pt-2 flex ${contributors.length > 0 && 'gap-5'} `}>
-                    <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-team?secondAnimation=true')}>Add Team</Button>
-                    {contributors.length > 0 && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-member?secondAnimation=true')}>Add People</Button>}
+                    <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-team')}>Add Team</Button>
+                    {contributors.length > 0 && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-member')}>Add People</Button>}
                 </div>
             </div>
             {/* <button className="px-5 py-2 bg-greylish bg-opacity-5 rounded-xl">
@@ -67,7 +59,7 @@ const Contributors = () => {
             </div>
         </div>
 
-        {index !== 4 && contributors.filter(w => w.members && w.members.length > 0)  ? <div className="w-full  pt-4 pb-6">
+        {index !== 4 && contributors.filter(w => w.members && w.members.length > 0) ? <div className="w-full  pt-4 pb-6">
             <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[17%,15%,19%,19%,17%,23%] rounded-xl bg-light  dark:bg-dark  sm:mb-5 pl-10">
                 <div className="font-semibold py-3">Name</div>
                 <div className="font-semibold py-3 hidden lg:block">Team</div>
@@ -77,7 +69,7 @@ const Contributors = () => {
                 <div className="font-semibold py-3">Compensation Type</div>
             </div>
             <div>
-                {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w}  index={index}/></Fragment> : undefined)}
+                {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} index={index} /></Fragment> : undefined)}
                 {contributors.map(w => w && (!w?.members || w?.members?.length === 0) ? <Fragment key={w.id}><TeamContainer {...w} index={index} /></Fragment> : undefined)}
                 {/* {contributors.filter(w => w.members && w.members.length === 0) && <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">
                     <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
@@ -90,7 +82,7 @@ const Contributors = () => {
         </div>
 
         }
-{/* length === 0 && isContributorFetched &&  */}
+        {/* length === 0 && isContributorFetched &&  */}
 
 
 

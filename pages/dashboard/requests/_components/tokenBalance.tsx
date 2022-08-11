@@ -30,8 +30,11 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
         const res: IRequest | IMember = {
             ...value[0],
             amount: value.reduce((acc, curr) => {
-                return acc + parseFloat(curr.amount)
-            }, 0).toString()
+                if (curr.usdBase) {
+                    return acc + (curr.amount / currency[curr.currency].price)
+                }
+                return acc + curr.amount
+            }, 0)
         }
         return res;
     }).value()
@@ -57,7 +60,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                     </div>
                     <div className="flex  pb-4 border-b w-full items-start">
                         <div className="flex space-x-3 items-start pr-2">
-                            <div>-{parseFloat(coin.amount).toFixed(2)}</div>
+                            <div>-{coin.amount.toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
                             <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
@@ -66,7 +69,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                     </div>
                     <div className="flex justify-between items-start">
                         <div className="flex space-x-3 items-center pr-2" >
-                            <div>{(selectedBalance[1].amount - parseFloat(coin.amount)).toFixed(2)}</div>
+                            <div>{(selectedBalance[1].amount - coin.amount).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
                             <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />

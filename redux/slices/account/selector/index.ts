@@ -4,7 +4,7 @@ import { IBudgetORM } from "pages/api/budget/index.api";
 import { IPriceCoin } from "pages/api/calculation/price.api";
 import { RootState } from "redux/store";
 import { TokenType } from "types";
-import { ExecutionType } from "types/dashboard/contributors";
+import { ExecutionType, IContributor } from "types/dashboard/contributors";
 
 export const SelectStorage = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
@@ -147,6 +147,16 @@ export const SelectBlockchain = createDraftSafeSelector(
 export const SelectContributors = createDraftSafeSelector(
     (state: RootState) => state.remoxData.contributors,
     (contributors) => contributors
+)
+
+export const SelectContributorMembers = createDraftSafeSelector(
+    (state: RootState) => state.remoxData.contributors,
+    (contributors) => {
+        if (contributors && contributors.length > 0) {
+            return [...contributors.reduce<IContributor["members"]>((a, c) => [...a, ...c.members.map(s => ({ ...s, parent: c }))], [])]
+        }
+        return []
+    }
 )
 
 export const SelectContributorsAutoPayment = createDraftSafeSelector(

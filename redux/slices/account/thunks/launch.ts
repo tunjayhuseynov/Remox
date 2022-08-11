@@ -48,114 +48,119 @@ interface LaunchParams {
 }
 
 export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>("remoxData/launch", async ({ addresses, blockchain, id, accountType, storage }, api) => {
-    const spending = axios.get<ISpendingResponse>("/api/calculation/spending", {
-        params: {
-            addresses: addresses,
+    try {
+        const spending = axios.get<ISpendingResponse>("/api/calculation/spending", {
+            params: {
+                addresses: addresses,
+                blockchain: blockchain.name,
+                id: id,
+            }
+        });
+
+        const balances = axios.get<IPriceResponse>("/api/calculation/price", {
+            params: {
+                addresses: addresses,
+                blockchain: blockchain.name,
+            }
+        });
+
+        const transactions = axios.get<IFormattedTransaction[]>("/api/transactions", {
+            params: {
+                addresses: addresses,
+                blockchain: blockchain.name,
+                id: id,
+            }
+        });
+
+        const budget = axios.get<IBudgetExerciseORM[]>("/api/budget", {
+            params: {
+                id: id,
+                addresses: addresses,
+                blockchain: blockchain.name
+            }
+        });
+
+        const accountReq = axios.get<IRemoxAccountORM>("/api/account/multiple", {
+            params: {
+                id: id,
+                type: accountType
+            }
+        });
+
+        const contributors = axios.get<IContributor[]>("/api/contributors", {
+            params: {
+                id: id,
+            }
+        })
+
+        const requests = axios.get<IRequest[]>("/api/requests", {
+            params: {
+                id: id,
+            }
+        })
+
+        const tags = axios.get<ITag[]>("/api/tags", {
+            params: {
+                id: id,
+            }
+        })
+
+        const recurrings = FirestoreReadMultiple<ITasking>("recurring", [
+            {
+                firstQuery: "accountId",
+                secondQuery: id,
+                condition: "==",
+            }
+        ])
+
+
+        const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes, balanceRes, recurringsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags, balances, recurrings]);
+
+
+        const accounts = accountRes.data;
+        const multi = accounts.accounts.filter(s => s.signerType === "multi")
+
+        const {
+            approvedRequests,
+            multisigRequests,
+            pendingRequests,
+            rejectedRequests,
+            signingNeedRequests,
+            multisigAccounts
+        } = await api.dispatch(Multisig_Fetch_Thunk({
+            accounts: multi,
             blockchain: blockchain.name,
-            id: id,
+            addresses: multi.map(s => s.address),
+        })).unwrap()
+
+        let allCumulativeTransactions = [...transactionsRes.data, ...multisigRequests].sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
+
+        const res: LaunchResponse = {
+            Balance: balanceRes.data,
+            RemoxAccount: accountRes.data,
+            Budgets: budgetRes.data,
+            Spending: spendingRes.data,
+            Contributors: contributorsRes.data,
+            Blockchain: blockchain,
+            Storage: storage,
+            Transactions: transactionsRes.data,
+            Requests: requestRes.data,
+            Tags: tagsRes.data,
+            RecurringTasks: recurringsRes,
+            multisigAccounts: {
+                all: multisigAccounts,
+                multisigTxs: multisigRequests,
+                pendingTxs: pendingRequests,
+                approvedTxs: approvedRequests,
+                rejectedTxs: rejectedRequests,
+                signingNeedTxs: signingNeedRequests,
+            },
+            cumulativeTransactions: allCumulativeTransactions
         }
-    });
 
-    const balances = axios.get<IPriceResponse>("/api/calculation/price", {
-        params: {
-            addresses: addresses,
-            blockchain: blockchain.name,
-        }
-    });
-
-    const transactions = axios.get<IFormattedTransaction[]>("/api/transactions", {
-        params: {
-            addresses: addresses,
-            blockchain: blockchain.name,
-            id: id,
-        }
-    });
-
-    const budget = axios.get<IBudgetExerciseORM[]>("/api/budget", {
-        params: {
-            id: id,
-            addresses: addresses,
-            blockchain: blockchain.name
-        }
-    });
-
-    const accountReq = axios.get<IRemoxAccountORM>("/api/account/multiple", {
-        params: {
-            id: id,
-            type: accountType
-        }
-    });
-
-    const contributors = axios.get<IContributor[]>("/api/contributors", {
-        params: {
-            id: id,
-        }
-    })
-
-    const requests = axios.get<IRequest[]>("/api/requests", {
-        params: {
-            id: id,
-        }
-    })
-
-    const tags = axios.get<ITag[]>("/api/tags", {
-        params: {
-            id: id,
-        }
-    })
-
-    const recurrings = FirestoreReadMultiple<ITasking>("recurrings", [
-        {
-            firstQuery: "accountId",
-            secondQuery: id,
-            condition: "==",
-        }
-    ])
-
-
-    const [spendingRes, budgetRes, accountRes, contributorsRes, transactionsRes, requestRes, tagsRes, balanceRes, recurringsRes] = await Promise.all([spending, budget, accountReq, contributors, transactions, requests, tags, balances, recurrings]);
-
-
-    const accounts = accountRes.data;
-    const multi = accounts.accounts.filter(s => s.signerType === "multi")
-
-    const {
-        approvedRequests,
-        multisigRequests,
-        pendingRequests,
-        rejectedRequests,
-        signingNeedRequests,
-        multisigAccounts
-    } = await api.dispatch(Multisig_Fetch_Thunk({
-        accounts: multi,
-        blockchain: blockchain.name,
-        addresses: multi.map(s => s.address),
-    })).unwrap()
-
-    let allCumulativeTransactions = [...transactionsRes.data, ...multisigRequests].sort((a, b) => a.timestamp > b.timestamp ? -1 : 1);
-
-    const res: LaunchResponse = {
-        Balance: balanceRes.data,
-        RemoxAccount: accountRes.data,
-        Budgets: budgetRes.data,
-        Spending: spendingRes.data,
-        Contributors: contributorsRes.data,
-        Blockchain: blockchain,
-        Storage: storage,
-        Transactions: transactionsRes.data,
-        Requests: requestRes.data,
-        Tags: tagsRes.data,
-        RecurringTasks: recurringsRes,
-        multisigAccounts: {
-            all: multisigAccounts,
-            multisigTxs: multisigRequests,
-            pendingTxs: pendingRequests,
-            approvedTxs: approvedRequests,
-            rejectedTxs: rejectedRequests,
-            signingNeedTxs: signingNeedRequests,
-        },
-        cumulativeTransactions: allCumulativeTransactions
+        return res;
+    } catch (error) {
+        console.error(error);
+        throw error;
     }
-
-    return res;
 })

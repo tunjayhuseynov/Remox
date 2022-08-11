@@ -24,12 +24,10 @@ const Automations = () => {
     const { GetCoins } = useWalletKit()
     const balance = useAppSelector(SelectBalances)
     let totalBalance = useAppSelector(SelectTotalBalance)
-    let balance2;
-    if (totalBalance !== undefined) balance2 = parseFloat(`${totalBalance}`).toFixed(2)
+
 
     const totalPrice: { [name: string]: number } = useMemo(() => {
         let res: { [name: string]: number } = {}
-
         tasks.forEach(({ inputs }) => {
             inputs.forEach((curr) => {
                 res[curr.coin] = res[curr.coin] ? res[curr.coin] + curr.amount : curr.amount
