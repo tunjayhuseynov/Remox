@@ -231,8 +231,8 @@ export default function useWalletKit() {
                 subbudget,
                 swap,
             }: {
-                budget?: IBudgetORM;
-                subbudget?: ISubbudgetORM;
+                budget?: IBudgetORM | null;
+                subbudget?: ISubbudgetORM | null;
                 isStreaming?: boolean;
                 task?: Task;
                 tags?: ITag[];

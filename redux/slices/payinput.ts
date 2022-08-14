@@ -1,7 +1,5 @@
 import { createDraftSafeSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { generate } from 'shortid';
 import { CoinsURL } from 'types';
-import { DropDownItem } from "types/dropdown";
 import type { RootState } from '../store'
 
 export interface IPayInput {

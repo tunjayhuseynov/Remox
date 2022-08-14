@@ -2,7 +2,6 @@ import Button from 'components/button';
 import { Fragment, useState, useMemo, useEffect } from 'react';
 import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
 import { Coins } from 'types';
-import { selectContributors } from 'redux/slices/account/contributors';
 import { DateInterval, IMember } from 'types/dashboard/contributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
@@ -14,25 +13,24 @@ import { selectStorage } from 'redux/slices/account/storage';
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
-import Loader from 'components/Loader';
 import Runpayroll from './modalpay/Runpayroll';
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
 import Modal from 'components/general/modal';
 import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
-import { SelectContributorMembers, SelectContributors } from 'redux/slices/account/selector';
+import { SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import TeamItem from './teamItem';
+import { IPaymentInput } from 'pages/api/payments/send/index.api';
 
 
 export default function DynamicPayroll() {
-    const [runmodal, setRunmodal] = useState(false)
+    const [runmodal, setRunmodal] = useState<boolean>(false)
     const [confirm, setConfirm] = useState(false)
-    let totalBalance = useAppSelector(SelectTotalBalance)
-    let balance2;
-    if (totalBalance !== undefined) balance2 = parseFloat(`${totalBalance}`).toFixed(2)
-    const balanceRedux = useAppSelector(SelectBalances)
 
     let contributors = useAppSelector(SelectContributorMembers)
-    const [selectedContributors, setSelectedContributors] = useState<IMember[]>([])
+    const [selectedContributors, setSelectedContributors] = useState<IMember[]>([]);
+
+    const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
+
 
     useEffect(() => {
         if (!runmodal) {
@@ -43,7 +41,7 @@ export default function DynamicPayroll() {
 
 
 
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, SendTransaction } = useWalletKit()
     const router = useRouter()
     const dispatch = useDispatch()
     const balance = useAppSelector(SelectBalances)
@@ -167,7 +165,9 @@ export default function DynamicPayroll() {
 
 
     const confirmSubmit = async () => {
+        if (!selectedAccountAndBudget.account) throw new Error('No account selected')
         const arr = [...selectedContributors]
+        const inputs: IPaymentInput[] = []
         arr.forEach(curr => {
             if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                 const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
@@ -178,7 +178,18 @@ export default function DynamicPayroll() {
                     amount *= Math.max(1, Math.floor(days / 30))
                 }
                 curr = { ...curr, amount: amount }
+
+                inputs.push({
+                    amount: curr.amount,
+                    coin: curr.currency,
+                    recipient: curr.address,
+                })
             }
+        })
+
+        await SendTransaction(selectedAccountAndBudget.account, inputs, {
+            budget: selectedAccountAndBudget.budget,
+            subbudget: selectedAccountAndBudget.subbudget,
         })
 
         console.log(arr)
