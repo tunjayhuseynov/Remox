@@ -52,12 +52,9 @@ function Runpayroll(props: IContributor["members"][0] & { memberState: [IMember[
                         <div className="text-base">{props.secondaryAmount}</div>
                         {props.secondaryUsdBase ? <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.secondaryCurrency].name}</div> :
                             <div className="flex gap-1 items-center">
-
                                 {CeloCoins[props.secondaryCurrency].name}
                             </div>}
-
                         <div>
-
                         </div>
                     </div>}
                 </div>

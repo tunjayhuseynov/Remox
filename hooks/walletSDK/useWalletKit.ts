@@ -241,85 +241,138 @@ export default function useWalletKit() {
                 swap?: ISwap;
             } = {}
         ) => {
-            let txhash;
-            const Address = account.address;
-            if (!blockchain) throw new Error("blockchain not found");
-            if (!Address) throw new Error("Address not set");
-            if (inputArr.length === 0) throw new Error("No inputs");
-            const txData = await dispatch(
-                FetchPaymentData({
-                    accountId: account.id,
-                    blockchain: blockchain.name,
-                    executer: Address,
-                    requests: inputArr,
-                    endTime: endTime ?? null,
-                    startTime: startTime ?? null,
-                    isStreaming,
-                    swap: swap ?? null,
-                })
-            ).unwrap();
+            try {
+                let txhash;
+                const Address = account.address;
+                if (!blockchain) throw new Error("blockchain not found");
+                if (!Address) throw new Error("Address not set");
+                if (inputArr.length === 0) throw new Error("No inputs");
+                const txData = await dispatch(
+                    FetchPaymentData({
+                        accountId: account.id,
+                        blockchain: blockchain.name,
+                        executer: Address,
+                        requests: inputArr,
+                        endTime: endTime ?? null,
+                        startTime: startTime ?? null,
+                        isStreaming,
+                        swap: swap ?? null,
+                    })
+                ).unwrap();
 
-            if (blockchain.name === "celo") {
-                const destination = txData.destination as string;
-                const data = txData.data as string;
-                const web3 = new Web3((window as any).celo);
+                if (blockchain.name === "celo") {
+                    const destination = txData.destination as string;
+                    const data = txData.data as string;
+                    const web3 = new Web3((window as any).celo);
 
-                let option = {
-                    data,
-                    gas: "500000",
-                    from: Address,
-                    to: destination,
-                    gasPrice: "500000000",
-                    value: "0",
-                };
+                    let option = {
+                        data,
+                        gas: "500000",
+                        from: Address,
+                        to: destination,
+                        gasPrice: "500000000",
+                        value: "0",
+                    };
 
-                if (swap) {
-                    await allow(
-                        Address,
-                        swap.inputCoin.contractAddress,
-                        "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
-                        swap.amount
-                    );
-                }
-
-                const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
-                if (inputArr.length > 1) {
-                    for (let index = 0; index < approveArr.length; index++) {
+                    if (swap) {
                         await allow(
                             Address,
-                            approveArr[index].coin.contractAddress,
+                            swap.inputCoin.contractAddress,
+                            "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
+                            swap.amount
+                        );
+                    }
+
+                    const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
+                    if (inputArr.length > 1) {
+                        for (let index = 0; index < approveArr.length; index++) {
+                            await allow(
+                                Address,
+                                approveArr[index].coin.contractAddress,
+                                Contracts.BatchRequest.address,
+                                approveArr[index].amount.toString()
+                            );
+                        }
+                    }
+
+                    if (task) {
+                        const command = data;
+                        for (let index = 0; index < approveArr.length; index++) {
+                            await allow(
+                                Address,
+                                approveArr[index].coin.contractAddress,
+                                Contracts.Gelato.address,
+                                approveArr[index].amount.toString()
+                            );
+                        }
+                        const txHash = await createTask(
+                            account,
+                            task.startDate,
+                            task.interval,
                             Contracts.BatchRequest.address,
-                            approveArr[index].amount.toString()
+                            command,
+                            inputArr
                         );
+                        dispatch(Refresh_Data_Thunk());
+                        return;
                     }
-                }
 
-                if (task) {
-                    const command = data;
-                    for (let index = 0; index < approveArr.length; index++) {
-                        await allow(
-                            Address,
-                            approveArr[index].coin.contractAddress,
-                            Contracts.Gelato.address,
-                            approveArr[index].amount.toString()
+                    if (account.signerType === "single") {
+                        const recipet = await web3.eth.sendTransaction(option);
+                        const hash = recipet.transactionHash;
+                        txhash = hash;
+                        if (tags && tags.length > 0) {
+                            for (const tag of tags) {
+                                await dispatch(
+                                    AddTransactionToTag({
+                                        id: account.id,
+                                        tagId: tag.id,
+                                        transaction: {
+                                            id: generate(),
+                                            address: account.address,
+                                            hash: hash,
+                                        },
+                                    })
+                                );
+                            }
+                        }
+                    } else {
+                        const txHash = await submitTransaction(
+                            account.address,
+                            data,
+                            destination
                         );
+                        txhash = txHash;
                     }
-                    const txHash = await createTask(
-                        account,
-                        task.startDate,
-                        task.interval,
-                        Contracts.BatchRequest.address,
-                        command,
-                        inputArr
-                    );
-                    dispatch(Refresh_Data_Thunk());
-                    return;
-                }
+                } else if (
+                    blockchain.name === "solana" &&
+                    publicKey &&
+                    signTransaction &&
+                    signAllTransactions
+                ) {
+                    const data = txData.data as TransactionInstruction[];
+                    const destination = txData.destination;
 
-                if (account.signerType === "single") {
-                    const recipet = await web3.eth.sendTransaction(option);
-                    const hash = recipet.transactionHash;
-                    txhash = hash;
+                    if (account.signerType === "multi") {
+                        const txHash = await submitTransaction(
+                            account.address,
+                            data,
+                            destination
+                        );
+                        dispatch(Refresh_Data_Thunk());
+                        return;
+                    }
+                    const transaction = new Transaction();
+                    transaction.add(...data);
+
+                    const signature = await sendTransaction(transaction, connection);
+                    const latestBlockHash = await connection.getLatestBlockhash();
+                    await connection.confirmTransaction({
+                        blockhash: latestBlockHash.blockhash,
+                        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+                        signature: signature,
+                    });
+
                     if (tags && tags.length > 0) {
                         for (const tag of tags) {
                             await dispatch(
@@ -329,88 +382,19 @@ export default function useWalletKit() {
                                     transaction: {
                                         id: generate(),
                                         address: account.address,
-                                        hash: hash,
+                                        hash: signature,
                                     },
                                 })
                             );
                         }
                     }
-                } else {
-                    const txHash = await submitTransaction(
-                        account.address,
-                        data,
-                        destination
-                    );
-                    txhash = txHash;
+                    txhash = signature;
                 }
-            } else if (
-                blockchain.name === "solana" &&
-                publicKey &&
-                signTransaction &&
-                signAllTransactions
-            ) {
-                const data = txData.data as TransactionInstruction[];
-                const destination = txData.destination;
-
-                if (account.signerType === "multi") {
-                    const txHash = await submitTransaction(
-                        account.address,
-                        data,
-                        destination
-                    );
-                    dispatch(Refresh_Data_Thunk());
-                    return;
-                }
-                const transaction = new Transaction();
-                transaction.add(...data);
-
-                const signature = await sendTransaction(transaction, connection);
-                const latestBlockHash = await connection.getLatestBlockhash();
-                await connection.confirmTransaction({
-                    blockhash: latestBlockHash.blockhash,
-                    lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-                    signature: signature,
-                });
-
-                if (tags && tags.length > 0) {
-                    for (const tag of tags) {
+                if (budget && txhash) {
+                    for (const input of inputArr) {
                         await dispatch(
-                            AddTransactionToTag({
-                                id: account.id,
-                                tagId: tag.id,
-                                transaction: {
-                                    id: generate(),
-                                    address: account.address,
-                                    hash: signature,
-                                },
-                            })
-                        );
-                    }
-                }
-                txhash = signature;
-            }
-            if (budget && txhash) {
-                for (const input of inputArr) {
-                    await dispatch(
-                        Add_Tx_To_Budget_Thunk({
-                            budget: budget,
-                            tx: {
-                                protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
-                                contractAddress: account.address,
-                                contractType: account.signerType,
-                                isSendingOut: true,
-                                hashOrIndex: txhash,
-                                amount: input.amount,
-                                token: input.coin,
-                                timestamp: GetTime(),
-                            },
-                        })
-                    );
-
-                    if (subbudget) {
-                        await dispatch(
-                            Add_Tx_To_Subbudget_Thunk({
-                                subbudget: subbudget,
+                            Add_Tx_To_Budget_Thunk({
+                                budget: budget,
                                 tx: {
                                     protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
                                     contractAddress: account.address,
@@ -423,11 +407,31 @@ export default function useWalletKit() {
                                 },
                             })
                         );
+
+                        if (subbudget) {
+                            await dispatch(
+                                Add_Tx_To_Subbudget_Thunk({
+                                    subbudget: subbudget,
+                                    tx: {
+                                        protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
+                                        contractAddress: account.address,
+                                        contractType: account.signerType,
+                                        isSendingOut: true,
+                                        hashOrIndex: txhash,
+                                        amount: input.amount,
+                                        token: input.coin,
+                                        timestamp: GetTime(),
+                                    },
+                                })
+                            );
+                        }
                     }
                 }
+                dispatch(Refresh_Data_Thunk());
+                return;
+            } catch (error) {
+                throw Error((error as any).message);
             }
-            dispatch(Refresh_Data_Thunk());
-            return;
         },
         [blockchain, publicKey, address]
     );

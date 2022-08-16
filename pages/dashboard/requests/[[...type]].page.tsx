@@ -15,7 +15,9 @@ export default function RequestLayout() {
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
     const selectedBlockchain = useAppSelector(SelectBlockchain)
     const storage = useAppSelector(SelectStorage);
-    const { type } = useRouter().query as { type: string[] | undefined }
+    const router = useRouter();
+    const index = router.asPath;
+    const { type } = router.query as { type: string[] | undefined, index: string | undefined }
 
     const data = [
         {
@@ -32,7 +34,9 @@ export default function RequestLayout() {
         }
     ]
 
-    const link = BASE_URL + "/requests/?" + `id=${storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin=${selectedBlockchain}&signer=${storage?.signType}`
+    const link = BASE_URL + "/requests/?" + `id=${storage!.signType === "individual" ? `${storage!.individual.id}` : `${storage!.organization!.id}`}&coin=${selectedBlockchain.name}&signer=${storage?.signType}`
+
+    let Index = index?.includes("rejected") ? 2 : index?.includes("approved") ? 1 : 0
 
     return (
         <div className="flex flex-col space-y-5 h-full">
@@ -43,10 +47,10 @@ export default function RequestLayout() {
                 </div>
             </div>
             <div className="flex  w-[83%] justify-between">
-                <AnimatedTabBar data={data} index={0} className={'!text-2xl'} />
+                <AnimatedTabBar data={data} index={Index} className={'!text-2xl'} />
             </div>
             <div className=" py-5 h-full">
-                <DynamicRequest type={type?.[0] === "approved" ? "approved" : type?.[0] === "rejected" ? "rejected" : "pending"} />
+                <DynamicRequest type={Index === 1 ? "approved" : Index === 2 ? "rejected" : "pending"} />
             </div>
             {modalVisibility && <Modal onDisable={setModalVisible} animatedModal={false} className={'!py-8 !pt-1'}>
                 <div className="flex flex-col space-y-5 items-center">

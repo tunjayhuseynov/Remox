@@ -1,18 +1,12 @@
 import Button from 'components/button';
 import { Fragment, useState, useMemo, useEffect } from 'react';
-import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
+import { SelectBalances } from 'redux/slices/currencies';
 import { Coins } from 'types';
 import { DateInterval, IMember } from 'types/dashboard/contributors';
 import date from 'date-and-time'
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
-import useAllowance from "rpcHooks/useAllowance";
-import useTasking from "rpcHooks/useTasking";
-import useContributors from "hooks/useContributors";
-import { selectStorage } from 'redux/slices/account/storage';
 import { useWalletKit } from 'hooks';
-import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
 import Runpayroll from './modalpay/Runpayroll';
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
 import Modal from 'components/general/modal';
@@ -20,6 +14,7 @@ import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
 import { SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import TeamItem from './teamItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
+import { ToastRun } from 'utils/toast';
 
 
 export default function DynamicPayroll() {
@@ -31,24 +26,14 @@ export default function DynamicPayroll() {
 
     const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
 
-
     useEffect(() => {
         if (!runmodal) {
             setSelectedContributors([])
         }
     }, [runmodal])
 
-
-
-
     const { GetCoins, SendTransaction } = useWalletKit()
-    const router = useRouter()
-    const dispatch = useDispatch()
     const balance = useAppSelector(SelectBalances)
-    const { createTask } = useTasking()
-    const { editMember, isLoading } = useContributors()
-    const storage = useAppSelector(selectStorage)
-    const { allow, loading: allowLoading } = useAllowance()
 
     const totalPrice: { [name: string]: number } = useMemo(() => {
         if (contributors) {
@@ -165,87 +150,36 @@ export default function DynamicPayroll() {
 
 
     const confirmSubmit = async () => {
-        if (!selectedAccountAndBudget.account) throw new Error('No account selected')
-        const arr = [...selectedContributors]
-        const inputs: IPaymentInput[] = []
-        arr.forEach(curr => {
-            if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
-                const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
-                let amount = curr.amount
-                if (curr.interval === DateInterval.weekly) {
-                    amount *= Math.max(1, Math.floor(days / 7))
-                } else if (curr.interval === DateInterval.monthly) {
-                    amount *= Math.max(1, Math.floor(days / 30))
+        try {
+            if (!selectedAccountAndBudget.account) throw new Error('No account selected')
+            const arr = [...selectedContributors]
+            const inputs: IPaymentInput[] = []
+            arr.forEach(curr => {
+                if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
+                    const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
+                    let amount = curr.amount
+                    if (curr.interval === DateInterval.weekly) {
+                        amount *= Math.max(1, Math.floor(days / 7))
+                    } else if (curr.interval === DateInterval.monthly) {
+                        amount *= Math.max(1, Math.floor(days / 30))
+                    }
+                    curr = { ...curr, amount: amount }
+
+                    inputs.push({
+                        amount: curr.amount,
+                        coin: curr.currency,
+                        recipient: curr.address,
+                    })
                 }
-                curr = { ...curr, amount: amount }
+            })
 
-                inputs.push({
-                    amount: curr.amount,
-                    coin: curr.currency,
-                    recipient: curr.address,
-                })
-            }
-        })
-
-        await SendTransaction(selectedAccountAndBudget.account, inputs, {
-            budget: selectedAccountAndBudget.budget,
-            subbudget: selectedAccountAndBudget.subbudget,
-        })
-
-        console.log(arr)
-        // try {
-        //     for (let index = 0; index < arr.length; index++) {
-        //         const curr = arr[index];
-
-        //         let hash;
-        //         const interval = curr!.interval
-        //         const days = Math.abs(date.subtract(new Date(curr.paymantDate), new Date(curr.paymantEndDate)).toDays());
-        //         const realDays = interval === DateInterval.monthly ? Math.ceil(days / 30) : interval === DateInterval.weekly ? Math.ceil(days / 7) : days;
-        //         let realMoney = Number(curr.amount) * realDays
-
-        //         if (curr.usdBase) {
-        //             realMoney *= (balance[GetCoins[curr.currency].name]?.tokenPrice ?? 1)
-        //         }
-        //         await allow(GetCoins[curr.currency].contractAddress, Contracts.Gelato.address, realMoney.toString())
-        //         const paymentList: PaymentInput[] = []
-
-        //         paymentList.push({
-        //             coin: GetCoins[curr.currency],
-        //             recipient: curr.address.trim(),
-        //             amount: curr.amount.trim()
-        //         })
-
-        //         if (curr.secondaryAmount && curr.secondaryCurrency) {
-        //             let realMoney = Number(curr.secondaryAmount) * realDays
-        //             if (curr.usdBase) {
-        //                 realMoney *= (balance[GetCoins[curr.secondaryCurrency].name]?.tokenPrice ?? 1)
-        //             }
-        //             await allow(GetCoins[curr.secondaryCurrency].contractAddress, Contracts.Gelato.address, realMoney.toString())
-        //             paymentList.push({
-        //                 coin: GetCoins[curr.secondaryCurrency],
-        //                 recipient: curr.address.trim(),
-        //                 amount: curr.secondaryAmount.trim()
-        //             })
-        //         }
-
-        //         const encodeAbi = (await GenerateBatchPay(paymentList)).encodeABI()
-        //         hash = await createTask(Math.floor((new Date(curr.paymantDate).getTime() + 600000) / 1e3), interval, Contracts.BatchRequest.address, encodeAbi)
-
-        //         let user = { ...curr }
-        //         user.name = `${user.name}`
-        //         user.address = user.address
-        //         user.amount = user.amount
-        //         if (user.secondaryAmount) {
-        //             user.secondaryAmount = user.secondaryAmount
-        //         }
-
-
-        //         await editMember(user.teamId, user.id, { ...user, taskId: hash })
-        //     }
-        // } catch (error) {
-        //     console.error(error)
-        // }
-
+            await SendTransaction(selectedAccountAndBudget.account, inputs, {
+                budget: selectedAccountAndBudget.budget,
+                subbudget: selectedAccountAndBudget.subbudget,
+            })
+        } catch (error) {
+            ToastRun((error as any).message, 'error')
+        }
     }
 
     return <div className="w-full h-full flex flex-col space-y-4">

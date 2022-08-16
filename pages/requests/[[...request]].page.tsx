@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Button from "components/button";
 import { useSelector } from "react-redux";
-
 import { CeloCoins, Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
@@ -25,6 +24,8 @@ import { UploadImage } from "rpcHooks/useFirebase";
 import { storage } from "firebaseConfig/firebase";
 import { ref, StorageReference, deleteObject } from "firebase/storage";
 import { SelectDarkMode } from "redux/slices/account/selector";
+import { setBlockchain } from "redux/slices/account/remoxData";
+import { Blockchains, BlockchainType } from "types/blockchains";
 
 export interface IFormInput {
   name: string;
@@ -38,40 +39,43 @@ export interface IFormInput {
 }
 
 export default function RequestId() {
-  const { id, coin, signer } = useRouter().query as {
+  const router = useRouter()
+
+  const { id, coin, signer } = router.query as {
     id: string;
     coin: string;
     signer: string;
   };
+
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
-  const router = useRouter();
 
   const data = useCurrency();
 
   const dispatch = useAppDispatch();
 
-  // dispatch(setBlockchain(Blockchains.find(s => s.name === coin) as Blockchains));
 
   const dark = useSelector(SelectDarkMode);
   const currency = useSelector(SelectCurrencies);
   const [secondActive, setSecondActive] = useState(false);
   const { GetCoins } = useWalletKit();
-  const [DropDownCoins, setDropDownCoins] = useState<DropDownItem[]>([]);
 
   useEffect(() => {
-    const DropDownCoins = Object.values(GetCoins!).map((w) => ({
-      name: w.name,
-      coinUrl: w.coinUrl,
-    }));
-    setDropDownCoins(DropDownCoins);
+    dispatch(setBlockchain(Blockchains.find(s => s.name === coin) as BlockchainType));
   }, []);
 
-  const [selectedWallet, setSelectedWallet] = useState<DropDownItem>(
-    DropDownCoins[0]
+  useEffect(() => {
+    if (data) {
+      dispatch(updateAllCurrencies(data));
+    }
+  }, [data]);
+
+
+  const [selectedWallet, setSelectedWallet] = useState(
+    GetCoins[0]
   );
-  const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>(
-    DropDownCoins[0]
+  const [selectedWallet2, setSelectedWallet2] = useState(
+    GetCoins[0]
   );
   const paymentBase: DropDownItem[] = [
     { name: "Pay with Token Amounts" },
@@ -90,20 +94,6 @@ export default function RequestId() {
   const [modal, setModal] = useState(false);
   const [request, setRequest] = useState<IRequest>();
 
-  useEffect(() => {
-    if (data) {
-      dispatch(updateAllCurrencies(data));
-    }
-  }, []);
-
-  const [currentCurrency, setCurrentCurrency] =
-    useState<ICoinMembers>(currency);
-
-  useEffect(() => {
-    if (currency) {
-      setCurrentCurrency(currency);
-    }
-  }, [currency]);
 
   const closeModal = async () => {
     try {
@@ -479,7 +469,7 @@ export default function RequestId() {
                             {request?.amount
                               ? TotalUSDAmount(
                                 [request as IRequest],
-                                currentCurrency
+                                currency
                               )
                               : request?.amount &&
                                 CeloCoins[request.currency as keyof Coins]
@@ -511,7 +501,7 @@ export default function RequestId() {
                                 {request?.secondaryAmount
                                   ? TotalUSDAmount(
                                     [request as IRequest],
-                                    currentCurrency
+                                    currency
                                   ).toFixed(2)
                                   : request?.secondaryAmount &&
                                     CeloCoins[request.currency as keyof Coins]
@@ -549,7 +539,7 @@ export default function RequestId() {
                       {request?.amount
                         ? TotalUSDAmount(
                           [request as IRequest],
-                          currentCurrency
+                          currency
                         ).toFixed(2)
                         : 0}{" "}
                       USD
@@ -642,3 +632,8 @@ export default function RequestId() {
 RequestId.disableLayout = true;
 RequestId.disableGuard = true;
 
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  }
+}
