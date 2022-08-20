@@ -7,7 +7,7 @@ import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import DatePicker from "react-datepicker";
 import Modal from "components/general/modal";
-import dateFormat from "dateformat";
+// import dateFormat from "dateformat";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import useCurrency from "rpcHooks/useCurrency";
 import { ICoinMembers, updateAllCurrencies } from "redux/slices/currencies";
@@ -26,6 +26,7 @@ import { ref, StorageReference, deleteObject } from "firebase/storage";
 import { SelectDarkMode } from "redux/slices/account/selector";
 import { setBlockchain } from "redux/slices/account/remoxData";
 import { Blockchains, BlockchainType } from "types/blockchains";
+import Confirm from "./confirm";
 
 export interface IFormInput {
   name: string;
@@ -50,7 +51,7 @@ export default function RequestId() {
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
 
-  const data = useCurrency();
+  const data = useCurrency(Blockchains.find(s => s.name === coin)!.currencyCollectionName);
 
   const dispatch = useAppDispatch();
 
@@ -99,9 +100,7 @@ export default function RequestId() {
     try {
       if (file) {
         await deleteObject(imageRef!);
-
       }
-
       setModal(false);
     } catch (error) {
       console.log(error);
@@ -162,6 +161,7 @@ export default function RequestId() {
       throw new Error("An error occured while adding request");
     }
   };
+
 
   return (
     <>
@@ -440,187 +440,7 @@ export default function RequestId() {
               disableX={true}
               className="lg:min-w-[50%] !pt-5"
             >
-              <form
-                onSubmit={handleSubmit(submit)}
-                className="flex flex-col space-y-8 px-2"
-              >
-                <div className="font-semibold">Your Information</div>
-                <div className="flex flex-col space-y-5">
-                  {!!request?.name && (
-                    <div className="flex justify-between">
-                      <div className="text-greylish">Full Name</div>
-                      <div>{`${request?.name} ${request?.surname}`}</div>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Wallet Adress</div>
-                    <div className="truncate">
-                      {request?.address !== undefined &&
-                        AddressReducer(request?.address)}
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Requesting Amount</div>
-                    <div className="flex flex-col space-y-3">
-                      <div>
-                        <div className="flex gap-x-5">
-                          <div className="flex gap-x-2 items-center">
-                            <span className="w-2 h-2 rounded-full bg-primary"></span>
-                            {request?.amount
-                              ? TotalUSDAmount(
-                                [request as IRequest],
-                                currency
-                              )
-                              : request?.amount &&
-                                CeloCoins[request.currency as keyof Coins]
-                                  .name === "cUSD"
-                                ? request.amount
-                                : 10}
-                          </div>
-                          <div className="flex gap-x-2 items-center">
-                            {!!request?.currency && (
-                              <img
-                                src={
-                                  CeloCoins[request.currency as keyof Coins]
-                                    .coinUrl
-                                }
-                                className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                              />
-                            )}
-                            {!!request?.currency &&
-                              CeloCoins[request.currency as keyof Coins].name}
-                          </div>
-                        </div>
-                      </div>
-                      {!!request?.secondaryCurrency &&
-                        !!request?.secondaryAmount && (
-                          <div>
-                            <div className="flex gap-x-5">
-                              <div className="flex gap-x-2 items-center">
-                                <span className="w-2 h-2 rounded-full bg-primary"></span>
-                                {request?.secondaryAmount
-                                  ? TotalUSDAmount(
-                                    [request as IRequest],
-                                    currency
-                                  ).toFixed(2)
-                                  : request?.secondaryAmount &&
-                                    CeloCoins[request.currency as keyof Coins]
-                                      .name === "cUSD"
-                                    ? request.secondaryAmount
-                                    : 0}
-                              </div>
-                              <div className="flex gap-x-2 items-center">
-                                {request?.secondaryCurrency ? (
-                                  <img
-                                    src={
-                                      CeloCoins[
-                                        request.secondaryCurrency as keyof Coins
-                                      ].coinUrl
-                                    }
-                                    className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                                  />
-                                ) : (
-                                  ""
-                                )}
-                                {request?.secondaryCurrency
-                                  ? CeloCoins[
-                                    request.secondaryCurrency as keyof Coins
-                                  ].name
-                                  : ""}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between border-b pb-8">
-                    <div className="text-greylish">Total</div>
-                    <div>
-                      {request?.amount
-                        ? TotalUSDAmount(
-                          [request as IRequest],
-                          currency
-                        ).toFixed(2)
-                        : 0}{" "}
-                      USD
-                    </div>
-                  </div>
-                </div>
-                <div className="font-semibold">Details</div>
-                <div className="flex flex-col space-y-4">
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Request Type</div>
-                    <div>{request?.requestType}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Name of service</div>
-                    <div>{request?.nameOfService}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Date of service</div>
-                    <div>
-                      {dateFormat(
-                        new Date(request!.serviceDate * 1000),
-                        `dd mmmm yyyy`
-                      )}
-                    </div>
-                  </div>
-                  {!!request?.attachLink && (
-                    <div className="flex justify-between">
-                      <div className="text-greylish">
-                        Attach links{" "}
-                        <span className="text-black">(optional)</span>
-                      </div>
-                      <div>
-                        <a
-                          href={request?.attachLink}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          {request?.attachLink}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <div className="text-greylish">
-                      Upload receipt or invoice{" "}
-                      <span className="text-black">(optional)</span>
-                    </div>
-                    <div>
-                      {request?.uploadedLink ? (
-                        <a
-                          href={request?.uploadedLink}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          {fileName}
-                        </a>
-                      ) : (
-                        "No file uploaded"
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-center pt-5 sm:pt-0">
-                  <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[25rem] sm:justify-center sm:gap-5">
-                    <Button
-                      version="second"
-                      onClick={() => closeModal()}
-                      className="w-[9.375rem] sm:w-full"
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      className=" w-[9.375rem] sm:w-full bg-primary px-0 !py-2 text-white flex items-center justify-center rounded-lg"
-                      isLoading={loading}
-                    >
-                      Confirm & Submit
-                    </Button>
-                  </div>
-                </div>
-              </form>
+              <Confirm currency={currency} GetCoins={GetCoins} closeModal={closeModal} request={request} loading={loading} filename={fileName} />
             </Modal>
           )}
         </form>

@@ -4,6 +4,7 @@ import { CoinsURL } from "types/coins";
 export type BlockchainType = {
     name: "celo" | "solana" | "polygon_evm" | "",
     displayName: "Celo" | "Solana" | "Polygon" | "",
+    currencyCollectionName: string,
     rpcUrl: string,
     explorerUrl: string,
     logoUrl: string,
@@ -44,6 +45,7 @@ export const Blockchains: BlockchainType[] = [
         displayName: "Celo",
         rpcUrl: "https://celo-rpc.celo.org",
         explorerUrl: "https://explorer.celo.org",
+        currencyCollectionName: "currency",
         logoUrl: CoinsURL.CELO,
         multisigProviders: [
             {
@@ -86,6 +88,7 @@ export const Blockchains: BlockchainType[] = [
         rpcUrl: "https://solana-api.projectserum.com",
         explorerUrl: "https://explorer-api.mainnet-beta.solana.com/",
         logoUrl: CoinsURL.SOL,
+        currencyCollectionName: "solanaCurrency",
         multisigProviders: [
             {
                 name: "Goki",

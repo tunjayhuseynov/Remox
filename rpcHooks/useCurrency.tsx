@@ -8,9 +8,9 @@ export interface IuseCurrency {
     price: number;
 }
 
-export default function useCurrency() {
+export default function useCurrency(collection: string | null) {
     const { Collection, GetCoins } = useWalletKit()
-    const { data } = useFirestoreReadMultiple<IuseCurrency>(Collection, [{ condition: ">", firstQuery: "price", secondQuery: 0 }])
+    const { data } = useFirestoreReadMultiple<IuseCurrency>(collection ?? Collection, [{ condition: ">", firstQuery: "price", secondQuery: 0 }])
 
     if (data) {
         return data.filter(s => GetCoins[s.name as unknown as keyof Coins])
