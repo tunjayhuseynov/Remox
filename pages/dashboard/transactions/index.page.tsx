@@ -187,7 +187,7 @@ const MultisigTx = forwardRef<HTMLDivElement, { Address: string | undefined, Get
         return acc + w;
     }, '')
 
-    return <Accordion ref={ref} grid={"grid-cols-[22%,48%,30%] sm:grid-cols-[26%,28.5%,45.5%]"} dataCount={1} method={method} status={tx.executed ? TransactionStatus.Completed : tx.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}>
+    return <Accordion ref={ref} grid={"grid-cols-[22%,48%,30%] sm:grid-cols-[26%,28.5%,45.5%]"} dataCount={1} method={method} status={tx.executed ? TransactionStatus.Completed : tx.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected} color={"bg-white dark:bg-darkSecond"}>
         <div className="grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[26.5%,28%,25%,20.5%] min-h-[75px] py-6 items-center">
             <div>
                 {tx.executed ? <div className="text-white bg-green-500 border-2 border-green-500 rounded-xl px-3 py-1 text-center text-xs w-[125px]">Submitted</div> : null}

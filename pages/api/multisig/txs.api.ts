@@ -149,8 +149,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             const contract = new Contract(multisigAddress, Multisig.abi, provider)
 
-            let Total = await contract.transactionCount.call() as BigNumber
-            let total = Total.toNumber();
+            let Total = await contract.transactionCount.call()
+            let total = Total
             if (total > skip) {
                 total -= skip;
             }
@@ -173,8 +173,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     Value: tx.value,
                     blockchain, timestamp: GetTime(),
                     contractAddress: multisigAddress,
-                    contractInternalThreshold: contract.internalRequired.toNumber(),
-                    contractThreshold: contract.required.toNumber(),
+                    contractInternalThreshold: contract.internalRequired,
+                    contractThreshold: contract.required,
                     contractOwnerAmount: contract.getOwners().length,
                     name,
                     tags: tags?.tags ?? []

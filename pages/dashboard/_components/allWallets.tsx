@@ -17,7 +17,6 @@ import { IAccountORM } from "pages/api/account/index.api";
 
 function AllWallets({ item }: { item: IAccountORM }) {
     const [details, setDetails] = useState<boolean>(false)
-    const selectedAccount = useNextSelector(SelectSelectedAccount)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
     const [deleteModal, setDeleteModal] = useState<boolean>(false)
     const [depositModal, setDepositModal] = useState<boolean>(false)
@@ -61,7 +60,7 @@ function AllWallets({ item }: { item: IAccountORM }) {
                             <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
                             <div className="flex flex-col">
                                 <div className="font-semibold">{item.name}</div>
-                                <div className="text-sm text-greylish ">{AddressReducer(selectedAccount ?? "")}</div>
+                                <div className="text-sm text-greylish ">{AddressReducer(item.address ?? "")}</div>
                             </div>
                         </div>
                         <div ref={exceptRef} onClick={() => { setDetails(!details) }} className="relative cursor-pointer  h-7 w-7  text-2xl m-0 font-bold text-greylish dark:text-white flex "><span className="rotate-90">...</span>

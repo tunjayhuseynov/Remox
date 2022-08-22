@@ -8,6 +8,7 @@ import { BlockchainType } from "types/blockchains";
 import { BASE_URL } from "utils/api";
 import { MultisigOwners } from "./owners.api";
 import { IMultisigThreshold } from "./sign.api";
+import axiosRetry from 'axios-retry';
 
 export interface IAccountMultisig {
     name: string;
@@ -19,24 +20,27 @@ export interface IAccountMultisig {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IAccountMultisig>) {
     try {
-        const { blockchain, address: multisigAddress, Skip, Take } = req.query as { blockchain: BlockchainType["name"], address: string, Skip: string, Take: string };
+        const { blockchain, Skip, Take, id, accountId } = req.query as { blockchain: BlockchainType["name"], accountId: string, Skip: string, Take: string, id: string };
 
-        const accountRef = await adminApp.firestore().collection(accountCollectionName).doc(multisigAddress).get()
+        const accountRef = await adminApp.firestore().collection(accountCollectionName).doc(id).get()
         const account = accountRef.data() as IAccount
 
         const name = account.name;
 
+        axiosRetry(axios, { retries: 10 });
+
         const ownersPromise = axios.get<MultisigOwners>(BASE_URL + "/api/multisig/owners", {
             params: {
                 blockchain,
-                address: multisigAddress,
+                address: account.address,
             }
         })
 
-        const thresholdPromise = axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/threshold", {
+
+        const thresholdPromise = axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
             params: {
                 blockchain,
-                address: multisigAddress,
+                address: account.address,
             }
         })
 
@@ -44,22 +48,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             params: {
                 blockchain,
                 name,
-                address: multisigAddress,
+                address: account.address,
                 Skip,
                 Take,
-            }
+                id: accountId
+            },
+
         })
 
         const [owners, threshold, txs] = await Promise.all([ownersPromise, thresholdPromise, txsPromise])
 
         res.status(200).json({
             name,
-            address: multisigAddress,
+            address: account.address,
             owners: owners.data.owners,
             threshold: threshold.data,
             txs: txs.data
         })
     } catch (error) {
-
+        console.log(error)
+        res.status(500).json(error as any)
     }
 }

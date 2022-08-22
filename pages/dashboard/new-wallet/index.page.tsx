@@ -18,6 +18,7 @@ import { Create_Account_For_Individual, Create_Account_For_Organization } from '
 import { generate } from 'shortid';
 import axios from 'axios';
 import { ToastRun } from 'utils/toast';
+import useLoading from 'hooks/useLoading';
 
 export interface IFormInput {
     nftAddress?: string;
@@ -127,21 +128,25 @@ function NewWalletModal() {
             }
 
             if (type === "organization") {
-                dispatch(Create_Account_For_Organization({
+                await dispatch(Create_Account_For_Organization({
                     account: myResponse,
                     organization: (account as IOrganization)
                 }))
             } else if (type === "individual") {
-                dispatch(Create_Account_For_Individual({
+                await dispatch(Create_Account_For_Individual({
                     account: myResponse,
                     individual: (account as IIndividual)
                 }))
             }
+
+            navigate.back();
         } catch (error) {
             console.error(error)
             ToastRun(<>Please, be sure your address belongs to a multisig account</>, "error")
         }
     }
+
+    const [loading, submit] = useLoading(onSubmit)
 
     return <div className="w-full mx-auto relative">
         <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
@@ -154,7 +159,7 @@ function NewWalletModal() {
             </div>
             <div className="flex justify-between w-[60%]  xl:w-[38%] py-7"><AnimatedTabBar data={data} index={index} /></div>
 
-            {index === 0 && <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-[62%] gap-7">
+            {index === 0 && <form onSubmit={handleSubmit(submit)} className="flex flex-col w-[62%] gap-7">
                 <div className="flex flex-col gap-1">
                     {/* <div className="text-sm">Choose Profile Photo Type</div> */}
                     <Dropdown
@@ -201,7 +206,7 @@ function NewWalletModal() {
                     <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { navigate.back() }}>
                         Close
                     </Button>
-                    <Button type='submit' className="px-6 py-3 rounded-md"  >
+                    <Button type='submit' className="px-6 py-3 rounded-md" isLoading={loading}>
                         Save
                     </Button>
                 </div>

@@ -26,6 +26,7 @@ export const Create_Account_For_Individual = createAsyncThunk<IAccountORM, { acc
     const accountReq = await axios.get<IAccountORM>("/api/account", {
         params: {
             id: account.id,
+            accountId: individual.id,
         }
     });
 
@@ -52,6 +53,7 @@ export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { a
     const accountReq = await axios.get<IAccountORM>("/api/account", {
         params: {
             id: account.id,
+            accountId: organization.id,
         }
     });
 

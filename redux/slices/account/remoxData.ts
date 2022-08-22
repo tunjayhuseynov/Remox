@@ -100,6 +100,7 @@ const init = (): IRemoxData => {
         blockchain: {
             multisigProviders: [],
             batchPaymentProtocols: [],
+            currencyCollectionName: "",
             displayName: "",
             explorerUrl: "",
             lendingProtocols: [],

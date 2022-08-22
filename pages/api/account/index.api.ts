@@ -19,6 +19,7 @@ export default async function handler(
 ) {
     try {
         const id = req.query.id;
+        const accountId = req.query.accountId;
         if (typeof id !== "string") throw new Error("There should be an id parameter as string");
 
 
@@ -40,11 +41,12 @@ export default async function handler(
         })
 
         let multidata: IAccountORM["multidata"] = null;
-        
+
         if (account.signerType === "multi") {
             const { data: multisig } = await axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
                 params: {
-                    address: account.address,
+                    id,
+                    accountId: account.id,
                     blockchain: account.blockchain,
                     Skip: 0,
                     Take: 10
@@ -68,7 +70,7 @@ export default async function handler(
 
         res.status(200).json(orm);
     } catch (error) {
-        res.status(400).json({ error: (error as any).message } as any);
+        throw error;
     }
 
 }

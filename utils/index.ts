@@ -1,4 +1,5 @@
 import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { TransactionDirection, TransactionType } from "types";
 
 export const AddressReducer = (address: string) => {
@@ -21,10 +22,12 @@ export const WordSplitter = (word: string) => {
 export const GetTime = (date?: Date) => Math.round((date ?? new Date()).getTime() / 1000);
 export const GetSignedMessage = (nonce: number) => "Your nonce for signing is " + nonce
 
-export const TransactionDirectionDeclare = (transaction: IFormattedTransaction, accounts: string[]) => {
+export const TransactionDirectionDeclare = (transaction: IFormattedTransaction | ITransactionMultisig, accounts: string[]) => {
 	let directionType;
-	const direction = accounts.some(a => a.toLowerCase() === transaction.rawData.from.toLowerCase())
-	switch (transaction.id) {
+	const direction = accounts.some(a => a.toLowerCase() === (transaction as IFormattedTransaction)['hash'] ?
+		(transaction as IFormattedTransaction).rawData.from.toLowerCase() : (transaction as ITransactionMultisig).owner?.toLowerCase());
+
+	switch ((transaction as IFormattedTransaction)['hash'] ? transaction.id : (transaction as ITransactionMultisig).method) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionDirection.Swap;
 			break;

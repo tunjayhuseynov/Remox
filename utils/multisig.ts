@@ -59,7 +59,7 @@ export const MultisigTxParser = (
         contractInternalThresholdAmount: contractInternalThreshold,
         contractOwnerAmount: contractOwnerAmount,
         contractThresholdAmount: contractThreshold,
-        method: "",
+        method: data.substring(0, 10),
         tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase()))
     }
 

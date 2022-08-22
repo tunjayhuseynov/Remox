@@ -37,7 +37,8 @@ export default async function handler(
 
         const list = await Promise.all(organization.accounts.map(acc => axios.get<IAccountORM>(BASE_URL + "/api/account", {
             params: {
-                id: acc.id
+                id: acc.id,
+                accountId: id,
             }
         })
         ));

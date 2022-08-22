@@ -36,6 +36,7 @@
     "apexcharts": "^3.35.3",
     "assert": "^2.0.0",
     "autoprefixer": "^10.4.5",
+    "axios-retry": "^3.3.1",
     "batch-payment": "https://github.com/Zebec-protocol/batchpayment-sdk.git",
     "cookies-next": "^2.1.1",
     "firebase-admin": "^10.2.0",
