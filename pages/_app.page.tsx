@@ -8,10 +8,9 @@ import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux'
 import Wallet from 'components/Wallet'
 import store from 'redux/store';
-import { ReactElement, ReactNode, useMemo, useState } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { NextPage } from 'next';
 import { ThemeProvider } from "next-themes";
-
 
 import App from 'layouts/App'
 import Guard from 'layouts/Guard';
@@ -42,34 +41,42 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
   const disableLayout = Component?.disableLayout ?? false
   const disableGuard = Component?.disableGuard ?? false
   return <ThemeProvider enableSystem={false} attribute="class">
-      <Head>
-        <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin={"anonymous"} />
-          <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap" rel="stylesheet"></link>
-        </>
-      </Head>
-      <Provider store={store}>
-        <ToastContainer />
-        <Wallet>
-          <App>
-            {
-              disableGuard ?
-                <Component {...pageProps} />
-                :
-                <Guard>
-                  {
-                    disableLayout ?
-                      <Component {...pageProps} /> :
-                      <DashboardLayout>
-                        <Component {...pageProps} canonical={url} key={url} />
-                      </DashboardLayout>
-                  }
-                </Guard>
-            }
-          </App>
-        </Wallet>
-      </Provider>
+    <Head>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin={"anonymous"} />
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></link>
+      <title>Remox - Simplified and Collaborative Treasury  Management for DAOs</title>
+      <meta name="description" content="Remox - Simplified and Collaborative Treasury  Management for DAOs" key="desc" />
+      <meta property="og:title" content="Remox - Simplified and Collaborative Treasury  Management for DAOs" />
+      <link rel="icon" href="%PUBLIC_URL%/icons/remox.png" />
+
+      <meta
+        property="og:image"
+        content="%PUBLIC_URL%/icons/remox.png"
+      />
+
+    </Head>
+    <Provider store={store}>
+      <ToastContainer />
+      <Wallet>
+        <App>
+          {
+            disableGuard ?
+              <Component {...pageProps} />
+              :
+              <Guard>
+                {
+                  disableLayout ?
+                    <Component {...pageProps} /> :
+                    <DashboardLayout>
+                      <Component {...pageProps} canonical={url} key={url} />
+                    </DashboardLayout>
+                }
+              </Guard>
+          }
+        </App>
+      </Wallet>
+    </Provider>
   </ThemeProvider>
 }
 

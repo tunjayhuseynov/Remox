@@ -10,7 +10,7 @@ const Visitcard = ({ name, address }: { name?: string, address: string }) => {
 
 
     return <>
-        <div ref={setDivRef} className="px-4 min-w-[13rem]  cursor-pointer py-2 grid grid-cols-[80%,20%] gap-x-1 bg-white shadow dark:bg-darkSecond rounded-xl relative items-center"  onClick={() => {
+        <div ref={setDivRef} className="px-4 min-w-[14rem] min-h-[40px] cursor-pointer py-2 grid grid-cols-[80%,20%] gap-x-1 bg-[#F9F9F9]  dark:bg-[#252525] rounded-md relative items-center"  onClick={() => {
                 navigator.clipboard.writeText(address.trim())
                 setTooltip(true)
                 setTimeout(() => {

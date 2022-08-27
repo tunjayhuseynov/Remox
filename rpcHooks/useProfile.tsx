@@ -35,7 +35,7 @@ export default function useProfile() {
     if (!account?.id) throw new Error('Account is not defined')
     await FirestoreWrite<{
       seenTime: number,
-    }>().updateDoc(collection, account.id, {
+    }>().updateDoc("individuals", account.id, {
       seenTime: time,
     })
   }

@@ -6,9 +6,9 @@ import { Payments, Statistics } from "./_components"
 export default function Dashboard() {
     const [transactions] = useTransactionProcess()
     
-    return <main className="flex gap-7 flex-col xl:flex-row">
-        <div className="w-full h-1/2 xl:w-[70%]">
-            <div className=" max-h-full">
+    return <main className="flex gap-4 2xl:gap-10 flex-col xl:flex-row">
+        <div className="h-1/2 w-[73%] 2xl:w-[62.5%]">
+            <div className="max-h-full">
                 <Statistics transactions={transactions} />
             </div>
         </div>

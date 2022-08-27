@@ -1,9 +1,8 @@
 import { Dispatch, useId } from 'react'
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { BlockchainType } from 'types/blockchains';
 import { CoinsURL } from 'types';
-import { FormControl, InputLabel } from '@mui/material';
+import { FormControl, InputLabel, SxProps, Theme } from '@mui/material';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -25,6 +24,8 @@ interface IProp<T> {
     list: Array<T>,
     setSelect?: Dispatch<T>,
     runFn?: (val: T) => () => any,
+    sx?: SxProps<Theme>
+    textClass?: string
 }
 
 interface IGenericExtendedProp {
@@ -36,7 +37,7 @@ interface IGenericExtendedProp {
     secondValue?: string | number
 }
 
-const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn, selectClass }: IProp<T>) => {
+const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
 
@@ -61,11 +62,12 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                                 {selected.coinUrl && <img className="w-4 h-4 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
                                 {selected.image && <img className="w-4 h-4 mr-2" src={`${selected.image}`} />}
-                                <span>{selected.name}</span>
+                                <span className={`${textClass} text-lg font-sans font-semibold`}>{selected.name}</span>
                             </div>
                             {selected.secondValue && <span className="text-[.75rem]">{selected.secondValue}</span>}
                         </div>
                     }
+                    sx={sx}
                     label={label}
                     onChange={(e) => {
                         const selected = e.target.value as T;

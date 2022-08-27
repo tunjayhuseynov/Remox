@@ -24,31 +24,39 @@ function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: str
   const options: ApexCharts.ApexOptions = {
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
-    grid: { show: false },
+    grid: {
+      show: false,
+      padding: {
+        // left: chartDate === "month" ? 17 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 15,
+        // right: chartDate === "month" ? 20 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 20,
+      },
+    },
     tooltip: {
-      custom: function({ series, seriesIndex, dataPointIndex, w }) {
-          return (
-            '<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">' +
-            '<div class="flex justify-between">' +
-            "<span class='text-greylish dark:text-white text-sm'>" +
-            w.globals.timescaleLabels[dataPointIndex].value + ' ' + w.globals.timescaleLabels[dataPointIndex].year +
-            "</span>" +
-            "<span class='text-greylish dark:text-white text-sm'>" +
-             "" +
-            "</span>" +
-            "</div>"+
-            '<div class="flex justify-between">' +
-            "<span class='text-base flex items-center gap-2 font-semibold'>" +
-            '<div class="rounded-full bg-primary w-3 h-3"></div>' +
-            'Balance '+ 
-            "</span>" +
-            "<span class='text-base font-bold'>" +
-          "$"+ series[seriesIndex][dataPointIndex].toFixed(2)+
-            "</span>" +
-            "</div>"+
-            "</div>"
-          );
-        }
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        console.log(w?.globals?.timescaleLabels)
+        console.log(dataPointIndex)
+        return (
+          '<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">' +
+          '<div class="flex justify-between">' +
+          "<span class='text-greylish dark:text-white text-sm'>" +
+          w?.globals?.timescaleLabels?.[dataPointIndex]?.value + ' ' + w?.globals?.timescaleLabels?.[dataPointIndex]?.year +
+          "</span>" +
+          "<span class='text-greylish dark:text-white text-sm'>" +
+          "" +
+          "</span>" +
+          "</div>" +
+          '<div class="flex justify-between">' +
+          "<span class='text-base flex items-center gap-2 font-semibold'>" +
+          '<div class="rounded-full bg-primary w-3 h-3"></div>' +
+          'Balance ' +
+          "</span>" +
+          "<span class='text-base font-bold'>" +
+          "$" + series[seriesIndex][dataPointIndex].toFixed(2) +
+          "</span>" +
+          "</div>" +
+          "</div>"
+        );
+      }
       // x: {
       //   show: true,
       //   format: "dd MMM yyyy - hh:mm"
@@ -74,7 +82,9 @@ function LineChart({ data, type }: { data: Omit<IFlowDetail, "total">, type: str
       background: dark ? "#1C1C1C" : "#FFFFFF"
     },
     dataLabels: { enabled: false },
-    stroke: { curve: "straight" },
+    stroke: {
+      curve: 'smooth',
+    },
     xaxis: {
       type: "datetime",
       categories: [

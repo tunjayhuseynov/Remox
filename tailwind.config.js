@@ -8,6 +8,10 @@ module.exports = {
     "./layouts/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      'sans': ['Inter', 'system-ui']
+
+    },
     extend: {
       colors: {
         primary: "#FF7348",
@@ -21,5 +25,7 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+      require('tailwind-scrollbar'),  
+  ],
 }

@@ -27,15 +27,15 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
         {/* <Modal onDisable={setNotify} openNotify={openNotify} >
             <NewWalletModal onDisable={setNotify} />
         </Modal> */}
-        <div className="flex flex-col gap-5 h-full w-full ">
-            <div className="text-4xl font-semibold text-left">Welcome, {getName}</div>
-            <div className="bg-white  mt-3 dark:bg-darkSecond rounded-lg shadow">
-                <div className="w-full px-12 pt-5 flex justify-between">
-                    <div className="  flex flex-col gap-1">
-                        <div className=" font-medium text-lg text-greylish dark:text-white text-opacity-40 tracking-wide">Total Treasury Value</div>
-                        <div className="text-4xl font-semibold">${parseFloat(SetComma(stats?.TotalBalance)).toFixed(0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
+        <div className="flex flex-col gap-3 pt-7 h-full w-full">
+            <div className="text-[2.65rem] font-semibold text-left">Welcome, {getName}</div>
+            <div className="bg-white  dark:bg-darkSecond rounded-md shadow-15 w-full h-full">
+                <div className="w-full px-5 pt-8 flex justify-between">
+                    <div className="flex flex-col gap-1">
+                        <div className="font-semibold text-greylish tracking-wide">Total Treasury Value</div>
+                        <div className="text-3xl font-semibold">${parseFloat(SetComma(stats?.TotalBalance)).toFixed(0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                     </div>
-                    <div className="flex gap-3 pt-6">
+                    <div className="flex gap-3 pr-2">
                         <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("week")}>1W</span>
                         <span className={`${chartDate === "month" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-white  text-opacity-40 tracking-wide`} onClick={() => setChartDate("month")}>1M</span>
                         <span className={`${chartDate === "quart" && '!text-primary text-opacity-100'} text-greylish hover:!text-primary cursor-pointer dark:text-white text-opacity-40 tracking-wide`} onClick={() => setChartDate("quart")}>3M</span>
@@ -43,16 +43,18 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                     </div>
                 </div>
                 {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
-                <div className="w-full h-full flex items-center justify-center"><LineChart data={stats?.TotalBalanceByDay[chartDate] ?? {}} type={'area'} /></div>
+                <div className="w-full h-full flex items-center justify-center">
+                    <LineChart data={stats?.TotalBalanceByDay[chartDate] ?? {}} type={'area'} />
+                </div>
             </div>
-            <div className=" flex flex-col gap-5 pt-6 xl:pt-0">
-                <div className="flex justify-between w-full">
+            <div className="flex flex-col gap-5 pt-2">
+                <div className="flex justify-between items-center w-full">
                     <div className="text-2xl font-semibold">Connected Wallets</div>
-                    <Button className="text-xs sm:text-base !py-0 !px-7 " onClick={() => {
-                        route.push("/dashboard/new-wallet?secondAnimation=true")
+                    <Button className="text-xs sm:text-lg !py-[.5rem] !px-12" onClick={() => {
+                        route.push("/dashboard/new-wallet")
                     }}>+ Add Wallet</Button>
                 </div>
-                <div className="grid grid-cols-2 gap-32 xl:gap-10 pb-4">
+                <div className="grid grid-cols-2 gap-32 xl:gap-20 pb-4">
                     {accounts.map((item) => {
                         return <AllWallets item={item} key={item.id} />
                     })}

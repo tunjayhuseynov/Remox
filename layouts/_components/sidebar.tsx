@@ -63,7 +63,7 @@ const Sidebar = () => {
             return {
                 id: e.id,
                 name: e.name,
-                image: e.image,
+                image: (typeof e.image?.imageUrl === 'string' ? e.image.imageUrl : null) || e.image?.nftUrl || "/icons/remox.png",
                 secondValue: `$${SetComma(e.totalBalance)}`,
                 onClick: () => {
                     navigator.push(`/organization/${e.id}`)
@@ -71,7 +71,7 @@ const Sidebar = () => {
             }
         })]
         if (list.length > 0) {
-            list.push({ id: "0", name: "Add Organization", secondValue: "", image: null, onClick: () => { navigator.push('/create-organization') } })
+            list.push({ id: "0", name: "Add Organization", secondValue: "", image: "", onClick: () => { navigator.push('/create-organization') } })
         }
         return list;
     }, [allOrganizations, selectedAccountType])
@@ -87,30 +87,31 @@ const Sidebar = () => {
     const [selectedItem, setItem] = useState(selectedAccountType === "organization" ? currentOrganization : {
         id: "0",
         name: individual?.name ?? "",
-        image: individual?.image ?? null,
+        image: (typeof individual?.image?.imageUrl === 'string' ? individual.image.imageUrl : null) ?? individual?.image?.nftUrl ?? "",
         secondValue: `$${SetComma(accounts.reduce((acc, e) => acc + e.totalValue, 0))}`,
         onClick: () => { }
     })
 
 
     return <>
-        <div className={`h-full hidden md:block z-[1] md:col-span-2 transitiion-all ${showBar ? 'w-[17.188rem] ' : 'w-[6rem]'} flex-none fixed pt-28 bg-light dark:bg-dark`}>
-            <div className="grid grid-rows-[95%,1fr] pb-4 pl-4 lg:pl-10 h-full">
-                <div>
+        <div className={`hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish  scrollbar-thin h-full hidden md:block z-[1] md:col-span-2 transitiion-all w-[18.45rem] flex-none fixed overflow-y-auto pt-36 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
+            <div className="grid grid-rows-[95%,1fr] pb-4 px-9 mx-auto h-full">
+                <div className='absolute flex items-center gap-3'>
                     <Dropdown
-                        // className="min-w-[13.5rem]bg-white dark:bg-darkSecond truncate"
-                        // label='Account'
-                        className="w-full"
-                        list={organizationList as any}
-                        selected={selectedItem as any}
+                        parentClass="min-w-[14rem]  bg-white dark:bg-darkSecond truncate"
+                        list={organizationList}
+                        selected={selectedItem}
                         setSelect={setItem as any}
+                        textClass={'!h-6'}
+                        sx={{ '.MuiSelect-select ': { paddingTop: '5px !important', paddingBottom: '5px !important', paddingLeft: '7px', maxHeight: '50px' } }}
                     />
+                </div>
+                <div>
                     <Siderbarlist showbar={showBar} />
-                    <Button className="px-8 !py-1 ml-7  min-w-[60%]" onClick={() => {
+                    <Button className="px-8 !py-[.5rem] !text-lg  mb-10  w-full font-semibold" onClick={() => {
                         navigator.push("/dashboard/choose-budget?page=pay")
                     }}>Send</Button>
                 </div>
-
             </div>
         </div>
 

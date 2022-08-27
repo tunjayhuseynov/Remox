@@ -59,9 +59,9 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 	return directionType
 };
 
-export const TransactionTypeDeclare = (transaction: IFormattedTransaction, account: string) => {
+export const TransactionTypeDeclare = (transaction: IFormattedTransaction, account: string[]) => {
 	let directionType;
-	const direction = transaction.rawData.from.toLowerCase() === account.toLowerCase()
+	const direction = account.includes(transaction.rawData.from.toLowerCase())
 	switch (transaction.id) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionType.Swap;
