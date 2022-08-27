@@ -44,6 +44,7 @@ const Home = () => {
     try {
       const address = await Address
       if (!address) {
+        console.log("No address");
         await Connect()
       }
       else if (address) {
