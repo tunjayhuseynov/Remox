@@ -30,6 +30,7 @@ interface IProp<T> {
 
 interface IGenericExtendedProp {
     name: string | number,
+    displayName: string,
     onClick?: Function,
     image?: string,
     coinUrl?: CoinsURL,
@@ -62,7 +63,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                                 {selected.coinUrl && <img className="w-4 h-4 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
                                 {selected.image && <img className="w-4 h-4 mr-2" src={`${selected.image}`} />}
-                                <span className={`${textClass} text-lg font-sans font-semibold`}>{selected.name}</span>
+                                <span className={`${textClass} text-lg font-sans font-semibold`}>{selected.displayName ?? selected.name}</span>
                             </div>
                             {selected.secondValue && <span className="text-[.75rem]">{selected.secondValue}</span>}
                         </div>
@@ -83,7 +84,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                             {e.coinUrl && <img className="w-4 h-4 mr-2" src={`${e.coinUrl}`} />}
                             {e.logoUrl && <img className="w-4 h-4 mr-2" src={`${e.logoUrl}`} />}
                             {e.image && <img className="w-4 h-4 mr-2" src={`${e.image}`} />}
-                            <span>{e.name}</span>
+                            <span>{e.displayName ?? e.name}</span>
                         </MenuItem>
                     })}
                 </Select>

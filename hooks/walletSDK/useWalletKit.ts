@@ -42,9 +42,11 @@ import useWeb3Connector from "hooks/useWeb3Connector";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { useCelo } from "@celo/react-celo";
 import { generate } from "shortid";
+import { PolygonCoins } from "types/coins/polygonCoins";
 
 export enum CollectionName {
     Celo = "currencies",
+    Evm = "currencies",
     Solana = "solanaCurrencies",
 }
 
@@ -82,7 +84,7 @@ export default function useWalletKit() {
     } = useWallet();
 
     // EVM_WALLET
-    const { connect: web3Connect, signMessage: web3SignMessage, address: web3Address, connected: web3Connected } = useWeb3Connector()
+    const { connect: web3Connect, signMessage: web3SignMessage, address: web3Address, connected: web3Connected, wallet: web3Wallet } = useWeb3Connector()
 
 
     const setBlockchain = (bc: BlockchainType) => {
@@ -96,9 +98,6 @@ export default function useWalletKit() {
         } else if (publicKey) {
             localStorage.setItem("blockchain", "solana");
             dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "solana")!));
-        } else if (web3Connected) {
-            localStorage.setItem("blockchain", "polygon_evm");
-            dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "polygon_evm")!));
         }
     };
 
@@ -128,7 +127,7 @@ export default function useWalletKit() {
                 };
             }
 
-            if (blockchain.name === "polygon_evm") {
+            if (blockchain.name.includes("evm")) {
                 return {
                     publicKey: web3Address,
                     signature: await web3SignMessage(GetSignedMessage(nonce))
@@ -149,8 +148,9 @@ export default function useWalletKit() {
     const GetCoins = useMemo(() => {
         if (blockchain.name === "celo") {
             return CeloCoins;
+        } if(blockchain.name === "polygon_evm"){
+            return PolygonCoins;
         }
-
         return SolanaCoins;
     }, [blockchain]);
 
@@ -159,8 +159,9 @@ export default function useWalletKit() {
             return address ?? null;
         } else if (blockchain.name === "solana") {
             return publicKey?.toBase58() ?? null;
-        } else if (blockchain.name === "polygon_evm") {
-            return web3Address ?? null;
+        } else if (blockchain.name.includes("evm")) {
+            const address = await web3Address
+            return address ?? null;
         }
         return address ?? null; // Has to be change to null
     }, [blockchain, publicKey, address]);
@@ -170,6 +171,8 @@ export default function useWalletKit() {
             return initialised;
         } else if (blockchain.name === "solana") {
             return connected;
+        } else if (blockchain.name.includes("evm")) {
+            return web3Connected
         }
         return initialised; // Has to be change to null
     }, [blockchain, publicKey, address, initialised, connected]);
@@ -179,7 +182,10 @@ export default function useWalletKit() {
             await destroy();
         } else if (blockchain.name === "solana") {
             await disconnect();
-        }
+        } 
+        // else if (blockchain.name.includes("evm")){
+        //     await web3Disconnect()
+        // }
     }, [blockchain]);
 
     const Connect = useCallback(async () => {
@@ -187,9 +193,7 @@ export default function useWalletKit() {
             if (blockchain.name === "solana") {
                 setVisible(true);
                 return undefined;
-            }
-
-            if (blockchain.name === "polygon_evm") {
+            } else if (blockchain.name.includes("evm")) {
                 const connector = await web3Connect()
                 return connector
             }
@@ -204,7 +208,10 @@ export default function useWalletKit() {
     const Wallet = useMemo(() => {
         if (blockchain.name === "solana" && wallet) {
             return wallet.adapter.name;
+        } else if(blockchain.name.includes("evm") && web3Wallet){
+            return web3Wallet
         }
+
         return walletType;
     }, [blockchain, walletType, wallet]);
 
@@ -213,6 +220,8 @@ export default function useWalletKit() {
             return CollectionName.Celo;
         } else if (blockchain.name === "solana" && wallet) {
             return CollectionName.Solana;
+        } else if (blockchain.name.includes("evm")) {
+            return CollectionName.Evm;
         }
         return CollectionName.Celo;
     }, [blockchain]);
@@ -231,13 +240,13 @@ export default function useWalletKit() {
                 subbudget,
                 swap,
             }: {
-                budget?: IBudgetORM | null;
-                subbudget?: ISubbudgetORM | null;
-                isStreaming?: boolean;
                 task?: Task;
                 tags?: ITag[];
+                isStreaming?: boolean;
                 startTime?: number;
                 endTime?: number;
+                budget?: IBudgetORM | null;
+                subbudget?: ISubbudgetORM | null;
                 swap?: ISwap;
             } = {}
         ) => {
@@ -259,6 +268,10 @@ export default function useWalletKit() {
                         swap: swap ?? null,
                     })
                 ).unwrap();
+
+                if(blockchain.name.includes("evm")){
+                    
+                }
 
                 if (blockchain.name === "celo") {
                     const destination = txData.destination as string;
@@ -344,7 +357,8 @@ export default function useWalletKit() {
                         );
                         txhash = txHash;
                     }
-                } else if (
+                } 
+                else if (
                     blockchain.name === "solana" &&
                     publicKey &&
                     signTransaction &&

@@ -22,3 +22,5 @@ export const decryptMessage = function(encryptedMessage = '', secretkey = '') {
 
 	return decryptedMessage;
 };
+
+

@@ -13,8 +13,8 @@ import { adminApp } from "firebaseConfig/admin";
 import { Get_Budget_Exercise_Ref } from "crud/budget_exercise";
 import { accountCollectionName, Get_Account_Ref } from "crud/account";
 import { DocumentReference } from "firebase/firestore";
-import { withSentry } from "@sentry/nextjs";
 import { Blockchains } from "types/blockchains";
+import { useWalletKit } from "hooks";
 
 async function handler(
     req: NextApiRequest,
@@ -29,6 +29,8 @@ async function handler(
 
         const { signature, publicKey, token, id } = req.query;
 
+
+
         if (!signature || !publicKey) {
             res.status(400).send({
                 error: 'Bad request - missing query'
@@ -36,7 +38,6 @@ async function handler(
             return;
         }
 
-        // const inds = await FirestoreRead<IRegisteredIndividual>(registeredIndividualCollectionName, publicKey as string)
         const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
         const inds = ss.data() as IRegisteredIndividual | undefined;
 
@@ -44,12 +45,16 @@ async function handler(
 
         let password;
         let mail = `${publicKey}Remox@gmail.com`;
-        if (inds.blockchain === "celo") {
+        
+        if (inds.blockchain === "celo" || inds.blockchain.includes("evm")) {
             const msgBufferHex = bufferToHex(Buffer.from("Your nonce for signing is " + inds.nonce, 'utf8'));
             const address = recoverPersonalSignature({
                 data: msgBufferHex,
                 sig: signature as string,
             });
+
+            console.log(address);
+            
 
             if (address.toLowerCase() !== (publicKey as string).toLowerCase()) {
                 throw new Error("Invalid signature");
@@ -100,24 +105,25 @@ async function handler(
                         members: con.members.map(m => ({
                             ...m,
                             address: decryptMessage(m.address, token as string),
-                            amount: decryptMessage(m.amount, token as string),
+                            amount: decryptMessage(m.amount.toString(), token as string),
                             name: decryptMessage(m.name, token as string),
-                            secondaryAmount: m.secondaryAmount ? decryptMessage(m.secondaryAmount, token as string) : null,
+                            secondaryAmount: m.secondaryAmount ? decryptMessage(m.secondaryAmount.toString(), token as string) : null,
                         }))
                     });
                 }
 
                 let accounts: IAccount[] = user.address.map(s => ({
-                    address: s,
-                    createdBy: id as string,
-                    blockchain: Blockchains.find(b => b.name === "celo")!,
-                    created_date: GetTime(),
                     id: s,
                     image: null,
-                    members: [],
-                    name: "",
+                    signerType: "single",
                     provider: null,
-                    signerType: "single"
+                    blockchain: Blockchains.find(b => b.name === "celo")!.name,
+                    createdBy: id as string,
+                    address: s,
+                    name: "",
+                    mail: null,
+                    members: [],
+                    created_date: GetTime(),
                 }))
 
                 const accountRef: DocumentReference[] = [];
