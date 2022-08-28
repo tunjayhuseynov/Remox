@@ -30,7 +30,7 @@ interface IProp<T> {
 
 interface IGenericExtendedProp {
     name: string | number,
-    displayName: string,
+    displayName?: string,
     onClick?: Function,
     image?: string,
     coinUrl?: CoinsURL,

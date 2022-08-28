@@ -53,8 +53,8 @@ async function handler(
                 sig: signature as string,
             });
 
-            console.log(address);
-            
+            console.log("Address: ", address);
+            console.log("Public key: ", publicKey);
 
             if (address.toLowerCase() !== (publicKey as string).toLowerCase()) {
                 throw new Error("Invalid signature");
@@ -68,7 +68,7 @@ async function handler(
             if (isVerify) password = inds.password
         }
 
-        if (!password) throw new Error("Invalid signature");
+        if (!password) throw new Error("Invalid password");
 
         if (token && id) {
 
