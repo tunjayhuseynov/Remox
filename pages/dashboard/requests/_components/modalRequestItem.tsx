@@ -1,12 +1,9 @@
 import { IRequest, RequestStatus } from 'rpcHooks/useRequest';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { Coins } from 'types';
 import { AddressReducer } from 'utils';
 import dateFormat from 'dateformat';
-import Modal from 'components/general/modal';
-import Button from 'components/button';
 import useRequest from 'hooks/useRequest';
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
@@ -14,7 +11,7 @@ import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
 
 
-const ModalRequestItem = ({ request, payment, setRequestModal,aprovedActive}: { request: IRequest,aprovedActive:boolean,  payment?: boolean,setRequestModal:any }) => {
+const ModalRequestItem = ({ request, payment, setRequestModal, aprovedActive }: { request: IRequest, aprovedActive: boolean, payment?: boolean, setRequestModal: any }) => {
 
     const [modal, setModal] = useState(false)
     const [isLoading, setLoading] = useState(false)
@@ -22,7 +19,6 @@ const ModalRequestItem = ({ request, payment, setRequestModal,aprovedActive}: { 
     const divRef = useRef<HTMLDivElement>(null)
     const dispatch = useDispatch()
     const { approveRequest, rejectRequest } = useRequest()
-    const selectedAccount = useSelector(SelectSelectedAccount)
     const currency = useSelector(SelectCurrencies)
     const { GetCoins } = useWalletKit()
 
@@ -83,7 +79,7 @@ const ModalRequestItem = ({ request, payment, setRequestModal,aprovedActive}: { 
                         <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                         </div>
                         <span>
-                            {parseFloat(request.amount).toFixed(2)}
+                            {request.amount.toFixed(2)}
                         </span>
                     </div>
                     <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>
@@ -106,7 +102,7 @@ const ModalRequestItem = ({ request, payment, setRequestModal,aprovedActive}: { 
                             <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center">
                             </div>
                             <span>
-                                {parseFloat(request.secondaryAmount).toFixed(2)}
+                                {request.secondaryAmount.toFixed(2)}
                             </span>
                         </div>
                         <div className={`flex ${detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"} gap-x-2 items-center`}>

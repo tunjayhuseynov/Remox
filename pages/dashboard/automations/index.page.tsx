@@ -1,6 +1,5 @@
 import { Fragment, useState, useMemo } from 'react';
 import { useAppSelector } from 'redux/hooks'
-import { selectContributors } from 'redux/slices/account/contributors';
 import { SelectBalances, SelectTotalBalance } from 'redux/slices/currencies';
 import { DateInterval, ExecutionType, IMember } from 'types/dashboard/contributors';
 import AddStopModal from 'pages/dashboard/automations/_components/_buttons/_addStop';

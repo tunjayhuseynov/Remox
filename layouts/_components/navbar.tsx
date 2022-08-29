@@ -1,20 +1,19 @@
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectStorage } from 'redux/slices/account/storage';
 import { Squash as Hamburger } from 'hamburger-react'
-import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import Visitcard from 'components/visitcard';
 import useMultiWallet from "hooks/useMultiWallet";
 import Loader from 'components/Loader';
 import useNextSelector from 'hooks/useNextSelector';
 import { IAccount } from 'firebaseConfig';
 import NotificationCointainer from './Notification';
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectProviderAddress } from 'redux/slices/account/remoxData';
 
 
 const Navbar = () => {
 
     const storage = useNextSelector(selectStorage)
-    const selectedAccount = useNextSelector(SelectSelectedAccount)
+    const selectedAccount = useAppSelector(SelectProviderAddress)
     const dark = useNextSelector(SelectDarkMode)
 
     const { data } = useMultiWallet()

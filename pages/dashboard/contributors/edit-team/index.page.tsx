@@ -7,7 +7,6 @@ import Button from "../../../../components/button";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IFormInput } from "../add-team/index.page";
 import {
-  SelectContributors,
   updateContributor,
 } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";

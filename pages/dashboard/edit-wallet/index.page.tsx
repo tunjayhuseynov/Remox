@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { AddressReducer } from "../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Button from "components/button";
 import Paydropdown from "pages/dashboard/pay/_components/paydropdown";
 import Upload from "components/upload";
@@ -21,8 +20,11 @@ export interface IFormInput {
 
 function EditWallet() {
     const { register, handleSubmit } = useForm<IFormInput>();
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
-    const [value, setValue] = useState('')
+    const navigate = useRouter()
+    
+    const id = navigate.query.id;
+    const selectedAccount = navigate.query.account as string;
+    
     const [file, setFile] = useState<File>()
     const { blockchain } = useWalletKit()
 
@@ -30,7 +32,6 @@ function EditWallet() {
     const [selectedImageType, setImageType] = useState(imageType[0])
     const organizationIsUpload = selectedImageType.name === "Upload Photo"
 
-    const navigate = useRouter()
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
         const photo = file;

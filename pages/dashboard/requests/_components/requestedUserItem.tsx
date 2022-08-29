@@ -1,14 +1,12 @@
 import { IRequest, RequestStatus } from 'rpcHooks/useRequest';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { Coins } from 'types';
 import { AddressReducer } from 'utils';
 import dateFormat from 'dateformat';
 import Modal from 'components/general/modal';
 import Button from 'components/button';
 import useRequest from 'hooks/useRequest';
-import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
 import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
@@ -25,7 +23,6 @@ const RequestedUserItem = ({ request, selected, setSelected, payment,selected2,s
     const divRef = useRef<HTMLDivElement>(null)
     const dispatch = useAppDispatch()
     const { approveRequest, rejectRequest } = useRequest()
-    const selectedAccount = useSelector(SelectSelectedAccount)
     const currency = useSelector(SelectCurrencies)
     const { GetCoins } = useWalletKit()
 
