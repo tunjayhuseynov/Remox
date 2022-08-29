@@ -1,5 +1,5 @@
 import Button from "components/button";
-import { useSignInOrUp, useWalletKit } from "hooks";
+import { useWalletKit } from "hooks";
 import useOneClickSign from "hooks/walletSDK/useOneClickSign";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +13,6 @@ import { ToastRun } from "utils/toast";
 
 const Unlock = () => {
     const { Address, Disconnect, Connected, setBlockchainAuto } = useWalletKit();
-    // const { executeSign, isLoading } = useSignInOrUp()
     const { processSigning } = useOneClickSign()
     const dispatch = useAppDispatch();
     const inputRef = useRef<HTMLInputElement>(null)
