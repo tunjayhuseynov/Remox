@@ -2,17 +2,17 @@ import _ from "lodash";
 // import { TransactionHook, TransactionHookByDateInOut } from '../../../hooks/useTransactionProcess'
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useAppSelector } from "redux/hooks";
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import Button from "components/button";
 import { ProcessAccordion } from "components/accordion";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { SelectAccounts } from "redux/slices/account/selector";
 
 
 const TransactionHistory = ({ transactions }: { transactions: IFormattedTransaction[] }) => {
 
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
-    const [accounts] = useState<string[]>([selectedAccount])
+    const selectedAccount = useAppSelector(SelectAccounts)
+    const [accounts] = useState<string[]>(selectedAccount.map(s => s.address))
     const router = useRouter()
 
     return <div className="flex flex-col shadow-custom bg-white dark:bg-darkSecond max-h-full px-5 pt-5 pb-4 rounded-xl">

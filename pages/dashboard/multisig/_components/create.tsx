@@ -7,7 +7,6 @@ import Button from '../../../../components/button';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { AddressReducer } from "../../../../utils";
 import { useRef, useState, Dispatch } from "react";
-import { SelectSelectedAccount } from 'redux/slices/account/selectedAccount';
 import { SelectAccountType, SelectProviderAddress } from 'redux/slices/account/remoxData';
 
 export default function Create({ setCreateModal }: { setCreateModal: Dispatch<boolean> }) {

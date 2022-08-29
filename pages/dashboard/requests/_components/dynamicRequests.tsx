@@ -9,7 +9,6 @@ import { useAppSelector } from "redux/hooks"
 import { SelectBalances } from "redux/slices/currencies"
 import { changeError, selectError, changeSuccess } from "redux/slices/notificationSlice"
 import { SelectRequests } from "redux/slices/account/remoxData"
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount"
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
 import { DashboardContext } from "layouts/dashboard"
 import Loader from "components/Loader"
@@ -46,7 +45,6 @@ export default function DynamicRequest({ type }: { type: "approved" | "pending" 
     const [selected, setSelected] = useState<IRequest[]>([]);
     const [selected2, setSelected2] = useState<IRequest[]>([]);
     const balance = useAppSelector(SelectBalances)
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { GetCoins } = useWalletKit()
 
     const [selectedItem, setItem] = useState<DropDownItem>({ name: "Treasury vault", totalValue: '$4500', photo: "nftmonkey" })

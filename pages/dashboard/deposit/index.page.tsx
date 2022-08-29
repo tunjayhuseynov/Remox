@@ -1,11 +1,10 @@
 import React from 'react'
-import { useAppSelector } from 'redux/hooks';
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useRouter } from "next/router";
 
 function Deposit({ onDisable }: { onDisable: React.Dispatch<boolean> }) {
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
     const navigate = useRouter()
+    const selectedAccount = navigate.query.address;
+    const id = navigate.query.id;
 
     return <div className="w-full mx-auto relative">
         <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">

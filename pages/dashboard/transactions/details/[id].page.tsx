@@ -6,7 +6,6 @@ import { SelectCurrencies } from "redux/slices/currencies";
 import { DropDownItem } from "types/dropdown";
 import { AddressReducer } from 'utils'
 import _ from "lodash";
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { useTransactionProcess, useWalletKit } from "hooks";
 import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { selectTags } from "redux/slices/tags";

@@ -1,7 +1,6 @@
 import { ERC20MethodIds, IAutomationTransfer, IBatchRequest, IFormattedTransaction, InputReader, ISwap, ITransfer, ITransferComment } from "hooks/useTransactionProcess";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import { SelectBalances, SelectCurrencies, SelectTotalBalance } from 'redux/slices/currencies';
 import Button from "components/button";
 import useTasking from "rpcHooks/useTasking";
@@ -16,6 +15,7 @@ import { DropDownItem, TransactionDirection } from 'types';
 import { useAppSelector } from "redux/hooks";
 import { AddressReducer } from "utils";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { SelectAccounts } from "redux/slices/account/selector";
 
 const TransactionItem = ({ transaction, isMultiple, direction, status, date }: { date: string, transaction: IFormattedTransaction | ITransactionMultisig, isMultiple?: boolean, direction?: TransactionDirection, status: string }) => {
 
@@ -26,7 +26,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const divRef = useRef<HTMLDivElement>(null)
     const typeRef = useRef<HTMLDivElement>(null)
     const type2Ref = useRef<HTMLDivElement>(null)
-    const selectedAccount = useSelector(SelectSelectedAccount)
+    const accounts = useSelector(SelectAccounts).map(a => a.address.toLowerCase())
     const { getDetails } = useTasking()
     const tags = useSelector(selectTags);
     const [Transaction, setTransaction] = useState(transaction);
@@ -50,7 +50,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
         ERC20MethodIds.moolaWithdraw, ERC20MethodIds.moolaRepay
     ].indexOf(isMultisig ? ERC20MethodIds[(Transaction as ITransactionMultisig).method as keyof typeof ERC20MethodIds] : (Transaction as IFormattedTransaction).id) > -1;
     let peer = isMultisig ? (Transaction as ITransactionMultisig).owner ?? "" :
-        (Transaction as IFormattedTransaction).rawData.from.toLowerCase() === selectedAccount.toLowerCase() ? (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
+        accounts.includes((Transaction as IFormattedTransaction).rawData.from.toLowerCase()) ? (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
     let SwapData;
     let TransferData;
     let MultipleData;

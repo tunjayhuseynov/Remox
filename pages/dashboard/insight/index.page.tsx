@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useMultiWallet from "hooks/useMultiWallet";
 import { useAppSelector } from "redux/hooks";
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { CSVLink } from "react-csv";
 import AllCharts from "./_components/allCharts";
-
-
-const style = "py-2 bg-greylish bg-opacity-10 dark:bg-darkSecond px-5  rounded-xl hover:bg-gray-300 dark:hover:bg-greylish dark:focus:bg-greylish"
 
 
 export interface ILabels {
@@ -77,7 +73,6 @@ const Insight = () => {
     const darkMode = useSelector(SelectDarkMode)
     const { data: wallets } = useMultiWallet()
     const [selectedDate, setSelectedDate] = useState<number>(30)
-    const selectedAccount = useAppSelector(SelectSelectedAccount)
     const { data } = useMultiWallet()
     // const [selectedAccounts, setSelectedAccounts] = useState<string[]>(data?.map(s => s.address) ?? [selectedAccount])
     // const [changedAccount, setChangedAccount] = useState<string[]>(wallets?.map(s => s.address) ?? [selectedAccount])

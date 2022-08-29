@@ -1,7 +1,6 @@
 import { CoinsName } from "types";
 import { useFirestoreRead } from "./useFirebase";
 import { useSelector } from "react-redux";
-import { SelectSelectedAccount } from "redux/slices/account/selectedAccount";
 import useNextSelector from "hooks/useNextSelector";
 import { useAppSelector } from "redux/hooks";
 import { SelectProviderAddress } from "redux/slices/account/remoxData";

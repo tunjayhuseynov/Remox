@@ -13,7 +13,7 @@
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build"
   },
   "dependencies": {
-    "@castlefinance/vault-sdk": "^2.2.0",
+    "@castlefinance/vault-sdk": "^3.6.2",
     "@celo/react-celo": "^4.0.1",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
