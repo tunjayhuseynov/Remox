@@ -19,7 +19,7 @@ export type BlockchainType = {
     | "Ethereum"
     | "Arbitrum"
     | "Avalanche"
-    | "Binance Chain"
+    | "Binance Smart Chain"
     | "Fantom"
     | "Gnosis Smart Chain"
     | "Optimism"
@@ -31,6 +31,7 @@ export type BlockchainType = {
   logoUrl: string;
   multisigProviders: {
     name: string;
+    txServiceUrl?: string;
   }[];
   swapProtocols: {
     name: string;
@@ -153,12 +154,13 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Ethereum",
     rpcUrl: "https://rpc.ankr.com/eth",
     explorerUrl: "https://etherscan.io/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "ethereumCurrency",
     logoUrl: CoinsURL.ETH,
     chainId: 1,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/"
       },
     ],
     swapProtocols: [
@@ -193,12 +195,13 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Polygon",
     rpcUrl: "https://polygon-rpc.com",
     explorerUrl: "https://polygonscan.com",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "polygonCurrency",
     chainId: 137,
     logoUrl: CoinsURL.MATIC,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.polygon.gnosis.io"
       },
     ],
     swapProtocols: [
@@ -233,12 +236,13 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Optimism",
     rpcUrl: "https://optimistic.etherscan.io",
     explorerUrl: "https://optimistic.etherscan.io/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "",
     chainId: 10,
     logoUrl: CoinsURL.OPTI,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.optimism.gnosis.io/"
       },
     ],
     swapProtocols: [
@@ -273,12 +277,13 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Avalanche",
     rpcUrl: "https://api.avax.network/ext/bc/C/rpc",
     explorerUrl: "https://avascan.info/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "avaxCurrency",
     chainId: 43114,
     logoUrl: CoinsURL.AVAX,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.avalanche.gnosis.io/"
       },
     ],
     swapProtocols: [
@@ -310,15 +315,16 @@ export const Blockchains: BlockchainType[] = [
   },
   {
     name: "binance_evm",
-    displayName: "Binance Chain",
+    displayName: "Binance Smart Chain",
     rpcUrl: "https://binance.nodereal.io",
     explorerUrl: "https://bscscan.com/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "bscCurrency",
     chainId: 56,
     logoUrl: CoinsURL.BNB,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.bsc.gnosis.io/"
       },
     ],
     swapProtocols: [
@@ -352,12 +358,13 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Arbitrum",
     rpcUrl: "https://arb1.arbitrum.io/rpc",
     explorerUrl: "https://arbiscan.io/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "artbitrumCurrency",
     chainId: 42161,
     logoUrl: CoinsURL.ARBI,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.arbitrum.gnosis.io/"
       },
     ],
     swapProtocols: [
@@ -392,7 +399,7 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Fantom",
     rpcUrl: "https://rpc.ankr.com/fantom",
     explorerUrl: "https://ftmscan.com/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "fantomCurrency",
     chainId: 250,
     logoUrl: CoinsURL.FANT,
     multisigProviders: [
@@ -432,12 +439,13 @@ export const Blockchains: BlockchainType[] = [
     displayName: "Gnosis Smart Chain",
     rpcUrl: "https://rpc.gnosischain.com",
     explorerUrl: "https://blockscout.com/eth/mainnet/",
-    currencyCollectionName: "currency",
+    currencyCollectionName: "gnosisCurrency",
     chainId: 100,
     logoUrl: CoinsURL.xDAI,
     multisigProviders: [
       {
         name: "Gnosis Safe",
+        txServiceUrl: "https://safe-transaction.xdai.gnosis.io/"
       },
     ],
     swapProtocols: [
