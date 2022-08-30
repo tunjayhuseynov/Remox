@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ERC20MethodIds, IFormattedTransaction, InputReader } from 'hooks/useTransactionProcess';
+import { ERC20MethodIds, EvmInputReader, IFormattedTransaction, InputReader } from 'hooks/useTransactionProcess';
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { CoinsName, SolanaCoins } from 'types';
 import { GetTransactions, Transactions } from 'types/sdk'
@@ -106,20 +106,42 @@ const GetTxs = async (address: string, tags: ITag[], blockchain: BlockchainType,
     }
 
     txList = txsList;
-  } else if (blockchain.name === 'celo') {
+  } else if (blockchain.name === 'celo' || blockchain.name === "ethereum_evm") {
     if (inTxs) {
       for (const tx of inTxs) {
-        const exReq = await axios.get<{ result: Transactions }>(`${CeloExplorer}?module=transaction&action=gettxinfo&txhash=${tx}`)
+
+        const exReq = await axios.get<{ result: Transactions }>(`${blockchain.explorerUrl}?module=transaction&action=gettxinfo&txhash=${tx}`)
 
         const txs = exReq.data;
         txList.push(txs.result);
       }
 
     } else {
-      const exReq = await axios.get<GetTransactions>(`${CeloExplorer}?module=account&action=tokentx&address=${address}`)
+      const exReq = await axios.get<GetTransactions>(`${blockchain.explorerUrl}?module=account&action=tokentx&address=${address}`)
 
       const txs = exReq.data;
       txList = txs.result;
+    }
+  } else if(blockchain.name === "polygon_evm") {
+    if (inTxs) {
+      for (const tx of inTxs) {
+
+        const exReq = await axios.get<{ result: Transactions }>(`${blockchain.explorerUrl}?module=transaction&action=gettxreceiptstatus&txhash=${tx}&apikey=JEH6JVI32EP99FG14NBEIUVQK1FNJIATBT`)
+
+        const txs = exReq.data;
+        txList.push(txs.result);
+      }
+
+    } else {
+      const exReq = await axios.get<GetTransactions>(`${blockchain.explorerUrl}?module=account&action=txlist&address=${address}&apikey=JEH6JVI32EP99FG14NBEIUVQK1FNJIATBT`)
+      const txs = exReq.data;
+      txList = txs.result;
+      
+
+      // txList = txList.map((tx: any) => tx)
+
+      // txList = txList.filter((tx) => tx).map((tx: any) => tx["rawData"])
+      
     }
   }
 
@@ -134,6 +156,8 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
 
   const FormattedTransaction: IFormattedTransaction[] = []
 
+  const testDecoding: any[] = []
+
   const groupedHash = _(result).groupBy("hash").value();
   const uniqueHashs = Object.values(groupedHash).reduce((acc: Transactions[], value: Transactions[]) => {
     const best = _(value).maxBy((o) => parseFloat(fromMinScale(blockchain.name)(o.value)));
@@ -144,19 +168,28 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
 
   uniqueHashs.forEach((transaction: Transactions) => {
     const input = transaction.input;
-    const formatted = InputReader(input, { transaction, tags, Coins });
 
-    if (formatted) {
-      FormattedTransaction.push({
-        timestamp: +transaction.timeStamp,
-        rawData: transaction,
-        hash: transaction.hash,
-        ...formatted
-      })
+    if(blockchain.name.includes("evm")){
+      const formatted = EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
+      if (formatted) {
+        testDecoding.push(formatted)
+      }
+    } else{
+      const formatted = InputReader(input, { transaction, tags, Coins });
+      if (formatted) {
+        FormattedTransaction.push({
+          timestamp: +transaction.timeStamp,
+          rawData: transaction,
+          hash: transaction.hash,
+          ...formatted
+        })
+      }
     }
+
+    
   })
 
-  return FormattedTransaction;
+  return testDecoding;
 }
 
 

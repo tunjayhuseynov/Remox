@@ -6,7 +6,9 @@ import { hexToNumberString, hexToUtf8 } from 'web3-utils'
 import { AltCoins, Coins, CoinsName } from 'types';
 import { selectTags } from 'redux/slices/tags';
 import useWalletKit from './walletSDK/useWalletKit';
+import Web3 from 'web3'
 import { ITag } from 'pages/api/tags/index.api';
+import { Blockchains, BlockchainType } from 'types/blockchains';
 
 
 export const ERC20MethodIds = {
@@ -188,8 +190,7 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             comment: hexToUtf8("0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)),
             tags: theTags
         }
-    }
-    else if (input.startsWith(ERC20MethodIds.automatedTransfer)) {
+    } else if (input.startsWith(ERC20MethodIds.automatedTransfer)) {
         const len = ERC20MethodIds.automatedTransfer.length
         return {
             method: "automatedTransfer",
@@ -197,8 +198,7 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             tags: theTags,
             taskId: "0x" + input.slice(len, len + 64)
         }
-    }
-    else if (input.startsWith(ERC20MethodIds.moolaBorrow)) {
+    } else if (input.startsWith(ERC20MethodIds.moolaBorrow)) {
         const len = ERC20MethodIds.moolaBorrow.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
@@ -209,8 +209,7 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             to: "0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64).substring(24),
             tags: theTags,
         }
-    }
-    else if (input.startsWith(ERC20MethodIds.moolaDeposit)) {
+    } else if (input.startsWith(ERC20MethodIds.moolaDeposit)) {
         const len = ERC20MethodIds.moolaDeposit.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
@@ -221,8 +220,7 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             tags: theTags,
         }
-    }
-    else if (input.startsWith(ERC20MethodIds.moolaWithdraw)) {
+    } else if (input.startsWith(ERC20MethodIds.moolaWithdraw)) {
         const len = ERC20MethodIds.moolaWithdraw.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
@@ -233,8 +231,7 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             tags: theTags,
         }
-    }
-    else if (input.startsWith(ERC20MethodIds.moolaRepay)) {
+    } else if (input.startsWith(ERC20MethodIds.moolaRepay)) {
         const len = ERC20MethodIds.moolaRepay.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
@@ -246,6 +243,34 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             tags: theTags,
         }
     }
+}
+
+export const EvmInputReader = (input: string, blockchainName: string, { transaction, tags, Coins }: IReader) => {
+    const web3 = new Web3()
+    const blockchain = Blockchains.find(s => s.name === blockchainName)!;
+    const theTags = tags.filter(s => s.transactions.some(t => t.hash === transaction.hash));
+    console.log(transaction.to);
+    
+    
+
+    if(blockchain.swapProtocols.find((swap) => swap.contractAddress === transaction.to)){
+        const abi = blockchain.swapProtocols.find((swap) => swap.contractAddress === transaction.to)?.abi;
+        const decoded = web3.eth.abi.decodeParameters(abi!, `0x${input.substring(10)}`)
+        return {
+            method: "swap",
+            id: ERC20MethodIds.swap,
+            from: transaction.from,
+            to: transaction.to,
+            tags: theTags,
+        }
+    } else{
+        return "Not a swap"
+    }
+
+
+
+    
+    
 }
 
 export default useTransactionProcess;
