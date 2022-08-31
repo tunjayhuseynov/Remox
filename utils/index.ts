@@ -41,16 +41,16 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 		case ERC20MethodIds.transfer:
 			directionType = direction ? TransactionDirection.Out : TransactionDirection.In;
 			break;
-		case ERC20MethodIds.moolaBorrow:
+		case ERC20MethodIds.borrow:
 			directionType = TransactionDirection.Borrow;
 			break;
-		case ERC20MethodIds.moolaDeposit:
+		case ERC20MethodIds.deposit:
 			directionType = TransactionDirection.Deposit;
 			break;
-		case ERC20MethodIds.moolaRepay:
+		case ERC20MethodIds.repay:
 			directionType = TransactionDirection.Repay;
 			break;
-		case ERC20MethodIds.moolaWithdraw:
+		case ERC20MethodIds.withdraw:
 			directionType = TransactionDirection.Withdraw;
 			break;
 		default:
@@ -78,16 +78,16 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 		case ERC20MethodIds.transfer:
 			directionType = direction ? TransactionType.QuickTransfer : TransactionType.IncomingPayment;
 			break;
-		case ERC20MethodIds.moolaBorrow:
+		case ERC20MethodIds.borrow:
 			directionType = TransactionType.Borrow;
 			break;
-		case ERC20MethodIds.moolaDeposit:
+		case ERC20MethodIds.deposit:
 			directionType = TransactionType.Deposit
 			break;
-		case ERC20MethodIds.moolaRepay:
+		case ERC20MethodIds.repay:
 			directionType = TransactionType.Repay;
 			break;
-		case ERC20MethodIds.moolaWithdraw:
+		case ERC20MethodIds.withdraw:
 			directionType = TransactionType.Withdraw;
 			break;
 		default:

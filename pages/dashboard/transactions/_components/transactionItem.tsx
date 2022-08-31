@@ -46,8 +46,8 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
     const isAutomation = Transaction.id === ERC20MethodIds.automatedTransfer;
     const isTransfer = [
         ERC20MethodIds.transfer, ERC20MethodIds.transferFrom,
-        ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit,
-        ERC20MethodIds.moolaWithdraw, ERC20MethodIds.moolaRepay
+        ERC20MethodIds.borrow, ERC20MethodIds.deposit,
+        ERC20MethodIds.withdraw, ERC20MethodIds.repay
     ].indexOf(isMultisig ? ERC20MethodIds[(Transaction as ITransactionMultisig).method as keyof typeof ERC20MethodIds] : (Transaction as IFormattedTransaction).id) > -1;
     let peer = isMultisig ? (Transaction as ITransactionMultisig).owner ?? "" :
         accounts.includes((Transaction as IFormattedTransaction).rawData.from.toLowerCase()) ? (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
@@ -82,7 +82,7 @@ const TransactionItem = ({ transaction, isMultiple, direction, status, date }: {
                     const details = await getDetails(data.taskId)
                     const reader = InputReader(details[1], { transaction: (Transaction as IFormattedTransaction).rawData, tags, Coins: GetCoins })
 
-                    if (reader && reader.id === ERC20MethodIds.moolaRepay) console.log(reader)
+                    if (reader && reader.id === ERC20MethodIds.repay) console.log(reader)
                     const formattedTx = {
                         rawData: data.rawData,
                         hash: data.hash,

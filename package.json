@@ -44,6 +44,7 @@
     "axios-retry": "^3.3.1",
     "batch-payment": "https://github.com/Zebec-protocol/batchpayment-sdk.git",
     "cookies-next": "^2.1.1",
+    "ethereum-input-data-decoder": "^0.4.2",
     "firebase-admin": "^10.2.0",
     "https-browserify": "^1.0.0",
     "jsbi": "^4.3.0",

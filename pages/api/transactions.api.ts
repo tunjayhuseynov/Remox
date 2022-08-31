@@ -156,7 +156,7 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
 
   const FormattedTransaction: IFormattedTransaction[] = []
 
-  const testDecoding: any[] = []
+  const testAny : any[] = []
 
   const groupedHash = _(result).groupBy("hash").value();
   const uniqueHashs = Object.values(groupedHash).reduce((acc: Transactions[], value: Transactions[]) => {
@@ -166,13 +166,13 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
     return acc;
   }, [])
 
-  uniqueHashs.forEach((transaction: Transactions) => {
+  uniqueHashs.forEach(async (transaction: Transactions) => {
     const input = transaction.input;
 
     if(blockchain.name.includes("evm")){
-      const formatted = EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
+      const formatted = await  EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
       if (formatted) {
-        testDecoding.push(formatted)
+        testAny.push(formatted)
       }
     } else{
       const formatted = InputReader(input, { transaction, tags, Coins });
@@ -189,7 +189,7 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
     
   })
 
-  return testDecoding;
+  return testAny;
 }
 
 

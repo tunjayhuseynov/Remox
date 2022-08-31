@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { SelectParsedTransactions, SelectTransactions } from '../redux/slices/account/transactions';
+import { SelectParsedTransactions,  } from '../redux/slices/account/transactions';
 import { useSelector } from 'react-redux';
 import { Transactions } from '../types/sdk';
 import { hexToNumberString, hexToUtf8 } from 'web3-utils'
@@ -9,6 +9,9 @@ import useWalletKit from './walletSDK/useWalletKit';
 import Web3 from 'web3'
 import { ITag } from 'pages/api/tags/index.api';
 import { Blockchains, BlockchainType } from 'types/blockchains';
+import InputDataDecoder from 'ethereum-input-data-decoder'
+import { ethers } from 'ethers';
+
 
 
 export const ERC20MethodIds = {
@@ -19,10 +22,11 @@ export const ERC20MethodIds = {
     batchRequest: "0xc23bfbf7",
     swap: "0x38ed1739",
     automatedTransfer: "0x7f87a6f0",
-    moolaBorrow: "0xa415bcad",
-    moolaDeposit: "0xe8eda9df",
-    moolaWithdraw: "0x69328dec",
-    moolaRepay: "0x573ade81",
+    borrow: "0xa415bcad",
+    deposit: "0xe8eda9df",
+    withdraw: "0x69328dec",
+    repay: "0x573ade81",
+    sablierStream: "0xff5733",
     noInput: "0x"
 }
 
@@ -198,45 +202,45 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
             tags: theTags,
             taskId: "0x" + input.slice(len, len + 64)
         }
-    } else if (input.startsWith(ERC20MethodIds.moolaBorrow)) {
-        const len = ERC20MethodIds.moolaBorrow.length
+    } else if (input.startsWith(ERC20MethodIds.borrow)) {
+        const len = ERC20MethodIds.borrow.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaBorrow",
-            id: ERC20MethodIds.moolaBorrow,
+            id: ERC20MethodIds.borrow,
             coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             to: "0x" + input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64).substring(24),
             tags: theTags,
         }
-    } else if (input.startsWith(ERC20MethodIds.moolaDeposit)) {
-        const len = ERC20MethodIds.moolaDeposit.length
+    } else if (input.startsWith(ERC20MethodIds.deposit)) {
+        const len = ERC20MethodIds.deposit.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaDeposit",
-            id: ERC20MethodIds.moolaDeposit,
+            id: ERC20MethodIds.deposit,
             coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             tags: theTags,
         }
-    } else if (input.startsWith(ERC20MethodIds.moolaWithdraw)) {
-        const len = ERC20MethodIds.moolaWithdraw.length
+    } else if (input.startsWith(ERC20MethodIds.withdraw)) {
+        const len = ERC20MethodIds.withdraw.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaWithdraw",
-            id: ERC20MethodIds.moolaWithdraw,
+            id: ERC20MethodIds.withdraw,
             coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             to: "0x" + input.slice(len + 64 + 64, len + 64 + 64 + 64).substring(24),
             tags: theTags,
         }
-    } else if (input.startsWith(ERC20MethodIds.moolaRepay)) {
-        const len = ERC20MethodIds.moolaRepay.length
+    } else if (input.startsWith(ERC20MethodIds.repay)) {
+        const len = ERC20MethodIds.repay.length
         const coins: AltCoins[] = Object.values(Coins)
         return {
             method: "moolaWithdraw",
-            id: ERC20MethodIds.moolaRepay,
+            id: ERC20MethodIds.repay,
             coin: coins.find(s => s.contractAddress.toLowerCase() === "0x" + input.slice(len, len + 64).substring(24).toLowerCase())!,
             amount: hexToNumberString("0x" + input.slice(len + 64, len + 64 + 64)).toString(),
             to: "0x" + input.slice(len + 64 + 64 + 64, len + 64 + 64 + 64 + 64).substring(24),
@@ -245,26 +249,113 @@ export const InputReader = (input: string, { transaction, tags, Coins }: IReader
     }
 }
 
-export const EvmInputReader = (input: string, blockchainName: string, { transaction, tags, Coins }: IReader) => {
-    const web3 = new Web3()
+export const EvmInputReader = async (input: string, blockchainName: string, { transaction, tags, Coins }: IReader) => {
     const blockchain = Blockchains.find(s => s.name === blockchainName)!;
     const theTags = tags.filter(s => s.transactions.some(t => t.hash === transaction.hash));
-    console.log(transaction.to);
     
-    
-
     if(blockchain.swapProtocols.find((swap) => swap.contractAddress === transaction.to)){
         const abi = blockchain.swapProtocols.find((swap) => swap.contractAddress === transaction.to)?.abi;
-        const decoded = web3.eth.abi.decodeParameters(abi!, `0x${input.substring(10)}`)
+        const decoder = new InputDataDecoder(abi);
+        const result = decoder.decodeData(input);
+        const amountIn = hexToNumberString(result.inputs[1][4]._hex).toString();
+        const amountOutMin = hexToNumberString(result.inputs[1][5]._hex).toString();
+        
         return {
             method: "swap",
             id: ERC20MethodIds.swap,
+            amountIn: amountIn,
+            amountOutMin: amountOutMin,
             from: transaction.from,
-            to: transaction.to,
+            coinIn: result.inputs[1][0],
+            coinOutMin: result.inputs[1][1],
             tags: theTags,
         }
-    } else{
-        return "Not a swap"
+    } else if(blockchain.lendingProtocols.find((lend) => lend.contractAddress.toLowerCase() === transaction.to.toLowerCase())){
+        const abi = blockchain.lendingProtocols.find((lend) => lend.contractAddress.toLowerCase() === transaction.to.toLowerCase())?.abi;
+        const decoder = new InputDataDecoder(abi);
+        const result = decoder.decodeData(input);
+        const amount = hexToNumberString(result.inputs[1]._hex).toString();
+
+        
+        if(result.method === "supply") {
+            return {
+                method: "supply",
+                id: ERC20MethodIds.deposit,
+                coin: "0x" + result.inputs[0],
+                amount: amount,
+                to: "0x" + result.inputs[2],
+                tags: theTags,
+            }
+        } else if(result.method === "borrow"){
+            return {
+                method: "borrow",
+                id: ERC20MethodIds.borrow,
+                coin: "0x" + result.inputs[0],
+                amount: amount,
+                interestRateMode: hexToNumberString(result.inputs[2]._hex).toString(),
+                referalCode: result.inputs[3],
+                to: "0x" + result.inputs[4],
+                tags: theTags,
+            }
+        } else if(result.method === "withdraw"){
+            return {
+                method: "withdraw",
+                id: ERC20MethodIds.withdraw,
+                coin: "0x" + result.inputs[0],
+                amount: amount,
+                to: "0x" + result.inputs[1],
+            }
+        } else if(result.method === "repay"){
+            return {
+                method: "repay",
+                id: ERC20MethodIds.repay,
+                coin: "0x" + result.inputs[0],
+                amount: amount,
+                to: "0x" + result.inputs[1],
+                tags: theTags,
+            }
+        } 
+    } 
+    else if (blockchain.recurringPaymentProtocols.find((stream) => stream.contractAddress.toLowerCase() === transaction.to.toLowerCase())){
+        const abi = blockchain.recurringPaymentProtocols.find((stream) => stream.contractAddress.toLowerCase() === transaction.to.toLowerCase())!.abi
+        const decoder = new InputDataDecoder(abi);
+        const result = decoder.decodeData(input);
+        const provider = new ethers.providers.JsonRpcProvider(blockchain.rpcUrl);
+        // const tx = await provider.getTransactionReceipt(transaction.hash);
+        // const logs = (await tx).logs;
+        // const log = logs.find((log) => log.address.toLowerCase() === transaction.to.toLowerCase());
+        // const hexId = log!.topics[1];
+        // const streamId = hexToNumberString(hexId);
+        
+        
+        if(result.method === "createStream"){
+            return {
+                method: "createStream",
+                id: ERC20MethodIds.sablierStream,
+                recipient: "0x" + result.inputs[0],
+                deposit: hexToNumberString(result.inputs[1]._hex).toString(),
+                coin: result.inputs[2],
+                startTime: hexToNumberString(result.inputs[3]._hex).toString(),
+                stopTime: hexToNumberString(result.inputs[4]._hex).toString(),
+                // streamId: streamId,
+                tags: theTags,
+            }
+        } else if(result.method === "cancelStream"){
+            return {
+                method: "cancelStream",
+                id: ERC20MethodIds.sablierStream,
+                streamId: hexToNumberString(result.inputs[0]._hex).toString() ,
+                tags: theTags,
+            }
+        }
+    } 
+    else {
+        return {
+            method: "unknown",
+            address: transaction.to,
+            id: "0x",
+            tags: theTags,
+        }
     }
 
 

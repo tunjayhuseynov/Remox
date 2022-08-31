@@ -56,7 +56,7 @@ const NotificationCointainer = () => {
             return `Swapped from ${transaction.coinIn.name} ${fromWei(transaction.amountIn)} to ${transaction.coinOutMin.name} ${fromWei(transaction.amountOutMin)}`
         }
 
-        if ([ERC20MethodIds.moolaBorrow, ERC20MethodIds.moolaDeposit, ERC20MethodIds.moolaRepay, ERC20MethodIds.moolaWithdraw].includes(tx.id)) {
+        if ([ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.repay, ERC20MethodIds.withdraw].includes(tx.id)) {
             const transaction = tx as ITransfer;
             return `${LendingType(type.toLowerCase())} ${transaction.coin.name} ${fromWei(transaction.amount)}`
         }
