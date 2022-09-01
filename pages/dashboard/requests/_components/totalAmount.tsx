@@ -1,29 +1,30 @@
 import { IRequest } from "rpcHooks/useRequest";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { ICoinMembers, ICurrencyInternal, SelectCurrencies, SelectTotalBalance } from "redux/slices/currencies";
 import { IMember } from 'types/dashboard/contributors';
+import { SelectCurrencies, SelectTotalBalance } from "redux/slices/account/selector";
+import { AltCoins, Coins } from "types";
 
-export const TotalUSDAmount = (coinList: (IRequest | IMember)[], currency: ICoinMembers) => {
+export const TotalUSDAmount = (coinList: (IRequest | IMember)[], currency: Coins) => {
     return coinList.reduce((acc, curr) => {
-        const coin = Object.entries(currency).find(c => c[0] === curr.currency) as [string, ICurrencyInternal] | undefined
+        const coin = Object.entries(currency).find(c => c[0] === curr.currency) as [string, AltCoins] | undefined
         if (coin) {
             const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
 
             if (curr.usdBase) {
                 acc + amount
             } else {
-                acc += ((coin[1]?.price ?? 1) * amount)
+                acc += ((coin[1]?.priceUSD ?? 1) * amount)
             }
 
             if (curr.secondaryCurrency && curr.secondaryAmount) {
-                const secondaryCoin = Object.entries(currency).find(c => c[0] === curr.secondaryCurrency) as [string, ICurrencyInternal] | undefined
+                const secondaryCoin = Object.entries(currency).find(c => c[0] === curr.secondaryCurrency) as [string, AltCoins] | undefined
                 if (secondaryCoin) {
                     const secondaryAmount = typeof curr.secondaryAmount === "string" ? parseFloat(curr.secondaryAmount) : curr.secondaryAmount
                     if (curr.usdBase) {
                         acc + secondaryAmount
                     } else {
-                        acc += ((secondaryCoin[1]?.price ?? 1) * secondaryAmount)
+                        acc += ((secondaryCoin[1]?.priceUSD ?? 1) * secondaryAmount)
                     }
                 }
             }

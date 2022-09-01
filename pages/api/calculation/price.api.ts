@@ -1,11 +1,10 @@
-import { IuseCurrency } from "rpcHooks/useCurrency";
-import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
-import { BASE_URL, Collection, GetCoins } from "utils/api";
+import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { Balance } from "hooks/useCalculation";
 import { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, TokenType } from "types";
 import { Blockchains, BlockchainType } from "types/blockchains";
+import { adminApp } from "firebaseConfig/admin";
 
 export interface IPriceCoin {
     coins: AltCoins;
@@ -35,9 +34,8 @@ export default async function handler(
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
-        const fetchCurrenices = await FirestoreReadMultiple<IuseCurrency>(Collection(blockchain.name), [
-            { condition: ">", firstQuery: "price", secondQuery: 0 }
-        ])
+        const fetchCurrenicesReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
+        const fetchCurrenices = fetchCurrenicesReq.docs.map(s => s.data() as AltCoins)
 
         const balance = await axios.get<Balance>(BASE_URL + '/api/calculation/balance', {
             params: {
@@ -46,7 +44,7 @@ export default async function handler(
             }
         })
 
-        const AllPrices = ParseAllPrices(fetchCurrenices, balance.data, blockchain)
+        const AllPrices = await ParseAllPrices(fetchCurrenices, balance.data, blockchain)
         const totalPrice = Total(fetchCurrenices, balance.data)
 
         res.status(200).json({
@@ -55,16 +53,21 @@ export default async function handler(
         })
     } catch (error) {
         res.json(error as any)
-        res.status(405).end()
+        throw new Error((error as any).message)
     }
 }
 
-const Total = (fetchedCurrencies: IuseCurrency[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0)
+const Total = (fetchedCurrencies: AltCoins[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.name]) ?? "0")), 0)
 
-const ParseAllPrices = (fetchedCurrencies: IuseCurrency[], balance: Balance, blockchain: BlockchainType) => {
-    return fetchedCurrencies.filter(s => GetCoins(blockchain.name)[s.name as unknown as keyof Coins]).sort((a, b) => {
-        const aa = GetCoins(blockchain.name)[a.name as unknown as keyof Coins]
-        const bb = GetCoins(blockchain.name)[b.name as unknown as keyof Coins]
+const ParseAllPrices = async (fetchedCurrencies: AltCoins[], balance: Balance, blockchain: BlockchainType) => {
+    const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
+    const Coins = CoinsReq.docs.reduce((a, c) => {
+        a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;
+        return a;
+    }, {} as { [name: string]: AltCoins })
+    return fetchedCurrencies.filter(s => Coins[s.symbol as unknown as keyof Coins]).sort((a, b) => {
+        const aa = Coins[a.symbol as unknown as keyof Coins]
+        const bb = Coins[b.symbol as unknown as keyof Coins]
         if (aa && bb) {
             if (aa.type !== bb.type && aa.type === TokenType.GoldToken) return -1
             if (aa.type !== bb.type && aa.type === TokenType.StableToken && bb.type === TokenType.Altcoin) return -1
@@ -73,14 +76,13 @@ const ParseAllPrices = (fetchedCurrencies: IuseCurrency[], balance: Balance, blo
         return 0
     }).reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
         const amount = parseFloat((balance?.[c.name]) ?? "0");
-        const price = c.price * amount;
+        const price = c.priceUSD * amount;
         a[c.name] = {
-            coins: GetCoins(blockchain.name)[c.name as unknown as keyof Coins],
-            per_24: c?.percent_24,
+            coins: Coins[c.symbol as unknown as keyof Coins],
             price,
             amount,
             percent: (price * 100) / Total(fetchedCurrencies, balance),
-            tokenPrice: c.price
+            tokenPrice: c.priceUSD
         }
         return a;
     }, {})

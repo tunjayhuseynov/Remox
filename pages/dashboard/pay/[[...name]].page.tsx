@@ -4,7 +4,6 @@ import { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "redux/hooks";
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
-import { SelectBalances } from "redux/slices/currencies";
 import Button from "components/button";
 import Select from 'react-select';
 import { Coins } from "types";

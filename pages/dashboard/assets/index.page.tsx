@@ -1,13 +1,12 @@
 import * as React from 'react';
 import Loader from "components/Loader";
-import { SelectBalances } from "../../../redux/slices/currencies";
 import { motion } from 'framer-motion'
 import { useAppSelector } from '../../../redux/hooks';
 import { TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { SetComma } from 'utils';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance } from 'redux/slices/account/remoxData';
 
 export interface INftData {
     totalBalance: number;
@@ -26,7 +25,7 @@ const Assets = () => {
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
 
     let totalBalance = (spotTotalBalance + yieldTotalBalance).toFixed(2);
-    const balanceRedux = useAppSelector(SelectBalances)
+    const balanceRedux = useAppSelector(SelectBalance)
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
 

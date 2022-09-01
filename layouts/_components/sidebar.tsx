@@ -12,7 +12,6 @@ import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
 import Create from 'pages/dashboard/multisig/_components/create';
-import { SelectTotalBalance } from 'redux/slices/currencies';
 import { SetComma } from 'utils';
 
 const Sidebar = () => {
@@ -22,7 +21,6 @@ const Sidebar = () => {
     const organization = useAppSelector(SelectOrganization)
     const individual = useAppSelector(SelectIndividual)
     const selectedAccountType = useAppSelector(SelectAccountType)
-    const totalBalance = useAppSelector(SelectTotalBalance)
     const accounts = useAppSelector(SelectAccounts)
 
     const navigator = useRouter()

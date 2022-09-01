@@ -2,8 +2,6 @@ import dateFormat from "dateformat";
 import { useEffect, useMemo, useState } from "react";
 import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectCurrencies } from "redux/slices/currencies";
-import { DropDownItem } from "types/dropdown";
 import { AddressReducer } from 'utils'
 import _ from "lodash";
 import { useTransactionProcess, useWalletKit } from "hooks";
@@ -17,7 +15,7 @@ import { CoinsURL } from "types";
 import { useRouter } from "next/router";
 import Loader from "components/Loader";
 import { AddTransactionToTag, RemoveTransactionFromTag } from "redux/slices/account/thunks/tags";
-import { SelectDarkMode, SelectID, SelectRemoxAccount } from "redux/slices/account/remoxData";
+import { SelectCurrencies, SelectDarkMode, SelectID, SelectRemoxAccount } from "redux/slices/account/remoxData";
 import { ToastRun } from "utils/toast";
 import { generate } from "shortid";
 import { IAccount } from "firebaseConfig";
@@ -74,7 +72,7 @@ const Details = () => {
                         if (isBatch) {
                             const batch = txFind as IBatchRequest
                             paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
-                            totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coinAddress.name]?.price ?? 1)) + a, 0).toPrecision(4)} USD`
+                            totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coinAddress.name]?.priceUSD ?? 1)) + a, 0).toPrecision(4)} USD`
                             walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
                         } else if (isSwap) {
                             const swap = txFind as ISwap
@@ -84,12 +82,16 @@ const Details = () => {
                         } else if (isAutomated) {
                             const data = txFind as IAutomationTransfer
                             const details = await getDetails(data.taskId)
-                            const reader = InputReader(details[1], data.rawData, tags, GetCoins)
+                            const reader = InputReader(details[1], {
+                                Coins: GetCoins,
+                                transaction: data.rawData,
+                                tags: tags,
+                            })
                             if (reader) {
                                 if (reader.id === ERC20MethodIds.batchRequest) {
                                     const batch = reader as IBatchRequest
                                     paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
-                                    totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coinAddress.name]?.price ?? 1)) + a, 0).toPrecision(4)} USD`
+                                    totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coinAddress.name]?.priceUSD ?? 1)) + a, 0).toPrecision(4)} USD`
                                     walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
 
                                 } else if (reader.id === ERC20MethodIds.swap) {
@@ -100,7 +102,7 @@ const Details = () => {
                                 } else {
                                     const single = reader as ITransfer
                                     paidTo = "1 person"
-                                    totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
+                                    totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.priceUSD ?? 1)).toPrecision(4)} USD`
                                     walletAddress = (selectedAccount?.accounts as IAccount[]).some(s => s.address.toLowerCase() === single.to.toLowerCase()) ? [data.rawData.from] : [single.to]
                                 }
 
@@ -120,7 +122,7 @@ const Details = () => {
                         else {
                             const single = txFind as ITransfer
                             paidTo = "1 person"
-                            totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.price ?? 1)).toPrecision(4)} USD`
+                            totalAmount = `${(parseFloat(fromMinScale(single.amount)) * (currencies[single.coin.name]?.priceUSD ?? 1)).toPrecision(4)} USD`
                             walletAddress = (selectedAccount?.accounts as IAccount[]).some(s => s.address.toLowerCase() === single.to.toLowerCase()) ? [single.rawData.from] : [single.to]
                         }
 

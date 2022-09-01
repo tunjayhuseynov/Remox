@@ -1,4 +1,3 @@
-import { IuseCurrency } from "rpcHooks/useCurrency";
 import { useCallback, useMemo } from "react";
 import { AltCoins, Coins, TokenType } from "types";
 import useWalletKit from "./walletSDK/useWalletKit";
@@ -16,12 +15,12 @@ export interface Price {
     tokenPrice: number,
 }
 
-export default function useCalculation(balance?: Balance, fetchedCurrencies?: IuseCurrency[]) {
+export default function useCalculation(balance?: Balance, fetchedCurrencies?: AltCoins[]) {
     const { GetCoins } = useWalletKit()
 
     const total = useMemo(() => {
         if (!fetchedCurrencies) return 0;
-        return fetchedCurrencies.reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0)
+        return fetchedCurrencies.reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.name]) ?? "0")), 0)
     }, [balance, fetchedCurrencies]);
 
     const AllPrices = useMemo(() => {
@@ -37,14 +36,13 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
                 return 0
             }).reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
                 const amount = parseFloat((balance?.[c.name]) ?? "0");
-                const price = c.price * amount;
+                const price = c.priceUSD * amount;
                 a[c.name] = {
                     coins: GetCoins[c.name as unknown as keyof Coins],
-                    per_24: c?.percent_24,
                     price,
                     amount,
                     percent: (price * 100) / total,
-                    tokenPrice: c.price
+                    tokenPrice: c.priceUSD
                 }
                 return a;
             }, {})
@@ -54,18 +52,17 @@ export default function useCalculation(balance?: Balance, fetchedCurrencies?: Iu
 
     const TotalBalance = useMemo(() => {
         if (balance && fetchedCurrencies && GetCoins) {
-            const total = fetchedCurrencies.filter(s => GetCoins[s.name as unknown as keyof Coins]).reduce((a, c) => a + (c.price * parseFloat((balance?.[c.name]) ?? "0")), 0);
+            const total = fetchedCurrencies.filter(s => GetCoins[s.name as unknown as keyof Coins]).reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.name]) ?? "0")), 0);
 
             const arrPrices = fetchedCurrencies.filter(s => GetCoins[s.name as unknown as keyof Coins]).map(c => {
                 const amount = parseFloat((balance?.[c.name]) ?? "0");
-                const price = c.price * amount;
+                const price = c.priceUSD * amount;
                 return {
                     coins: GetCoins[c.name as unknown as keyof Coins],
-                    per_24: c?.percent_24,
                     price,
                     amount,
                     percent: (price * 100) / total,
-                    tokenPrice: c.price
+                    tokenPrice: c.priceUSD
                 }
             })
 

@@ -1,6 +1,6 @@
 import { IBudget, IBudgetTX, ISubBudget } from "firebaseConfig";
 import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
-import { IuseCurrency } from "rpcHooks/useCurrency";
+import { AltCoins } from "types";
 import { IRemoxData } from "../remoxData";
 
 export default {
@@ -60,16 +60,16 @@ export default {
             }
         }
     },
-    addTxToBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: IuseCurrency } }) => {
+    addTxToBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins } }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
             if (budgetIndex !== -1) {
                 state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
-                state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.price);
-                state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.price);
-                state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.price);
-                state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.price);
+                state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
             }
         }
     },
@@ -82,22 +82,22 @@ export default {
             }
         }
     },
-    addTxToSubbudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, subbudget: ISubbudgetORM, currency: IuseCurrency } }) => {
+    addTxToSubbudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, subbudget: ISubbudgetORM, currency: AltCoins } }) => {
         const index = state.budgetExercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.subbudget.parentId));
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.subbudget.parentId);
             if (budgetIndex !== -1) {
                 const subBudgetIndex = (state.budgetExercises[index].budgets[budgetIndex] as IBudget).subbudgets.findIndex((subBudget) => subBudget.id === payload.subbudget.id);
                 if (subBudgetIndex !== -1) {
-                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalAvailable -= payload.tx.amount * payload.currency.price;
-                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed += payload.tx.amount * payload.currency.price;
+                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalAvailable -= payload.tx.amount * payload.currency.priceUSD;
+                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed += payload.tx.amount * payload.currency.priceUSD;
 
                     state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
-                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.price);
-                    state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.price);
+                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
 
-                    state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.price);
-                    state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.price);
+                    state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
                 }
             }
         }

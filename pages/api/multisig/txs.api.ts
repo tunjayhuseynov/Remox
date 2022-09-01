@@ -14,7 +14,6 @@ import {
 } from "@gokiprotocol/client";
 import { BorshInstructionCoder, utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
-import { SolanaCoins } from "types";
 import { MultisigTxParser } from "utils/multisig";
 // import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import { Contract, ethers } from "ethers";
@@ -29,8 +28,6 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "../tags/index.api";
 import axios from "axios";
-
-
 
 export default async function handler(
   req: NextApiRequest,
@@ -232,11 +229,9 @@ export default async function handler(
       const transactionsData = response.data;
       console.log(transactionsData);
 
-     
-
-        for (const tx of transactionsData.results) {
-            anyARr.push(tx);
-        }
+      for (const tx of transactionsData.results) {
+        anyARr.push(tx);
+      }
     }
 
     res.status(200).json(anyARr);

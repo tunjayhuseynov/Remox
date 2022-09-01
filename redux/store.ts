@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import Notification from './slices/notificationSlice';
 import Storage from './slices/account/storage';
 import Unlock from './slices/unlock';
-import Currency from './slices/currencies';
+import Currency from './slices/account/reducers/currencies';
 import Transaction from './slices/account/transactions';
 import Requests from './slices/requests';
 import Tags from './slices/tags';
@@ -18,7 +18,6 @@ const store = configureStore({
 	reducer: {
 		remoxData: RemoxData,
 		tags: Tags,
-		currencyandbalance: Currency,
 		notification: Notification,
 		storage: Storage,
 		unlock: Unlock,

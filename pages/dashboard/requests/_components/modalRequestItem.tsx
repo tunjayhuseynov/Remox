@@ -7,7 +7,6 @@ import dateFormat from 'dateformat';
 import useRequest from 'hooks/useRequest';
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { TotalUSDAmount } from './totalAmount';
-import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
 
 
@@ -19,7 +18,6 @@ const ModalRequestItem = ({ request, payment, setRequestModal, aprovedActive }: 
     const divRef = useRef<HTMLDivElement>(null)
     const dispatch = useDispatch()
     const { approveRequest, rejectRequest } = useRequest()
-    const currency = useSelector(SelectCurrencies)
     const { GetCoins } = useWalletKit()
 
     useEffect(() => {

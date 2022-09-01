@@ -5,12 +5,11 @@ import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { changeError, } from 'redux/slices/notificationSlice';
 import useLending, { InterestRateMode, LendingBorrowStatus, LendingType, LendingUserComponentData } from "rpcHooks/useLending";
 import { useSelector } from 'react-redux'
-import { SelectCurrencies, SelectBalances } from 'redux/slices/currencies'
 import Loader from "components/Loader";
 import { useWalletKit } from "hooks";
 import shortid from "shortid";
 import Dropdown from "components/general/dropdown";
-import { SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
+import { SelectBalance, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
 
 const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borrow" | "deposit", setModal: React.Dispatch<React.SetStateAction<boolean>>, box: LendingUserComponentData }) => {
     const [selectedType, setSelectedType] = useState(true)
@@ -26,8 +25,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
     ])
 
     const dispatch = useAppDispatch()
-    const currencies = useSelector(SelectCurrencies)
-    const balances = useSelector(SelectBalances)
+    const balances = useSelector(SelectBalance)
 
     const [componentData, setComponentData] = useState(box)
     const [coinLoading, setCoinLoading] = useState(true)

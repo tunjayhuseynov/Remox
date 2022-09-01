@@ -3,12 +3,18 @@ export interface Coins {
 }
 
 export interface AltCoins {
-  name: CoinsName;
-  coinUrl: CoinsURL;
+  name: string;
+  coinUrl: string;
   type: TokenType;
   contractAddress: string;
   color: string;
   decimals: number;
+  address: string;
+  chainID: number;
+  logoURI: string;
+  priceUSD: number;
+  symbol: string;
+  current_balance?: number;
 }
 
 export enum TokenType {

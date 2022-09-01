@@ -24,12 +24,12 @@ interface IBudgetAndTx extends IBaseOrmBudget {
 /*Budget */
 
 export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxData/create_budget", async ({ budget }, api) => {
-    const currencies = (api.getState() as RootState).currencyandbalance.allCoins
+    const currencies = (api.getState() as RootState).remoxData.coins
     await Create_Budget(budget);
     const exercise = await Get_Budget_Exercise(budget.parentId);
     (exercise.budgets as IBudget[]) = [...exercise.budgets as IBudget[], budget];
     await Update_Budget_Exercise(exercise)
-    const totalBudget = (currencies[budget.token].price * budget.amount) + ((currencies[budget?.secondToken ?? ""]?.price ?? 0) * (budget.secondAmount ?? 0))
+    const totalBudget = (currencies[budget.token].priceUSD * budget.amount) + ((currencies[budget?.secondToken ?? ""]?.priceUSD ?? 0) * (budget.secondAmount ?? 0))
     api.dispatch(addBudget({
         ...budget,
         totalBudget,
@@ -37,7 +37,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
         totalUsed: 0,
         totalAvailable: totalBudget,
         subbudgets: budget.subbudgets.map(sub => {
-            let totalBudget = (currencies[sub.token].price * sub.amount) + ((currencies[sub?.secondToken ?? ""]?.price ?? 0) * (sub.secondAmount ?? 0))
+            let totalBudget = (currencies[sub.token].priceUSD * sub.amount) + ((currencies[sub?.secondToken ?? ""]?.priceUSD ?? 0) * (sub.secondAmount ?? 0))
             return {
                 ...sub,
                 totalBudget,
@@ -75,7 +75,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
 })
 
 export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx }, api) => {
-    const currencies = (api.getState() as RootState).currencyandbalance.allCoins
+    const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
     api.dispatch(addTxToBudget({

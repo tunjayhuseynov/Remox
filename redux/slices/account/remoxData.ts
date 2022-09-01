@@ -11,6 +11,7 @@ import ContributorsReducers from './reducers/contributors'
 import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
+import Currencies from './reducers/currencies'
 import TagReducers from './reducers/tag'
 import RecurringTaks from './reducers/tasks'
 import RequestReducers from './reducers/requests'
@@ -29,6 +30,7 @@ import { Multisig_Fetch_Thunk } from "./thunks/multisig";
 import { Refresh_Data_Thunk } from "./thunks/refresh";
 import { BlockchainType } from "types/blockchains";
 import { ITasking } from "rpcHooks/useTasking";
+import { Coins } from "types";
 
 export type IAccountType = "individual" | "organization";
 
@@ -46,10 +48,11 @@ export interface IMultisigStats {
 
 // Bizim webapp'in merkezi datalari
 export interface IRemoxData {
+    coins: Coins,
     darkMode: boolean,
     organizations: IOrganizationORM[],
     isFetching: boolean;
-    balances: { [name: string]: IPriceCoin } | null;
+    balances: { [name: string]: IPriceCoin };
     tags: ITag[],
     stats: ISpendingResponse | null; // +
     budgetExercises: IBudgetExerciseORM[], // +
@@ -79,6 +82,7 @@ export interface IRemoxData {
 
 const init = (): IRemoxData => {
     return {
+        coins: {},
         darkMode: (
             () => {
                 if (typeof window === 'undefined') return true
@@ -91,7 +95,7 @@ const init = (): IRemoxData => {
         tags: [],
         budgetExercises: [],
         contributors: [],
-        balances: null,
+        balances: {},
         requests: {
             pendingRequests: [],
             approvedRequests: [],
@@ -141,6 +145,7 @@ const remoxDataSlice = createSlice({
         ...StorageReducers,
         ...TagReducers,
         ...RecurringTaks,
+        ...Currencies,
         ...RequestReducers,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
@@ -307,6 +312,10 @@ const remoxDataSlice = createSlice({
             state.isFetching = true;
         });
         builder.addCase(launchApp.fulfilled, (state, action) => {
+            state.coins = action.payload.Coins.reduce<Coins>((acc, coin) => {
+                acc[coin.symbol] = coin;
+                return acc;
+            }, {});
             state.stats = action.payload.Spending;
             state.budgetExercises = action.payload.Budgets;
             state.contributors = action.payload.Contributors;
@@ -363,6 +372,8 @@ export const {
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
     addMemberToContributor, removeMemberFromContributor, setProviderAddress,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
+    updateAllCurrencies, updateTotalBalance, updateUserBalance
+    
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

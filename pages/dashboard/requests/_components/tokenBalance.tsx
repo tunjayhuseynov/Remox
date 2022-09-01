@@ -1,17 +1,19 @@
 import { IRequest } from "rpcHooks/useRequest";
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
-import { IBalanceItem, ICurrencyInternal, SelectBalances, SelectCurrencies } from "redux/slices/currencies";
+import {  ICurrencyInternal } from "redux/slices/account/reducers/currencies";
 import { IMember } from 'types/dashboard/contributors';
 import { AltCoins, Coins } from "types";
 import _ from 'lodash'
 import { generate } from "shortid";
 import { useWalletKit } from "hooks";
+import { SelectBalance, SelectCurrencies } from "redux/slices/account/selector";
+import { IPriceCoin } from "pages/api/calculation/price.api";
 
 export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
 
     const currency = useSelector(SelectCurrencies)
-    const balance = useSelector(SelectBalances)
+    const balance = useSelector(SelectBalance)
     const { GetCoins } = useWalletKit()
 
     const cleanList: (IRequest | IMember)[] = []
@@ -31,7 +33,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
             ...value[0],
             amount: value.reduce((acc, curr) => {
                 if (curr.usdBase) {
-                    return acc + (curr.amount / currency[curr.currency].price)
+                    return acc + (curr.amount / currency[curr.currency].priceUSD)
                 }
                 return acc + curr.amount
             }, 0)
@@ -43,7 +45,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
 
         {list.map((coin, index) => {
             const selectedCurrency = Object.entries(currency).find(c => c[0] === coin.currency) as [string, ICurrencyInternal] | undefined
-            const selectedBalance = Object.entries(balance).find(c => c[0] === coin.currency) as [string, IBalanceItem] | undefined
+            const selectedBalance = Object.entries(balance).find(c => c[0] === coin.currency) as [string, IPriceCoin] | undefined
             const selectedCoin = Object.values(GetCoins).find(c => c.name === coin.currency) as AltCoins | undefined
 
             if (!selectedCurrency || !selectedCoin || !selectedBalance || !selectedBalance[1]) return <Fragment key={index}></Fragment>

@@ -7,7 +7,6 @@ import { BN, etherSize, print, printRay, printRayRate, printRayRateRaw, toWei } 
 import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
-import { SelectCurrencies } from 'redux/slices/currencies'
 import { useWalletKit } from "hooks";
 import { VaultClient, VaultConfig } from '@castlefinance/vault-sdk'
 import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";
@@ -15,6 +14,7 @@ import { PublicKey } from "@solana/web3.js";
 import { IAccount } from "firebaseConfig";
 import { useCelo } from "@celo/react-celo";
 import Web3 from "web3";
+import { SelectCurrencies } from "redux/slices/account/selector";
 
 
 const MoolaProxy = import("./ABI/MoolaProxy.json")
@@ -324,7 +324,7 @@ export default function useLending(account: IAccount) {
                     availableBorrow: "0",
                     averageStableBorrowRate: 0,
                     currency: SolanaCoins.USDC,
-                    currencyPrice: currencies["USDC"].price.toString(),
+                    currencyPrice: currencies["USDC"].priceUSD.toString(),
                     lendingBalance: (await vaultClient.getUserValue(new PublicKey(account.address))).getAmount(),
                     loanBalance: 0,
                     walletBalance: 0,
@@ -380,7 +380,7 @@ export default function useLending(account: IAccount) {
             const contract = new web3.eth.Contract(erc20 as AbiItem[], element.contractAddress)
             const weiBalance = await contract.methods.balanceOf(account.address).call()
             const balance = fromMinScale(weiBalance)
-            const price = currencies[element.name].price
+            const price = currencies[element.name].priceUSD
             const celoPerToken = await getPrice(element.contractAddress)
             const data = await getUserAccountData(element.contractAddress)
             const coinData = await getReserveData(element.contractAddress)
@@ -434,8 +434,8 @@ export default function useLending(account: IAccount) {
         const celo = currencies.CELO;
         const bases = collaterals.map((item) => {
             const isCelo = item.currency.name === "CELO";
-            const deposit = item.deposit.multipliedBy((isCelo ? 1 : currencies[item.currency.name].price)).div((isCelo ? 1 : celo.price))
-            const debt = item.debt.multipliedBy((isCelo ? 1 : currencies[item.currency.name].price)).div((isCelo ? 1 : celo.price))
+            const deposit = item.deposit.multipliedBy((isCelo ? 1 : currencies[item.currency.name].priceUSD)).div((isCelo ? 1 : celo.priceUSD))
+            const debt = item.debt.multipliedBy((isCelo ? 1 : currencies[item.currency.name].priceUSD)).div((isCelo ? 1 : celo.priceUSD))
             return {
                 celoBaseDeposit: deposit,
                 celoBaseDebt: debt,
