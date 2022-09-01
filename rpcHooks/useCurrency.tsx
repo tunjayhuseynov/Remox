@@ -1,5 +1,5 @@
 import { useWalletKit } from "hooks";
-import { AltCoins, Coins } from "types";
+import { AltCoins } from "types";
 import { useFirestoreReadMultiple } from "./useFirebase";
 
 

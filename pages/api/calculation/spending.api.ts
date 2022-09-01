@@ -1,4 +1,4 @@
-import { BASE_URL, fromMinScale, IPrice } from "utils/api";
+import { BASE_URL, DecimalConverter, IPrice } from "utils/api";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { NextApiRequest, NextApiResponse } from "next";
 import date from 'date-and-time'
@@ -7,6 +7,7 @@ import { FirestoreRead } from "rpcHooks/useFirebase";
 import { ITag } from "../tags/index.api";
 import { ATag, CoinStats, ISpendingResponse } from "./_spendingType.api";
 import { Blockchains, BlockchainType } from "types/blockchains";
+import BigNumber from "bignumber.js";
 
 export default async function handler(
     req: NextApiRequest,
@@ -145,13 +146,13 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                 const tx = transaction as ITransfer;
                 sum.push({
                     coin: tx.rawData.tokenSymbol,
-                    totalSpending: +fromMinScale(blockchain.name)(tx.amount),
+                    totalSpending: new BigNumber(tx.amount).div(tx.coin.decimals).toNumber(),
                 })
             }
             if (transaction.id === ERC20MethodIds.noInput) {
                 sum.push({
                     coin: transaction.rawData.tokenSymbol,
-                    totalSpending: +fromMinScale(blockchain.name)(transaction.rawData.value),
+                    totalSpending: new BigNumber(transaction.rawData.value).div(currencies[transaction.rawData.tokenSymbol].coins.decimals).toNumber(),
                 })
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
@@ -159,7 +160,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                 tx.payments.forEach(transfer => {
                     sum.push({
                         coin: transfer.coinAddress.name,
-                        totalSpending: +fromMinScale(blockchain.name)(transfer.amount),
+                        totalSpending: new BigNumber(transfer.amount).div(transfer.coinAddress.decimals).toNumber(),
                     })
                 })
             }
@@ -184,15 +185,16 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
             if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                 const tx = transaction as ITransfer;
-                average += (Number(fromMinScale(blockchain.name)(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                average += (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
             }
             if (transaction.id === ERC20MethodIds.noInput) {
-                average += (Number(fromMinScale(blockchain.name)(transaction.rawData.value)) * Number(currencies[transaction.rawData.tokenSymbol]?.price ?? 1));
+                const decimals = Object.values(currencies).find(s => s.coins.address.toLowerCase() === transaction.rawData.to.toLowerCase())!.coins.decimals
+                average += (DecimalConverter(transaction.rawData.value, decimals) * Number(currencies[transaction.rawData.tokenSymbol]?.price ?? 1));
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
-                    average += (Number(fromMinScale(blockchain.name)(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                    average += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                 })
             }
         }
@@ -230,13 +232,14 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
             let calc = 0;
             if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                 const tx = t as ITransfer;
-                const current = (Number(fromMinScale(blockchain.name)(tx.amount)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                 if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
                 else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                 calc += current;
             }
             if (t.id === ERC20MethodIds.noInput) {
-                const current = (Number(fromMinScale(blockchain.name)(t.rawData.value)) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1))
+                const decimals = Object.values(currencies).find(s => s.coins.address.toLowerCase() === t.rawData.to.toLowerCase())!.coins.decimals
+                const current = (DecimalConverter(t.rawData.value, decimals) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1))
                 if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
                 else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                 calc += current;
@@ -244,7 +247,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
             if (t.id === ERC20MethodIds.batchRequest) {
                 const tx = t as IBatchRequest;
                 tx.payments.forEach(transfer => {
-                    const current = (Number(fromMinScale(blockchain.name)(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                    const current = (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                     if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
                     else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                     calc += current;
@@ -345,15 +348,16 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
                     let amount = 0;
                     if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
                         const txm = tx as ITransfer;
-                        amount += (Number(fromMinScale(blockchain.name)(txm.amount)) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
+                        amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (tx.id === ERC20MethodIds.noInput) {
-                        amount += (Number(fromMinScale(blockchain.name)(tx.rawData.value)) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                        const decimals = Object.values(currencies).find(s => s.coins.address.toLowerCase() === tx.rawData.to.toLowerCase())!.coins.decimals
+                        amount += (DecimalConverter(tx.rawData.value, decimals) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
                     }
                     if (tx.id === ERC20MethodIds.batchRequest) {
                         const txm = tx as IBatchRequest;
                         txm.payments.forEach(transfer => {
-                            amount += (Number(fromMinScale(blockchain.name)(transfer.amount)) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                            amount += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
                         })
                     }
                     if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {

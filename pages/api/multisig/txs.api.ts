@@ -4,7 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { GokiSDK, GOKI_ADDRESSES, GOKI_IDLS, Programs, SmartWalletTransactionData } from "@gokiprotocol/client";
 import { BorshInstructionCoder, utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
-import { SolanaCoins } from "types";
 import { MultisigTxParser } from "utils/multisig";
 import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import { Contract, ethers } from "ethers";
@@ -15,9 +14,10 @@ import { lamport } from "utils/ray";
 import { u64 } from "@saberhq/token-utils";
 import { GetTime } from "utils";
 import { SolanaSerumEndpoint } from "components/Wallet";
-import { BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "../tags/index.api";
+import { AltCoins } from "types";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ITransactionMultisig[]>) {
@@ -25,8 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const { id, blockchain, address: multisigAddress, Skip, Take, name } = req.query as { blockchain: BlockchainType["name"], id: string, address: string, Skip: string, Take: string, name: string };
         const skip = +Skip;
         const take = +Take;
+        const Blockchain = Blockchains.find(s => s.name === blockchain)
+        if (!Blockchain) throw new Error("Blockchain not found")
 
         let tags = (await adminApp.firestore().collection("tags").doc(id).get()).data() as { tags: ITag[] }
+        const CoinsReq = await adminApp.firestore().collection(Blockchain.currencyCollectionName).get()
+        const Coins = CoinsReq.docs.map(s => s.data() as AltCoins)
 
         let transactionArray: ITransactionMultisig[] = []
         if (blockchain === 'solana') {
@@ -90,7 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                                         keys: tx.instructions[0].keys,
                                     })
                                     method = MethodIds[MethodNames.transfer]
-                                    destination = SolanaCoins.SOL.contractAddress;
+                                    destination = Coins.find(s=>s.symbol === "SOL")!.contractAddress
                                     owner = data.toPubkey.toBase58()
                                     value = new BigNumber(data.lamports.toString())
                                 } catch (error) {
