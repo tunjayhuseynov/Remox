@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import useCurrency from '../rpcHooks/useCurrency'
-import { IBalanceMembers, setOrderBalance, updateAllCurrencies, updateTotalBalance, updateUserBalance } from '../redux/slices/currencies'
-import useRequest from 'rpcHooks/useRequest'
-import { addRequests } from 'redux/slices/requests'
-import { setTags } from 'redux/slices/tags'
 import useWalletKit from './walletSDK/useWalletKit'
 import { useLazyGetAccountBalancePriceQuery } from 'redux/api'
 import useAsyncEffect from './useAsyncEffect'
 import { useAppSelector } from 'redux/hooks'
-import { SelectProviderAddress } from 'redux/slices/account/remoxData'
+import { SelectProviderAddress, updateAllCurrencies, updateTotalBalance, updateUserBalance } from 'redux/slices/account/remoxData'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
@@ -17,10 +13,11 @@ const useRefetchData = () => {
     const selectedAccount = useAppSelector(SelectProviderAddress)
 
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
-
-    const fetchedCurrencies = useCurrency()
-
+    
     const { blockchain } = useWalletKit()
+
+    const fetchedCurrencies = useCurrency(blockchain.currencyCollectionName)
+
 
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
 
@@ -32,7 +29,6 @@ const useRefetchData = () => {
             const totalBalance = response.TotalBalance
             dispatch(updateTotalBalance(totalBalance))
             dispatch(updateUserBalance(prices))
-            dispatch(setOrderBalance(Object.values(prices as IBalanceMembers).sort((a, b) => (b.amount * b.tokenPrice).toLocaleString().localeCompare((a.amount * a.tokenPrice).toLocaleString()))))
             setBalanceDone(true)
         }
     }, [selectedAccount])

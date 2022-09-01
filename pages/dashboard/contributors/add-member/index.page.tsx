@@ -5,11 +5,10 @@ import { useAppDispatch, useAppSelector } from "redux/hooks";
 import DatePicker from "react-datepicker";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { SelectContributors } from "redux/slices/account/remoxData";
+import { SelectBalance, SelectContributors } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import useAllowance from "rpcHooks/useAllowance";
-import { SelectBalances } from "redux/slices/currencies";
 import { CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
 import Upload from "components/upload";
@@ -57,7 +56,7 @@ export default () => {
 
     const { loading: allowLoading } = useAllowance();
 
-    const balance = useAppSelector(SelectBalances);
+    const balance = useAppSelector(SelectBalance);
     const { GetCoins, blockchain, SendTransaction } = useWalletKit();
 
 

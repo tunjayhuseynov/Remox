@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef, Fragment } from "react";
-import { IBalanceItem, SelectOrderBalance } from 'redux/slices/currencies';
 import { AddressReducer, SetComma } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
 import Modal from 'components/general/modal'
@@ -19,17 +18,11 @@ function AllWallets({ item }: { item: IAccountORM }) {
     const [deleteModal, setDeleteModal] = useState<boolean>(false)
     const [depositModal, setDepositModal] = useState<boolean>(false)
     const [modalVisible, setModalVisible] = useState<boolean>(false)
-    const orderBalance = useNextSelector(SelectOrderBalance)
-    const [orderBalance4, setOrderBalance] = useState<IBalanceItem[]>([])
     const dark = useNextSelector(SelectDarkMode)
     const [selectcoin, setSelectcoin] = useState<string>("")
     const [customRef] = useModalSideExit<string>(selectcoin, setSelectcoin, "")
     const route = useRouter()
 
-
-    useEffect(() => {
-        setOrderBalance(orderBalance?.slice(0, 3) ?? [])
-    }, [orderBalance])
 
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
     return <>

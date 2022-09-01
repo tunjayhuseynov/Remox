@@ -2,7 +2,6 @@ import Dropdown from "components/general/dropdown";
 import { AltCoins, Coins, DropDownItem } from 'types'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SelectBalances } from "redux/slices/currencies";
 import { changeError, changeSuccess, selectError, selectSuccess } from "redux/slices/notificationSlice";
 import Success from "components/general/success";
 import Error from "components/general/error";
@@ -13,7 +12,7 @@ import useSwap from "hooks/walletSDK/useSwap";
 import { motion, AnimatePresence } from "framer-motion"
 import Loader from "components/Loader";
 import { useAppSelector } from "redux/hooks";
-import { SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
+import { SelectBalance, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
 import { ToastRun } from "utils/toast";
 import useLoading from "hooks/useLoading";
 
@@ -47,7 +46,7 @@ const Swap = () => {
 
     const [deadline, setDeadline] = useState<number>(1.5)
 
-    const balances = useSelector(SelectBalances)
+    const balances = useSelector(SelectBalance)
     const isSuccess = useSelector(selectSuccess)
     const isError = useSelector(selectError)
     const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)

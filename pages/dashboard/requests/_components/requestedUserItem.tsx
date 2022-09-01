@@ -8,9 +8,8 @@ import Modal from 'components/general/modal';
 import Button from 'components/button';
 import useRequest from 'hooks/useRequest';
 import { TotalUSDAmount } from './totalAmount';
-import { SelectCurrencies } from 'redux/slices/currencies';
 import { useWalletKit } from 'hooks';
-import { addRejectedRequest, addApprovedRequest, removePendingRequest } from 'redux/slices/account/remoxData';
+import { addRejectedRequest, addApprovedRequest, removePendingRequest, SelectCurrencies } from 'redux/slices/account/remoxData';
 import { useAppDispatch } from 'redux/hooks';
   
 

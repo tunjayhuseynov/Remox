@@ -69,7 +69,7 @@ export const Blockchains: BlockchainType[] = [
     name: "celo",
     displayName: "Celo",
     rpcUrl: "https://celo-rpc.celo.org",
-    explorerUrl: "https://explorer.celo.org",
+    explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "currency",
     logoUrl: CoinsURL.CELO,
     multisigProviders: [
@@ -2257,10 +2257,6 @@ export const Blockchains: BlockchainType[] = [
             ],
             "stateMutability": "nonpayable",
             "type": "function"
-          },
-          {
-            "type": "receive",
-            "stateMutability": "payable"
           }
         ]
         

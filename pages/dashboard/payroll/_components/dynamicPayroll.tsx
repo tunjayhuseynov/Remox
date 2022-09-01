@@ -1,6 +1,5 @@
 import Button from 'components/button';
 import { Fragment, useState, useMemo, useEffect } from 'react';
-import { SelectBalances } from 'redux/slices/currencies';
 import { Coins } from 'types';
 import { DateInterval, IMember } from 'types/dashboard/contributors';
 import date from 'date-and-time'
@@ -11,7 +10,7 @@ import Runpayroll from './modalpay/Runpayroll';
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount"
 import Modal from 'components/general/modal';
 import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
-import { SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
+import { SelectBalance, SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import TeamItem from './teamItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { ToastRun } from 'utils/toast';
@@ -33,7 +32,7 @@ export default function DynamicPayroll() {
     }, [runmodal])
 
     const { GetCoins, SendTransaction } = useWalletKit()
-    const balance = useAppSelector(SelectBalances)
+    const balance = useAppSelector(SelectBalance)
 
     const totalPrice: { [name: string]: number } = useMemo(() => {
         if (contributors) {
