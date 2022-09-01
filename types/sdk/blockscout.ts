@@ -15,6 +15,7 @@ export interface Transactions{
     from: string,
     gas: string,
     gasPrice: string,
+    isError: string,
     gasUsed: string,
     hash: string,
     input: string,
@@ -24,6 +25,6 @@ export interface Transactions{
     to: string,
     tokenDecimal: string,
     tokenName: string,
-    tokenSymbol: CoinsName,
+    tokenSymbol: string,
     transactionIndex: string
 }

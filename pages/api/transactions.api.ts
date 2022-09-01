@@ -1,16 +1,20 @@
-import axios from 'axios';
-import { ERC20MethodIds, EvmInputReader, IFormattedTransaction, InputReader } from 'hooks/useTransactionProcess';
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { CoinsName, SolanaCoins } from 'types';
-import { GetTransactions, Transactions } from 'types/sdk'
-import * as solanaWeb3 from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import _ from 'lodash';
-import { SolanaEndpoint } from 'components/Wallet';
-import { CeloExplorer, fromMinScale, GetCoins } from 'utils/api';
-import { adminApp } from 'firebaseConfig/admin';
-import { ITag } from './tags/index.api';
-import { Blockchains, BlockchainType } from 'types/blockchains';
+import axios from "axios";
+import {
+  ERC20MethodIds,
+  EvmInputReader,
+  IFormattedTransaction,
+  InputReader,
+} from "hooks/useTransactionProcess";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { AltCoins, Coins, CoinsName } from "types";
+import { GetTransactions, Transactions } from "types/sdk";
+import * as solanaWeb3 from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import _ from "lodash";
+import { SolanaEndpoint } from "components/Wallet";
+import { adminApp } from "firebaseConfig/admin";
+import { ITag } from "./tags/index.api";
+import { Blockchains, BlockchainType } from "types/blockchains";
 
 // GET /api/transactions  --params blockchain, address
 
@@ -190,13 +194,22 @@ const GetTxs = async (
 
   const parsedTxs = await ParseTxs(txList, blockchain, tags);
 
-const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType, tags: ITag[]) => {
-  const Coins = GetCoins(blockchain.name)
-  let result: Transactions[] = [...transactions]
+  return parsedTxs;
+};
 
-  const FormattedTransaction: IFormattedTransaction[] = []
+const ParseTxs = async (
+  transactions: Transactions[],
+  blockchain: BlockchainType,
+  tags: ITag[]
+) => {
+  const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
+  const Coins = CoinsReq.docs.reduce<Coins>((acc, doc) => {
+    acc[(doc.data() as AltCoins).symbol] = doc.data() as AltCoins;
+    return acc;
+  } ,{});
+  let result: Transactions[] = [...transactions];
 
-  const testAny : any[] = []
+  const FormattedTransaction: IFormattedTransaction[] = [];
 
   const groupedHash = _(result).groupBy("hash").value();
   const uniqueHashs = Object.values(groupedHash).reduce(
@@ -217,7 +230,12 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
     if(blockchain.name.includes("evm")){
       const formatted = await EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
       if (formatted) {
-        testAny.push(formatted)
+        FormattedTransaction.push({
+          timestamp: +transaction.timeStamp,
+          rawData: transaction,
+          hash: transaction.hash,
+          ...formatted,
+        });
       }
     } else {
       const formatted = InputReader(input, { transaction, tags, Coins });
@@ -231,10 +249,8 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
       }
     }
 
-    
-  })
-
-  return testAny;
-}
+  }
 
 
+  return FormattedTransaction;
+};
