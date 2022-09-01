@@ -9,22 +9,22 @@ import Web3 from 'web3'
 import { AbiItem } from "web3-utils"
 import { Contracts } from "rpcHooks/Contracts/Contracts"
 import { IPaymentInput, ISwap } from "./index.api"
-import { CeloCoins } from "types"
 import { ChainId, Fetcher, Fraction, JSBI as UbeJSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
 import { getAddress } from "ethers/lib/utils"
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
+import { Coins } from "types"
 
 
 const web3 = new Web3(CeloEndpoint)
 
-export const BatchPay = async (inputArr: IPaymentInput[], from: string) => {
+export const BatchPay = async (inputArr: IPaymentInput[], from: string, coins: Coins) => {
 
-    const data = await GenerateBatchPay(inputArr, from)
+    const data = await GenerateBatchPay(inputArr, from, coins)
 
     return data;
 }
 
-export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string) => {
+export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string, coins: Coins) => {
     const arr: {
         data: string,
         destination: string,
@@ -33,8 +33,8 @@ export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string) 
 
     for (let i = 0; i < inputArr.length; i++) {
         const tx = inputArr[i];
-        const coin = CeloCoins[tx.coin]
-        const data = await GenerateTx({ ...inputArr[i] }, from)
+        const coin = coins[tx.coin]
+        const data = await GenerateTx({ ...inputArr[i] }, from, coins)
         arr.push({
             destination: coin.contractAddress,
             value: "0",
@@ -50,7 +50,7 @@ export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string) 
     return router.methods.executeTransactions(input.destinations, input.values, input.callData, input.callDataLengths).encodeABI()
 }
 
-export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPaymentInput, fromAddress: string) => {
+export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPaymentInput, fromAddress: string, coins: Coins) => {
     const amountWei = toWei(amount.toString());
     const provider = new ethers.providers.JsonRpcProvider(CeloEndpoint)
     let nomContract = new ethers.Contract("0xABf8faBbC071F320F222A526A2e1fBE26429344d", nomAbi.abi, provider)
@@ -67,7 +67,7 @@ export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPa
         else throw new Error('There is not any wallet belong this address');
     }
 
-    const Coin = CeloCoins[coin]
+    const Coin = coins[coin]
     let token = new web3.eth.Contract(ERC20 as AbiItem[], Coin.contractAddress);
     let currentBalance = await token.methods.balanceOf(fromAddress).call();
     let celoBalance = fromWei(currentBalance)

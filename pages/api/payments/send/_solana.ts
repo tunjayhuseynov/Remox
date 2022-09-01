@@ -2,18 +2,18 @@ import { Connection, Keypair, PublicKey, TransactionInstruction } from "@solana/
 import { WITHDRAW_TOKEN_STRING, ZEBEC_PROGRAM_ID } from "@zebec-protocol/stream"
 import { SolanaSerumEndpoint } from "components/Wallet"
 import { token } from "easy-spl"
-import { SolanaCoins } from "types"
 import * as INSTRUCTIONS from "@zebec-protocol/stream/src/instructions";
 import { adminApp } from "firebaseConfig/admin"
 import { ISwap } from "./index.api"
 import { Jupiter } from "@jup-ag/core"
 import JSBI from "jsbi"
 import { ITasking } from "rpcHooks/useTasking"
+import { Coins } from "types";
 
-export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null): Promise<TransactionInstruction[]>;
-export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number): Promise<TransactionInstruction[]>;
-export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming: boolean, start_time: number, end_time: number): Promise<TransactionInstruction[]>;
-export async function solanaInstructions(accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number) {
+export async function solanaInstructions(coins: Coins, accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(coins: Coins, accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(coins: Coins, accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming: boolean, start_time: number, end_time: number): Promise<TransactionInstruction[]>;
+export async function solanaInstructions(coins: Coins, accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number) {
     const connection = new Connection(SolanaSerumEndpoint)
     if (swap) {
         const jupiter = await Jupiter.load({
@@ -39,7 +39,7 @@ export async function solanaInstructions(accountId: string, publicKey: string, r
         return transactions.swapTransaction.instructions
     }
 
-    const solanaCoin = SolanaCoins[coin]
+    const solanaCoin = coins[coin]
 
     const from = new PublicKey(publicKey)
     const to = new PublicKey(recipient)

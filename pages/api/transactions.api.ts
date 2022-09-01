@@ -15,6 +15,7 @@ import { SolanaEndpoint } from "components/Wallet";
 import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "./tags/index.api";
 import { Blockchains, BlockchainType } from "types/blockchains";
+import { DecimalConverter } from "utils/api";
 
 // GET /api/transactions  --params blockchain, address
 
@@ -215,7 +216,7 @@ const ParseTxs = async (
   const uniqueHashs = Object.values(groupedHash).reduce(
     (acc: Transactions[], value: Transactions[]) => {
       const best = _(value).maxBy((o) =>
-        parseFloat(fromMinScale(blockchain.name)(o.value))
+        DecimalConverter(o.value, o.tokenDecimal)
       );
       if (best) acc.push(best);
 

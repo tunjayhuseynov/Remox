@@ -3,8 +3,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { BatchPay, GenerateSwapData, GenerateTx } from "./_celo";
 import { solanaInstructions } from "./_solana";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
-import { AltCoins, CeloCoins } from "types";
-import { BlockchainType } from "types/blockchains";
+import { AltCoins, Coins } from "types";
+import { Blockchains, BlockchainType } from "types/blockchains";
+import { adminApp } from "firebaseConfig/admin";
 
 export interface IPaymentInput {
     coin: string,
@@ -49,18 +50,25 @@ export default async function Send(
         if (!blockchain) throw new Error("blockchain is required");
         if (requests.length === 0 && !swap) throw new Error("requests is required");
 
+        const Blockchain = Blockchains.find(s => s.name === blockchain)!
+        const CoinsReq = await adminApp.firestore().collection(Blockchain.currencyCollectionName).get()
+        const coins = CoinsReq.docs.reduce<Coins>((a, c) => {
+            a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;
+            return a;
+        }, {})
+
         if (blockchain === "solana") {
             const instructions: TransactionInstruction[] = []
             if (swap) {
-                const tx = await solanaInstructions(accountId, executer, "", "", 0, swap)
+                const tx = await solanaInstructions(coins, accountId, executer, "", "", 0, swap)
                 instructions.push(...tx)
             }
             const instructionsRes = await Promise.all(requests.map(request => {
                 if (isStreaming && startTime && endTime) {
-                    return solanaInstructions(accountId, executer, request.recipient, request.coin, request.amount, swap, isStreaming, startTime, endTime)
+                    return solanaInstructions(coins, accountId, executer, request.recipient, request.coin, request.amount, swap, isStreaming, startTime, endTime)
                 }
 
-                return solanaInstructions(accountId, executer, request.recipient, request.coin, request.amount, swap)
+                return solanaInstructions(coins, accountId, executer, request.recipient, request.coin, request.amount, swap)
             }))
             instructionsRes.forEach(res => instructions.push(...res))
             return res.json({
@@ -76,14 +84,14 @@ export default async function Send(
                 })
             }
             if (requests.length > 1) {
-                const data = await BatchPay(requests, executer)
+                const data = await BatchPay(requests, executer, coins)
                 return res.json({
                     data: data,
                     destination: Contracts.BatchRequest.address
                 })
             } else {
-                const data = await GenerateTx(requests[0], executer)
-                const coin = CeloCoins[requests[0].coin]
+                const data = await GenerateTx(requests[0], executer, coins)
+                const coin = coins[requests[0].coin]
                 return res.json({
                     data: data,
                     destination: coin.contractAddress
