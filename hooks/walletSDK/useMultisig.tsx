@@ -25,7 +25,7 @@ import { useCelo } from "@celo/react-celo";
 import { ITag } from "pages/api/tags/index.api";
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
-const multisigContract = import("rpcHooks/ABI/Multisig.json")
+const multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
 
 export interface ITransactionMultisig {
     name: string;

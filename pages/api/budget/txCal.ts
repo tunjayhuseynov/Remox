@@ -5,7 +5,7 @@ import { CeloCoins } from "types";
 import { BlockchainType } from "types/blockchains";
 import Web3 from 'web3'
 import { AbiItem } from "web3-utils";
-const CeloTerminal = import("rpcHooks/ABI/Multisig.json")
+const CeloTerminal = import("rpcHooks/ABI/CeloTerminal.json")
 
 
 export const TxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: BlockchainType) => {

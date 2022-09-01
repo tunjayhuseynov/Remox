@@ -19,6 +19,7 @@ export interface Transactions{
     hash: string,
     input: string,
     logIndex: string,
+    isError: string,
     nonce: string,
     timeStamp: string,
     to: string,

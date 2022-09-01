@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js"
 import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
 import { BlockchainType } from "types/blockchains";
+import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction, GnosisTransactionTransfers } from "types/GnosisSafe";
 import { fromLamport, fromWei } from "./ray"
 
 export const EVM_WALLET_SIZE = 39;
@@ -14,6 +15,33 @@ export interface ParsedMultisigData {
     newOwner?: string,
     value?: string
 }
+export interface basedParsedSafeTx {
+    safe: string,
+    data: string | null,
+    nonce: number,
+    executionDate: string | null,
+    submissionDate: string,
+    modified: string | null,
+    blockNumber: number | null,
+    transactionHash: string | null,
+    safeTxHash: string,
+    executor: string | null,
+    isExecuted: boolean ,
+    isSuccessful: boolean | null,
+    confirmations: GnosisConfirmation[],
+    signatures: string,
+    txType: string
+
+}
+
+export interface GnosisSettingsTx extends basedParsedSafeTx {
+    dataDecoded: GnosisDataDecoded,
+}
+
+export interface GnosisTransferTx extends basedParsedSafeTx {
+    value: string,
+}
+
 
 /**
  * 
@@ -96,4 +124,35 @@ export const MultisigTxParser = (
 
     delete obj.data
     return obj;
+}
+
+export const parseSafeTransaction = (tx: GnosisTransaction) => {
+    
+    if(tx.dataDecoded!.method === null){
+
+    }
+
+    // const parsedTransaction : parsedSafeTransaction = {
+    //     safe: tx.safe,
+    //     to: tx.to,
+    //     data: tx.data,
+    //     nonce: tx.nonce,
+    //     executionDate: tx.executionDate,
+    //     submissionDate: tx.submissionDate,
+    //     modified: tx.modified,
+    //     blockNumber: tx.blockNumber,
+    //     transactionHash: tx.transactionHash,
+    //     safeTxHash: tx.safeTxHash,
+    //     executor: tx.executor,
+    //     isExecuted: tx.isExecuted,
+    //     isSuccessful: tx.isSuccessful,
+    //     dataDecoded: tx.dataDecoded,
+    //     confirmationsRequired: tx.confirmationsRequired,
+    //     confirmations: tx.confirmations,
+    //     signatures: tx.signatures,
+    //     transfers: tx.transfers,
+    //     txType: tx.txType
+    // }
+
+    return parsedTransaction
 }

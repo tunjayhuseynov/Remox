@@ -5,7 +5,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { SolanaSerumEndpoint } from "components/Wallet";
 import { Contract, ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import Multisig from 'rpcHooks/ABI/Multisig.json'
+import Multisig from 'rpcHooks/ABI/CeloTerminal.json'
 import { BlockchainType } from "types/blockchains";
 
 export interface IMultisigThreshold {

@@ -5,8 +5,9 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { SolanaSerumEndpoint } from "components/Wallet";
 import { Contract, ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import Multisig from 'rpcHooks/ABI/Multisig.json'
-import { BlockchainType } from "types/blockchains";
+import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
+import GnosisABI from 'rpcHooks/ABI/Gnosis.json'
+import { Blockchains, BlockchainType } from "types/blockchains";
 
 
 export interface MultisigOwners {
@@ -17,9 +18,11 @@ export interface MultisigOwners {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<MultisigOwners>) {
 
     try {
-        const { blockchain, address: multisigAddress } = req.query as { blockchain: BlockchainType["name"], address: string };
+        const { blockchain: blockchainName, address: multisigAddress } = req.query as { blockchain: BlockchainType["name"], address: string };
 
-        if (blockchain === 'solana') {
+        const blockchain = Blockchains.find((blch: BlockchainType) => blch.name === blockchainName);
+
+        if (blockchainName === 'solana') {
             const pb = new PublicKey(multisigAddress)
 
             const connection = new Connection(SolanaSerumEndpoint, "finalized");
@@ -35,13 +38,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
             throw new Error("Wallet has no data")
         }
-        else if (blockchain === "celo") {
+        else if (blockchainName === "celo") {
             const provider = new ethers.providers.JsonRpcProvider("https://forno.celo.org", {
                 chainId: 42220,
                 name: "forno",
             })
 
-            const contract = new Contract(multisigAddress, Multisig.abi, provider)
+            
+            const contract = new Contract(multisigAddress, CeloTerminal.abi, provider)
+
+            const owners = await contract.getOwners();
+            return res.status(200).json({ owners: owners })
+        } else if(blockchainName.includes("evm")){
+            const provider = new ethers.providers.JsonRpcProvider(blockchain!.rpcUrl);
+
+
+            const contract = new Contract(multisigAddress, GnosisABI, provider)
 
             const owners = await contract.getOwners();
             return res.status(200).json({ owners: owners })

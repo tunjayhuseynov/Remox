@@ -159,7 +159,7 @@ export const Blockchains: BlockchainType[] = [
     chainId: 1,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/"
       },
     ],
@@ -1729,7 +1729,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.MATIC,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.polygon.gnosis.io"
       },
     ],
@@ -2257,10 +2257,6 @@ export const Blockchains: BlockchainType[] = [
             ],
             "stateMutability": "nonpayable",
             "type": "function"
-          },
-          {
-            "type": "receive",
-            "stateMutability": "payable"
           }
         ]
         
@@ -3740,7 +3736,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.OPTI,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.optimism.gnosis.io/"
       },
     ],
@@ -3781,7 +3777,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.AVAX,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.avalanche.gnosis.io/"
       },
     ],
@@ -3822,7 +3818,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.BNB,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.bsc.gnosis.io/"
       },
     ],
@@ -3862,7 +3858,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.ARBI,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.arbitrum.gnosis.io/"
       },
     ],
@@ -3903,7 +3899,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.FANT,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
       },
     ],
     swapProtocols: [
@@ -3943,7 +3939,7 @@ export const Blockchains: BlockchainType[] = [
     logoUrl: CoinsURL.xDAI,
     multisigProviders: [
       {
-        name: "Gnosis Safe",
+        name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.xdai.gnosis.io/"
       },
     ],

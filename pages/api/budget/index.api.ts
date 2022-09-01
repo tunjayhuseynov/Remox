@@ -8,7 +8,7 @@ import { IPriceResponse } from "../calculation/price.api";
 import { BlockchainType } from "types/blockchains";
 import { CalculateBudget } from "./budgetCal";
 
-const CeloTerminal = import("rpcHooks/ABI/Multisig.json")
+const CeloTerminal = import("rpcHooks/ABI/CeloTerminal.json")
 
 export interface IBudgetCoin {
     coin: string,

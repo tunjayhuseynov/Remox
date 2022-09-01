@@ -94,6 +94,7 @@ const GetTxs = async (address: string, tags: ITag[], blockchain: BlockchainType,
           timeStamp: (tx?.blockTime ?? Math.floor(new Date().getTime() / 1e3)).toString(),
           contractAddress: SolanaCoins.SOL.contractAddress ?? "",
           value: amount,
+          isError: "0",
           cumulativeGasUsed: "",
           logIndex: "",
           tokenDecimal: "",
@@ -166,11 +167,11 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
     return acc;
   }, [])
 
-  uniqueHashs.forEach(async (transaction: Transactions) => {
+  for (const transaction of uniqueHashs) {
     const input = transaction.input;
 
     if(blockchain.name.includes("evm")){
-      const formatted = await  EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
+      const formatted = await EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
       if (formatted) {
         testAny.push(formatted)
       }
@@ -186,8 +187,10 @@ const ParseTxs = async (transactions: Transactions[], blockchain: BlockchainType
       }
     }
 
-    
-  })
+
+
+  }
+
 
   return testAny;
 }
