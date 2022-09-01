@@ -3,7 +3,7 @@ import axios from "axios";
 import { IUser } from "firebaseConfig";
 import { Balance } from "hooks/useCalculation";
 import { NextApiRequest, NextApiResponse } from "next";
-import { BASE_URL, Collection } from "utils/api";
+import { BASE_URL } from "utils/api";
 import { IPriceResponse } from "./calculation/price.api";
 import json2csv from "json2csv";
 

@@ -1,7 +1,8 @@
 import axios from "axios";
 import { IBudget, IBudgetTX } from "firebaseConfig";
+import { adminApp } from "firebaseConfig/admin";
 import { GenerateTransaction, IBatchRequest, InputReader, ITransfer } from "hooks/useTransactionProcess";
-import { CeloCoins } from "types";
+import { AltCoins, Coins } from "types";
 import { BlockchainType } from "types/blockchains";
 import Web3 from 'web3'
 import { AbiItem } from "web3-utils";
@@ -12,6 +13,9 @@ export const TxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: Bloc
     let totalBudgetPending = 0, totalBudgetUsed = 0;
     let totalFirstCoinPending = 0, totalSecondCoinPending = 0;
     let totalFirstCoinSpent = 0, totalSecondCoinSpent = 0;
+
+    const CoinsRes = await adminApp.firestore().collection(blockchainType.currencyCollectionName).get()
+    const coins = CoinsRes.docs.map(s => s.data() as AltCoins)
 
     if (tx.protocol === "Celo Terminal") {
         const celoTerminal = await CeloTerminal;
@@ -28,8 +32,11 @@ export const TxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: Bloc
 
         const txRes = InputReader(data, {
             transaction: GenerateTransaction({
-                tokenSymbol: Object.values(CeloCoins).find(s => s.contractAddress.toLowerCase() === multisigTx.destination.toLowerCase())?.name,
-            }), tags: [], Coins: CeloCoins
+                tokenSymbol: coins.find(s => s.contractAddress.toLowerCase() === multisigTx.destination.toLowerCase())?.name,
+            }), tags: [], Coins: coins.reduce<Coins>((a, c) => {
+                a[c.symbol] = c;
+                return a;
+            }, {})
         })
 
         if (txRes) {
