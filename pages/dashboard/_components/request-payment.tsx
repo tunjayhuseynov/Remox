@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
 import { ExecutionType } from 'types/dashboard/contributors';
 import { SelectContributorMembers, SelectDarkMode, SelectMultisig } from 'redux/slices/account/remoxData';
+import { AiFillRightCircle } from 'react-icons/ai'
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
@@ -16,25 +17,25 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     const data = [
         {
             header: "Signings Needed",
-            icon: dark ? "signature_white" : "signature",
+            icon: "signature_1",
             value: multisig?.signingNeedTxs?.length ?? 0,
             router: "/dashboard"
         },
         {
             header: "Pending Requests",
-            icon: dark ? "payment_white" : "payment",
+            icon: "payment_1",
             value: multisig?.pendingTxs.length ?? 0,
             router: "/dashboard/requests"
         },
         {
             header: "Approve Requests",
-            icon: dark ? "charity_white" : "charity",
+            icon: "cash-payment_1",
             value: multisig?.approvedTxs.length ?? 0,
             router: "/dashboard/requests/approved"
         },
         {
             header: "Recurring Payments",
-            icon: dark ? "swap_white" : "swap",
+            icon: "subscription-model_1",
             value: recurring.filter(s => s.execution === ExecutionType.auto).length,
             router: "/dashboard/automations",
         }
@@ -44,14 +45,14 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
 
     return <>
         {data.map((item, index) => {
-            return <div key={index} className="w-1/2 xl:w-[85%] xl:mx-5 ">
-                <div className="w-full shadow-custom px-7 xl:px-5 py-3 rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg">
-                    <div className="flex items-center  gap-7 ">
-                        <div className="hidden lg:block w-7 h-7"><img src={`/icons/${item.icon}.png`} alt="" /></div>
+            return <div key={index} className="w-1/2 xl:w-[90%] 2xl:w-[85%] self-end cursor-pointer">
+                <div className="w-full shadow-15 px-7 py-1 rounded-md bg-white transition-all dark:bg-darkSecond hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
+                    <div className="flex items-center gap-7 ">
+                        <div className="hidden lg:block w-7 h-7"><img src={`/icons/dashboard_side/${item.icon}.png`} alt="" /></div>
                         <div className="flex flex-col gap-1 justify-start items-start">
-                            <div className="text-xl w-full font-medium text-greylish dark:text-white">{item.header}</div>
-                            <div className="text-3xl font-bold">{item.value}</div>
-                            <div className="text-primary hover:text-[#ff4513] flex items-center justify-center gap-4 cursor-pointer" onClick={() => { router.push(`/${item.router}`) }} >View All <img className="w-4 h-4" src="/icons/next_primary.png" alt="" /></div>
+                            <div className="text-lg w-full font-medium text-greylish">{item.header}</div>
+                            <div className="text-2xl font-semibold">{item.value}</div>
+                            <div className="text-primary hover:text-[#ff4513] flex items-center justify-center text-sm gap-2 cursor-pointer font-semibold" onClick={() => { router.push(`/${item.router}`) }} >View All <AiFillRightCircle /></div>
                         </div>
                     </div>
                 </div>

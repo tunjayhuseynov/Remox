@@ -1,6 +1,6 @@
 import useProfile from "rpcHooks/useProfile";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { IoMdNotificationsOutline } from "react-icons/io";
+import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import { generate } from "shortid";
 import { fromWei } from "utils/ray";
 import useTransactionProcess, { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "../../../hooks/useTransactionProcess";
@@ -72,7 +72,7 @@ const NotificationCointainer = () => {
 
     return <>
         <div ref={exceptRef} onClick={() => { setNotify(!openNotify) }}>
-            <IoMdNotificationsOutline className={openNotify ? "text-primary text-3xl cursor-pointer" : "text-3xl cursor-pointer transition hover:text-primary hover:transition"} />
+            <NotificationsNoneOutlinedIcon sx={{ fontSize: 22 }} className={openNotify ? "text-primary cursor-pointer" : "cursor-pointer transition hover:text-primary hover:transition text-greylish"} />
         </div>
         {list && new Date(individual?.seenTime ?? 0) < new Date(parseInt((list && list.length > 0 ? list[0]?.rawData.timeStamp : "0")) * 1e3) && <div className="absolute w-[0.625rem] h-[0.625rem] bg-primary rounded-full -top-1 -right-1">
 

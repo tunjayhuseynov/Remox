@@ -186,8 +186,10 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
                 average += (DecimalConverter(tx.amount, tx.coin.decimals) * tx.coin.priceUSD ?? 1);
             }
             if (transaction.id === ERC20MethodIds.noInput) {
-                const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === transaction.rawData.to.toLowerCase())!.coins
-                average += (DecimalConverter(transaction.rawData.value, coin.decimals) * Number(coin.priceUSD ?? 1));
+                const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === transaction.rawData.to.toLowerCase())?.coins
+                if (coin) {
+                    average += (DecimalConverter(transaction.rawData.value, coin.decimals) * Number(coin.priceUSD ?? 1));
+                }
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
                 const tx = transaction as IBatchRequest;
@@ -237,11 +239,13 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
                     calc += current;
                 }
                 if (t.id === ERC20MethodIds.noInput) {
-                    const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === t.rawData.to.toLowerCase())!.coins
-                    const current = (DecimalConverter(t.rawData.value, coin.decimals) * coin.priceUSD ?? 1)
-                    if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
-                    else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
-                    calc += current;
+                    const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === t.rawData.to.toLowerCase())?.coins
+                    if (coin) {
+                        const current = (DecimalConverter(t.rawData.value, coin.decimals) * coin.priceUSD ?? 1)
+                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                        else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
+                        calc += current;
+                    }
                 }
                 if (t.id === ERC20MethodIds.batchRequest) {
                     const tx = t as IBatchRequest;
@@ -353,8 +357,10 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
                         amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.rawData.tokenSymbol]?.priceUSD ?? 1));
                     }
                     if (tx.id === ERC20MethodIds.noInput) {
-                        const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === tx.rawData.to.toLowerCase())!.coins
-                        amount += (DecimalConverter(tx.rawData.value, coin.decimals) * coin.priceUSD ?? 1);
+                        const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === tx.rawData.to.toLowerCase())?.coins
+                        if (coin) {
+                            amount += (DecimalConverter(tx.rawData.value, coin.decimals) * coin.priceUSD ?? 1);
+                        }
                     }
                     if (tx.id === ERC20MethodIds.batchRequest) {
                         const txm = tx as IBatchRequest;

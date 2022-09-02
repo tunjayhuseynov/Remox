@@ -1,4 +1,4 @@
-export { default as AllWallets } from './allWallets'
+export { default as WalletList } from './WalletList'
 export { default as CoinItem } from './coinitem'
 export { default as DeleteWallet } from './deleteWallet'
 export { default as Payments } from './request-payment'

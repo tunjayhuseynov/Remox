@@ -12,9 +12,9 @@ export default function Dashboard() {
                 <Statistics transactions={transactions} />
             </div>
         </div>
-        <div className="w-full mt-3 h-full xl:w-[30%] xl:h-[70%] xl:pt-[3.5rem]">
-            <div className="text-2xl pb-4 xl:pb-2 xl:pl-5 font-bold">Requests & Payments</div>
-            <div id="transaction" className="w-full h-full flex gap-6 pb-6 xl:pb-0  xl:flex-col xl:items-start xl:justify-center  ">
+        <div className="w-full h-full xl:w-[37.5%] xl:pt-[6.2rem]">
+            <div className="text-xl pb-4 xl:pl-12 2xl:pl-20 font-semibold">Requests & Payments</div>
+            <div id="transaction" className="w-full h-full flex gap-8 pb-6 xl:pb-0  xl:flex-col xl:items-start xl:justify-end">
                 {transactions ? <Payments transactions={transactions} /> : <div className="flex justify-center"> <Loader /></div>}
             </div>
         </div>

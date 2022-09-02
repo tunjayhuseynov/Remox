@@ -232,9 +232,6 @@ const ParseTxs = async (
 
     await Promise.all(uniqueHashs.map(async (transaction) => {
       const input = transaction.input;
-      console.log(input);
-      
-      
 
       if (blockchain.name.includes("evm")) {
         const formatted = await EvmInputReader(input, blockchain.name, {
