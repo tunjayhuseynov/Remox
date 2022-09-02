@@ -227,7 +227,6 @@ export default async function handler(
       const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/safes/${multisigAddress}/all-transactions/`;
       const response = await axios.get(api);
       const transactionsData = response.data;
-      console.log(transactionsData);
 
       for (const tx of transactionsData.results) {
         anyARr.push(tx);

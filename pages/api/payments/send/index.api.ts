@@ -97,6 +97,8 @@ export default async function Send(
                     destination: coin.address
                 })
             }
+        } else if(blockchain.includes("evm")){
+            
         }
     } catch (error) {
         console.log(error)

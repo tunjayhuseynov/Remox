@@ -39,7 +39,8 @@ export interface GnosisSettingsTx extends basedParsedSafeTx {
 }
 
 export interface GnosisTransferTx extends basedParsedSafeTx {
-    value: string,
+    dataDecoded: GnosisDataDecoded | null,
+    value: string | null,
 }
 
 
@@ -128,9 +129,10 @@ export const MultisigTxParser = (
 
 export const parseSafeTransaction = (tx: GnosisTransaction) => {
     
-    if(tx.dataDecoded!.method === null){
-
+    if(tx.dataDecoded === null && tx.value !== null) {  
+        
     }
+
 
     // const parsedTransaction : parsedSafeTransaction = {
     //     safe: tx.safe,
@@ -154,5 +156,5 @@ export const parseSafeTransaction = (tx: GnosisTransaction) => {
     //     txType: tx.txType
     // }
 
-    return parsedTransaction
+
 }

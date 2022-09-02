@@ -45,7 +45,6 @@ export type BlockchainType = {
     uiAddress?: string;
     protocolDataProviderAddress?: string;
     tokensProvider?: string;
-    wethGatewayAddress?: string;
     ethGatewayAddress?: string;
     ethGatewayABI?: AbiItem[];
     abi: AbiItem[];
@@ -71,6 +70,7 @@ export const Blockchains: BlockchainType[] = [
   {
     name: "celo",
     displayName: "Celo",
+    nativeToken: "CELO",
     rpcUrl: "https://forno.celo.org",
     explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "celoCurrency",

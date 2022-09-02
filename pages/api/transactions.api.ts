@@ -232,6 +232,8 @@ const ParseTxs = async (
 
     await Promise.all(uniqueHashs.map(async (transaction) => {
       const input = transaction.input;
+      console.log(input);
+      
       
 
       if (blockchain.name.includes("evm")) {
@@ -241,7 +243,12 @@ const ParseTxs = async (
           Coins,
         });
         if (formatted) {
-          anyArr.push(formatted);
+          FormattedTransaction.push({
+            timestamp: +transaction.timeStamp,
+            rawData: transaction,
+            hash: transaction.hash,
+            ...formatted,
+          });
         }
       } else {
         const formatted = InputReader(input, { transaction, tags, Coins });
@@ -256,7 +263,7 @@ const ParseTxs = async (
       }
     }))
 
-    return anyArr;
+    return FormattedTransaction;
   } catch (error) {
     console.log(error);
 

@@ -446,6 +446,9 @@ export const EvmInputReader = async (
         const decoder = new InputDataDecoder(abi);
         const result = decoder.decodeData(input);
 
+        const coin = coins.find((coin) => coin.address.toLowerCase() === "0x" + result.inputs[2].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+        const amount = hexToNumberString(result.inputs[1]._hex).toString();
+
         if (result.method === "createStream") {
           const provider = new ethers.providers.JsonRpcProvider(
             blockchain.rpcUrl
@@ -462,8 +465,8 @@ export const EvmInputReader = async (
             method: "createStream",
             id: ERC20MethodIds.sablierStream,
             recipient: "0x" + result.inputs[0],
-            deposit: hexToNumberString(result.inputs[1]._hex).toString(),
-            coin: result.inputs[2],
+            deposit: +amount / 10 ** coin.decimals, 
+            coin: coin,
             startTime: hexToNumberString(result.inputs[3]._hex).toString(),
             stopTime: hexToNumberString(result.inputs[4]._hex).toString(),
               streamId: streamId,
@@ -477,34 +480,34 @@ export const EvmInputReader = async (
             tags: theTags,
           };
         }
-      } else if(blockchain.lendingProtocols.find((lend) => lend.wethGatewayAddress?.toLowerCase() === transaction.to.toLowerCase())){
-        const abi = blockchain.lendingProtocols.find(
-          (lend) =>
-            lend.wethGatewayAddress?.toLowerCase() === transaction.to.toLowerCase()
-        )!.abi;
-        const decoder = new InputDataDecoder(abi);
-        const result = decoder.decodeData(input);
-        const amount = hexToNumberString(result.inputs[1]._hex).toString();
-        const coin = coins.find((coin) => coin.address.toLowerCase() === "0x" + result.inputs[0].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
-        if (result.method === "deposit") {
-          return {
-            method: "deposit",
-            id: ERC20MethodIds.deposit,
-            coin: coin,
-            amount: +amount / 10 ** coin.decimals,
-            to: "0x" + result.inputs[2],
-            tags: theTags,
-          };
-        } else if (result.method === "withdraw") {
-          return {
-            method: "withdraw",
-            id: ERC20MethodIds.withdraw,
-            coin: coin,
-            amount: +amount / 10 ** coin.decimals,
-            to: "0x" + result.inputs[1],
-          };
-        }
       } 
+      // else if(blockchain.lendingProtocols.find((lend) => lend.ethGatewayAddress?.toLowerCase() === transaction.to.toLowerCase())){
+      //   const abi = blockchain.lendingProtocols.find(
+      //     (lend) =>
+      //       lend.ethGatewayAddress?.toLowerCase() === transaction.to.toLowerCase()
+      //   )!.ethGatewayABI;
+      //   const decoder = new InputDataDecoder(abi);
+      //   const result = decoder.decodeData(input);
+      //   const coin = coins.find((coin) => coin.address.toLowerCase() === "0x" + result.inputs[0].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+      //   if (result.method === "deposit") {
+      //     return {
+      //       method: "deposit",
+      //       id: ERC20MethodIds.deposit,
+      //       coin: coin,
+      //       amount: +amount / 10 ** coin.decimals,
+      //       to: "0x" + result.inputs[2],
+      //       tags: theTags,
+      //     };
+      //   } else if (result.method === "withdraw") {
+      //     return {
+      //       method: "withdraw",
+      //       id: ERC20MethodIds.withdraw,
+      //       coin: coin,
+      //       amount: +amount / 10 ** coin.decimals,
+      //       to: "0x" + result.inputs[1],
+      //     };
+      //   }
+      // } 
       else {
         return {
           method: "unknown",
