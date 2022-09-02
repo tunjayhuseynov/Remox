@@ -60,6 +60,6 @@ export interface GnosisTransaction {
     confirmations: GnosisConfirmation[],
     trusted: boolean,
     signatures: string,
-    transfers: GnosisTransactionTransfers[] | null,
+    transfers: GnosisTransactionTransfers[] | [],
     txType: string
 }

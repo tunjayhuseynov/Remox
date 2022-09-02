@@ -14,7 +14,7 @@ import {
 } from "@gokiprotocol/client";
 import { BorshInstructionCoder, utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
-import { MultisigTxParser } from "utils/multisig";
+import {  GnosisSettingsTx, GnosisTransferTx, MultisigTxParser, parseSafeTransaction } from "utils/multisig";
 // import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import { Contract, ethers } from "ethers";
 import Multisig from "rpcHooks/ABI/CeloTerminal.json";
@@ -28,6 +28,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "../tags/index.api";
 import axios from "axios";
+import { AltCoins, Coins, CoinsName } from "types";
 
 export default async function handler(
   req: NextApiRequest,
@@ -59,7 +60,17 @@ export default async function handler(
 
     let transactionArray: ITransactionMultisig[] = [];
 
-    let anyARr: any[] = [];
+
+    const CoinsReq = await adminApp
+      .firestore()
+      .collection(Blockchain!.currencyCollectionName)
+      .get();
+
+    const Coins = CoinsReq.docs.reduce<Coins>((acc, doc) => {
+      acc[(doc.data() as AltCoins).symbol] = doc.data() as AltCoins;
+      return acc;
+    }, {});
+
     // if (blockchain === 'solana') {
 
     //     const pb = new PublicKey(multisigAddress)
@@ -229,11 +240,14 @@ export default async function handler(
       const transactionsData = response.data;
 
       for (const tx of transactionsData.results) {
-        anyARr.push(tx);
+        const safeTx = parseSafeTransaction(tx, Coins, blockchain);
+        // GnosisSafeTx.push(safeTx!)
+        // anyARr.push(tx);
+
       }
     }
 
-    res.status(200).json(anyARr);
+    res.status(200).json(transactionArray);
   } catch (e: any) {
     console.error(e);
     throw new Error(e);

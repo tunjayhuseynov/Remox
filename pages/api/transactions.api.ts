@@ -216,6 +216,7 @@ const ParseTxs = async (
     let result: Transactions[] = [...transactions];
 
     const FormattedTransaction: IFormattedTransaction[] = [];
+    const testArr: any[] = [];
 
   const groupedHash = _(result).groupBy("hash").value();
   const uniqueHashs = Object.values(groupedHash).reduce(
@@ -224,15 +225,16 @@ const ParseTxs = async (
         +o.value
       );
       if (best) acc.push(best);
-
         return acc;
       },
       []
     );    
+    
+    
 
-    await Promise.all(uniqueHashs.map(async (transaction) => {
+    for (const transaction of uniqueHashs) {
       const input = transaction.input;
-
+      
       if (blockchain.name.includes("evm")) {
         const formatted = await EvmInputReader(input, blockchain.name, {
           transaction,
@@ -247,6 +249,7 @@ const ParseTxs = async (
             ...formatted,
           });
         }
+        
       } else {
         const formatted = InputReader(input, { transaction, tags, Coins });
         if (formatted) {
@@ -258,9 +261,10 @@ const ParseTxs = async (
           });
         }
       }
-    }))
+    }
 
-    return FormattedTransaction;
+
+    return testArr;
   } catch (error) {
     console.log(error);
 
