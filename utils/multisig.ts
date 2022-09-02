@@ -1,7 +1,9 @@
 import BigNumber from "bignumber.js"
 import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
-import { BlockchainType } from "types/blockchains";
+import blockchain from "redux/slices/account/reducers/blockchain";
+import { AltCoins, Coins } from "types";
+import { Blockchains, BlockchainType } from "types/blockchains";
 import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction, GnosisTransactionTransfers } from "types/GnosisSafe";
 import { fromLamport, fromWei } from "./ray"
 
@@ -16,6 +18,7 @@ export interface ParsedMultisigData {
     value?: string
 }
 export interface basedParsedSafeTx {
+    type: "transfer" | "settings"
     safe: string,
     data: string | null,
     nonce: number,
@@ -31,6 +34,7 @@ export interface basedParsedSafeTx {
     confirmations: GnosisConfirmation[],
     signatures: string,
     txType: string
+    transfers: GnosisTransactionTransfers[] | [],
 
 }
 
@@ -40,7 +44,9 @@ export interface GnosisSettingsTx extends basedParsedSafeTx {
 
 export interface GnosisTransferTx extends basedParsedSafeTx {
     dataDecoded: GnosisDataDecoded | null,
-    value: string | null,
+    to: string,
+    coin: AltCoins 
+    value: string | number | null,
 }
 
 
@@ -127,34 +133,88 @@ export const MultisigTxParser = (
     return obj;
 }
 
-export const parseSafeTransaction = (tx: GnosisTransaction) => {
-    
+export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockchainName: string) => {
+    const coins: AltCoins[] = Object.values(Coins);
+    const blockchain = Blockchains.find((b) => b.name === blockchainName);
+
     if(tx.dataDecoded === null && tx.value !== null) {  
+        const coin = coins.find((c) => c.address.toLowerCase() === blockchain?.nativeToken.toLowerCase())!
+        const parsedTx : GnosisTransferTx = {
+            type: "transfer",
+            safe: tx.safe,
+            value: (+tx.value / 10** coin.decimals).toString(),
+            data: tx.data,
+            nonce: tx.nonce,
+            to: tx.to,
+            executionDate: tx.executionDate,
+            submissionDate: tx.submissionDate,
+            modified: tx.modified,
+            blockNumber: tx.blockNumber,
+            transactionHash: tx.transactionHash,
+            safeTxHash: tx.safeTxHash,
+            executor: tx.executor,
+            isExecuted: tx.isExecuted,
+            isSuccessful: tx.isSuccessful,
+            confirmations: tx.confirmations,
+            signatures: tx.signatures,
+            txType: tx.txType,
+            dataDecoded: tx.dataDecoded,
+            coin: coin,
+            transfers: tx.transfers
+        }
+
+        return parsedTx
+    } else if(tx.dataDecoded !== null && tx.to === tx.safe ){
+        const parsedTx : GnosisSettingsTx = {
+            type: "settings",
+            safe: tx.safe,
+            data: tx.data,
+            nonce: tx.nonce,
+            executionDate: tx.executionDate,
+            submissionDate: tx.submissionDate,
+            modified: tx.modified,
+            blockNumber: tx.blockNumber,
+            transactionHash: tx.transactionHash,
+            safeTxHash: tx.safeTxHash,
+            executor: tx.executor,
+            isExecuted: tx.isExecuted,
+            isSuccessful: tx.isSuccessful,
+            confirmations: tx.confirmations,
+            signatures: tx.signatures,
+            txType: tx.txType,
+            dataDecoded: tx.dataDecoded,
+            transfers: tx.transfers,
+        }
+        return parsedTx
+    } 
+    else if (tx.dataDecoded !== null && tx.to !== tx.safe && tx.transfers.length === 0){
+        const coin = coins.find((c) => c.address.toLowerCase() === tx.to.toLowerCase())!
         
-    }
 
+        const parsedTx : GnosisTransferTx = {
+            type: "transfer",
+            safe: tx.safe,
+            data: tx.data,
+            to: tx.dataDecoded.parameters[0].value,
+            nonce: tx.nonce,
+            executionDate: tx.executionDate,
+            submissionDate: tx.submissionDate,
+            modified: tx.modified,
+            blockNumber: tx.blockNumber,
+            transactionHash: tx.transactionHash,
+            safeTxHash: tx.safeTxHash,
+            executor: tx.executor,
+            isExecuted: tx.isExecuted,
+            isSuccessful: tx.isSuccessful,
+            confirmations: tx.confirmations,
+            signatures: tx.signatures,
+            txType: tx.txType,
+            dataDecoded: tx.dataDecoded,
+            value: tx.dataDecoded.parameters[1].value,
+            coin: coin,
+            transfers: []
+        }
 
-    // const parsedTransaction : parsedSafeTransaction = {
-    //     safe: tx.safe,
-    //     to: tx.to,
-    //     data: tx.data,
-    //     nonce: tx.nonce,
-    //     executionDate: tx.executionDate,
-    //     submissionDate: tx.submissionDate,
-    //     modified: tx.modified,
-    //     blockNumber: tx.blockNumber,
-    //     transactionHash: tx.transactionHash,
-    //     safeTxHash: tx.safeTxHash,
-    //     executor: tx.executor,
-    //     isExecuted: tx.isExecuted,
-    //     isSuccessful: tx.isSuccessful,
-    //     dataDecoded: tx.dataDecoded,
-    //     confirmationsRequired: tx.confirmationsRequired,
-    //     confirmations: tx.confirmations,
-    //     signatures: tx.signatures,
-    //     transfers: tx.transfers,
-    //     txType: tx.txType
-    // }
-
-
+        return parsedTx
+    } 
 }

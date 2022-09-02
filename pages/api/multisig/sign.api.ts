@@ -6,17 +6,21 @@ import { SolanaSerumEndpoint } from "components/Wallet";
 import { Contract, ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
 import Multisig from 'rpcHooks/ABI/CeloTerminal.json'
-import { BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType } from "types/blockchains";
+import GnosisABI from 'rpcHooks/ABI/Gnosis.json'
+import { hexToNumberString } from "web3-utils";
 
 export interface IMultisigThreshold {
     sign: number;
-    internalSign: number;
+    internalSign?: number;
 }
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IMultisigThreshold>) {
     try {
         const { blockchain, address: multisigAddress } = req.query as { blockchain: BlockchainType["name"], address: string };
+
+        const Blockchain = Blockchains.find((b) => b.name === blockchain);
 
         if (blockchain === 'solana') {
             const pb = new PublicKey(multisigAddress)
@@ -46,6 +50,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const sign = (await contract.required()).toNumber();
             const internalSign = (await contract.internalRequired()).toNumber();
             return res.status(200).json({ sign: sign, internalSign: internalSign })
+        } else if(blockchain.includes("evm")){
+            const provider = new ethers.providers.JsonRpcProvider(Blockchain?.rpcUrl);
+
+            const contract = new Contract(multisigAddress, GnosisABI, provider)
+
+            const hex = await contract.getThreshold();
+
+            const threshold = hexToNumberString(hex);
+
+            return res.status(200).json({sign: +
+                threshold})
         }
         throw new Error(`Invalid multiSignature`)
     } catch (e: any) {
