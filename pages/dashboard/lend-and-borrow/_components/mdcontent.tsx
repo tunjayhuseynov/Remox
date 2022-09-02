@@ -173,8 +173,8 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                                     setInput([...inputs.filter((s, i) => i === index), thatInput])
                                 }}
                                 label="Token"
-                                selected={wallet}
-                                list={Object.values(GetCoins) as AltCoins[]} />
+                                selected={wallet as any}
+                                list={Object.values(GetCoins)} />
                         </div>
                         <div className="pt-1 text-xs col-span-2 truncate">max: {maxAmount} {wallet.name}</div>
                     </Fragment>

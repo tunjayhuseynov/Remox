@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/slices/lending";
-import { AltCoins, Coins, SolanaCoins, TokenType } from "types";
+import { AltCoins,TokenType } from "types";
 import BigNumber from 'bignumber.js'
 import { BN, etherSize, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
@@ -15,6 +15,7 @@ import { IAccount } from "firebaseConfig";
 import { useCelo } from "@celo/react-celo";
 import Web3 from "web3";
 import { SelectCurrencies } from "redux/slices/account/selector";
+import { useAppSelector } from "redux/hooks";
 
 
 const MoolaProxy = import("./ABI/MoolaProxy.json")
@@ -45,7 +46,7 @@ export default function useLending(account: IAccount) {
 
     const dispatch = useDispatch()
     const MoolaUserData = useSelector(selectMoolaData)
-    const currencies = useSelector(SelectCurrencies)
+    const currencies = useAppSelector(SelectCurrencies)
 
     useEffect(() => {
         getContract().catch((error: any) => { console.error(error.message) })
@@ -323,7 +324,7 @@ export default function useLending(account: IAccount) {
                     apy: (await vaultClient.getApy()).toNumber() * 100,
                     availableBorrow: "0",
                     averageStableBorrowRate: 0,
-                    currency: SolanaCoins.USDC,
+                    currency: currencies["USDC"],
                     currencyPrice: currencies["USDC"].priceUSD.toString(),
                     lendingBalance: (await vaultClient.getUserValue(new PublicKey(account.address))).getAmount(),
                     loanBalance: 0,
@@ -463,7 +464,7 @@ export default function useLending(account: IAccount) {
             if (blockchain.name === 'solana') {
                 setInitLaoding(true)
 
-                const data = await getSingleInitialUserData(SolanaCoins.USDC)
+                const data = await getSingleInitialUserData(currencies["USDC"])
                 setTimeout(() => {
                     dispatch(updateData([data]))
                 }, 1000)

@@ -13,7 +13,6 @@ import Web3 from 'web3'
 import erc20 from 'rpcHooks/ABI/erc20.json'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import { DecimalConverter } from "utils/api";
-import BN from "bn.js";
 
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
@@ -77,7 +76,7 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
         const item = i as AltCoins
         let altcoinBalance = await GetBalance(item, address, blockchain)
 
-        balances = Object.assign(balances, { [item.name]: altcoinBalance });
+        balances = Object.assign(balances, { [item.symbol]: altcoinBalance });
     }
     return balances;
 }

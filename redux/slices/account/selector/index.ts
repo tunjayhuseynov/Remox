@@ -5,6 +5,7 @@ import { IPriceCoin } from "pages/api/calculation/price.api";
 import { RootState } from "redux/store";
 import { TokenType } from "types";
 import { ExecutionType, IContributor } from "types/dashboard/contributors";
+import { IPrice } from "utils/api";
 
 export const SelectStorage = createDraftSafeSelector(
   (state: RootState) => state.remoxData.storage,
@@ -20,7 +21,7 @@ export const SelectYieldBalance = createDraftSafeSelector(
   (state: RootState) => state.remoxData.balances,
   (balances) => {
     if (balances) {
-      return Object.entries(balances).reduce<{ [name: string]: IPriceCoin }>(
+      return Object.entries(balances).reduce<IPrice>(
         (a, c) => {
           if (c[1].coins.type === TokenType.YieldToken) {
             a[c[0]] = c[1];
@@ -48,7 +49,7 @@ export const SelectSpotBalance = createDraftSafeSelector(
   (state: RootState) => state.remoxData.balances,
   (balances) => {
     if (balances) {
-      return Object.entries(balances).reduce<{ [name: string]: IPriceCoin }>(
+      return Object.entries(balances).reduce<IPrice>(
         (a, c) => {
           if (c[1].coins.type !== TokenType.YieldToken) {
             a[c[0]] = c[1];

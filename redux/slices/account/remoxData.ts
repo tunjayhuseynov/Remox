@@ -21,7 +21,6 @@ import { IAccount, IBudget, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { IPriceCoin } from "pages/api/calculation/price.api";
 import { AddTransactionToTag, CreateTag, DeleteTag, RemoveTransactionFromTag, UpdateTag } from "./thunks/tags";
 import { ITag } from "pages/api/tags/index.api";
 import { generate } from "shortid";
@@ -31,6 +30,7 @@ import { Refresh_Data_Thunk } from "./thunks/refresh";
 import { BlockchainType } from "types/blockchains";
 import { ITasking } from "rpcHooks/useTasking";
 import { Coins } from "types";
+import { IPrice } from "utils/api";
 
 export type IAccountType = "individual" | "organization";
 
@@ -52,7 +52,7 @@ export interface IRemoxData {
     darkMode: boolean,
     organizations: IOrganizationORM[],
     isFetching: boolean;
-    balances: { [name: string]: IPriceCoin };
+    balances: IPrice;
     tags: ITag[],
     stats: ISpendingResponse | null; // +
     budgetExercises: IBudgetExerciseORM[], // +
