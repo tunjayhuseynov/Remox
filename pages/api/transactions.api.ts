@@ -66,8 +66,8 @@ export default async function handler(
     }
 
     res.status(200).json(txList);
-  } catch (error) {
-    res.status(405).json(error as any);
+  } catch (error: any) {
+    throw new Error(error);
   }
 }
 
@@ -111,7 +111,7 @@ const GetTxs = async (
               token =
                 coins.find(
                   (c) =>
-                    c.contractAddress.toLowerCase() ===
+                    c.address.toLowerCase() ===
                     (arr[index] as any)["parsed"]["info"]["mint"]?.toLowerCase()
                 ) ?? coins.find((c) => c.symbol === "SOL")!;
               amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]
@@ -137,7 +137,7 @@ const GetTxs = async (
           timeStamp: (
             tx?.blockTime ?? Math.floor(new Date().getTime() / 1e3)
           ).toString(),
-          contractAddress: token!.contractAddress ?? "",
+          contractAddress: token!.address ?? "",
           value: amount,
           isError: "0",
           cumulativeGasUsed: "",
@@ -203,55 +203,67 @@ const ParseTxs = async (
   blockchain: BlockchainType,
   tags: ITag[]
 ) => {
-  const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
-  const Coins = CoinsReq.docs.reduce<Coins>((acc, doc) => {
-    acc[(doc.data() as AltCoins).symbol] = doc.data() as AltCoins;
-    return acc;
-  } ,{});
-  let result: Transactions[] = [...transactions];
-
-  const FormattedTransaction: IFormattedTransaction[] = [];
-
-  const groupedHash = _(result).groupBy("hash").value();
-  const uniqueHashs = Object.values(groupedHash).reduce(
-    (acc: Transactions[], value: Transactions[]) => {
-      const best = _(value).maxBy((o) =>
-        DecimalConverter(o.value, o.tokenDecimal)
-      );
-      if (best) acc.push(best);
-
+  try {
+    const CoinsReq = await adminApp
+      .firestore()
+      .collection(blockchain.currencyCollectionName)
+      .get();
+    const Coins = CoinsReq.docs.reduce<Coins>((acc, doc) => {
+      acc[(doc.data() as AltCoins).symbol] = doc.data() as AltCoins;
       return acc;
-    },
-    []
-  );
+    }, {});
 
-  for (const transaction of uniqueHashs) {
-    const input = transaction.input;
+    let result: Transactions[] = [...transactions];
 
-    if(blockchain.name.includes("evm")){
-      const formatted = await EvmInputReader(input, blockchain.name, { transaction, tags, Coins });
-      if (formatted) {
-        FormattedTransaction.push({
-          timestamp: +transaction.timeStamp,
-          rawData: transaction,
-          hash: transaction.hash,
-          ...formatted,
+    const FormattedTransaction: IFormattedTransaction[] = [];
+
+    const anyArr: any[] = [];
+
+    const groupedHash = _(result).groupBy("hash").value();
+    
+
+    const uniqueHashs = Object.values(groupedHash).reduce(
+      (acc: Transactions[], value: Transactions[]) => {
+        const best = _(value).maxBy((o) => {          
+          return +o.value;
         });
-      }
-    } else {
-      const formatted = InputReader(input, { transaction, tags, Coins });
-      if (formatted) {
-        FormattedTransaction.push({
-          timestamp: +transaction.timeStamp,
-          rawData: transaction,
-          hash: transaction.hash,
-          ...formatted,
-        });
-      }
-    }
+        if (best) acc.push(best);
 
+        return acc;
+      },
+      []
+    );    
+
+    await Promise.all(uniqueHashs.map(async (transaction) => {
+      const input = transaction.input;
+      
+
+      if (blockchain.name.includes("evm")) {
+        const formatted = await EvmInputReader(input, blockchain.name, {
+          transaction,
+          tags,
+          Coins,
+        });
+        if (formatted) {
+          anyArr.push(formatted);
+        }
+      } else {
+        const formatted = InputReader(input, { transaction, tags, Coins });
+        if (formatted) {
+          FormattedTransaction.push({
+            timestamp: +transaction.timeStamp,
+            rawData: transaction,
+            hash: transaction.hash,
+            ...formatted,
+          });
+        }
+      }
+    }))
+
+    return anyArr;
+  } catch (error) {
+    console.log(error);
+
+    throw new Error(error as any);
   }
-
-
-  return FormattedTransaction;
 };

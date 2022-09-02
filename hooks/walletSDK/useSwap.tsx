@@ -35,8 +35,8 @@ export default function useSwap() {
                 let fee;
                 if (parseFloat(amount) > 0) {
                     const routes = await jupiter.computeRoutes({
-                        inputMint: new PublicKey(inputCoin.contractAddress), // Mint address of the input token
-                        outputMint: new PublicKey(outputCoin.contractAddress), // Mint address of the output token
+                        inputMint: new PublicKey(inputCoin.address), // Mint address of the input token
+                        outputMint: new PublicKey(outputCoin.address), // Mint address of the output token
                         amount: JSBI.BigInt(parseFloat(amount) * (10 ** inputCoin.decimals!)), // raw input amount of tokens
                         slippage: parseFloat(slippage), // The slippage in % terms
                         forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
@@ -46,8 +46,8 @@ export default function useSwap() {
                 }
 
                 const routeOne = await jupiter.computeRoutes({
-                    inputMint: new PublicKey(inputCoin.contractAddress), // Mint address of the input token
-                    outputMint: new PublicKey(outputCoin.contractAddress), // Mint address of the output token
+                    inputMint: new PublicKey(inputCoin.address), // Mint address of the input token
+                    outputMint: new PublicKey(outputCoin.address), // Mint address of the output token
                     amount: JSBI.BigInt(1 * (10 ** inputCoin.decimals!)), // raw input amount of tokens
                     slippage: parseFloat(slippage), // The slippage in % terms
                     forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
@@ -62,10 +62,10 @@ export default function useSwap() {
             let priceImpactWithoutFeePercent;
             let feeAmount: any = 0;
 
-            let inputAddress = inputCoin.contractAddress;
+            let inputAddress = inputCoin.address;
             const input = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(inputAddress), provider);
 
-            let outputAddress = outputCoin.contractAddress;
+            let outputAddress = outputCoin.address;
             const output = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(outputAddress), provider);
 
             const pair = await Fetcher.fetchPairData(output, input, provider);

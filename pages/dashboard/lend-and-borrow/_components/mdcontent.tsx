@@ -87,16 +87,16 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                 for (const input of inputs) {
                     switch (type) {
                         case "withdraw":
-                            hash = await withdraw(componentData.currency.contractAddress, input.amount)
+                            hash = await withdraw(componentData.currency.address, input.amount)
                             break;
                         case "repay":
-                            hash = await repay(componentData.currency.contractAddress, input.amount, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
+                            hash = await repay(componentData.currency.address, input.amount, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
                             break;
                         case "borrow":
-                            hash = await borrow(componentData.currency.contractAddress, input.amount, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
+                            hash = await borrow(componentData.currency.address, input.amount, selectedType ? InterestRateMode.Variable : InterestRateMode.Stable)
                             break;
                         case "deposit":
-                            hash = await deposit(componentData.currency.contractAddress, input.amount.toString())
+                            hash = await deposit(componentData.currency.address, input.amount.toString())
                             break;
                         default:
                             break;

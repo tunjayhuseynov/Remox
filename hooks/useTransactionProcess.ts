@@ -116,6 +116,7 @@ interface IReader {
   tags: ITag[];
   Coins: Coins;
 }
+
 export const InputReader = (
   input: string,
   { transaction, tags, Coins }: IReader
@@ -170,7 +171,7 @@ export const InputReader = (
       ).toString(),
       coinIn: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(input.length - 64 - 64, input.length - 64)
@@ -179,7 +180,7 @@ export const InputReader = (
       )!,
       coinOutMin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(input.length - 64, input.length)
@@ -198,7 +199,7 @@ export const InputReader = (
       coins.push({
         coinAddress: Object.values(Coins).find(
           (s) =>
-            s.contractAddress.toLowerCase() ===
+            s.address.toLowerCase() ===
             "0x" +
               input
                 .slice(330 + indexable, 330 + indexable + 64)
@@ -259,7 +260,7 @@ export const InputReader = (
       id: ERC20MethodIds.borrow,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -284,7 +285,7 @@ export const InputReader = (
       id: ERC20MethodIds.deposit,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -305,7 +306,7 @@ export const InputReader = (
       id: ERC20MethodIds.withdraw,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -326,7 +327,7 @@ export const InputReader = (
       id: ERC20MethodIds.repay,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -349,36 +350,41 @@ export const EvmInputReader = async (
   blockchainName: string,
   { transaction, tags, Coins }: IReader
 ) => {
+  
   const blockchain = Blockchains.find((s) => s.name === blockchainName)!;
   const theTags = tags.filter((s) =>
     s.transactions.some((t) => t.hash === transaction.hash)
   );
 
+  const coins: AltCoins[] = Object.values(Coins);
+
   try {
     if (transaction.isError !== "1") {
-      if (blockchain.swapProtocols.find((swap) => swap.contractAddress === transaction.to)) {
+      if (blockchain.swapProtocols.find((swap) => swap.contractAddress.toLowerCase() === transaction.to.toLowerCase())) {
         const abi = blockchain.swapProtocols.find(
-          (swap) => swap.contractAddress === transaction.to
+          (swap) => swap.contractAddress.toLowerCase() === transaction.to.toLowerCase()
         )?.abi;
+        
         const decoder = new InputDataDecoder(abi);
         const result = decoder.decodeData(input);
         const amountIn = hexToNumberString(result.inputs[1][4]._hex).toString();
         const amountOutMin = hexToNumberString(
           result.inputs[1][5]._hex
-        ).toString();
+          ).toString();
 
-        const coins: AltCoins[] = Object.values(Coins);
-
+        const coinIn =  coins.find((coin) => coin.address.toLowerCase() === result.inputs[1][0].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+        const coinOut = coins.find((coin) => coin.address.toLowerCase() === result.inputs[1][1].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
 
         return {
           method: "swap",
           id: ERC20MethodIds.swap,
-          amountIn: amountIn,
-          amountOutMin: amountOutMin,
+          amountIn: +amountIn / 10 ** coinIn!.decimals,
+          amountOutMin: +amountOutMin / 10 ** coinOut!.decimals,
           from: transaction.from,
-          coinIn: coins.find((coin) => coin.contractAddress === result.inputs[1][0])!,
-          coinOutMin: coins.find((coin) => coin.contractAddress === result.inputs[1][1])!,
+          coinIn: coinIn,
+          coinOut: coinOut,
           tags: theTags,
+          hash: transaction.hash,
         };
       } else if (blockchain.lendingProtocols.find((lend) => lend.contractAddress.toLowerCase() === transaction.to.toLowerCase())) {
         const abi = blockchain.lendingProtocols.find(
@@ -389,12 +395,14 @@ export const EvmInputReader = async (
         const result = decoder.decodeData(input);
         const amount = hexToNumberString(result.inputs[1]._hex).toString();
 
+        const coin = coins.find((coin) => coin.address.toLowerCase() === "0x" + result.inputs[0].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+
         if (result.method === "supply") {
           return {
             method: "supply",
             id: ERC20MethodIds.deposit,
-            coin: "0x" + result.inputs[0],
-            amount: amount,
+            coin: coin,
+            amount: +amount / 10 ** coin.decimals,
             to: "0x" + result.inputs[2],
             tags: theTags,
           };
@@ -402,8 +410,8 @@ export const EvmInputReader = async (
           return {
             method: "borrow",
             id: ERC20MethodIds.borrow,
-            coin: "0x" + result.inputs[0],
-            amount: amount,
+            coin: coin,
+            amount: +amount / 10 ** coin.decimals,
             interestRateMode: hexToNumberString(
               result.inputs[2]._hex
             ).toString(),
@@ -415,21 +423,21 @@ export const EvmInputReader = async (
           return {
             method: "withdraw",
             id: ERC20MethodIds.withdraw,
-            coin: "0x" + result.inputs[0],
-            amount: amount,
+            coin: coin,
+            amount: +amount / 10 ** coin.decimals,
             to: "0x" + result.inputs[1],
           };
         } else if (result.method === "repay") {
           return {
             method: "repay",
             id: ERC20MethodIds.repay,
-            coin: "0x" + result.inputs[0],
-            amount: amount,
+            coin: coin,
+            amount: +amount / 10 ** coin.decimals,
             to: "0x" + result.inputs[1],
             tags: theTags,
           };
         }
-      } else if (blockchain.recurringPaymentProtocols.find((stream) => stream.contractAddress.toLowerCase() ===transaction.to.toLowerCase())) {
+      } else if (blockchain.recurringPaymentProtocols.find((stream) => stream.contractAddress.toLowerCase() === transaction.to.toLowerCase())) {
         const abi = blockchain.recurringPaymentProtocols.find(
           (stream) =>
             stream.contractAddress.toLowerCase() ===
@@ -469,7 +477,35 @@ export const EvmInputReader = async (
             tags: theTags,
           };
         }
-      } else {
+      } else if(blockchain.lendingProtocols.find((lend) => lend.wethGatewayAddress?.toLowerCase() === transaction.to.toLowerCase())){
+        const abi = blockchain.lendingProtocols.find(
+          (lend) =>
+            lend.wethGatewayAddress?.toLowerCase() === transaction.to.toLowerCase()
+        )!.abi;
+        const decoder = new InputDataDecoder(abi);
+        const result = decoder.decodeData(input);
+        const amount = hexToNumberString(result.inputs[1]._hex).toString();
+        const coin = coins.find((coin) => coin.address.toLowerCase() === "0x" + result.inputs[0].toLowerCase())! ?? coins.find((coin) => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+        if (result.method === "deposit") {
+          return {
+            method: "deposit",
+            id: ERC20MethodIds.deposit,
+            coin: coin,
+            amount: +amount / 10 ** coin.decimals,
+            to: "0x" + result.inputs[2],
+            tags: theTags,
+          };
+        } else if (result.method === "withdraw") {
+          return {
+            method: "withdraw",
+            id: ERC20MethodIds.withdraw,
+            coin: coin,
+            amount: +amount / 10 ** coin.decimals,
+            to: "0x" + result.inputs[1],
+          };
+        }
+      } 
+      else {
         return {
           method: "unknown",
           address: transaction.to,

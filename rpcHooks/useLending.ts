@@ -377,13 +377,13 @@ export default function useLending(account: IAccount) {
 
             const erc20 = await ERC20
             const element = currency;
-            const contract = new web3.eth.Contract(erc20 as AbiItem[], element.contractAddress)
+            const contract = new web3.eth.Contract(erc20 as AbiItem[], element.address)
             const weiBalance = await contract.methods.balanceOf(account.address).call()
             const balance = fromMinScale(weiBalance)
             const price = currencies[element.name].priceUSD
-            const celoPerToken = await getPrice(element.contractAddress)
-            const data = await getUserAccountData(element.contractAddress)
-            const coinData = await getReserveData(element.contractAddress)
+            const celoPerToken = await getPrice(element.address)
+            const data = await getUserAccountData(element.address)
+            const coinData = await getReserveData(element.address)
             const lendingBalance = fromMinScale(data.currentATokenBalance)
             const loanBalance = parseFloat(fromMinScale(data.currentStableDebt)) + parseFloat(fromMinScale(data.currentVariableDebt))
             const maxBorrow = await getBorrowLimit()

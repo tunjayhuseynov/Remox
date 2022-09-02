@@ -94,7 +94,7 @@ export default async function Send(
                 const coin = coins[requests[0].coin]
                 return res.json({
                     data: data,
-                    destination: coin.contractAddress
+                    destination: coin.address
                 })
             }
         }

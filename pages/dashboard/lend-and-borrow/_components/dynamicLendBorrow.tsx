@@ -27,9 +27,9 @@ const DynamicLendBorrow = ({ type }: { type: "lend" | "borrow" }) => {
     let data = userData.filter(s => type === "lend" ? s.lendingBalance !== 0 : s.loanBalance !== 0)
     let defaultValue = userData.find(s => s.currency.name === "cUSD")
     return <div className={` ${data.length > 1 ? "grid grid-cols-2 gap-10" : ""} `}>
-        {data.map((box) => <Card key={box.currency.contractAddress} box={box} type={type} />)}
+        {data.map((box) => <Card key={box.currency.address} box={box} type={type} />)}
         {
-            data.length === 0 && defaultValue && <Card key={defaultValue.currency.contractAddress} box={defaultValue} type={type} />
+            data.length === 0 && defaultValue && <Card key={defaultValue.currency.address} box={defaultValue} type={type} />
         }
         {initLoading && <div className="flex items-center justify-center"><Loader /></div>}
     </div>

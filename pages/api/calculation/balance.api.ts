@@ -80,7 +80,7 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType) => {
     try {
         if (blockchain.name === 'celo') {
-            const ethers = await kit.contracts.getErc20(item.contractAddress);
+            const ethers = await kit.contracts.getErc20(item.address);
             let balance = await ethers.balanceOf(addressParams);
             return new BigNumber(balance).div(item.decimals).toNumber()
         } else if (blockchain.name === 'solana') {
@@ -88,7 +88,7 @@ const GetBalance = async (item: AltCoins, addressParams: string, blockchain: Blo
             if (item.type === TokenType.GoldToken) {
                 token = new BigNumber(await connection.getBalance(new PublicKey(addressParams))).div(item.decimals).toNumber()
             } else {
-                const tok = new BigNumber(await spl.mint.getBalance(connection, new PublicKey(item.contractAddress), new PublicKey(addressParams))).div(item.decimals).toNumber()
+                const tok = new BigNumber(await spl.mint.getBalance(connection, new PublicKey(item.address), new PublicKey(addressParams))).div(item.decimals).toNumber()
                 // lamports = await connection.getTokenAccountsByOwner(publicKey, {programId: new PublicKey(item.contractAddress)})
                 token = tok ?? 0
             }
