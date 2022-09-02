@@ -6,7 +6,7 @@ import { hexToNumberString, hexToUtf8 } from "web3-utils";
 import { AltCoins, Coins, CoinsName } from "types";
 import { selectTags } from "redux/slices/tags";
 import useWalletKit from "./walletSDK/useWalletKit";
-import Web3 from "web3";
+import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "pages/api/tags/index.api";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import InputDataDecoder from "ethereum-input-data-decoder";
@@ -367,14 +367,17 @@ export const EvmInputReader = async (
           result.inputs[1][5]._hex
         ).toString();
 
+        const coins: AltCoins[] = Object.values(Coins);
+
+
         return {
           method: "swap",
           id: ERC20MethodIds.swap,
           amountIn: amountIn,
           amountOutMin: amountOutMin,
           from: transaction.from,
-          coinIn: result.inputs[1][0],
-          coinOutMin: result.inputs[1][1],
+          coinIn: coins.find((coin) => coin.contractAddress === result.inputs[1][0])!,
+          coinOutMin: coins.find((coin) => coin.contractAddress === result.inputs[1][1])!,
           tags: theTags,
         };
       } else if (blockchain.lendingProtocols.find((lend) => lend.contractAddress.toLowerCase() === transaction.to.toLowerCase())) {
