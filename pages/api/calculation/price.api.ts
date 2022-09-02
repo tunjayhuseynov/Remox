@@ -1,4 +1,4 @@
-import { BASE_URL } from "utils/api";
+import { BASE_URL, IPrice } from "utils/api";
 import axios from "axios";
 import { Balance } from "hooks/useCalculation";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -13,12 +13,21 @@ export interface IPriceCoin {
     amount: number;
     percent: number;
     tokenPrice: number;
+
+    name: string;
+    coinUrl: string;
+    type: TokenType;
+    address: string;
+    color: string;
+    decimals: number;
+    chainID: number;
+    logoURI: string;
+    priceUSD: number;
+    symbol: string;
 }
 
 export interface IPriceResponse {
-    AllPrices: {
-        [name: string]: IPriceCoin;
-    },
+    AllPrices: IPrice,
     TotalBalance: number
 }
 
@@ -43,6 +52,8 @@ export default async function handler(
                 blockchain: blockchain.name,
             }
         })
+        console.log(balance);
+        
 
         const AllPrices = await ParseAllPrices(fetchCurrenices, balance.data, blockchain)
         const totalPrice = Total(fetchCurrenices, balance.data)
@@ -52,7 +63,6 @@ export default async function handler(
             TotalBalance: totalPrice
         })
     } catch (error) {
-        res.json(error as any)
         throw new Error((error as any).message)
     }
 }
@@ -65,6 +75,8 @@ const ParseAllPrices = async (fetchedCurrencies: AltCoins[], balance: Balance, b
         a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;
         return a;
     }, {} as { [name: string]: AltCoins })
+    console.log(blockchain.currencyCollectionName);
+
     return fetchedCurrencies.filter(s => Coins[s.symbol as unknown as keyof Coins]).sort((a, b) => {
         const aa = Coins[a.symbol as unknown as keyof Coins]
         const bb = Coins[b.symbol as unknown as keyof Coins]
@@ -74,16 +86,18 @@ const ParseAllPrices = async (fetchedCurrencies: AltCoins[], balance: Balance, b
             if (aa.type !== bb.type && aa.type === TokenType.Altcoin) return 1
         }
         return 0
-    }).reduce<{ [name: string]: { coins: AltCoins, per_24: number, price: number, amount: number, percent: number, tokenPrice: number } }>((a: any, c) => {
-        const amount = parseFloat((balance?.[c.name]) ?? "0");
+    }).reduce<IPrice>((a: any, c) => {
+        const amount = parseFloat((balance?.[c.symbol]) ?? "0");
         const price = c.priceUSD * amount;
-        a[c.name] = {
+        const obj : IPrice[0] = {
             coins: Coins[c.symbol as unknown as keyof Coins],
-            price,
+            amountUSD: price,
             amount,
             percent: (price * 100) / Total(fetchedCurrencies, balance),
-            tokenPrice: c.priceUSD
-        }
+            tokenPrice: c.priceUSD,
+            ...c
+        };
+        a[c.name] = obj;
         return a;
     }, {})
 }

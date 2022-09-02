@@ -217,17 +217,13 @@ const ParseTxs = async (
 
     const FormattedTransaction: IFormattedTransaction[] = [];
 
-    const anyArr: any[] = [];
-
-    const groupedHash = _(result).groupBy("hash").value();
-    
-
-    const uniqueHashs = Object.values(groupedHash).reduce(
-      (acc: Transactions[], value: Transactions[]) => {
-        const best = _(value).maxBy((o) => {          
-          return +o.value;
-        });
-        if (best) acc.push(best);
+  const groupedHash = _(result).groupBy("hash").value();
+  const uniqueHashs = Object.values(groupedHash).reduce(
+    (acc: Transactions[], value: Transactions[]) => {
+      const best = _(value).maxBy((o) =>
+        +o.value
+      );
+      if (best) acc.push(best);
 
         return acc;
       },

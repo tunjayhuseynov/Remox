@@ -6,9 +6,9 @@ export interface AltCoins {
   name: string;
   coinUrl: string;
   type: TokenType;
+  address: string;
   color: string;
   decimals: number;
-  address: string;
   chainID: number;
   logoURI: string;
   priceUSD: number;

@@ -9,6 +9,11 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { Mainnet } from "@celo/react-celo";
 import BigNumber from "bignumber.js";
 import { adminApp } from "firebaseConfig/admin";
+import Web3 from 'web3'
+import erc20 from 'rpcHooks/ABI/erc20.json'
+import { AbiItem } from "rpcHooks/ABI/AbiItem";
+import { DecimalConverter } from "utils/api";
+import BN from "bn.js";
 
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
@@ -25,7 +30,7 @@ export default async function handler(
         const addresses = req.query["addresses[]"];
         const blockchainName = req.query.blockchain as BlockchainType["name"];
         const blockchain = Blockchains.find(b => b.name === blockchainName);
-        if(!blockchain) throw new Error("Blockchain not found");
+        if (!blockchain) throw new Error("Blockchain not found");
 
         let parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
@@ -46,7 +51,7 @@ export default async function handler(
 const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) => {
     const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
     const Coins = CoinsReq.docs.map(doc => doc.data() as AltCoins)
-    
+
     let balances: { [name: string]: string } = {};
     if (addresses.length > 1) {
         for (const addressItem of addresses) {
@@ -55,10 +60,10 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 
                 let altcoinBalance = await GetBalance(item, addressItem, blockchain)
 
-                if (!balances[item.name]) {
-                    balances = Object.assign(balances, { [item.name]: altcoinBalance })
+                if (!balances[item.symbol]) {
+                    balances = Object.assign(balances, { [item.symbol]: altcoinBalance?.toString() })
                 } else {
-                    balances[item.name] = `${Number(balances[item.name]) + Number(altcoinBalance)}`
+                    balances[item.symbol] = `${Number(balances[item.symbol]) + Number(altcoinBalance)}`
                 }
             }
         }
@@ -80,9 +85,10 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType) => {
     try {
         if (blockchain.name === 'celo') {
-            const ethers = await kit.contracts.getErc20(item.address);
-            let balance = await ethers.balanceOf(addressParams);
-            return new BigNumber(balance).div(item.decimals).toNumber()
+            const web3 = new Web3(blockchain.rpcUrl)            
+            const ethers = new web3.eth.Contract(erc20 as AbiItem[], item.address);
+            let balance = await ethers.methods.balanceOf(addressParams).call();
+            return DecimalConverter(balance.toString(), item.decimals)
         } else if (blockchain.name === 'solana') {
             let token;
             if (item.type === TokenType.GoldToken) {
@@ -96,7 +102,7 @@ const GetBalance = async (item: AltCoins, addressParams: string, blockchain: Blo
         }
         return 0;
     } catch (error: any) {
-        console.error(item?.name, error.message)
-        throw new Error(error.message)
+        console.error("Balance API: ", item?.name, error)
+        // throw new Error("Balance API:", error)
     }
 } 
