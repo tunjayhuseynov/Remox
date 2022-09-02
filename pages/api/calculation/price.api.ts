@@ -52,7 +52,6 @@ export default async function handler(
                 blockchain: blockchain.name,
             }
         })
-        console.log(balance);
         
 
         const AllPrices = await ParseAllPrices(fetchCurrenices, balance.data, blockchain)
@@ -67,30 +66,29 @@ export default async function handler(
     }
 }
 
-const Total = (fetchedCurrencies: AltCoins[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.name]) ?? "0")), 0)
+const Total = (fetchedCurrencies: AltCoins[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.symbol]) ?? "0")), 0)
 
 const ParseAllPrices = async (fetchedCurrencies: AltCoins[], balance: Balance, blockchain: BlockchainType) => {
-    const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
-    const Coins = CoinsReq.docs.reduce((a, c) => {
-        a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;
-        return a;
-    }, {} as { [name: string]: AltCoins })
-    console.log(blockchain.currencyCollectionName);
+    // const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
+    // const Coins = CoinsReq.docs.reduce((a, c) => {
+    //     a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;
+    //     return a;
+    // }, {} as { [name: string]: AltCoins })
 
-    return fetchedCurrencies.filter(s => Coins[s.symbol as unknown as keyof Coins]).sort((a, b) => {
-        const aa = Coins[a.symbol as unknown as keyof Coins]
-        const bb = Coins[b.symbol as unknown as keyof Coins]
+    return fetchedCurrencies.sort((a, b) => {
+        const aa = a
+        const bb = b
         if (aa && bb) {
             if (aa.type !== bb.type && aa.type === TokenType.GoldToken) return -1
             if (aa.type !== bb.type && aa.type === TokenType.StableToken && bb.type === TokenType.Altcoin) return -1
             if (aa.type !== bb.type && aa.type === TokenType.Altcoin) return 1
         }
         return 0
-    }).reduce<IPrice>((a: any, c) => {
+    }).reduce<IPrice>((a, c) => {
         const amount = parseFloat((balance?.[c.symbol]) ?? "0");
         const price = c.priceUSD * amount;
         const obj : IPrice[0] = {
-            coins: Coins[c.symbol as unknown as keyof Coins],
+            coins: c,
             amountUSD: price,
             amount,
             percent: (price * 100) / Total(fetchedCurrencies, balance),

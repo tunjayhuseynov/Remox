@@ -376,8 +376,8 @@ export const EvmInputReader = async (
           amountIn: amountIn,
           amountOutMin: amountOutMin,
           from: transaction.from,
-          coinIn: coins.find((coin) => coin.contractAddress === result.inputs[1][0])!,
-          coinOutMin: coins.find((coin) => coin.contractAddress === result.inputs[1][1])!,
+          coinIn: coins.find((coin) => coin.address === result.inputs[1][0])!,
+          coinOutMin: coins.find((coin) => coin.address === result.inputs[1][1])!,
           tags: theTags,
         };
       } else if (blockchain.lendingProtocols.find((lend) => lend.contractAddress.toLowerCase() === transaction.to.toLowerCase())) {

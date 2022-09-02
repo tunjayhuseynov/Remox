@@ -3,7 +3,7 @@ import { SetComma } from "utils";
 
 
 
-const CoinItem = ({ title, coin, usd, percent, rate, img, setSelectcoin, selectcoin, onClick }: { title: string, coin: number, usd: number, percent: string, rate?: number, img: string, setSelectcoin: React.Dispatch<React.SetStateAction<string>>, selectcoin: string, onClick: MouseEventHandler }) => {
+const CoinItem = ({ title, coin, usd, percent, img, setSelectcoin, selectcoin, onClick }: { title: string, coin: number, usd: number, percent: string, img: string, setSelectcoin: React.Dispatch<React.SetStateAction<string>>, selectcoin: string, onClick: MouseEventHandler }) => {
     return <div className={`py-2 pl-2 gap-2 pr-5 flex items-center w-full cursor-pointer rounded-xl ${selectcoin === title && "shadow-[1px_1px_8px_3px_#dad8d8] dark:shadow-[1px_1px_14px_2px_#0000008f] dark:bg-[#292929]"}  bg-white dark:bg-darkSecond `} onClick={onClick}>
 
         <div className="flex justify-between w-full">

@@ -1,7 +1,6 @@
-import { FirestoreRead, FirestoreReadMultiple } from "rpcHooks/useFirebase";
+import { FirestoreReadMultiple } from "rpcHooks/useFirebase";
 import axios from "axios";
 import { IUser } from "firebaseConfig";
-import { Balance } from "hooks/useCalculation";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BASE_URL } from "utils/api";
 import { IPriceResponse } from "./calculation/price.api";
@@ -39,7 +38,7 @@ export default async function handler(
             }
         })
         const coins = Object.values(prices.data.AllPrices).reduce<any>((a, c, i) => {
-            a[c.coins.name] = c.amount * c.price;
+            a[c.coins.name] = c.amount * c.priceUSD;
             return a;
         }, {})
         const csv = json2csv.parse({

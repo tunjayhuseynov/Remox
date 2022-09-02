@@ -20,6 +20,7 @@ interface IProp<T> {
     className?: string,
     selectClass?: string,
     label?: string,
+    displaySelector?: string,
     selected?: T,
     list: Array<T>,
     setSelect?: Dispatch<T>,
@@ -29,16 +30,18 @@ interface IProp<T> {
 }
 
 interface IGenericExtendedProp {
+    [name: string]: any,
     name: string | number,
     displayName?: string,
     onClick?: Function,
     image?: string,
     coinUrl?: CoinsURL,
     logoUrl?: string,
+    logoURI?: string,
     secondValue?: string | number
 }
 
-const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass }: IProp<T>) => {
+const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
 
@@ -62,8 +65,9 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                             <div className="flex items-center">
                                 {selected.coinUrl && <img className="w-4 h-4 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
+                                {selected.logoURI && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
                                 {selected.image && <img className="w-4 h-4 mr-2" src={`${selected.image}`} />}
-                                <span className={`${textClass} text-lg font-sans font-semibold`}>{selected.displayName ?? selected.name}</span>
+                                <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
                             </div>
                             {selected.secondValue && <span className="text-[.75rem]">{selected.secondValue}</span>}
                         </div>
@@ -83,6 +87,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                         return <MenuItem key={e.name} value={e as any} className="flex items-center">
                             {e.coinUrl && <img className="w-4 h-4 mr-2" src={`${e.coinUrl}`} />}
                             {e.logoUrl && <img className="w-4 h-4 mr-2" src={`${e.logoUrl}`} />}
+                            {e.logoURI && <img className="w-4 h-4 mr-2" src={`${e.logoURI}`} />}
                             {e.image && <img className="w-4 h-4 mr-2" src={`${e.image}`} />}
                             <span>{e.displayName ?? e.name}</span>
                         </MenuItem>

@@ -117,9 +117,6 @@ const Assets = () => {
                                 <div className="hidden sm:block font-semibold" >
                                     ${(item[1].tokenPrice || 0).toFixed(2)}
                                 </div>
-                                <div className="hidden sm:block font-semibold" >
-                                    {(item[1].per_24 || 0).toFixed(2)}%
-                                </div>
                                 <div className="font-semibold flex justify-self-end xl:block pr-1 xl:pr-2" >
                                     ${(item[1].amount * item[1].tokenPrice).toFixed(2)}
                                 </div>
@@ -140,7 +137,6 @@ const Assets = () => {
                             <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl">Asset</div>
                             <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl">Balance</div>
                             <div className="hidden font-semibold text-greylish dark:text-white sm:block sm:text-xl">Price</div>
-                            <div className="hidden font-semibold text-greylish dark:text-white sm:block sm:text-xl">24h</div>
                             <div className="text-sm font-semibold text-greylish dark:text-white sm:text-xl pl-2">Value</div>
                         </div>
                         {Object.entries(yieldTokens!).map((item, index) => {                     
@@ -156,9 +152,6 @@ const Assets = () => {
                                 </div>
                                 <div className="hidden sm:block font-semibold" >
                                     ${(item[1].tokenPrice || 0).toFixed(2)}
-                                </div>
-                                <div className="hidden sm:block font-semibold" >
-                                    {(item[1].per_24 || 0).toFixed(2)}%
                                 </div>
                                 <div className="font-semibold flex justify-self-end xl:block pr-1 xl:pr-2" >
                                     ${(item[1].amount * item[1].tokenPrice).toFixed(2)}

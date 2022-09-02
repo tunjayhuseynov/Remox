@@ -8,7 +8,6 @@ import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { useSelector } from "react-redux";
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
-import { IAccount } from "firebaseConfig";
 import { useRouter } from "next/router";
 import { IAccountORM } from "pages/api/account/index.api";
 
@@ -110,7 +109,6 @@ function AllWallets({ item }: { item: IAccountORM }) {
                                             coin={item.amount}
                                             usd={((item.tokenPrice ?? 0) * item.amount)}
                                             percent={(item.percent || 0).toFixed(1)}
-                                            rate={item.per_24}
                                             img={item.coins.coinUrl}
                                         />
                                     </div>

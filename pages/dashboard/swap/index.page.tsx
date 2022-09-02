@@ -212,10 +212,11 @@ const Swap = () => {
                                             setToken2(token1)
                                         }
                                     }}
-                                    parentClass=" bg-white dark:bg-darkSecond rounded-md"
-                                    setSelect={setToken1}
+                                    parentClass="bg-white dark:bg-darkSecond rounded-md"
+                                    setSelect={setToken1 as any}
                                     className="border-none py-2 space-x-4 text-sm"
-                                    selected={token1}
+                                    selected={token1 as any}
+                                    displaySelector={"symbol"}
                                     list={Object.values(GetCoins)} />
                             </div>
                             <div>
@@ -266,9 +267,10 @@ const Swap = () => {
                                     }}
                                     label="Token"
                                     parentClass=" bg-white dark:bg-darkSecond rounded-md"
-                                    setSelect={setToken2}
+                                    setSelect={setToken2 as any}
                                     className="border-none py-2 space-x-4 text-sm"
-                                    selected={token2}
+                                    selected={token2 as any}
+                                    displaySelector={"symbol"}
                                     list={Object.values(GetCoins)} />
                             </div>
                             <div>
