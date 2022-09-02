@@ -36,7 +36,7 @@ export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string, 
         const coin = coins[tx.coin]
         const data = await GenerateTx({ ...inputArr[i] }, from, coins)
         arr.push({
-            destination: coin.contractAddress,
+            destination: coin.address,
             value: "0",
             data: data,
         })
@@ -68,7 +68,7 @@ export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPa
     }
 
     const Coin = coins[coin]
-    let token = new web3.eth.Contract(ERC20 as AbiItem[], Coin.contractAddress);
+    let token = new web3.eth.Contract(ERC20 as AbiItem[], Coin.address);
     let currentBalance = await token.methods.balanceOf(fromAddress).call();
     let celoBalance = fromWei(currentBalance)
 
@@ -87,10 +87,10 @@ export const GenerateSwapData = async (swap: ISwap) => {
     const provider = new CeloProvider('https://forno.celo.org')
 
 
-    let inputAddress = swap.inputCoin.contractAddress;
+    let inputAddress = swap.inputCoin.address;
     const input = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(inputAddress), provider);
 
-    let outputAddress = swap.outputCoin.contractAddress;
+    let outputAddress = swap.outputCoin.address;
     const output = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(outputAddress), provider);
 
 

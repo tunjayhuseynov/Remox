@@ -32,7 +32,7 @@ export const TxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: Bloc
 
         const txRes = InputReader(data, {
             transaction: GenerateTransaction({
-                tokenSymbol: coins.find(s => s.contractAddress.toLowerCase() === multisigTx.destination.toLowerCase())?.name,
+                tokenSymbol: coins.find(s => s.address.toLowerCase() === multisigTx.destination.toLowerCase())?.name,
             }), tags: [], Coins: coins.reduce<Coins>((a, c) => {
                 a[c.symbol] = c;
                 return a;

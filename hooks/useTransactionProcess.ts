@@ -170,7 +170,7 @@ export const InputReader = (
       ).toString(),
       coinIn: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(input.length - 64 - 64, input.length - 64)
@@ -179,7 +179,7 @@ export const InputReader = (
       )!,
       coinOutMin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(input.length - 64, input.length)
@@ -198,7 +198,7 @@ export const InputReader = (
       coins.push({
         coinAddress: Object.values(Coins).find(
           (s) =>
-            s.contractAddress.toLowerCase() ===
+            s.address.toLowerCase() ===
             "0x" +
               input
                 .slice(330 + indexable, 330 + indexable + 64)
@@ -259,7 +259,7 @@ export const InputReader = (
       id: ERC20MethodIds.borrow,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -284,7 +284,7 @@ export const InputReader = (
       id: ERC20MethodIds.deposit,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -305,7 +305,7 @@ export const InputReader = (
       id: ERC20MethodIds.withdraw,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)
@@ -326,7 +326,7 @@ export const InputReader = (
       id: ERC20MethodIds.repay,
       coin: coins.find(
         (s) =>
-          s.contractAddress.toLowerCase() ===
+          s.address.toLowerCase() ===
           "0x" +
             input
               .slice(len, len + 64)

@@ -96,9 +96,9 @@ function AllWallets({ item }: { item: IAccountORM }) {
                             <div className="flex flex-col  w-full" ref={customRef}>
 
                                 {[...item.coins].sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
-                                    return <div className="border-b dark:border-greylish w-full" key={item.coins.contractAddress} >
+                                    return <div className="border-b dark:border-greylish w-full" key={item.coins.address} >
                                         <CoinItem
-                                            key={item.coins.contractAddress + item.coins.name}
+                                            key={item.coins.address + item.coins.name}
                                             setSelectcoin={setSelectcoin}
                                             onClick={() => {
                                                 if (item.amount) {

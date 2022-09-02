@@ -128,9 +128,7 @@ export default async function handler(
         })
     } catch (error) {
         console.error((error as any).message)
-        res.status(500).json({
-            "message": (error as any).message
-        } as any)
+        throw new Error(error as any)
     }
 }
 
@@ -146,13 +144,13 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                 const tx = transaction as ITransfer;
                 sum.push({
                     coin: tx.rawData.tokenSymbol,
-                    totalSpending: new BigNumber(tx.amount).div(tx.coin.decimals).toNumber(),
+                    totalSpending: DecimalConverter(tx.amount, tx.coin.decimals),
                 })
             }
             if (transaction.id === ERC20MethodIds.noInput) {
                 sum.push({
                     coin: transaction.rawData.tokenSymbol,
-                    totalSpending: new BigNumber(transaction.rawData.value).div(currencies[transaction.rawData.tokenSymbol].coins.decimals).toNumber(),
+                    totalSpending: DecimalConverter(transaction.rawData.value, currencies[transaction.rawData.tokenSymbol].coins.decimals),
                 })
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
@@ -185,16 +183,16 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
             if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                 const tx = transaction as ITransfer;
-                average += (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                average += (DecimalConverter(tx.amount, tx.coin.decimals) * tx.coin.priceUSD ?? 1);
             }
             if (transaction.id === ERC20MethodIds.noInput) {
-                const decimals = Object.values(currencies).find(s => s.coins.address.toLowerCase() === transaction.rawData.to.toLowerCase())!.coins.decimals
-                average += (DecimalConverter(transaction.rawData.value, decimals) * Number(currencies[transaction.rawData.tokenSymbol]?.price ?? 1));
+                const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === transaction.rawData.to.toLowerCase())!.coins
+                average += (DecimalConverter(transaction.rawData.value, coin.decimals) * Number(coin.priceUSD ?? 1));
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
-                    average += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                    average += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.priceUSD ?? 1));
                 })
             }
         }
@@ -208,85 +206,89 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
 }
 
 const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance: number, selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
-    let myin = 0;
-    let myout = 0;
-    const calendarOut: {
-        [key: string]: number
-    } = {}
-    const calendarIn: {
-        [key: string]: number
-    } = {}
+    try {
+        let myin = 0;
+        let myout = 0;
+        const calendarOut: {
+            [key: string]: number
+        } = {}
+        const calendarIn: {
+            [key: string]: number
+        } = {}
 
-    let TotalInOut: {
-        [key: string]: number
-    } = {}
+        let TotalInOut: {
+            [key: string]: number
+        } = {}
 
-    const stringTime = (time: Date) => `${time.getMonth() + 1}/${time.getDate()}/${time.getFullYear()}`
+        const stringTime = (time: Date) => `${time.getMonth() + 1}/${time.getDate()}/${time.getFullYear()}`
 
-    transactions.forEach(t => {
-        const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
-        const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
-        const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
-        const sTime = stringTime(tTime)
-        if (tDay <= selectedDay) {
-            let calc = 0;
-            if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
-                const tx = t as ITransfer;
-                const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
-                if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
-                else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
-                calc += current;
-            }
-            if (t.id === ERC20MethodIds.noInput) {
-                const decimals = Object.values(currencies).find(s => s.coins.address.toLowerCase() === t.rawData.to.toLowerCase())!.coins.decimals
-                const current = (DecimalConverter(t.rawData.value, decimals) * Number(currencies[t.rawData.tokenSymbol]?.price ?? 1))
-                if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
-                else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
-                calc += current;
-            }
-            if (t.id === ERC20MethodIds.batchRequest) {
-                const tx = t as IBatchRequest;
-                tx.payments.forEach(transfer => {
-                    const current = (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+        transactions.forEach(t => {
+            const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
+            const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
+            const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
+            const sTime = stringTime(tTime)
+            if (tDay <= selectedDay) {
+                let calc = 0;
+                if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
+                    const tx = t as ITransfer;
+                    const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.rawData.tokenSymbol]?.priceUSD ?? 1));
                     if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
                     else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                     calc += current;
-                })
+                }
+                if (t.id === ERC20MethodIds.noInput) {
+                    const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === t.rawData.to.toLowerCase())!.coins
+                    const current = (DecimalConverter(t.rawData.value, coin.decimals) * coin.priceUSD ?? 1)
+                    if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                    else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
+                    calc += current;
+                }
+                if (t.id === ERC20MethodIds.batchRequest) {
+                    const tx = t as IBatchRequest;
+                    tx.payments.forEach(transfer => {
+                        const current = (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.priceUSD ?? 1));
+                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                        else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
+                        calc += current;
+                    })
+                }
+                if (isOut) {
+                    TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] - calc : -1 * calc;
+                    myout += calc
+                } else {
+                    TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] + calc : calc;
+                    myin += calc
+                }
             }
-            if (isOut) {
-                TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] - calc : -1 * calc;
-                myout += calc
-            } else {
-                TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] + calc : calc;
-                myin += calc
-            }
+        })
+        let tv = TotalBalance;
+        const totalInOut = Object.entries(TotalInOut)
+        TotalInOut = totalInOut.reduce<{ [name: string]: number }>((a, [key, value]) => {
+            tv += value;
+            a[key] = tv;
+            return a;
+        }, {})
+
+        const currTime = stringTime(new Date());
+        if (!TotalInOut[currTime]) TotalInOut[stringTime(new Date())] = TotalBalance;
+        if (totalInOut.length === 0) {
+            TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
+            TotalInOut[stringTime(new Date())] = TotalBalance;
         }
-    })
-    let tv = TotalBalance;
-    const totalInOut = Object.entries(TotalInOut)
-    TotalInOut = totalInOut.reduce<{ [name: string]: number }>((a, [key, value]) => {
-        tv += value;
-        a[key] = tv;
-        return a;
-    }, {})
 
-    const currTime = stringTime(new Date());
-    if (!TotalInOut[currTime]) TotalInOut[stringTime(new Date())] = TotalBalance;
-    if (totalInOut.length === 0) {
-        TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
-        TotalInOut[stringTime(new Date())] = TotalBalance;
-    }
-
-    return {
-        AccountIn: {
-            total: myin,
-            ...calendarIn
-        },
-        AccountOut: {
-            total: myout,
-            ...calendarOut
-        },
-        TotalInOut
+        return {
+            AccountIn: {
+                total: myin,
+                ...calendarIn
+            },
+            AccountOut: {
+                total: myout,
+                ...calendarOut
+            },
+            TotalInOut
+        }
+    } catch (error) {
+        throw new Error(error as any)
     }
 }
 
@@ -313,7 +315,7 @@ const TotalBalanceChangePercent = (currencies: IPrice) => {
         let indexable = 0;
         const per = currencObj.reduce((a, c, index) => {
             if (c.amount > 0) {
-                a += c.per_24
+                a += c.percent
                 indexable++
             }
             return a;
@@ -348,16 +350,16 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
                     let amount = 0;
                     if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
                         const txm = tx as ITransfer;
-                        amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.rawData.tokenSymbol]?.price ?? 1));
+                        amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.rawData.tokenSymbol]?.priceUSD ?? 1));
                     }
                     if (tx.id === ERC20MethodIds.noInput) {
-                        const decimals = Object.values(currencies).find(s => s.coins.address.toLowerCase() === tx.rawData.to.toLowerCase())!.coins.decimals
-                        amount += (DecimalConverter(tx.rawData.value, decimals) * Number(currencies[tx.rawData.tokenSymbol]?.price ?? 1));
+                        const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === tx.rawData.to.toLowerCase())!.coins
+                        amount += (DecimalConverter(tx.rawData.value, coin.decimals) * coin.priceUSD ?? 1);
                     }
                     if (tx.id === ERC20MethodIds.batchRequest) {
                         const txm = tx as IBatchRequest;
                         txm.payments.forEach(transfer => {
-                            amount += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.price ?? 1));
+                            amount += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.priceUSD ?? 1));
                         })
                     }
                     if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {

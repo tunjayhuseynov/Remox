@@ -67,7 +67,7 @@ export default async function handler(
 
     res.status(200).json(txList);
   } catch (error) {
-    res.status(405).json(error as any);
+    throw new Error(error as any)
   }
 }
 
@@ -111,7 +111,7 @@ const GetTxs = async (
               token =
                 coins.find(
                   (c) =>
-                    c.contractAddress.toLowerCase() ===
+                    c.address.toLowerCase() ===
                     (arr[index] as any)["parsed"]["info"]["mint"]?.toLowerCase()
                 ) ?? coins.find((c) => c.symbol === "SOL")!;
               amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]
@@ -137,7 +137,7 @@ const GetTxs = async (
           timeStamp: (
             tx?.blockTime ?? Math.floor(new Date().getTime() / 1e3)
           ).toString(),
-          contractAddress: token!.contractAddress ?? "",
+          contractAddress: token!.address ?? "",
           value: amount,
           isError: "0",
           cumulativeGasUsed: "",
@@ -216,7 +216,7 @@ const ParseTxs = async (
   const uniqueHashs = Object.values(groupedHash).reduce(
     (acc: Transactions[], value: Transactions[]) => {
       const best = _(value).maxBy((o) =>
-        DecimalConverter(o.value, o.tokenDecimal)
+        +o.value
       );
       if (best) acc.push(best);
 

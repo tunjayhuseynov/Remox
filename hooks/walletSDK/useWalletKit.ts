@@ -283,7 +283,7 @@ export default function useWalletKit() {
           if (swap) {
             await allow(
               Address,
-              swap.inputCoin.contractAddress,
+              swap.inputCoin.address,
               "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
               swap.amount
             );
@@ -294,7 +294,7 @@ export default function useWalletKit() {
             for (let index = 0; index < approveArr.length; index++) {
               await allow(
                 Address,
-                approveArr[index].coin.contractAddress,
+                approveArr[index].coin.address,
                 Contracts.BatchRequest.address,
                 approveArr[index].amount.toString()
               );
@@ -306,7 +306,7 @@ export default function useWalletKit() {
             for (let index = 0; index < approveArr.length; index++) {
               await allow(
                 Address,
-                approveArr[index].coin.contractAddress,
+                approveArr[index].coin.address,
                 Contracts.Gelato.address,
                 approveArr[index].amount.toString()
               );

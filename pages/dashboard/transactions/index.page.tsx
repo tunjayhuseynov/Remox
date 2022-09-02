@@ -200,7 +200,7 @@ const MultisigTx = forwardRef<HTMLDivElement, { Address: string | undefined, Get
             </div>
         </div> */}
                 {tx.owner ? <div className="truncate pr-10  text-base">{tx.method?.toLowerCase().includes('transfer') ? 'To' : 'Owner'}: {tx.owner}</div> : null}
-                {tx.valueOfTransfer && GetCoins ? <div className="truncate pr-10  text-base">Value: {tx.valueOfTransfer} {(Object.values(GetCoins).find((s: AltCoins) => s.contractAddress.toLowerCase() === tx.destination.toLowerCase()) as AltCoins)?.name}</div> : null}
+                {tx.valueOfTransfer && GetCoins ? <div className="truncate pr-10  text-base">Value: {tx.valueOfTransfer} {(Object.values(GetCoins).find((s: AltCoins) => s.address.toLowerCase() === tx.destination.toLowerCase()) as AltCoins)?.name}</div> : null}
                 {tx.newOwner ? <div className="truncate pr-10  text-base">New Owner: {tx.newOwner}</div> : null}
                 {tx.requiredCount ? <div className="truncate pr-10  text-base">New Signature Threshold: {+tx.requiredCount}</div> : null}
             </div>

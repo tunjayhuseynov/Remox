@@ -24,8 +24,8 @@ export async function solanaInstructions(coins: Coins, accountId: string, public
             routeCacheDuration: 10_000, // Will not refetch data on computeRoutes for up to 10 seconds
         });
         const routes = await jupiter.computeRoutes({
-            inputMint: new PublicKey(swap.inputCoin.contractAddress), // Mint address of the input token
-            outputMint: new PublicKey(swap.outputCoin.contractAddress), // Mint address of the output token
+            inputMint: new PublicKey(swap.inputCoin.address), // Mint address of the input token
+            outputMint: new PublicKey(swap.outputCoin.address), // Mint address of the output token
             amount: JSBI.BigInt(parseFloat(swap.amount) * (10 ** swap.inputCoin.decimals!)), // raw input amount of tokens
             slippage: parseFloat(swap.slippage), // The slippage in % terms
             forceFetch: false // false is the default value => will use cache if not older than routeCacheDuration
@@ -48,7 +48,7 @@ export async function solanaInstructions(coins: Coins, accountId: string, public
 
         const senderAddress = new PublicKey(publicKey);
         const recipientAddress = new PublicKey(recipient);
-        const tokenMintAddress = new PublicKey(solanaCoin.contractAddress);
+        const tokenMintAddress = new PublicKey(solanaCoin.address);
 
         const [withdrawEscrowAddress, _] = await PublicKey.findProgramAddress(
             [Buffer.from(WITHDRAW_TOKEN_STRING), senderAddress.toBuffer(), tokenMintAddress.toBuffer()],
@@ -92,5 +92,5 @@ export async function solanaInstructions(coins: Coins, accountId: string, public
         return [ix];
     }
 
-    return await token.transferTokenInstructions(connection, new PublicKey(solanaCoin.contractAddress), from, to, amount)
+    return await token.transferTokenInstructions(connection, new PublicKey(solanaCoin.address), from, to, amount)
 }
