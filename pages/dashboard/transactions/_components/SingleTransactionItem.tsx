@@ -15,19 +15,17 @@ import useTasking from "rpcHooks/useTasking";
 import { selectTags } from "redux/slices/tags";
 import { BN } from "utils/ray";
 import { useWalletKit } from "hooks";
-import { useRouter } from "next/router";
-import Details from "pages/dashboard/transactions/_components/details";
+import SingleTxDetails from "pages/dashboard/transactions/_components/SingleTxDetails";
 import dateFormat from "dateformat";
 import Dropdown from "components/general/dropdown";
-import { DropDownItem, TransactionDirection } from "types";
+import { TransactionDirection } from "types";
 import { useAppSelector } from "redux/hooks";
 import { AddressReducer } from "utils";
-import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { SelectAccounts, SelectAllBudgets, SelectCurrencies } from "redux/slices/account/selector";
 import { DecimalConverter } from "utils/api";
 import { IBudget } from "firebaseConfig";
 
-const TransactionItem = ({
+const SingleTransactionItem = ({
   transaction,
   isMultiple,
   direction,
@@ -35,7 +33,7 @@ const TransactionItem = ({
   date,
 }: {
   date: string;
-  transaction: IFormattedTransaction | ITransactionMultisig;
+  transaction: IFormattedTransaction;
   isMultiple?: boolean;
   direction?: TransactionDirection;
   status: string;
@@ -53,7 +51,6 @@ const TransactionItem = ({
   const [IsMultiple, setIsMultiple] = useState(isMultiple);
   const { GetCoins } = useWalletKit();
 
-  const isMultisig = "destination" in transaction;
 
   const budgets = useAppSelector(SelectAllBudgets);
   const [selectedBudget, setSelectedPayment] = useState<IBudget | null>(transaction.budget ?? null);
@@ -70,21 +67,13 @@ const TransactionItem = ({
       ERC20MethodIds.withdraw,
       ERC20MethodIds.repay,
     ].indexOf(
-      isMultisig
-        ? ERC20MethodIds[
-        (Transaction as ITransactionMultisig)
-          .method as keyof typeof ERC20MethodIds
-        ]
-        : (Transaction as IFormattedTransaction).id
+      (Transaction as IFormattedTransaction).id
     ) > -1;
-  let peer = isMultisig
-    ? (Transaction as ITransactionMultisig).owner ?? ""
-    : accounts.includes(
-      (Transaction as IFormattedTransaction).rawData.from.toLowerCase()
-    )
-      ? (Transaction as IFormattedTransaction).rawData.to
-      : (Transaction as IFormattedTransaction).rawData.from;
-  let SwapData;
+  
+    let peer = accounts.includes((Transaction as IFormattedTransaction).rawData.from.toLowerCase()) ?
+    (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
+  
+    let SwapData;
   let TransferData;
   let MultipleData;
   let Comment;
@@ -105,7 +94,7 @@ const TransactionItem = ({
   }
 
   useEffect(() => {
-    if (isAutomation && !isMultisig) {
+    if (isAutomation) {
       (async () => {
         const data = Transaction as IAutomationTransfer;
         const details = await getDetails(data.taskId);
@@ -412,7 +401,7 @@ const TransactionItem = ({
         <div className=" flex justify-end cursor-pointer items-start md:pr-0 gap-5">
           <Button className="shadow-none px-8 py-1 !rounded-md">Sign</Button>
 
-          <Details
+          <SingleTxDetails
             Transaction={Transaction}
             TransferData={TransferData}
             isSwap={isSwap}
@@ -428,5 +417,5 @@ const TransactionItem = ({
     </>
   );
 };
-export default TransactionItem;
+export default SingleTransactionItem;
 //() => router.push(`/dashboard/transactions/details/${Transaction.rawData.hash}`)

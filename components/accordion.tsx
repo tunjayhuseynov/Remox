@@ -6,7 +6,7 @@ import dateFormat from 'dateformat';
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { TransactionDirectionDeclare } from "utils";
 import _ from "lodash";
-import TransactionItem from "pages/dashboard/transactions/_components/transactionItem";
+import SingleTransactionItem from "pages/dashboard/transactions/_components/SingleTransactionItem";
 
 const variants = {
     close: {
@@ -101,7 +101,7 @@ export const ProcessAccordion = (transaction: IFormattedTransaction, accounts: s
     return <Fragment key={transaction.rawData.hash}>
         <Accordion grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
             <div>
-                {TXs.map((s, i) => <TransactionItem key={`${transaction.hash}${i}`} transaction={s} date={transaction.rawData.timeStamp} status={TransactionStatus.Completed} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
+                {TXs.map((s, i) => <SingleTransactionItem key={`${transaction.hash}${i}`} transaction={s} date={transaction.rawData.timeStamp} status={TransactionStatus.Completed} isMultiple={s.id === ERC20MethodIds.batchRequest} />)}
             </div>
         </Accordion>
     </Fragment>

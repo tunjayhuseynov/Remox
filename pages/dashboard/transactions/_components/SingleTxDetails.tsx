@@ -17,19 +17,19 @@ import shortid from 'shortid'
 import useNextSelector from "hooks/useNextSelector";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ITransactionMultisig } from 'hooks/walletSDK/useMultisig';
+import { DecimalConverter } from 'utils/api';
 
 
 interface IFormInput {
     name?: string;
 }
 
-function Details({ Transaction, TransferData, status, time, address, isSwap, isComment, Comment, Type }: { Transaction: IFormattedTransaction | ITransactionMultisig, Type: string | undefined, isSwap: boolean, isComment: boolean, Comment: string | undefined, address: string, time: string, TransferData: ITransfer | undefined, status: string }) {
+function SingleTxDetails({ Transaction, TransferData, status, time, address, isSwap, isComment, Comment, Type }: { Transaction: IFormattedTransaction, Type: string | undefined, isSwap: boolean, isComment: boolean, Comment: string | undefined, address: string, time: string, TransferData: ITransfer | undefined, status: string }) {
     const { register, handleSubmit } = useForm<IFormInput>();
     const MyInputs = useNextSelector(SelectInputs)
     const dispatch = useAppDispatch()
     const [split, setSplit] = useState(false)
 
-    const { GetCoins, fromMinScale } = useWalletKit()
     const [openNotify, setNotify] = useState(false)
 
     const isMultisig = 'destination' in Transaction
@@ -61,7 +61,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
     }, [openNotify])
 
     return <>
-        {split && <Modal onDisable={setSplit} disableX={true} className={'!pt-2 !px-0 cursor-default'}>
+        {/* {split && <Modal onDisable={setSplit} disableX={true} className={'!pt-2 !px-0 cursor-default'}>
             <div className=" py-6 flex flex-col items-center justify-center">
                 <div className="flex flex-col gap-10 justify-center items-center border-b pb-8 mb-8">
                     <div className="text-2xl font-medium px-12">Split Transaction</div>
@@ -96,7 +96,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                         </div>
                     </div>
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center justify-center">
+                {/* <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center justify-center">
                     <div className="flex flex-col w-full pb-8 px-16 gap-8">
                         {MyInputs && MyInputs.map((e, i) => {
                             return <Split key={e.index} incomingIndex={e.index} indexs={i} />
@@ -111,9 +111,9 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                         <Button version="second" className="shadow-none px-10 py-2 !rounded-md" onClick={() => setSplit(false)}>Close</Button>
                         <Button type="submit" className="shadow-none px-10 py-2 !rounded-md">Save</Button>
                     </div>
-                </form>
+                </form> 
             </div>
-        </Modal>}
+        </Modal>} */}
         <div ref={exceptRef} onClick={() => { setNotify(!openNotify) }}>
             <Button version="second" className="shadow-none px-6 py-1 !rounded-md" >Details</Button>
         </div>
@@ -132,7 +132,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                                 <div className="flex">
                                     <div className={`flex items-center justify-center pr-1 text-xl font-medium`}>
                                         <span>
-                                            {BN(fromMinScale(TransferData.amount)).toFixed(2)}
+                                            {DecimalConverter(TransferData.amount, TransferData.coin.decimals).toFixed(2)}
                                         </span>
                                     </div>
                                     <div className={`flex gap-x-1 items-center text-xl font-medium`}>
@@ -152,7 +152,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                                 <div className="flex">
                                     <div className={`flex items-center justify-center pr-1 text-xl font-medium`}>
                                         <span>
-                                            {BN(fromMinScale(TransferData.amount)).toFixed(2)}
+                                            {DecimalConverter(TransferData.amount, TransferData.coin.decimals).toFixed(2)}
                                         </span>
                                     </div>
                                     <div className={`flex gap-x-1 items-center text-xl font-medium`}>
@@ -222,7 +222,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                             </div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Gas fee</div>{TransferData?.coin && <><div className="flex gap-1 items-center">0.001 <img src={TransferData.coin.coinUrl} className="w-4 h-4" alt="" />{TransferData.coin.name ?? "Unknown Coin"}</div></>}</div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Type</div><div>{Type !== undefined && Type}</div></div>
-                            <div className="flex justify-between items-center w-full"><div className="text-greylish">Tx Hash</div><div>{isMultisig ? (Transaction as ITransactionMultisig).hashOrIndex : AddressReducer(Transaction.rawData.hash)}</div></div>
+                            <div className="flex justify-between items-center w-full"><div className="text-greylish">Tx Hash</div><div>{AddressReducer(Transaction.rawData.hash)}</div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Budget</div><div>Marketing</div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Tags</div><div className="flex">{Transaction.tags && Transaction.tags.map((tag, index) => {
                                 return <div key={tag.id} className="flex space-x-1 items-center">
@@ -231,7 +231,7 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
                                 </div>
                             })}</div></div>
                             <div className="flex justify-between items-center w-full"><div className="text-greylish">Description</div><div>Hello paycheck</div></div>
-                            <div className="flex justify-between items-center w-full"><div className="text-primary py-2 px-2 border curosr-pointer border-primary rounded-lg" onClick={() => setSplit(true)}>Split Transaction</div><div></div></div>
+                            {/* <div className="flex justify-between items-center w-full"><div className="text-primary py-2 px-2 border curosr-pointer border-primary rounded-lg" onClick={() => setSplit(true)}>Split Transaction</div><div></div></div> */}
                         </div>
                     </div>
                 </motion.div>}
@@ -239,4 +239,4 @@ function Details({ Transaction, TransferData, status, time, address, isSwap, isC
     </>
 }
 
-export default Details
+export default SingleTxDetails

@@ -32,6 +32,8 @@ import axios from "axios";
 import { AltCoins, Coins, CoinsName } from "types";
 import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
+import { IMultisigThreshold } from "./sign.api";
+import { BASE_URL } from "utils/api";
 
 export default async function handler(
   req: NextApiRequest,
@@ -225,8 +227,8 @@ export default async function handler(
           blockchain,
           timestamp: GetTime(),
           contractAddress: multisigAddress,
-          contractInternalThreshold: contract.internalRequired,
-          contractThreshold: contract.required,
+          contractInternalThreshold: (await contract.internalRequired()).toNumber(),
+          contractThreshold: (await contract.required()).toNumber(),
           contractOwnerAmount: contract.getOwners().length,
           name,
           tags: tags?.tags ?? [],
@@ -253,8 +255,15 @@ export default async function handler(
       const response = await axios.get(api);
       const transactionsData = response.data;
 
+      const { data } = await axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
+        params: {
+          blockchain,
+          address: multisigAddress,
+        }
+      })
+
       for (const tx of transactionsData.results) {
-        const safeTx = parseSafeTransaction(tx, Coins, blockchain);
+        const safeTx = parseSafeTransaction(tx, Coins, blockchain, multisigAddress, data.sign, tags?.tags ?? []);
 
         safeTransactions.push(safeTx!);
       }

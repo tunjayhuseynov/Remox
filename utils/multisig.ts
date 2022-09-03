@@ -62,10 +62,10 @@ export const MultisigTxParser = (
         created_at: created_at,
         contractAddress: contractAddress,
         contractInternalThresholdAmount: contractInternalThreshold,
-        contractOwnerAmount: contractOwnerAmount,
         contractThresholdAmount: contractThreshold,
-        method: data.substring(0, 10),
-        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase())),
+        contractOwnerAmount: contractOwnerAmount,
+        type: data.substring(0, 10),
+        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === txHashOrIndex)),
         budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex === index.toString())) ?? null
     }
 
@@ -87,7 +87,7 @@ export const MultisigTxParser = (
 
     if (!parsedData) {
         let methodId = data.slice(0, 10)
-        obj.method = MethodIds[methodId as keyof typeof MethodIds]
+        obj.type = MethodIds[methodId as keyof typeof MethodIds]
         if (methodId == MethodNames.changeInternalRequirement || methodId == MethodNames.changeRequirement) {
             obj.requiredCount = data.slice(data.length - 2)
         } else {
@@ -103,7 +103,7 @@ export const MultisigTxParser = (
             }
         }
     } else {
-        obj.method = parsedData.method
+        obj.type = parsedData.method
         obj.requiredCount = parsedData.requiredCount?.toString()
         obj.owner = parsedData.owner
         obj.newOwner = parsedData.newOwner
@@ -114,11 +114,14 @@ export const MultisigTxParser = (
     return obj;
 }
 
-export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockchainName: string) => {
+export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, tags: ITag[],) => {
     const coins: AltCoins[] = Object.values(Coins);
     const blockchain = Blockchains.find((b) => b.name === blockchainName);
 
-    if (tx.dataDecoded === null && tx.value !== "0") {
+    if (tx.safe === tx.to) {
+
+    }
+    else if (tx.dataDecoded === null && tx.value !== "0") {
         const coin = coins.find((c) => c.address.toLowerCase() === blockchain?.nativeToken.toLowerCase())!
         const parsedTx: IMultisigSafeTransaction = {
             type: "transfer",
@@ -142,7 +145,10 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
                 to: tx.to,
                 coin: coin,
                 value: tx.value,
-            }
+            },
+            contractAddress: contractAddress,
+            contractThresholdAmount: contractThreshold,
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
         }
 
         return parsedTx
@@ -167,7 +173,9 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
                 dataDecoded: tx.dataDecoded,
             },
             transfer: null,
-
+            contractAddress: contractAddress,
+            contractThresholdAmount: contractThreshold,
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
         }
         return parsedTx
     } else if (tx.dataDecoded !== null && tx.to !== tx.safe) {
@@ -195,6 +203,9 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
                 coin: coin,
                 value: tx.dataDecoded.parameters[1].value,
             },
+            contractAddress: contractAddress,
+            contractThresholdAmount: contractThreshold,
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
         }
 
         return parsedTx
@@ -218,6 +229,9 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
             txType: tx.txType,
             settings: null,
             transfer: null,
+            contractAddress: contractAddress,
+            contractThresholdAmount: contractThreshold,
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
         }
 
         return parsedTx

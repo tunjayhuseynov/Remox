@@ -27,7 +27,7 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 	const direction = accounts.some(a => a.toLowerCase() === (transaction as IFormattedTransaction)['hash'] ?
 		(transaction as IFormattedTransaction).rawData.from.toLowerCase() : (transaction as ITransactionMultisig).owner?.toLowerCase());
 
-	switch ((transaction as IFormattedTransaction)['hash'] ? transaction.id : (transaction as ITransactionMultisig).method) {
+	switch ((transaction as IFormattedTransaction)['hash'] ? transaction.id : (transaction as ITransactionMultisig).type) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionDirection.Swap;
 			break;

@@ -45,11 +45,11 @@ export interface ITransactionMultisig {
     owner?: string,
     newOwner?: string,
     valueOfTransfer?: string,
-    method: string,
+    type: string,
     timestamp: number,
     created_at: number,
     tags: ITag[],
-    budget: IBudget | null
+    budget: IBudget | null,
 }
 
 export interface IMultisigSafeTransaction {
@@ -70,6 +70,9 @@ export interface IMultisigSafeTransaction {
     confirmations: GnosisConfirmation[],
     settings: GnosisSettingsTx | null,
     transfer: GnosisTransferTx | null,
+    contractAddress: string,
+    contractThresholdAmount: number,
+    tags: ITag[],
 } 
 
 export interface GnosisSettingsTx  {
