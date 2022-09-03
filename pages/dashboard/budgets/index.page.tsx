@@ -8,11 +8,11 @@ import { SelectBudgetExercises } from 'redux/slices/account/remoxData';
 import { SetComma } from 'utils';
 import useModalSideExit from '../../../hooks/useModalSideExit'
 import { useRouter } from 'next/router';
+import Button from 'components/button';
 
 const Budgets = () => {
 
     // const { GetCoins } = useWalletKit()
-    const [exercise, setExercise] = useState(false)
     const [isOpen, setOpen] = useState(false)
     const navigate = useRouter()
     const budget_exercises = useAppSelector(SelectBudgetExercises)
@@ -28,14 +28,15 @@ const Budgets = () => {
     return <div className="mb-6 w-full h-full">
         <div className="w-full h-full">
             <div className="flex justify-between items-center w-full">
-                <div className="text-4xl font-bold pb-12">
+                <div className="text-2xl font-bold pb-12">
                     Budgets
                 </div>
+                <Button className="!py-[.5rem] !font-medium !text-lg !px-0 min-w-[9.1rem]">Share Link</Button>
             </div>
-            {!hasExercises && <div className=" rounded-lg   shadow hover:bg-greylish hover:bg-opacity-5 hover:transition-all transition-all  bg-white dark:bg-darkSecond cursor-pointer flex items-center space-x-1 w-[25rem] h-[12.5rem]" onClick={() => { navigate.push('/dashboard/budgets/new-exercise') }} >
-                <div className="mx-auto w-[58%] h-[70%] peer flex flex-col items-center justify-center gap-5" onMouseOver={() => { setExercise(true) }} onMouseOut={() => { setExercise(false) }}>
-                    <div className={`w-[5rem] h-[5rem] ${exercise && 'text-primary !border-primary'} flex items-center justify-center text-5xl text-greylish dark:text-white border-2 border-greylish dark:border-white rounded-full`}>+</div>
-                    <span className={`text-greylish ${exercise && 'text-primary border-primary'}  text-2xl`}>Create Budget Cycle</span>
+            {!hasExercises && <div className="rounded-lg shadow hover:bg-greylish hover:bg-opacity-5 hover:transition-all transition-all  bg-white dark:bg-darkSecond cursor-pointer flex items-center space-x-1 w-[25rem] h-[12.5rem]" onClick={() => { navigate.push('/dashboard/budgets/new-exercise') }} >
+                <div className="mx-auto w-[58%] h-[70%] peer flex flex-col items-center justify-center gap-5 group">
+                    <div className={`w-[5rem] h-[5rem] flex group-hover:text-primary group-hover::dark:text-primary group-hover:border-primary items-center justify-center text-5xl text-greylish dark:text-white border-2 border-greylish dark:border-white rounded-full`}>+</div>
+                    <span className={`text-xl group-hover:text-primary`}>Create Budget Cycle</span>
                 </div>
             </div>}
 
@@ -80,7 +81,7 @@ const Budgets = () => {
                     <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
                 </div>}
                 <div className={` grid grid-cols-2 gap-12`}>
-                    {selectedExercise.budgets.map((item) => <BudgetCard key={item.id} item={item}/>)}
+                    {selectedExercise.budgets.map((item) => <BudgetCard key={item.id} item={item} />)}
                 </div>
             </>}
         </div >

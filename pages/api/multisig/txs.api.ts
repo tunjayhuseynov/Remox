@@ -14,7 +14,7 @@ import {
 } from "@gokiprotocol/client";
 import { BorshInstructionCoder, utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
-import {  GnosisSettingsTx, GnosisTransferTx, MultisigTxParser, parseSafeTransaction } from "utils/multisig";
+import { GnosisSettingsTx, GnosisTransferTx, MultisigTxParser, parseSafeTransaction } from "utils/multisig";
 // import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import { Contract, ethers } from "ethers";
 import Multisig from "rpcHooks/ABI/CeloTerminal.json";
@@ -29,6 +29,8 @@ import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "../tags/index.api";
 import axios from "axios";
 import { AltCoins, Coins, CoinsName } from "types";
+import { IBudget, IBudgetExercise } from "firebaseConfig";
+import { budgetExerciseCollectionName } from "crud/budget_exercise";
 
 export default async function handler(
   req: NextApiRequest,
@@ -201,7 +203,7 @@ export default async function handler(
         total -= skip;
       }
 
-      const GetTx = async (index: number) => {
+      const GetTx = async (index: number, budgets: IBudget[], coins: Coins) => {
         const tx = await contract.transactions(index);
 
         let confirmations: string[] = [];
@@ -226,12 +228,21 @@ export default async function handler(
           contractOwnerAmount: contract.getOwners().length,
           name,
           tags: tags?.tags ?? [],
+          budgets: budgets,
+          coins: coins,
         });
 
         return obj;
       };
+
+      const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", id).get();
+      let budgets: IBudget[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise).reduce<IBudget[]>((acc, curr) => {
+        acc.push(...(curr.budgets as IBudget[]));
+        return acc;
+      }, []);
+
       const list = await Promise.all(
-        Array.from(Array(total).keys()).map((s) => GetTx(total - 1 - s))
+        Array.from(Array(total).keys()).map((s) => GetTx(total - 1 - s, budgets, Coins))
       );
       transactionArray.push(...list);
     } else if (blockchain.includes("evm") && name === "GnosisSafe") {

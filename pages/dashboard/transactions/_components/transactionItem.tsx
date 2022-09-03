@@ -14,7 +14,7 @@ import Button from "components/button";
 import useTasking from "rpcHooks/useTasking";
 import { selectTags } from "redux/slices/tags";
 import { BN } from "utils/ray";
-import { useModalSideExit, useWalletKit } from "hooks";
+import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import Details from "pages/dashboard/transactions/_components/details";
 import dateFormat from "dateformat";
@@ -24,6 +24,7 @@ import { useAppSelector } from "redux/hooks";
 import { AddressReducer } from "utils";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { SelectAccounts, SelectCurrencies } from "redux/slices/account/selector";
+import { DecimalConverter } from "utils/api";
 
 const TransactionItem = ({
   transaction,
@@ -38,8 +39,6 @@ const TransactionItem = ({
   direction?: TransactionDirection;
   status: string;
 }) => {
-  const [detect, setDetect] = useState(true);
-
   const currencies = useAppSelector(SelectCurrencies);
 
   const divRef = useRef<HTMLDivElement>(null);
@@ -78,18 +77,18 @@ const TransactionItem = ({
     ].indexOf(
       isMultisig
         ? ERC20MethodIds[
-            (Transaction as ITransactionMultisig)
-              .method as keyof typeof ERC20MethodIds
-          ]
+        (Transaction as ITransactionMultisig)
+          .method as keyof typeof ERC20MethodIds
+        ]
         : (Transaction as IFormattedTransaction).id
     ) > -1;
   let peer = isMultisig
     ? (Transaction as ITransactionMultisig).owner ?? ""
     : accounts.includes(
-        (Transaction as IFormattedTransaction).rawData.from.toLowerCase()
-      )
-    ? (Transaction as IFormattedTransaction).rawData.to
-    : (Transaction as IFormattedTransaction).rawData.from;
+      (Transaction as IFormattedTransaction).rawData.from.toLowerCase()
+    )
+      ? (Transaction as IFormattedTransaction).rawData.to
+      : (Transaction as IFormattedTransaction).rawData.from;
   let SwapData;
   let TransferData;
   let MultipleData;
@@ -111,9 +110,6 @@ const TransactionItem = ({
   }
 
   useEffect(() => {
-    if (divRef.current && window.innerWidth / divRef.current.clientWidth > 2) {
-      setDetect(false);
-    }
     if (isAutomation && !isMultisig) {
       (async () => {
         const data = Transaction as IAutomationTransfer;
@@ -139,30 +135,12 @@ const TransactionItem = ({
 
   return (
     <>
-      <div
-        ref={divRef}
-        className={`grid ${
-          detect
-            ? "grid-cols-[25%,45%,30%] sm:grid-cols-[20%,15%,12%,18%,25%,10%] items-center"
-            : "grid-cols-[27%,48%,25%]"
-        } min-h-[4.688rem] py-2 `}
-      >
+      <div ref={divRef} className={`grid "grid-cols-[25%,45%,30%] sm:grid-cols-[20%,15%,12%,18%,25%,10%] items-center" min-h-[4.688rem] py-2 `}>
         <div className="flex space-x-3 items-center overflow-hidden">
-          <div
-            className={`hidden sm:flex ${
-              detect ? "items-center" : "items-start"
-            } ${!isSwap && !IsMultiple && ""} justify-center`}
-          >
-            <div
-              className={`bg-greylish bg-opacity-10 ${
-                detect
-                  ? "w-[2.813rem] h-[2.813rem] text-lg"
-                  : "w-[1.563rem] h-[1.563rem] text-xs"
-              } flex items-center justify-center rounded-full font-bold `}
-            >
+          <div className={`hidden sm:flex items-center  justify-center`}>
+            <div className={`bg-greylish bg-opacity-10 w-[2.813rem] h-[2.813rem] text-lg flex items-center justify-center rounded-full font-bold `}>
               {!isSwap ? (
                 <span>
-                  {" "}
                   {isComment ? (Comment as string).slice(0, 2) : "T V"}{" "}
                 </span>
               ) : (
@@ -170,11 +148,7 @@ const TransactionItem = ({
               )}
             </div>
           </div>
-          <div
-            className={`sm:flex flex-col ${
-              detect ? "justify-center" : "justify-start"
-            } items-start `}
-          >
+          <div className={`sm:flex flex-col justify-center items-start `}>
             <div className="text-greylish text-base font-semibold dark:text-white">
               {!isSwap ? (
                 <span> {isComment ? `${Comment}` : "Treasury Vault"} </span>
@@ -184,125 +158,112 @@ const TransactionItem = ({
             </div>
           </div>
         </div>
-        {detect && (
-          <>
-            {budgetSelected ? (
-              <div className="w-1/2  bg-light dark:bg-darkSecond rounded-lg border-2 py-1 px-2">
-                {paymentname[0].name.slice(0, 8) + "."}
-              </div>
-            ) : (
-              <Dropdown
-                className={
-                  "w-[70%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]"
-                }
-                label="Budget"
-                list={paymentname}
-                selected={selectedPayment}
-                setSelect={setSelectedPayment}
-              />
-            )}
-          </>
+        {budgetSelected ? (
+          <div className="w-1/2  bg-light dark:bg-darkSecond rounded-lg border-2 py-1 px-2">
+            {paymentname[0].name.slice(0, 8) + "."}
+          </div>
+        ) : (
+          <Dropdown
+            className={
+              "w-[70%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]"
+            }
+            label="Budget"
+            list={paymentname}
+            selected={selectedPayment}
+            setSelect={setSelectedPayment}
+          />
         )}
         <div className="flex items-center  gap-1">
           <img
             src={`/icons/${type2Ref.current?.innerText.toLowerCase()}.png`}
             className="rounded-full w-[2.5rem] h-[2.5rem]"
           />
-          {detect && (
-            <div className="">
-              <div className="flex flex-col  text-xl">
-                {" "}
-                {direction !== undefined && (
-                  <span ref={typeRef}>
-                    {TransactionDirection.Swap === direction ? "Swap" : ""}
-                    {TransactionDirection.In === direction ? "Receive" : ""}
-                    {TransactionDirection.Borrow === direction ? "Borrow" : ""}
-                    {TransactionDirection.Withdraw === direction
-                      ? "Withdrawn"
-                      : ""}
-                    {TransactionDirection.Repay === direction ? "Repaid" : ""}
-                    {TransactionDirection.Deposit === direction
-                      ? "Deposit"
-                      : ""}
-                    {TransactionDirection.AutomationOut === direction
-                      ? "Execute (A)"
-                      : ""}
-                    {TransactionDirection.AutomationIn === direction
-                      ? "Receive (A)"
-                      : ""}
-                    {TransactionDirection.Out === direction ? "Send" : ""}
-                  </span>
-                )}
-                <span className="flex gap-2 items-center text-greylish text-sm">
-                  {" "}
-                  <div ref={type2Ref}>
-                    {" "}
-                    {direction !== undefined && (
-                      <>
-                        {TransactionDirection.Swap === direction
-                          ? "Ubeswap"
-                          : ""}
-                        {TransactionDirection.In === direction ? "Remox" : ""}
-                        {TransactionDirection.Borrow === direction
-                          ? "Moola"
-                          : ""}
-                        {TransactionDirection.Withdraw === direction
-                          ? "Withdrawn"
-                          : ""}
-                        {TransactionDirection.Repay === direction
-                          ? "Repaid"
-                          : ""}
-                        {TransactionDirection.Deposit === direction
-                          ? "Deposit"
-                          : ""}
-                        {TransactionDirection.AutomationOut === direction
-                          ? "Execute (A)"
-                          : ""}
-                        {TransactionDirection.AutomationIn === direction
-                          ? "Receive (A)"
-                          : ""}
-                        {TransactionDirection.Out === direction ? "Remox" : ""}
-                      </>
-                    )}
-                  </div>
+          <div className="">
+            <div className="flex flex-col  text-xl">
+              {direction !== undefined && (
+                <span ref={typeRef}>
+                  {TransactionDirection.Swap === direction ? "Swap" : ""}
+                  {TransactionDirection.In === direction ? "Receive" : ""}
+                  {TransactionDirection.Borrow === direction ? "Borrow" : ""}
+                  {TransactionDirection.Withdraw === direction
+                    ? "Withdrawn"
+                    : ""}
+                  {TransactionDirection.Repay === direction ? "Repaid" : ""}
+                  {TransactionDirection.Deposit === direction
+                    ? "Deposit"
+                    : ""}
+                  {TransactionDirection.AutomationOut === direction
+                    ? "Execute (A)"
+                    : ""}
+                  {TransactionDirection.AutomationIn === direction
+                    ? "Receive (A)"
+                    : ""}
+                  {TransactionDirection.Out === direction ? "Send" : ""}
                 </span>
-              </div>
+              )}
+              <span className="flex gap-2 items-center text-greylish text-sm">
+                {" "}
+                <div ref={type2Ref}>
+                  {" "}
+                  {direction !== undefined && (
+                    <>
+                      {TransactionDirection.Swap === direction
+                        ? "Ubeswap"
+                        : ""}
+                      {TransactionDirection.In === direction ? "Remox" : ""}
+                      {TransactionDirection.Borrow === direction
+                        ? "Moola"
+                        : ""}
+                      {TransactionDirection.Withdraw === direction
+                        ? "Withdrawn"
+                        : ""}
+                      {TransactionDirection.Repay === direction
+                        ? "Repaid"
+                        : ""}
+                      {TransactionDirection.Deposit === direction
+                        ? "Deposit"
+                        : ""}
+                      {TransactionDirection.AutomationOut === direction
+                        ? "Execute (A)"
+                        : ""}
+                      {TransactionDirection.AutomationIn === direction
+                        ? "Receive (A)"
+                        : ""}
+                      {TransactionDirection.Out === direction ? "Remox" : ""}
+                    </>
+                  )}
+                </div>
+              </span>
             </div>
-          )}
+          </div>
         </div>
 
         <div className="text-base">
           <div>
             {!isSwap && TransferData && !IsMultiple && (
               <div
-                className={`flex ${
-                  detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"
-                }   space-x-4`}
+                className={`flex grid-cols-[20%,80%] space-x-4`}
               >
                 <div
-                  className={`flex flex-col ${
-                    detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"
-                  } gap-x-2  text-xl font-medium`}
+                  className={`flex flex-col grid-cols-[15%,85%] gap-x-2  text-xl font-medium`}
                 >
                   <span>
-                    {BN(fromMinScale(TransferData.amount)).gt(9999)
+                    {BN(DecimalConverter(TransferData.amount, TransferData.coin.decimals)).gt(9999)
                       ? "9999+"
-                      : BN(fromMinScale(TransferData.amount)).toFixed(2)}
+                      : BN(DecimalConverter(TransferData.amount, TransferData.coin.decimals)).toFixed(2)}
                   </span>
                   <span className="text-greylish dark:text-white text-sm">
                     $
                     {Math.min(
-                      BN(fromMinScale(TransferData.amount))
-                        .times(currencies[TransferData.coin.name].priceUSD)
+                      BN(DecimalConverter(TransferData.amount, TransferData.coin.decimals))
+                        .times(TransferData.coin.priceUSD)
                         .toNumber(),
                       999999999
                     ).toFixed(2)}
                   </span>
                 </div>
                 <div
-                  className={`flex ${
-                    detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"
-                  } gap-x-2  text-xl font-medium`}
+                  className={`flex grid-cols-[10%,90%] gap-x-2 text-xl font-medium`}
                 >
                   {TransferData.coin ? (
                     <>
@@ -326,24 +287,18 @@ const TransactionItem = ({
                 return (
                   <div
                     key={index}
-                    className={`flex ${
-                      detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"
-                    } items-center mx-7 space-x-4`}
+                    className={`flex grid-cols-[20%,80%] items-center mx-7 space-x-4`}
                   >
                     <div
-                      className={`flex ${
-                        detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"
-                      } gap-x-2 items-center`}
+                      className={`flex grid-cols-[25%,75%] gap-x-2 items-center`}
                     >
                       <div className="w-[0.625rem] h-[0.625rem] rounded-full bg-primary self-center"></div>
                       <span>
-                        {parseFloat(fromMinScale(payment.amount)).toFixed(2)}
+                        {DecimalConverter(payment.amount, payment.coinAddress.decimals).toFixed(2)}
                       </span>
                     </div>
                     <div
-                      className={`flex ${
-                        detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"
-                      } gap-x-2 items-center`}
+                      className={`flex grid-cols-[10%,90%] gap-x-2 items-center`}
                     >
                       {payment.coinAddress ? (
                         <>
@@ -365,14 +320,10 @@ const TransactionItem = ({
             {isSwap && SwapData && (
               <div className="flex flex-col">
                 <div
-                  className={`flex ${
-                    detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"
-                  }  mx-7 space-x-4`}
+                  className={`flex grid-cols-[20%,80%] mx-7 space-x-4`}
                 >
                   <div
-                    className={`flex ${
-                      detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"
-                    } gap-x-2 `}
+                    className={`flex grid-cols-[15%,85%] gap-x-2 `}
                   >
                     <div className="flex flex-col">
                       <span>
@@ -382,9 +333,7 @@ const TransactionItem = ({
                     </div>
                   </div>
                   <div
-                    className={`flex ${
-                      detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"
-                    } gap-x-2 `}
+                    className={`flex grid-cols-[10%,90%] gap-x-2 `}
                   >
                     {SwapData.coinIn ? (
                       <>
@@ -411,24 +360,18 @@ const TransactionItem = ({
                   </div>
                 </div>
                 <div
-                  className={`flex ${
-                    detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"
-                  }  mx-7 space-x-4`}
+                  className={`flex grid-cols-[20%,80%] mx-7 space-x-4`}
                 >
                   <div className={` `}>
                     <div className="flex flex-col">
                       <span>
-                        {parseFloat(
-                          fromMinScale(SwapData.amountOutMin)
-                        ).toFixed(2)}
+                        {DecimalConverter(SwapData.amountOutMin, SwapData.coinOutMin.decimals).toFixed(2)}
                       </span>
                       <span className="text-greylish text-sm">$2345</span>
                     </div>
                   </div>
                   <div
-                    className={`flex ${
-                      detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"
-                    } gap-x-2 `}
+                    className={`flex grid-cols-[10%,90%] gap-x-2 `}
                   >
                     {SwapData.coinOutMin ? (
                       <>
@@ -449,30 +392,28 @@ const TransactionItem = ({
             )}
           </div>
         </div>
-        {detect && (
-          <div className="flex flex-col space-y-1">
-            {Transaction.tags &&
-              Transaction.tags.map((tag, index) => {
-                return (
-                  <div key={tag.id} className="flex space-x-3 items-center">
-                    <div
-                      className="w-[0.8rem] h-[0.8rem] rounded-full"
-                      style={{ backgroundColor: tag.color }}
-                    ></div>
-                    <div className="!ml-1 text-base">{tag.name}</div>
-                  </div>
-                );
-              })}
-            {
-              <div className="flex items-center gap-2 text-primary font-bold cursor-pointer">
-                <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">
-                  +
-                </span>{" "}
-                Add Label
-              </div>
-            }
-          </div>
-        )}
+        <div className="flex flex-col space-y-1">
+          {Transaction.tags &&
+            Transaction.tags.map((tag, index) => {
+              return (
+                <div key={tag.id} className="flex space-x-3 items-center">
+                  <div
+                    className="w-[0.8rem] h-[0.8rem] rounded-full"
+                    style={{ backgroundColor: tag.color }}
+                  ></div>
+                  <div className="!ml-1 text-base">{tag.name}</div>
+                </div>
+              );
+            })}
+          {
+            <div className="flex items-center gap-2 text-primary font-bold cursor-pointer">
+              <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">
+                +
+              </span>{" "}
+              Add Label
+            </div>
+          }
+        </div>
         <div className=" flex justify-end cursor-pointer items-start md:pr-0 gap-5">
           <Button className="shadow-none px-8 py-1 !rounded-md">Sign</Button>
 

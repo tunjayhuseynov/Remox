@@ -39,7 +39,7 @@ export default async function handler(
 
     const coinsReq = await adminApp
       .firestore()
-      .collection(blockchain?.currencyCollectionName)
+      .collection(blockchain.currencyCollectionName)
       .get();
     const coins = coinsReq.docs.map((doc) => doc.data() as AltCoins);
 
@@ -86,9 +86,9 @@ const GetTxs = async (
     const connection = new solanaWeb3.Connection(SolanaEndpoint);
     const sings = !inTxs
       ? await connection.getConfirmedSignaturesForAddress2(
-          new solanaWeb3.PublicKey(address),
-          { limit: 1000 }
-        )
+        new solanaWeb3.PublicKey(address),
+        { limit: 1000 }
+      )
       : null;
     const txs = await connection.getParsedTransactions(
       inTxs ?? sings!.map((s) => s.signature)
@@ -216,25 +216,22 @@ const ParseTxs = async (
     let result: Transactions[] = [...transactions];
 
     const FormattedTransaction: IFormattedTransaction[] = [];
-    const testArr: any[] = [];
 
-  const groupedHash = _(result).groupBy("hash").value();
-  const uniqueHashs = Object.values(groupedHash).reduce(
-    (acc: Transactions[], value: Transactions[]) => {
-      const best = _(value).maxBy((o) =>
-        +o.value
-      );
-      if (best) acc.push(best);
+    const groupedHash = _(result).groupBy("hash").value();
+    const uniqueHashs = Object.values(groupedHash).reduce(
+      (acc: Transactions[], value: Transactions[]) => {
+        const best = _(value).maxBy((o) =>
+          +o.value
+        );
+        if (best) acc.push(best);
         return acc;
       },
       []
-    );    
-    
-    
+    );
 
     for (const transaction of uniqueHashs) {
       const input = transaction.input;
-      
+
       if (blockchain.name.includes("evm")) {
         const formatted = await EvmInputReader(input, blockchain.name, {
           transaction,
@@ -249,7 +246,7 @@ const ParseTxs = async (
             ...formatted,
           });
         }
-        
+
       } else {
         const formatted = InputReader(input, { transaction, tags, Coins });
         if (formatted) {
@@ -264,7 +261,7 @@ const ParseTxs = async (
     }
 
 
-    return testArr;
+    return FormattedTransaction;
   } catch (error) {
     console.log(error);
 

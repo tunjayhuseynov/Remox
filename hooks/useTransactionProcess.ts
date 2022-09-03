@@ -6,12 +6,12 @@ import { hexToNumberString, hexToUtf8 } from "web3-utils";
 import { AltCoins, Coins, CoinsName } from "types";
 import { selectTags } from "redux/slices/tags";
 import useWalletKit from "./walletSDK/useWalletKit";
-import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "pages/api/tags/index.api";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import InputDataDecoder from "ethereum-input-data-decoder";
 import { ethers } from "ethers";
 import ERC20 from "rpcHooks/ABI/erc20.json";
+import { IBudget } from "firebaseConfig";
 
 export const ERC20MethodIds = {
   transferFrom: "0x23b872dd",
@@ -36,6 +36,7 @@ export interface IFormattedTransaction {
   hash: string;
   id: string;
   tags?: ITag[];
+  budget?: IBudget
 }
 
 export interface ITransfer extends IFormattedTransaction {

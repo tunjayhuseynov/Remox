@@ -5,7 +5,7 @@ import { BASE_URL } from "utils/api";
 import { ISpendingResponse } from "../calculation/_spendingType.api";
 import { IBudgetCoin, IBudgetORM, ISubbudgetORM } from "./index.api";
 import { IPriceResponse } from "../calculation/price.api";
-import { TxCal } from "./txCal";
+import { MultisigTxCal } from "./MultisigTxCal";
 
 export const CalculateBudget = async (budget: IBudget, parentId: string, parsedAddress: string[], blockchain: string, blockchainType: BlockchainType, prices: IPriceResponse) => {
     let totalBudgetCoin: IBudgetCoin, orm: IBudgetORM;
@@ -23,7 +23,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         }
     })
 
-    const txMultisigResponse = await Promise.all(multiTxs.map(s => TxCal(budget, s, blockchainType)))
+    const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType)))
     txMultisigResponse.forEach(tx => {
         totalBudgetPending += tx.totalBudgetPending;
         totalBudgetUsed += tx.totalBudgetUsed;
@@ -33,7 +33,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         totalSecondCoinSpent += tx.totalSecondCoinSpent;
     })
 
-    totalBudget += ((budget.amount * prices.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].price : 0)));
+    totalBudget += ((budget.amount * prices.AllPrices[budget.token].priceUSD) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].priceUSD : 0)));
     let budgetCoin: IBudgetCoin = {
         coin: budget.token,
         totalAmount: budget.amount,
@@ -72,7 +72,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             }
         })
 
-        const txMultisigResponse = await Promise.all(multiTxs.map(s => TxCal(budget, s, blockchainType)))
+        const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType)))
         txMultisigResponse.forEach(tx => {
             totalSubPending += tx.totalBudgetPending;
             totalSubUsed += tx.totalBudgetUsed;
@@ -82,7 +82,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             totalSubSecondCoinSpent += tx.totalSecondCoinSpent;
         })
 
-        totalSubBudget += ((budget.amount * prices.AllPrices[budget.token].price) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].price : 1)));
+        totalSubBudget += ((budget.amount * prices.AllPrices[budget.token].priceUSD) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].priceUSD : 1)));
 
         let budgetCoin: IBudgetCoin = {
             coin: subbudget.token,

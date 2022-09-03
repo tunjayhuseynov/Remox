@@ -4,15 +4,14 @@ import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
 import Modal from 'components/general/modal';
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
-import { DropDownItem } from 'types';
 import Button from 'components/button';
-import useMultisig, { SolanaMultisigData } from 'hooks/walletSDK/useMultisig';
+import useMultisig from 'hooks/walletSDK/useMultisig';
 import { useRouter } from 'next/router';
-import { useWalletKit } from 'hooks';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
 import Create from 'pages/dashboard/multisig/_components/create';
 import { SetComma } from 'utils';
+import makeBlockie from 'ethereum-blockies-base64';
 
 const Sidebar = () => {
 
@@ -61,7 +60,7 @@ const Sidebar = () => {
             return {
                 id: e.id,
                 name: e.name,
-                image: (typeof e.image?.imageUrl === 'string' ? e.image.imageUrl : null) || e.image?.nftUrl || "/icons/remox.png",
+                image: (typeof e.image?.imageUrl === 'string' ? e.image.imageUrl : null) || e.image?.nftUrl || makeBlockie(e.id),
                 secondValue: `$${SetComma(e.totalBalance)}`,
                 onClick: () => {
                     navigator.push(`/organization/${e.id}`)
@@ -85,7 +84,7 @@ const Sidebar = () => {
     const [selectedItem, setItem] = useState(selectedAccountType === "organization" ? currentOrganization : {
         id: "0",
         name: individual?.name ?? "",
-        image: (typeof individual?.image?.imageUrl === 'string' ? individual.image.imageUrl : null) ?? individual?.image?.nftUrl ?? "",
+        image: (typeof individual?.image?.imageUrl === 'string' ? individual.image.imageUrl : null) ?? individual?.image?.nftUrl ?? makeBlockie(individual!.id),
         secondValue: `$${SetComma(accounts.reduce((acc, e) => acc + e.totalValue, 0))}`,
         onClick: () => { }
     })
@@ -96,7 +95,7 @@ const Sidebar = () => {
             <div className="grid grid-rows-[95%,1fr] pb-4 px-9 mx-auto h-full">
                 <div className='absolute flex items-center gap-3'>
                     <Dropdown
-                        parentClass="min-w-[14rem]  bg-white dark:bg-darkSecond truncate"
+                        parentClass="min-w-[14rem] bg-white dark:bg-darkSecond truncate"
                         list={organizationList}
                         selected={selectedItem}
                         setSelect={setItem as any}

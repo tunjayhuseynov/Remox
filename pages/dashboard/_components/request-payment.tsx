@@ -16,25 +16,25 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
 
     const data = [
         {
-            header: "Signings Needed",
+            header: "Signings needed",
             icon: "signature_1",
             value: multisig?.signingNeedTxs?.length ?? 0,
             router: "/dashboard"
         },
         {
-            header: "Pending Requests",
+            header: "Pending requests",
             icon: "payment_1",
             value: multisig?.pendingTxs.length ?? 0,
             router: "/dashboard/requests"
         },
         {
-            header: "Approve Requests",
+            header: "Approve requests",
             icon: "cash-payment_1",
             value: multisig?.approvedTxs.length ?? 0,
             router: "/dashboard/requests/approved"
         },
         {
-            header: "Recurring Payments",
+            header: "Recurring payments",
             icon: "subscription-model_1",
             value: recurring.filter(s => s.execution === ExecutionType.auto).length,
             router: "/dashboard/automations",

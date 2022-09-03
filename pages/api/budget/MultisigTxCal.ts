@@ -4,12 +4,13 @@ import { adminApp } from "firebaseConfig/admin";
 import { GenerateTransaction, IBatchRequest, InputReader, ITransfer } from "hooks/useTransactionProcess";
 import { AltCoins, Coins } from "types";
 import { BlockchainType } from "types/blockchains";
+import { DecimalConverter } from "utils/api";
 import Web3 from 'web3'
 import { AbiItem } from "web3-utils";
 const CeloTerminal = import("rpcHooks/ABI/CeloTerminal.json")
 
 
-export const TxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: BlockchainType) => {
+export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: BlockchainType) => {
     let totalBudgetPending = 0, totalBudgetUsed = 0;
     let totalFirstCoinPending = 0, totalSecondCoinPending = 0;
     let totalFirstCoinSpent = 0, totalSecondCoinSpent = 0;
@@ -43,31 +44,30 @@ export const TxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: Bloc
             if (txRes.method === "batchRequest") {
                 const x = txRes as IBatchRequest
                 if (executed == false) {
-                    totalBudgetPending += x.payments.reduce((acc, curr) => acc + +web3.utils.fromWei(curr.amount, "ether"), 0)
+                    totalBudgetPending += x.payments.reduce((acc, curr) => acc + DecimalConverter(curr.amount, curr.coinAddress.decimals), 0)
                 } else {
-                    totalBudgetUsed += x.payments.reduce((acc, curr) => acc + +web3.utils.fromWei(curr.amount, "ether"), 0)
+                    totalBudgetUsed += x.payments.reduce((acc, curr) => acc + DecimalConverter(curr.amount, curr.coinAddress.decimals), 0)
                 }
             } else if (txRes.method === "transfer") {
                 const x = txRes as ITransfer
                 if (executed == false) {
-                    totalBudgetPending += +web3.utils.fromWei(x.amount, "ether")
+                    totalBudgetPending += DecimalConverter(x.amount, x.coin.decimals)
                     if (budget.token === x.coin.name) {
-                        totalFirstCoinPending += +web3.utils.fromWei(x.amount, "ether")
+                        totalFirstCoinPending += DecimalConverter(x.amount, x.coin.decimals)
                     } else if (budget.secondToken === x.coin.name) {
-                        totalSecondCoinPending += +web3.utils.fromWei(x.amount, "ether")
+                        totalSecondCoinPending += DecimalConverter(x.amount, x.coin.decimals)
                     }
                 }
                 else {
-                    totalBudgetUsed += +web3.utils.fromWei(x.amount, "ether")
+                    totalBudgetUsed += DecimalConverter(x.amount, x.coin.decimals)
                     if (budget.token === x.coin.name) {
-                        totalFirstCoinSpent += +web3.utils.fromWei(x.amount, "ether")
+                        totalFirstCoinSpent += DecimalConverter(x.amount, x.coin.decimals)
                     } else if (budget.secondToken === x.coin.name) {
-                        totalSecondCoinSpent += +web3.utils.fromWei(x.amount, "ether")
+                        totalSecondCoinSpent += DecimalConverter(x.amount, x.coin.decimals)
                     }
                 }
             }
         }
-        // }
 
     } else if (tx.protocol === "Goki") {
 

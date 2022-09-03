@@ -45,7 +45,10 @@ function WalletList({ item }: { item: IAccountORM }) {
                 <div className="pb-2 border-b dark:border-[#454545]">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3 px-3">
-                            <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div>
+                            <div className="w-9 h-9">
+                                <img className="rounded-full" src={item.image?.nftUrl ?? item.image?.imageUrl as string ?? makeBlockie(item.address ?? "")} />
+                            </div>
+                            {/* <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div> */}
                             <div className="flex flex-col">
                                 <div className="font-semibold">{item.name}</div>
                                 <div className="text-[10px] text-greylish">{AddressReducer(item.address ?? "")}</div>
@@ -75,7 +78,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                         </div>
                     </div>
                 </div>
-                <div className="flex ">
+                <div className="flex">
                     <div className="min-w-[24%] flex flex-col gap-3 py-5 px-3 items-start border-r dark:border-[#454545]">
                         <div className="flex flex-col">
                             <div className="text-greylish text-sm">Total Value</div>
@@ -83,7 +86,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                         </div>
                         <div className="flex flex-col mr-2 gap-1">
                             <div className="text-greylish dark:text-white text-sm">Signers</div>
-                            <AvatarGroup max={3}>
+                            <AvatarGroup max={3} className={`${item.members.length <= 3 ? "flex-row" : ""}`}>
                                 {
                                     item.members.map((member, index) =>
                                         <Avatar key={member.id} sizes="15px" alt={member.name} src={member?.image?.imageUrl as string ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)

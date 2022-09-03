@@ -13,6 +13,16 @@ module.exports = {
 
     },
     extend: {
+      fontSize: {
+        'xs': '.75rem',
+        'sm': '.85714rem',
+        'tiny': '.875rem',
+        'base': '1rem',
+        'lg': '1rem',
+        'xl': '1.42857rem',
+        '2xl': '1.714285rem',
+        '3xl': '2rem',
+      },
       colors: {
         primary: "#FF7348",
         greylish: "#707070",

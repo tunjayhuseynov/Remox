@@ -1,11 +1,11 @@
 import BigNumber from "bignumber.js"
+import { IBudget } from "firebaseConfig";
 import { MethodIds, MethodNames, ITransactionMultisig } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
-import blockchain from "redux/slices/account/reducers/blockchain";
 import { AltCoins, Coins } from "types";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction, GnosisTransactionTransfers } from "types/GnosisSafe";
-import { fromLamport, fromWei } from "./ray"
+import { DecimalConverter } from "./api";
 
 export const EVM_WALLET_SIZE = 39;
 export const SOLANA_WALLET_SIZE = 43;
@@ -29,7 +29,7 @@ export interface basedParsedSafeTx {
     transactionHash: string | null,
     safeTxHash: string,
     executor: string | null,
-    isExecuted: boolean ,
+    isExecuted: boolean,
     isSuccessful: boolean | null,
     confirmations: GnosisConfirmation[],
     signatures: string,
@@ -45,7 +45,7 @@ export interface GnosisSettingsTx extends basedParsedSafeTx {
 export interface GnosisTransferTx extends basedParsedSafeTx {
     dataDecoded: GnosisDataDecoded | null,
     to: string,
-    coin: AltCoins 
+    coin: AltCoins
     value: string | number | null,
 }
 
@@ -64,7 +64,7 @@ export const MultisigTxParser = (
         index, destination, data, executed,
         tags, txHashOrIndex,
         confirmations, Value, blockchain, parsedData, timestamp, contractAddress,
-        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at
+        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at, coins, budgets
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
@@ -72,14 +72,15 @@ export const MultisigTxParser = (
             confirmations: string[], Value: BigNumber, blockchain: BlockchainType["name"],
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
-            contractInternalThreshold: number, name: string, created_at: number
+            contractInternalThreshold: number, name: string, created_at: number,
+            budgets: IBudget[], coins: Coins
         }
 ) => {
 
     let size = 0;
     if (blockchain === 'solana') size = SOLANA_WALLET_SIZE
     else size = EVM_WALLET_SIZE
-    let from = blockchain === "solana" ? fromLamport : fromWei
+    // let from = blockchain === "solana" ? fromLamport : fromWei
     let obj: ITransactionMultisig = {
         name,
         hashOrIndex: txHashOrIndex,
@@ -95,11 +96,20 @@ export const MultisigTxParser = (
         contractOwnerAmount: contractOwnerAmount,
         contractThresholdAmount: contractThreshold,
         method: data.substring(0, 10),
-        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase()))
+        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase())),
+        budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex === index.toString())) ?? null
     }
 
-    let value = from(Value)
-    obj.value = value
+    const coin = Object.values(coins).find(s => s.address.toLowerCase() === destination.toLowerCase())
+
+    if (coin) {
+        let value = DecimalConverter(Value.toString(), coin.decimals)
+        obj.value = value.toString()
+    } else {
+        obj.value = "0"
+    }
+
+
     obj.id = index
     obj.requiredCount = ""
     obj.owner = ""
@@ -118,7 +128,9 @@ export const MultisigTxParser = (
             if (methodId == MethodNames.transfer) {
                 let hex = data.slice(100).replace(/^0+/, '')
                 let value = parseInt(hex, 16)
-                obj.valueOfTransfer = from(value)
+                if (coin) {
+                    obj.valueOfTransfer = DecimalConverter(value.toString(), coin.decimals).toString()
+                }
             }
         }
     } else {
@@ -137,12 +149,12 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
     const coins: AltCoins[] = Object.values(Coins);
     const blockchain = Blockchains.find((b) => b.name === blockchainName);
 
-    if(tx.dataDecoded === null && tx.value !== null) {  
+    if (tx.dataDecoded === null && tx.value !== null) {
         const coin = coins.find((c) => c.address.toLowerCase() === blockchain?.nativeToken.toLowerCase())!
-        const parsedTx : GnosisTransferTx = {
+        const parsedTx: GnosisTransferTx = {
             type: "transfer",
             safe: tx.safe,
-            value: (+tx.value / 10** coin.decimals).toString(),
+            value: (+tx.value / 10 ** coin.decimals).toString(),
             data: tx.data,
             nonce: tx.nonce,
             to: tx.to,
@@ -164,8 +176,8 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
         }
 
         return parsedTx
-    } else if(tx.dataDecoded !== null && tx.to === tx.safe ){
-        const parsedTx : GnosisSettingsTx = {
+    } else if (tx.dataDecoded !== null && tx.to === tx.safe) {
+        const parsedTx: GnosisSettingsTx = {
             type: "settings",
             safe: tx.safe,
             data: tx.data,
@@ -186,12 +198,12 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
             transfers: tx.transfers,
         }
         return parsedTx
-    } 
-    else if (tx.dataDecoded !== null && tx.to !== tx.safe && tx.transfers.length === 0){
+    }
+    else if (tx.dataDecoded !== null && tx.to !== tx.safe && tx.transfers.length === 0) {
         const coin = coins.find((c) => c.address.toLowerCase() === tx.to.toLowerCase())!
-        
 
-        const parsedTx : GnosisTransferTx = {
+
+        const parsedTx: GnosisTransferTx = {
             type: "transfer",
             safe: tx.safe,
             data: tx.data,
@@ -216,5 +228,5 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
         }
 
         return parsedTx
-    } 
+    }
 }

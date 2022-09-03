@@ -20,7 +20,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
 
 
-const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-3 rounded-md mb-2 pl-[.835rem]  text-left font-sans font-semibold  xl:text-sm leading-4  xl:mb-2 cursor-pointer ${className}  tracking-wide  bg-light dark:bg-dark`} title={`${showbar ? '' : text}`} >
+const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-3 rounded-md mb-2 pl-[.835rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 cursor-pointer ${className} tracking-wide bg-light dark:bg-dark`} title={`${showbar ? '' : text}`} >
     <div className="flex gap-3 items-center">{children}</div>
 </li>
 

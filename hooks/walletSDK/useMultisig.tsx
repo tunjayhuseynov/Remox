@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { auth, IAccount, Image, IMember } from 'firebaseConfig';
+import { auth, IAccount, IBudget, Image, IMember } from 'firebaseConfig';
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import * as borsh from '@project-serum/borsh';
 import BN from 'bn.js'
@@ -47,7 +47,8 @@ export interface ITransactionMultisig {
     method: string,
     timestamp: number,
     created_at: number,
-    tags: ITag[]
+    tags: ITag[],
+    budget: IBudget | null
 }
 
 export enum MethodIds {

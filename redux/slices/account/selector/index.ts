@@ -266,7 +266,6 @@ export const SelectRemoxAccount = createDraftSafeSelector(
 
 //////
 // Dark Mode
-
 export const SelectDarkMode = createDraftSafeSelector(
   (state: RootState) => state.remoxData.darkMode,
   (darkMode) => darkMode

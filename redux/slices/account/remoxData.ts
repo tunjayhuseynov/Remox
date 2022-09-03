@@ -107,6 +107,7 @@ const init = (): IRemoxData => {
             currencyCollectionName: "",
             explorerUrl: "",
             displayName: "Solana",
+            nativeToken: "SOL",
             lendingProtocols: [],
             name:  "solana",
             logoUrl: "",

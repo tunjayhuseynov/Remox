@@ -63,13 +63,15 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center`}>
                             <div className="flex items-center">
-                                {selected.coinUrl && <img className="w-4 h-4 mr-2" src={`${selected.coinUrl}`} />}
+                                {selected.coinUrl && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
                                 {selected.logoURI && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
-                                {selected.image && <img className="w-4 h-4 mr-2" src={`${selected.image}`} />}
-                                <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
+                                {selected.image && <img className="w-10 h-10 mr-2 rounded-full" src={`${selected.image}`} />}
+                                <div className="flex flex-col items-start">
+                                    <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
+                                    {selected.secondValue && <span className="text-left text-sm  text-gray-500">{selected.secondValue}</span>}
+                                </div>
                             </div>
-                            {selected.secondValue && <span className="text-[.75rem]">{selected.secondValue}</span>}
                         </div>
                     }
                     sx={sx}

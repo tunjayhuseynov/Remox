@@ -69,7 +69,9 @@ export default {
                 state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
                 state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
                 state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
-                state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                if (payload.tx.contractType === "single") {
+                    state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                }
             }
         }
     },

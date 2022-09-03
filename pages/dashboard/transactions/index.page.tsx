@@ -1,5 +1,5 @@
 import dateFormat from "dateformat";
-import { forwardRef, Fragment, useRef, useState, useTransition } from "react";
+import { forwardRef, Fragment, useState, useTransition } from "react";
 import Accordion from "components/accordion";
 import { TransactionStatus, AltCoins, CoinsName, Coins } from "types";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
@@ -14,11 +14,11 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import useNextSelector from "hooks/useNextSelector";
 import { useAppSelector } from "redux/hooks";
-import { InView, useInView } from 'react-intersection-observer'
-import { SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectMultisig, SelectProviderAddress, SelectTransactions } from "redux/slices/account/remoxData";
+import { useInView } from 'react-intersection-observer'
+import { SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectProviderAddress, SelectTransactions } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import Loader from "components/Loader";
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import useAsyncEffect from "hooks/useAsyncEffect";
 import Filter from "./_components/filter";
 import TransactionItem from "./_components/transactionItem";
@@ -66,7 +66,6 @@ const Transactions = () => {
                                 setChangedAccount([...wallets.map((wallet) => wallet.address)])
                             }} />
                         </div>
-                        <>
                             <div>
                                 {list && <CSVLink className="font-normal py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
                                     let tx = w.rawData
@@ -86,9 +85,7 @@ const Transactions = () => {
                                     <div className={'hidden'}>Export</div>
                                     <img className={`w-[1.5rem] h-[1.5rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
                                 </CSVLink>}
-
                             </div>
-                        </>
                         <div className="relative">
                             <div ref={exceptRef} onClick={() => setOpen(!isOpen)} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                                 <img className={`w-[1.5rem] h-[1.5rem] !m-0`} src={darkMode ? '/icons/filter_white.png' : '/icons/filter.png'} alt='Import' />
