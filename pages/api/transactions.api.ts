@@ -249,7 +249,6 @@ const ParseTxs = async (
             ...formatted,
           });
         }
-        
       } else {
         const formatted = InputReader(input, { transaction, tags, Coins });
         if (formatted) {
@@ -264,7 +263,7 @@ const ParseTxs = async (
     }
 
 
-    return testArr;
+    return FormattedTransaction;
   } catch (error) {
     console.log(error);
 
