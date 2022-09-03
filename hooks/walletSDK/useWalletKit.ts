@@ -264,6 +264,7 @@ export default function useWalletKit() {
         ).unwrap();
 
         if (blockchain.name.includes("evm")) {
+          
         }
 
         if (blockchain.name === "celo") {

@@ -6,6 +6,7 @@ import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { AltCoins, Coins } from "types";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
+import { GenerateTxEvm, GenerateSwapDataEvm } from "./_evm";
 
 export interface IPaymentInput {
     coin: string,
@@ -22,6 +23,16 @@ export interface ISwap {
     amount: string,
     slippage: string,
     deadline: number
+}
+
+export interface ISwapParam1inch {
+    fromTokenAddress: string;
+    toTokenAddress: string;
+    amount: string;
+    fromAddress: string;
+    slippage: number;
+    disableEstimate: boolean;
+    allowPartialFill: boolean;
 }
 
 export interface IPaymentDataBody {
@@ -98,6 +109,25 @@ export default async function Send(
                 })
             }
         } else if(blockchain.includes("evm")){
+
+            if(swap){
+                const data = await GenerateSwapDataEvm(swap, Blockchain.chainId!)
+                return res.json({
+                    data: data,
+                    destination: "0x11111112542D85B3EF69AE05771c2dCCff4fAa26"
+                })
+            }
+
+            if(requests.length > 1) {
+
+            } else {
+                const data = await GenerateTxEvm(requests[0], Blockchain, coins)
+                const coin = coins[requests[0].coin]
+                return res.json({
+                    data: data,
+                    destination: coin.address
+                })
+            }
             
         }
     } catch (error) {

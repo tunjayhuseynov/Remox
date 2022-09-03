@@ -185,7 +185,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
         }
 
         return parsedTx
-    }  else if(tx.dataDecoded === null && tx.to === tx.safe) {
+    } else if(tx.dataDecoded === null && tx.to === tx.safe) {
 
         const parsedTx : IMultisigSafeTransaction  = {
             type: "rejectionTransaction",
