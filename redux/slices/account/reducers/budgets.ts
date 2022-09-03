@@ -60,7 +60,7 @@ export default {
             }
         }
     },
-    addTxToBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins } }) => {
+    addTxToBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean } }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
@@ -69,8 +69,10 @@ export default {
                 state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
                 state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
                 state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
-                if (payload.tx.contractType === "single") {
+                if (payload.isTxExecuted) {
                     state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                } else {
+                    state.budgetExercises[index].totalPending += (payload.tx.amount * payload.currency.priceUSD);
                 }
             }
         }
@@ -84,7 +86,7 @@ export default {
             }
         }
     },
-    addTxToSubbudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, subbudget: ISubbudgetORM, currency: AltCoins } }) => {
+    addTxToSubbudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, subbudget: ISubbudgetORM, currency: AltCoins, isTxExecuted: boolean } }) => {
         const index = state.budgetExercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.subbudget.parentId));
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.subbudget.parentId);
@@ -96,10 +98,18 @@ export default {
 
                     state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
                     state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
-                    state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                    if(payload.isTxExecuted) {
+                        state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                    }else{
+                        state.budgetExercises[index].budgets[budgetIndex].totalPending += (payload.tx.amount * payload.currency.priceUSD);
+                    }
 
                     state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
-                    state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                    if(payload.isTxExecuted){
+                        state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                    }else{
+                        state.budgetExercises[index].totalPending += (payload.tx.amount * payload.currency.priceUSD);
+                    }
                 }
             }
         }

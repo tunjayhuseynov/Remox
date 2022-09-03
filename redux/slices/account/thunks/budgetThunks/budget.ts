@@ -1,7 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 import { Create_Budget, Delete_Budget, Update_Budget } from "crud/budget";
 import { Get_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercise";
 import { IBudget, IBudgetTX } from "firebaseConfig";
+import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
 import { addBudget, addTxToBudget, deleteBudget, updateBudget } from "../../remoxData";
@@ -78,11 +80,33 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
     const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
-    api.dispatch(addTxToBudget({
-        budget,
-        tx,
-        currency
-    }))
+    if (tx.contractType === "multi") {
+        const { data, status } = await axios.get<ITransactionMultisig | IMultisigSafeTransaction>("/api/multisig/tx", {
+            params: {
+                id: (api.getState() as RootState).remoxData.providerID,
+                blockchain: (api.getState() as RootState).remoxData.blockchain.name,
+                index: tx.hashOrIndex,
+                address: tx.contractAddress,
+                Skip: 0,
+                name: tx.protocol,
+            }
+        })
+        if (status == 200) {
+            api.dispatch(addTxToBudget({
+                budget,
+                tx,
+                currency,
+                isTxExecuted: data.isExecuted
+            }))
+        }
+    } else {
+        api.dispatch(addTxToBudget({
+            budget,
+            tx,
+            currency,
+            isTxExecuted: true
+        }))
+    }
 })
 
 export const Update_Budget_Thunk = createAsyncThunk<void, IBaseOrmBudget>("remoxData/update_budget", async ({ budget }, api) => {

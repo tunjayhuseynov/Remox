@@ -23,6 +23,7 @@ import { SelectIndividual } from 'redux/slices/account/remoxData';
 import { Multisig_Fetch_Thunk } from "redux/slices/account/thunks/multisig";
 import { useCelo } from "@celo/react-celo";
 import { ITag } from "pages/api/tags/index.api";
+import { AltCoins, GnosisConfirmation, GnosisDataDecoded } from "types";
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
@@ -36,7 +37,7 @@ export interface ITransactionMultisig {
     contractThresholdAmount: number,
     contractInternalThresholdAmount: number,
     data?: string,
-    executed: boolean,
+    isExecuted: boolean,
     confirmations: string[],
     value: string,
     id?: number | string,
@@ -50,6 +51,38 @@ export interface ITransactionMultisig {
     tags: ITag[],
     budget: IBudget | null
 }
+
+export interface IMultisigSafeTransaction {
+    type: "transfer" | "changeThreshold" | "addOwnerWithThreshold" | "removeOwner" | "rejectionTransaction",
+    data: string | null,
+    nonce: number,
+    executionDate: string | null,
+    submissionDate: string,
+    modified: string | null,
+    blockNumber: number | null,
+    transactionHash: string | null,
+    safeTxHash: string,
+    executor: string | null,
+    isExecuted: boolean ,
+    isSuccessful: boolean | null,
+    signatures: string,
+    txType: string
+    confirmations: GnosisConfirmation[],
+    settings: GnosisSettingsTx | null,
+    transfer: GnosisTransferTx | null,
+} 
+
+export interface GnosisSettingsTx  {
+    dataDecoded: GnosisDataDecoded,
+}
+
+export interface GnosisTransferTx {
+    dataDecoded: GnosisDataDecoded | null,
+    to: string,
+    coin: AltCoins 
+    value: string | number,
+}
+
 
 export enum MethodIds {
     "0x173825d9" = 'removeOwner',

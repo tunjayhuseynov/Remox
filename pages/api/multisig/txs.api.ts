@@ -3,6 +3,7 @@ import {
   MethodIds,
   MethodNames,
   ITransactionMultisig,
+  IMultisigSafeTransaction,
 } from "hooks/walletSDK/useMultisig";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
@@ -14,7 +15,7 @@ import {
 } from "@gokiprotocol/client";
 import { BorshInstructionCoder, utils } from "@project-serum/anchor";
 import BigNumber from "bignumber.js";
-import { GnosisSettingsTx, GnosisTransferTx, MultisigTxParser, parseSafeTransaction } from "utils/multisig";
+import { MultisigTxParser, parseSafeTransaction } from "utils/multisig";
 // import { decodeTransferCheckedInstructionUnchecked } from 'node_modules/@solana/spl-token'
 import { Contract, ethers } from "ethers";
 import Multisig from "rpcHooks/ABI/CeloTerminal.json";
@@ -34,7 +35,7 @@ import { budgetExerciseCollectionName } from "crud/budget_exercise";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ITransactionMultisig[]>
+  res: NextApiResponse<ITransactionMultisig[] | IMultisigSafeTransaction[]>
 ) {
   try {
     const {
@@ -62,6 +63,7 @@ export default async function handler(
 
     let transactionArray: ITransactionMultisig[] = [];
 
+    let safeTransactions: IMultisigSafeTransaction[] = [];
 
     const CoinsReq = await adminApp
       .firestore()
@@ -245,20 +247,24 @@ export default async function handler(
         Array.from(Array(total).keys()).map((s) => GetTx(total - 1 - s, budgets, Coins))
       );
       transactionArray.push(...list);
-    } else if (blockchain.includes("evm") && name === "GnosisSafe") {
-      const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/safes/${multisigAddress}/all-transactions/`;
+    }
+    else if (blockchain.includes("evm") && name === "GnosisSafe") {
+      const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/safes/${multisigAddress}/multisig-transactions/`;
       const response = await axios.get(api);
       const transactionsData = response.data;
 
       for (const tx of transactionsData.results) {
         const safeTx = parseSafeTransaction(tx, Coins, blockchain);
-        // GnosisSafeTx.push(safeTx!)
-        // anyARr.push(tx);
 
+        safeTransactions.push(safeTx!);
       }
     }
 
-    res.status(200).json(transactionArray);
+    if (blockchain.includes("evm") && name === "GnosisSafe") {
+      res.status(200).json(safeTransactions);
+    } else {
+      res.status(200).json(transactionArray);
+    }
   } catch (e: any) {
     console.error(e);
     throw new Error(e);

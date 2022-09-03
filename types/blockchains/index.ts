@@ -70,7 +70,7 @@ export const Blockchains: BlockchainType[] = [
   {
     name: "celo",
     displayName: "Celo",
-    nativeToken: "CELO",
+    nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
     rpcUrl: "https://forno.celo.org",
     explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "celoCurrency",

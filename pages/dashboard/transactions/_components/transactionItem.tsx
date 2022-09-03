@@ -23,8 +23,9 @@ import { DropDownItem, TransactionDirection } from "types";
 import { useAppSelector } from "redux/hooks";
 import { AddressReducer } from "utils";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
-import { SelectAccounts, SelectCurrencies } from "redux/slices/account/selector";
+import { SelectAccounts, SelectAllBudgets, SelectCurrencies } from "redux/slices/account/selector";
 import { DecimalConverter } from "utils/api";
+import { IBudget } from "firebaseConfig";
 
 const TransactionItem = ({
   transaction,
@@ -39,7 +40,6 @@ const TransactionItem = ({
   direction?: TransactionDirection;
   status: string;
 }) => {
-  const currencies = useAppSelector(SelectCurrencies);
 
   const divRef = useRef<HTMLDivElement>(null);
   const typeRef = useRef<HTMLDivElement>(null);
@@ -51,17 +51,12 @@ const TransactionItem = ({
   const tags = useSelector(selectTags);
   const [Transaction, setTransaction] = useState(transaction);
   const [IsMultiple, setIsMultiple] = useState(isMultiple);
-  const { GetCoins, fromMinScale } = useWalletKit();
-  const [budgetSelected, setBudgetSelected] = useState(true);
-  const router = useRouter();
+  const { GetCoins } = useWalletKit();
 
   const isMultisig = "destination" in transaction;
 
-  const paymentname: DropDownItem[] = [
-    { name: "Development" },
-    { name: "Security" },
-  ];
-  const [selectedPayment, setSelectedPayment] = useState(paymentname[0]);
+  const budgets = useAppSelector(SelectAllBudgets);
+  const [selectedBudget, setSelectedPayment] = useState<IBudget | null>(transaction.budget ?? null);
 
   const isSwap = Transaction.id === ERC20MethodIds.swap;
   const isComment = Transaction.id === ERC20MethodIds.transferWithComment;
@@ -158,9 +153,9 @@ const TransactionItem = ({
             </div>
           </div>
         </div>
-        {budgetSelected ? (
+        {selectedBudget ? (
           <div className="w-1/2  bg-light dark:bg-darkSecond rounded-lg border-2 py-1 px-2">
-            {paymentname[0].name.slice(0, 8) + "."}
+            {selectedBudget.name.slice(0, 8) + "."}
           </div>
         ) : (
           <Dropdown
@@ -168,8 +163,8 @@ const TransactionItem = ({
               "w-[70%]  bg-light dark:bg-darkSecond rounded-lg !z-[9999]"
             }
             label="Budget"
-            list={paymentname}
-            selected={selectedPayment}
+            list={budgets}
+            selected={selectedBudget ?? undefined}
             setSelect={setSelectedPayment}
           />
         )}
@@ -327,7 +322,7 @@ const TransactionItem = ({
                   >
                     <div className="flex flex-col">
                       <span>
-                        {parseFloat(fromMinScale(SwapData.amountIn)).toFixed(2)}
+                        {DecimalConverter(SwapData.amountIn, SwapData.coinIn.decimals).toFixed(2)}
                       </span>
                       <span className="text-greylish text-sm">$2345</span>
                     </div>

@@ -1,5 +1,5 @@
 export interface GnosisDataDecoded {
-    method: string;
+    method: "transfer" | "changeThreshold" | "addOwnerWithThreshold" | "removeOwner" | "rejectionTransaction";
     parameters: {
         name: string;
         type: string;
@@ -15,18 +15,6 @@ export interface GnosisConfirmation {
     signatureType: string
 }
 
-export interface GnosisTransactionTransfers {
-    type: string;
-    executionDate: string,
-    blockNumber: number;
-    transactionHash: string;
-    to: string;
-    value: string;
-    tokenId: number | string | null,
-    tokenAddress: string | null;
-    tokenInfo: null,
-    from: string; 
-}
 
 export interface GnosisTransaction {
     safe: string,
@@ -60,6 +48,5 @@ export interface GnosisTransaction {
     confirmations: GnosisConfirmation[],
     trusted: boolean,
     signatures: string,
-    transfers: GnosisTransactionTransfers[] | [],
     txType: string
 }
