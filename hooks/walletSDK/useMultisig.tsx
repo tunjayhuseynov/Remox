@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { auth, IAccount, IBudget, Image, IMember } from 'firebaseConfig';
+import { auth, IAccount, Image, IMember } from 'firebaseConfig';
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import * as borsh from '@project-serum/borsh';
 import BN from 'bn.js'
@@ -24,6 +24,25 @@ import { Multisig_Fetch_Thunk } from "redux/slices/account/thunks/multisig";
 import { useCelo } from "@celo/react-celo";
 import { ITag } from "pages/api/tags/index.api";
 import { AltCoins, GnosisConfirmation, GnosisDataDecoded } from "types";
+import { ethers } from "ethers";
+import EthersAdapter from "@gnosis.pm/safe-ethers-lib";
+import Safe, {
+    AddOwnerTxParams,
+    RemoveOwnerTxParams,
+    SafeFactory,
+    SafeTransactionOptionalProps,
+} from "@gnosis.pm/safe-core-sdk";
+import { SafeAccountConfig } from "@gnosis.pm/safe-core-sdk";
+import SafeServiceClient, {
+    SafeMultisigTransactionResponse,
+} from "@gnosis.pm/safe-service-client";
+import {
+    MetaTransactionData,
+    SafeTransactionData,
+    SafeTransactionDataPartial,
+} from "@gnosis.pm/safe-core-sdk-types";
+import { EthSignSignature } from "@gnosis.pm/safe-core-sdk";
+
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 const multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
@@ -37,7 +56,7 @@ export interface ITransactionMultisig {
     contractThresholdAmount: number,
     contractInternalThresholdAmount: number,
     data?: string,
-    isExecuted: boolean,
+    executed: boolean,
     confirmations: string[],
     value: string,
     id?: number | string,
@@ -45,15 +64,14 @@ export interface ITransactionMultisig {
     owner?: string,
     newOwner?: string,
     valueOfTransfer?: string,
-    type: string,
+    method: string,
     timestamp: number,
     created_at: number,
-    tags: ITag[],
-    budget: IBudget | null,
+    tags: ITag[]
 }
 
 export interface IMultisigSafeTransaction {
-    type: "transfer" | "changeThreshold" | "addOwnerWithThreshold" | "removeOwner" | "rejectionTransaction",
+    type: string,
     data: string | null,
     nonce: number,
     executionDate: string | null,
@@ -73,7 +91,7 @@ export interface IMultisigSafeTransaction {
     contractAddress: string,
     contractThresholdAmount: number,
     tags: ITag[],
-} 
+}
 
 export interface GnosisSettingsTx  {
     dataDecoded: GnosisDataDecoded,
@@ -157,6 +175,8 @@ export default function useMultisig() {
         return { sdk, provider };
     }
 
+    const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")!.txServiceUrl!;
+
     const GokiProgram = (multisigAddress?: string) => {
         const connection = new Connection(SolanaSerumEndpoint, "finalized");
         const Provider = new SolanaReadonlyProvider(connection)
@@ -170,7 +190,7 @@ export default function useMultisig() {
     }
 
     const createMultisigAccount = useCallback(async (owners: string[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual") => {
-        let proxyAddress, provider: IAccount["provider"];
+        let proxyAddress: string, provider: IAccount["provider"];
 
         if (!blockchain) throw new Error("Blockchain is not selected")
         if (!auth.currentUser) throw new Error("User is not logged in")
@@ -221,6 +241,33 @@ export default function useMultisig() {
 
             proxyAddress = smartWalletBase.publicKey.toBase58();
             provider = "Goki"
+
+        } else if (blockchain.name.includes("evm")) {
+            const web3Provider = (window as any).ethereum;
+            const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
+            const safeOwner = ethersProvider.getSigner();
+            const ethAdapter = new EthersAdapter({
+              ethers,
+              signer: safeOwner,
+            });
+
+            const safeFactory = await SafeFactory.create({
+                ethAdapter,
+                isL1SafeMasterCopy: false,
+            });
+
+            const safeAccountConfig: SafeAccountConfig = {
+                owners: owners.map((owner) => owner),
+                threshold: internalSign,
+            };
+
+            const safeSdk = await safeFactory.deploySafe({ safeAccountConfig });
+
+            const safeAddress = safeSdk.getAddress();
+
+            proxyAddress = safeAddress;
+
+            provider = "GnosisSafe"
 
         } else {
             if (!address) throw new Error("Address is not selected")
@@ -331,6 +378,29 @@ export default function useMultisig() {
                 members = [...owners];
                 provider = "CeloTerminal"
                 if (!isOwner) throw new Error("You are not an owner in this multisig address");
+            } else if (blockchain.name.includes('evm')) {
+                const web3Provider = (window as any).ethereum;
+                const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = ethersProvider.getSigner();
+
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+
+                const safeAddress = contractAddress;
+
+                const safeSdk = await Safe.create({
+                    ethAdapter,
+                    safeAddress,
+                    isL1SafeMasterCopy: false,
+                });
+
+                const owners = await safeSdk.getOwners();
+
+                members = [...owners];
+
+                provider = "GnosisSafe"
             }
 
             let myResponse: IAccount = {
@@ -378,7 +448,7 @@ export default function useMultisig() {
     }
 
 
-    const removeOwner = useCallback(async (multisigAddress: string, ownerAddress: string) => {
+    const removeOwner = useCallback(async (multisigAddress: string, ownerAddress: string, newInternalSign?: number) => {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
@@ -407,6 +477,50 @@ export default function useMultisig() {
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
+            } else if (blockchain.name.includes('evm')) {
+                const web3Provider = (window as any).ethereum;
+                const provider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = provider.getSigner();
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+
+
+            
+                const safeSdk = await Safe.create({
+                  ethAdapter,
+                  safeAddress: multisigAddress,
+                  isL1SafeMasterCopy: false,
+                });
+            
+                const threshold = await safeSdk.getThreshold();
+
+                const params: RemoveOwnerTxParams = {
+                  ownerAddress,
+                  threshold: newInternalSign ? newInternalSign : threshold,
+                };
+            
+                const safeService = new SafeServiceClient({
+                  txServiceUrl,
+                  ethAdapter,
+                });
+
+                const senderAddress = await safeOwner.getAddress();
+
+                const safeTransaction = await safeSdk.getRemoveOwnerTx(params);
+
+                const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+
+                const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+
+                await safeService.proposeTransaction({
+                  safeAddress: multisigAddress,
+                  safeTransactionData: safeTransaction.data,
+                  safeTxHash,
+                  senderAddress: senderAddress,
+                  senderSignature: senderSignature.data,
+                });
             }
 
 
@@ -437,41 +551,78 @@ export default function useMultisig() {
                     return true;
                 }
                 throw new Error("Wallet has no data")
+            } else if(blockchain.name === 'celo') {
+                if (!address) throw new Error("Address is not selected")
+
+                const web3 = new Web3((window as any).celo);
+
+                const Multisig = await multisigContract
+
+                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+
+
+                const countOwners = (await contract.methods.getOwners().call()).length
+                if (sign > countOwners) {
+                    throw new Error("Requested Sign exceeds the number of owners");
+                }
+                if (internalSign > countOwners) {
+                    throw new Error("Requested Internal Sign exceeds the number of owners");
+                }
+
+                if (isSign) {
+                    await contract.methods.changeRequirement(sign).send({
+                        from: address,
+                        gas: 25000,
+                        gasPrice: "5000000000",
+                    })
+                }
+
+                if (isInternal) {
+                    await contract.methods.changeInternalRequirement(internalSign).send({
+                        from: address,
+                        gas: 25000,
+                        gasPrice: "5000000000",
+                    })
+                }
+                return true;
+            } else if(blockchain.name.includes("evm")){
+                const web3Provider = (window as any).ethereum;
+                const provider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = provider.getSigner();
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+
+                const safeSdk = await Safe.create({
+                  ethAdapter,
+                  safeAddress: multisigAddress,
+                  isL1SafeMasterCopy: false,
+                });
+            
+                const safeService = new SafeServiceClient({
+                  txServiceUrl,
+                  ethAdapter,
+                });
+            
+                const senderAddress = await safeOwner.getAddress();
+            
+                const safeTransaction = await safeSdk.getChangeThresholdTx(internalSign);
+                const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+            
+                const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+            
+                await safeService.proposeTransaction({
+                  safeAddress: multisigAddress,
+                  safeTransactionData: safeTransaction.data,
+                  safeTxHash,
+                  senderAddress: senderAddress,
+                  senderSignature: senderSignature.data,
+                });
+            
+                return safeTxHash;
             }
 
-            if (!address) throw new Error("Address is not selected")
-
-            const web3 = new Web3((window as any).celo);
-
-            const Multisig = await multisigContract
-
-            const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
-
-
-            const countOwners = (await contract.methods.getOwners().call()).length
-            if (sign > countOwners) {
-                throw new Error("Requested Sign exceeds the number of owners");
-            }
-            if (internalSign > countOwners) {
-                throw new Error("Requested Internal Sign exceeds the number of owners");
-            }
-
-            if (isSign) {
-                await contract.methods.changeRequirement(sign).send({
-                    from: address,
-                    gas: 25000,
-                    gasPrice: "5000000000",
-                })
-            }
-
-            if (isInternal) {
-                await contract.methods.changeInternalRequirement(internalSign).send({
-                    from: address,
-                    gas: 25000,
-                    gasPrice: "5000000000",
-                })
-            }
-            return true;
         } catch (error) {
             console.error(error)
             throw new Error("Error changing signs")
@@ -512,6 +663,51 @@ export default function useMultisig() {
                         gas: 25000,
                         gasPrice: "5000000000",
                     })
+                } else if (blockchain.name.includes("evm")) {
+                    const web3Provider = (window as any).ethereum;
+                    const provider = new ethers.providers.Web3Provider(web3Provider);
+                    const safeOwner = provider.getSigner();
+                    const ethAdapter = new EthersAdapter({
+                      ethers,
+                      signer: safeOwner,
+                    });
+
+                
+                    const safeSdk = await Safe.create({
+                      ethAdapter,
+                      safeAddress: multisigAddress,
+                      isL1SafeMasterCopy: false,
+                    });
+                
+                    const threshold = await safeSdk.getThreshold();
+                
+                    const params: AddOwnerTxParams = {
+                      ownerAddress: newOwner,
+                      threshold: threshold,
+                    };
+                
+                    const safeService = new SafeServiceClient({
+                      txServiceUrl,
+                      ethAdapter,
+                    });
+                
+                    const senderAddress = await safeOwner.getAddress();
+                
+                    const safeTransaction = await safeSdk.getAddOwnerTx(params);
+                
+                    const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                
+                    const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+                
+                    await safeService.proposeTransaction({
+                      safeAddress: multisigAddress,
+                      safeTransactionData: safeTransaction.data,
+                      safeTxHash,
+                      senderAddress: senderAddress,
+                      senderSignature: senderSignature.data,
+                    });
+                
+                    return safeTxHash;
                 }
 
                 // await Add_Member(newOwner, name, image, mail)
@@ -586,7 +782,7 @@ export default function useMultisig() {
         }
     }, [])
 
-    const submitTransaction = async (multisigAddress: string, data: string | TransactionInstruction[], destination: string | null) => {
+    const submitTransaction = async (multisigAddress: string, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, optionals?: SafeTransactionOptionalProps, ) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (blockchain.name === 'solana') {
@@ -600,29 +796,121 @@ export default function useMultisig() {
                     return reciept.signature
                 }
                 throw new Error("Wallet has no data")
+            } else if(blockchain.name === "celo"){    
+                if (!destination) throw new Error("Destination is not selected")
+                if (!address) throw new Error("Address is not selected")
+                const web3 = new Web3((window as any).celo);
+
+                const Multisig = await multisigContract
+
+                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+
+                const txHash = await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
+                    from: address,
+                    gas: 250000,
+                    gasPrice: "5000000000",
+                })
+
+                return txHash as string
+            } else if(blockchain.name.includes("evm")){
+                const web3Provider = (window as any).ethereum;
+                const provider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = provider.getSigner();
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+            
+                const safeSdk = await Safe.create({
+                  ethAdapter,
+                  safeAddress: multisigAddress,
+                  isL1SafeMasterCopy: false,
+                });
+            
+                const safeService = new SafeServiceClient({
+                  txServiceUrl,
+                  ethAdapter,
+                });
+            
+                const senderAddress = await safeOwner.getAddress();
+            
+                if (data.length > 0) {
+                    if (data.length === 1) {
+                        const transaction: SafeTransactionDataPartial = {
+                          to: (data[0] as MetaTransactionData).to,
+                          data: (data[0] as MetaTransactionData).data,
+                          value: (data[0] as MetaTransactionData).value,
+                          operation: (data[0] as MetaTransactionData).operation,
+                          safeTxGas: optionals?.safeTxGas,
+                          baseGas: optionals?.baseGas, // Optional
+                          gasPrice: optionals?.gasPrice, // Optional
+                          gasToken: optionals?.gasToken, // Optional
+                          refundReceiver: optionals?.refundReceiver, // Optional
+                          nonce: optionals?.nonce, // Optional
+                        };
+                    
+                        const safeTransaction = await safeSdk.createTransaction(transaction);
+                    
+                        const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                    
+                        const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+                    
+                        await safeService.proposeTransaction({
+                          safeAddress: multisigAddress,
+                          safeTransactionData: safeTransaction.data,
+                          safeTxHash,
+                          senderAddress,
+                          senderSignature: senderSignature.data,
+                        });
+                    
+                        return safeTxHash;
+                    } else {
+                        const transactions: MetaTransactionData[] = (data as MetaTransactionData[]).map((tx) => {
+                          return {
+                            to: tx.to,
+                            data: tx.data,
+                            value: tx.value,
+                            operation: tx.operation,
+                          };
+                        });
+                    
+                        const options: SafeTransactionOptionalProps = {
+                          safeTxGas: optionals?.safeTxGas, // Optional
+                          baseGas: optionals?.baseGas, // Optional
+                          gasPrice: optionals?.gasPrice, // Optional
+                          gasToken: optionals?.gasToken, // Optional
+                          refundReceiver: optionals?.refundReceiver, // Optional
+                          nonce: optionals?.nonce, // Optional
+                        };
+                    
+                        const safeTransaction = await safeSdk.createTransaction(
+                          transactions,
+                          options
+                        );
+                        
+                        const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                        
+                        const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+                        
+                        await safeService.proposeTransaction({
+                          safeAddress: multisigAddress,
+                          safeTransactionData: safeTransaction.data,
+                          safeTxHash,
+                          senderAddress,
+                          senderSignature: senderSignature.data,
+                          origin,
+                        });
+                    
+                        return safeTxHash;
+                    }
+                }
             }
-
-            if (!destination) throw new Error("Destination is not selected")
-            if (!address) throw new Error("Address is not selected")
-            const web3 = new Web3((window as any).celo);
-
-            const Multisig = await multisigContract
-
-            const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
-
-            const txHash = await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
-                from: address,
-                gas: 250000,
-                gasPrice: "5000000000",
-            })
-
-            return txHash as string
         } catch (e: any) {
             throw new Error(e);
         }
     }
 
-    const revokeTransaction = async (multisigAddress: string, transactionId: string) => {
+    const revokeTransaction = async (multisigAddress: string, transactionId: string, safeTxHash?: string) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (blockchain.name === 'solana') {
@@ -642,28 +930,56 @@ export default function useMultisig() {
                     return { message: "sucess" }
                 }
                 throw new Error("Wallet has no data")
+            } else if (blockchain.name === "celo") {
+                const web3 = new Web3((window as any).celo);
+
+                const Multisig = await multisigContract
+
+                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+
+                await contract.methods.revokeConfirmation(transactionId).send({
+                    from: address,
+                    gas: 25000,
+                    gasPrice: "5000000000",
+                })
+
+
+                return { message: "success" }
+            } 
+            else if (blockchain.name.includes("evm")){
+                const web3Provider = (window as any).ethereum;
+                const provider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = provider.getSigner();
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+
+                const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
+
+                const transaction = await safeService.getTransaction(safeTxHash!);
+            
+                const nonce = transaction.nonce;
+            
+                const safeSdk = await Safe.create({
+                  ethAdapter,
+                  safeAddress: multisigAddress,
+                  isL1SafeMasterCopy: false,
+                });
+            
+                const rejectionTransaction = await safeSdk.createRejectionTransaction(
+                  nonce
+                );
+                
+                const transactionHash = await safeSdk.getTransactionHash(rejectionTransaction);
+                return transactionHash;
             }
-
-            const web3 = new Web3((window as any).celo);
-
-            const Multisig = await multisigContract
-
-            const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
-
-            await contract.methods.revokeConfirmation(transactionId).send({
-                from: address,
-                gas: 25000,
-                gasPrice: "5000000000",
-            })
-
-
-            return { message: "success" }
         } catch (e: any) {
             throw new Error(e);
         }
     }
 
-    const confirmTransaction = async (multisigAddress: string, transactionId: string | number) => {
+    const confirmTransaction = async (multisigAddress: string, transactionId: string | number, safeTxHash?: string ) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (blockchain.name === 'solana') {
@@ -676,54 +992,154 @@ export default function useMultisig() {
                     return { message: "sucess" }
                 }
                 throw new Error("Wallet has no data")
-            }
+            } else if (blockchain.name.includes("evm")) {
+                const web3Provider = (window as any).ethereum;
+                const provider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = provider.getSigner();
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+
+                const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
+
+                const transaction = await safeService.getTransaction(safeTxHash!)
+
+                const safeAddress = transaction.safe;
+
+                const safeSdk = await Safe.create({
+                  ethAdapter,
+                  safeAddress,
+                  isL1SafeMasterCopy: false,
+                });
+
+                const threshold = await safeSdk.getThreshold();
+
+                let signature = await safeSdk.signTransactionHash(
+                    transaction!.safeTxHash
+                );
+          
+                await safeService.confirmTransaction(
+                    transaction!.safeTxHash,
+                    signature.data
+                );
+          
+                const onwerAddress = await safeOwner.getAddress();
+          
+                const ethSignuture = new EthSignSignature(onwerAddress, signature.data);
+
+                if (transaction!.confirmations!.length + 1 >= threshold) {
+                    const receipt = await executeTransaction(multisigAddress, safeTxHash!, ethSignuture)
+
+                }
 
 
-            const web3 = new Web3((window as any).celo);
+            } else if (blockchain.name === "celo") {
+                const web3 = new Web3((window as any).celo);
 
-            const Multisig = await multisigContract
+                const Multisig = await multisigContract
 
-            const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
 
-            await contract.methods.confirmTransaction(transactionId).send({
-                from: address,
-                gas: 25000,
-                gasPrice: "5000000000",
-            })
+                await contract.methods.confirmTransaction(transactionId).send({
+                    from: address,
+                    gas: 25000,
+                    gasPrice: "5000000000",
+                })
 
-            return { message: "success" }
+                return { message: "success" }
+            }   
         } catch (e: any) {
             throw new Error(e);
         }
     }
 
-    const executeTransaction = async (multisigAddress: string, transactionId: string | number) => {
+    const executeTransaction = async (multisigAddress: string, transactionId?: string | number, safeTxHash?: string, ethSignuture?: EthSignSignature) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
-                    const tx = await wallet.executeTransaction({ transactionKey: new PublicKey(transactionId), owner: publicKey! })
+                    const tx = await wallet.executeTransaction({ transactionKey: new PublicKey(transactionId!), owner: publicKey! })
                     const pending = await wallet.newTransactionFromEnvelope({ tx })
                     await pending.tx.confirm()
                     return { message: "sucess" }
                 }
                 throw new Error("Wallet has no data")
+            } else if (blockchain.name === "celo") {
+                const web3 = new Web3((window as any).celo);
+
+                const Multisig = await multisigContract
+
+                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+
+                await contract.methods.executeTransaction(transactionId).send({
+                    from: address,
+                    gas: 25000,
+                    gasPrice: "5000000000",
+                })
+
+            } else if (blockchain.name.includes("evm")) {
+                const web3Provider = (window as any).ethereum;
+                const provider = new ethers.providers.Web3Provider(web3Provider);
+                const safeOwner = provider.getSigner();
+                const ethAdapter = new EthersAdapter({
+                  ethers,
+                  signer: safeOwner,
+                });
+
+                const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
+
+                const transaction = await safeService.getTransaction(safeTxHash!)
+
+                const safeAddress = transaction.safe;
+
+                const safeSdk = await Safe.create({
+                  ethAdapter,
+                  safeAddress,
+                  isL1SafeMasterCopy: false,
+                });
+
+
+                const safeTransactionData: SafeTransactionData = {
+                    to: transaction!.to,
+                    value: transaction!.value,
+                    data: transaction!.data!,
+                    operation: transaction!.operation,
+                    safeTxGas: transaction!.safeTxGas,
+                    baseGas: transaction!.baseGas,
+                    gasPrice: Number(transaction!.gasPrice),
+                    gasToken: transaction!.gasToken,
+                    refundReceiver: transaction!.refundReceiver!,
+                    nonce: transaction!.nonce,
+                  };
+        
+                  const safeTransaction = await safeSdk.createTransaction(
+                    safeTransactionData
+                  );
+
+
+                  transaction.confirmations?.forEach((confirmation) => {
+                    const signature = new EthSignSignature(
+                      confirmation.owner,
+                      confirmation.signature
+                    );
+                    safeTransaction.addSignature(signature);
+                  });
+                  safeTransaction.addSignature(ethSignuture!);
+        
+                  const executeTxResponse = await safeSdk.executeTransaction(
+                    safeTransaction
+                  );
+                  const receipt =
+                    executeTxResponse.transactionResponse &&
+                    (await executeTxResponse.transactionResponse.wait());
+        
+                  return receipt;
             }
-
-            const web3 = new Web3((window as any).celo);
-
-            const Multisig = await multisigContract
-
-            const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
-
-            await contract.methods.executeTransaction(transactionId).send({
-                from: address,
-                gas: 25000,
-                gasPrice: "5000000000",
-            })
-
+            
+            
             return { message: "success" }
         } catch (e: any) {
             throw new Error(e);

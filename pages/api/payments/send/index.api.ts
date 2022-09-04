@@ -60,6 +60,8 @@ export default async function Send(
         const { blockchain, requests, executer, isStreaming, endTime, startTime, swap, accountId } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
         if (requests.length === 0 && !swap) throw new Error("requests is required");
+        console.log("blockchain", blockchain);
+        
 
         const Blockchain = Blockchains.find(s => s.name === blockchain)!
         const CoinsReq = await adminApp.firestore().collection(Blockchain.currencyCollectionName).get()
