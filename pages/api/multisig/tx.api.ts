@@ -254,7 +254,6 @@ export default async function handler(
             const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/multisig-transactions/${index}`;
             const response = await axios.get(api);
             const transactionsData = response.data;
-
             const { data: sign } = await axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
                 params: {
                     blockchain,

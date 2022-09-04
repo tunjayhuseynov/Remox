@@ -7,6 +7,7 @@ import nomAbi from "rpcHooks/ABI/nom.json";
 import ERC20 from "rpcHooks/ABI/erc20.json";
 import Web3 from "web3";
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
+import axios from "axios";
 
 
 
@@ -40,9 +41,9 @@ export const GenerateTxEvm = async (
 
 export const GenerateSwapDataEvm = async (swap: ISwap, chainId: number) => {
   const swapParams: ISwapParam1inch = {
-    fromTokenAddress: swap.inputCoin.address,
-    toTokenAddress: swap.outputCoin.address,
-    amount: swap.amount,
+    fromTokenAddress: swap.inputCoin.toString(),
+    toTokenAddress: swap.outputCoin.toString(),
+    amount: (+swap.amount * Math.pow(10, 6)).toString(),
     fromAddress: swap.account,
     slippage: +swap.slippage,
     disableEstimate: false,
@@ -62,8 +63,11 @@ export const GenerateSwapDataEvm = async (swap: ISwap, chainId: number) => {
 
   async function buildTxForSwap(swapParams: ISwapParam1inch) {
     const url = apiRequestUrl("/swap", swapParams);
-    const res = await fetch(url);
-    const result = await res.json();
+    console.log("url", url);
+  
+    const res = await axios.get(url);
+    console.log("res", res);
+    const result = await res.data;
     const tx = result.tx;
 
     return {
