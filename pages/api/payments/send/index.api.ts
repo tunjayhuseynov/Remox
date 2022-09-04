@@ -91,7 +91,7 @@ export default async function Send(
                 const data = await GenerateSwapData(swap)
                 return res.json({
                     data,
-                    destination: "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"
+                    destination: Blockchain.swapProtocols[0].contractAddress
                 })
             }
             if (requests.length > 1) {

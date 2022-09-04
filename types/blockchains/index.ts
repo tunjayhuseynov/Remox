@@ -1,29 +1,30 @@
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import { CoinsURL } from "types/coins";
+import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
 
 export type BlockchainType = {
   name:
-    | "celo"
-    | "solana"
-    | "ethereum_evm"
-    | "arbitrum_evm"
-    | "avalanche_evm"
-    | "binance_evm"
-    | "fantom_evm"
-    | "gnosis_evm"
-    | "optimism_evm"
-    | "polygon_evm";
+  | "celo"
+  | "solana"
+  | "ethereum_evm"
+  | "arbitrum_evm"
+  | "avalanche_evm"
+  | "binance_evm"
+  | "fantom_evm"
+  | "gnosis_evm"
+  | "optimism_evm"
+  | "polygon_evm";
   displayName:
-    | "Celo"
-    | "Solana"
-    | "Ethereum"
-    | "Arbitrum"
-    | "Avalanche"
-    | "Binance Smart Chain"
-    | "Fantom"
-    | "Gnosis Smart Chain"
-    | "Optimism"
-    | "Polygon";
+  | "Celo"
+  | "Solana"
+  | "Ethereum"
+  | "Arbitrum"
+  | "Avalanche"
+  | "Binance Smart Chain"
+  | "Fantom"
+  | "Gnosis Smart Chain"
+  | "Optimism"
+  | "Polygon";
   currencyCollectionName: string;
   nativeToken: string;
   chainId?: number;
@@ -32,6 +33,7 @@ export type BlockchainType = {
   logoUrl: string;
   multisigProviders: {
     name: string;
+    abi: AbiItem[];
     txServiceUrl?: string;
   }[];
   swapProtocols: {
@@ -78,6 +80,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "Celo Terminal",
+        abi: CeloTerminal.abi as AbiItem[],
       },
     ],
     swapProtocols: [
@@ -121,6 +124,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "Goki",
+        abi: [],
       },
     ],
     swapProtocols: [
@@ -166,6 +170,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
+        abi: [],
       },
     ],
     swapProtocols: [
@@ -1979,6 +1984,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.polygon.gnosis.io",
+        abi: []
       },
     ],
     swapProtocols: [
@@ -4232,6 +4238,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.optimism.gnosis.io/",
+        abi: []
       },
     ],
     swapProtocols: [
@@ -4274,6 +4281,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.avalanche.gnosis.io/",
+        abi: []
       },
     ],
     swapProtocols: [
@@ -4472,6 +4480,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.bsc.gnosis.io/",
+        abi: [],
       },
     ],
     swapProtocols: [
@@ -4513,6 +4522,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.arbitrum.gnosis.io/",
+        abi: []
       },
     ],
     swapProtocols: [
@@ -4554,6 +4564,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        abi: []
       },
     ],
     swapProtocols: [
@@ -4596,6 +4607,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.xdai.gnosis.io/",
+        abi: []
       },
     ],
     swapProtocols: [

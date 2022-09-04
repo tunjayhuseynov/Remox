@@ -16,9 +16,19 @@ const variants = {
         height: "auto"
     }
 }
-interface IProps { method?: string, children: JSX.Element, date?: string, dataCount: number, status: TransactionStatus, direction?: TransactionDirection, grid?: string, color?: string }
+interface IProps {
+    children: JSX.Element,
+    date?: string,
+    dataCount: number,
+    status: TransactionStatus,
+    direction?: TransactionDirection,
+    grid?: string,
+    color?: string,
+    threshold?: number,
+    signCount?: number,
+}
 
-const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCount, status, direction, grid = "grid-cols-[37%,25%,38%]", method, color }, ref) => {
+const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCount, status, direction, grid = "grid-cols-[37%,25%,38%]", color, threshold, signCount }, ref) => {
 
     const [isOpen, setOpen] = useState(false)
     const click = () => {
@@ -36,10 +46,9 @@ const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCoun
                     {dataCount === 1 ? "1 Payment" : `${dataCount} Payments`}
                 </div>
                 <div className="text-sm text-greylish">
-                   - {method}
                     {direction !== undefined && date &&
                         <>
-                            {TransactionDirection.Swap === direction ? "Swapped" : ""}
+                            - {TransactionDirection.Swap === direction ? "Swapped" : ""}
                             {TransactionDirection.In === direction ? "Received" : ""}
                             {TransactionDirection.Borrow === direction ? "Borrowed" : ""}
                             {TransactionDirection.Withdraw === direction ? "Withdrawn" : ""}
@@ -47,8 +56,8 @@ const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCoun
                             {TransactionDirection.Deposit === direction ? "Deposited" : ""}
                             {TransactionDirection.AutomationOut === direction ? "Executed (A)" : ""}
                             {TransactionDirection.AutomationIn === direction ? "Received (A)" : ""}
-                            {TransactionDirection.Out === direction ? "Executed" : ""} on {" "}
-                            {dateFormat(new Date(parseInt(date) * 1e3), "mediumDate") + `, 14:50`}</> } 
+                            {TransactionDirection.Out === direction ? "Executed" : ""} on {dateFormat(new Date(parseInt(date) * 1e3), "mmm d, yyyy, HH:MM")}</>}
+                    {/* {(!direction) && "- N/A"} */}
                 </div>
 
                 <div className="flex ">
@@ -56,14 +65,18 @@ const Accordion = forwardRef<HTMLDivElement, IProps>(({ children, date, dataCoun
                         {status === TransactionStatus.Completed && <div className="bg-green-400 w-2 h-2 rounded-full"></div>}
                         {status === TransactionStatus.Pending && <div className="bg-primary w-2 h-2 rounded-full"></div>}
                         {status === TransactionStatus.Rejected && <div className="bg-red-600 w-2 h-2 rounded-full"></div>}
-                        <div>{status === "Completed" && "Approved"}</div>
+                        {status === TransactionStatus.Completed && <div>Approved</div>}
+                        {status === TransactionStatus.Pending && <div>Pending</div>}
+                        {status === TransactionStatus.Rejected && <div>Rejected</div>}
                     </div>
-                    <div className=" grid grid-cols-[20%,60%,20%] h-full items-center  text-greylish w-full">
-                        <div className="">| {status === TransactionStatus.Completed ? "3" : status === TransactionStatus.Pending && "2"} / 3</div>
+                    {!!signCount && !!threshold && <div className=" grid grid-cols-[20%,60%,20%] h-full items-center  text-greylish w-full">
+                        <div className="">| {status === TransactionStatus.Completed ? threshold : status === TransactionStatus.Pending && signCount} / {threshold}</div>
                         <div className="relative  rounded-xl bg-greylish bg-opacity-10 w-full h-[1rem]">
-                            {status === TransactionStatus.Pending ? <div className="absolute rounded-xl h-full bg-primary w-[66%]"></div> : status === TransactionStatus.Completed && <div className="absolute h-full rounded-xl  bg-green-600 w-full"></div>}
+                            {status === TransactionStatus.Pending ? <div className="absolute rounded-xl h-full bg-primary" style={{
+                                width: `${signCount / threshold * 100}%`
+                            }}></div> : status === TransactionStatus.Completed && <div className="absolute h-full rounded-xl bg-green-600 w-full"></div>}
                         </div>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>

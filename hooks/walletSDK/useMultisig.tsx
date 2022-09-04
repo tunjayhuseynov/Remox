@@ -53,7 +53,7 @@ export interface ITransactionMultisig {
 }
 
 export interface IMultisigSafeTransaction {
-    type: "transfer" | "changeThreshold" | "addOwnerWithThreshold" | "removeOwner" | "rejectionTransaction",
+    type: string,
     data: string | null,
     nonce: number,
     executionDate: string | null,

@@ -6,9 +6,11 @@ import Link from "next/link";
 import SingleTxDetails from './SingleTxDetails';
 import Button from 'components/button';
 import MultisigTxDetails from './MultisigTxDetails';
+import { TransactionDirectionDeclare } from "utils";
+import { IAccount } from 'firebaseConfig';
 
-
-const MultisigTx = forwardRef<HTMLDivElement, { Address: string | undefined, GetCoins: Coins, tx: ITransactionMultisig | IMultisigSafeTransaction }>(({ Address, GetCoins, tx }, ref) => {
+interface IProps { Address: string | undefined, GetCoins: Coins, tx: ITransactionMultisig | IMultisigSafeTransaction, accounts: string[], multisigAccount: IAccount | undefined, }
+const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ Address, GetCoins, tx, accounts, multisigAccount }, ref) => {
 
     const method = tx.type?.split('').reduce((acc, w, i) => {
         if (i === 0) return acc + w.toUpperCase()
@@ -40,19 +42,32 @@ const MultisigTx = forwardRef<HTMLDivElement, { Address: string | undefined, Get
 
     const hash = isSafe ? tx.safeTxHash : tx.hashOrIndex;
     const contractAddress = isSafe ? tx.contractAddress : tx.contractAddress;
+    let directionType = TransactionDirectionDeclare(tx, accounts);
+    const created = isSafe ? tx.isExecuted ? tx.executionDate! : tx.submissionDate : (tx.timestamp).toString()
 
     return <Accordion
         ref={ref}
-        grid={"grid-cols-[22%,48%,30%] sm:grid-cols-[26%,28.5%,45.5%]"}
+        grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[18%,30%,30%,22%]"}
         dataCount={1}
-        method={method}
+        date={created}
+        direction={directionType}
+        threshold={threshold}
+        signCount={tx.confirmations.length}
         status={tx.isExecuted ? TransactionStatus.Completed : tx.confirmations.length > 0 ? TransactionStatus.Pending : TransactionStatus.Rejected}
         color={"bg-white dark:bg-darkSecond"}
     >
         <div className="grid sm:grid-cols-[20%,30%,25%,25%,] lg:grid-cols-[26.5%,28%,25%,20.5%] min-h-[75px] py-6 items-center">
-            <div>
-                {tx.isExecuted ? <div className="text-white bg-green-500 border-2 border-green-500 rounded-xl px-3 py-1 text-center text-xs w-[125px]">Submitted</div> : null}
-                {tx.isExecuted ? null : owners.includes(Address ?? "") ? <div className="text-white bg-primary border-2 border-primary rounded-xl px-3 py-1 text-center text-xs max-w-[175px]">You&apos;ve Confirmed</div> : <div className="border-2 text-center border-primary  px-3 py-1 rounded-xl text-xs max-w-[175px]">You&apos;ve not confirmed yet</div>}
+            <div className="flex space-x-3 items-center overflow-hidden">
+                <div className={`hidden sm:flex items-center  justify-center`}>
+                    <div className={`bg-greylish bg-opacity-10 w-[2.813rem] h-[2.813rem] text-lg flex items-center justify-center rounded-full font-bold `}>
+                        {!!multisigAccount?.name && multisigAccount.name[0]}
+                    </div>
+                </div>
+                <div className={`sm:flex flex-col justify-center items-start `}>
+                    <div className="text-greylish text-base font-semibold dark:text-white">
+                        {!!multisigAccount?.name && multisigAccount.name}
+                    </div>
+                </div>
             </div>
             <div className="flex flex-col space-y-1">
                 {/* <div>

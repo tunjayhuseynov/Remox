@@ -1,11 +1,14 @@
 import BigNumber from "bignumber.js"
+import InputDataDecoder, { InputData } from "ethereum-input-data-decoder";
 import { IBudget } from "firebaseConfig";
+import { ERC20MethodIds } from "hooks/useTransactionProcess";
 import { MethodIds, MethodNames, ITransactionMultisig, IMultisigSafeTransaction } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
 import { AltCoins, Coins } from "types";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction } from "types/GnosisSafe";
 import { DecimalConverter } from "./api";
+import erc20 from 'rpcHooks/ABI/erc20.json'
 
 export const EVM_WALLET_SIZE = 39;
 export const SOLANA_WALLET_SIZE = 43;
@@ -38,7 +41,7 @@ export const MultisigTxParser = (
         {
             index: number, destination: string, data: string, executed: boolean,
             tags: ITag[], txHashOrIndex: string,
-            confirmations: string[], Value: BigNumber, blockchain: BlockchainType["name"],
+            confirmations: string[], Value: BigNumber, blockchain: BlockchainType,
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string, created_at: number,
@@ -46,8 +49,10 @@ export const MultisigTxParser = (
         }
 ) => {
 
+
+
     let size = 0;
-    if (blockchain === 'solana') size = SOLANA_WALLET_SIZE
+    if (blockchain.name === 'solana') size = SOLANA_WALLET_SIZE
     else size = EVM_WALLET_SIZE
     // let from = blockchain === "solana" ? fromLamport : fromWei
     let obj: ITransactionMultisig = {
@@ -86,20 +91,35 @@ export const MultisigTxParser = (
     obj.valueOfTransfer = ""
 
     if (!parsedData) {
-        let methodId = data.slice(0, 10)
-        obj.type = MethodIds[methodId as keyof typeof MethodIds]
-        if (methodId == MethodNames.changeInternalRequirement || methodId == MethodNames.changeRequirement) {
-            obj.requiredCount = data.slice(data.length - 2)
+        let method: string | null = null;
+        let finalResult: InputData;
+        const decoder = new InputDataDecoder(blockchain.multisigProviders[0].abi);
+        const result = decoder.decodeData(data);
+        if (!result.method) {
+            const decoder = new InputDataDecoder(erc20);
+            const result = decoder.decodeData(data);
+            method = result.method
+            finalResult = result
         } else {
-            obj.owner = "0x" + data.slice(35, 35 + size);
+            method = result.method
+            finalResult = result
+        }
 
-            if (methodId == MethodNames.replaceOwner) obj.newOwner = "0x" + data.slice(98)
-            if (methodId == MethodNames.transfer) {
-                let hex = data.slice(100).replace(/^0+/, '')
-                let value = parseInt(hex, 16)
-                if (coin) {
-                    obj.valueOfTransfer = DecimalConverter(value.toString(), coin.decimals).toString()
-                }
+        if (method) {
+            obj.type = ERC20MethodIds[method as keyof typeof ERC20MethodIds] ?? method
+            if (method == "changeInternalRequirement" || method == "changeRequirement") {
+                obj.requiredCount = (finalResult.inputs[0] as BigNumber).toString()
+            } else if (method == "addOwner") {
+                obj.newOwner = finalResult.inputs[0] as string
+            } else if (method == "removeOwner") {
+                obj.owner = finalResult.inputs[0] as string
+            } else if (method == "replaceOwner") {
+                obj.owner = finalResult.inputs[0] as string
+                obj.newOwner = finalResult.inputs[1] as string
+            }
+            else if (method == "transfer") {
+                obj.valueOfTransfer = (finalResult.inputs[1] as BigNumber).toString()
+                obj.owner = finalResult.inputs[0] as string
             }
         }
     } else {
@@ -118,13 +138,10 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
     const coins: AltCoins[] = Object.values(Coins);
     const blockchain = Blockchains.find((b) => b.name === blockchainName);
 
-    if (tx.safe === tx.to) {
-
-    }
-    else if (tx.dataDecoded === null && tx.value !== "0") {
+    if (tx.dataDecoded === null && tx.value !== "0") {
         const coin = coins.find((c) => c.address.toLowerCase() === blockchain?.nativeToken.toLowerCase())!
         const parsedTx: IMultisigSafeTransaction = {
-            type: "transfer",
+            type: ERC20MethodIds.transfer,
             data: tx.data,
             nonce: tx.nonce,
             executionDate: tx.executionDate,
@@ -153,8 +170,26 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
 
         return parsedTx
     } else if (tx.dataDecoded !== null && tx.to === tx.safe) {
+        let id;
+        switch (tx.dataDecoded.method) {
+            case "addOwnerWithThreshold":
+                id = ERC20MethodIds.addOwner;
+                break;
+            case "changeThreshold":
+                id = ERC20MethodIds.changeThreshold;
+                break;
+            case "rejectionTransaction":
+                id = ERC20MethodIds.rejection;
+                break;
+            case "removeOwner":
+                id = ERC20MethodIds.removeOwner;
+                break;
+            default:
+                id = ERC20MethodIds.transfer;
+                break;
+        }
         const parsedTx: IMultisigSafeTransaction = {
-            type: tx.dataDecoded.method,
+            type: id,
             data: tx.data,
             nonce: tx.nonce,
             executionDate: tx.executionDate,
@@ -181,7 +216,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
     } else if (tx.dataDecoded !== null && tx.to !== tx.safe) {
         const coin = coins.find((c) => c.address.toLowerCase() === tx.to.toLowerCase())!
         const parsedTx: IMultisigSafeTransaction = {
-            type: "transfer",
+            type: ERC20MethodIds.transfer,
             data: tx.data,
             nonce: tx.nonce,
             executionDate: tx.executionDate,
@@ -212,7 +247,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
     } else if (tx.dataDecoded === null && tx.to === tx.safe) {
 
         const parsedTx: IMultisigSafeTransaction = {
-            type: "rejectionTransaction",
+            type: ERC20MethodIds.rejection,
             data: tx.data,
             nonce: tx.nonce,
             executionDate: tx.executionDate,

@@ -32,6 +32,8 @@ import axios from "axios";
 import { AltCoins, Coins, CoinsName } from "types";
 import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
+import { BASE_URL } from "utils/api";
+import { IMultisigThreshold } from "./sign.api";
 
 export default async function handler(
     req: NextApiRequest,
@@ -62,6 +64,7 @@ export default async function handler(
         const Blockchain = Blockchains.find(
             (blch: BlockchainType) => blch.name === blockchain
         );
+        if(!Blockchain) throw new Error("Blockchain not found");
 
         let transactionArray: ITransactionMultisig[] = [];
 
@@ -224,7 +227,7 @@ export default async function handler(
                     executed: tx.executed,
                     confirmations: confirmations as any,
                     Value: tx.value,
-                    blockchain,
+                    blockchain: Blockchain,
                     timestamp: GetTime(),
                     contractAddress: multisigAddress,
                     contractInternalThreshold: contract.internalRequired,
@@ -251,7 +254,15 @@ export default async function handler(
             const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/multisig-transactions/${index}`;
             const response = await axios.get(api);
             const transactionsData = response.data;
-            const data = parseSafeTransaction(transactionsData, Coins, blockchain)
+
+            const { data: sign } = await axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
+                params: {
+                    blockchain,
+                    address: multisigAddress,
+                }
+            })
+
+            const data = parseSafeTransaction(transactionsData, Coins, blockchain, multisigAddress, sign.sign, tags?.tags ?? [])
             if (data) {
                 res.status(200).json(data);
             } else {

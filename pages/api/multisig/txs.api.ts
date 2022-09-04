@@ -62,6 +62,7 @@ export default async function handler(
     const Blockchain = Blockchains.find(
       (blch: BlockchainType) => blch.name === blockchain
     );
+    if(!Blockchain) throw new Error("Blockchain not found");
 
     let transactionArray: ITransactionMultisig[] = [];
 
@@ -224,7 +225,7 @@ export default async function handler(
           executed: tx.executed,
           confirmations: confirmations as any,
           Value: tx.value,
-          blockchain,
+          blockchain: Blockchain,
           timestamp: GetTime(),
           contractAddress: multisigAddress,
           contractInternalThreshold: (await contract.internalRequired()).toNumber(),

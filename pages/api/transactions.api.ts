@@ -249,7 +249,8 @@ const ParseTxs = async (
 
       } else {
         const formatted = InputReader(input, { transaction, tags, Coins });
-        if (formatted) {
+
+        if (formatted && formatted.method && (formatted.coin || formatted.method === ERC20MethodIds.batchRequest || formatted.method === ERC20MethodIds.swap)) {
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,
             rawData: transaction,

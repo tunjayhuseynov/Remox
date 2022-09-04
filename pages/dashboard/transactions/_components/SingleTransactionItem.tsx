@@ -69,11 +69,11 @@ const SingleTransactionItem = ({
     ].indexOf(
       (Transaction as IFormattedTransaction).id
     ) > -1;
-  
-    let peer = accounts.includes((Transaction as IFormattedTransaction).rawData.from.toLowerCase()) ?
+
+  let peer = accounts.includes((Transaction as IFormattedTransaction).rawData.from.toLowerCase()) ?
     (Transaction as IFormattedTransaction).rawData.to : (Transaction as IFormattedTransaction).rawData.from;
-  
-    let SwapData;
+
+  let SwapData;
   let TransferData;
   let MultipleData;
   let Comment;
@@ -93,29 +93,29 @@ const SingleTransactionItem = ({
     peer = MultipleData.payments[0].to;
   }
 
-  useEffect(() => {
-    if (isAutomation) {
-      (async () => {
-        const data = Transaction as IAutomationTransfer;
-        const details = await getDetails(data.taskId);
-        const reader = InputReader(details[1], {
-          transaction: (Transaction as IFormattedTransaction).rawData,
-          tags,
-          Coins: GetCoins,
-        });
+  // useEffect(() => {
+  //   if (isAutomation) {
+  //     (async () => {
+  //       const data = Transaction as IAutomationTransfer;
+  //       const details = await getDetails(data.taskId);
+  //       const reader = InputReader(details[1], {
+  //         transaction: (Transaction as IFormattedTransaction).rawData,
+  //         tags,
+  //         Coins: GetCoins,
+  //       });
 
-        if (reader && reader.id === ERC20MethodIds.repay) console.log(reader);
-        const formattedTx = {
-          rawData: data.rawData,
-          hash: data.hash,
-          ...reader,
-        } as IFormattedTransaction;
-        if (reader && reader.id === ERC20MethodIds.batchRequest)
-          setIsMultiple(true);
-        setTransaction(formattedTx);
-      })();
-    }
-  }, [transaction]);
+  //       if (reader && reader.id === ERC20MethodIds.repay) console.log(reader);
+  //       const formattedTx = {
+  //         rawData: data.rawData,
+  //         hash: data.hash,
+  //         ...reader,
+  //       } as IFormattedTransaction;
+  //       if (reader && reader.id === ERC20MethodIds.batchRequest)
+  //         setIsMultiple(true);
+  //       setTransaction(formattedTx);
+  //     })();
+  //   }
+  // }, [transaction]);
 
   return (
     <>
@@ -123,22 +123,12 @@ const SingleTransactionItem = ({
         <div className="flex space-x-3 items-center overflow-hidden">
           <div className={`hidden sm:flex items-center  justify-center`}>
             <div className={`bg-greylish bg-opacity-10 w-[2.813rem] h-[2.813rem] text-lg flex items-center justify-center rounded-full font-bold `}>
-              {!isSwap ? (
-                <span>
-                  {isComment ? (Comment as string).slice(0, 2) : "T V"}{" "}
-                </span>
-              ) : (
-                <span>S</span>
-              )}
+              {transaction.method[0]}
             </div>
           </div>
           <div className={`sm:flex flex-col justify-center items-start `}>
             <div className="text-greylish text-base font-semibold dark:text-white">
-              {!isSwap ? (
-                <span> {isComment ? `${Comment}` : "Treasury Vault"} </span>
-              ) : (
-                <span> Swap </span>
-              )}
+              {transaction.method}
             </div>
           </div>
         </div>
@@ -229,14 +219,14 @@ const SingleTransactionItem = ({
                 className={`flex grid-cols-[20%,80%] space-x-4`}
               >
                 <div
-                  className={`flex flex-col grid-cols-[15%,85%] gap-x-2  text-xl font-medium`}
+                  className={`flex flex-col grid-cols-[15%,85%] gap-x-2 text-lg font-medium`}
                 >
                   <span>
                     {BN(DecimalConverter(TransferData.amount, TransferData.coin.decimals)).gt(9999)
                       ? "9999+"
                       : BN(DecimalConverter(TransferData.amount, TransferData.coin.decimals)).toFixed(2)}
                   </span>
-                  <span className="text-greylish dark:text-white text-sm">
+                  <span className="text-greylish dark:text-white text-xs">
                     $
                     {Math.min(
                       BN(DecimalConverter(TransferData.amount, TransferData.coin.decimals))
@@ -253,7 +243,7 @@ const SingleTransactionItem = ({
                     <>
                       <div>
                         <img
-                          src={TransferData.coin.coinUrl}
+                          src={TransferData.coin.logoURI}
                           className="rounded-full w-[1.8rem] h-[1.8rem]"
                         />
                       </div>

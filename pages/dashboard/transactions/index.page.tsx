@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import useNextSelector from "hooks/useNextSelector";
 import { useAppSelector } from "redux/hooks";
 import { useInView } from 'react-intersection-observer'
-import { SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectProviderAddress, SelectTransactions } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectProviderAddress, SelectTransactions } from "redux/slices/account/remoxData";
 import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import Loader from "components/Loader";
 import { motion } from "framer-motion"
@@ -25,6 +25,8 @@ import MultisigTx from "./_components/MultisigTransactionItem";
 
 const Transactions = () => {
     const selectedAccount = useAppSelector(SelectProviderAddress)
+    const accountsRaw = useAppSelector(SelectAccounts)
+    const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
     const router = useRouter()
     const { type } = router.query as { type: string[] | undefined }
@@ -117,11 +119,12 @@ const Transactions = () => {
                                 }
                                 if ((tx as IFormattedTransaction)['hash']) {
                                     const txData = (tx as IFormattedTransaction)
-                                    return <ProcessAccordion {...obj} key={txData.rawData.hash} transaction={txData} accounts={changedAccount} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[18%,30%,30%,22%]"} color={"bg-white dark:bg-darkSecond"} />
+                                    return <ProcessAccordion {...obj} key={txData.rawData.hash} transaction={txData} accounts={changedAccount} color={"bg-white dark:bg-darkSecond"} />
                                 } else {
                                     const txData = (tx as ITransactionMultisig | IMultisigSafeTransaction)
+                                    const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
                                     const isSafe = "safeTxHash" in txData
-                                    return <MultisigTx key={isSafe ? txData.safeTxHash : txData.contractAddress + txData.hashOrIndex}  {...obj} Address={address} GetCoins={GetCoins} tx={tx as ITransactionMultisig} />
+                                    return <MultisigTx multisigAccount={account} key={isSafe ? txData.safeTxHash : txData.contractAddress + txData.hashOrIndex} accounts={accounts} {...obj} Address={address} GetCoins={GetCoins} tx={tx as ITransactionMultisig} />
                                 }
                             })}
                         </div>
@@ -144,7 +147,7 @@ const Transactions = () => {
 
 export default Transactions;
 
-export const ProcessAccordion = forwardRef<HTMLDivElement, { transaction: IFormattedTransaction, accounts: string[], grid: string, color: string }>(({ transaction, accounts, grid, color }, ref) => {
+export const ProcessAccordion = forwardRef<HTMLDivElement, { transaction: IFormattedTransaction, accounts: string[], color: string }>(({ transaction, accounts, color }, ref) => {
     const isBatch = transaction.id === ERC20MethodIds.batchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
@@ -166,13 +169,12 @@ export const ProcessAccordion = forwardRef<HTMLDivElement, { transaction: IForma
     const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
     let directionType = TransactionDirectionDeclare(transaction, accounts);
 
-    return <Fragment>
-        <Accordion ref={ref} grid={grid} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
-            <div>
-                {isBatch && TXs.map((s, i) => <SingleTransactionItem key={`${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
-                {!isBatch && <SingleTransactionItem key={`${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
-            </div>
-        </Accordion>
-    </Fragment>
+    return <Accordion ref={ref} grid={"grid-cols-[25%,45%,30%] sm:grid-cols-[18%,30%,30%,22%]"} color={color} direction={directionType} date={transaction.rawData.timeStamp} dataCount={transactionCount} status={TransactionStatus.Completed}>
+        <div>
+            {isBatch && TXs.map((s, i) => <SingleTransactionItem key={`${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
+            {!isBatch && <SingleTransactionItem key={`${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
+        </div>
+    </Accordion>
+
 })
 

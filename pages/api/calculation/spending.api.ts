@@ -148,9 +148,10 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                 })
             }
             if (transaction.id === ERC20MethodIds.noInput) {
+                const coin = (transaction as ITransfer).coin;
                 sum.push({
                     coin: transaction.rawData.tokenSymbol,
-                    totalSpending: DecimalConverter(transaction.rawData.value, currencies[transaction.rawData.tokenSymbol].coins.decimals),
+                    totalSpending: DecimalConverter(transaction.rawData.value, coin.decimals),
                 })
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
@@ -186,7 +187,7 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
                 average += (DecimalConverter(tx.amount, tx.coin.decimals) * tx.coin.priceUSD ?? 1);
             }
             if (transaction.id === ERC20MethodIds.noInput) {
-                const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === transaction.rawData.to.toLowerCase())?.coins
+                const coin = (transaction as ITransfer).coin;
                 if (coin) {
                     average += (DecimalConverter(transaction.rawData.value, coin.decimals) * Number(coin.priceUSD ?? 1));
                 }
@@ -239,7 +240,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
                     calc += current;
                 }
                 if (t.id === ERC20MethodIds.noInput) {
-                    const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === t.rawData.to.toLowerCase())?.coins
+                    const coin = (t as ITransfer).coin;
                     if (coin) {
                         const current = (DecimalConverter(t.rawData.value, coin.decimals) * coin.priceUSD ?? 1)
                         if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
@@ -357,7 +358,7 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
                         amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.rawData.tokenSymbol]?.priceUSD ?? 1));
                     }
                     if (tx.id === ERC20MethodIds.noInput) {
-                        const coin = Object.values(currencies).find(s => s.coins.address.toLowerCase() === tx.rawData.to.toLowerCase())?.coins
+                        const coin = (tx as ITransfer).coin;
                         if (coin) {
                             amount += (DecimalConverter(tx.rawData.value, coin.decimals) * coin.priceUSD ?? 1);
                         }
