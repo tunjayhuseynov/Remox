@@ -64,7 +64,7 @@ export interface ITransactionMultisig {
     owner?: string,
     newOwner?: string,
     valueOfTransfer?: string,
-    method: string,
+    type: string,
     timestamp: number,
     created_at: number,
     tags: ITag[]
