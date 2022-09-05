@@ -1029,7 +1029,7 @@ export default function useMultisig() {
                 const ethSignuture = new EthSignSignature(onwerAddress, signature.data);
 
                 if (transaction!.confirmations!.length + 1 >= threshold) {
-                    const receipt = await executeTransaction(multisigAddress, safeTxHash!, ethSignuture)
+                    const receipt = await executeTransaction(multisigAddress, "", safeTxHash!, ethSignuture)
 
                 }
 
