@@ -119,7 +119,21 @@ const SingleTransactionItem = ({
 
   return (
     <>
-      <div ref={divRef} className={`grid "grid-cols-[25%,45%,30%] sm:grid-cols-[20%,15%,12%,18%,25%,10%] items-center" min-h-[4.688rem] py-2 `}>
+      <tr className="pl-5 grid grid-cols-[12.5%,repeat(6,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
+        <td className="text-left">
+          <div className="relative inline">
+            <span className="font-semibold">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
+            <span className="text-xs text-gray-400 absolute translate-y-[120%] left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
+          </div>
+        </td>
+        <td className="text-left">Maria Anders</td>
+        <td className="text-left">Germany</td>
+        <td className="text-left">Germany</td>
+        <td className="text-left">Germany</td>
+        <td className="text-left">Germany</td>
+        <td className="text-left">Germany</td>
+      </tr>
+      {/* <div ref={divRef} className={`grid "grid-cols-[25%,45%,30%] sm:grid-cols-[20%,15%,12%,18%,25%,10%] items-center" min-h-[4.688rem] py-2 `}>
         <div className="flex space-x-3 items-center overflow-hidden">
           <div className={`hidden sm:flex items-center  justify-center`}>
             <div className={`bg-greylish bg-opacity-10 w-[2.813rem] h-[2.813rem] text-lg flex items-center justify-center rounded-full font-bold `}>
@@ -403,7 +417,7 @@ const SingleTransactionItem = ({
             address={AddressReducer(peer)}
           />
         </div>
-      </div>
+      </div> */}
     </>
   );
 };

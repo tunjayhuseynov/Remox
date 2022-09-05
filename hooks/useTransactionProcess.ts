@@ -209,19 +209,22 @@ export const InputReader = (
   } else if (result.method === "executeTransactions") {
     const txList = [];
     const splitData = (result.inputs[2] as string).substring(2).split("23b872dd");
+
     for (let i = 0; i < result.inputs[0].length; i++) {
       const coin = Object.values(Coins).find(
         (s) =>
-          s.address.toLowerCase() === result.inputs[0][i].toLowerCase()
+          s.address.toLowerCase() === "0x" + result.inputs[0][i].toLowerCase()
       );
 
       let decoder = new InputDataDecoder(ERC20);
-      let erc = decoder.decodeData(`0x${splitData[i]}`);
-      if (coin && erc.method === ERC20MethodIds.transfer) {
+      let erc = decoder.decodeData(`0x23b872dd${splitData[i]}`);
+      console.log(erc)
+      if (coin && erc.method === ERC20MethodIds.transferFrom) {
         txList.push({
           coinAddress: coin,
-          to: erc.inputs[0],
-          amount: erc.inputs[1].toString(),
+          from: erc.inputs[0],
+          to: erc.inputs[1],
+          amount: erc.inputs[2].toString(),
         });
       }
     }

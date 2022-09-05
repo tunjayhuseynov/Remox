@@ -65,7 +65,7 @@ export default async function handler(
       txList = txList.concat(txs);
     }
 
-    res.status(200).json(txList);
+    res.status(200).json(_.uniqBy(txList, "hash"));
   } catch (error: any) {
     throw new Error(error);
   }
@@ -250,7 +250,7 @@ const ParseTxs = async (
       } else {
         const formatted = InputReader(input, { transaction, tags, Coins });
 
-        if (formatted && formatted.method && (formatted.coin || formatted.method === ERC20MethodIds.batchRequest || formatted.method === ERC20MethodIds.swap)) {
+        if (formatted && formatted.method && (formatted.coin || (formatted.method === ERC20MethodIds.batchRequest && (formatted.payments?.length ?? 0) > 0) || formatted.method === ERC20MethodIds.swap)) {
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,
             rawData: transaction,

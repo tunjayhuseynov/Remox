@@ -54,7 +54,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                         route.push("/dashboard/new-wallet")
                     }}>+ Add Wallet</Button>
                 </div>
-                <div className="grid grid-cols-2 gap-32 xl:gap-20 pb-4">
+                <div className="grid grid-cols-2 gap-x-32 xl:gap-x-20 gap-y-20 xl:gap-y-12 pb-4">
                     {accounts.map((item) => {
                         return <WalletList item={item} key={item.id} />
                     })}
