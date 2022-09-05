@@ -86,6 +86,10 @@ const GetBalance = async (item: AltCoins, addressParams: string, blockchain: Blo
         if (blockchain.name === 'celo') {
             const web3 = new Web3(blockchain.rpcUrl)            
             const ethers = new web3.eth.Contract(erc20 as AbiItem[], item.address);
+            if(item.address === '0x0000000000000000000000000000000000000000') {
+                const balance = await web3.eth.getBalance(addressParams)
+                return DecimalConverter(balance, item.decimals)
+            }
             let balance = await ethers.methods.balanceOf(addressParams).call();
             return DecimalConverter(balance.toString(), item.decimals)
         } else if (blockchain.name === 'solana') {
