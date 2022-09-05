@@ -8,9 +8,9 @@ export interface IPayInput {
     surname?: string;
     address?: string;
     amount?: number;
-    wallet: { name: string, coinUrl: CoinsURL };
+    wallet: { name: string, coinUrl: string };
     amount2?: number;
-    wallet2?: { name: string, coinUrl: CoinsURL };
+    wallet2?: { name: string, coinUrl: string };
 }
 
 interface IPayInputs {
