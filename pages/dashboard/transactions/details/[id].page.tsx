@@ -72,7 +72,7 @@ const Details = () => {
                         if (isBatch) {
                             const batch = txFind as IBatchRequest
                             paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
-                            totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coinAddress.name]?.priceUSD ?? 1)) + a, 0).toPrecision(4)} USD`
+                            totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coin.name]?.priceUSD ?? 1)) + a, 0).toPrecision(4)} USD`
                             walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
                         } else if (isSwap) {
                             const swap = txFind as ISwap
@@ -91,7 +91,7 @@ const Details = () => {
                                 if (reader.id === ERC20MethodIds.batchRequest) {
                                     const batch = reader as IBatchRequest
                                     paidTo = `${Array.from(new Set((batch).payments.map(s => s.to))).length} people`
-                                    totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coinAddress.name]?.priceUSD ?? 1)) + a, 0).toPrecision(4)} USD`
+                                    totalAmount = `${batch.payments.reduce((a, c) => (parseFloat(fromMinScale(c.amount)) * (currencies[c.coin.name]?.priceUSD ?? 1)) + a, 0).toPrecision(4)} USD`
                                     walletAddress = Array.from(new Set(batch.payments.map(s => s.to)))
 
                                 } else if (reader.id === ERC20MethodIds.swap) {

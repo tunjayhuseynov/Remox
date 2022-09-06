@@ -7,6 +7,8 @@ import Sablier from 'rpcHooks/ABI/Sablier.json'
 import WETHGatewayV3 from 'rpcHooks/ABI/WETHGatewayV3.json'
 import WETHGatewayV2 from 'rpcHooks/ABI/WETHGatewayV2.json'
 import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
+import Gelato from 'rpcHooks/ABI/Gelato.json'
+import BR from 'rpcHooks/ABI/BatchRequest.json'
 
 export type BlockchainType = {
   name:
@@ -39,16 +41,19 @@ export type BlockchainType = {
   logoUrl: string;
   multisigProviders: {
     name: string;
+    logoURL: string;
     abi: AbiItem[];
     txServiceUrl?: string;
   }[];
   swapProtocols: {
     name: string;
+    logoURL: string;
     contractAddress: string;
     abi: AbiItem[];
   }[];
   lendingProtocols: {
     name: string;
+    logoURL: string;
     contractAddress: string;
     uiAddress?: string;
     protocolDataProviderAddress?: string;
@@ -59,16 +64,19 @@ export type BlockchainType = {
   }[];
   streamingProtocols: {
     name: string;
+    logoURL: string;
     contractAddress: string;
     abi: AbiItem[];
   }[];
   batchPaymentProtocols: {
     name: string;
+    logoURL: string;
     contractAddress: string;
     abi: AbiItem[];
   }[];
   recurringPaymentProtocols: {
     name: string;
+    logoURL: string;
     contractAddress: string;
     abi: AbiItem[];
   }[];
@@ -87,35 +95,40 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "Celo Terminal",
         abi: CeloTerminal.abi as AbiItem[],
+        logoURL: "/icons/companies/celoterminal.png"
       },
     ],
     swapProtocols: [
       {
         name: "Ubeswap",
-        contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
+        contractAddress: "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
+        logoURL: "/icons/companies/ubeswap.png",
         abi: [],
       },
     ],
     lendingProtocols: [
       {
         name: "Moola",
-        contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
+        contractAddress: "0xD1088091A174d33412a968Fa34Cb67131188B332",
         abi: [],
+        logoURL: "/icons/companies/moola.png",
       },
     ],
     streamingProtocols: [],
     batchPaymentProtocols: [
       {
         name: "Remox Batch Payment",
-        contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
-        abi: [],
+        contractAddress: "0xB01a87B806EE0f5233d7c6559d7FB6d39Ad0046d",
+        abi: BR.abi as AbiItem[],
+        logoURL: "/icons/companies/remox.png",
       },
     ],
     recurringPaymentProtocols: [
       {
-        name: "CeloRecurringPayment",
-        contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
-        abi: [],
+        name: "Gelato Remox Version",
+        contractAddress: "0x88FAcCc7D0C4148A73D2cC626e8192F4ba95F1C7",
+        abi: Gelato as AbiItem[],
+        logoURL: "/icons/companies/gelato.jpg",
       },
     ],
   },
@@ -131,6 +144,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "Goki",
         abi: [],
+        logoURL: "https://avatars.githubusercontent.com/u/89436329?s=280&v=4"
       },
     ],
     swapProtocols: [
@@ -138,6 +152,7 @@ export const Blockchains: BlockchainType[] = [
         name: "Jupiter",
         contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
         abi: [],
+        logoURL: "https://pbs.twimg.com/profile_images/1446493130555990024/xggcEv5a_400x400.jpg"
       },
     ],
     lendingProtocols: [
@@ -145,6 +160,7 @@ export const Blockchains: BlockchainType[] = [
         name: "Castle Finance",
         contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
         abi: [],
+        logoURL: "https://www.castle.finance/castle-logo.svg"
       },
     ],
     streamingProtocols: [
@@ -152,11 +168,13 @@ export const Blockchains: BlockchainType[] = [
         name: "Zebec",
         contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
         abi: [],
+        logoURL: "https://avatars.githubusercontent.com/u/88788234?s=200&v=4"
       },
     ],
     batchPaymentProtocols: [
       {
         name: "Solana",
+        logoURL: "https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png",
         contractAddress: "0x8d12A197cB00D4747a1fe03395095ce2A5CC6819",
         abi: [],
       },
@@ -176,6 +194,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         abi: [],
       },
     ],
@@ -183,12 +202,14 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "1inch",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
+        logoURL: "https://1inch.io/img/logo.png",
         abi: OneInch.abi as any,
       },
     ],
     lendingProtocols: [
       {
         name: "Aave V2",
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
         contractAddress: "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
         uiAddress: "0x548e95Ce38B8cb1D91FD82A9F094F26295840277",
         protocolDataProviderAddress:
@@ -203,6 +224,7 @@ export const Blockchains: BlockchainType[] = [
     recurringPaymentProtocols: [
       {
         name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
         contractAddress: "0xCD18eAa163733Da39c232722cBC4E8940b1D8888",
         abi: Sablier.abi as any,
       },
@@ -220,6 +242,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.polygon.gnosis.io",
         abi: []
       },
@@ -227,6 +250,7 @@ export const Blockchains: BlockchainType[] = [
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
@@ -234,6 +258,7 @@ export const Blockchains: BlockchainType[] = [
     lendingProtocols: [
       {
         name: "Aave V3",
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
         contractAddress: "0x794a61358D6845594F94dc1DB02A252b5b4814aD",
         uiAddress: "0x8F1AD487C9413d7e81aB5B4E88B024Ae3b5637D0",
         protocolDataProviderAddress:
@@ -248,6 +273,7 @@ export const Blockchains: BlockchainType[] = [
     recurringPaymentProtocols: [
       {
         name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
         contractAddress: "0xAC18EAB6592F5fF6F9aCf5E0DCE0Df8E49124C06",
         abi: Sablier.abi as any
       },
@@ -265,6 +291,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.optimism.gnosis.io/",
         abi: []
       },
@@ -272,6 +299,7 @@ export const Blockchains: BlockchainType[] = [
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
@@ -279,6 +307,7 @@ export const Blockchains: BlockchainType[] = [
     lendingProtocols: [
       {
         name: "Aave V3",
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
         contractAddress: "0x794a61358D6845594F94dc1DB02A252b5b4814aD",
         uiAddress: "0x64f558d4BFC1c03a8c8B2ff84976fF04c762b51f",
         protocolDataProviderAddress:
@@ -291,6 +320,7 @@ export const Blockchains: BlockchainType[] = [
     recurringPaymentProtocols: [
       {
         name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
         contractAddress: "0x6C5927c0679e6d857E87367bb635decbcB20F31c",
         abi: Sablier.abi as any
       },
@@ -308,6 +338,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.avalanche.gnosis.io/",
         abi: []
       },
@@ -315,6 +346,7 @@ export const Blockchains: BlockchainType[] = [
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
@@ -322,6 +354,7 @@ export const Blockchains: BlockchainType[] = [
     lendingProtocols: [
       {
         name: "Aave V3",
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
         contractAddress: "0x794a61358D6845594F94dc1DB02A252b5b4814aD",
         uiAddress: "0xdBbFaFC45983B4659E368a3025b81f69Ab6E5093",
         ethGatewayAddress: "0xa938d8536aEed1Bd48f548380394Ab30Aa11B00E",
@@ -336,6 +369,7 @@ export const Blockchains: BlockchainType[] = [
     recurringPaymentProtocols: [
       {
         name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
         contractAddress: "0x73f503fad13203C87889c3D5c567550b2d41D7a4",
         abi: Sablier.abi as any
       },
@@ -353,6 +387,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.bsc.gnosis.io/",
         abi: [],
       },
@@ -360,6 +395,7 @@ export const Blockchains: BlockchainType[] = [
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
@@ -368,6 +404,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "Venus",
         contractAddress: "",
+        logoURL: "https://miro.medium.com/max/2400/1*ecq-dzwARyhRfEMkYfggug.png",
         uiAddress: "",
         protocolDataProviderAddress: "",
         abi: [],
@@ -378,6 +415,7 @@ export const Blockchains: BlockchainType[] = [
     recurringPaymentProtocols: [
       {
         name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
         contractAddress: "0x05BC7f5fb7F248d44d38703e5C921A8c16825161",
         abi: Sablier.abi as any
       },
@@ -395,6 +433,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.arbitrum.gnosis.io/",
         abi: []
       },
@@ -402,6 +441,7 @@ export const Blockchains: BlockchainType[] = [
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
@@ -409,6 +449,7 @@ export const Blockchains: BlockchainType[] = [
     lendingProtocols: [
       {
         name: "Aave V3",
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
         contractAddress: "0x794a61358D6845594F94dc1DB02A252b5b4814aD",
         uiAddress: "0x3f960bB91e85Ae2dB561BDd01B515C5A5c65802b",
         protocolDataProviderAddress:
@@ -421,6 +462,7 @@ export const Blockchains: BlockchainType[] = [
     recurringPaymentProtocols: [
       {
         name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
         contractAddress: "0xaDB944B478818d95659067E70D2e5Fc43Fa3eDe9",
         abi: Sablier.abi as any
       },
@@ -438,12 +480,14 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         abi: []
       },
     ],
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
@@ -456,16 +500,13 @@ export const Blockchains: BlockchainType[] = [
         protocolDataProviderAddress:
           "0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654",
         abi: AavePoolV3.abi as any,
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
       },
     ],
     streamingProtocols: [],
     batchPaymentProtocols: [],
     recurringPaymentProtocols: [
-      {
-        name: "",
-        contractAddress: "",
-        abi: [],
-      },
+
     ],
   },
   {
@@ -480,6 +521,7 @@ export const Blockchains: BlockchainType[] = [
     multisigProviders: [
       {
         name: "GnosisSafe",
+        logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.xdai.gnosis.io/",
         abi: []
       },
@@ -487,25 +529,18 @@ export const Blockchains: BlockchainType[] = [
     swapProtocols: [
       {
         name: "1inch",
+        logoURL: "https://1inch.io/img/logo.png",
         contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
         abi: OneInch.abi as any,
       },
     ],
     lendingProtocols: [
-      {
-        name: "",
-        contractAddress: "",
-        abi: [],
-      },
+
     ],
     streamingProtocols: [],
     batchPaymentProtocols: [],
     recurringPaymentProtocols: [
-      {
-        name: "",
-        contractAddress: "",
-        abi: [],
-      },
+
     ],
   },
 ];

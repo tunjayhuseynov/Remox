@@ -67,11 +67,20 @@ export default async function handler(
 
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
         const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInYear, AccountOut: AccountOutYear, TotalInOut: TotalYear } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        const { AccountIn: AccountInCM, AccountOut: AccountOuCM, TotalInOut: TotalCM } = await AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
+
+        const AccountReqWeek = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
+        const AccountReqMonth = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
+        const AccountReqQuart = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
+        const AccountReqYear = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 365, prices.data.AllPrices, blockchain)
+        const AccountReqCM = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
+
+        const [
+            { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek },
+            { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth },
+            { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart },
+            { AccountIn: AccountInYear, AccountOut: AccountOutYear, TotalInOut: TotalYear },
+            { AccountIn: AccountInCM, AccountOut: AccountOuCM, TotalInOut: TotalCM }
+        ] = await Promise.all([AccountReqWeek, AccountReqMonth, AccountReqQuart, AccountReqYear, AccountReqCM])
 
         const { inATag: inATag7, outATag: outATag7 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { inATag: inATag30, outATag: outATag30 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -158,8 +167,8 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
                     sum.push({
-                        coin: transfer.coinAddress.name,
-                        totalSpending: new BigNumber(transfer.amount).div(transfer.coinAddress.decimals).toNumber(),
+                        coin: transfer.coin.name,
+                        totalSpending: new BigNumber(transfer.amount).div(transfer.coin.decimals).toNumber(),
                     })
                 })
             }
@@ -195,7 +204,7 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
             if (transaction.id === ERC20MethodIds.batchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
-                    average += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.priceUSD ?? 1));
+                    average += (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
                 })
             }
         }
@@ -251,7 +260,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
                 if (t.id === ERC20MethodIds.batchRequest) {
                     const tx = t as IBatchRequest;
                     tx.payments.forEach(transfer => {
-                        const current = (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.priceUSD ?? 1));
+                        const current = (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
                         if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
                         else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                         calc += current;
@@ -366,7 +375,7 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
                     if (tx.id === ERC20MethodIds.batchRequest) {
                         const txm = tx as IBatchRequest;
                         txm.payments.forEach(transfer => {
-                            amount += (DecimalConverter(transfer.amount, transfer.coinAddress.decimals) * Number(currencies[transfer.coinAddress.name]?.priceUSD ?? 1));
+                            amount += (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
                         })
                     }
                     if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {

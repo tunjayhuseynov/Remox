@@ -40,8 +40,7 @@ export default async function handler(
                 id: acc.id,
                 accountId: id,
             }
-        })
-        ));
+        })));
 
         for (const account of list) {
             totalBalance += account.data.totalValue;

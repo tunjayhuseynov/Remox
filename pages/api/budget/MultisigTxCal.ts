@@ -31,7 +31,8 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
         const data = multisigTx.data
         const executed = multisigTx.executed
 
-        const txRes = InputReader(data, {
+        const txRes = await InputReader(data, {
+            blockchain: blockchainType,
             transaction: GenerateTransaction({
                 tokenSymbol: coins.find(s => s.address.toLowerCase() === multisigTx.destination.toLowerCase())?.name,
             }), tags: [], Coins: coins.reduce<Coins>((a, c) => {
@@ -42,14 +43,14 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
 
         if (txRes) {
             if (txRes.method === "batchRequest") {
-                const x = txRes as IBatchRequest
+                const x = txRes as unknown as IBatchRequest
                 if (executed == false) {
-                    totalBudgetPending += x.payments.reduce((acc, curr) => acc + DecimalConverter(curr.amount, curr.coinAddress.decimals), 0)
+                    totalBudgetPending += x.payments.reduce((acc, curr) => acc + DecimalConverter(curr.amount, curr.coin.decimals), 0)
                 } else {
-                    totalBudgetUsed += x.payments.reduce((acc, curr) => acc + DecimalConverter(curr.amount, curr.coinAddress.decimals), 0)
+                    totalBudgetUsed += x.payments.reduce((acc, curr) => acc + DecimalConverter(curr.amount, curr.coin.decimals), 0)
                 }
             } else if (txRes.method === "transfer") {
-                const x = txRes as ITransfer
+                const x = txRes as unknown as ITransfer
                 if (executed == false) {
                     totalBudgetPending += DecimalConverter(x.amount, x.coin.decimals)
                     if (budget.token === x.coin.name) {

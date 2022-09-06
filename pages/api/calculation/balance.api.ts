@@ -50,21 +50,20 @@ export default async function handler(
 const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) => {
     const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
     const Coins = CoinsReq.docs.map(doc => doc.data() as AltCoins)
-
+    const coinList = Object.values(Coins);
     let balances: { [name: string]: string } = {};
     if (addresses.length > 1) {
         for (const addressItem of addresses) {
-            for (const i of Object.values(Coins)) {
-                const item = i as AltCoins
+            const balancesRes = await Promise.all(coinList.map(item => GetBalance(item, addressItem, blockchain)))
 
-                let altcoinBalance = await GetBalance(item, addressItem, blockchain)
-
+            balancesRes.forEach((v, index) => {
+                const item = coinList[index];
                 if (!balances[item.symbol]) {
-                    balances = Object.assign(balances, { [item.symbol]: altcoinBalance?.toString() })
+                    balances = Object.assign(balances, { [item.symbol]: v?.toString() })
                 } else {
-                    balances[item.symbol] = `${Number(balances[item.symbol]) + Number(altcoinBalance)}`
+                    balances[item.symbol] = `${Number(balances[item.symbol]) + Number(v)}`
                 }
-            }
+            })
         }
 
         return { ...balances };
@@ -84,9 +83,9 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType) => {
     try {
         if (blockchain.name === 'celo') {
-            const web3 = new Web3(blockchain.rpcUrl)            
+            const web3 = new Web3(blockchain.rpcUrl)
             const ethers = new web3.eth.Contract(erc20 as AbiItem[], item.address);
-            if(item.address === '0x0000000000000000000000000000000000000000') {
+            if (item.address === '0x0000000000000000000000000000000000000000') {
                 const balance = await web3.eth.getBalance(addressParams)
                 return DecimalConverter(balance, item.decimals)
             }
