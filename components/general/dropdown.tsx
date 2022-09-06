@@ -35,9 +35,8 @@ interface IGenericExtendedProp {
     displayName?: string,
     onClick?: Function,
     image?: string,
-    coinUrl?: CoinsURL,
+    coinUrl?: string,
     logoUrl?: string,
-    logoURI?: string,
     secondValue?: string | number
 }
 

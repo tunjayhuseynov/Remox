@@ -392,8 +392,8 @@ const EditMember = () => {
                       className="!rounded-md !h-[3.15rem] border dark:border-white"
                       label="Token"
                       selected={selectedWallet2}
-                      list={Object.values(GetCoins)}
                       setSelect={setSelectedWallet2}
+                      list={Object.values(GetCoins)}
                     />
                   }
                   <div

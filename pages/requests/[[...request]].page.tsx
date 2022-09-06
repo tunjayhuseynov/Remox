@@ -2,16 +2,13 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Button from "components/button";
 import { useSelector } from "react-redux";
-import { CeloCoins, Coins, CoinsName, DropDownItem } from "types";
+import { AltCoins, Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
-import DatePicker from "react-datepicker";
 import Modal from "components/general/modal";
-// import dateFormat from "dateformat";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import useCurrency from "rpcHooks/useCurrency";
 import { TotalUSDAmount } from "pages/dashboard/requests/_components/totalAmount";
-// import { SelectInputs, changeBasedValue } from "redux/slices/payinput";
+import { TextField } from "@mui/material";
 import { AddressReducer, GetTime } from "utils";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useWalletKit } from "hooks";
@@ -21,10 +18,17 @@ import useLoading from "hooks/useLoading";
 import { UploadImage } from "rpcHooks/useFirebase";
 import { storage } from "firebaseConfig/firebase";
 import { ref, StorageReference, deleteObject } from "firebase/storage";
-import { SelectCurrencies, SelectDarkMode } from "redux/slices/account/selector";
-import { setBlockchain, updateAllCurrencies } from "redux/slices/account/remoxData";
-import { Blockchains, BlockchainType } from "types/blockchains";
+import { SelectDarkMode } from "redux/slices/account/selector";
+import { Blockchains } from "types/blockchains";
+import { FirestoreReadAll } from "../../rpcHooks/useFirebase";
+import useAsyncEffect from "hooks/useAsyncEffect";
+import Loader from "components/Loader";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Confirm from "./confirm";
+
+import Stack from "@mui/material/Stack";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 
 export interface IFormInput {
   name: string;
@@ -38,7 +42,7 @@ export interface IFormInput {
 }
 
 export default function RequestId() {
-  const router = useRouter()
+  const router = useRouter();
 
   const { id, coin, signer } = router.query as {
     id: string;
@@ -46,53 +50,55 @@ export default function RequestId() {
     signer: string;
   };
 
+  const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
+  const [selectedCoin, setSelectedCoin] = useState<AltCoins>();
+
+  const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(GetCoins[0]);
+  const [loader, setLoader] = useState<boolean>(true);
+
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
 
-  const data = useCurrency(Blockchains.find(s => s.name === coin)!.currencyCollectionName);
-
-  const dispatch = useAppDispatch();
-
+  const collectionName = Blockchains.find(
+    (s) => s.name === coin
+  )!.currencyCollectionName;
 
   const dark = useSelector(SelectDarkMode);
-  const currency = useSelector(SelectCurrencies);
   const [secondActive, setSecondActive] = useState(false);
-  const { GetCoins } = useWalletKit();
 
-  useEffect(() => {
-    dispatch(setBlockchain(Blockchains.find(s => s.name === coin) as BlockchainType));
+  useAsyncEffect(async () => {
+    const collection: AltCoins[] = await FirestoreReadAll(collectionName);
+    setGetCoins(collection);
+    setSelectedCoin(collection[0]);
+    setSelectedCoin2(collection[0]);
+
+    setLoader(false);
   }, []);
 
-  useEffect(() => {
-    if (data) {
-      dispatch(updateAllCurrencies(data));
-    }
-  }, [data]);
-
-
-  const [selectedWallet, setSelectedWallet] = useState(
-    GetCoins[0]
-  );
-  const [selectedWallet2, setSelectedWallet2] = useState(
-    GetCoins[0]
-  );
   const paymentBase: DropDownItem[] = [
     { name: "Pay with Token Amounts" },
     { name: "Pay with USD-based Amounts" },
   ];
-  const [selectedPaymentBase, setSelectedPaymentBase] = useState(paymentBase[0]);
-  const selectedTypeIsUsd = selectedPaymentBase.name === "Pay with USD-based Amounts";
+
+  const [selectedPaymentBase, setSelectedPaymentBase] = useState(
+    paymentBase[0]
+  );
+  const selectedTypeIsUsd =
+    selectedPaymentBase.name === "Pay with USD-based Amounts";
 
   const [file, setFile] = useState<File>();
   const [serviceDate, setServiceDate] = useState<Date>(new Date());
   const [fileName, setFileName] = useState<string>("");
   const [imageRef, setImageRef] = useState<StorageReference>();
   const [imageUrl, setImageUrl] = useState<string>("");
-  // const MyInput = useSelector(SelectInputs)[0]
 
   const [modal, setModal] = useState(false);
   const [request, setRequest] = useState<IRequest>();
+  const [dateValue, setDateValue] = React.useState<Date | null>(new Date());
 
+  const handleDateChange = (newValue: Date | null) => {
+    setDateValue(newValue);
+  };
 
   const closeModal = async () => {
     try {
@@ -107,18 +113,19 @@ export default function RequestId() {
 
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
-    const Wallet = selectedWallet;
-    const Wallet2 = selectedWallet2;
+    const Wallet = selectedCoin;
+    const Wallet2 = selectedCoin2;
     const ServDate = serviceDate;
+    console.log(data.link);
 
     try {
+      let url = "";
       if (Invoice) {
-        const url = await UploadImage(`/requests/${signer}/${id}`, Invoice!);
-        setImageUrl(url);
+        url = await UploadImage(`/requests/${signer}/${id}`, Invoice!);
         setImageRef(ref(storage, url));
       }
 
-      console.log(data.amount);
+      console.log(data.link);
 
       const result: IRequest = {
         id: id,
@@ -126,19 +133,31 @@ export default function RequestId() {
         surname: data.surname,
         address: data.address,
         amount: data.amount,
-        currency: Wallet === undefined ? (coin === "solana" ? CoinsName.SOL : CoinsName.CELO) : Wallet.name as CoinsName,
+        currency:
+          Wallet === undefined
+            ? coin === "solana"
+              ? CoinsName.SOL
+              : CoinsName.CELO
+            : (Wallet.name as CoinsName),
         requestType: data.requestType,
         nameOfService: data.serviceName,
         serviceDate: GetTime(ServDate),
         usdBase: selectedTypeIsUsd,
         timestamp: GetTime(),
         secondaryAmount: data.amount2 ? data.amount2 : null,
-        secondaryCurrency: Wallet2 === undefined ? (coin === "solana" ? CoinsName.SOL : CoinsName.CELO) : Wallet2.name as CoinsName,
+        secondaryCurrency:
+          Wallet2 === undefined
+            ? coin === "solana"
+              ? CoinsName.SOL
+              : CoinsName.CELO
+            : (Wallet2.name as CoinsName),
         status: RequestStatus.pending,
         attachLink: data.link ? data.link : null,
-        uploadedLink: Invoice ? imageUrl : null,
+        uploadedLink: Invoice ? url : null,
       };
+
       setRequest(result);
+      console.log(result);
       setFileName(Invoice?.name ?? "");
       setModal(true);
     } catch (error) {
@@ -153,6 +172,7 @@ export default function RequestId() {
       if (request) {
         await addRequest(id, request);
         router.push("/dashboard");
+        console.log("Request added");
       }
     } catch (error) {
       console.log(error);
@@ -160,6 +180,13 @@ export default function RequestId() {
     }
   };
 
+  if (loader) {
+    return (
+      <div className="flex items-center justify-center h-screen w-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -176,7 +203,7 @@ export default function RequestId() {
         </div>
       </header>
       <div className="px-8 ">
-        <form onSubmit={handleSubmit(SetModalVisible)} >
+        <form>
           <div className="py-0 pt-24 flex flex-col items-center justify-center min-h-screen sm:py-24">
             <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
               <div className="py-2 text-center w-full">
@@ -192,134 +219,106 @@ export default function RequestId() {
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-x-10">
-                    <div>
-                      <div className="text-greylish ">First Name</div>
-                      <input
-                        type="text"
-                        {...register("name", { required: true })}
-                        className="border pl-2 rounded-md outline-none sm:h-[3.15rem]  w-full dark:bg-darkSecond"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <div className="text-greylish ">Last Name</div>
-                      <input
-                        type="text"
-                        {...register("surname", { required: true })}
-                        className="border pl-2 rounded-md outline-none sm:h-[3.15rem] w-full dark:bg-darkSecond"
-                        required
-                      />
-                    </div>
+                    <TextField
+                      label="First Name"
+                      className="bg-white dark:bg-darkSecond"
+                      variant="outlined"
+                    />
+
+                    <TextField
+                      label="Last Name"
+                      className="bg-white dark:bg-darkSecond"
+                      variant="outlined"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-x-10">
-                    <div>
-                      {/* <div className="text-greylish">Amount Type</div> */}
-                      <div>
-                        <Dropdown
-                          parentClass={"bg-white w-full rounded-lg "}
-                          className={
-                            "!rounded-lg !h-[3.15rem] border dark:border-white"
-                          }
-                          label="Amount Type"
-                          list={paymentBase}
-                          selected={selectedPaymentBase}
-                          setSelect={setSelectedPaymentBase}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-greylish">Wallet Address</div>
-                      <div>
-                        <input
-                          type="text"
-                          {...register("address", { required: true })}
-                          className="border pl-2 rounded-md outline-none py-3 w-full dark:bg-darkSecond"
-                          required
-                        />
-                      </div>
-                    </div>
+                    <Dropdown
+                      label="Amount Type"
+                      className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                      parentClass={" w-full rounded-md h-[3.15rem] "}
+                      selectClass={"!text-sm"}
+                      sx={{
+                        ".MuiSelect-select": {
+                          paddingTop: "6px",
+                          paddingBottom: "6px",
+                          maxHeight: "52px",
+                        },
+                      }}
+                      list={paymentBase}
+                      selected={selectedPaymentBase}
+                      setSelect={setSelectedPaymentBase}
+                    />
+                    <TextField
+                      label="Wallet Address"
+                      className="bg-white dark:bg-darkSecond"
+                      variant="outlined"
+                    />
                   </div>
                   <div className="flex w-full gap-x-10">
                     <div className="w-full h-full">
-                      {/* <div className="text-greylish">Token</div> */}
-                      {
-                        <Dropdown
-                          parentClass="w-full border-transparent text-sm dark:text-white"
-                          className="!rounded-md !h-[3.15rem]  border dark:border-white"
-                          selected={selectedWallet}
-                          label="Token"
-                          list={Object.values(GetCoins)}
-                          setSelect={setSelectedWallet}
-                        />
-                      }
+                      <Dropdown
+                        label="Token"
+                        className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                        selected={selectedCoin}
+                        sx={{
+                          ".MuiSelect-select": {
+                            paddingTop: "6px",
+                            paddingBottom: "6px",
+                            maxHeight: "52px",
+                          },
+                        }}
+                        setSelect={(val) => {
+                          setSelectedCoin(val);
+                        }}
+                        list={Object.values(GetCoins)}
+                      />
                     </div>
                     <div className="w-full h-full">
-                      <div className="text-greylish">Amount</div>
-                      <div
-                        className={`border w-full text-black py-1 h-full bg-white dark:bg-darkSecond rounded-md grid ${selectedTypeIsUsd
-                          ? "grid-cols-[25%,75%]"
-                          : "grid-cols-[50%,50%]"
-                          }`}
-                      >
-                        {selectedTypeIsUsd && (
-                          <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">
-                            USD as
-                          </span>
-                        )}
-                        <input
-                          type="number"
-                          {...register("amount", {
-                            required: true,
-                            valueAsNumber: true,
-                          })}
-                          className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond py-2  dark:text-white "
-                          required
-                          step={"any"}
-                          min={0}
-                        />
-                      </div>
+                      <TextField
+                        type={"number"}
+                        label="Amount"
+                        {...register("amount", {
+                          required: true,
+                          valueAsNumber: true,
+                        })}
+                        className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
+                        required
+                        variant="outlined"
+                      />
                     </div>
                   </div>
                   {secondActive ? (
                     <div className="flex gap-x-10">
                       <div className="w-full h-full">
-                        {/* <div className="text-greylish">Token</div> */}
-                        {
-                          <Dropdown
-                            parentClass="w-full border-transparent text-sm dark:text-white"
-                            className="!rounded-md !h-[3.15rem] border dark:border-white"
-                            label="Token"
-                            selected={selectedWallet2}
-                            list={Object.values(GetCoins)}
-                            setSelect={setSelectedWallet2}
-                          />
-                        }
+                        <Dropdown
+                          label="Tosken"
+                          className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                          selected={selectedCoin2}
+                          sx={{
+                            ".MuiSelect-select": {
+                              paddingTop: "6px",
+                              paddingBottom: "6px",
+                              maxHeight: "52px",
+                            },
+                          }}
+                          setSelect={(val) => {
+                            setSelectedCoin2(val);
+                          }}
+                          list={Object.values(GetCoins)}
+                        />
                       </div>
                       <div className="w-full h-full">
-                        <div className="text-greylish">Amount</div>
-                        <div
-                          className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${selectedTypeIsUsd
-                            ? "grid-cols-[25%,75%]"
-                            : "grid-cols-[50%,50%]"
-                            }`}
-                        >
-                          {selectedTypeIsUsd && (
-                            <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white">
-                              USD as
-                            </span>
-                          )}
-                          <input
-                            type="number"
-                            {...register("amount2", {
-                              required: true,
-                              valueAsNumber: true,
-                            })}
-                            className="outline-none unvisibleArrow pl-2 py-2 bg-white dark:bg-darkSecond dark:text-white"
-                            step={"any"}
-                            min={0}
-                          />
-                        </div>
+                        <TextField
+                          type={"number"}
+                          label="Amount"
+                          {...register("amount", {
+                            required: true,
+                            valueAsNumber: true,
+                          })}
+                          className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
+                          required
+                          variant="outlined"
+                        />
                       </div>
                     </div>
                   ) : (
@@ -335,68 +334,51 @@ export default function RequestId() {
                     </div>
                   )}
                   {/* <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                                    <Input incomingIndex={MyInput.index} />
-                                </div> */}
+                                  <Input incomingIndex={MyInput.index} />
+                              </div> */}
                   <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                     <span className="text-left text-2xl font-bold tracking-wide">
                       Details
                     </span>
                     <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-10 sm:gap-y-7">
                       <div className="flex flex-col space-y-1">
-                        <div className="text-left  text-greylish pb-2 ml-2">
-                          Request Type
-                        </div>
-                        <div>
-                          <input
-                            type="text"
-                            {...register("requestType", { required: true })}
-                            name="requestType"
-                            className="mb-0 sm:w-full sm:h-[3.15rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none"
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col space-y-1">
-                        <div className="text-left  text-greylish pb-2 ml-2">
-                          Name of service
-                        </div>
-                        <input
-                          type="text"
-                          {...register("serviceName", { required: true })}
-                          className="mb-0 sm:w-full sm:h-[3.15rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none"
-                          required
+                        <TextField
+                          label="Request Type"
+                          className="bg-white dark:bg-darkSecond"
+                          variant="outlined"
                         />
                       </div>
                       <div className="flex flex-col space-y-1">
-                        <div className="text-left  text-greylish pb-2 ml-2">
-                          Date of service
-                        </div>
-                        <div>
-                          <DatePicker
-                            className="mb-0 sm:w-full sm:h-[3.15rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none"
-                            selected={serviceDate}
-                            minDate={new Date()}
-                            onChange={(date) =>
-                              date ? setServiceDate(date) : null
-                            }
-                            required
-                          />
-                        </div>
+                        <TextField
+                          label="Name of Service"
+                          className="bg-white dark:bg-darkSecond"
+                          variant="outlined"
+                        />
                       </div>
                       <div className="flex flex-col space-y-1">
-                        <div className="text-left  text-greylish pb-2 ml-2">
-                          Attach link{" "}
-                          <span className="text-black">(optional)</span>
-                        </div>
-                        <div>
-                          <input
-                            type="text"
-                            {...register("link")}
-                            name="attachLink"
-                            placeholder="Attach link"
-                            className="mb-0 sm:w-full sm:h-[3.15rem] border dark:border-darkSecond dark:bg-darkSecond rounded-md px-3 outline-none"
-                          />
-                        </div>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                          <Stack
+                            spacing={3}
+                            className={` bg-white dark:bg-darkSecond text-sm !rounded-md`}
+                          >
+                            <DesktopDatePicker
+                              label="Date of Service"
+                              inputFormat="MM/dd/yyyy"
+                              value={dateValue}
+                              onChange={handleDateChange}
+                              renderInput={(params) => (
+                                <TextField {...params} />
+                              )}
+                            />
+                          </Stack>
+                        </LocalizationProvider>
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <TextField
+                          label="Attach Link (optional)"
+                          className="bg-white dark:bg-darkSecond"
+                          variant="outlined"
+                        />
                       </div>
                     </div>
                   </div>
@@ -406,7 +388,7 @@ export default function RequestId() {
                       <span className="text-black">(optional)</span>
                     </span>
                     <div className="grid grid-cols-1 bg-white">
-                      <Upload setFile={setFile} />
+                      <Upload setFile={setFile} noProfilePhoto={false} />
                     </div>
                   </div>
                 </div>
@@ -419,11 +401,7 @@ export default function RequestId() {
                     >
                       Close
                     </Button>
-                    <Button
-                      type="submit"
-                      isLoading={isLoading}
-                      className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg"
-                    >
+                    <Button className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg">
                       Submit
                     </Button>
                   </div>
@@ -438,14 +416,14 @@ export default function RequestId() {
               disableX={true}
               className="lg:min-w-[50%] !pt-5"
             >
-              <Confirm currency={currency} GetCoins={GetCoins} closeModal={closeModal} request={request} loading={loading} filename={fileName} />
+              <Confirm GetCoins={GetCoins}  submit={submit} closeModal={closeModal} request={request} loading={loading} filename={fileName} />
             </Modal>
           )}
         </form>
       </div>
     </>
   );
-};
+}
 
 RequestId.disableLayout = true;
 RequestId.disableGuard = true;
@@ -453,5 +431,5 @@ RequestId.disableGuard = true;
 export async function getServerSideProps() {
   return {
     props: {}, // will be passed to the page component as props
-  }
+  };
 }

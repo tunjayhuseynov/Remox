@@ -83,10 +83,13 @@ export default () => {
     });
 
 
-    const [selectedWallet, setSelectedWallet] = useState<DropDownItem>(
+    const [selectedWallet, setSelectedWallet] = useState(
+        GetCoins[0] 
+    );
+    
+    const [selectedWallet2, setSelectedWallet2] = useState(
         GetCoins[0]
     );
-    const [selectedWallet2, setSelectedWallet2] = useState<DropDownItem>();
 
     const dispatch = useAppDispatch();
 
@@ -164,7 +167,7 @@ export default () => {
                             {/* <div className=" text-left  text-greylish ">Choose Profile Photo Type</div> */}
                             <div className={` flex items-center gap-3 w-full`}>
                                 <Dropdown
-                                    parentClass={'bg-white w-full rounded-lg '}
+                                    parentClass={'w-full rounded-lg '}
                                     className={'!rounded-lg !border dark:border-white h-[3.15rem]'}
                                     label={'Choose Profile Photo Type'}
                                     list={imageType}
@@ -205,7 +208,7 @@ export default () => {
                                     setSelect={setSelectedTeam}
                                     selected={selectedTeam}
                                     list={teams}
-                                    parentClass={'bg-white w-full rounded-lg h-[3.15rem]'}
+                                    parentClass={'w-full rounded-lg h-[3.15rem]'}
                                     className={'!rounded-lg h-[3.15rem] border dark:border-white'}
                                 />
                             </div>
@@ -214,7 +217,7 @@ export default () => {
                             <div className="text-greylish">Compensation Type</div>
                             <div className=" w-full ">
                                 <Dropdown
-                                    parentClass={'bg-white w-full rounded-lg h-[3.15rem]'}
+                                    parentClass={'w-full rounded-lg h-[3.15rem]'}
                                     className={'!rounded-lg h-[3.15rem] border dark:border-white'}
                                     label="Compensation Type"
                                     list={schedule}
@@ -229,7 +232,7 @@ export default () => {
                             {/* <div className="text-greylish">Amount Type</div> */}
                             <div>
                                 <Dropdown
-                                    parentClass={'bg-white w-full rounded-lg '}
+                                    parentClass={'w-full rounded-lg '}
                                     className={'!rounded-lg !h-[3.15rem] border dark:border-white'}
                                     label="Amount Type"
                                     list={paymentBase}
@@ -247,9 +250,9 @@ export default () => {
                         {<Dropdown
                             parentClass={'w-full border-transparent text-sm dark:text-white'}
                             className="!rounded-md !h-[3.15rem] border dark:border-white"
-                            selected={selectedWallet}
                             label="Token"
                             list={Object.values(GetCoins!)}
+                            selected={selectedWallet}
                             setSelect={setSelectedWallet}
                         />
                         }
@@ -266,8 +269,8 @@ export default () => {
                                     className="!rounded-md !h-[3.15rem] border dark:border-white"
                                     label="Token"
                                     selected={selectedWallet2}
-                                    list={Object.values(GetCoins!)}
                                     setSelect={setSelectedWallet2}
+                                    list={Object.values(GetCoins!)}
                                 />
                             }
                             <div className={`border w-full text-black py-1 bg-white dark:bg-darkSecond rounded-md grid ${!paymentBaseIsToken ? "grid-cols-[25%,75%]" : "grid-cols-[50%,50%]"}`}>

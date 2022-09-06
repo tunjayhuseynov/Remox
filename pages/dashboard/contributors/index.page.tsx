@@ -6,11 +6,20 @@ import Button from 'components/button';
 import { SelectContributors, SelectStorage } from 'redux/slices/account/remoxData';
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
+import useCurrency from "rpcHooks/useCurrency";
+import { Blockchains } from 'types/blockchains';
+
 
 
 
 const Contributors = () => {
     const contributors = useAppSelector(SelectContributors)
+
+
+    const collection = useCurrency(Blockchains.find((blockchain) => blockchain.name === "celo")!.currencyCollectionName)
+
+    console.log(collection);
+    
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0

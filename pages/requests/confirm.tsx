@@ -4,28 +4,44 @@ import { IRequest } from "rpcHooks/useRequest";
 import { AltCoins, Coins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 interface IProps {
   request: IRequest | null | undefined;
   closeModal: () => Promise<void>;
-  GetCoins: { [name: string]: AltCoins };
-  currency: Coins;
+  GetCoins: AltCoins[];
   loading: boolean;
   filename: string;
+  submit: () => Promise<void>;
 }
 
 export default ({
   request,
   GetCoins,
   closeModal,
-  currency,
   loading,
   filename,
+  submit
 }: IProps) => {
   if (request === null || request === undefined) return <>No Data</>;
+  const { handleSubmit } = useForm();
+
+  const currency = GetCoins.find((coin) => coin.name === request.currency);
+  const secondCurrency = GetCoins.find((coin) => coin.name === request.secondaryCurrency);
+  
   return (
     <div className="flex flex-col space-y-8 px-2">
-      <div className="font-semibold">Your Information</div>
+      <div className="font-semibold">Overview</div>
+      <div className="flex flex-col space-y-2">
+        <div className="flex justify-between border-b pb-8">
+          <div className="text-greylish">Status</div>
+          <div className="flex gap-x-2 items-center ">
+            <span className="w-2 h-2 rounded-full bg-primary"></span>  
+            {request?.status}
+          </div>
+        </div>
+      </div>
+      <div className="font-semibold">Payee information</div>
       <div className="flex flex-col space-y-5">
         {!!request?.name && (
           <div className="flex justify-between">
@@ -43,52 +59,46 @@ export default ({
           <div className="text-greylish">Requesting Amount</div>
           <div className="flex flex-col space-y-3">
             <div>
-              <div className="flex gap-x-5">
+              <div className="flex gap-x-5 justify-between">
                 <div className="flex gap-x-2 items-center">
                   <span className="w-2 h-2 rounded-full bg-primary"></span>
-                  {request?.amount
-                    ? TotalUSDAmount([request as IRequest], currency)
-                    : request?.amount &&
-                      GetCoins[request.currency].name === "cUSD"
-                    ? request.amount
-                    : 10}
+                    {request?.amount}
                 </div>
                 <div className="flex gap-x-2 items-center">
                   {!!request?.currency && (
-                    <img
-                      src={GetCoins[request.currency].coinUrl}
-                      className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                    />
+                    <div className="flex items-center">
+                      {request.usdBase ? <span className="mr-2">USD as</span> : ""}
+                      <img
+                        src={currency!.logoURI}
+                        className="rounded-xl w-[1.25rem] h-[1.25rem]"
+                      />
+                    </div>
                   )}
-                  {!!request?.currency && GetCoins[request.currency].name}
+                  {currency ? <span>{currency!.name}</span> : "Token not provided"}
                 </div>
               </div>
             </div>
             {!!request?.secondaryCurrency && !!request?.secondaryAmount && (
               <div>
-                <div className="flex gap-x-5">
+                <div className="flex gap-x-5 justify-between">
                   <div className="flex gap-x-2 items-center">
                     <span className="w-2 h-2 rounded-full bg-primary"></span>
-                    {request?.secondaryAmount
-                      ? TotalUSDAmount([request as IRequest], currency).toFixed(
-                          2
-                        )
-                      : request?.secondaryAmount &&
-                        GetCoins[request.currency].name === "cUSD"
-                      ? request.secondaryAmount
-                      : 0}
+                    {request?.secondaryAmount}
                   </div>
                   <div className="flex gap-x-2 items-center">
-                    {request?.secondaryCurrency ? (
+                    {secondCurrency ? (
+                      <div className="flex items-center">
+                      {request.usdBase ? <span className="mr-2">USD as</span> : ""}
                       <img
-                        src={GetCoins[request.secondaryCurrency].coinUrl}
+                        src={secondCurrency!.logoURI}
                         className="rounded-xl w-[1.25rem] h-[1.25rem]"
                       />
+                    </div>
                     ) : (
                       ""
                     )}
-                    {request?.secondaryCurrency
-                      ? GetCoins[request.secondaryCurrency].name
+                    {secondCurrency
+                      ? <span>{secondCurrency.name}</span> 
                       : ""}
                   </div>
                 </div>
@@ -99,9 +109,8 @@ export default ({
         <div className="flex justify-between border-b pb-8">
           <div className="text-greylish">Total</div>
           <div>
-            {request?.amount
-              ? TotalUSDAmount([request as IRequest], currency).toFixed(2)
-              : 0}{" "}
+            {!request.usdBase ? request?.secondaryAmount && secondCurrency ? ((request?.secondaryAmount * secondCurrency?.priceUSD) + (request?.amount * currency!.priceUSD)).toFixed(4) : (request?.amount * currency!.priceUSD).toFixed(4) : request?.secondaryAmount ? request.amount + request.secondaryAmount : request.amount}
+            {" "}
             USD
           </div>
         </div>
@@ -119,25 +128,24 @@ export default ({
         <div className="flex justify-between">
           <div className="text-greylish">Date of service</div>
           <div>
-            {dateFormat(new Date(request!.serviceDate * 1000), `dd mmmm yyyy`)}
+            {dateFormat(new Date(request!.serviceDate * 1000), `mmm dd, yyyy`)}
           </div>
         </div>
-        {!!request?.attachLink && (
           <div className="flex justify-between">
             <div className="text-greylish">
-              Attach links <span className="text-black">(optional)</span>
+              Attach links <span className="text-black">(Optional)</span>
             </div>
             <div>
+              {request?.attachLink ? (
               <a href={request?.attachLink} rel="noreferrer" target="_blank">
                 {request?.attachLink}
-              </a>
+              </a>) : "No link provided"}
             </div>
           </div>
-        )}
         <div className="flex justify-between">
           <div className="text-greylish">
             Upload receipt or invoice{" "}
-            <span className="text-black">(optional)</span>
+            <span className="text-black block">(Optional)</span>
           </div>
           <div>
             {request?.uploadedLink ? (
@@ -151,22 +159,22 @@ export default ({
         </div>
       </div>
       <div className="flex justify-center pt-5 sm:pt-0">
-        <div className="flex flex-row gap-10 sm:grid grid-cols-2 w-[25rem] sm:justify-center sm:gap-5">
+        <form onSubmit={handleSubmit(submit)} className="flex flex-row gap-10 sm:grid grid-cols-2 w-[30rem] sm:justify-center sm:gap-5">
           <Button
             version="second"
             onClick={() => closeModal()}
-            className="w-[9.375rem] sm:w-full"
+            className="w-[9.375rem] text-lg sm:w-full !py-1"
           >
             Back
           </Button>
           <Button
             type="submit"
-            className=" w-[9.375rem] sm:w-full bg-primary px-0 !py-2 text-white flex items-center justify-center rounded-lg"
             isLoading={loading}
+            className=" w-[9.375rem] text-lg sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg"
           >
-            Confirm & Submit
+            Approve Request
           </Button>
-        </div>
+        </form>
       </div>
     </div>
   );
