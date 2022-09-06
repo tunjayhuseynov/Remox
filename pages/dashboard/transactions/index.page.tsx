@@ -2,7 +2,7 @@ import dateFormat from "dateformat";
 import { forwardRef, Fragment, useState, useTransition } from "react";
 import Accordion from "components/accordion";
 import { TransactionStatus, AltCoins, CoinsName, Coins } from "types";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
 import { selectTags } from "redux/slices/tags";
@@ -23,17 +23,18 @@ import Filter from "./_components/filter";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
 import MultisigTx from "./_components/MultisigTransactionItem";
 import { TablePagination } from "@mui/material";
+import { IAccountORM } from "pages/api/account/index.api";
+import { BlockchainType } from "types/blockchains";
 
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
-    const selectedAccount = useAppSelector(SelectProviderAddress)
     const accountsRaw = useAppSelector(SelectAccounts)
     const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
     const router = useRouter()
     const { type } = router.query as { type: string[] | undefined }
-    const { GetCoins, fromMinScale, Address } = useWalletKit()
+    const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
     const [isOpen, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
@@ -47,17 +48,8 @@ const Transactions = () => {
         if (val) setAddress(val)
     }, [Address])
 
-    // const { ref } = useInView({
-    //     onChange: (inView) => {
-    //         if (inView && Txs.length > pagination) {
-    //             startTransition(() => { setPagination(pagination + STABLE_INDEX) })
-    //         }
-    //     }
-    // })
-
     const list = useAppSelector(SelectTransactions)
 
-    const [changedAccount, setChangedAccount] = useState<string[]>([])
     const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
     return <>
         <div>
@@ -130,8 +122,10 @@ const Transactions = () => {
                                 </tr>
                                 {Txs?.slice(pagination - STABLE_INDEX, pagination).map((tx) => {
                                     if ((tx as IFormattedTransaction)['hash']) {
+                                        const address = (tx as IFormattedTransaction).address;
+                                        const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
                                         const txData = (tx as IFormattedTransaction)
-                                        return <ProcessAccordion key={txData.rawData.hash} transaction={txData} accounts={changedAccount} color={"bg-white dark:bg-darkSecond"} />
+                                        return <SingleTxContainer blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
                                     } else {
                                         const txData = (tx as ITransactionMultisig | IMultisigSafeTransaction)
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
@@ -151,7 +145,6 @@ const Transactions = () => {
                                     page={(pagination / STABLE_INDEX) - 1}
                                     onPageChange={(e, newPage) => setPagination((newPage + 1) * STABLE_INDEX)}
                                     rowsPerPage={STABLE_INDEX}
-                                // onRowsPerPageChange={handleChangeRowsPerPage}
                                 />
                             </div>
                         </div>
@@ -161,26 +154,6 @@ const Transactions = () => {
                             <WalletDropdown selected={selectedAccount ?? ""} onChange={(wallets) => {
                                 setChangedAccount([...wallets.map((wallet) => wallet.address)])
                             }} />
-                        </div>
-                        <div>
-                            {list && <CSVLink className="font-normal py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
-                                let tx = w.rawData
-                                let feeToken = Object.entries(CoinsName).find(s => s[0] === tx.tokenSymbol)?.[1]
-                                return {
-                                    'Sent From:': tx.from,
-                                    'Amount:': parseFloat(fromMinScale(tx.value.toString())).toFixed(4) + ` ${feeToken && GetCoins ? GetCoins[feeToken].name : "Unknown"}`,
-                                    'To:': tx.to,
-                                    'Date': dateFormat(new Date(parseInt(tx.timeStamp) * 1e3), "mediumDate"),
-                                    "Gas": `${fromMinScale((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString())} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
-                                    "Block Number": tx.blockNumber,
-                                    "Transaction Hash": tx.hash,
-                                    "Block Hash": tx.blockHash,
-                                    "Input": tx.input
-                                }
-                            })}>
-                                <div className={'hidden'}>Export</div>
-                                <img className={`w-[1.5rem] h-[1.5rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
-                            </CSVLink>}
                         </div>
                         <div className="relative">
                             <div ref={exceptRef} onClick={() => setOpen(!isOpen)} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
@@ -201,31 +174,50 @@ const Transactions = () => {
 
 export default Transactions;
 
-export const ProcessAccordion = forwardRef<HTMLDivElement, { transaction: IFormattedTransaction, accounts: string[], color: string }>(({ transaction, accounts, color }, ref) => {
-    const isBatch = transaction.id === ERC20MethodIds.batchRequest
+interface IProps { transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, blockchain: BlockchainType }
+
+export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transaction, accounts, selectedAccount, blockchain }, ref) => {
+    const isBatch = transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
-        const groupBatch = _((transaction as IBatchRequest).payments).groupBy("to").value()
-        Object.entries(groupBatch).forEach(([key, value]) => {
-            let tx: IBatchRequest = {
-                timestamp: transaction.timestamp,
-                method: transaction.method,
-                id: transaction.id,
-                hash: transaction.hash,
-                rawData: transaction.rawData,
-                payments: value
-            }
-            TXs.push(tx)
-        })
+        if (transaction.id === ERC20MethodIds.batchRequest) {
+            const groupBatch = _((transaction as IBatchRequest).payments).groupBy("to").value()
+            Object.entries(groupBatch).forEach(([key, value]) => {
+                let tx: IBatchRequest = {
+                    timestamp: transaction.timestamp,
+                    method: transaction.method,
+                    id: transaction.id,
+                    hash: transaction.hash,
+                    rawData: transaction.rawData,
+                    payments: value,
+                    address: transaction.address
+                }
+                TXs.push(tx)
+            })
+        } else {
+            const groupBatch = _((transaction as IAutomationBatchRequest).payments).groupBy("address").value()
+            Object.entries(groupBatch).forEach(([key, value]) => {
+                let tx: IAutomationBatchRequest = {
+                    timestamp: transaction.timestamp,
+                    method: transaction.method,
+                    id: transaction.id,
+                    hash: transaction.hash,
+                    rawData: transaction.rawData,
+                    payments: value,
+                    address: transaction.address
+                }
+                TXs.push(tx)
+            })
+        }
     } else {
         TXs.push(transaction)
     }
     const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
     let directionType = TransactionDirectionDeclare(transaction, accounts);
-
+  
     return <>
-        {isBatch && TXs.map((s, i) => <SingleTransactionItem key={`${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
-        {!isBatch && <SingleTransactionItem key={`${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
+        {isBatch && TXs.map((s, i) => <SingleTransactionItem blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
+        {!isBatch && <SingleTransactionItem blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
     </>
 })
 

@@ -13,10 +13,12 @@ import { ethers } from "ethers";
 import ERC20 from "rpcHooks/ABI/erc20.json";
 import Ubeswap from "rpcHooks/ABI/Ubeswap.json";
 import Moola from "rpcHooks/ABI/Moola.json";
+import MoolaAirdrop from "rpcHooks/ABI/MoolaAirdrop.json";
 import BatchRequest from "rpcHooks/ABI/BatchRequest.json";
 import Gelato from "rpcHooks/ABI/Gelato.json";
 import { IBudget } from "firebaseConfig";
 import BigNumber from "bignumber.js";
+import Web3 from 'web3'
 
 export const ERC20MethodIds = {
   transferFrom: "transferFrom",
@@ -25,14 +27,20 @@ export const ERC20MethodIds = {
   approve: "approve",
   batchRequest: "batchRequest",
   swap: "swap",
+
   automatedTransfer: "automatedTransfer",
+  automatedCanceled: "automatedCanceled",
+  automatedBatchRequest: "automatedBatchRequest",
+
+
+  reward: "reward",
   borrow: "borrow",
   deposit: "deposit",
   withdraw: "withdraw",
   repay: "repay",
-  createStream: "createStream",
-  cancelStream: "cancelStream",
+
   rejection: "0x1",
+
   addOwner: "addOwner",
   removeOwner: "removeOwner",
   changeThreshold: "changeThreshold",
@@ -46,21 +54,34 @@ export interface IFormattedTransaction {
   hash: string;
   id: string;
   tags?: ITag[];
-  budget?: IBudget
+  budget?: IBudget,
+  address: string
 }
 
 export interface ITransfer extends IFormattedTransaction {
-  // aw, Moola Borrow
   to: string;
   amount: string;
   coin: AltCoins;
 }
 
 export interface IAutomationTransfer extends IFormattedTransaction {
+  coin: AltCoins;
   startTime: number;
   interval: number;
   address: string;
   amount: string;
+}
+
+export interface IAutomationCancle extends IFormattedTransaction {
+  payments: {
+    coin: AltCoins;
+    to: string;
+    amount: string;
+  }[];
+}
+
+export interface IAutomationBatchRequest extends IFormattedTransaction {
+  payments: IAutomationTransfer[]
 }
 
 export interface ITransferComment extends ITransfer {
@@ -80,7 +101,7 @@ export interface ISwap extends IFormattedTransaction {
 
 export interface IBatchRequest extends IFormattedTransaction {
   payments: {
-    coinAddress: AltCoins;
+    coin: AltCoins;
     from: string;
     to: string;
     amount: string;
@@ -130,197 +151,271 @@ interface IReader {
   transaction: Transactions;
   tags: ITag[];
   Coins: Coins;
+  blockchain: BlockchainType;
 }
 
-export const InputReader = (
-  input: string,
-  { transaction, tags, Coins }: IReader
-) => {
-  const theTags = tags.filter((s) =>
-    s.transactions.some((t) => t.hash === transaction.hash)
-  );
+export const
+  InputReader = async (
+    input: string,
+    { transaction, tags, Coins, blockchain }: IReader
+  ) => {
+    try {
 
-  let decoder = new InputDataDecoder(ERC20);
-  let result = decoder.decodeData(input);
-  if (!result.method) {
-    decoder = new InputDataDecoder(Moola.abi);
-    result = decoder.decodeData(input);
-    if (!result.method) {
-      decoder = new InputDataDecoder(Ubeswap.output.abi);
-      result = decoder.decodeData(input);
-      if (!result.method) {
-        decoder = new InputDataDecoder(BatchRequest.abi);
-        result = decoder.decodeData(input);
-        if (!result.method) {
-          decoder = new InputDataDecoder(Gelato);
-          result = decoder.decodeData(input);
-        }
-      }
-    }
-  }
-  if (!result.method) {
-    const coin = Object.values(Coins).find(s => s.address.toLowerCase() === transaction.contractAddress.toLowerCase())
-    if (!coin) return { method: null }
-    return {
-      method: ERC20MethodIds.noInput,
-      id: ERC20MethodIds.noInput,
-      from: transaction.from,
-      to: transaction.to,
-      amount: transaction.value.toString(),
-      coin: coin,
-      tags: theTags,
-    };
-  } else if (result.method === ERC20MethodIds.transferFrom) {
-    return {
-      method: ERC20MethodIds.transferFrom,
-      id: ERC20MethodIds.transferFrom,
-      coin: Object.values(Coins).find(s => s.address.toLowerCase() === transaction.contractAddress.toLowerCase()),
-      from: result.inputs[0],
-      to: result.inputs[1],
-      amount: (result.inputs[2] as BigNumber).toString(),
-      tags: theTags,
-    };
-  } else if (result.method === ERC20MethodIds.transfer) {
-    return {
-      method: ERC20MethodIds.transfer,
-      id: ERC20MethodIds.transfer,
-      coin: Object.values(Coins).find(s => s.address.toLowerCase() === transaction.contractAddress.toLowerCase()),
-      to: "0x" + result.inputs[0],
-      amount: (result.inputs[1] as BigNumber).toString(),
-      tags: theTags,
-    };
-  } else if (result.method === "SwapExactTokensForTokens" || result.method === "swapTokensForExactTokens") {
-    const coins: AltCoins[] = Object.values(Coins);
-    return {
-      method: ERC20MethodIds.swap,
-      id: ERC20MethodIds.swap,
-      amountIn: result.method === "SwapExactTokensForTokens" ? result.inputs[0].toString() : result.inputs[1].toString(),
-      amountOutMin: result.method === "SwapExactTokensForTokens" ? result.inputs[1].toString() : result.inputs[0].toString(),
-      coinIn: coins.find(
-        (s) =>
-          s.address.toLowerCase() === result.inputs[2][0].toLowerCase()
-      )!,
-      coinOutMin: coins.find(
-        (s) =>
-          s.address.toLowerCase() === result.inputs[2][1].toLowerCase()
-      )!,
-      tags: theTags,
-    };
-  } else if (result.method === "executeTransactions") {
-    const txList = [];
-    const splitData = (result.inputs[2] as string).substring(2).split("23b872dd");
-
-    for (let i = 0; i < result.inputs[0].length; i++) {
-      const coin = Object.values(Coins).find(
-        (s) =>
-          s.address.toLowerCase() === "0x" + result.inputs[0][i].toLowerCase()
+      const theTags = tags.filter((s) =>
+        s.transactions.some((t) => t.hash === transaction.hash)
       );
 
       let decoder = new InputDataDecoder(ERC20);
-      let erc = decoder.decodeData(`0x23b872dd${splitData[i]}`);
-      console.log(erc)
-      if (coin && erc.method === ERC20MethodIds.transferFrom) {
-        txList.push({
-          coinAddress: coin,
-          from: erc.inputs[0],
-          to: erc.inputs[1],
-          amount: erc.inputs[2].toString(),
-        });
+      let result = decoder.decodeData(input);
+      if (!result.method) {
+        decoder = new InputDataDecoder(Ubeswap.output.abi);
+        result = decoder.decodeData(input);
+        if (!result.method) {
+          decoder = new InputDataDecoder(Moola.abi);
+          result = decoder.decodeData(input);
+          if (!result.method) {
+            decoder = new InputDataDecoder(BatchRequest.abi);
+            result = decoder.decodeData(input);
+            if (!result.method) {
+              decoder = new InputDataDecoder(Gelato);
+              result = decoder.decodeData(input);
+              if (!result.method) {
+                decoder = new InputDataDecoder(MoolaAirdrop);
+                result = decoder.decodeData(input);
+              }
+            }
+          }
+        }
       }
-    }
-    return {
-      method: ERC20MethodIds.batchRequest,
-      id: ERC20MethodIds.batchRequest,
-      payments: txList,
-      tags: theTags,
-    };
 
-  }
-  // else if (result.method === ERC20MethodIds.transferWithComment) {
-  //   const len = ERC20MethodIds.transferWithComment.length;
-  //   return {
-  //     method: "transferWithComment",
-  //     id: ERC20MethodIds.transferWithComment,
-  //     to: "0x" + input.slice(len, len + 64).substring(24),
-  //     coin: Coins[transaction.tokenSymbol as keyof Coins],
-  //     amount: hexToNumberString(
-  //       "0x" + input.slice(len + 64, len + 64 + 64)
-  //     ).toString(),
-  //     comment: hexToUtf8(
-  //       "0x" +
-  //       input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)
-  //     ),
-  //     tags: theTags,
-  //   };
-  // } 
-  else if (result.method === "createTimedTask") {
-    let decoder = new InputDataDecoder(ERC20);
-    let ercRes = decoder.decodeData(result.inputs[4]);
-    if (ercRes.method != ERC20MethodIds.transfer) return {}
-    return {
-      method: ERC20MethodIds.automatedTransfer,
-      id: ERC20MethodIds.automatedTransfer,
-      tags: theTags,
-      startTime: result.inputs[0].toString(),
-      interval: result.inputs[1].toString(),
-      address: result.inputs[2].toString(),
-      coin: Object.values(Coins).find(s => s.address.toLowerCase() === result.inputs[2].toString().toLowerCase()),
-      amount: ercRes.method === "transfer" ? ercRes.inputs[1].toString() : 0
-    };
-  } else if (result.method === ERC20MethodIds.borrow) {
-    const coins: AltCoins[] = Object.values(Coins);
-    return {
-      method: ERC20MethodIds.borrow,
-      id: ERC20MethodIds.borrow,
-      coin: coins.find(
-        (s) =>
-          s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
-      )!,
-      amount: result.inputs[1].toString(),
-      to: result.inputs[0],
-      tags: theTags,
-    };
-  } else if (result.method === ERC20MethodIds.deposit) {
-    const coins: AltCoins[] = Object.values(Coins);
-    return {
-      method: ERC20MethodIds.deposit,
-      id: ERC20MethodIds.deposit,
-      coin: coins.find(
-        (s) =>
-          s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
-      )!,
-      amount: result.inputs[1].toString(),
-      to: result.inputs[0],
-      tags: theTags,
-    };
-  } else if (result.method === ERC20MethodIds.withdraw) {
-    const coins: AltCoins[] = Object.values(Coins);
-    return {
-      method: ERC20MethodIds.withdraw,
-      id: ERC20MethodIds.withdraw,
-      coin: coins.find(
-        (s) =>
-          s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
-      )!,
-      amount: result.inputs[1].toString(),
-      to: result.inputs[0],
-      tags: theTags,
-    };
-  } else if (result.method === ERC20MethodIds.repay) {
-    const coins: AltCoins[] = Object.values(Coins);
-    return {
-      method: ERC20MethodIds.repay,
-      id: ERC20MethodIds.repay,
-      coin: coins.find(
-        (s) =>
-          s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
-      )!,
-      amount: result.inputs[1].toString(),
-      to: result.inputs[0],
-      tags: theTags,
-    };
-  }
-};
+      const coin = Object.values(Coins).find(s => s.address.toLowerCase() === transaction.to.toLowerCase() || s.address.toLowerCase() === transaction.contractAddress.toLowerCase())
+
+      if (!result.method) {
+        if (!coin) return { method: null }
+        return {
+          method: ERC20MethodIds.noInput,
+          id: ERC20MethodIds.noInput,
+          from: transaction.from,
+          to: transaction.to,
+          amount: transaction.value.toString(),
+          coin: coin,
+          tags: theTags,
+        };
+      } else if (result.method === ERC20MethodIds.transferFrom) {
+        return {
+          method: ERC20MethodIds.transferFrom,
+          id: ERC20MethodIds.transferFrom,
+          coin: coin,
+          from: result.inputs[0],
+          to: result.inputs[1],
+          amount: (result.inputs[2] as BigNumber).toString(),
+          tags: theTags,
+        };
+      } else if (result.method === ERC20MethodIds.transfer) {
+        return {
+          method: ERC20MethodIds.transfer,
+          id: ERC20MethodIds.transfer,
+          coin: coin,
+          to: "0x" + result.inputs[0],
+          amount: (result.inputs[1] as BigNumber).toString(),
+          tags: theTags,
+        };
+      } else if (result.method === "swapExactTokensForTokens" || result.method === "swapTokensForExactTokens" || result.method === "swapExactTokensForTokensSupportingFeeOnTransferTokens") {
+        const coins: AltCoins[] = Object.values(Coins);
+        return {
+          method: ERC20MethodIds.swap,
+          id: ERC20MethodIds.swap,
+          amountIn: result.method === "swapExactTokensForTokens" || result.method === "swapExactTokensForTokensSupportingFeeOnTransferTokens" ? result.inputs[0].toString() : result.inputs[1].toString(),
+          amountOutMin: result.method === "swapExactTokensForTokens" || result.method === "swapExactTokensForTokensSupportingFeeOnTransferTokens" ? result.inputs[1].toString() : result.inputs[0].toString(),
+          coinIn: coins.find(
+            (s) =>
+              s.address.toLowerCase() === "0x" + result.inputs[2][0].toLowerCase()
+          )!,
+          coinOutMin: coins.find(
+            (s) =>
+              s.address.toLowerCase() === "0x" + result.inputs[2][1].toLowerCase()
+          )!,
+          tags: theTags,
+        };
+      } else if (result.method === "executeTransactions") {
+        const txList = [];
+        const splitData = (result.inputs[2] as string).substring(2).split("23b872dd");
+        for (let i = 0; i < result.inputs[0].length; i++) {
+          const coin = Object.values(Coins).find(
+            (s) =>
+              s.address.toLowerCase() === "0x" + result.inputs[0][i].toLowerCase()
+          );
+
+          let decoder = new InputDataDecoder(ERC20);
+          let erc = decoder.decodeData(splitData.length > 1 ? `0x23b872dd${splitData[i]}` : result.inputs[2]);
+          if (coin && (erc.method === ERC20MethodIds.transferFrom || erc.method === ERC20MethodIds.transfer)) {
+            txList.push({
+              coin: coin,
+              from: erc.method === ERC20MethodIds.transferFrom ? "0x" + erc.inputs[0] : undefined,
+              to: erc.method === ERC20MethodIds.transferFrom ? "0x" + erc.inputs[1] : "0x" + erc.inputs[0],
+              amount: erc.method === ERC20MethodIds.transferFrom ? erc.inputs[2].toString() : erc.inputs[1].toString(),
+            });
+          }
+        }
+        return {
+          method: ERC20MethodIds.batchRequest,
+          id: ERC20MethodIds.batchRequest,
+          payments: txList,
+          tags: theTags,
+        };
+
+      }
+      // else if (result.method === ERC20MethodIds.transferWithComment) {
+      //   const len = ERC20MethodIds.transferWithComment.length;
+      //   return {
+      //     method: "transferWithComment",
+      //     id: ERC20MethodIds.transferWithComment,
+      //     to: "0x" + input.slice(len, len + 64).substring(24),
+      //     coin: Coins[transaction.tokenSymbol as keyof Coins],
+      //     amount: hexToNumberString(
+      //       "0x" + input.slice(len + 64, len + 64 + 64)
+      //     ).toString(),
+      //     comment: hexToUtf8(
+      //       "0x" +
+      //       input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)
+      //     ),
+      //     tags: theTags,
+      //   };
+      // } 
+      else if (result.method === "cancelTask") {
+        const web3 = new Web3(blockchain.rpcUrl);
+        const contract = new web3.eth.Contract(blockchain.recurringPaymentProtocols[0].abi, blockchain.recurringPaymentProtocols[0].contractAddress)
+        const details = await contract.methods.getDetails(result.inputs[0]).call()
+        if (!details['1']) return {};
+
+        const res: any = await InputReader(details["1"], { transaction, Coins, blockchain, tags: theTags })
+        return {
+          ...res,
+          method: ERC20MethodIds.automatedCanceled,
+          id: ERC20MethodIds.automatedCanceled,
+          tags: theTags,
+        }
+      }
+      else if (result.method === "createTimedTask") {
+        let decoder = new InputDataDecoder(ERC20);
+        let ercRes = decoder.decodeData(result.inputs[4]);
+        //Batch Request Checking
+        if (ercRes.method != ERC20MethodIds.transfer) {
+          const batchDecoder = new InputDataDecoder(BatchRequest.abi);
+          const batchData = batchDecoder.decodeData(input);
+          if (batchData.method != "executeTransactions") return {}
+
+          const txList = [];
+          const splitData = (batchData.inputs[2] as string).substring(2).split("23b872dd");
+
+          for (let i = 0; i < batchData.inputs[0].length; i++) {
+            const coin = Object.values(Coins).find(
+              (s) =>
+                s.address.toLowerCase() === "0x" + batchData.inputs[0][i].toLowerCase()
+            );
+
+            let decoder = new InputDataDecoder(ERC20);
+            let erc = decoder.decodeData(`0x23b872dd${splitData[i]}`);
+            if (coin && erc.method === ERC20MethodIds.transferFrom) {
+              txList.push({
+                coin: coin,
+                startTime: batchData.inputs[0].toString(),
+                interval: batchData.inputs[1].toString(),
+                address: "0x" + batchData.inputs[2].toString(),
+                amount: erc.method === "transfer" ? erc.inputs[1].toString() : 0
+              });
+            }
+          }
+          return {
+            method: ERC20MethodIds.automatedBatchRequest,
+            id: ERC20MethodIds.automatedBatchRequest,
+            payments: txList,
+            tags: theTags,
+          };
+        }
+        /// Batch Request Checking END
+
+        return {
+          method: ERC20MethodIds.automatedTransfer,
+          id: ERC20MethodIds.automatedTransfer,
+          tags: theTags,
+          startTime: result.inputs[0].toString(),
+          interval: result.inputs[1].toString(),
+          address: "0x" + result.inputs[2].toString(),
+          coin: Object.values(Coins).find(s => s.address.toLowerCase() === "0x" + result.inputs[2].toString().toLowerCase()),
+          amount: ercRes.method === "transfer" ? ercRes.inputs[1].toString() : 0
+        };
+      } else if (result.method === ERC20MethodIds.borrow) {
+        const coins: AltCoins[] = Object.values(Coins);
+        return {
+          method: ERC20MethodIds.borrow,
+          id: ERC20MethodIds.borrow,
+          coin: coins.find(
+            (s) =>
+              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+          )!,
+          amount: result.inputs[1].toString(),
+          to: result.inputs[0],
+          tags: theTags,
+        };
+      } else if (result.method === ERC20MethodIds.deposit) {
+        const coins: AltCoins[] = Object.values(Coins);
+        return {
+          method: ERC20MethodIds.deposit,
+          id: ERC20MethodIds.deposit,
+          coin: coins.find(
+            (s) =>
+              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+          )!,
+          amount: result.inputs[1].toString(),
+          to: "0x" + result.inputs[0],
+          tags: theTags,
+        };
+      } else if (result.method === ERC20MethodIds.withdraw) {
+        const coins: AltCoins[] = Object.values(Coins);
+        return {
+          method: ERC20MethodIds.withdraw,
+          id: ERC20MethodIds.withdraw,
+          coin: coins.find(
+            (s) =>
+              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+          )!,
+          amount: result.inputs[1].toString(),
+          to: "0x" + result.inputs[0],
+          tags: theTags,
+        };
+      } else if (result.method === ERC20MethodIds.repay) {
+        const coins: AltCoins[] = Object.values(Coins);
+        return {
+          method: ERC20MethodIds.repay,
+          id: ERC20MethodIds.repay,
+          coin: coins.find(
+            (s) =>
+              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+          )!,
+          amount: result.inputs[1].toString(),
+          to: result.inputs[0],
+          tags: theTags,
+        };
+      } else if (result.method === ERC20MethodIds.reward) {
+        const coins: AltCoins[] = Object.values(Coins);
+        return {
+          method: ERC20MethodIds.reward,
+          id: ERC20MethodIds.reward,
+          tags: theTags,
+          coin: coins.find(
+            (s) =>
+              s.address.toLowerCase() === "0x17700282592D6917F6A73D0bF8AcCf4D578c131e".toLowerCase()
+          )!,
+          amount: result.inputs[2].toString(),
+          to: result.inputs[1],
+        }
+      }
+    } catch (error: any) {
+      console.log(error);
+      throw new Error(error);
+    }
+  };
 
 export const EvmInputReader = async (
   input: string,
@@ -493,8 +588,8 @@ export const EvmInputReader = async (
           const amount = hexToNumberString(result.inputs[1]._hex).toString();
 
           return {
-            method: ERC20MethodIds.createStream,
-            id: ERC20MethodIds.createStream,
+            method: ERC20MethodIds.automatedTransfer,
+            id: ERC20MethodIds.automatedTransfer,
             recipient: "0x" + result.inputs[0],
             deposit: +amount / 10 ** coin.decimals,
             coin: coin,
@@ -505,8 +600,8 @@ export const EvmInputReader = async (
           };
         } else if (result.method === "cancelStream") {
           return {
-            method: ERC20MethodIds.cancelStream,
-            id: ERC20MethodIds.cancelStream,
+            method: ERC20MethodIds.automatedCanceled,
+            id: ERC20MethodIds.automatedCanceled,
             streamId: hexToNumberString(result.inputs[0]._hex).toString(),
             tags: theTags,
           };

@@ -16,6 +16,10 @@ import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "./tags/index.api";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { DecimalConverter } from "utils/api";
+import Web3 from 'web3'
+import InputDataDecoder from "ethereum-input-data-decoder";
+import ERC20 from "rpcHooks/ABI/erc20.json";
+
 
 // GET /api/transactions  --params blockchain, address
 
@@ -37,16 +41,19 @@ export default async function handler(
     const blockchain = Blockchains.find((b) => b.name === blockchaiName);
     if (!blockchain) throw new Error("Blockchain not found");
 
-    const coinsReq = await adminApp
+    const CoinsReq = await adminApp
       .firestore()
       .collection(blockchain.currencyCollectionName)
       .get();
-    const coins = coinsReq.docs.map((doc) => doc.data() as AltCoins);
+    const Coins = CoinsReq.docs.reduce<Coins>((acc, doc) => {
+      acc[(doc.data() as AltCoins).symbol] = doc.data() as AltCoins;
+      return acc;
+    }, {});
 
     if (parsedAddress.length === 0 || !blockchain)
       return res.status(400).send("Missing address or blockchain");
 
-    let myTags;
+    let myTags: { tags: ITag[] } | undefined;
     if (authId) {
       myTags = (
         await adminApp.firestore().collection("tags").doc(authId).get()
@@ -54,18 +61,27 @@ export default async function handler(
       // myTags = await FirestoreRead<{tags: Tag[]}>("tags", authId)
     }
 
-    for (const key of parsedAddress) {
-      const txs = await GetTxs(
-        key,
-        myTags?.tags ?? [],
-        blockchain,
-        coins,
-        parsedtxs
-      );
-      txList = txList.concat(txs);
-    }
+    const txRes = await Promise.all(parsedAddress.map(address => GetTxs(
+      address,
+      myTags?.tags ?? [],
+      blockchain,
+      Coins,
+      parsedtxs
+    )))
 
-    res.status(200).json(_.uniqBy(txList, "hash"));
+    txList = txList.concat(...txRes)
+    // for (const key of parsedAddress) {
+    //   const txs = await GetTxs(
+    //     key,
+    //     myTags?.tags ?? [],
+    //     blockchain,
+    //     coins,
+    //     parsedtxs
+    //   );
+    //   txList = txList.concat(txs);
+    // }
+
+    res.status(200).json(txList);
   } catch (error: any) {
     throw new Error(error);
   }
@@ -75,7 +91,7 @@ const GetTxs = async (
   address: string,
   tags: ITag[],
   blockchain: BlockchainType,
-  coins: AltCoins[],
+  coins: Coins,
   inTxs?: string[]
 ) => {
   let txList: Transactions[] = [];
@@ -97,7 +113,7 @@ const GetTxs = async (
     //   new solanaWeb3.PublicKey(address),
     //   { programId: TOKEN_PROGRAM_ID }
     // );
-
+    const CoinArray = Object.values(coins)
     for (const tx of txs) {
       const arr = tx?.transaction.message.instructions;
       if (arr) {
@@ -109,15 +125,15 @@ const GetTxs = async (
             to = (arr[index] as any)["parsed"]["info"]["destination"] ?? "";
             if ((arr[index] as any)["parsed"]["info"]?.["mint"]) {
               token =
-                coins.find(
+                CoinArray.find(
                   (c) =>
                     c.address.toLowerCase() ===
                     (arr[index] as any)["parsed"]["info"]["mint"]?.toLowerCase()
-                ) ?? coins.find((c) => c.symbol === "SOL")!;
+                ) ?? CoinArray.find((c) => c.symbol === "SOL")!;
               amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]
                 ?.amount;
             } else {
-              token = coins.find((c) => c.symbol === "SOL")!;
+              token = CoinArray.find((c) => c.symbol === "SOL")!;
               amount = (arr[index] as any)["parsed"]["info"]["lamports"] ?? "0";
             }
           }
@@ -163,12 +179,19 @@ const GetTxs = async (
         txList.push(txs.result);
       }
     } else {
-      const exReq = await axios.get<GetTransactions>(
+      const exReqRaw = axios.get<GetTransactions>(
+        `${blockchain.explorerUrl}?module=account&action=txlist&address=${address}`
+      );
+      const tokenReqRaw = axios.get<GetTransactions>(
         `${blockchain.explorerUrl}?module=account&action=tokentx&address=${address}`
       );
 
+      const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
+
+      const tokens = tokenReq.data.result.filter(s => s.from.toLowerCase() !== address.toLowerCase());
+
       const txs = exReq.data;
-      txList = txs.result;
+      txList = txs.result.concat(tokens);
     }
   } else if (blockchain.name === "polygon_evm") {
     if (inTxs) {
@@ -192,8 +215,7 @@ const GetTxs = async (
       // txList = txList.filter((tx) => tx).map((tx: any) => tx["rawData"])
     }
   }
-
-  const parsedTxs = await ParseTxs(txList, blockchain, tags);
+  const parsedTxs = await ParseTxs(txList.filter(s => s.isError !== "1"), blockchain, tags, address, coins);
 
   return parsedTxs;
 };
@@ -201,20 +223,12 @@ const GetTxs = async (
 const ParseTxs = async (
   transactions: Transactions[],
   blockchain: BlockchainType,
-  tags: ITag[]
+  tags: ITag[],
+  address: string,
+  coins: Coins
 ) => {
   try {
-    const CoinsReq = await adminApp
-      .firestore()
-      .collection(blockchain.currencyCollectionName)
-      .get();
-    const Coins = CoinsReq.docs.reduce<Coins>((acc, doc) => {
-      acc[(doc.data() as AltCoins).symbol] = doc.data() as AltCoins;
-      return acc;
-    }, {});
-
     let result: Transactions[] = [...transactions];
-
     const FormattedTransaction: IFormattedTransaction[] = [];
 
     const groupedHash = _(result).groupBy("hash").value();
@@ -228,7 +242,6 @@ const ParseTxs = async (
       },
       []
     );
-
     for (const transaction of uniqueHashs) {
       const input = transaction.input;
 
@@ -236,25 +249,29 @@ const ParseTxs = async (
         const formatted = await EvmInputReader(input, blockchain.name, {
           transaction,
           tags,
-          Coins,
+          Coins: coins,
+          blockchain
         });
         if (formatted) {
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,
             rawData: transaction,
             hash: transaction.hash,
+            address,
             ...formatted,
           });
         }
 
-      } else {
-        const formatted = InputReader(input, { transaction, tags, Coins });
+      } else if (blockchain.name === "celo") {
+        const formatted = await InputReader(input, { transaction, tags, Coins: coins, blockchain });
 
-        if (formatted && formatted.method && (formatted.coin || (formatted.method === ERC20MethodIds.batchRequest && (formatted.payments?.length ?? 0) > 0) || formatted.method === ERC20MethodIds.swap)) {
+        if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0 || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn) || formatted.method === ERC20MethodIds.automatedCanceled)) {
+
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,
             rawData: transaction,
             hash: transaction.hash,
+            address,
             ...formatted,
           });
         }

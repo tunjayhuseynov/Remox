@@ -6,10 +6,12 @@ export enum TransactionType {
     MassPayment = "Mass Payment",
     Swap = "Swap",
     AutomationPayout = "Automation Payment",
+    AutomationCaceled = "Automation Canceled",
     Borrow = "Borrow",
     Deposit = "Deposit",
     Repay = "Repay",
     Withdraw = "Withdraw",
+    Reward = "Reward",
     Unknown = "Unknown"
 }
 
@@ -19,10 +21,12 @@ export enum TransactionDirection {
     Swap,
     AutomationIn,
     AutomationOut,
+    AutomationCancel,
     Borrow,
     Deposit,
     Withdraw,
-    Repay
+    Repay,
+    Reward
 }
 
 export enum TransactionStatus{
