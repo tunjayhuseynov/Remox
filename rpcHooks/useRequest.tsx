@@ -10,9 +10,10 @@ export interface IRequest {
     name: string;
     surname: string;
     address: string;
-    amount: number;
+    amount: string;
+    image?: string;
     currency: CoinsName;
-    secondaryAmount: number | null;
+    secondaryAmount: string | null;
     secondaryCurrency: CoinsName | null;
 
     requestType: string;

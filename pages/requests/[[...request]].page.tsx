@@ -7,13 +7,10 @@ import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import Modal from "components/general/modal";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { TotalUSDAmount } from "pages/dashboard/requests/_components/totalAmount";
 import { TextField } from "@mui/material";
-import { AddressReducer, GetTime } from "utils";
+import { GetTime } from "utils";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useWalletKit } from "hooks";
 import Dropdown from "components/general/dropdown";
-import { useAppDispatch } from "redux/hooks";
 import useLoading from "hooks/useLoading";
 import { UploadImage } from "rpcHooks/useFirebase";
 import { storage } from "firebaseConfig/firebase";
@@ -87,7 +84,6 @@ export default function RequestId() {
     selectedPaymentBase.name === "Pay with USD-based Amounts";
 
   const [file, setFile] = useState<File>();
-  const [serviceDate, setServiceDate] = useState<Date>(new Date());
   const [fileName, setFileName] = useState<string>("");
   const [imageRef, setImageRef] = useState<StorageReference>();
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -115,7 +111,7 @@ export default function RequestId() {
     const Invoice = file;
     const Wallet = selectedCoin;
     const Wallet2 = selectedCoin2;
-    const ServDate = serviceDate;
+    const ServDate = dateValue;
     console.log(data.link);
 
     try {
@@ -124,8 +120,6 @@ export default function RequestId() {
         url = await UploadImage(`/requests/${signer}/${id}`, Invoice!);
         setImageRef(ref(storage, url));
       }
-
-      console.log(data.link);
 
       const result: IRequest = {
         id: id,
@@ -141,7 +135,7 @@ export default function RequestId() {
             : (Wallet.name as CoinsName),
         requestType: data.requestType,
         nameOfService: data.serviceName,
-        serviceDate: GetTime(ServDate),
+        serviceDate: GetTime(ServDate!),
         usdBase: selectedTypeIsUsd,
         timestamp: GetTime(),
         secondaryAmount: data.amount2 ? data.amount2 : null,
@@ -203,7 +197,7 @@ export default function RequestId() {
         </div>
       </header>
       <div className="px-8 ">
-        <form>
+        <form onSubmit={handleSubmit(SetModalVisible)}>
           <div className="py-0 pt-24 flex flex-col items-center justify-center min-h-screen sm:py-24">
             <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
               <div className="py-2 text-center w-full">
@@ -221,12 +215,14 @@ export default function RequestId() {
                   <div className="grid grid-cols-2 gap-x-10">
                     <TextField
                       label="First Name"
+                      {...register("name", { required: true })}
                       className="bg-white dark:bg-darkSecond"
                       variant="outlined"
                     />
 
                     <TextField
                       label="Last Name"
+                      {...register("surname", { required: true })}
                       className="bg-white dark:bg-darkSecond"
                       variant="outlined"
                     />
@@ -250,6 +246,7 @@ export default function RequestId() {
                     />
                     <TextField
                       label="Wallet Address"
+                      {...register("address", { required: true })}
                       className="bg-white dark:bg-darkSecond"
                       variant="outlined"
                     />
@@ -311,7 +308,7 @@ export default function RequestId() {
                         <TextField
                           type={"number"}
                           label="Amount"
-                          {...register("amount", {
+                          {...register("amount2", {
                             required: true,
                             valueAsNumber: true,
                           })}
@@ -333,9 +330,6 @@ export default function RequestId() {
                       Add another token
                     </div>
                   )}
-                  {/* <div className="pb-14 sm:pb-0 pr-20 sm:pr-0 grid grid-rows-4 md:grid-rows-1  md:grid-cols-[25%,35%,35%,5%] gap-y-5 sm:gap-5">
-                                  <Input incomingIndex={MyInput.index} />
-                              </div> */}
                   <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">
                     <span className="text-left text-2xl font-bold tracking-wide">
                       Details
@@ -344,6 +338,7 @@ export default function RequestId() {
                       <div className="flex flex-col space-y-1">
                         <TextField
                           label="Request Type"
+                          {...register("requestType", { required: true })}
                           className="bg-white dark:bg-darkSecond"
                           variant="outlined"
                         />
@@ -351,6 +346,7 @@ export default function RequestId() {
                       <div className="flex flex-col space-y-1">
                         <TextField
                           label="Name of Service"
+                          {...register("serviceName", { required: true })}
                           className="bg-white dark:bg-darkSecond"
                           variant="outlined"
                         />
@@ -376,6 +372,7 @@ export default function RequestId() {
                       <div className="flex flex-col space-y-1">
                         <TextField
                           label="Attach Link (optional)"
+                          {...register("link", { required: false })}
                           className="bg-white dark:bg-darkSecond"
                           variant="outlined"
                         />
@@ -401,7 +398,11 @@ export default function RequestId() {
                     >
                       Close
                     </Button>
-                    <Button className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg">
+                    <Button
+                      type="submit"
+                      isLoading={isLoading}
+                      className=" w-[9.375rem] sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg"
+                    >
                       Submit
                     </Button>
                   </div>
@@ -416,7 +417,14 @@ export default function RequestId() {
               disableX={true}
               className="lg:min-w-[50%] !pt-5"
             >
-              <Confirm GetCoins={GetCoins}  submit={submit} closeModal={closeModal} request={request} loading={loading} filename={fileName} />
+              <Confirm
+                GetCoins={GetCoins}
+                submit={submit}
+                closeModal={closeModal}
+                request={request}
+                loading={loading}
+                filename={fileName}
+              />
             </Modal>
           )}
         </form>
