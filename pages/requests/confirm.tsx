@@ -109,7 +109,7 @@ export default ({
         <div className="flex justify-between border-b pb-8">
           <div className="text-greylish">Total</div>
           <div>
-            {!request.usdBase ? request?.secondaryAmount && secondCurrency ? ((request?.secondaryAmount * secondCurrency?.priceUSD) + (request?.amount * currency!.priceUSD)).toFixed(4) : (request?.amount * currency!.priceUSD).toFixed(4) : request?.secondaryAmount ? request.amount + request.secondaryAmount : request.amount}
+            {!request.usdBase ? request?.secondaryAmount && secondCurrency ? ((+request?.secondaryAmount * secondCurrency?.priceUSD) + (+request?.amount * currency!.priceUSD)).toFixed(4) : (+ request?.amount * currency!.priceUSD).toFixed(4) : request?.secondaryAmount ? request.amount + request.secondaryAmount : request.amount}
             {" "}
             USD
           </div>

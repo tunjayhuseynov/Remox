@@ -26,6 +26,7 @@ import Confirm from "./confirm";
 
 import Stack from "@mui/material/Stack";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { nanoid } from "@reduxjs/toolkit";
 
 export interface IFormInput {
   name: string;
@@ -122,11 +123,11 @@ export default function RequestId() {
       }
 
       const result: IRequest = {
-        id: id,
+        id: nanoid(),
         name: data.name,
         surname: data.surname,
         address: data.address,
-        amount: data.amount,
+        amount: data.amount.toString(),
         currency:
           Wallet === undefined
             ? coin === "solana"
@@ -138,7 +139,7 @@ export default function RequestId() {
         serviceDate: GetTime(ServDate!),
         usdBase: selectedTypeIsUsd,
         timestamp: GetTime(),
-        secondaryAmount: data.amount2 ? data.amount2 : null,
+        secondaryAmount: data.amount2 ? data.amount2.toString() : null,
         secondaryCurrency:
           Wallet2 === undefined
             ? coin === "solana"
@@ -279,7 +280,6 @@ export default function RequestId() {
                           valueAsNumber: true,
                         })}
                         className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
-                        required
                         variant="outlined"
                       />
                     </div>

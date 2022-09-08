@@ -19,13 +19,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
     const cleanList: (IRequest | IMember)[] = []
     coinList.forEach(item => {
         cleanList.push(item)
-        if (item.secondaryAmount && item.secondaryCurrency) {
-            cleanList.push({
-                ...item,
-                amount: item.secondaryAmount,
-                currency: item.secondaryCurrency,
-            })
-        }
     })
 
     const list = _(cleanList).groupBy("currency").map((value, key) => {
@@ -33,10 +26,10 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
             ...value[0],
             amount: value.reduce((acc, curr) => {
                 if (curr.usdBase) {
-                    return acc + (curr.amount / currency[curr.currency].priceUSD)
+                    return acc + (+curr.amount / currency[curr.currency].priceUSD)
                 }
-                return acc + curr.amount
-            }, 0)
+                return acc + Number(curr.amount)
+            }, 0).toString()
         }
         return res;
     }).value()
@@ -62,7 +55,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                     </div>
                     <div className="flex  pb-4 border-b w-full items-start">
                         <div className="flex space-x-3 items-start pr-2">
-                            <div>-{coin.amount.toFixed(2)}</div>
+                            <div>-{(+coin.amount).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
                             <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
@@ -71,7 +64,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                     </div>
                     <div className="flex justify-between items-start">
                         <div className="flex space-x-3 items-center pr-2" >
-                            <div>{(selectedBalance[1].amount - coin.amount).toFixed(2)}</div>
+                            <div>{(selectedBalance[1].amount - (+coin.amount)).toFixed(2)}</div>
                         </div>
                         <div className="flex justify-between space-x-3">
                             <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
