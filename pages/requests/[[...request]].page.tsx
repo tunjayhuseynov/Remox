@@ -152,7 +152,6 @@ export default function RequestId() {
       };
 
       setRequest(result);
-      console.log(result);
       setFileName(Invoice?.name ?? "");
       setModal(true);
     } catch (error) {
