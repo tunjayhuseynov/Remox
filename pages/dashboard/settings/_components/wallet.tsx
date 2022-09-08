@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux'
 import { selectStorage } from 'redux/slices/account/storage'
 import { useAppSelector } from 'redux/hooks';
 import Paydropdown from "pages/dashboard/pay/_components/paydropdown";
-import Upload from "components/upload";
 import { useWalletKit } from 'hooks'
 import useModalSideExit from 'hooks/useModalSideExit';
 import WalletItem from './wallet/walletItem'
