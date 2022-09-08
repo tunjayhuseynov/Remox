@@ -1,39 +1,36 @@
 import dateFormat from "dateformat";
-import { forwardRef, Fragment, useState, useTransition } from "react";
-import Accordion from "components/accordion";
+import { forwardRef, Fragment, useEffect, useState, useTransition } from "react";
 import { TransactionStatus, AltCoins, CoinsName, Coins } from "types";
-import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
-import { selectTags } from "redux/slices/tags";
-import { WalletDropdown } from "components/general/walletdropdown"
 import { TransactionDirectionDeclare } from "utils";
 import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
-import useNextSelector from "hooks/useNextSelector";
 import { useAppSelector } from "redux/hooks";
-import { useInView } from 'react-intersection-observer'
-import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectProviderAddress, SelectTransactions } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectProviderAddress, SelectTags, SelectTransactions } from "redux/slices/account/remoxData";
 import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
-import Loader from "components/Loader";
-import { motion } from "framer-motion"
 import useAsyncEffect from "hooks/useAsyncEffect";
-import Filter from "./_components/filter";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
 import MultisigTx from "./_components/MultisigTransactionItem";
 import { TablePagination } from "@mui/material";
 import { IAccountORM } from "pages/api/account/index.api";
 import { BlockchainType } from "types/blockchains";
+import { ITag } from "pages/api/tags/index.api";
+import Filter from "./_components/Filter";
+import { DateObject } from "react-multi-date-picker";
+import { IAccount, IBudget } from "firebaseConfig";
 
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
     const accountsRaw = useAppSelector(SelectAccounts)
+    const tags = useAppSelector(SelectTags)
     const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
     const router = useRouter()
-    const { type } = router.query as { type: string[] | undefined }
+  
     const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
     const [isOpen, setOpen] = useState(false)
@@ -50,6 +47,78 @@ const Transactions = () => {
 
     const list = useAppSelector(SelectTransactions)
 
+    const [date, setDate] = useState<DateObject[] | null>(null);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedBudgets, setSelectedBudgets] = useState<string[]>([]);
+    const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+    const [selectedDirection, setSelectedDirection] = useState<string>("Any");
+
+    const [specificAmount, setSpecificAmount] = useState<number>();
+    const [minAmount, setMinAmount] = useState<number>();
+    const [maxAmount, setMaxAmount] = useState<number>();
+
+    useEffect(() => {
+        setPagination(STABLE_INDEX)
+    }, [date, selectedTags, selectedBudgets, selectedAccounts, selectedDirection, specificAmount, minAmount, maxAmount])
+
+
+    const filterFn = (c: (IFormattedTransaction | ITransactionMultisig)) => {
+        if ('tx' in c) {
+            const tx = c.tx
+
+            if (selectedDirection !== "Any") {
+                if (selectedDirection === "In") return false
+                if (selectedDirection === "Out") return true
+            }
+
+            if (selectedTags.length > 0 && !c.tags.some(s => selectedTags.includes(s.id))) return false
+
+            if (selectedAccounts.length > 0 && !selectedAccounts.some(s => s.toLowerCase() === c.contractAddress.toLowerCase())) return false
+
+            if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
+
+            if (specificAmount && (tx.amount ?? 0) !== specificAmount) return false
+            if (minAmount && (tx.amount ?? tx.payments?.reduce((a, c) => a += +c.amount, 0) ?? Number.MAX_VALUE) < minAmount) return false
+            if (maxAmount && (tx.amount ?? tx.payments?.reduce((a, c) => a += +c.amount, 0) ?? 0) > maxAmount) return false
+            if (date && date.length === 1) {
+                const crr = new Date(c.timestamp * 1e3)
+                if (`${crr.getFullYear()}${crr.getMonth() + 1}${crr.getDay()}` !== `${date[0].year}${date[0].month.number}${date[0].day}`) return false
+            } else if (date && date.length === 2) {
+                const crr = new Date(c.timestamp * 1e3)
+                if (`${crr.getFullYear()}${crr.getMonth() + 1}${crr.getDay()}` < `${date[0].year}${date[0].month.number}${date[0].day}`) return false
+                if (`${crr.getFullYear()}${crr.getMonth() + 1}${crr.getDay()}` > `${date[1].year}${date[1].month.number}${date[1].day}`) return false
+            }
+            return true
+        } else {
+            const tx = c as any
+            if (selectedDirection !== "Any") {
+                if (selectedDirection === "In" && c.address.toLowerCase() === c.rawData.from.toLowerCase()) return false
+                if (selectedDirection === "Out" && c.address.toLowerCase() !== c.rawData.from.toLowerCase()) return false
+            }
+
+            if (selectedTags.length > 0 && !c.tags.some(s => selectedTags.includes(s.id))) return false
+
+            if (selectedAccounts.length > 0 && !selectedAccounts.some(s => s.toLowerCase() === c.address.toLowerCase())) return false
+
+            if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
+
+            if (specificAmount && (tx?.amount ?? 0) !== specificAmount) return false
+            if (minAmount && (tx?.amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += +c.amount, 0) ?? Number.MAX_VALUE) < minAmount) return false
+            if (maxAmount && (tx?.amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += +c.amount, 0) ?? 0) > maxAmount) return false
+            if (date && date.length === 1) {
+                const crr = new Date(c.timestamp * 1e3)
+                if (`${crr.getFullYear()}${(crr.getMonth() + 1).toString().padStart(2, "0")}${crr.getDay().toString().padStart(2, "0")}` !== `${date[0].year}${date[0].month.number.toString().padStart(2, "0")}${date[0].day.toString().padStart(2, "0")}`) return false
+            } else if (date && date.length === 2) {
+                const crr = new Date(c.timestamp * 1e3)
+
+                if (`${crr.getFullYear()}${(crr.getMonth() + 1).toString().padStart(2, "0")}${crr.getDay().toString().padStart(2, "0")}` < `${date[0].year}${date[0].month.number.toString().padStart(2, "0")}${date[0].day.toString().padStart(2, "0")}`) return false
+                if (`${crr.getFullYear()}${(crr.getMonth() + 1).toString().padStart(2, "0")}${crr.getDay().toString().padStart(2, "0")}` > `${date[1].year}${date[1].month.number.toString().padStart(2, "0")}${date[1].day.toString().padStart(2, "0")}`) return false
+            }
+            return true
+        }
+    }
+    const txs = Txs?.filter(filterFn)
+
     const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
     return <>
         <div>
@@ -61,7 +130,7 @@ const Transactions = () => {
                             <TablePagination
                                 component="div"
                                 rowsPerPageOptions={[]}
-                                count={Txs.length}
+                                count={txs.length}
                                 page={(pagination / STABLE_INDEX) - 1}
                                 onPageChange={(e, newPage) => setPagination((newPage + 1) * STABLE_INDEX)}
                                 rowsPerPage={STABLE_INDEX}
@@ -71,9 +140,30 @@ const Transactions = () => {
                     </div>
                     <div className="flex justify-between">
                         <div className="flex space-x-5">
-                            <div className="py-1">
+                            <div className="py-1 relative" ref={exceptRef} onClick={() => setOpen(true)}>
                                 <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold">
                                     + Add Filter
+                                </div>
+                                <div ref={filterRef} className="absolute bottom-0 translate-y-full z-[900]">
+                                    {isOpen &&
+                                        <Filter
+                                            date={date}
+                                            setDate={setDate}
+                                            selectedTags={selectedTags}
+                                            setSelectedTags={setSelectedTags}
+                                            selectedBudgets={selectedBudgets}
+                                            setSelectedBudgets={setSelectedBudgets}
+                                            selectedAccounts={selectedAccounts}
+                                            setSelectedAccounts={setSelectedAccounts}
+                                            selectedDirection={selectedDirection}
+                                            setSelectedDirection={setSelectedDirection}
+                                            specificAmount={specificAmount}
+                                            setSpecificAmount={setSpecificAmount}
+                                            minAmount={minAmount}
+                                            setMinAmount={setMinAmount}
+                                            maxAmount={maxAmount}
+                                            setMaxAmount={setMaxAmount}
+                                        />}
                                 </div>
                             </div>
                             <div className="w-[1px] h-full dark:bg-gray-500 bg-gray-500"></div>
@@ -120,17 +210,18 @@ const Transactions = () => {
                                         </div>
                                     </th>
                                 </tr>
-                                {Txs?.slice(pagination - STABLE_INDEX, pagination).map((tx) => {
+                                {txs.slice(pagination - STABLE_INDEX, pagination).map((tx, i) => {
                                     if ((tx as IFormattedTransaction)['hash']) {
                                         const address = (tx as IFormattedTransaction).address;
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
                                         const txData = (tx as IFormattedTransaction)
-                                        return <SingleTxContainer blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
+                                        return <SingleTxContainer txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
                                     } else {
-                                        const txData = (tx as ITransactionMultisig | IMultisigSafeTransaction)
+                                        const txData = (tx as ITransactionMultisig)
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
                                         const isSafe = "safeTxHash" in txData
-                                        return <MultisigTx multisigAccount={account} key={isSafe ? txData.safeTxHash : txData.contractAddress + txData.hashOrIndex} accounts={accounts} Address={address} GetCoins={GetCoins} tx={tx as ITransactionMultisig} />
+                                        let directionType = TransactionDirectionDeclare(txData, accounts);
+                                        return <MultisigTx txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
                                     }
                                 })}
                             </thead>
@@ -141,7 +232,7 @@ const Transactions = () => {
                                 <TablePagination
                                     component="div"
                                     rowsPerPageOptions={[]}
-                                    count={Txs.length}
+                                    count={txs.length}
                                     page={(pagination / STABLE_INDEX) - 1}
                                     onPageChange={(e, newPage) => setPagination((newPage + 1) * STABLE_INDEX)}
                                     rowsPerPage={STABLE_INDEX}
@@ -149,22 +240,6 @@ const Transactions = () => {
                             </div>
                         </div>
                     </div>
-                    {/*<div className="flex gap-2">
-                        <div className="mr-3">
-                            <WalletDropdown selected={selectedAccount ?? ""} onChange={(wallets) => {
-                                setChangedAccount([...wallets.map((wallet) => wallet.address)])
-                            }} />
-                        </div>
-                        <div className="relative">
-                            <div ref={exceptRef} onClick={() => setOpen(!isOpen)} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
-                                <img className={`w-[1.5rem] h-[1.5rem] !m-0`} src={darkMode ? '/icons/filter_white.png' : '/icons/filter.png'} alt='Import' />
-                            </div>
-                            {isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={filterRef} className='absolute bg-white dark:bg-darkSecond  w-[30rem] h-[18rem] rounded-2xl sm:-right-0 -bottom-1 translate-y-full shadow-xl z-50'>
-                                <Filter />
-                            </motion.div>}
-                        </div>
-                    </div>
-                </div>*/}
                 </div>
             </div>
         </div>
@@ -174,9 +249,9 @@ const Transactions = () => {
 
 export default Transactions;
 
-interface IProps { transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, blockchain: BlockchainType }
+interface IProps { transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, tags: ITag[], blockchain: BlockchainType, txIndexInRemoxData: number }
 
-export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transaction, accounts, selectedAccount, blockchain }, ref) => {
+export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transaction, accounts, selectedAccount, blockchain, tags, txIndexInRemoxData }, ref) => {
     const isBatch = transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
@@ -190,7 +265,8 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
                     hash: transaction.hash,
                     rawData: transaction.rawData,
                     payments: value,
-                    address: transaction.address
+                    address: transaction.address,
+                    tags: transaction.tags,
                 }
                 TXs.push(tx)
             })
@@ -204,7 +280,8 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
                     hash: transaction.hash,
                     rawData: transaction.rawData,
                     payments: value,
-                    address: transaction.address
+                    address: transaction.address,
+                    tags: transaction.tags,
                 }
                 TXs.push(tx)
             })
@@ -214,10 +291,10 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
     }
     const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
     let directionType = TransactionDirectionDeclare(transaction, accounts);
-  
+
     return <>
-        {isBatch && TXs.map((s, i) => <SingleTransactionItem blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
-        {!isBatch && <SingleTransactionItem blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
+        {isBatch && TXs.map((s, i) => <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
+        {!isBatch && <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
     </>
 })
 

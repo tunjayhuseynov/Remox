@@ -25,6 +25,7 @@ export interface Transactions{
     to: string,
     tokenDecimal: string,
     tokenName: string,
-    tokenSymbol: string,
+    tokenSymbol?: string,
+    feeCurrency?: string,
     transactionIndex: string
 }

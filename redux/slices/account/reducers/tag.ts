@@ -19,17 +19,21 @@ export default {
             return tag;
         });
     },
-    addTransactionHashToTag: (state: IRemoxData, action: { payload: { tagId: string; transactionId: ITxTag } }) => {
+    addTransactionHashToTag: (state: IRemoxData, action: { payload: { tagId: string; txIndex: number, transactionTag: ITxTag } }) => {
         const tagIndex = state.tags.findIndex(tag => tag.id === action.payload.tagId);
-        if (tagIndex === -1) {
-            state.tags[tagIndex].transactions = [...state.tags[tagIndex].transactions, action.payload.transactionId];
+        if (tagIndex !== -1) {
+            state.tags[tagIndex].transactions = [...state.tags[tagIndex].transactions, action.payload.transactionTag];
+            state.cumulativeTransactions[action.payload.txIndex].tags = [...state.cumulativeTransactions[action.payload.txIndex].tags, state.tags[tagIndex]];
         }
     },
-    removeTransactionHashFromTag: (state: IRemoxData, action: { payload: { tagId: string; transactionId: ITxTag } }) => {
+    removeTransactionHashFromTag: (state: IRemoxData, action: { payload: { tagId: string; txIndex: number, transactionId: ITxTag } }) => {
         const tagIndex = state.tags.findIndex(tag => tag.id === action.payload.tagId);
-        if (tagIndex === -1) {
+        if (tagIndex !== -1) {
             state.tags[tagIndex].transactions = state.tags[tagIndex].transactions.filter(
                 transactionId => transactionId !== action.payload.transactionId
+            );
+            state.cumulativeTransactions[action.payload.txIndex].tags = state.cumulativeTransactions[action.payload.txIndex].tags.filter(
+                tag => tag.id !== action.payload.tagId
             );
         }
     }

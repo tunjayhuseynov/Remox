@@ -62,7 +62,7 @@ export default async function handler(
     const Blockchain = Blockchains.find(
       (blch: BlockchainType) => blch.name === blockchain
     );
-    if(!Blockchain) throw new Error("Blockchain not found");
+    if (!Blockchain) throw new Error("Blockchain not found");
 
     let transactionArray: ITransactionMultisig[] = [];
 
@@ -209,13 +209,15 @@ export default async function handler(
       }
 
       const GetTx = async (index: number, budgets: IBudget[], coins: Coins) => {
+        const contract = new Contract(multisigAddress, Multisig.abi, provider);
+
         const tx = await contract.transactions(index);
 
         let confirmations: string[] = [];
 
         confirmations = await contract.getConfirmations(index);
-
-        const obj = MultisigTxParser({
+        const owners = (await contract.getOwners())
+        const obj = await MultisigTxParser({
           parsedData: null,
           txHashOrIndex: index.toString(),
           index,
@@ -230,7 +232,8 @@ export default async function handler(
           contractAddress: multisigAddress,
           contractInternalThreshold: (await contract.internalRequired()).toNumber(),
           contractThreshold: (await contract.required()).toNumber(),
-          contractOwnerAmount: contract.getOwners().length,
+          contractOwnerAmount: owners.length,
+          contractOwners: owners,
           name,
           tags: tags?.tags ?? [],
           budgets: budgets,
@@ -249,7 +252,7 @@ export default async function handler(
       const list = await Promise.all(
         Array.from(Array(total).keys()).map((s) => GetTx(total - 1 - s, budgets, Coins))
       );
-      transactionArray.push(...list);
+      transactionArray.push(...(list.filter(s => s.tx && s.tx.method)));
     }
     else if (blockchain.includes("evm") && name === "GnosisSafe") {
       const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/safes/${multisigAddress}/multisig-transactions/`;

@@ -42,6 +42,8 @@ import {
     SafeTransactionDataPartial,
 } from "@gnosis.pm/safe-core-sdk-types";
 import { EthSignSignature } from "@gnosis.pm/safe-core-sdk";
+import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatchRequest, IFormattedTransaction, ISwap, ITransfer, ITransferComment, ITransferFrom } from "hooks/useTransactionProcess";
+import { Optional } from "@metaplex/js";
 
 
 const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
@@ -53,22 +55,35 @@ export interface ITransactionMultisig {
     hashOrIndex: string,
     contractAddress: string,
     contractOwnerAmount: number,
+    contractOwners: string[],
     contractThresholdAmount: number,
     contractInternalThresholdAmount: number,
-    data?: string,
     isExecuted: boolean,
     confirmations: string[],
-    value: string,
-    id?: number | string,
-    requiredCount?: string,
-    owner?: string,
-    newOwner?: string,
-    valueOfTransfer?: string,
-    type: string,
     timestamp: number,
-    created_at: number,
     tags: ITag[],
     budget: IBudget | null
+
+
+    tx: Omit<
+        Partial<ITransfer> &
+        Partial<ITransferComment> &
+        Partial<ITransferFrom> &
+        Partial<IAutomationTransfer> &
+        Partial<IAutomationCancel> &
+        Partial<IAutomationBatchRequest> &
+        Partial<ISwap> &
+        Partial<IBatchRequest>, "rawData" | "tags" | "budget" | "timestamp">
+
+    // data?: string,
+    // value: string,
+    // id?: number | string,
+    // requiredCount?: string,
+    // owner?: string,
+    // newOwner?: string,
+    // valueOfTransfer?: string,
+    // type: string,
+    // created_at: number,
 }
 
 export interface IMultisigSafeTransaction {
@@ -440,6 +455,7 @@ export default function useMultisig() {
                 accounts: accounts,
                 blockchain: blockchain.name,
                 addresses: accounts.filter(s => s.signerType === "multi").map(s => s.address),
+                fetchable: true
             }))
 
             return myResponse

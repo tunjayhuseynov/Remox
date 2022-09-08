@@ -1,7 +1,7 @@
 import axios from "axios";
 import { IBudget, IBudgetTX } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
-import { GenerateTransaction, IBatchRequest, InputReader, ITransfer } from "hooks/useTransactionProcess";
+import { GenerateTransaction, IBatchRequest, CeloInputReader, ITransfer } from "hooks/useTransactionProcess";
 import { AltCoins, Coins } from "types";
 import { BlockchainType } from "types/blockchains";
 import { DecimalConverter } from "utils/api";
@@ -31,7 +31,7 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
         const data = multisigTx.data
         const executed = multisigTx.executed
 
-        const txRes = await InputReader(data, {
+        const txRes = await CeloInputReader(data, {
             blockchain: blockchainType,
             transaction: GenerateTransaction({
                 tokenSymbol: coins.find(s => s.address.toLowerCase() === multisigTx.destination.toLowerCase())?.name,

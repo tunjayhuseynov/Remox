@@ -217,7 +217,7 @@ export default async function handler(
 
                 confirmations = await contract.getConfirmations(index);
 
-                const obj = MultisigTxParser({
+                const obj = await MultisigTxParser({
                     parsedData: null,
                     txHashOrIndex: index.toString(),
                     index,

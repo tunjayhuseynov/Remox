@@ -1,41 +1,38 @@
 import {
   ERC20MethodIds,
-  IAutomationCancle,
+  IAutomationCancel,
   IAutomationTransfer,
   IBatchRequest,
   IFormattedTransaction,
-  InputReader,
   ISwap,
   ITransfer,
-  ITransferComment,
 } from "hooks/useTransactionProcess";
-import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import Button from "components/button";
-import useTasking from "rpcHooks/useTasking";
-import { selectTags } from "redux/slices/tags";
-import { BN } from "utils/ray";
-import { useWalletKit } from "hooks";
-import SingleTxDetails from "pages/dashboard/transactions/_components/SingleTxDetails";
+import { Fragment, useState } from "react";
 import dateFormat from "dateformat";
 import Dropdown from "components/general/dropdown";
 import { TransactionDirection } from "types";
-import { useAppSelector } from "redux/hooks";
-import { AddressReducer, TransactionDirectionImageNameDeclaration } from "utils";
-import { SelectAccounts, SelectAllBudgets, SelectCurrencies } from "redux/slices/account/selector";
-import { DecimalConverter } from "utils/api";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import { TransactionDirectionImageNameDeclaration } from "utils";
+import { SelectCurrencies, SelectID } from "redux/slices/account/selector";
 import { IAccount, IBudget } from "firebaseConfig";
 import { BlockchainType } from "types/blockchains";
 import Image from "next/image";
+import { ITag } from "pages/api/tags/index.api";
+import { AddTransactionToTag } from "redux/slices/account/thunks/tags";
+import { nanoid } from "@reduxjs/toolkit";
+import { ToastRun } from "utils/toast";
+import { AiFillRightCircle } from "react-icons/ai";
+import { CoinDesignGenerator } from "./CoinsGenerator";
+import Detail from "./Detail";
 
 const SingleTransactionItem = ({
   transaction,
   blockchain,
-  isMultiple,
   direction,
-  status,
   date,
-  account
+  tags,
+  account,
+  txPositionInRemoxData,
 }: {
   date: string;
   blockchain: BlockchainType,
@@ -43,18 +40,51 @@ const SingleTransactionItem = ({
   isMultiple?: boolean;
   direction?: TransactionDirection;
   status: string;
-  account?: IAccount
+  account?: IAccount,
+  tags: ITag[],
+  txPositionInRemoxData: number
 }) => {
+  const [isLabelActive, setLabelActive] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState<ITag>();
+  const [labelLoading, setLabelLoading] = useState(false)
+  const [openDetail, setOpenDetail] = useState(false)
+
+  const coins = useAppSelector(SelectCurrencies)
 
   let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id) > -1 ? transaction as ITransfer : null;
   const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as IBatchRequest : null;
   const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as IAutomationTransfer : null;
   const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as IBatchRequest : null;
-  const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? transaction as IAutomationCancle : null;
+  const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? transaction as IAutomationCancel : null;
   const swap = transaction.id === ERC20MethodIds.swap ? transaction as ISwap : null;
 
-  const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction,);
-  console.log(transaction, "transaction");
+  const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction);
+
+  const dispatch = useAppDispatch()
+  const id = useAppSelector(SelectID)
+
+  const uniqTags = tags.filter(s => transaction.tags?.findIndex(d => d.id === s.id) === -1)
+
+  const labelChangeFn = (val: ITag) => async () => {
+    if (!id) {
+      return ToastRun(<>You do not have any id, please sign in again</>, "success");
+    }
+    setLabelLoading(true)
+    await dispatch(AddTransactionToTag({
+      id,
+      tagId: val.id,
+      transaction: {
+        id: nanoid(),
+        address: transaction.address,
+        hash: transaction.hash,
+      },
+      txIndex: txPositionInRemoxData
+    })).unwrap()
+
+    setLabelLoading(false)
+    setLabelActive(false)
+  }
+
   return (
     <>
       <tr className="pl-5 grid grid-cols-[12.5%,repeat(6,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
@@ -101,67 +131,116 @@ const SingleTransactionItem = ({
         </td>
         <td className="text-left">
           {transfer && (
-            CoinDesignGenerator(transfer)
+            CoinDesignGenerator({ transfer })
           )}
           {
             transferBatch && (
               <div className="flex flex-col space-y-5">
-                {transferBatch.payments.map((transfer) => CoinDesignGenerator(transfer))}
+                {transferBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
               </div>
             )
           }
           {
             automationBatch && (
               <div className="flex flex-col space-y-5">
-                {automationBatch.payments.map((transfer) => CoinDesignGenerator(transfer))}
+                {automationBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
               </div>
             )
           }
           {
             automationCanceled && (
               <div className="flex flex-col space-y-5">
-                {automationCanceled.payments.map((transfer) => CoinDesignGenerator(transfer))}
+                {automationCanceled.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
               </div>
             )
           }
           {automation && (
-            CoinDesignGenerator(automation)
+            CoinDesignGenerator({ transfer: automation })
           )}
           {swap && (
             <div className="flex flex-col space-y-5">
-              {CoinDesignGenerator({ amount: swap.amountIn, coin: swap.coinIn })}
-              {CoinDesignGenerator({ amount: swap.amountOutMin, coin: swap.coinOutMin })}
+              {CoinDesignGenerator({ transfer: { amount: swap.amountIn, coin: swap.coinIn } })}
+              <img src="/icons/swap.png" className="w-5 h-5" />
+              {CoinDesignGenerator({ transfer: { amount: swap.amountOutMin, coin: swap.coinOutMin } })}
             </div>
           )}
         </td>
-        <td className="text-left">Germany</td>
-        <td className="text-left">Germany</td>
-        <td className="text-left">Germany</td>
+        <td className="text-left flex flex-col">
+          <div className="flex flex-col">
+            {
+              transaction.tags?.map(tag => <div className="flex space-x-5">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></div>
+                <span className="text-xs">{tag.name}</span>
+              </div>)
+            }
+            {uniqTags.length > 0 && (!isLabelActive ? <div>
+              <span className="text-primary cursor-pointer" onClick={() => setLabelActive(true)}>
+                + Add Label
+              </span>
+            </div> :
+              <div className="w-1/2 h-5">
+                <Dropdown
+                  runFn={labelChangeFn}
+                  loading={labelLoading}
+                  selected={selectedLabel}
+                  setSelect={setSelectedLabel}
+                  list={uniqTags}
+                />
+              </div>)
+            }
+          </div>
+        </td>
+        <td className="text-left w-[66%]">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex space-x-1 items-center font-semibold">
+                <div className="w-2 h-2 bg-green-500 rounded-full" />
+                <div>Approved</div>
+              </div>
+              <div className="text-gray-300">
+                |
+              </div>
+              <div className="text-gray-300">
+                1 <span className="font-thin">/</span> 1
+              </div>
+            </div>
+            <div className="h-3 w-full rounded-lg bg-gray-300 relative" >
+              <div className="absolute left-0 top-0 h-3 bg-green-500 rounded-lg" style={{
+                width: 100 + "%"
+              }} />
+            </div>
+          </div>
+        </td>
+        <td className="text-left">
+          <div className="flex justify-between pr-5 items-center h-full">
+            <div></div>
+            <div className="cursor-pointer" onClick={() => setOpenDetail(true)}>
+              <AiFillRightCircle color="#FF7348" size={24} />
+            </div>
+          </div>
+        </td>
       </tr>
+      <Detail
+        transaction={transaction}
+        action={action}
+        isExecuted={true}
+        isMultisig={false}
+        isRejected={false}
+        signers={[account?.address ?? ""]}
+        tags={tags}
+        threshold={1}
+        timestamp={+date}
+        budget={transaction.budget}
+        account={account}
+        openDetail={openDetail}
+        setOpenDetail={setOpenDetail}
+        gasFee={{
+          amount: (+transaction.rawData.gasPrice * +transaction.rawData.gasUsed),
+          currency: Object.values(coins).find(coin => coin.symbol.toLowerCase() === (transaction?.rawData?.tokenSymbol?.toLowerCase() ?? transaction?.rawData?.feeCurrency?.toLowerCase()))
+        }} />
     </>
   );
 };
 export default SingleTransactionItem;
 
 
-const CoinDesignGenerator = (transfer: Pick<ITransfer, "coin" | "amount">) => {
-
-  return <div className="flex space-x-3">
-    <div className="w-[1.5rem] h-[1.5rem]">
-      {transfer?.coin?.logoURI ? <img
-        src={transfer.coin.logoURI}
-        width="100%"
-        height="100%"
-        className="rounded-full"
-      /> : <div className="w-full h-full rounded-full bg-gray-500" />}
-    </div>
-    <div className="flex flex-col text-left">
-      <span className="font-semibold text-left">
-        {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
-      </span>
-      <span className="text-xs text-gray-200">
-        {`$${(DecimalConverter(transfer.amount, transfer.coin.decimals) * transfer.coin.priceUSD).toFixed(0).length > 18 ? 0 : (DecimalConverter(transfer.amount, transfer.coin.decimals) * transfer.coin.priceUSD).toLocaleString()}`}
-      </span>
-    </div>
-  </div>
-}

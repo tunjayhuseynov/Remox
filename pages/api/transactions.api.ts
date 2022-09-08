@@ -3,7 +3,7 @@ import {
   ERC20MethodIds,
   EvmInputReader,
   IFormattedTransaction,
-  InputReader,
+  CeloInputReader,
 } from "hooks/useTransactionProcess";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, CoinsName } from "types";
@@ -252,18 +252,19 @@ const ParseTxs = async (
           Coins: coins,
           blockchain
         });
-        if (formatted) {
+        if (formatted && formatted.method) {
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,
             rawData: transaction,
             hash: transaction.hash,
+            tags: formatted.tags ?? [],
             address,
             ...formatted,
           });
         }
 
       } else if (blockchain.name === "celo") {
-        const formatted = await InputReader(input, { transaction, tags, Coins: coins, blockchain });
+        const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain });
 
         if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0 || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn) || formatted.method === ERC20MethodIds.automatedCanceled)) {
 

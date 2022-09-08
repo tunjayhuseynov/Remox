@@ -1,69 +1,278 @@
-import React,{useState} from 'react'
-import { useSelector } from "react-redux";
-import Paydropdown from "pages/dashboard/pay/_components/paydropdown";
-import { SelectDarkMode } from 'redux/slices/account/selector';
+import { styled } from '@mui/material/styles';
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
+import MuiAccordionSummary, {
+    AccordionSummaryProps,
+} from '@mui/material/AccordionSummary';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import { Dispatch, useState } from 'react';
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import DatePanel from "react-multi-date-picker/plugins/date_panel"
+import { useAppSelector } from 'redux/hooks';
+import { SelectAccounts, SelectAllBudgets, SelectDarkMode, SelectTags } from 'redux/slices/account/selector';
+import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
+import { Checkbox, FormControlLabel, Input, Radio, RadioGroup } from '@mui/material';
+import { ITag } from 'pages/api/tags/index.api';
+import { AiOutlineSearch } from 'react-icons/ai';
+import { IAccount, IBudget } from 'firebaseConfig';
 
-function Filter() {
-    const darkMode = useSelector(SelectDarkMode)
-    const [selectAll,setSelectAll] = useState(false)
-    const [filter,setFilter] = useState(0)
-    const [value, setValue] = useState('All Time')
+const Accordion = styled((props: AccordionProps) => (
+    <MuiAccordion disableGutters elevation={0} square {...props} />
+))(({ theme }) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    '&:not(:last-child)': {
+        borderBottom: 0,
+    },
+    '&:before': {
+        display: 'none',
+    },
+}));
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+    <MuiAccordionSummary
+        expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />}
+        {...props}
+    />
+))(({ theme }) => ({
+    backgroundColor:
+        theme.palette.mode === 'dark'
+            ? 'rgba(255, 255, 255, .05)'
+            : 'rgba(0, 0, 0, .03)',
+    flexDirection: 'row-reverse',
+    '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+        transform: 'rotate(90deg)',
+    },
+    '& .MuiAccordionSummary-content': {
+        marginLeft: theme.spacing(1),
+    },
+}));
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+    padding: theme.spacing(2),
+    borderTop: '1px solid rgba(0, 0, 0, .125)',
+}));
+
+const ariaLabel = { 'aria-label': 'description' };
 
 
-    const paymentname = ["All Time", "Spesific Time"]
 
-  return <div className="grid grid-cols-[32%,68%] w-full h-full">
-  <div className="flex flex-col gap-5 p-2  border-r dark:border-black pt-5  h-full">
-      <div onClick={()=>{setFilter(0)}} className={`${filter===0 && "bg-light dark:bg-dark"} border rounded-xl text-sm flex items-center  gap-2 cursor-pointer px-3`}><img src={`/icons/${darkMode ? "calendar_white" : "calendar"}.png`} alt="" className="w-3 h-3" /> Date</div>
-      <div onClick={()=>{setFilter(1)}}  className={`${filter===1 && "bg-light dark:bg-dark"} border rounded-xl text-sm flex items-center  gap-2 cursor-pointer px-3`}><img src={`/icons/${darkMode ? "tag_white" : "tag"}.png`} alt="" className="w-3 h-3" /> Labels</div>
-      <div onClick={()=>{setFilter(2)}}  className={`${filter===2 && "bg-light dark:bg-dark"} border rounded-xl text-sm flex items-center  gap-2 cursor-pointer px-3`}><img src={`/icons/${darkMode ? "amount_white" : "amount"}.png`} alt="" className="w-3 h-3" /> Amount</div>
-      <div onClick={()=>{setFilter(3)}}  className={`${filter===3 && "bg-light dark:bg-dark"} border rounded-xl text-sm flex items-center  gap-2 cursor-pointer px-3`}><img src={`/icons/${darkMode ? "tag_white" : "tag"}.png`} alt="" className="w-3 h-3" /> Budgets</div>
-  </div>
-  <div className="flex flex-col w-full h-full">
-     {filter === 0 &&<><div className="flex flex-col w-full h-full py-4 px-5 gap-4">
-          <div className="flex flex-col gap-1 "> <span className="text-left text-sm text-greylish dark:text-white">Show transactions for</span>  <Paydropdown paymentname={paymentname} value={value} setValue={setValue} className={'bg-greylish bg-opacity-10 dark:bg-darkSecond !py-1 rounded-xl'} /></div>
-          <div className="flex items-center w-full  gap-1">
-              <div className="flex flex-col w-[45%] gap-1 "> <span className="text-left text-sm text-greylish dark:text-white">From</span> <input type="date" className="w-full border rounded-lg p-1 outline-none bg-greylish bg-opacity-10 dark:bg-dark"  /></div>
-              <div className="border-b l w-5 mt-5  dark:bg-dark"></div>
-              <div className="flex flex-col w-[45%] gap-1 "> <span className="text-left text-sm text-greylish dark:text-white">To</span> <input type="date" className="w-full border rounded-lg p-1  outline-none bg-greylish bg-opacity-10 dark:bg-dark"   /></div>
-          </div>
-      </div></> }
-      {filter === 1 &&<><div className="flex justify-between items-center border-b dark:border-black py-3  px-4">
-          <div className="text-sm text-greylish dark:text-white">Choose Labels</div>
-          <div onClick={()=>{setSelectAll(true)}} className="text-primary cursor-pointer text-sm">Select All</div>
-      </div>
-      <div className="flex flex-col gap-3 w-full h-full p-6">
-          <div className="flex items-center text-greylish dark:text-white text-sm gap-2"><input type="checkbox" /> Compensation</div>
-          <div className="flex items-center text-greylish dark:text-white text-sm gap-2"><input type="checkbox" /> Marketing</div>
-          <div className="flex items-center text-greylish dark:text-white text-sm gap-2"><input type="checkbox" /> Payroll</div>
-      </div></> }
-      {filter === 2 &&<><div className="flex flex-col justify-around  gap-3 pt-4 px-6 pb-4">
-          <div className=" text-sm text-greylish dark:text-white text-left">Direction</div>
-          <div className="flex w-full justify-between ">
-              <div className="flex items-center gap-2 text-sm text-greylish dark:text-white "><input type="radio" id="any" name="amount" className="w-4 h-4" /><label htmlFor="any">Any</label></div>
-              <div className="flex items-center gap-2 text-sm text-greylish dark:text-white "><input type="radio" id="in" name="amount" className="w-4 h-4" /><label htmlFor="in">In</label></div>
-              <div className="flex items-center gap-2 text-sm text-greylish dark:text-white "><input type="radio" id="out"  name="amount" className="w-4 h-4" /><label htmlFor="out">Out</label></div>
-          </div>
-      </div>
-      <div className="flex flex-col w-full h-full pb-2 px-5 gap-2">
-          <div className="flex flex-col gap-1 "> <span className="text-left text-sm text-greylish dark:text-white">Spesific Amount</span> <input type="number" className="w-full border rounded-lg p-1 outline-none unvisibleArrow dark:bg-dark" placeholder="$0.0" /></div>
-          <div className="flex items-center w-full  gap-2">
-              <div className="flex flex-col w-[40%] gap-1"> <span className="text-left text-sm text-greylish dark:text-white">Min.</span> <input type="number" className="w-full border rounded-lg p-1 outline-none unvisibleArrow dark:bg-dark" placeholder="$0.0" /></div>
-              <div className="border-b w-[20%] mt-5  dark:bg-dark"></div>
-              <div className="flex flex-col w-[40%]  gap-1"> <span className="text-left text-sm text-greylish dark:text-white">Max.</span> <input type="number" className="w-full border rounded-lg p-1  outline-none unvisibleArrow dark:bg-dark" placeholder="$0.0"  /></div>
-          </div>
-      </div></> }
-      {filter === 3 &&<><div className="flex justify-between items-center border-b dark:border-black py-3  px-4">
-          <div className=" text-sm text-greylish dark:text-white">Choose Budget</div>
-          <div onClick={()=>{setSelectAll(true)}} className="text-primary text-sm cursor-pointer">Select All</div>
-      </div>
-      <div className="flex flex-col gap-3 w-full h-full p-6">
-          <div className="flex items-center text-greylish dark:text-white text-sm gap-2"><input type="checkbox" /> Security</div>
-          <div className="flex items-center text-greylish dark:text-white text-sm gap-2"><input type="checkbox" /> Reimbursement</div>
-          <div className="flex items-center text-greylish dark:text-white text-sm gap-2"><input type="checkbox" /> Development</div>
-      </div></> }
-  </div>
-</div>
+const mainColor = { colorPrimary: "!text-primary", root: "" }
+
+const mainCheckBox = {
+    '&.Mui-checked': {
+        color: "#FF7348!important",
+    }
+}
+
+export interface ITransactionFilter {
+    date: DateObject[] | null;
+    setDate: Dispatch<ITransactionFilter["date"]>,
+
+    selectedTags: string[];
+    setSelectedTags: Dispatch<ITransactionFilter["selectedTags"]>,
+
+    selectedBudgets: string[];
+    setSelectedBudgets: Dispatch<ITransactionFilter["selectedBudgets"]>,
+
+    selectedAccounts: string[];
+    setSelectedAccounts: Dispatch<ITransactionFilter["selectedAccounts"]>,
+
+    selectedDirection: string;
+    setSelectedDirection: Dispatch<ITransactionFilter["selectedDirection"]>,
+
+    specificAmount: number | undefined;
+    setSpecificAmount: Dispatch<ITransactionFilter["specificAmount"]>,
+
+    minAmount: number | undefined;
+    setMinAmount: Dispatch<ITransactionFilter["minAmount"]>,
+
+    maxAmount: number | undefined;
+    setMaxAmount: Dispatch<ITransactionFilter["maxAmount"]>,
+}
+
+const Filter = ({
+    date, selectedAccounts, selectedBudgets, selectedDirection, selectedTags, maxAmount, minAmount, specificAmount,
+    setDate, setSelectedAccounts, setSelectedBudgets, setSelectedDirection, setSelectedTags, setMaxAmount, setMinAmount, setSpecificAmount }: ITransactionFilter) => {
+    const [expanded, setExpanded] = useState<string | false>('');
+
+    const dark = useAppSelector(SelectDarkMode)
+    const tags = useAppSelector(SelectTags)
+    const budgets = useAppSelector(SelectAllBudgets)
+    const accounts = useAppSelector(SelectAccounts)
+
+    const [searchLabel, setSearchLabel] = useState<string>("")
+
+    const handleChange =
+        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+            setExpanded(newExpanded ? panel : false);
+        };
+
+    const changeSpecificAmount = (val: string) => {
+        if (val.length > 0) {
+            isNaN(+val) ? null : setSpecificAmount(+val)
+        } else {
+            setSpecificAmount(undefined)
+        }
+    }
+
+    const changeMinAmount = (val: string) => {
+        if (val.length > 0) {
+            isNaN(+val) ? null : setMinAmount(+val)
+        } else {
+            setMinAmount(undefined)
+        }
+    }
+
+    const changeMaxAmount = (val: string) => {
+        if (val.length > 0) {
+            isNaN(+val) ? null : setMaxAmount(+val)
+        } else {
+            setMaxAmount(undefined)
+        }
+    }
+
+    return <>
+        <div className='w-[20rem]'>
+            <Accordion expanded={false}>
+                <AccordionSummary aria-controls="date-content" id="date-header" expandIcon={<></>} className="!ml-0" classes={{
+                    content: "!ml-0"
+                }}>
+                    <Typography>Filters</Typography>
+                </AccordionSummary>
+            </Accordion>
+            <Accordion expanded={expanded === 'date'} onChange={handleChange('date')}>
+                <AccordionSummary aria-controls="date-content" id="date-header">
+                    <Typography>Date</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <div className='text-sm pb-1 font-medium'>
+                        Show transaction for
+                    </div>
+                    <DatePicker plugins={[<DatePanel />]} value={date} onChange={setDate} range={true} maxDate={new Date()} className={`${dark ? "bg-dark" : ""}`} style={
+                        {
+                            height: "2rem",
+                        }
+                    } />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expanded === 'labels'} onChange={handleChange('labels')}>
+                <AccordionSummary aria-controls="labels-content" id="labels-header">
+                    <Typography>Labels</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Input inputProps={ariaLabel} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
+                        <AiOutlineSearch />
+                    </>} />
+                    <div className='flex flex-col mt-3'>
+                        {tags.filter(s => s.name.toLowerCase().includes(searchLabel.toLowerCase())).map((tag, index) => {
+                            return <div className='flex space-x-2 items-center'>
+                                <Checkbox classes={mainColor} checked={selectedTags.includes(tag.id)} onChange={() => {
+                                    if (selectedTags.includes(tag.id)) {
+                                        setSelectedTags(selectedTags.filter(s => s !== tag.id))
+                                    } else {
+                                        setSelectedTags([...selectedTags, tag.id])
+                                    }
+                                }} /> {tag.name}
+                            </div>
+                        })}
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expanded === 'budget'} onChange={handleChange('budget')}>
+                <AccordionSummary aria-controls="budget-content" id="budget-header">
+                    <Typography>Budget</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <div className='flex flex-col'>
+                        {budgets.map((budget) => {
+                            return <div className='flex space-x-2 items-center'>
+                                <Checkbox classes={mainColor} checked={selectedBudgets.includes(budget.id)} onChange={() => {
+                                    if (selectedBudgets.includes(budget.id)) {
+                                        setSelectedBudgets(selectedBudgets.filter(s => s !== budget.id))
+                                    } else {
+                                        setSelectedBudgets([...selectedBudgets, budget.id])
+                                    }
+                                }} /> {budget.name}
+                            </div>
+                        })}
+                        {budgets.length === 0 && <div className='text-sm text-gray-400'>
+                            No budgets found
+                        </div>}
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expanded === 'amount'} onChange={handleChange('amount')}>
+                <AccordionSummary aria-controls="amount-content" id="amount-header">
+                    <Typography>Amount</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <div className='flex flex-col space-y-1'>
+                        <div className='text-sm text-gray-400'>
+                            Direction
+                        </div>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-row-radio-buttons-group-label"
+                            name="row-radio-buttons-group"
+                            value={selectedDirection}
+                            onChange={(val) => setSelectedDirection(val.target.value)}
+                        >
+                            <FormControlLabel value="Any" control={<Radio sx={mainCheckBox} />} label="Any" />
+                            <FormControlLabel value="In" control={<Radio sx={mainCheckBox} />} label="In" />
+                            <FormControlLabel value="Out" control={<Radio sx={mainCheckBox} />} label="Out" />
+                        </RadioGroup>
+                    </div>
+                    <div className='flex flex-col space-y-1 mt-5'>
+                        <div className='text-sm text-gray-400'>
+                            Specific Amount
+                        </div>
+                        <input className='border p-1 rounded-md' value={specificAmount} onChange={(val) => changeSpecificAmount(val.target.value)} type="number" />
+                    </div>
+                    <div className='grid grid-cols-[40%,20%,40%] mt-5 w-full'>
+                        <div className='flex flex-col'>
+                            <div className='text-sm text-gray-400'>
+                                Min
+                            </div>
+                            <input className='border p-1 rounded-md' value={minAmount} onChange={(val) => changeMinAmount(val.target.value)} type="number" />
+                        </div>
+                        <div className='flex items-center translate-y-3 justify-center'>
+                            <div className='w-[80%] h-[1px] bg-gray-400' />
+                        </div>
+                        <div className='flex flex-col'>
+                            <div className='text-sm text-gray-400'>
+                                Max
+                            </div>
+                            <input className='border p-1 rounded-md' value={maxAmount} onChange={(val) => changeMaxAmount(val.target.value)} type="number" />
+                        </div>
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expanded === 'wallets'} onChange={handleChange('wallets')}>
+                <AccordionSummary aria-controls="wallets-content" id="wallets-header">
+                    <Typography>Wallets</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <div className='flex flex-col'>
+                        {accounts.map((account) => {
+                            return <div className='flex space-x-2 items-center'>
+                                <Checkbox classes={mainColor} checked={selectedAccounts.includes(account.address)} onChange={() => {
+                                    if (selectedAccounts.includes(account.address)) {
+                                        setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))
+                                    } else {
+                                        setSelectedAccounts([...selectedAccounts, account.address])
+                                    }
+                                }} /> {account.name}
+                            </div>
+                        })}
+                        {accounts.length === 0 && <div className='text-sm text-gray-400'>
+                            No account found
+                        </div>}
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+        </div>
+    </>
 }
 
 export default Filter
