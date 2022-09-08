@@ -9,70 +9,82 @@ import { generate } from "shortid";
 import { useWalletKit } from "hooks";
 import { SelectBalance, SelectCurrencies } from "redux/slices/account/selector";
 import { IPriceCoin } from "pages/api/calculation/price.api";
+import { SetComma } from "utils";
 
 export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
-
-    const currency = useSelector(SelectCurrencies)
     const balance = useSelector(SelectBalance)
     const { GetCoins } = useWalletKit()
 
     const cleanList: (IRequest | IMember)[] = []
     coinList.forEach(item => {
-        cleanList.push(item)
+        if (item.secondaryAmount && item.secondaryCurrency) {
+            cleanList.push({
+                ...item,
+                amount: item.secondaryAmount,
+                currency: item.secondaryCurrency,
+            })
+        } else {
+            cleanList.push(item)
+        }
     })
+
+    console.log("Balance")
+    console.log(balance)
 
     const list = _(cleanList).groupBy("currency").map((value, key) => {
         const res: IRequest | IMember = {
             ...value[0],
             amount: value.reduce((acc, curr) => {
-                if (curr.usdBase) {
-                    return acc + (+curr.amount / currency[curr.currency].priceUSD)
-                }
-                return acc + Number(curr.amount)
+                return acc + parseFloat(curr.amount)
             }, 0).toString()
         }
         return res;
     }).value()
 
+    console.log('list');
+    console.log(list);
+    
+
+
     return <>
-
-        {list.map((coin, index) => {
-            const selectedCurrency = Object.entries(currency).find(c => c[0] === coin.currency) as [string, ICurrencyInternal] | undefined
-            const selectedBalance = Object.entries(balance).find(c => c[0] === coin.currency) as [string, IPriceCoin] | undefined
-            const selectedCoin = Object.values(GetCoins).find(c => c.name === coin.currency) as AltCoins | undefined
-
-            if (!selectedCurrency || !selectedCoin || !selectedBalance || !selectedBalance[1]) return <Fragment key={index}></Fragment>
+        {list.map((item, index) => {
+            const coin = Object.values(GetCoins).find((c) => c.name === item.currency)
+            const coinBalance = Object.values(balance).find((b) => b.name === item.currency)
             return <Fragment key={generate()}>
-                <div className="flex flex-col items-start justify-center text-center gap-3 mb-2">
-                    <div className="flex justify-between items-start">
-                        <div className="flex space-x-3 items-center pr-2">
-                            <div>{selectedBalance[1].amount.toFixed(2)}</div>
+                <div className="flex flex-col items-start justify-center text-center gap-2 mb-2 w-[12.5rem]">
+                    <div className="w-full flex items-center justify-start space-x-1">
+                        <div className="flex justify-between items-center ">
+                            <img src={coin?.logoURI} alt="" width={20} height={20} className=" rounded-full" />
                         </div>
-                        <div className="flex justify-between space-x-3">
-                            <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
-                            <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
+                        <div className="flex items-start justify-start pr-2 text-lg font-medium">
+                            {/* <div>{coin.name === 'CELO' ? SetComma(balance[0].amount) : SetComma(balance[1].amount)}</div> */}
+                            <div>{SetComma(coinBalance?.amount)}</div>
                         </div>
+
                     </div>
-                    <div className="flex  pb-4 border-b w-full items-start">
-                        <div className="flex space-x-3 items-start pr-2">
-                            <div>-{(+coin.amount).toFixed(2)}</div>
+                    <div className="flex  w-full items-center space-x-1 justify-start">
+                        <div className="flex justify-between items-center ">
+                            <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
-                        <div className="flex justify-between space-x-3">
-                            <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
-                            <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
+                        <div className="flex items-start justify-start pr-2 text-lg font-medium">
+                            <div>{coin && SetComma(+(item.amount))}-</div>
                         </div>
+
                     </div>
-                    <div className="flex justify-between items-start">
-                        <div className="flex space-x-3 items-center pr-2" >
-                            <div>{(selectedBalance[1].amount - (+coin.amount)).toFixed(2)}</div>
+                    <div className="w-full flex items-center justify-start space-x-1 pt-5">
+                        <div className="flex justify-between items-center  ">
+                            <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
-                        <div className="flex justify-between space-x-3">
-                            <img src={selectedCoin.coinUrl} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
-                            <div className="text-greyish dark:text-white tracking-wide">{selectedCoin?.name}</div>
+                        <div className="flex items-start justify-start pr-2 text-lg font-medium" >
+                            {/* <div>{(selectedCoin.name === "CELO" ? SetComma(balance[0].amount - parseFloat(coin.amount)) : SetComma(balance[1].amount - parseFloat(coin.amount)))}</div> */}
+                            <div>{SetComma(coinBalance!.amount - (+item!.amount))}</div>
                         </div>
+
                     </div>
                 </div>
             </Fragment>
         })}
     </>;
+
+
 }

@@ -7,7 +7,7 @@ import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import Modal from "components/general/modal";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { TextField } from "@mui/material";
+import { FormControl, TextField } from "@mui/material";
 import { GetTime } from "utils";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Dropdown from "components/general/dropdown";
@@ -104,7 +104,7 @@ export default function RequestId() {
       }
       setModal(false);
     } catch (error) {
-      console.log(error);
+      console.log(error); 
     }
   };
 
@@ -273,7 +273,6 @@ export default function RequestId() {
                     </div>
                     <div className="w-full h-full">
                       <TextField
-                        type={"number"}
                         label="Amount"
                         {...register("amount", {
                           required: true,

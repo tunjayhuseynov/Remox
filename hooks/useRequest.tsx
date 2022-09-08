@@ -8,25 +8,25 @@ export default function useRequest() {
     const [loading, isLoading] = useState(false)
     const [genLoading, setGenLoading] = useState(false)
     
-    const approveRequest = async (id: string, request: IRequest) => {
+    const approveRequest = async (request: IRequest, userId: string ) => {
         isLoading(true)
-        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
+        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', userId, {
             requests: arrayRemove(request)
         })
         const req = { ...request, status: RequestStatus.approved }
-        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
+        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', userId, {
             requests: arrayUnion(req)
         })
         isLoading(false)
     }
 
-    const rejectRequest = async (id: string, request: IRequest) => {
+    const rejectRequest = async ( request: IRequest, userId: string) => {
         isLoading(true)
-        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
+        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', userId, {
             requests: arrayRemove(request)
         })
         const req = { ...request, status: RequestStatus.rejected }
-        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', id, {
+        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', userId, {
             requests: arrayUnion(req)
         })
         isLoading(false)
