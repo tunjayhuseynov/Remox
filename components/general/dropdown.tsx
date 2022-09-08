@@ -3,6 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { CoinsURL } from 'types';
 import { FormControl, InputLabel, SxProps, Theme } from '@mui/material';
+import { ClipLoader } from 'react-spinners';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -21,6 +22,7 @@ interface IProp<T> {
     selectClass?: string,
     label?: string,
     displaySelector?: string,
+    loading?: boolean,
     selected?: T,
     list: Array<T>,
     setSelect?: Dispatch<T>,
@@ -41,7 +43,7 @@ interface IGenericExtendedProp {
     secondValue?: string | number
 }
 
-const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector }: IProp<T>) => {
+const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
 
@@ -63,14 +65,15 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center`}>
                             <div className="flex items-center">
-                                {selected.coinUrl && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
-                                {selected.logoUrl && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
-                                {selected.logoURI && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
-                                {selected.image && <img className="w-10 h-10 mr-2 rounded-full" src={`${selected.image}`} />}
-                                <div className="flex flex-col items-start">
+                                {loading && <span><ClipLoader size={16} /></span>}
+                                {selected.coinUrl && !loading && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
+                                {selected.logoUrl && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
+                                {selected.logoURI && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
+                                {selected.image && !loading && <img className="w-10 h-10 mr-2 rounded-full" src={`${selected.image}`} />}
+                                {!loading && <div className="flex flex-col items-start">
                                     <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
                                     {selected.secondValue && <span className="text-left text-sm  text-gray-500">{selected.secondValue}</span>}
-                                </div>
+                                </div>}
                             </div>
                         </div>
                     }
@@ -91,7 +94,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ selected, label, setSelect,
                             {e.logoUrl && <img className="w-4 h-4 mr-2" src={`${e.logoUrl}`} />}
                             {e.logoURI && <img className="w-4 h-4 mr-2" src={`${e.logoURI}`} />}
                             {e.image && <img className="w-4 h-4 mr-2" src={`${e.image}`} />}
-                            <span>{e.displayName ?? e.name}</span>
+                            {<span>{e.displayName ?? e.name}</span>}
                         </MenuItem>
                     })}
                 </Select>

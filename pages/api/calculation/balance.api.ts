@@ -53,44 +53,62 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     const coinList = Object.values(Coins);
     let balances: { [name: string]: string } = {};
     if (addresses.length > 1) {
-        for (const addressItem of addresses) {
+        
+        const balanceArray = await Promise.all(addresses.map(async (addressItem) => {
+            let balances: { [name: string]: string } = {};
+
             const balancesRes = await Promise.all(coinList.map(item => GetBalance(item, addressItem, blockchain)))
 
             balancesRes.forEach((v, index) => {
-                const item = coinList[index];
+                const item = v[1];
                 if (!balances[item.symbol]) {
-                    balances = Object.assign(balances, { [item.symbol]: v?.toString() })
+                    balances = Object.assign(balances, { [item.symbol]: v[0]?.toString() })
                 } else {
-                    balances[item.symbol] = `${Number(balances[item.symbol]) + Number(v)}`
+                    balances[item.symbol] = `${Number(balances[item.symbol]) + Number(v[0])}`
                 }
             })
-        }
+
+            return balances;
+        }))
+
+        const result = balanceArray.reduce<{ [name: string]: string; }>((a, c) => {
+            Object.keys(c).forEach((key) => {
+                if (!a[key]) {
+                    a[key] = c[key]
+                } else {
+                    a[key] = `${Number(a[key]) + Number(c[key])}`
+                }
+            })
+            return a;
+        }, {})
+
+        balances = result;
 
         return { ...balances };
     }
 
     const address = addresses[0];
 
-    for (const i of Object.values(Coins)) {
-        const item = i as AltCoins
-        let altcoinBalance = await GetBalance(item, address, blockchain)
+    const balanceRes = await Promise.all(coinList.map(item => GetBalance(item, address, blockchain)))
+    balanceRes.forEach((altcoinBalance, index) => {
+        const item = altcoinBalance[1]
+        balances = Object.assign(balances, { [item.symbol]: altcoinBalance[0] });
+    })
 
-        balances = Object.assign(balances, { [item.symbol]: altcoinBalance });
-    }
     return balances;
 }
 
-const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType) => {
+const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType): Promise<[number, AltCoins]> => {
     try {
         if (blockchain.name === 'celo') {
             const web3 = new Web3(blockchain.rpcUrl)
             const ethers = new web3.eth.Contract(erc20 as AbiItem[], item.address);
             if (item.address === '0x0000000000000000000000000000000000000000') {
                 const balance = await web3.eth.getBalance(addressParams)
-                return DecimalConverter(balance, item.decimals)
+                return [DecimalConverter(balance, item.decimals), item]
             }
             let balance = await ethers.methods.balanceOf(addressParams).call();
-            return DecimalConverter(balance.toString(), item.decimals)
+            return [DecimalConverter(balance.toString(), item.decimals), item]
         } else if (blockchain.name === 'solana') {
             let token;
             if (item.type === TokenType.GoldToken) {
@@ -100,11 +118,12 @@ const GetBalance = async (item: AltCoins, addressParams: string, blockchain: Blo
                 // lamports = await connection.getTokenAccountsByOwner(publicKey, {programId: new PublicKey(item.contractAddress)})
                 token = tok ?? 0
             }
-            return token
+            return [token, item]
         }
-        return 0;
+        return [0, item];
     } catch (error: any) {
         console.error("Balance API: ", item?.name, error)
         // throw new Error("Balance API:", error)
+        return [0, item];
     }
 } 

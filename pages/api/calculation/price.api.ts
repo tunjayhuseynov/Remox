@@ -46,15 +46,15 @@ export default async function handler(
         const fetchCurrenicesReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
         const fetchCurrenices = fetchCurrenicesReq.docs.map(s => s.data() as AltCoins)
 
+   
         const balance = await axios.get<Balance>(BASE_URL + '/api/calculation/balance', {
             params: {
                 addresses: parsedAddress,
                 blockchain: blockchain.name,
             }
-        })
-        
+        })  
 
-        const AllPrices = await ParseAllPrices(fetchCurrenices, balance.data, blockchain)
+        const AllPrices = ParseAllPrices(fetchCurrenices, balance.data, blockchain)
         const totalPrice = Total(fetchCurrenices, balance.data)
 
         res.status(200).json({
@@ -68,7 +68,7 @@ export default async function handler(
 
 const Total = (fetchedCurrencies: AltCoins[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.symbol]) ?? "0")), 0)
 
-const ParseAllPrices = async (fetchedCurrencies: AltCoins[], balance: Balance, blockchain: BlockchainType) => {
+const ParseAllPrices = (fetchedCurrencies: AltCoins[], balance: Balance, blockchain: BlockchainType) => {
     // const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
     // const Coins = CoinsReq.docs.reduce((a, c) => {
     //     a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;

@@ -106,6 +106,7 @@ export function useFirestoreReadMultiple<DataType extends {}>(
   const [data, setData] = useState<DataType[]>();
 
   const read = () => {
+    if (!collectionName) return () => { };
     const q = query(
       collection(db, collectionName),
       ...queries.map((s) => where(s.firstQuery, s.condition, s.secondQuery))

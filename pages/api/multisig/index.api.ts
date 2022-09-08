@@ -21,7 +21,7 @@ export interface IAccountMultisig {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IAccountMultisig>) {
     try {
         const { blockchain, Skip, Take, id, accountId } = req.query as { blockchain: BlockchainType["name"], accountId: string, Skip: string, Take: string, id: string };
-
+      
         const accountRef = await adminApp.firestore().collection(accountCollectionName).doc(id).get()
         const account = accountRef.data() as IAccount
 
@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         })
 
         const [owners, threshold, txs] = await Promise.all([ownersPromise, thresholdPromise, txsPromise])
-
+  
         res.status(200).json({
             name,
             address: account.address,

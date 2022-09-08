@@ -25,14 +25,14 @@ export const WordSplitter = (word: string) => {
 export const GetTime = (date?: Date) => Math.round((date ?? new Date()).getTime() / 1000);
 export const GetSignedMessage = (nonce: number) => "Your nonce for signing is " + nonce
 
-export const TransactionDirectionDeclare = (transaction: IFormattedTransaction | ITransactionMultisig | IMultisigSafeTransaction, accounts: string[]) => {
+export const TransactionDirectionDeclare = (transaction: IFormattedTransaction | ITransactionMultisig, accounts: string[]) => {
 	let directionType;
 	const address = ((transaction as IFormattedTransaction)['hash'] ?
 		(transaction as IFormattedTransaction).rawData.from.toLowerCase() : (transaction as ITransactionMultisig).contractAddress?.toLowerCase());
 
 	const direction = accounts.some(a => a.toLowerCase() === address);
 
-	switch ((transaction as IFormattedTransaction)['rawData'] ? (transaction as IFormattedTransaction).id : (transaction as ITransactionMultisig | IMultisigSafeTransaction).type) {
+	switch ((transaction as IFormattedTransaction)['rawData'] ? (transaction as IFormattedTransaction).id : ((transaction as ITransactionMultisig).tx.method ?? '')) {
 		case ERC20MethodIds.swap:
 			directionType = TransactionDirection.Swap;
 			break;
@@ -65,6 +65,18 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 			break;
 		case ERC20MethodIds.reward:
 			directionType = TransactionDirection.Reward;
+			break;
+		case ERC20MethodIds.addOwner:
+			directionType = TransactionDirection.AddOwner;
+			break;
+		case ERC20MethodIds.removeOwner:
+			directionType = TransactionDirection.RemoveOwner;
+			break;
+		case ERC20MethodIds.changeInternalThreshold:
+			directionType = TransactionDirection.changeInternalRequirement;
+			break;
+		case ERC20MethodIds.changeThreshold:
+			directionType = TransactionDirection.ChangeRequirement;
 			break;
 		default:
 			break;
@@ -109,6 +121,18 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 			break;
 		case ERC20MethodIds.reward:
 			directionType = TransactionType.Reward;
+			break;
+		case ERC20MethodIds.addOwner:
+			directionType = TransactionType.AddOwner;
+			break;
+		case ERC20MethodIds.removeOwner:
+			directionType = TransactionType.RemoveOwner;
+			break;
+		case ERC20MethodIds.changeInternalThreshold:
+			directionType = TransactionType.changeInternalRequirement;
+			break;
+		case ERC20MethodIds.changeThreshold:
+			directionType = TransactionType.ChangeRequirement;
 			break;
 		default:
 			directionType = TransactionType.Unknown;
@@ -171,6 +195,26 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			img = blockchain.recurringPaymentProtocols[0].logoURL;
 			name = blockchain.recurringPaymentProtocols[0].name;
 			action = "Canceled (A)"
+			break;
+		case TransactionDirection.AddOwner:
+			img = blockchain.multisigProviders[0].logoURL;
+			name = blockchain.multisigProviders[0].name;
+			action = "Add Owner"
+			break;
+		case TransactionDirection.RemoveOwner:
+			img = blockchain.multisigProviders[0].logoURL;
+			name = blockchain.multisigProviders[0].name;
+			action = "Remove Owner"
+			break;
+		case TransactionDirection.changeInternalRequirement:
+			img = blockchain.multisigProviders[0].logoURL;
+			name = blockchain.multisigProviders[0].name;
+			action = "Change Internal Threshold"
+			break;
+		case TransactionDirection.ChangeRequirement:
+			img = blockchain.multisigProviders[0].logoURL;
+			name = blockchain.multisigProviders[0].name;
+			action = "Change Threshold"
 			break;
 		case TransactionDirection.Out:
 			img = REMOX_LOGO

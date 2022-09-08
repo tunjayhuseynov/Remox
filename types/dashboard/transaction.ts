@@ -12,6 +12,10 @@ export enum TransactionType {
     Repay = "Repay",
     Withdraw = "Withdraw",
     Reward = "Reward",
+    AddOwner= "Add Owner",
+    RemoveOwner= "Remove Owner",
+    ChangeRequirement= "Change Requirement",
+    changeInternalRequirement= "Change Internal Requirement",
     Unknown = "Unknown"
 }
 
@@ -26,7 +30,11 @@ export enum TransactionDirection {
     Deposit,
     Withdraw,
     Repay,
-    Reward
+    Reward,
+    AddOwner,
+    RemoveOwner,
+    ChangeRequirement,
+    changeInternalRequirement,
 }
 
 export enum TransactionStatus{

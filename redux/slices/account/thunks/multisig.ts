@@ -13,20 +13,24 @@ interface IReturnType {
     multisigAccounts: IAccountMultisig[]
 }
 
-export const Multisig_Fetch_Thunk = createAsyncThunk<IReturnType, { accounts: IAccountORM[], blockchain: string, addresses: string[] }>("remoxData/multisig/fetch", async ({ accounts, blockchain, addresses }, api) => {
+export const Multisig_Fetch_Thunk = createAsyncThunk<IReturnType, { accounts: IAccountORM[], blockchain: string, addresses: string[], fetchable: boolean }>("remoxData/multisig/fetch", async ({ accounts, blockchain, addresses, fetchable = false }, api) => {
+    let multisigAccountsRef;
+    if (fetchable) {
+        const promiseMultisigAccounts = accounts.filter(s => s.signerType === "multi").map(s => axios.get<IAccountMultisig>("/api/multisig", {
+            params: {
+                blockchain: blockchain,
+                Skip: 0,
+                Take: 100,
+                id: s.id,
+                accountId: (api.getState() as RootState).remoxData.providerID
+            }
+        }))
+        multisigAccountsRef = (await Promise.all(promiseMultisigAccounts)).map(s => s.data);
+    } else {
+        multisigAccountsRef = accounts.filter(s => s.signerType === "multi").map(s => s.multidata!)
+    }
 
-    const promiseMultisigAccounts = accounts.filter(s => s.signerType === "multi").map(s => axios.get<IAccountMultisig>("/api/multisig", {
-        params: {
-            blockchain: blockchain,
-            Skip: 0,
-            Take: 100,
-            id: s.id,
-            accountId: (api.getState() as RootState).remoxData.providerID
-        }
-    }))
-
-    const multisigAccountsRef = await Promise.all(promiseMultisigAccounts);
-    const multisigAccounts = multisigAccountsRef.map(s => s.data);
+    const multisigAccounts = multisigAccountsRef;
 
     let multisigRequests: IAccountMultisig["txs"] = [];
     let pendingRequests: IAccountMultisig["txs"] = [];

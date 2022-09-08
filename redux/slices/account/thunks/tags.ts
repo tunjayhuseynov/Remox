@@ -3,6 +3,7 @@ import { arrayRemove, arrayUnion } from "firebase/firestore"
 import { ITag, ITxTag } from "pages/api/tags/index.api"
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { generate } from "shortid"
+import { addTransactionHashToTag, removeTransactionHashFromTag } from "../remoxData"
 
 
 
@@ -48,24 +49,31 @@ export const DeleteTag = createAsyncThunk<ITag, { id: string, tag: ITag }>("remo
     return tag;
 })
 
-export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transaction: ITxTag }>("remoxData/addTransactionToTag", async ({ id, tagId, transaction: transactionId }) => {
+export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transaction: ITxTag, txIndex: number }>("remoxData/addTransactionToTag", async ({ id, tagId, transaction, txIndex }, api) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     const tag = res?.tags.find(t => t.id === tagId)
 
-    if (tag && !tag.transactions.some(t => t.address === transactionId.address && t.hash === transactionId.hash)) {
+    if (tag && !tag.transactions.some(t => t.address === transaction.address && t.hash === transaction.hash)) {
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
             tags: arrayRemove(tag)
         })
-        tag.transactions.push(transactionId)
+        tag.transactions.push(transaction)
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
             tags: arrayUnion(tag)
         })
     }
 
-    return { tagId, transactionId };
+    api.dispatch(addTransactionHashToTag({
+        tagId,
+        transactionTag: transaction,
+        txIndex: txIndex
+    }))
+    
+ 
+    return { tagId, transactionId: transaction };
 })
 
-export const RemoveTransactionFromTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transactionId: ITxTag }>("remoxData/removeTransactionFromTag", async ({ id, tagId, transactionId }) => {
+export const RemoveTransactionFromTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transactionId: ITxTag, txIndex: number }>("remoxData/removeTransactionFromTag", async ({ id, tagId, transactionId, txIndex }, api) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     const tag = res?.tags.find(t => t.id === tagId)
 
@@ -78,6 +86,12 @@ export const RemoveTransactionFromTag = createAsyncThunk<{ tagId: string, transa
             tags: arrayUnion(tag)
         })
     }
+
+    api.dispatch(removeTransactionHashFromTag({
+        tagId,
+        transactionId,
+        txIndex
+    }))
 
     return { transactionId, tagId };
 })

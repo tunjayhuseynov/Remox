@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js"
 import InputDataDecoder, { InputData } from "ethereum-input-data-decoder";
 import { IBudget } from "firebaseConfig";
-import { ERC20MethodIds } from "hooks/useTransactionProcess";
+import { CeloInputReader, ERC20MethodIds, GenerateTransaction } from "hooks/useTransactionProcess";
 import { MethodIds, MethodNames, ITransactionMultisig, IMultisigSafeTransaction } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
 import { AltCoins, Coins } from "types";
@@ -31,12 +31,12 @@ export interface ParsedMultisigData {
  * @param confirmations 
  * @param Value 
  */
-export const MultisigTxParser = (
+export const MultisigTxParser = async (
     {
         index, destination, data, executed,
         tags, txHashOrIndex,
         confirmations, Value, blockchain, parsedData, timestamp, contractAddress,
-        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at, coins, budgets
+        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at, coins, budgets, contractOwners
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
@@ -45,92 +45,78 @@ export const MultisigTxParser = (
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string, created_at: number,
-            budgets: IBudget[], coins: Coins
+            budgets: IBudget[], coins: Coins, contractOwners: string[]
         }
 ) => {
 
-
-
-    let size = 0;
-    if (blockchain.name === 'solana') size = SOLANA_WALLET_SIZE
-    else size = EVM_WALLET_SIZE
-    // let from = blockchain === "solana" ? fromLamport : fromWei
     let obj: ITransactionMultisig = {
         name,
         hashOrIndex: txHashOrIndex,
         destination: destination,
-        data: data,
         isExecuted: executed,
         confirmations: confirmations,
-        value: Value.toString(),
         timestamp: timestamp,
-        created_at: created_at,
         contractAddress: contractAddress,
         contractInternalThresholdAmount: contractInternalThreshold,
         contractThresholdAmount: contractThreshold,
         contractOwnerAmount: contractOwnerAmount,
-        type: data.substring(0, 10),
+        contractOwners: contractOwners,
         tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === txHashOrIndex)),
-        budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex === index.toString())) ?? null
+        budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex === index.toString())) ?? null,
+        tx: {
+            address: destination,
+            hash: txHashOrIndex,
+            id: ERC20MethodIds.noInput,
+            method: ERC20MethodIds.noInput,
+        }
     }
-
-    const coin = Object.values(coins).find(s => s.address.toLowerCase() === destination.toLowerCase())
-
-    if (coin) {
-        let value = DecimalConverter(Value.toString(), coin.decimals)
-        obj.value = value.toString()
-    } else {
-        obj.value = "0"
-    }
-
-
-    obj.id = index
-    obj.requiredCount = ""
-    obj.owner = ""
-    obj.newOwner = ""
-    obj.valueOfTransfer = ""
 
     if (!parsedData) {
-        let method: string | null = null;
-        let finalResult: InputData;
-        const decoder = new InputDataDecoder(blockchain.multisigProviders[0].abi);
-        const result = decoder.decodeData(data);
-        if (!result.method) {
-            const decoder = new InputDataDecoder(erc20);
-            const result = decoder.decodeData(data);
-            method = result.method
-            finalResult = result
-        } else {
-            method = result.method
-            finalResult = result
-        }
-
-        if (method) {
-            obj.type = ERC20MethodIds[method as keyof typeof ERC20MethodIds] ?? method
-            if (method == "changeInternalRequirement" || method == "changeRequirement") {
-                obj.requiredCount = (finalResult.inputs[0] as BigNumber).toString()
-            } else if (method == "addOwner") {
-                obj.newOwner = finalResult.inputs[0] as string
-            } else if (method == "removeOwner") {
-                obj.owner = finalResult.inputs[0] as string
-            } else if (method == "replaceOwner") {
-                obj.owner = finalResult.inputs[0] as string
-                obj.newOwner = finalResult.inputs[1] as string
-            }
-            else if (method == "transfer") {
-                obj.valueOfTransfer = (finalResult.inputs[1] as BigNumber).toString()
-                obj.owner = finalResult.inputs[0] as string
-            }
-        }
+        const reader = await CeloInputReader(data, {
+            tags: tags,
+            blockchain: blockchain,
+            Coins: coins,
+            transaction: GenerateTransaction({
+                contractAddress: destination,
+                hash: txHashOrIndex,
+                to: destination
+            })
+        })
+        obj.tx = reader
     } else {
-        obj.type = parsedData.method
-        obj.requiredCount = parsedData.requiredCount?.toString()
-        obj.owner = parsedData.owner
-        obj.newOwner = parsedData.newOwner
-        obj.valueOfTransfer = parsedData.value
+        if (parsedData.requiredCount) {
+            obj.tx = {
+                amount: parsedData!.requiredCount.toString(),
+                hash: txHashOrIndex,
+                id: ERC20MethodIds.changeThreshold,
+                method: ERC20MethodIds.changeThreshold,
+            }
+        } else if (parsedData.newOwner) {
+            obj.tx = {
+                address: parsedData!.newOwner,
+                hash: txHashOrIndex,
+                id: ERC20MethodIds.addOwner,
+                method: ERC20MethodIds.addOwner,
+            }
+        } else if (parsedData.owner && parsedData.value) {
+            obj.tx = {
+                to: parsedData!.owner,
+                amount: parsedData!.value,
+                coin: Object.values(coins).find(s => s.address.toLowerCase() === destination.toLowerCase()),
+                hash: txHashOrIndex,
+                id: ERC20MethodIds.transfer,
+                method: ERC20MethodIds.transfer,
+            }
+        } else if (parsedData.owner) {
+            obj.tx = {
+                address: parsedData!.owner,
+                hash: txHashOrIndex,
+                id: ERC20MethodIds.removeOwner,
+                method: ERC20MethodIds.removeOwner,
+            }
+        }
     }
 
-    delete obj.data
     return obj;
 }
 

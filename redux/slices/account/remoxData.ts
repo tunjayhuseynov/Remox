@@ -109,7 +109,7 @@ const init = (): IRemoxData => {
             displayName: "Solana",
             nativeToken: "SOL",
             lendingProtocols: [],
-            name:  "solana",
+            name: "solana",
             logoUrl: "",
             recurringPaymentProtocols: [],
             rpcUrl: "",
@@ -374,7 +374,7 @@ export const {
     addMemberToContributor, removeMemberFromContributor, setProviderAddress,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
     updateAllCurrencies, updateTotalBalance, updateUserBalance
-    
+
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

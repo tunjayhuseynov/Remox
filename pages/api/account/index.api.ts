@@ -33,17 +33,21 @@ export default async function handler(
 
         const account = accountData as IAccount;
 
-        const { data: balance } = await axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
+        let reqs = [];
+
+        let priceReq = axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
             params: {
                 addresses: [account.address],
                 blockchain: account.blockchain
             }
         })
 
-        let multidata: IAccountORM["multidata"] = null;
+        reqs.push(priceReq);
 
+        let multidata: IAccountORM["multidata"] = null;
+       
         if (account.signerType === "multi") {
-            const { data: multisig } = await axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
+            const multisigReq = axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
                 params: {
                     id,
                     accountId: account.id,
@@ -52,7 +56,15 @@ export default async function handler(
                     Take: 10
                 }
             })
-            multidata = multisig;
+            reqs.push(multisigReq);
+        }
+        
+        const [{ data: balanceRes }, multisigRes] = await Promise.all(reqs)
+       
+        const balance = balanceRes as IPriceResponse;
+
+        if (multisigRes) {
+            multidata = multisigRes.data as IAccountMultisig;
         }
 
         let orm: IAccountORM = {
