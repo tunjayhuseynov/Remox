@@ -47,7 +47,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         }
         return a;
     }, {})
-    console.log(coinParsed[budget.token])
+
     totalBudget += ((budget.amount * prices.AllPrices[budget.token].priceUSD) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].priceUSD : 0)));
     let budgetCoin: IBudgetCoin = {
         coin: budget.token,

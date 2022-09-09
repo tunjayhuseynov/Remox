@@ -211,7 +211,7 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
                 if (coin && currentCoin.symbol !== coin) return
                 if (secondCoin && currentCoin.symbol !== secondCoin) return
                 if (currentCoin) {
-                    average += (DecimalConverter(transaction.rawData.value, currentCoin.decimals) * Number(currentCoin.priceUSD ?? 1));
+                    average += (DecimalConverter(transaction.rawData.value, currentCoin.decimals) * currentCoin.priceUSD ?? 1);
                 }
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
@@ -219,7 +219,7 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
                 tx.payments.forEach(transfer => {
                     if (coin && transfer.coin.symbol !== coin) return
                     if (secondCoin && transfer.coin.symbol !== secondCoin) return
-                    average += (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
+                    average += (DecimalConverter(transfer.amount, transfer.coin.decimals) * currencies[transfer.coin.symbol]?.priceUSD ?? 1);
                 })
             }
         }
