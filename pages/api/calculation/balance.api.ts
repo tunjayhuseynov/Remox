@@ -53,7 +53,7 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     const coinList = Object.values(Coins);
     let balances: { [name: string]: string } = {};
     if (addresses.length > 1) {
-        
+
         const balanceArray = await Promise.all(addresses.map(async (addressItem) => {
             let balances: { [name: string]: string } = {};
 
@@ -89,10 +89,12 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 
     const address = addresses[0];
 
-    const balanceRes = await Promise.all(coinList.map(item => GetBalance(item, address, blockchain)))
+    const balanceRes = await Promise.allSettled(coinList.map(item => GetBalance(item, address, blockchain)))
     balanceRes.forEach((altcoinBalance, index) => {
-        const item = altcoinBalance[1]
-        balances = Object.assign(balances, { [item.symbol]: altcoinBalance[0] });
+        if (altcoinBalance.status === "fulfilled") {
+            const item = altcoinBalance.value[1]
+            balances = Object.assign(balances, { [item.symbol]: altcoinBalance.value[0] });
+        }
     })
 
     return balances;
