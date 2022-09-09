@@ -52,6 +52,7 @@ export default function DynamicRequest({
       : page === RequestStatus.approved
       ? requests.approvedRequests
       : requests.rejectedRequests;
+  let notAllowed: IRequest[] = [];
   const [selectedpPendingRequests, setSelectedPendingRequests] = useState<
     IRequest[]
   >([]);
@@ -162,6 +163,7 @@ export default function DynamicRequest({
       for (const request of selectedpPendingRequests) {
         await approveRequest(request, userId?.toString() ?? "");
         dispatch(removePendingRequest(request.id));
+        const newRequest = { ...request, status: RequestStatus.approved };
         dispatch(addApprovedRequest(request));
       }
       setNotify2(false);
@@ -177,8 +179,8 @@ export default function DynamicRequest({
       <div className="flex flex-col space-y-8">
         {page === RequestStatus.approved && (
           <>
-            <div className="w-full flex flex-col  py-6 px-7 bg-white shadow-15 dark:bg-darkSecond  rounded-md">
-              <div className="grid grid-cols-[13.5%,86.5%] ">
+            <div className="w-full flex  py-6 px-7 bg-white shadow-15 dark:bg-darkSecond  rounded-md">
+              <div className="relative">
                 <div
                   className={`font-semibold text-lg text-greylish dark:text-white ${
                     selectedApprovedRequests.length > 0 && "border-r"
@@ -186,23 +188,25 @@ export default function DynamicRequest({
                 >
                   Total Treasury
                 </div>
-                {selectedApprovedRequests.length > 0 && (
-                  <div className="font-semibold text-lg text-greylish dark:text-white pl-5  h-9">
-                    Token Allocation
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-5 justify-start items-start w-full relative">
-                {selectedApprovedRequests.length > 0 && (
-                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
-                )}
+
                 <div className="flex flex-col items-end w-[11.05rem] ">
                   <TotalAmount coinList={selectedApprovedRequests} />
                 </div>
-                <>
-                  <TokenBalance coinList={selectedApprovedRequests} />
-                </>
+                {selectedApprovedRequests.length > 0 && (
+                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                )}
               </div>
+              {selectedApprovedRequests.length > 0 && (
+                <div className=" w-full relative">
+                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                  <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
+                    Token Allocation
+                  </div>
+                  <div className="pl-5">
+                    <TokenBalance coinList={selectedApprovedRequests} />
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -249,12 +253,17 @@ export default function DynamicRequest({
                   <Checkbox
                     sx={{ "&.Mui-checked": { color: "#ff7348" } }}
                     size="small"
-                    className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block"
+                    className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:
+                    before:w-full checked:before:h-full checked:before:bg-primary checked:before:block"
                     onChange={(e) => {
                       if (e.target.checked) {
                         (page as RequestStatus) === RequestStatus.approved
                           ? setSelectedApprovedRequests(requestsList)
-                          : setSelectedPendingRequests(requestsList);
+                          : setSelectedPendingRequests(
+                              requestsList.filter(
+                                (r) => !notAllowed.includes(r)
+                              )
+                            );
                       } else {
                         (page as RequestStatus) === RequestStatus.approved
                           ? setSelectedApprovedRequests([])
@@ -309,17 +318,26 @@ export default function DynamicRequest({
               );
               const coin2 = Object.values(GetCoins).find(
                 (coin) => coin.name === request.secondaryCurrency
-              ); 
+              );
               let isAllowed: boolean = true;
-              const balance1 = Object.values(balance).find((coin) => coin.name === request.currency)!.amount
-              const balance2 = Object.values(balance).find((coin) => coin.name === request.secondaryCurrency)?.amount 
-              if(request.secondaryCurrency){
-                if(balance1 < +request.amount || balance2! < +request.secondaryAmount! ){
-                  isAllowed = false
+              const balance1 = Object.values(balance).find(
+                (coin) => coin.name === request.currency
+              )!.amount;
+              const balance2 = Object.values(balance).find(
+                (coin) => coin.name === request.secondaryCurrency
+              )?.amount;
+              if (request.secondaryCurrency) {
+                if (
+                  balance1 < +request.amount ||
+                  balance2! < +request.secondaryAmount!
+                ) {
+                  isAllowed = false;
+                  notAllowed.push(request);
                 }
-              } else if(request.currency){
-                if(balance1 < +request.amount){
-                  isAllowed = false
+              } else if (request.currency) {
+                if (balance1 < +request.amount) {
+                  isAllowed = false;
+                  notAllowed.push(request);
                 }
               }
               return (
@@ -369,18 +387,22 @@ export default function DynamicRequest({
                     const coin2 = Object.values(GetCoins).find(
                       (coin) => coin.name === w.secondaryCurrency
                     );
-                    return <RequestedUserItem
-                      key={w.id}
-                      request={w}
-                      coin1={coin1!}
-                      coin2={coin2}
-                      selectedPendingRequests={selectedpPendingRequests}
-                      setSelectedPendingRequests={setSelectedPendingRequests}
-                      selectedApprovedRequests={selectedApprovedRequests}
-                      setSelectedApprovedRequests={setSelectedApprovedRequests}
-                      payment={true}
-                    />
-                    })}
+                    return (
+                      <RequestedUserItem
+                        key={w.id}
+                        request={w}
+                        coin1={coin1!}
+                        coin2={coin2}
+                        selectedPendingRequests={selectedpPendingRequests}
+                        setSelectedPendingRequests={setSelectedPendingRequests}
+                        selectedApprovedRequests={selectedApprovedRequests}
+                        setSelectedApprovedRequests={
+                          setSelectedApprovedRequests
+                        }
+                        payment={true}
+                      />
+                    );
+                  })}
                 </div>
               </div>
               <div className="flex flex-col pt-4 space-y-3">
