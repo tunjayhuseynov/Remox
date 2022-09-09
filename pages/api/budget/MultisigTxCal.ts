@@ -52,20 +52,20 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
                         totalBudgetPending += x.payments.reduce((acc, curr) => {
                             if (coin && curr.coin.symbol !== coin) return acc;
                             if (secondCoin && curr.coin.symbol !== secondCoin) return acc;
-                            return acc + DecimalConverter(curr.amount, curr.coin.decimals);
+                            return acc + (DecimalConverter(curr.amount, curr.coin.decimals) * curr.coin.priceUSD);
                         }, 0)
                     } else {
                         totalBudgetUsed += x.payments.reduce((acc, curr) => {
                             if (coin && curr.coin.symbol !== coin) return acc;
                             if (secondCoin && curr.coin.symbol !== secondCoin) return acc;
-                            return acc + DecimalConverter(curr.amount, curr.coin.decimals);
+                            return acc + (DecimalConverter(curr.amount, curr.coin.decimals) * curr.coin.priceUSD);
                         }, 0)
                     }
                 } else if (txRes.method === ERC20MethodIds.transfer || txRes.method === ERC20MethodIds.transferFrom || txRes.method === ERC20MethodIds.automatedTransfer) {
                     const x = txRes as unknown as ITransfer
                     if (executed == false) {
                         if (budget.token === x.coin.symbol || budget.secondToken === x.coin.symbol) {
-                            totalBudgetPending += DecimalConverter(x.amount, x.coin.decimals)
+                            totalBudgetPending += (DecimalConverter(x.amount, x.coin.decimals) * x.coin.priceUSD)
                         }
                         if (budget.token === x.coin.symbol) {
                             totalFirstCoinPending += DecimalConverter(x.amount, x.coin.decimals)
@@ -74,7 +74,7 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
                         }
                     } else {
                         if (budget.token === x.coin.symbol || budget.secondToken === x.coin.symbol) {
-                            totalBudgetUsed += DecimalConverter(x.amount, x.coin.decimals)
+                            totalBudgetUsed += (DecimalConverter(x.amount, x.coin.decimals) * x.coin.priceUSD)
                         }
                         if (budget.token === x.coin.symbol) {
                             totalFirstCoinSpent += DecimalConverter(x.amount, x.coin.decimals)

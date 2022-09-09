@@ -202,7 +202,7 @@ export default async function handler(
 
       const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress);
 
-      let Total = await contract.methods.transactionCount.call();
+      let Total = await contract.methods.transactionCount().call();
       let total = Total;
       if (total > skip) {
         total -= skip;
@@ -229,8 +229,8 @@ export default async function handler(
           blockchain: Blockchain,
           timestamp: GetTime(),
           contractAddress: multisigAddress,
-          contractInternalThreshold: (await contract.methods.internalRequired().call()).toNumber(),
-          contractThreshold: (await contract.methods.required().call()).toNumber(),
+          contractInternalThreshold: (await contract.methods.internalRequired().call()),
+          contractThreshold: (await contract.methods.required().call()),
           contractOwnerAmount: owners.length,
           contractOwners: owners,
           name,

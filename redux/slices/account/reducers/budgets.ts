@@ -78,15 +78,33 @@ export default {
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount - (payload.tx.amount * payload.currency.priceUSD),
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount -= (payload.tx.amount),
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending + (payload.tx.amount * payload.currency.priceUSD),
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += (payload.tx.amount),
                         totalUsedAmount: payload.isTxExecuted ?
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount + (payload.tx.amount * payload.currency.priceUSD)
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += (payload.tx.amount)
                             :
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
+                    }
+                }
+                const second = state.budgetExercises[index].budgets[budgetIndex].budgetCoins?.second;
+                if (second && payload.currency.symbol.toLowerCase() === second.secondCoin.toLowerCase()) {
+                    state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
+                        ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
+                        second: second ? {
+                            ...second,
+                            secondTotalAmount: second.secondTotalAmount -= (payload.tx.amount),
+                            secondTotalPending: payload.isTxExecuted ?
+                                second.secondTotalPending
+                                :
+                                second.secondTotalPending += (payload.tx.amount),
+                            secondTotalUsedAmount: payload.isTxExecuted ?
+                                second.secondTotalUsedAmount += (payload.tx.amount)
+                                :
+                                second.secondTotalUsedAmount,
+                        } : null
                     }
                 }
             }
@@ -129,15 +147,33 @@ export default {
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount - (payload.tx.amount * payload.currency.priceUSD),
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount -= (payload.tx.amount),
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending + (payload.tx.amount * payload.currency.priceUSD),
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending += (payload.tx.amount),
                             totalUsedAmount: payload.isTxExecuted ?
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount + (payload.tx.amount * payload.currency.priceUSD)
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount += (payload.tx.amount)
                                 :
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
+                        }
+                    }
+                    const second = state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins?.second;
+                    if (second && payload.currency.symbol.toLowerCase() === second.secondCoin.toLowerCase()) {
+                        state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
+                            ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
+                            second: second ? {
+                                ...second,
+                                secondTotalAmount: second.secondTotalAmount -= (payload.tx.amount),
+                                secondTotalPending: payload.isTxExecuted ?
+                                    second.secondTotalPending
+                                    :
+                                    second.secondTotalPending += (payload.tx.amount),
+                                secondTotalUsedAmount: payload.isTxExecuted ?
+                                    second.secondTotalUsedAmount += (payload.tx.amount)
+                                    :
+                                    second.secondTotalUsedAmount,
+                            } : null
                         }
                     }
                 }
