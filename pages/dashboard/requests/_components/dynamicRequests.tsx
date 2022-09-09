@@ -5,7 +5,7 @@ import useRequest from "hooks/useRequest";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "redux/hooks";
-import { SelectBalance, SelectRequests } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectBalance, SelectRequests, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount";
 import TokenBalance from "./tokenBalance";
 import ModalRequestItem from "./modalRequestItem";
@@ -19,6 +19,7 @@ import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
 import { useWalletKit } from "hooks";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
+import useAsyncEffect from "hooks/useAsyncEffect";
 
 export default function DynamicRequest({
   type,
@@ -30,10 +31,12 @@ export default function DynamicRequest({
   const { approveRequest } = useRequest();
   const userId = useAppSelector(SelectID);
   const balance = useAppSelector(SelectBalance);
-  const account = useAppSelector(SelectID);
-  const { GetCoins } = useWalletKit();
-  console.log(account);
-  
+  const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget); 
+  const { GetCoins, Address, SendTransaction  } = useWalletKit();
+  const [address, setAddress] = useState<string | null>("");
+  const [openNotify, setNotify] = useState(false);
+  const [openNotify2, setNotify2] = useState(false);
+  console.log(accountAndBudget)
 
   let page: RequestStatus;
   if (type === "pending") {
@@ -58,9 +61,6 @@ export default function DynamicRequest({
     IRequest[]
   >([]);
 
-  const [openNotify, setNotify] = useState(false);
-  const [openNotify2, setNotify2] = useState(false);
-
   useEffect(() => {
     if (openNotify) {
       document.querySelector("body")!.style.overflowY = "hidden";
@@ -69,37 +69,46 @@ export default function DynamicRequest({
     }
   }, [openNotify]);
 
-  // const confirmRequest = async () => {
-  //   try {
-  //     const inputs: IPaymentInput[] = [];
-  //     const requests = [...selectedApprovedRequests];
-  //     requests.forEach((request) => {
-  //       const amount = request.amount;
-  //       const currency = request.currency;
-  //       const address = request.address;
-  //       if (request.secondaryAmount) {
-  //         const secondaryAmount = request.secondaryAmount;
-  //         const secondaryCurrency = request.secondaryCurrency;
-  //         inputs.push({
-  //           amount: Number(secondaryAmount),
-  //           coin: secondaryCurrency!.toString(),
-  //           recipient: address,
-  //         });
-  //       }
-  //       inputs.push({
-  //         amount: Number(amount),
-  //         coin: currency!.toString(),
-  //         recipient: address,
-  //       });
-  //     });
+  useAsyncEffect(async () => {
+    const address = await Address;
+    setAddress(address);
+  }, [Address])
 
-  //     await sendTransaction(account, inputs)
+  const confirmRequest = async () => {
+    try {
+      const inputs: IPaymentInput[] = [];
+      const requests = [...selectedApprovedRequests];
+      requests.forEach((request) => {
+        const amount = request.amount;
+        const currency = request.currency;
+        const address = request.address;
+        if (request.secondaryAmount) {
+          const secondaryAmount = request.secondaryAmount;
+          const secondaryCurrency = request.secondaryCurrency;
+          inputs.push({
+            amount: Number(secondaryAmount),
+            coin: secondaryCurrency!.toString(),
+            recipient: address,
+          });
+        }
+        inputs.push({
+          amount: Number(amount),
+          coin: currency!.toString(),
+          recipient: address,
+        });
+      });
 
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new Error(error as any);
-  //   }
-  // };
+      console.log("inputs");
+      console.log(inputs);
+      await SendTransaction(accountAndBudget.account!, inputs, {
+        budget: accountAndBudget.budget,
+      })
+
+    } catch (error) {
+      console.log(error);
+      throw new Error(error as any);
+    }
+  };
 
   const Approve = async () => {
     try {
@@ -116,7 +125,7 @@ export default function DynamicRequest({
   };
 
   const [isApproving, setApproving] = useLoading(Approve);
-  // const [isExecuting, setExecuting] = useLoading(confirmRequest);
+  const [isExecuting, setExecuting] = useLoading(confirmRequest);
 
   return (
     <>
@@ -305,7 +314,7 @@ export default function DynamicRequest({
         <Modal onDisable={setNotify} openNotify={openNotify}>
           <div className="flex flex-col w-[92.5%] h-[80%] pt-20 mx-auto">
             <div className="text-2xl font-semibold pt-4 pb-4">
-              Pending Requests
+              Approved Requests
             </div>
             <table className="w-full pt-12 pb-4">
               <thead>
@@ -363,8 +372,8 @@ export default function DynamicRequest({
               </div>
             </>
             <Button
-              isLoading={isApproving}
-              onClick={() => setApproving()}
+              isLoading={isExecuting}
+              onClick={() => setExecuting()}
               className={"w-full py-2 mt-5 text-2xl"}
             >
               Confirm and Create Transaction

@@ -28,8 +28,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
         }
     })
 
-    console.log("Balance")
-    console.log(balance)
 
     const list = _(cleanList).groupBy("currency").map((value, key) => {
         const res: IRequest | IMember = {
@@ -41,9 +39,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
         return res;
     }).value()
 
-    console.log('list');
-    console.log(list);
-    
 
 
     return <>
