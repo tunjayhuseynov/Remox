@@ -95,7 +95,7 @@ const ParseAllPrices = (fetchedCurrencies: AltCoins[], balance: Balance, blockch
             tokenPrice: c.priceUSD,
             ...c
         };
-        a[c.name] = obj;
+        a[c.symbol] = obj;
         return a;
     }, {})
 }

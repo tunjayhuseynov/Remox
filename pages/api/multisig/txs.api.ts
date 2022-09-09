@@ -34,6 +34,9 @@ import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { IMultisigThreshold } from "./sign.api";
 import { BASE_URL } from "utils/api";
+import { IBudgetORM } from "../budget/index.api";
+import Web3 from 'web3'
+import { AbiItem } from "rpcHooks/ABI/AbiItem";
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,12 +49,14 @@ export default async function handler(
       address: multisigAddress,
       Skip,
       name,
+      providerName
     } = req.query as {
       blockchain: BlockchainType["name"];
       id: string;
       address: string;
       Skip: string;
       name: string;
+      providerName?: string;
     };
     const skip = +Skip;
 
@@ -63,6 +68,7 @@ export default async function handler(
       (blch: BlockchainType) => blch.name === blockchain
     );
     if (!Blockchain) throw new Error("Blockchain not found");
+
 
     let transactionArray: ITransactionMultisig[] = [];
 
@@ -192,31 +198,24 @@ export default async function handler(
     //     }
     // }
     if (blockchain === "celo") {
-      const provider = new ethers.providers.JsonRpcProvider(
-        "https://forno.celo.org",
-        {
-          chainId: 42220,
-          name: "forno",
-        }
-      );
+      const web3 = new Web3(Blockchain.rpcUrl);
 
-      const contract = new Contract(multisigAddress, Multisig.abi, provider);
+      const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress);
 
-      let Total = await contract.transactionCount.call();
+      let Total = await contract.methods.transactionCount.call();
       let total = Total;
       if (total > skip) {
         total -= skip;
       }
 
-      const GetTx = async (index: number, budgets: IBudget[], coins: Coins) => {
-        const contract = new Contract(multisigAddress, Multisig.abi, provider);
+      const GetTx = async (index: number, budgets: IBudgetORM[], coins: Coins) => {
 
-        const tx = await contract.transactions(index);
+        const tx = await contract.methods.transactions(index).call();
 
         let confirmations: string[] = [];
 
-        confirmations = await contract.getConfirmations(index);
-        const owners = (await contract.getOwners())
+        confirmations = await contract.methods.getConfirmations(index).call();
+        const owners = (await contract.methods.getOwners()).call()
         const obj = await MultisigTxParser({
           parsedData: null,
           txHashOrIndex: index.toString(),
@@ -230,22 +229,23 @@ export default async function handler(
           blockchain: Blockchain,
           timestamp: GetTime(),
           contractAddress: multisigAddress,
-          contractInternalThreshold: (await contract.internalRequired()).toNumber(),
-          contractThreshold: (await contract.required()).toNumber(),
+          contractInternalThreshold: (await contract.methods.internalRequired().call()).toNumber(),
+          contractThreshold: (await contract.methods.required().call()).toNumber(),
           contractOwnerAmount: owners.length,
           contractOwners: owners,
           name,
           tags: tags?.tags ?? [],
           budgets: budgets,
           coins: coins,
+          provider: providerName
         });
 
         return obj;
       };
 
       const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", id).get();
-      let budgets: IBudget[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise).reduce<IBudget[]>((acc, curr) => {
-        acc.push(...(curr.budgets as IBudget[]));
+      let budgets: IBudgetORM[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise).reduce<IBudgetORM[]>((acc, curr) => {
+        acc.push(...(curr.budgets as IBudgetORM[]));
         return acc;
       }, []);
 

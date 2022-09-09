@@ -34,6 +34,7 @@ import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { BASE_URL } from "utils/api";
 import { IMultisigThreshold } from "./sign.api";
+import { IBudgetORM } from "../budget/index.api";
 
 export default async function handler(
     req: NextApiRequest,
@@ -64,7 +65,7 @@ export default async function handler(
         const Blockchain = Blockchains.find(
             (blch: BlockchainType) => blch.name === blockchain
         );
-        if(!Blockchain) throw new Error("Blockchain not found");
+        if (!Blockchain) throw new Error("Blockchain not found");
 
         let transactionArray: ITransactionMultisig[] = [];
 
@@ -210,13 +211,13 @@ export default async function handler(
                 total -= skip;
             }
 
-            const GetTx = async (index: number, budgets: IBudget[], coins: Coins) => {
+            const GetTx = async (index: number, budgets: IBudgetORM[], coins: Coins) => {
                 const tx = await contract.transactions(index);
 
                 let confirmations: string[] = [];
 
                 confirmations = await contract.getConfirmations(index);
-
+                let oweners = await contract.getOwners();
                 const obj = await MultisigTxParser({
                     parsedData: null,
                     txHashOrIndex: index.toString(),
@@ -232,19 +233,21 @@ export default async function handler(
                     contractAddress: multisigAddress,
                     contractInternalThreshold: contract.internalRequired,
                     contractThreshold: contract.required,
-                    contractOwnerAmount: contract.getOwners().length,
+                    contractOwnerAmount: oweners.length,
                     name,
                     tags: tags?.tags ?? [],
                     budgets: budgets,
                     coins: coins,
+                    contractOwners: oweners,
+                    provider: name
                 });
 
                 return obj;
             };
 
             const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", id).get();
-            let budgets: IBudget[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise).reduce<IBudget[]>((acc, curr) => {
-                acc.push(...(curr.budgets as IBudget[]));
+            let budgets: IBudgetORM[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise).reduce<IBudgetORM[]>((acc, curr) => {
+                acc.push(...(curr.budgets as IBudgetORM[]));
                 return acc;
             }, []);
 

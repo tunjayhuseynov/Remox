@@ -264,7 +264,7 @@ export default function useWalletKit() {
         ).unwrap();
 
         if (blockchain.name.includes("evm")) {
-          
+
         }
 
         if (blockchain.name === "celo") {
@@ -412,6 +412,7 @@ export default function useWalletKit() {
                   token: input.coin,
                   timestamp: GetTime(),
                 },
+                isExecuted: account.signerType === "single",
               })
             );
 

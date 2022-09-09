@@ -18,7 +18,8 @@ interface IBaseOrmBudget {
 }
 
 interface IBudgetAndTx extends IBaseOrmBudget {
-    tx: IBudgetTX
+    tx: IBudgetTX,
+    isExecuted: boolean
 }
 
 /*Budget */
@@ -76,35 +77,26 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
     }))
 })
 
-export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx }, api) => {
+export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted }, api) => {
     const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
     if (tx.contractType === "multi") {
-        const { data, status } = await axios.get<ITransactionMultisig | IMultisigSafeTransaction>("/api/multisig/tx", {
-            params: {
-                id: (api.getState() as RootState).remoxData.providerID,
-                blockchain: (api.getState() as RootState).remoxData.blockchain.name,
-                index: tx.hashOrIndex,
-                address: tx.contractAddress,
-                Skip: 0,
-                name: tx.protocol,
-            }
-        })
-        if (status == 200) {
-            api.dispatch(addTxToBudget({
-                budget,
-                tx,
-                currency,
-                isTxExecuted: data.isExecuted
-            }))
-        }
-    } else {
+        // const { data, status } = await axios.get<ITransactionMultisig | IMultisigSafeTransaction>("/api/multisig/tx", {
+        //     params: {
+        //         id: (api.getState() as RootState).remoxData.providerID,
+        //         blockchain: (api.getState() as RootState).remoxData.blockchain.name,
+        //         index: tx.hashOrIndex,
+        //         address: tx.contractAddress,
+        //         Skip: 0,
+        //         name: tx.protocol,
+        //     }
+        // })
         api.dispatch(addTxToBudget({
             budget,
             tx,
             currency,
-            isTxExecuted: true
+            isTxExecuted: isExecuted
         }))
     }
 })

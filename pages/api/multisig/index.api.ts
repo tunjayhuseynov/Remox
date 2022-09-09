@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const account = accountRef.data() as IAccount
 
         const name = account.name;
+        const provider = account.provider;
 
         axiosRetry(axios, { retries: 10 });
 
@@ -51,7 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 address: account.address,
                 Skip,
                 Take,
-                id: accountId
+                id: accountId,
+                providerName: provider
             },
 
         })

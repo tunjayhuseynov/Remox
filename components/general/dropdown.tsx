@@ -10,6 +10,7 @@ const ITEM_PADDING_TOP = 8;
 const MenuProps = {
     PaperProps: {
         style: {
+            zIndex: 99999999999,
             maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
             width: 250,
         },
@@ -52,8 +53,8 @@ const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, s
     // }
 
     return (
-        <div className={`relative ${parentClass} `}>
-            <FormControl className={`${className} w-full`}>
+        <div className={`relative ${parentClass}`}>
+            <FormControl className={`${className} w-full z-`}>
                 {label && <InputLabel id={labelId + "-label"}>{label}</InputLabel>}
                 <Select
                     id={id}
@@ -62,7 +63,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, s
                     value={selected ?? ""}
                     // {...props}
                     renderValue={(selected: T) =>
-                        <div className={`${selectClass} flex flex-col items-center`}>
+                        <div className={`${selectClass} flex flex-col items-center `}>
                             <div className="flex items-center">
                                 {loading && <span><ClipLoader size={16} /></span>}
                                 {selected.coinUrl && !loading && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
@@ -88,7 +89,7 @@ const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, s
                     }}
                 >
                     {list.map(e => {
-                        return <MenuItem key={e.name} value={e as any} className="flex items-center">
+                        return <MenuItem key={e.name} value={e as any} className="flex items-center z-[100000]">
                             {e.coinUrl && <img className="w-4 h-4 mr-2" src={`${e.coinUrl}`} />}
                             {e.logoUrl && <img className="w-4 h-4 mr-2" src={`${e.logoUrl}`} />}
                             {e.logoURI && <img className="w-4 h-4 mr-2" src={`${e.logoURI}`} />}

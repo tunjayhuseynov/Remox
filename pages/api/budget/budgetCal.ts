@@ -19,31 +19,46 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             blockchain: blockchain,
             txs: Array.from(new Set(singleTxs.map(s => s.hashOrIndex))),
             id: parentId,
-            isTxNecessery: true
+            isTxNecessery: true,
+            coin: budget.token,
+            secondCoin: budget.secondToken ?? undefined
         }
     })
 
-    const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType)))
+    const txMultisigResponse = await Promise.allSettled(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType, budget.token, budget.secondToken ?? undefined)))
     txMultisigResponse.forEach(tx => {
-        totalBudgetPending += tx.totalBudgetPending;
-        totalBudgetUsed += tx.totalBudgetUsed;
-        totalFirstCoinPending += tx.totalFirstCoinPending;
-        totalSecondCoinPending += tx.totalSecondCoinPending;
-        totalFirstCoinSpent += tx.totalFirstCoinSpent;
-        totalSecondCoinSpent += tx.totalSecondCoinSpent;
+        if (tx.status === "fulfilled") {
+            totalBudgetPending += tx.value.totalBudgetPending;
+            totalBudgetUsed += tx.value.totalBudgetUsed;
+
+            totalFirstCoinPending += tx.value.totalFirstCoinPending;
+            totalSecondCoinPending += tx.value.totalSecondCoinPending;
+
+            totalFirstCoinSpent += tx.value.totalFirstCoinSpent;
+            totalSecondCoinSpent += tx.value.totalSecondCoinSpent;
+        }
     })
 
+    const coinParsed = spending.data.CoinStats.reduce<{ [name: string]: number }>((a, c) => {
+        if (a[c.coin]) {
+            a[c.coin] += c.totalSpending;
+        } else {
+            a[c.coin] = c.totalSpending;
+        }
+        return a;
+    }, {})
+    console.log(coinParsed[budget.token])
     totalBudget += ((budget.amount * prices.AllPrices[budget.token].priceUSD) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].priceUSD : 0)));
     let budgetCoin: IBudgetCoin = {
         coin: budget.token,
-        totalAmount: budget.amount,
+        totalAmount: budget.amount - (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
         totalPending: totalFirstCoinPending,
-        totalUsedAmount: (spending.data.CoinStats?.[0]?.totalSpending ?? 0) + totalFirstCoinSpent,
-        second: budget.secondToken && budget.secondAmount && spending.data.CoinStats?.[1] ? {
-            secondTotalAmount: budget.secondAmount,
+        totalUsedAmount: (coinParsed[budget.token] ?? 0) + totalFirstCoinSpent,
+        second: budget.secondToken && budget.secondAmount && coinParsed[budget.secondToken] ? {
+            secondTotalAmount: budget.secondAmount - totalSecondCoinPending - coinParsed[budget.secondToken] - totalSecondCoinSpent,
             secondCoin: budget.secondToken,
             secondTotalPending: totalSecondCoinPending,
-            secondTotalUsedAmount: spending.data.CoinStats[1].totalSpending + totalSecondCoinSpent
+            secondTotalUsedAmount: coinParsed[budget.secondToken] + totalSecondCoinSpent
         } : null
     }
 
@@ -72,6 +87,16 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             }
         })
 
+        const coinParsed = spending.data.CoinStats.reduce<{ [name: string]: number }>((a, c) => {
+            if (a[c.coin]) {
+                a[c.coin] += c.totalSpending;
+            } else {
+                a[c.coin] = c.totalSpending;
+            }
+            return a;
+        }, {})
+
+
         const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType)))
         txMultisigResponse.forEach(tx => {
             totalSubPending += tx.totalBudgetPending;
@@ -88,12 +113,12 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             coin: subbudget.token,
             totalAmount: subbudget.amount,
             totalPending: totalSubFirstCoinPending,
-            totalUsedAmount: (spending.data.CoinStats?.[0]?.totalSpending ?? 0) + totalSubFirstCoinSpent,
-            second: subbudget.secondToken && subbudget.secondAmount && spending.data.CoinStats?.[1] ? {
+            totalUsedAmount: (coinParsed[budget.token] ?? 0) + totalSubFirstCoinSpent,
+            second: subbudget.secondToken && subbudget.secondAmount && coinParsed[subbudget.secondToken] ? {
                 secondTotalAmount: subbudget.secondAmount,
                 secondCoin: subbudget.secondToken,
                 secondTotalPending: totalSubSecondCoinPending,
-                secondTotalUsedAmount: spending.data.CoinStats[1].totalSpending + totalSubSecondCoinSpent
+                secondTotalUsedAmount: coinParsed[subbudget.secondToken] + totalSubSecondCoinSpent
             } : null
         }
 

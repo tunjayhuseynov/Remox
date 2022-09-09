@@ -79,6 +79,7 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 			directionType = TransactionDirection.ChangeRequirement;
 			break;
 		default:
+			directionType = TransactionDirection.Out;
 			break;
 	}
 	return directionType

@@ -74,6 +74,21 @@ export default {
                 } else {
                     state.budgetExercises[index].totalPending += (payload.tx.amount * payload.currency.priceUSD);
                 }
+
+                if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
+                    state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
+                        ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount - (payload.tx.amount * payload.currency.priceUSD),
+                        totalPending: payload.isTxExecuted ?
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
+                            :
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending + (payload.tx.amount * payload.currency.priceUSD),
+                        totalUsedAmount: payload.isTxExecuted ?
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount + (payload.tx.amount * payload.currency.priceUSD)
+                            :
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
+                    }
+                }
             }
         }
     },
@@ -98,17 +113,32 @@ export default {
 
                     state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
                     state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
-                    if(payload.isTxExecuted) {
+                    if (payload.isTxExecuted) {
                         state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
-                    }else{
+                    } else {
                         state.budgetExercises[index].budgets[budgetIndex].totalPending += (payload.tx.amount * payload.currency.priceUSD);
                     }
 
                     state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
-                    if(payload.isTxExecuted){
+                    if (payload.isTxExecuted) {
                         state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
-                    }else{
+                    } else {
                         state.budgetExercises[index].totalPending += (payload.tx.amount * payload.currency.priceUSD);
+                    }
+
+                    if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
+                        state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
+                            ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount - (payload.tx.amount * payload.currency.priceUSD),
+                            totalPending: payload.isTxExecuted ?
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
+                                :
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending + (payload.tx.amount * payload.currency.priceUSD),
+                            totalUsedAmount: payload.isTxExecuted ?
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount + (payload.tx.amount * payload.currency.priceUSD)
+                                :
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
+                        }
                     }
                 }
             }

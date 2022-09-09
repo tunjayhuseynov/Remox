@@ -2,9 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import Notification from './slices/notificationSlice';
 import Storage from './slices/account/storage';
 import Unlock from './slices/unlock';
-import Currency from './slices/account/reducers/currencies';
 import Transaction from './slices/account/transactions';
-import Requests from './slices/requests';
 import Tags from './slices/tags';
 import Moola from './slices/lending';
 import Masspay from './slices/masspay';
@@ -23,11 +21,10 @@ const store = configureStore({
 		unlock: Unlock,
 		moola: Moola,
 		transactionsStore: Transaction,
-		requests: Requests,
 		masspay: Masspay,
 		payInputs: PayInputs,
-		subInputs:SubInputs,
-		splitInputs:SplitInputs,
+		subInputs: SubInputs,
+		splitInputs: SplitInputs,
 		[RemoxApi.reducerPath]: RemoxApi.reducer,
 		[BlockScoutApi.reducerPath]: BlockScoutApi.reducer,
 	},

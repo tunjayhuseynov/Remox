@@ -9,6 +9,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction } from "types/GnosisSafe";
 import { DecimalConverter } from "./api";
 import erc20 from 'rpcHooks/ABI/erc20.json'
+import { IBudgetORM } from "pages/api/budget/index.api";
 
 export const EVM_WALLET_SIZE = 39;
 export const SOLANA_WALLET_SIZE = 43;
@@ -36,7 +37,7 @@ export const MultisigTxParser = async (
         index, destination, data, executed,
         tags, txHashOrIndex,
         confirmations, Value, blockchain, parsedData, timestamp, contractAddress,
-        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at, coins, budgets, contractOwners
+        contractOwnerAmount, contractThreshold, contractInternalThreshold, name, created_at, coins, budgets, contractOwners, provider
     }:
         {
             index: number, destination: string, data: string, executed: boolean,
@@ -45,7 +46,7 @@ export const MultisigTxParser = async (
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string, created_at: number,
-            budgets: IBudget[], coins: Coins, contractOwners: string[]
+            budgets: IBudgetORM[], coins: Coins, contractOwners: string[], provider?: string
         }
 ) => {
 
@@ -61,8 +62,8 @@ export const MultisigTxParser = async (
         contractThresholdAmount: contractThreshold,
         contractOwnerAmount: contractOwnerAmount,
         contractOwners: contractOwners,
-        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === txHashOrIndex)),
-        budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex === index.toString())) ?? null,
+        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === txHashOrIndex.toLowerCase())),
+        budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex.toLowerCase() === index.toString().toLowerCase())) ?? null,
         tx: {
             address: destination,
             hash: txHashOrIndex,
@@ -151,7 +152,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
             },
             contractAddress: contractAddress,
             contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
         }
 
         return parsedTx
@@ -196,7 +197,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
             transfer: null,
             contractAddress: contractAddress,
             contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
         }
         return parsedTx
     } else if (tx.dataDecoded !== null && tx.to !== tx.safe) {
@@ -226,7 +227,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
             },
             contractAddress: contractAddress,
             contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
         }
 
         return parsedTx
@@ -252,7 +253,7 @@ export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockc
             transfer: null,
             contractAddress: contractAddress,
             contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash === tx.safeTxHash)),
+            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
         }
 
         return parsedTx

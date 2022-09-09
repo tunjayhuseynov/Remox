@@ -51,11 +51,11 @@ const Home = () => {
         // Kohne userleri unlock sehfesine yonlendirmek ucundur
         const user = await isOldUser(address)
         if (user) return navigate.push("/unlock")
-        if (auth.currentUser === null) return await processSigning(address);
-
+        await processSigning(address);
+        if (auth.currentUser === null) return;
         dispatch(setProviderAddress(address));
         dispatch(setBlockchain(selected as BlockchainType))
- 
+
         const individual = await Get_Individual(auth.currentUser.uid)
         if (individual) {
           dispatch(setIndividual(individual))

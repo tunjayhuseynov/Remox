@@ -38,7 +38,7 @@ const SingleTransactionItem = ({
   blockchain: BlockchainType,
   transaction: IFormattedTransaction;
   isMultiple?: boolean;
-  direction?: TransactionDirection;
+  direction: TransactionDirection;
   status: string;
   account?: IAccount,
   tags: ITag[],
@@ -229,6 +229,7 @@ const SingleTransactionItem = ({
         signers={[account?.address ?? ""]}
         tags={tags}
         threshold={1}
+        direction={direction}
         timestamp={+date}
         budget={transaction.budget}
         account={account}

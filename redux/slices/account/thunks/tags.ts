@@ -49,7 +49,7 @@ export const DeleteTag = createAsyncThunk<ITag, { id: string, tag: ITag }>("remo
     return tag;
 })
 
-export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transaction: ITxTag, txIndex: number }>("remoxData/addTransactionToTag", async ({ id, tagId, transaction, txIndex }, api) => {
+export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transaction: ITxTag, txIndex?: number }>("remoxData/addTransactionToTag", async ({ id, tagId, transaction, txIndex }, api) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     const tag = res?.tags.find(t => t.id === tagId)
 
@@ -63,13 +63,15 @@ export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transaction
         })
     }
 
-    api.dispatch(addTransactionHashToTag({
-        tagId,
-        transactionTag: transaction,
-        txIndex: txIndex
-    }))
-    
- 
+    if (txIndex) {
+        api.dispatch(addTransactionHashToTag({
+            tagId,
+            transactionTag: transaction,
+            txIndex: txIndex
+        }))
+    }
+
+
     return { tagId, transactionId: transaction };
 })
 

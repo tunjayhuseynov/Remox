@@ -44,12 +44,14 @@ import {
 import { EthSignSignature } from "@gnosis.pm/safe-core-sdk";
 import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatchRequest, IFormattedTransaction, ISwap, ITransfer, ITransferComment, ITransferFrom } from "hooks/useTransactionProcess";
 import { Optional } from "@metaplex/js";
+import { IBudgetORM } from "pages/api/budget/index.api";
 
 
-const multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
-const multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
+let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
+let multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
 
 export interface ITransactionMultisig {
+    provider?: string,
     name: string;
     destination: string,
     hashOrIndex: string,
@@ -62,7 +64,7 @@ export interface ITransactionMultisig {
     confirmations: string[],
     timestamp: number,
     tags: ITag[],
-    budget: IBudget | null
+    budget: IBudgetORM | null
 
 
     tx: Omit<
@@ -180,6 +182,9 @@ export default function useMultisig() {
     const { connection } = useConnection();
     const { publicKey, sendTransaction } = useWallet();
     const { Provider } = useSolanaProvider()
+
+
+    const selectedAddress = useAppSelector(SelectProviderAddress)
 
 
     const initGokiSolana = async () => {
@@ -386,7 +391,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], contractAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], contractAddress)
 
                 const isOwner = await contract.methods.isOwner().call();
                 const owners = await contract.methods.getOwners().call();
@@ -487,7 +492,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 await contract.methods.removeOwner(ownerAddress).send({
                     from: address,
@@ -576,7 +581,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
 
                 const countOwners = (await contract.methods.getOwners().call()).length
@@ -675,7 +680,7 @@ export default function useMultisig() {
 
                     const Multisig = await multisigContract
 
-                    const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                    const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                     await contract.methods.addOwner(newOwner).send({
                         from: address,
@@ -779,7 +784,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 await contract.methods.replaceOwner(oldOwner.toLowerCase(), newOwner.toLowerCase()).send({
                     from: address,
@@ -823,7 +828,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 const txHash = await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
                     from: address,
@@ -956,7 +961,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 await contract.methods.revokeConfirmation(transactionId).send({
                     from: address,
@@ -1001,8 +1006,9 @@ export default function useMultisig() {
         }
     }
 
-    const confirmTransaction = async (multisigAddress: string, transactionId: string | number, safeTxHash?: string) => {
+    const confirmTransaction = async (multisigAddress: string, transactionId: string) => {
         try {
+            if (!selectedAddress) throw new Error("No address selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
@@ -1026,7 +1032,7 @@ export default function useMultisig() {
 
                 const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
 
-                const transaction = await safeService.getTransaction(safeTxHash!)
+                const transaction = await safeService.getTransaction(transactionId)
 
                 const safeAddress = transaction.safe;
 
@@ -1052,20 +1058,18 @@ export default function useMultisig() {
                 const ethSignuture = new EthSignSignature(onwerAddress, signature.data);
 
                 if (transaction!.confirmations!.length + 1 >= threshold) {
-                    const receipt = await executeTransaction(multisigAddress, "", safeTxHash!, ethSignuture)
+                    const receipt = await executeTransaction(multisigAddress, transactionId, ethSignuture)
 
                 }
 
-
             } else if (blockchain.name === "celo") {
-                const web3 = new Web3((window as any).celo);
+                let web3 = new Web3((window as any).celo);
 
-                const Multisig = await multisigContract
+                let Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
-
-                await contract.methods.confirmTransaction(transactionId).send({
-                    from: address,
+                let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                await contract.methods.confirmTransaction(+transactionId).send({
+                    from: selectedAddress,
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
@@ -1077,7 +1081,7 @@ export default function useMultisig() {
         }
     }
 
-    const executeTransaction = async (multisigAddress: string, transactionId?: string | number, safeTxHash?: string, ethSignuture?: EthSignSignature) => {
+    const executeTransaction = async (multisigAddress: string, transactionId: string, ethSignuture?: EthSignSignature) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (blockchain.name === 'solana') {
@@ -1091,13 +1095,13 @@ export default function useMultisig() {
                 }
                 throw new Error("Wallet has no data")
             } else if (blockchain.name === "celo") {
-                const web3 = new Web3((window as any).celo);
+                let web3 = new Web3((window as any).celo);
 
-                const Multisig = await multisigContract
+                let Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress)
+                let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
-                await contract.methods.executeTransaction(transactionId).send({
+                await contract.methods.executeTransaction(+transactionId).send({
                     from: address,
                     gas: 25000,
                     gasPrice: "5000000000",
@@ -1115,7 +1119,7 @@ export default function useMultisig() {
 
                 const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
 
-                const transaction = await safeService.getTransaction(safeTxHash!)
+                const transaction = await safeService.getTransaction(transactionId)
 
                 const safeAddress = transaction.safe;
 

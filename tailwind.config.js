@@ -31,7 +31,8 @@ module.exports = {
         light: '#f9f9f9'
       },
       boxShadow: {
-        custom: "0px 2px 7px 0px #dad8d8"
+        custom: "0px 2px 7px 0px #dad8d8",
+        customDark: "0px 2px 7px 0px #1C1C1C"
       }
     },
   },

@@ -12,6 +12,7 @@ import BlockchainReducers from './reducers/blockchain'
 import AccountsReducer from './reducers/accounts'
 import StorageReducers from './reducers/storage'
 import Currencies from './reducers/currencies'
+import Transactions from './reducers/transaction'
 import TagReducers from './reducers/tag'
 import RecurringTaks from './reducers/tasks'
 import RequestReducers from './reducers/requests'
@@ -148,6 +149,7 @@ const remoxDataSlice = createSlice({
         ...RecurringTaks,
         ...Currencies,
         ...RequestReducers,
+        ...Transactions,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
         },
@@ -299,6 +301,15 @@ const remoxDataSlice = createSlice({
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
             state.transactions = action.payload.transactions;
             state.balances = action.payload.balance.AllPrices;
+            state.cumulativeTransactions = action.payload.cumulativeTransactions;
+            state.multisigStats = {
+                all: action.payload.multisigAccounts.all,
+                multisigTxs: action.payload.multisigAccounts.multisigTxs,
+                pendingTxs: action.payload.multisigAccounts.pendingTxs,
+                approvedTxs: action.payload.multisigAccounts.approvedTxs,
+                rejectedTxs: action.payload.multisigAccounts.rejectedTxs,
+                signingNeedTxs: action.payload.multisigAccounts.signingNeedTxs
+            }
         })
 
 
@@ -373,7 +384,7 @@ export const {
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
     addMemberToContributor, removeMemberFromContributor, setProviderAddress,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
-    updateAllCurrencies, updateTotalBalance, updateUserBalance
+    updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted
 
 } = remoxDataSlice.actions;
 

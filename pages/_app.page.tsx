@@ -48,7 +48,7 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
       <title>Remox - Simplified and Collaborative Treasury  Management for DAOs</title>
       <meta name="description" content="Remox - Simplified and Collaborative Treasury  Management for DAOs" key="desc" />
       <meta property="og:title" content="Remox - Simplified and Collaborative Treasury  Management for DAOs" />
-      <link rel="icon" href="/icons/remox.png" />
+      <link rel="icon" href="/icons/companies/remox.png" />
 
       <meta
         property="og:image"

@@ -89,10 +89,12 @@ export default async function handler(
             /*Budget Calculation */
             /*Budget Calculation */
             /*Budget Calculation */
-            const budgetResulst = await Promise.all(budget_exercise.budgets.map(budget => CalculateBudget(budget, parentId, parsedAddress, blockchain, blockchainType, prices.data)))
+            const budgetResulst = await Promise.allSettled(budget_exercise.budgets.map(budget => CalculateBudget(budget, parentId, parsedAddress, blockchain, blockchainType, prices.data)))
             budgetResulst.forEach(budget => {
-                orm.push(budget.orm)
-                totalBudgetCoin.push(budget.totalBudgetCoin)
+                if (budget.status === "fulfilled") {
+                    orm.push(budget.value.orm)
+                    totalBudgetCoin.push(budget.value.totalBudgetCoin)
+                }
             })
             /*Budget Calculation END*/
             /*Budget Calculation END*/

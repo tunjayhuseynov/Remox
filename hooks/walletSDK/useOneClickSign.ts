@@ -1,6 +1,6 @@
 import { useFirestoreSearchField } from "rpcHooks/useFirebase";
 import axios from "axios";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { setPersistence, signInWithEmailAndPassword, inMemoryPersistence } from "firebase/auth";
 import { auth, IUser } from "firebaseConfig";
 import { isOldUser } from "hooks/singingProcess/utils";
 import { hashing } from "utils/hashing";
@@ -57,7 +57,7 @@ export default function useOneClickSign() {
         const verify = await axios.get<{ password: string, mail: string }>("/api/auth/verify", {
             params: parameters,
         })
-
+        await setPersistence(auth, inMemoryPersistence)
         const signed = await signInWithEmailAndPassword(auth, verify.data.mail, verify.data.password)
         return signed.user;
     }

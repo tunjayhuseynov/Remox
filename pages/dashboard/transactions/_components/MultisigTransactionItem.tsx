@@ -1,4 +1,4 @@
-import { IMultisigSafeTransaction, ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
+import useMultisig, { IMultisigSafeTransaction, ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
 import { forwardRef, Fragment, useState } from 'react'
 import { AltCoins, Coins, TransactionDirection, TransactionStatus } from 'types'
 import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils";
@@ -17,9 +17,12 @@ import dateFormat from "dateformat";
 import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
+import useLoading from 'hooks/useLoading';
+import { ClipLoader } from 'react-spinners';
+import { addConfirmation, changeToExecuted } from 'redux/slices/account/remoxData';
 
 
-interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction?: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
+interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
 const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account }, ref) => {
     const transaction = tx.tx;
     const [isLabelActive, setLabelActive] = useState(false);
@@ -27,8 +30,38 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const [labelLoading, setLabelLoading] = useState(false)
     const [openDetail, setOpenDetail] = useState(false)
 
-
     const providerAddress = useAppSelector(SelectProviderAddress)
+    const id = useAppSelector(SelectID)
+
+
+    const dispatch = useAppDispatch();
+
+
+    const { executeTransaction, confirmTransaction } = useMultisig()
+
+    const confirmFn = async () => {
+        if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+        await confirmTransaction(tx.contractAddress, tx.hashOrIndex)
+        dispatch(addConfirmation({
+            contractAddress: tx.contractAddress,
+            ownerAddress: providerAddress,
+            txid: tx.hashOrIndex,
+        }))
+    }
+
+    const executeFn = async () => {
+        if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+        await executeTransaction(tx.contractAddress, tx.hashOrIndex)
+        dispatch(changeToExecuted({
+            contractAddress: tx.contractAddress,
+            ownerAddress: providerAddress,
+            txid: tx.hashOrIndex,
+        }))
+    }
+
+    const [executeFnLoading, ExecuteFn] = useLoading(executeFn)
+    const [confirmFnLoading, ConfirmFn] = useLoading(confirmFn)
+
 
     let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
     const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
@@ -44,8 +77,6 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction);
 
-    const dispatch = useAppDispatch()
-    const id = useAppSelector(SelectID)
 
     const uniqTags = tags.filter(s => tx.tags?.findIndex(d => d.id === s.id) === -1)
 
@@ -206,20 +237,20 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             {tx.isExecuted ? <></> :
                                 !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
                                     <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                        <span className="tracking-wider">
-                                            Sign
+                                        <span className="tracking-wider" onClick={ConfirmFn}>
+                                            {confirmFnLoading ? <ClipLoader size={14} /> : "Sign"}
                                         </span>
                                     </div> :
                                     isApprovable ?
                                         <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                            <span className="tracking-wider">
-                                                Execute
+                                            <span className="tracking-wider" onClick={ExecuteFn}>
+                                                {executeFnLoading ? <ClipLoader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
                                         <></>
                             }
                         </div>
-                        <div className="cursor-pointer">
+                        <div className="cursor-pointer" onClick={() => setOpenDetail(true)}>
                             <AiFillRightCircle color="#FF7348" size={24} />
                         </div>
                     </div>
@@ -237,13 +268,14 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     id: tx.tx.id ?? ERC20MethodIds.noInput,
                     method: tx.tx.method ?? ERC20MethodIds.noInput,
                 }}
+                direction={direction}
                 action={action}
-                isExecuted={true}
-                isMultisig={false}
-                isRejected={false}
-                signers={[account?.address ?? ""]}
+                isExecuted={tx.isExecuted}
+                isMultisig={true}
+                isRejected={isRejected}
+                signers={tx.confirmations}
                 tags={tags}
-                threshold={1}
+                threshold={tx.contractThresholdAmount}
                 timestamp={tx.timestamp}
                 budget={tx.budget ?? undefined}
                 account={account}

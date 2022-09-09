@@ -48,11 +48,11 @@ function NewBudgets() {
         const coin = wallet
         const coin2 = wallet2
         const subbudgets = inputs
-        console.log(subbudgets);
+        const { name, amount, subName } = data
         let secondCoin = null, secondAmount = null, id = generate();
 
         if (data.amount2 && data.amount2 > 0) {
-            secondCoin = coin2.name
+            secondCoin = coin2.symbol
             secondAmount = data.amount2
         }
 
@@ -64,7 +64,7 @@ function NewBudgets() {
                 created_at: GetTime(),
                 name: data.name,
                 parentId,
-                token: coin.name,
+                token: coin.symbol,
                 secondAmount,
                 secondToken: secondCoin,
                 subbudgets: subbudgets.map(s => ({
@@ -74,8 +74,8 @@ function NewBudgets() {
                     name: s.name,
                     parentId: id,
                     secondAmount: s.amount2 ?? null,
-                    secondToken: s.amount2 && s.wallet2 && s.amount2 > 0 ? s.wallet2.name : null,
-                    token: s.wallet.name,
+                    secondToken: (s.amount2 && s.wallet2 && s.amount2 > 0) ? s.wallet2.symbol : null,
+                    token: s.wallet.symbol,
                     txs: [],
                 })),
             }

@@ -70,10 +70,10 @@ const Budgets = () => {
                         </div>
                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-sm px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center ">{new Date(selectedExercise.created_at * 1e3).toLocaleDateString('en-us', { year: "numeric", month: "short" })}</div>
                     </div>
-                    <div className="flex gap-5">
-                        {selectedExercise.budgets.length > 0 && <div className="text-primary border border-primary px-3 py-2 rounded-xl cursor-pointer">Current Month</div>}
-                        {selectedExercise.budgets.length > 0 && <div className="text-primary border border-primary bg-primary  bg-opacity-30 px-9 py-2 rounded-xl cursor-pointer">Overall</div>}
-                        <div className="text-white border border-primary px-5 py-2 bg-primary rounded-xl cursor-pointer" onClick={() => { navigate.push(`/dashboard/budgets/new-budget?parentId=${selectedExerciseId}`) }}>Add Budget</div>
+                    <div className="grid grid-cols-3 gap-5">
+                        {selectedExercise.budgets.length > 0 && <Button version='second'>Current Month</Button>}
+                        {selectedExercise.budgets.length > 0 && <div className="text-primary border border-primary bg-primary hover:bg-opacity-0 bg-opacity-30 px-9 py-2 rounded-md cursor-pointer self-center text-center h-full">Overall</div>}
+                        <Button onClick={() => { navigate.push(`/dashboard/budgets/new-budget?parentId=${selectedExerciseId}`) }}>Add Budget</Button>
                     </div>
                 </div>
                 {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex flex-col  items-center justify-center gap-6">

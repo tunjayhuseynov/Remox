@@ -20,7 +20,7 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
 
     return <>
         <div onClick={() => { setNotify(!openNotify) }}>
-            <span className="text-white pb-[3px]  bg-primary transition-all rounded-full text-5xl flex items-center justify-center w-8 h-8 cursor-pointer hover:bg-[#ff5413] hover:transition-all">&#8250;</span>
+            <span className="text-white pb-[3px] bg-primary transition-all rounded-full text-4xl flex items-center justify-center w-8 h-8 cursor-pointer hover:bg-[#ff5413] hover:transition-all">&#8250;</span>
         </div>
         <AnimatePresence>
             {openNotify &&

@@ -18,6 +18,8 @@ export default async function handler(
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
         const isTxNecessery = req.query["isTxNecessery"] === "true";
         const inTxs = req.query["txs[]"];
+        const coin = req.query["coin"] as string;
+        const secondCoin = req.query["secondCoin"] as string;
 
         // if (!parsedAddress) {
         //     return res.status(200).json(TxNull());
@@ -30,7 +32,6 @@ export default async function handler(
         if (!blockchain) throw new Error("Blockchain not found");
 
         const authId = req.query.id as string;
-
 
 
         let specificTxs;
@@ -64,9 +65,9 @@ export default async function handler(
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
         const allTxs = specificTxs.data
-
-        const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
-        const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain)
+   
+        const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
+        const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
 
         const AccountReqWeek = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const AccountReqMonth = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -142,30 +143,38 @@ export default async function handler(
 }
 
 
-const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType, coin?: string, secondCoin?: string) => {
     if (!transactions || transactions.length === 0) return [];
 
     let sum: CoinStats[] = []
-
+    console.log(coin)
     transactions.forEach(transaction => {
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
             if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                 const tx = transaction as ITransfer;
+                if (!tx.coin.symbol) return
+                if (coin && tx.coin.symbol !== coin) return
+                if (secondCoin && tx.coin.symbol !== secondCoin) return
                 sum.push({
-                    coin: tx.rawData.tokenSymbol,
+                    coin: tx.coin.symbol,
                     totalSpending: DecimalConverter(tx.amount, tx.coin.decimals),
                 })
             }
             if (transaction.id === ERC20MethodIds.noInput) {
-                const coin = (transaction as ITransfer).coin;
+                const currentCoin = (transaction as ITransfer).coin;
+                if (!currentCoin) return
+                if (coin && currentCoin.symbol !== coin) return
+                if (secondCoin && currentCoin.symbol !== secondCoin) return
                 sum.push({
-                    coin: transaction.rawData.tokenSymbol,
-                    totalSpending: DecimalConverter(transaction.rawData.value, coin.decimals),
+                    coin: currentCoin.symbol,
+                    totalSpending: DecimalConverter(transaction.rawData.value, currentCoin.decimals),
                 })
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
+                    if (coin && transfer.coin.symbol !== coin) return
+                    if (secondCoin && transfer.coin.symbol !== secondCoin) return
                     sum.push({
                         coin: transfer.coin.name,
                         totalSpending: new BigNumber(transfer.amount).div(transfer.coin.decimals).toNumber(),
@@ -176,7 +185,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
     })
     return sum;
 }
-const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType) => {
+const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType, coin?: string, secondCoin?: string) => {
     if (transactions.length === 0) return {
         average: 0,
         total: 0
@@ -193,17 +202,23 @@ const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], s
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
             if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
                 const tx = transaction as ITransfer;
+                if (coin && tx.coin.symbol !== coin) return
+                if (secondCoin && tx.coin.symbol !== secondCoin) return
                 average += (DecimalConverter(tx.amount, tx.coin.decimals) * tx.coin.priceUSD ?? 1);
             }
             if (transaction.id === ERC20MethodIds.noInput) {
-                const coin = (transaction as ITransfer).coin;
-                if (coin) {
-                    average += (DecimalConverter(transaction.rawData.value, coin.decimals) * Number(coin.priceUSD ?? 1));
+                const currentCoin = (transaction as ITransfer).coin;
+                if (coin && currentCoin.symbol !== coin) return
+                if (secondCoin && currentCoin.symbol !== secondCoin) return
+                if (currentCoin) {
+                    average += (DecimalConverter(transaction.rawData.value, currentCoin.decimals) * Number(currentCoin.priceUSD ?? 1));
                 }
             }
             if (transaction.id === ERC20MethodIds.batchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
+                    if (coin && transfer.coin.symbol !== coin) return
+                    if (secondCoin && transfer.coin.symbol !== secondCoin) return
                     average += (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
                 })
             }
@@ -243,7 +258,8 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
                 let calc = 0;
                 if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
                     const tx = t as ITransfer;
-                    const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.rawData.tokenSymbol]?.priceUSD ?? 1));
+                    if (!tx.coin) return
+                    const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.coin.symbol]?.priceUSD ?? 1));
                     if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
                     else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                     calc += current;
@@ -364,7 +380,8 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
                     let amount = 0;
                     if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
                         const txm = tx as ITransfer;
-                        amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.rawData.tokenSymbol]?.priceUSD ?? 1));
+                        if (!txm?.coin) return
+                        amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.coin.symbol]?.priceUSD ?? 1));
                     }
                     if (tx.id === ERC20MethodIds.noInput) {
                         const coin = (tx as ITransfer).coin;

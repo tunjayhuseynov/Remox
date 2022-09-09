@@ -20,6 +20,7 @@ import CeloTerminal from "rpcHooks/ABI/CeloTerminal.json";
 import { IBudget } from "firebaseConfig";
 import BigNumber from "bignumber.js";
 import Web3 from 'web3'
+import { IBudgetORM } from "pages/api/budget/index.api";
 
 export const ERC20MethodIds = {
   transferFrom: "transferFrom",
@@ -57,7 +58,7 @@ export interface IFormattedTransaction {
   hash: string;
   id: string;
   tags: ITag[];
-  budget?: IBudget,
+  budget?: IBudgetORM,
   address: string
 }
 
