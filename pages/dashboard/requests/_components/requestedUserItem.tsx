@@ -63,7 +63,8 @@ const RequestedUserItem = ({
     try {
       await rejectRequest(request, userId?.toString() ?? "");
       dispatch(removePendingRequest(request.id));
-      dispatch(addRejectedRequest(request));
+      const newRequest = { ...request, status: RequestStatus.rejected };
+      dispatch(addRejectedRequest(newRequest));
     } catch (error: any) {
       console.error(error.message);
     }
@@ -76,7 +77,7 @@ const RequestedUserItem = ({
     <>
       <tr
         ref={divRef}
-        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : "!border-[#EF2727] border-2" }  ${
+        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed  ? "" : request.status !== RequestStatus.rejected ? "!border-[#EF2727] border-2" : "" }  ${
           detect
             ? "grid-cols-[25%,20.5%,19.5%,21%,14%] sm:grid-cols-[25%,20.5%,19.5%,21%,14%]"
             : "grid-cols-[27%,48%,25%]"
@@ -84,7 +85,7 @@ const RequestedUserItem = ({
       >
         <td className="flex overflow-hidden">
           <div className="flex items-center ml-2 mr-3">
-            {request.status !== RequestStatus.rejected && isAllowed ? 
+            {request.status !== RequestStatus.rejected ? isAllowed ? (
               (!payment && request.status === RequestStatus.approved ? (
                 <Checkbox
                   sx={{ "&.Mui-checked": { color: "#ff7348" } }}
@@ -136,7 +137,7 @@ const RequestedUserItem = ({
                     }
                   }}
                 />
-              )) : <span className="bg-[#EF2727] rounded-sm"><AiOutlineClose/></span> }
+              ))) : <span className="bg-[#EF2727] rounded-sm"><AiOutlineClose/></span> : "" }
             {!payment && request.status === RequestStatus.rejected && (
               <img src="/icons/request/close.png" className="mr-2" />
             )}
