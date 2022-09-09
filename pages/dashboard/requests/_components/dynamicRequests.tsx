@@ -23,6 +23,9 @@ import {
 import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
 import { useWalletKit } from "hooks";
+import { MultipleTransactionData } from "types/sdk/Transaction/SendMultipleTransaction";
+import { FirestoreWrite } from "rpcHooks/useFirebase";
+import { arrayRemove, FieldValue } from "firebase/firestore";
 
 export default function DynamicRequest({
   type,
@@ -71,92 +74,87 @@ export default function DynamicRequest({
     }
   }, [openNotify]);
 
-  // const Submit = async () => {
-  //     const result: Array<MultipleTransactionData & { member?: IRequest }> = []
+  const Submit = async () => {
+      const result: Array<MultipleTransactionData & { member?: IRequest }> = []
 
-  //     const mems = selected;
+      const mems = selectedApprovedRequests;
 
-  //     if (mems.length) {
-  //         for (let index = 0; index < mems.length; index++) {
-  //             let amount;
-  //             if (mems[index].usdBase) {
-  //                 amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
-  //             } else {
-  //                 amount = mems[index].amount
-  //             }
-  //             result.push({
-  //                 toAddress: mems[index].address,
-  //                 amount,
-  //                 tokenName: mems[index].currency,
-  //                 member: mems[index]
-  //             })
+      if (mems.length) {
+          for (let index = 0; index < mems.length; index++) {
+              let amount;
+              if (mems[index].usdBase) {
+                  amount = (parseFloat(mems[index].amount) * (balance[GetCoins[mems[index].currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toString()
+              } else {
+                  amount = mems[index].amount
+              }
+              result.push({
+                  toAddress: mems[index].address,
+                  amount,
+                  tokenName: mems[index].currency,
+                  member: mems[index]
+              })
 
-  //             let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
+              let secAmount = mems[index].secondaryAmount, secCurrency = mems[index].secondaryCurrency;
 
-  //             if (secAmount && secCurrency) {
-  //                 if (mems[index].secondaryAmount) {
-  //                     secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
-  //                 }
+              if (secAmount && secCurrency) {
+                  if (mems[index].secondaryAmount) {
+                      secAmount = (parseFloat(secAmount) * (balance[GetCoins[mems[index].secondaryCurrency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)).toFixed(4)
+                  }
 
-  //                 result.push({
-  //                     toAddress: mems[index].address,
-  //                     amount: secAmount,
-  //                     tokenName: secCurrency,
-  //                 })
-  //             }
-  //         }
-  //     }
-  //     setIsPaying(true)
+                  result.push({
+                      toAddress: mems[index].address,
+                      amount: secAmount,
+                      tokenName: secCurrency,
+                  })
+              }
+          }
+      }
+      setIsPaying(true)
 
-  //     try {
-  //         if (selectedAccount) { //storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
-  //             if (result.length === 1) {
-  //                 // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
-  //                 await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
-  //             }
-  //             else if (result.length > 1) {
-  //                 const arr: Array<PaymentInput> = result.map(w => ({
-  //                     coin: GetCoins[w.tokenName as keyof Coins],
-  //                     recipient: w.toAddress,
-  //                     amount: w.amount,
-  //                     from: true
-  //                 }))
+      try {
+          if (selectedAccount) { //storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
+              if (result.length === 1) {
+                  // await Pay({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+                  await SendTransaction({ coin: GetCoins[result[0].tokenName as keyof Coins], recipient: result[0].toAddress, amount: result[0].amount })
+              }
+              else if (result.length > 1) {
+                  const arr: Array<PaymentInput> = result.map(w => ({
+                      coin: GetCoins[w.tokenName as keyof Coins],
+                      recipient: w.toAddress,
+                      amount: w.amount,
+                      from: true
+                  }))
 
-  //                 // await BatchPay(arr)
-  //                 await SendBatchTransaction(arr)
-  //             }
-  //         } else {
-  //             if (result.length === 1) {
-  //                 await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: GetCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
-  //             }
-  //             else if (result.length > 1) {
-  //                 const arr: Array<PaymentInput> = result.map(w => ({
-  //                     coin: GetCoins[w.tokenName as keyof Coins],
-  //                     recipient: w.toAddress,
-  //                     amount: w.amount,
-  //                     from: true
-  //                 }))
+                  // await BatchPay(arr)
+                  await SendBatchTransaction(arr)
+              }
+          } else {
+              if (result.length === 1) {
+                  await submitTransaction(selectedAccount, [{ recipient: result[0].toAddress, coin: GetCoins[result[0].tokenName as keyof Coins], amount: result[0].amount }])
+              }
+              else if (result.length > 1) {
+                  const arr: Array<PaymentInput> = result.map(w => ({
+                      coin: GetCoins[w.tokenName as keyof Coins],
+                      recipient: w.toAddress,
+                      amount: w.amount,
+                      from: true
+                  }))
 
-  //                 await submitTransaction(selectedAccount, arr)
-  //             }
-  //         }
+                  await submitTransaction(selectedAccount, arr)
+              }
+          }
 
-  //         await FirestoreWrite<{ requests: FieldValue }>().updateDoc("requests", selectedAccount.toLowerCase(), {
-  //             requests: arrayRemove(...selected)
-  //         })
+          await FirestoreWrite<{ requests: FieldValue }>().updateDoc("requests", selectedAccount.toLowerCase(), {
+              requests: arrayRemove(...selected)
+          })
 
-  //         setSuccess(true);
-  //         setSelected([])
-  //         refetch()
-  //         setModal(false)
 
-  //     } catch (error: any) {
-  //         console.error(error)
-  //         dispatch(changeError({ activate: true, text: error.message }));
-  //     }
+      } catch (error: any) {
+          console.error(error)
+      }
 
-  //     setIsPaying(false);
-  // }
+      setIsPaying(false);
+  }
 
   const Approve = async () => {
     try {
@@ -164,7 +162,7 @@ export default function DynamicRequest({
         await approveRequest(request, userId?.toString() ?? "");
         dispatch(removePendingRequest(request.id));
         const newRequest = { ...request, status: RequestStatus.approved };
-        dispatch(addApprovedRequest(request));
+        dispatch(addApprovedRequest(newRequest));
       }
       setNotify2(false);
     } catch (error: any) {
@@ -173,6 +171,7 @@ export default function DynamicRequest({
   };
 
   const [isApproving, setApproving] = useLoading(Approve);
+  const [isExecuting, setExecuting] = useLoading(Submit);
 
   return (
     <>
@@ -219,7 +218,7 @@ export default function DynamicRequest({
               <thead>
                 <tr className="grid grid-cols-[25%,20%,20%,20%,15%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
                   <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
-                    Contributors
+                    Name
                   </th>
                   <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                     Request date
@@ -273,7 +272,7 @@ export default function DynamicRequest({
                   />
                 )}
                 <span className="text-lg  font-semibold text-greylish dark:text-[#aaaaaa] pl-2">
-                  Contributor
+                  Name
                 </span>
               </th>
               <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
@@ -359,95 +358,72 @@ export default function DynamicRequest({
       </div>
       {page === RequestStatus.approved && (
         <Modal onDisable={setNotify} openNotify={openNotify}>
-          <div className="flex  w-[92.5%] pt-20 h-[80%] mx-auto">
-            <div className="flex flex-col w-full  ">
-              <div className="flex flex-col">
-                <div className="text-2xl font-bold tracking-wide pt-4 pb-4">
-                  Approve Payments
-                </div>
-                <div className="w-full pt-12 pb-4 ">
-                  <div className="grid grid-cols-[25%,17.5%,22.5%,20%,15%]  font-semibold tracking-wide bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md  sm:mb-5 ">
-                    <div className="text-lg  font-semibold text-greylish    dark:text-[#aaaaaa]  pl-3">
-                      Contributor
-                    </div>
-                    <div className="text-lg  font-semibold text-greylish    dark:text-[#aaaaaa] ">
-                      Request date
-                    </div>
-                    <div className="text-lg  font-semibold text-greylish    dark:text-[#aaaaaa] ">
-                      Requested Amount
-                    </div>
-                    <div className="text-lg  font-semibold text-greylish    dark:text-[#aaaaaa] ">
-                      Requests Type
-                    </div>
-                  </div>
-                  {selectedApprovedRequests.map((w) => {
-                    const coin1 = Object.values(GetCoins).find(
-                      (coin) => coin.name === w.currency
-                    );
-                    const coin2 = Object.values(GetCoins).find(
-                      (coin) => coin.name === w.secondaryCurrency
-                    );
-                    return (
-                      <RequestedUserItem
-                        key={w.id}
-                        request={w}
-                        coin1={coin1!}
-                        coin2={coin2}
-                        selectedPendingRequests={selectedpPendingRequests}
-                        setSelectedPendingRequests={setSelectedPendingRequests}
-                        selectedApprovedRequests={selectedApprovedRequests}
-                        setSelectedApprovedRequests={
-                          setSelectedApprovedRequests
-                        }
-                        payment={true}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="flex flex-col pt-4 space-y-3">
-                <div className="text-2xl font-bold tracking-wide">
-                  Review Treasury Impact
-                </div>
-                <div className="w-full flex flex-col  py-6 px-7 bg-white shadow-15 dark:bg-darkSecond  rounded-md">
-                  <div className="grid grid-cols-[13.75%,86.25%] ">
-                    <div
-                      className={`font-semibold text-lg text-greylish dark:text-white ${
-                        selectedApprovedRequests.length > 0 && "border-r"
-                      }  border-greylish dark:border-[#454545]  border-opacity-10 h-9`}
-                    >
-                      Total Treasury
-                    </div>
-                    {selectedApprovedRequests.length > 0 && (
-                      <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
-                        Token Allocation
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-5 justify-start items-start w-full relative">
-                    {selectedApprovedRequests.length > 0 && (
-                      <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
-                    )}
-                    <div className="flex flex-col items-end w-[11.9rem] ">
-                      <TotalAmount coinList={selectedApprovedRequests} />
-                    </div>
-                    <>
-                      <TokenBalance coinList={selectedApprovedRequests} />
-                    </>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full pb-6 pt-6">
-                <Button
-                  className="w-full text-xl font-semibold"
-                  isLoading={isPaying}
-                >
-                  Confirm and Create Transactions
-                </Button>
-              </div>
-            </div>
+        <div className="flex flex-col w-[92.5%] h-[80%] pt-20 mx-auto">
+          <div className="text-2xl font-semibold pt-4 pb-4">
+            Pending Requests
           </div>
-        </Modal>
+          <table className="w-full pt-12 pb-4">
+            <thead>
+              <tr className="grid grid-cols-[25%,20%,20%,20%,15%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
+                <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
+                  Name
+                </th>
+                <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  Request date
+                </th>
+                <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  Requested Amount
+                </th>
+                <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  Requests Type
+                </th>
+              </tr>
+              {selectedApprovedRequests.map((s) => (
+                <ModalRequestItem key={s.id} request={s} />
+              ))}
+            </thead>
+          </table>
+          <>
+            <p className="py-2 text-xl font-semibold">Review Treasury Impact</p>
+            <div className="w-full flex  py-6 px-7 bg-white shadow-15 dark:bg-darkSecond  rounded-md">
+              <div className="relative">
+                <div
+                  className={`font-semibold text-lg text-greylish dark:text-white ${
+                    selectedApprovedRequests.length > 0 && "border-r"
+                  }  border-greylish dark:border-[#454545]  border-opacity-10  h-9`}
+                >
+                  Total Treasury
+                </div>
+
+                <div className="flex flex-col items-end w-[11.05rem] ">
+                  <TotalAmount coinList={selectedApprovedRequests} />
+                </div>
+                {selectedApprovedRequests.length > 0 && (
+                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                )}
+              </div>
+              {selectedApprovedRequests.length > 0 && (
+                <div className=" w-full relative">
+                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                  <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
+                    Token Allocation
+                  </div>
+                  <div className="pl-5">
+                    <TokenBalance coinList={selectedApprovedRequests} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+          <Button
+            isLoading={isApproving}
+            onClick={() => setApproving()}
+            className={"w-full py-2 mt-5 text-2xl"}
+          >
+            Confirm and Create Transaction
+          </Button>
+        </div>
+      </Modal>
       )}
     </>
   );

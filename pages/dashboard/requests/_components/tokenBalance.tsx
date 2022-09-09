@@ -67,7 +67,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
-                            <div>{coin && SetComma(+(item.amount))}-</div>
+                            <div>-{coin && SetComma(+(item.amount))}</div>
                         </div>
 
                     </div>

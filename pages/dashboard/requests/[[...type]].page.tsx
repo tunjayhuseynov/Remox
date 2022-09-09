@@ -45,7 +45,7 @@ export default function RequestLayout() {
             </div>
         </div>
         <div className="flex  w-[70%] justify-between !mt-1">
-            <AnimatedTabBar data={data} index={index} className={'!text-xl'} />
+            <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
         </div>
         <div className=" pb-5 h-full">
             <DynamicRequest type={type?.[0] === "approved" ? "approved" : type?.[0] === "rejected" ? "rejected" : "pending"} />
