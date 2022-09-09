@@ -8,7 +8,6 @@ import {
 } from '@celo/react-celo/lib/connectors/connectors'
 import { CeloContract } from '@celo/contractkit'
 import { useDispatch, useSelector } from 'react-redux';
-import { changeAccount } from "../redux/slices/account/selectedAccount";
 import { selectStorage, setStorage } from "../redux/slices/account/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFirebase';
