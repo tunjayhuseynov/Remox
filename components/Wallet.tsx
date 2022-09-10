@@ -14,7 +14,8 @@ import {
     WalletModalProvider,
 } from '@solana/wallet-adapter-react-ui';
 import { BASE_URL } from 'utils/api';
-import { CeloProvider } from '@celo/react-celo';
+import { CeloProvider, NetworkNames } from '@celo/react-celo';
+import { Blockchains } from 'types/blockchains';
 
 
 export const CeloEndpoint = 'https://forno.celo.org';
@@ -53,6 +54,12 @@ export default function Wallet({ children }: { children: JSX.Element }) {
                             icon: `${BASE_URL}/favicon.png`,
                             description: 'Remox - Contributor and Treasury Management Platform',
                             url: `${BASE_URL}`,
+                        }}
+                        network={{
+                            name: NetworkNames.Mainnet,
+                            rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
+                            chainId: 42220,
+                            explorer: Blockchains.find(s => s.name === "celo")!.explorerUrl,
                         }}
                     >
                         {children}

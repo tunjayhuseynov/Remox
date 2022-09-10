@@ -19,6 +19,7 @@ import {
 } from "rpcHooks/useFirebase";
 import { ITasking } from "rpcHooks/useTasking";
 import { AltCoins } from "types";
+import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 
 type LaunchResponse = {
   Coins: AltCoins[];
@@ -175,9 +176,25 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         )
         .unwrap();
 
+      const allBudgets = budgetRes.data.map(s => s.budgets).flat();
+
+      const mapping = (s: ITransactionMultisig | IFormattedTransaction) => {
+        const budget = allBudgets.find(
+          b => b.txs.find(t => t.hashOrIndex.toLowerCase() === ('tx' in s ? s.hashOrIndex : s.hash).toLowerCase() && t.contractAddress.toLowerCase() === ('tx' in s ? s.contractAddress : s.address).toLowerCase())
+        )
+
+        if (budget) {
+          return {
+            ...s,
+            budget
+          }
+        }
+        return s;
+      }
+
       let allCumulativeTransactions = [
-        ...transactionsRes.data,
-        ...multisigRequests,
+        ...transactionsRes.data.map(mapping),
+        ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
 
       const res: LaunchResponse = {

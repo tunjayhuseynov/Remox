@@ -14,7 +14,7 @@ import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { SelectAllBudgets } from 'redux/slices/account/selector';
-import { Add_Tx_To_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
+import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { ToastRun } from 'utils/toast';
 
@@ -54,7 +54,7 @@ const Detail = ({
     const [mounted, setMounted] = useState(false)
     const [budgetLoading, setBudgetLoading] = useState(false)
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(budget)
-
+  
     const budgets = useAppSelector(SelectAllBudgets)
     const dispatch = useAppDispatch()
 
@@ -86,7 +86,25 @@ const Detail = ({
 
     const budgetChangeFn = (val: IBudgetORM) => async () => {
         if (!account?.provider) return ToastRun(<>Cannot get the multisig provider</>, "error")
-        dispatch(Add_Tx_To_Budget_Thunk({
+        setBudgetLoading(true)
+        if (budget) {
+            await dispatch(Remove_Tx_From_Budget_Thunk({
+                budget: budget,
+                isExecuted: isExecuted,
+                tx: {
+                    amount: amount,
+                    contractAddress: transaction.address,
+                    contractType: isMultisig ? "multi" : "single",
+                    hashOrIndex: transaction.hash,
+                    timestamp: timestamp,
+                    protocol: account.provider,
+                    token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.payments[0].coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
+                    isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+                }
+            }))
+        }
+
+        await dispatch(Add_Tx_To_Budget_Thunk({
             budget: val,
             tx: {
                 amount: amount,
@@ -100,6 +118,7 @@ const Detail = ({
             },
             isExecuted: isExecuted,
         }))
+        setBudgetLoading(false)
     }
 
     const handleClickAway = () => {

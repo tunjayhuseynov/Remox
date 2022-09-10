@@ -267,6 +267,7 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
                     payments: value,
                     address: transaction.address,
                     tags: transaction.tags,
+                    // budget: transaction.budget,
                 }
                 TXs.push(tx)
             })
@@ -282,6 +283,7 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
                     payments: value,
                     address: transaction.address,
                     tags: transaction.tags,
+                    // budget: transaction.budget,
                 }
                 TXs.push(tx)
             })

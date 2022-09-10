@@ -1,4 +1,3 @@
-import axios from "axios";
 import { IBudget, IBudgetTX } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { GenerateTransaction, IBatchRequest, CeloInputReader, ITransfer, ERC20MethodIds } from "hooks/useTransactionProcess";
@@ -42,7 +41,8 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
                 Coins: coins.reduce<Coins>((a, c) => {
                     a[c.symbol] = c;
                     return a;
-                }, {})
+                }, {}),
+                address: tx.contractAddress,
             })
 
             if (txRes) {

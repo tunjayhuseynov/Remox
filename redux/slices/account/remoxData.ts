@@ -382,9 +382,9 @@ export const {
     addContributor, removeContributor, setContributors, setBlockchain,
     addAccount, addOwner, addTx, removeAccount, removeOwner, setThreshold,
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
-    addMemberToContributor, removeMemberFromContributor, setProviderAddress,
+    addMemberToContributor, removeMemberFromContributor, setProviderAddress, addTxToList,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
-    updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted
+    updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget
 
 } = remoxDataSlice.actions;
 
