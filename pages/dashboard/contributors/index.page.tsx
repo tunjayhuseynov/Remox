@@ -16,6 +16,7 @@ const Contributors = () => {
     const contributors = useAppSelector(SelectContributors)
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
+    console.log(contributors)
 
 
     const data = [
@@ -68,7 +69,7 @@ const Contributors = () => {
                     <th className="font-semibold text-left text-lg text-greylish dark:text-[#aaaaaa]">Compensation Type</th>
                 </tr>
                 <div>
-                    {contributors.filter((w) =>  w.members && w.members.length > 0).map((w) => <TeamContainer {...w} index={index} key={w.id} />)}
+                    {contributors.filter((w) => w.members.length > 0).map((w) => <TeamContainer {...w} index={index} key={w.id} />)}
                     {/* {contributors.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} index={index} /></Fragment> : undefined)} */}
                     {/* {contributors.map(w => w && (!w?.members || w?.members?.length === 0) ? <Fragment key={w.id}><TeamContainer {...w} index={index} /></Fragment> : undefined)} */}
                     {/* {contributors.filter(w => w.members && w.members.length === 0) && <div className="w-full h-[70%] flex flex-col  items-center justify-center gap-6">

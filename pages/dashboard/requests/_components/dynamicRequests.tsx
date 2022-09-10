@@ -20,6 +20,7 @@ import { SelectID } from "redux/slices/account/remoxData";
 import { useWalletKit } from "hooks";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import useAsyncEffect from "hooks/useAsyncEffect";
+import { ToastRun } from "utils/toast";
 
 export default function DynamicRequest({
   type,
@@ -82,18 +83,20 @@ export default function DynamicRequest({
         const amount = request.amount;
         const currency = request.currency;
         const address = request.address;
+        const coinSymbol = Object.values(GetCoins).find((coin) => coin.name === currency)!.symbol;
         if (request.secondaryAmount) {
           const secondaryAmount = request.secondaryAmount;
           const secondaryCurrency = request.secondaryCurrency;
+          const coin2Symbol = Object.values(GetCoins).find((coin) => coin.name === secondaryCurrency)!.symbol;
           inputs.push({
             amount: Number(secondaryAmount),
-            coin: secondaryCurrency!.toString(),
+            coin: coin2Symbol,
             recipient: address,
           });
         }
         inputs.push({
           amount: Number(amount),
-          coin: currency!.toString(),
+          coin: coinSymbol,
           recipient: address,
         });
       });
@@ -103,6 +106,8 @@ export default function DynamicRequest({
       await SendTransaction(accountAndBudget.account!, inputs, {
         budget: accountAndBudget.budget,
       })
+
+      setNotify(false);
 
     } catch (error) {
       console.log(error);
