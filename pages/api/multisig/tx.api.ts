@@ -35,6 +35,8 @@ import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { BASE_URL } from "utils/api";
 import { IMultisigThreshold } from "./sign.api";
 import { IBudgetORM } from "../budget/index.api";
+import Web3 from 'web3'
+import { AbiItem } from "rpcHooks/ABI/AbiItem";
 
 export default async function handler(
     req: NextApiRequest,
@@ -48,6 +50,7 @@ export default async function handler(
             address: multisigAddress,
             Skip,
             name,
+            providerName
         } = req.query as {
             blockchain: BlockchainType["name"];
             id: string;
@@ -55,6 +58,7 @@ export default async function handler(
             address: string;
             Skip: string;
             name: string;
+            providerName?: string;
         };
         const skip = +Skip;
 
@@ -195,29 +199,24 @@ export default async function handler(
         //     }
         // }
         if (blockchain === "celo") {
-            const provider = new ethers.providers.JsonRpcProvider(
-                "https://forno.celo.org",
-                {
-                    chainId: 42220,
-                    name: "forno",
-                }
-            );
+            const web3 = new Web3(Blockchain.rpcUrl);
 
-            const contract = new Contract(multisigAddress, Multisig.abi, provider);
+            const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress);
 
-            let Total = await contract.transactionCount.call();
+            let Total = await contract.methods.transactionCount().call();
             let total = Total;
             if (total > skip) {
                 total -= skip;
             }
 
             const GetTx = async (index: number, budgets: IBudgetORM[], coins: Coins) => {
-                const tx = await contract.transactions(index);
+
+                const tx = await contract.methods.transactions(index).call();
 
                 let confirmations: string[] = [];
 
-                confirmations = await contract.getConfirmations(index);
-                let oweners = await contract.getOwners();
+                confirmations = await contract.methods.getConfirmations(index).call();
+                const owners = (await contract.methods.getOwners()).call()
                 const obj = await MultisigTxParser({
                     parsedData: null,
                     txHashOrIndex: index.toString(),
@@ -231,15 +230,15 @@ export default async function handler(
                     blockchain: Blockchain,
                     timestamp: GetTime(),
                     contractAddress: multisigAddress,
-                    contractInternalThreshold: contract.internalRequired,
-                    contractThreshold: contract.required,
-                    contractOwnerAmount: oweners.length,
+                    contractInternalThreshold: (await contract.methods.internalRequired().call()),
+                    contractThreshold: (await contract.methods.required().call()),
+                    contractOwnerAmount: owners.length,
+                    contractOwners: owners,
                     name,
                     tags: tags?.tags ?? [],
                     budgets: budgets,
                     coins: coins,
-                    contractOwners: oweners,
-                    provider: name
+                    provider: providerName
                 });
 
                 return obj;
@@ -251,7 +250,10 @@ export default async function handler(
                 return acc;
             }, []);
 
-            res.status(200).json(await GetTx(+index, budgets, Coins));
+            const list = await Promise.all(
+                Array.from(Array(total).keys()).map((s) => GetTx(total - 1 - s, budgets, Coins))
+            );
+            transactionArray.push(...(list.filter(s => s.tx && s.tx.method)));
         }
         else if (blockchain.includes("evm") && name === "GnosisSafe") {
             const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/multisig-transactions/${index}`;

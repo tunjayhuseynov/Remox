@@ -66,7 +66,7 @@ export default {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
             if (budgetIndex !== -1) {
                 state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
-                state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                // state.budgetExercises[index].budgets[budgetIndex].totalBudget -= (payload.tx.amount * payload.currency.priceUSD);
                 state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
                 state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
                 if (payload.isTxExecuted) {
@@ -110,6 +110,58 @@ export default {
             }
         }
     },
+    removeTxFromBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean } }) => {
+        const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
+        if (index !== -1) {
+            const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
+            if (budgetIndex !== -1) {
+                state.budgetExercises[index].budgets[budgetIndex].txs = state.budgetExercises[index].budgets[budgetIndex].txs
+                    .filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());
+
+                // state.budgetExercises[index].budgets[budgetIndex].totalBudget -= (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].budgets[budgetIndex].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].totalAvailable += (payload.tx.amount * payload.currency.priceUSD);
+                if (payload.isTxExecuted) {
+                    state.budgetExercises[index].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                } else {
+                    state.budgetExercises[index].totalPending -= (payload.tx.amount * payload.currency.priceUSD);
+                }
+
+                if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
+                    state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
+                        ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount += (payload.tx.amount),
+                        totalPending: payload.isTxExecuted ?
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
+                            :
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= (payload.tx.amount),
+                        totalUsedAmount: payload.isTxExecuted ?
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount -= (payload.tx.amount)
+                            :
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
+                    }
+                }
+                const second = state.budgetExercises[index].budgets[budgetIndex].budgetCoins?.second;
+                if (second && payload.currency.symbol.toLowerCase() === second.secondCoin.toLowerCase()) {
+                    state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
+                        ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
+                        second: second ? {
+                            ...second,
+                            secondTotalAmount: second.secondTotalAmount += (payload.tx.amount),
+                            secondTotalPending: payload.isTxExecuted ?
+                                second.secondTotalPending
+                                :
+                                second.secondTotalPending -= (payload.tx.amount),
+                            secondTotalUsedAmount: payload.isTxExecuted ?
+                                second.secondTotalUsedAmount -= (payload.tx.amount)
+                                :
+                                second.secondTotalUsedAmount,
+                        } : null
+                    }
+                }
+            }
+        }
+    },
     addSubBudget: (state: IRemoxData, { payload }: { payload: ISubbudgetORM }) => {
         const index = state.budgetExercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.parentId));
         if (index !== -1) {
@@ -126,7 +178,7 @@ export default {
             if (budgetIndex !== -1) {
                 const subBudgetIndex = (state.budgetExercises[index].budgets[budgetIndex] as IBudget).subbudgets.findIndex((subBudget) => subBudget.id === payload.subbudget.id);
                 if (subBudgetIndex !== -1) {
-                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalAvailable -= payload.tx.amount * payload.currency.priceUSD;
+                    // state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalBudget -= payload.tx.amount * payload.currency.priceUSD;
                     state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed += payload.tx.amount * payload.currency.priceUSD;
 
                     state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
@@ -171,6 +223,68 @@ export default {
                                     second.secondTotalPending += (payload.tx.amount),
                                 secondTotalUsedAmount: payload.isTxExecuted ?
                                     second.secondTotalUsedAmount += (payload.tx.amount)
+                                    :
+                                    second.secondTotalUsedAmount,
+                            } : null
+                        }
+                    }
+                }
+            }
+        }
+    },
+    removeTxFromSubbudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, subbudget: ISubbudgetORM, currency: AltCoins, isTxExecuted: boolean } }) => {
+        const index = state.budgetExercises.findIndex((budget_exer) => (budget_exer.budgets as IBudget[]).find((budget) => budget.id === payload.subbudget.parentId));
+        if (index !== -1) {
+            const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.subbudget.parentId);
+            if (budgetIndex !== -1) {
+                const subBudgetIndex = (state.budgetExercises[index].budgets[budgetIndex] as IBudget).subbudgets.findIndex((subBudget) => subBudget.id === payload.subbudget.id);
+                if (subBudgetIndex !== -1) {
+                    // state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalBudget -= payload.tx.amount * payload.currency.priceUSD;
+                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed -= payload.tx.amount * payload.currency.priceUSD;
+
+                    state.budgetExercises[index].budgets[budgetIndex].txs = state.budgetExercises[index].budgets[budgetIndex].txs
+                        .filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());;
+                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable += (payload.tx.amount * payload.currency.priceUSD);
+                    if (payload.isTxExecuted) {
+                        state.budgetExercises[index].budgets[budgetIndex].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                    } else {
+                        state.budgetExercises[index].budgets[budgetIndex].totalPending -= (payload.tx.amount * payload.currency.priceUSD);
+                    }
+
+                    state.budgetExercises[index].totalAvailable += (payload.tx.amount * payload.currency.priceUSD);
+                    if (payload.isTxExecuted) {
+                        state.budgetExercises[index].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                    } else {
+                        state.budgetExercises[index].totalPending -= (payload.tx.amount * payload.currency.priceUSD);
+                    }
+
+                    if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
+                        state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
+                            ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount += (payload.tx.amount),
+                            totalPending: payload.isTxExecuted ?
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
+                                :
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending -= (payload.tx.amount),
+                            totalUsedAmount: payload.isTxExecuted ?
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount -= (payload.tx.amount)
+                                :
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
+                        }
+                    }
+                    const second = state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins?.second;
+                    if (second && payload.currency.symbol.toLowerCase() === second.secondCoin.toLowerCase()) {
+                        state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
+                            ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
+                            second: second ? {
+                                ...second,
+                                secondTotalAmount: second.secondTotalAmount += (payload.tx.amount),
+                                secondTotalPending: payload.isTxExecuted ?
+                                    second.secondTotalPending
+                                    :
+                                    second.secondTotalPending -= (payload.tx.amount),
+                                secondTotalUsedAmount: payload.isTxExecuted ?
+                                    second.secondTotalUsedAmount -= (payload.tx.amount)
                                     :
                                     second.secondTotalUsedAmount,
                             } : null

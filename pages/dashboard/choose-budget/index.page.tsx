@@ -1,19 +1,21 @@
 import { useEffect, useState, useMemo, SyntheticEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
-import { DropDownItem } from 'types';
 import Button from 'components/button';
 import { useRouter } from 'next/router';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAllBudgets, SelectProviderAddress, setSelectedAccountAndBudget } from 'redux/slices/account/remoxData';
 import { ToastRun } from 'utils/toast';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
+import { useWalletKit } from 'hooks';
 
 function ChooseBudget() {
 
     const budgets = useAppSelector(SelectAllBudgets);
     const providerAddress = useAppSelector(SelectProviderAddress);
     const accounts = useAppSelector(SelectAccounts)
+
+    const { Address } = useWalletKit()
 
     const router = useRouter()
 
@@ -37,14 +39,23 @@ function ChooseBudget() {
         }
     }, [selectedBudget])
 
-    const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
+        const address = await Address
         const page = router.query.page;
         if (!page) return ToastRun(<>Page not found</>, "error")
         if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
+        if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
+            ToastRun(<>You are not connected to the wallet you selected</>, "warning")
+            return
+        }
+        if (selectedAccount.signerType === "multi" && !selectedAccount.members.find(s => s.address.toLowerCase() === address?.toLowerCase())) {
+            ToastRun(<>Your wallet has no access to this multisig account. Please, switch to a permitted wallet</>, "warning")
+            return
+        }
         const budget = budgets.find(b => b.id === selectedBudget?.id);
         dispatch(setSelectedAccountAndBudget({
-            account: accounts.find(w => w.id === selectedAccount.id) ?? null,
+            account: selectedAccount ?? null,
             budget: budget ?? null,
             subbudget: budget?.subbudgets.find(sb => sb.id === selectedSubbudget?.id) ?? null,
         }))

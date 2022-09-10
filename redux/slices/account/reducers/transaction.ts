@@ -1,3 +1,5 @@
+import { IFormattedTransaction } from "hooks/useTransactionProcess";
+import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRemoxData } from "../remoxData";
 
 interface IConfirmationProp {
@@ -25,4 +27,7 @@ export default {
             return tx;
         });
     },
+    addTxToList: (state: IRemoxData, action: { payload: { tx: IFormattedTransaction | ITransactionMultisig } }) => {
+        state.cumulativeTransactions = [action.payload.tx, ...state.cumulativeTransactions]
+    }
 }

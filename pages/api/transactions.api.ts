@@ -19,6 +19,9 @@ import { DecimalConverter } from "utils/api";
 import Web3 from 'web3'
 import InputDataDecoder from "ethereum-input-data-decoder";
 import ERC20 from "rpcHooks/ABI/erc20.json";
+import { IBudget, IBudgetExercise } from "firebaseConfig";
+import { budgetExerciseCollectionName } from "crud/budget_exercise";
+import { IBudgetORM } from "./budget/index.api";
 
 
 // GET /api/transactions  --params blockchain, address
@@ -188,7 +191,7 @@ const GetTxs = async (
 
       const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
 
-      const tokens = tokenReq.data.result.filter(s => s.from.toLowerCase() !== address.toLowerCase());
+      const tokens = tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
 
       const txs = exReq.data;
       txList = txs.result.concat(tokens);
@@ -225,7 +228,7 @@ const ParseTxs = async (
   blockchain: BlockchainType,
   tags: ITag[],
   address: string,
-  coins: Coins
+  coins: Coins,
 ) => {
   try {
     let result: Transactions[] = [...transactions];
@@ -250,7 +253,8 @@ const ParseTxs = async (
           transaction,
           tags,
           Coins: coins,
-          blockchain
+          blockchain,
+          address
         });
         if (formatted && formatted.method) {
           FormattedTransaction.push({
@@ -264,7 +268,7 @@ const ParseTxs = async (
         }
 
       } else if (blockchain.name === "celo") {
-        const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain });
+        const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain, address });
 
         if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0 || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn) || formatted.method === ERC20MethodIds.automatedCanceled)) {
 

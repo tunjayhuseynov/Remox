@@ -84,11 +84,11 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                         </div>
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-1 font-bold"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold`}></span>Pending</div>
-                            <div className="flex items-center gap-1 font-bold"><img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(0)}</div>
+                            <div className="flex items-center gap-1 font-bold"><img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.totalPending)}</div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-gray-500 p-2 font-bold`}></span>Available</div>
-                            <div className="flex items-center gap-1 font-bold"><img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.totalAmount - coin.totalUsedAmount)}</div>
+                            <div className="flex items-center gap-1 font-bold"><img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.totalAmount - coin.totalUsedAmount - coin.totalPending)}</div>
                         </div>
                     </div>
                     {coin.second && <>
@@ -102,10 +102,18 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                             {/* <div className="stripe-1 ml-2 object-cover h-full" ></div> */}
                             <div className="w-[45%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
                         </div>
-                        <div className="grid grid-cols-4 px-3 justify-between items-center py-4">
+                        <div className="grid grid-cols-4 px-3 gap-4 justify-between items-center py-4">
                             <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-primary p-2 font-bold`}></span>Used</div>
-                                <div className="flex items-center gap-1 font-bold"><img src={GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.second.secondTotalUsedAmount)}</div>
+                                <div className="flex items-center gap-1 font-bold"><img src={GetCoins[coin.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.second.secondTotalAmount)}</div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-1 font-bold"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold`}></span>Pending</div>
+                                <div className="flex items-center gap-1 font-bold"><img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.second.secondTotalPending)}</div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-gray-500 p-2 font-bold`}></span>Available</div>
+                                <div className="flex items-center gap-1 font-bold"><img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.second.secondTotalAmount - coin.second.secondTotalUsedAmount - coin.second.secondTotalPending)}</div>
                             </div>
                         </div>
                     </>}

@@ -168,17 +168,17 @@ interface IReader {
   tags: ITag[];
   Coins: Coins;
   blockchain: BlockchainType;
+  address: string
 }
 
 export const
   CeloInputReader = async (
     input: string,
-    { transaction, tags, Coins, blockchain }: IReader
+    { transaction, tags, Coins, blockchain, address }: IReader
   ) => {
     try {
-
       const theTags = tags.filter((s) =>
-        s.transactions.some((t) => t.hash === transaction.hash)
+        s.transactions.find((t) => t.hash?.toLowerCase() === transaction.hash?.toLowerCase() && t.address?.toLowerCase() === address?.toLowerCase())
       );
 
       let decoder = new InputDataDecoder(ERC20);
@@ -207,8 +207,8 @@ export const
           }
         }
       }
-
-      const coin = Object.values(Coins).find(s => s.address.toLowerCase() === transaction.to.toLowerCase() || s.address.toLowerCase() === transaction.contractAddress.toLowerCase())
+     
+      const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
 
       if (!result.method) {
         if (!coin) return { method: null }
@@ -274,11 +274,11 @@ export const
           amountOutMin: result.method === "swapExactTokensForTokens" || result.method === "swapExactTokensForTokensSupportingFeeOnTransferTokens" ? result.inputs[1].toString() : result.inputs[0].toString(),
           coinIn: coins.find(
             (s) =>
-              s.address.toLowerCase() === "0x" + result.inputs[2][0].toLowerCase()
+              s.address?.toLowerCase() === "0x" + result.inputs[2][0]?.toLowerCase()
           )!,
           coinOutMin: coins.find(
             (s) =>
-              s.address.toLowerCase() === "0x" + result.inputs[2][1].toLowerCase()
+              s.address?.toLowerCase() === "0x" + result.inputs[2][1]?.toLowerCase()
           )!,
           tags: theTags,
         };
@@ -288,7 +288,7 @@ export const
         for (let i = 0; i < result.inputs[0].length; i++) {
           const coin = Object.values(Coins).find(
             (s) =>
-              s.address.toLowerCase() === "0x" + result.inputs[0][i].toLowerCase()
+              s.address?.toLowerCase() === "0x" + result.inputs[0][i]?.toLowerCase()
           );
 
           let decoder = new InputDataDecoder(ERC20);
@@ -333,7 +333,7 @@ export const
         const details = await contract.methods.getDetails(result.inputs[0]).call()
         if (!details['1']) return {};
 
-        const res: any = await CeloInputReader(details["1"], { transaction, Coins, blockchain, tags: theTags })
+        const res: any = await CeloInputReader(details["1"], { transaction, Coins, blockchain, tags: theTags, address })
         return {
           ...res,
           method: ERC20MethodIds.automatedCanceled,
@@ -356,7 +356,7 @@ export const
           for (let i = 0; i < batchData.inputs[0].length; i++) {
             const coin = Object.values(Coins).find(
               (s) =>
-                s.address.toLowerCase() === "0x" + batchData.inputs[0][i].toLowerCase()
+                s.address?.toLowerCase() === "0x" + batchData.inputs[0][i]?.toLowerCase()
             );
 
             let decoder = new InputDataDecoder(ERC20);
@@ -387,7 +387,7 @@ export const
           startTime: result.inputs[0].toString(),
           interval: result.inputs[1].toString(),
           address: "0x" + result.inputs[2].toString(),
-          coin: Object.values(Coins).find(s => s.address.toLowerCase() === "0x" + result.inputs[2].toString().toLowerCase()),
+          coin: Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase()),
           amount: ercRes.method === "transfer" ? ercRes.inputs[1].toString() : 0
         };
       } else if (result.method === ERC20MethodIds.borrow) {
@@ -397,7 +397,7 @@ export const
           id: ERC20MethodIds.borrow,
           coin: coins.find(
             (s) =>
-              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+              s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
           )!,
           amount: result.inputs[1].toString(),
           to: result.inputs[0],
@@ -410,7 +410,7 @@ export const
           id: ERC20MethodIds.deposit,
           coin: coins.find(
             (s) =>
-              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+              s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
           )!,
           amount: result.inputs[1].toString(),
           to: "0x" + result.inputs[0],
@@ -423,7 +423,7 @@ export const
           id: ERC20MethodIds.withdraw,
           coin: coins.find(
             (s) =>
-              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+              s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
           )!,
           amount: result.inputs[1].toString(),
           to: "0x" + result.inputs[0],
@@ -436,7 +436,7 @@ export const
           id: ERC20MethodIds.repay,
           coin: coins.find(
             (s) =>
-              s.address.toLowerCase() === '0x' + result.inputs[0].toLowerCase()
+              s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
           )!,
           amount: result.inputs[1].toString(),
           to: result.inputs[0],
@@ -450,7 +450,7 @@ export const
           tags: theTags,
           coin: coins.find(
             (s) =>
-              s.address.toLowerCase() === "0x17700282592D6917F6A73D0bF8AcCf4D578c131e".toLowerCase()
+              s.address?.toLowerCase() === "0x17700282592D6917F6A73D0bF8AcCf4D578c131e"?.toLowerCase()
           )!,
           amount: result.inputs[2].toString(),
           to: result.inputs[1],
@@ -479,12 +479,12 @@ export const EvmInputReader = async (
       if (
         blockchain.swapProtocols.find(
           (swap) =>
-            swap.contractAddress.toLowerCase() === transaction.to.toLowerCase()
+            swap.contractAddress?.toLowerCase() === transaction.to?.toLowerCase()
         )
       ) {
         const abi = blockchain.swapProtocols.find(
           (swap) =>
-            swap.contractAddress.toLowerCase() === transaction.to.toLowerCase()
+            swap.contractAddress?.toLowerCase() === transaction.to?.toLowerCase()
         )?.abi;
 
         const decoder = new InputDataDecoder(abi);
@@ -497,22 +497,22 @@ export const EvmInputReader = async (
         const coinIn =
           coins.find(
             (coin) =>
-              coin.address.toLowerCase() === result.inputs[1][0].toLowerCase()
+              coin.address?.toLowerCase() === result.inputs[1][0]?.toLowerCase()
           )! ??
           coins.find(
             (coin) =>
-              coin.address.toLowerCase() ===
-              blockchain.nativeToken.toLowerCase()
+              coin.address?.toLowerCase() ===
+              blockchain.nativeToken?.toLowerCase()
           );
         const coinOut =
           coins.find(
             (coin) =>
-              coin.address.toLowerCase() === result.inputs[1][1].toLowerCase()
+              coin.address?.toLowerCase() === result.inputs[1][1]?.toLowerCase()
           )! ??
           coins.find(
             (coin) =>
-              coin.address.toLowerCase() ===
-              blockchain.nativeToken.toLowerCase()
+              coin.address?.toLowerCase() ===
+              blockchain.nativeToken?.toLowerCase()
           );
 
         return {
@@ -529,12 +529,12 @@ export const EvmInputReader = async (
       } else if (
         blockchain.lendingProtocols.find(
           (lend) =>
-            lend.contractAddress.toLowerCase() === transaction.to.toLowerCase()
+            lend.contractAddress?.toLowerCase() === transaction.to?.toLowerCase()
         )
       ) {
         const abi = blockchain.lendingProtocols.find(
           (lend) =>
-            lend.contractAddress.toLowerCase() === transaction.to.toLowerCase()
+            lend.contractAddress?.toLowerCase() === transaction.to?.toLowerCase()
         )?.abi;
         const decoder = new InputDataDecoder(abi);
         const result = decoder.decodeData(input);
@@ -543,13 +543,13 @@ export const EvmInputReader = async (
         const coin =
           coins.find(
             (coin) =>
-              coin.address.toLowerCase() ===
-              "0x" + result.inputs[0].toLowerCase()
+              coin.address?.toLowerCase() ===
+              "0x" + result.inputs[0]?.toLowerCase()
           )! ??
           coins.find(
             (coin) =>
-              coin.address.toLowerCase() ===
-              blockchain.nativeToken.toLowerCase()
+              coin.address?.toLowerCase() ===
+              blockchain.nativeToken?.toLowerCase()
           );
 
         if (result.method === "supply") {
@@ -596,14 +596,14 @@ export const EvmInputReader = async (
       } else if (
         blockchain.recurringPaymentProtocols.find(
           (stream) =>
-            stream.contractAddress.toLowerCase() ===
-            transaction.to.toLowerCase()
+            stream.contractAddress?.toLowerCase() ===
+            transaction.to?.toLowerCase()
         )
       ) {
         const abi = blockchain.recurringPaymentProtocols.find(
           (stream) =>
-            stream.contractAddress.toLowerCase() ===
-            transaction.to.toLowerCase()
+            stream.contractAddress?.toLowerCase() ===
+            transaction.to?.toLowerCase()
         )!.abi;
         const decoder = new InputDataDecoder(abi);
         const result = decoder.decodeData(input);
@@ -615,7 +615,7 @@ export const EvmInputReader = async (
           const tx = provider.getTransactionReceipt(transaction.hash);
           const logs = (await tx).logs;
           const log = logs.find(
-            (log) => log.address.toLowerCase() === transaction.to.toLowerCase()
+            (log) => log.address?.toLowerCase() === transaction.to?.toLowerCase()
           );
           const hexId = log!.topics[1];
           const streamId = hexToNumberString(hexId);
@@ -623,13 +623,13 @@ export const EvmInputReader = async (
           const coin =
             coins.find(
               (coin) =>
-                coin.address.toLowerCase() ===
-                "0x" + result.inputs[2].toLowerCase()
+                coin.address?.toLowerCase() ===
+                "0x" + result.inputs[2]?.toLowerCase()
             )! ??
             coins.find(
               (coin) =>
-                coin.address.toLowerCase() ===
-                blockchain.nativeToken.toLowerCase()
+                coin.address?.toLowerCase() ===
+                blockchain.nativeToken?.toLowerCase()
             );
           const amount = hexToNumberString(result.inputs[1]._hex).toString();
 

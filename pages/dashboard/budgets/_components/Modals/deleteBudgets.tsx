@@ -20,13 +20,13 @@ const DeletBudget = ({ onDisable, budget }: { budget: IBudgetORM, onDisable: Rea
 
     const [loading, submit] = useLoading(onSubmit)
 
-    return <div className="flex flex-col space-y-10 items-center">
+    return <div className="flex flex-col space-y-6 items-center">
         <div className="text-2xl text-primary">Are You Sure?</div>
         <div className="flex items-center justify-center text-xl">
-            Your Are About Delete This Budget
+            Your are about to delete this budget
         </div>
         <div className="flex justify-center items-center space-x-4">
-            <Button version="second" className="!rounded-xl border-2  w-[7rem] h-[2.5rem] !px-1 !py-0" onClick={() => { onDisable(false) }}>No</Button>
+            <Button version="transparent" className="!rounded-xl border-2  w-[7rem] h-[2.5rem] !px-1 !py-0" onClick={() => { onDisable(false) }}>No</Button>
             <Button className="!rounded-xl w-[7rem] h-[2.5rem] !px-1 !py-0" onClick={submit} isLoading={loading}>Yes</Button>
         </div>
     </div>

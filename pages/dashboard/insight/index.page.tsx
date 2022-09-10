@@ -229,11 +229,6 @@ const Insight = () => {
             <div className="flex justify-between pb-4">
                 <div className="text-4xl font-bold">Insights</div>
                 <div className="flex gap-2">
-                    {/* {!isMultisig && <div className="mr-3">
-                        <WalletDropdown selected={selectedAccount} onChange={(wallets) => {
-                            setChangedAccount([...wallets.map((wallet) => wallet.address)])
-                        }} /> 
-                    </div>}*/}
                     {<> <div className="">
                         <CSVLink data={''} className="font-normal   py-2 px-4 rounded-xl cursor-pointer flex justify-center items-center bg-white dark:bg-darkSecond xl:space-x-5">
                             <div className={'hidden'}>Export</div>

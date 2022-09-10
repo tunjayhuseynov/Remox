@@ -5,9 +5,8 @@ import TotalDetails from './totalDetails'
 
 function TotalValues({ total }: { total: IBudgetExerciseORM }) {
 
-
     return <div className="px-5 py-8 rounded-md bg-white dark:bg-darkSecond dark:border-[#aaaaaa] hover:dark:shadow-customDark hover:shadow-custom">
-        <div className='grid grid-cols-[30%,21%,21%,21%,7%]'>
+        <div className='grid grid-cols-[25%,20%,20%,20%,15%]'>
             <div className={`flex pr-16  border-r dark:border-[#aaaaaa] !my-0`}>
                 <div className={`flex flex-col gap-12 lg:gap-4`}>
                     <div className='text-lg font-bold text-gray-500'>Total Budget</div>
@@ -40,7 +39,7 @@ function TotalValues({ total }: { total: IBudgetExerciseORM }) {
                     </div>
                 </div>
             </div>
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-end pr-10">
                 {total.budgets.length > 0 &&<TotalDetails total={total} />}
             </div>
         </div>

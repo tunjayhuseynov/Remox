@@ -62,7 +62,7 @@ export const MultisigTxParser = async (
         contractThresholdAmount: contractThreshold,
         contractOwnerAmount: contractOwnerAmount,
         contractOwners: contractOwners,
-        tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === txHashOrIndex.toLowerCase())),
+        tags: tags.filter(s => s.transactions.find(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === txHashOrIndex.toLowerCase())),
         budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex.toLowerCase() === index.toString().toLowerCase())) ?? null,
         tx: {
             address: destination,
@@ -81,7 +81,8 @@ export const MultisigTxParser = async (
                 contractAddress: destination,
                 hash: txHashOrIndex,
                 to: destination
-            })
+            }),
+            address: contractAddress
         })
         obj.tx = reader
     } else {

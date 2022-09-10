@@ -6,7 +6,7 @@ import { IBudget, IBudgetTX } from "firebaseConfig";
 import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
-import { addBudget, addTxToBudget, deleteBudget, updateBudget } from "../../remoxData";
+import { addBudget, addTxToBudget, deleteBudget, removeTxFromBudget, updateBudget } from "../../remoxData";
 
 
 interface IBaseBudget {
@@ -93,6 +93,23 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
         //     }
         // })
         api.dispatch(addTxToBudget({
+            budget,
+            tx,
+            currency,
+            isTxExecuted: isExecuted
+        }))
+    }
+})
+
+export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/remove_tx_from_budget", async ({ budget, tx, isExecuted }, api) => {
+    const currencies = (api.getState() as RootState).remoxData.coins
+    await Update_Budget({
+        ...budget,
+        txs: budget.txs.filter(s => s.contractAddress.toLowerCase() !== tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== tx.hashOrIndex.toLowerCase())
+    })
+    const currency = currencies[tx.token];
+    if (tx.contractType === "multi") {
+        api.dispatch(removeTxFromBudget({
             budget,
             tx,
             currency,
