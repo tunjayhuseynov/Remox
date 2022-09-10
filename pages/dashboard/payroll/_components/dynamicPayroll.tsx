@@ -42,7 +42,7 @@ export default function DynamicPayroll() {
                     if (new Date(curr.paymantDate).getTime() > new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                         return acc;
                     }
-                    let amount = curr.amount
+                    let amount = Number(curr.amount)
                     if (curr.usdBase) {
                         amount /= (balance[GetCoins[curr.currency as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                     }
@@ -77,7 +77,7 @@ export default function DynamicPayroll() {
                     if (new Date(curr.paymantDate).getTime() > new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                         return acc;
                     }
-                    let amount = curr!.secondaryAmount!
+                    let amount = Number(curr!.secondaryAmount!)
                     if (curr.secondaryUsdBase) {
                         amount /= (balance[GetCoins[curr.secondaryCurrency! as keyof Coins].name as keyof typeof balance]?.tokenPrice ?? 1)
                     }
@@ -156,16 +156,16 @@ export default function DynamicPayroll() {
             arr.forEach(curr => {
                 if (new Date(curr.paymantDate).getTime() < new Date().getTime() && new Date(curr.paymantDate).getMonth() !== new Date().getMonth()) {
                     const days = date.subtract(new Date(), new Date(curr.paymantDate)).toDays()
-                    let amount = curr.amount
+                    let amount = Number(curr.amount)
                     if (curr.interval === DateInterval.weekly) {
                         amount *= Math.max(1, Math.floor(days / 7))
                     } else if (curr.interval === DateInterval.monthly) {
                         amount *= Math.max(1, Math.floor(days / 30))
                     }
-                    curr = { ...curr, amount: amount }
+                    curr = { ...curr, amount: amount.toString() }
 
                     inputs.push({
-                        amount: curr.amount,
+                        amount: Number(curr.amount),
                         coin: curr.currency,
                         recipient: curr.address,
                     })

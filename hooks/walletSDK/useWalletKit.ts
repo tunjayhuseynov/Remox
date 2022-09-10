@@ -247,6 +247,7 @@ export default function useWalletKit() {
       try {
         let txhash;
         const Address = account.address;
+        console.log(Address)
         if (!blockchain) throw new Error("blockchain not found");
         if (!Address) throw new Error("Address not set");
         if (inputArr.length === 0) throw new Error("No inputs");
