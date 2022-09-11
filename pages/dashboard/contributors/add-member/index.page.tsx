@@ -7,8 +7,7 @@ import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributo
 import { SelectContributors } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
-import useAllowance from "rpcHooks/useAllowance";
-import { AltCoins, CoinsURL } from "types";
+import { AltCoins, CoinsName, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
 import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -77,79 +76,82 @@ export default () => {
     
 
     const submit: SubmitHandler<IFormInput> = async (data) => {
-        // const Photo = file;
-        // const Team = selectedTeam;
-        // const Compensation = selectedSchedule.name;
-        // const Wallet = selectedWallet;
-        // const Wallet2 = selectedWallet2;
-        // const PaymentType = selectedPaymentType ? "Auto" : "Manual";
-        // const Frequency = selectedFrequency.type;
-        // const dateStart = startDate;
-        // const dateEnd = endDate;
+        const Photo = file;
+        const Team = selectedTeam;
+        const Compensation = selectedSchedule.name;
+        const coin1 = selectedCoin1;
+        const coin2 = selectedCoin2;
+        const PaymentType = selectedPaymentType ? "Auto" : "Manual";
+        const Frequency = selectedFrequency.type;
+        const dateStart = startDate;
+        const dateEnd = endDate;
 
-        // try {
-        //     let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
-        //     if (Photo || data.nftAddress) {
-        //         image = {
-        //             image: {
-        //                 blockchain,
-        //                 imageUrl: Photo ?? data.nftAddress!,
-        //                 nftUrl: data.nftAddress ?? "",
-        //                 tokenId: data.nftTokenId ?? null,
-        //                 type: imageType ? "image" : "nft",
-        //             },
-        //             name: `individuals/${data.name}`,
-        //         };
-        //         await UploadNFTorImageForUser(image);
-        //     }
+        try {
+            let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+            if (Photo || data.nftAddress) {
+                image = {
+                    image: {
+                        blockchain,
+                        imageUrl: Photo ?? data.nftAddress!,
+                        nftUrl: data.nftAddress ?? "",
+                        tokenId: data.nftTokenId ?? null,
+                        type: imageType ? "image" : "nft",
+                    },
+                    name: `individuals/${data.name}`,
+                };
+                await UploadNFTorImageForUser(image);
+            }
 
-        //     let sent: IMember = {
-        //         taskId: null,
-        //         id: uuidv4(),
-        //         first: `${data.name}`,
-        //         name: `${data.name} ${data.surname}`,
-        //         last: `${data.surname}`,
-        //         role: `${data.role}`,
-        //         address: data.address,
-        //         image: image ? image.image : null,
-        //         compensation: Compensation,
-        //         currency: Wallet.name as CoinsName,
-        //         amount: data.amount,
-        //         teamId: Team.id!.toString(),
-        //         usdBase: !paymentBaseIsToken,
-        //         execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
-        //         interval: Frequency as DateInterval,
-        //         paymantDate: dateStart!.toISOString(),
-        //         paymantEndDate: dateEnd!.toISOString(),
-        //         secondaryAmount: data.amount2 ? data.amount2 : null,
-        //         secondaryCurrency: Wallet2?.name ? (Wallet2.name as CoinsName) : null,
-        //         secondaryUsdBase: data.amount2 ? !paymentBaseIsToken : null,
-        //     };
+            let member: IMember = {
+                taskId: null,
+                id: uuidv4(),
+                first: `${data.name}`,
+                name: `${data.name} ${data.surname}`,
+                last: `${data.surname}`,
+                role: `${data.role}`,
+                address: data.address,
+                image: image ? image.image : null,
+                compensation: Compensation,
+                currency: coin1.name as CoinsName,
+                amount: data.amount.toString(),
+                teamId: Team.id!.toString(),
+                usdBase: !paymentBaseIsToken,
+                execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
+                interval: Frequency as DateInterval,
+                paymantDate: dateStart!.toISOString(),
+                paymantEndDate: dateEnd!.toISOString(),
+                secondaryAmount: data.amount2 ? data.amount2.toString() : null,
+                secondaryCurrency: coin2?.name ? coin2.name : null,
+                secondaryUsdBase: data.amount2 ? !paymentBaseIsToken : null,
+            };
 
-        //     await addMember(Team.id!.toString(), sent);
-        //     dispatch(addMemberToContributor({ id: Team.id!.toString(), member: sent }));
+            console.log(member)
 
-        //     navigate.back()
-        // } catch (error: any) {
-        //     console.error(error);
-        // }
+            // await addMember(Team.id!.toString(), sent);
+            // dispatch(addMemberToContributor({ id: Team.id!.toString(), member: sent }));
+
+            navigate.back()
+        } catch (error: any) {
+            console.error(error);
+        }
     };
 
 
     return <>
-        <form className="relative w-full mx-auto">
+        <div className="relative w-full mx-auto">
             <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-semibold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
                 {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                 <span className="text-3xl pb-1">&#171;</span> Back
             </button>
-            <div>
+            <form>
                 <form onSubmit={handleSubmit(submit)} className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Add Contributor</div>
                     <div className="flex flex-col space-y-4">
                         {<div className="flex flex-col mb-4 space-y-1 w-full">
                             {!userIsUpload ? <input type="text"  {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.15rem]  w-full px-1" />
                                 :
-                                <Upload  setFile={setFile} />}
+                                <Upload  setFile={setFile} />
+                            }
 
                         </div>}
                         {/* {blockchain.name === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
@@ -300,12 +302,16 @@ export default () => {
                         <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
-                        <Button className="px-8 py-3" >
+                        <Button 
+                            type="submit"
+                            className="px-8 py-3"
+
+                        >
                             Add Contributor
                         </Button>
                     </div>
                 </form>
-            </div>
-        </form>
+            </form>
+        </div>
     </>
 };

@@ -1,7 +1,6 @@
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { CeloCoins } from "types";
 import { AddressReducer } from "utils";
 
 const TeamItem = (props: { member: IMember, confirm: boolean, memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {
@@ -55,22 +54,23 @@ const TeamItem = (props: { member: IMember, confirm: boolean, memberState: [IMem
         <div className={`flex ${props.member.secondaryUsdBase && "flex-col"}  space-y-4 items-center`}>
             <div className="pl-[2px] flex items-center justify-center gap-1">
                 <div className="text-sm xl:text-base">{props.member.amount}</div>
-                {props.member.usdBase ? <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.member.currency].name}</div> :
+                {/* {props.member.usdBase ? <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.member.currency].name}</div> : */}
                     <div className="flex gap-1 items-center">
-                        <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full text-base" />
-                        {CeloCoins[props.member.currency].name}
+                        {/* <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full text-base" /> */}
+                        {/* {CeloCoins[props.member.currency].name} */}
                     </div>
-                }
+                {/* } */}
             </div>
             {props.member.secondaryCurrency && props.member.secondaryAmount &&
                 <div className="pl-[2px] flex items-center justify-center gap-1">
                     <div className="text-sm xl:text-base">{props.member.secondaryAmount}</div>
-                    {props.member.usdBase ? <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.member.secondaryCurrency].name}</div> :
+                    {
+                    /* {props.member.usdBase ? <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.member.secondaryCurrency].name}</div> : */}
                         <div className="flex gap-1 items-center">
-                            <img src={CeloCoins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full text-base" />
-                            {CeloCoins[props.member.secondaryCurrency].name}
+                            {/* <img src={CeloCoins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full text-base" /> */}
+                            {/* {CeloCoins[props.member.secondaryCurrency].name} */}
                         </div>
-                    }
+                    {/* } */}
                 </div>
             }
         </div>

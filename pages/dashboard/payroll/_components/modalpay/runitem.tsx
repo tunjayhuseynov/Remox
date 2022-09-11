@@ -2,7 +2,6 @@ import { useState } from 'react'
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { CeloCoins } from "types";
 
 const Runitem = (props: { member: IMember, teamName: string, runmodal: boolean, memberState: [IMember[], React.Dispatch<React.SetStateAction<IMember[]>>] }) => {
 
@@ -37,23 +36,23 @@ const Runitem = (props: { member: IMember, teamName: string, runmodal: boolean, 
         <div className="flex flex-col h-full">
             <div className="h-full flex items-center  gap-1">
                 <div className=" text-base">{props.member.amount}</div>
-
+{/* 
                 {props.member.usdBase ? <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.member.currency].name}</div> :
                     <div className="flex gap-1 items-center">
                         <img src={CeloCoins[props.member.currency].coinUrl} width="20" height="20" alt="" className="rounded-full text-base" />
                         {CeloCoins[props.member.currency].name}
-                    </div>}
+                    </div>} */}
                 <div>
 
                 </div>
             </div>
             {props.member.secondaryCurrency && <div className="pl-[2px] flex items-center justify-start gap-1">
                 <div className="text-base">{props.member.secondaryAmount}</div>
-                {props.member.secondaryUsdBase ?
+                {/* {props.member.secondaryUsdBase ?
                     <div className="flex items-center gap-1 ">USD as  <img src={CeloCoins[props.member.secondaryCurrency].coinUrl} width="20" height="20" alt="" className="rounded-full" /> {CeloCoins[props.member.secondaryCurrency].name}</div> :
                     <div className="flex gap-1 items-center">
                         {CeloCoins[props.member.secondaryCurrency].name}
-                    </div>}
+                    </div>} */}
                 <div>
                 </div>
             </div>}
