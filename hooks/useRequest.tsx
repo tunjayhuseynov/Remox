@@ -32,6 +32,13 @@ export default function useRequest() {
         isLoading(false)
     }
 
+    const removeRequest = async (request: IRequest, userId: string) => {
+        isLoading(true)
+        await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', userId, {
+            requests: arrayRemove(request)
+        })
+    }
+
     const addRequest = async (documentId: string, request : IRequest) => {
         isLoading(true)
         
@@ -65,5 +72,5 @@ export default function useRequest() {
         }
     }
 
-    return { loading, genLoading, setGenLoading, addRequest, approveRequest, rejectRequest };
+    return { loading, genLoading, setGenLoading, addRequest, approveRequest, rejectRequest, removeRequest };
 }
