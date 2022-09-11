@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { GetTime } from "utils";
 import { addContributor , SelectStorage } from "redux/slices/account/remoxData";
 import { useRouter } from 'next/router';
+import { TextField } from "@mui/material";
 
 export interface IFormInput {
     name: string;
@@ -52,9 +53,14 @@ const AddTeams = () => {
      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
         <div className="text-2xl self-center pt-5 font-semibold ">Enter Your Team</div>
         <div className="flex flex-col w-[85%]">
-            <div>Team Name</div>
+
             <div>
-                <input {...register("name", { required: true })} type="text" className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond" />
+                <TextField
+                    label="Team Name"
+                    {...register("name", {required: true})}
+                    type="text"
+                    className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none "
+                />
             </div>
             {error && <div className="text-red-600"> Something went wrong</div>}
         </div>

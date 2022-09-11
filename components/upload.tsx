@@ -1,8 +1,5 @@
-import { Dispatch, useEffect } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone'
-import { UseFormRegister } from 'react-hook-form';
-import {IFormInput} from '../pages/create-organization.page'
-
 
 export default function Upload({ setFile, className,className2,noProfilePhoto = true,photo }: { setFile: Dispatch<File>, className?: string,className2?: string,noProfilePhoto?: boolean,photo?:string | null}) {
     const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
@@ -53,3 +50,4 @@ export default function Upload({ setFile, className,className2,noProfilePhoto = 
         </div>
     </section>}</>
 }
+

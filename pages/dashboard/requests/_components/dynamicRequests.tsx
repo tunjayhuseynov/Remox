@@ -13,7 +13,8 @@ import { Checkbox } from "@mui/material";
 import RequestedUserItem from "./requestedUserItem";
 import {
   addApprovedRequest,
-  removePendingRequest
+  removePendingRequest,
+  removeApprovedRequest
 } from "redux/slices/account/remoxData";
 import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
@@ -95,6 +96,7 @@ export default function DynamicRequest({
         });
 
         await removeRequest(request, userId!);
+        dispatch(removeApprovedRequest(request.id));
 
       };
 
