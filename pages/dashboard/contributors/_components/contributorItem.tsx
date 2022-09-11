@@ -20,7 +20,7 @@ interface PageProps {
     teamName: string,
 }
 
-const TeamItem = ({member, teamName} : PageProps) => {
+const ContributorItem = ({member, teamName} : PageProps) => {
 
     const { removeMember } = useContributors()
     const navigate = useRouter()
@@ -127,4 +127,4 @@ const TeamItem = ({member, teamName} : PageProps) => {
     </>
 }
 
-export default TeamItem;
+export default ContributorItem;
