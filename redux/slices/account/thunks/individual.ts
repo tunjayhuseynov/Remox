@@ -1,4 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import { Create_Individual } from "crud/individual";
 import { auth, IIndividual } from "firebaseConfig";
 import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
@@ -51,7 +51,7 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
                 created_date: GetTime(),
                 createdBy: id,
                 name: newAccountName,
-                id: address,
+                id: nanoid(),
                 image: null,
                 members: [
                     {

@@ -45,6 +45,7 @@ import { EthSignSignature } from "@gnosis.pm/safe-core-sdk";
 import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatchRequest, IFormattedTransaction, ISwap, ITransfer, ITransferComment, ITransferFrom } from "hooks/useTransactionProcess";
 import { Optional } from "@metaplex/js";
 import { IBudgetORM } from "pages/api/budget/index.api";
+import { nanoid } from "@reduxjs/toolkit";
 
 
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
@@ -336,7 +337,7 @@ export default function useMultisig() {
             createdBy: auth.currentUser?.uid,
             mail: null,
             address: proxyAddress,
-            id: process(name.split(" ").join("")),
+            id: nanoid(),
             members: owners.map<IMember>(s => ({
                 address: s,
                 id: process(),
@@ -930,7 +931,9 @@ export default function useMultisig() {
                         return safeTxHash;
                     }
                 }
+                throw new Error("No data to submit")
             }
+            throw new Error("Blockchain is not selected")
         } catch (e: any) {
             throw new Error(e);
         }

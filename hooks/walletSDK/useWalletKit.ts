@@ -14,6 +14,7 @@ import { GetSignedMessage, GetTime } from "utils";
 import {
   SelectBlockchain,
   SelectCurrencies,
+  SelectID,
   setBlockchain as SetBlockchain,
 } from "redux/slices/account/remoxData";
 import { FetchPaymentData } from "redux/slices/account/thunks/payment";
@@ -37,6 +38,7 @@ import useWeb3Connector from "hooks/useWeb3Connector";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { useCelo } from "@celo/react-celo";
 import { generate } from "shortid";
+import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
 
 export enum CollectionName {
   Celo = "currencies",
@@ -53,6 +55,8 @@ export default function useWalletKit() {
   const blockchain = useAppSelector(SelectBlockchain) as BlockchainType;
   const dispatch = useAppDispatch();
   const coins = useAppSelector(SelectCurrencies);
+
+  const id = useAppSelector(SelectID)
 
   const { allow } = useAllowance();
   const { createTask } = useTasking();
@@ -247,8 +251,9 @@ export default function useWalletKit() {
       try {
         let txhash;
         const Address = account.address;
-        console.log(Address)
+
         if (!blockchain) throw new Error("blockchain not found");
+        if (!id) throw new Error("Your session is not active")
         if (!Address) throw new Error("Address not set");
         if (inputArr.length === 0) throw new Error("No inputs");
         const txData = await dispatch(
@@ -321,7 +326,13 @@ export default function useWalletKit() {
               command,
               inputArr
             );
-            dispatch(Refresh_Data_Thunk());
+            await dispatch(Add_Tx_To_TxList_Thunk({
+              account: account,
+              authId: id,
+              blockchain: blockchain,
+              txHash: txHash,
+            }))
+            // dispatch(Refresh_Data_Thunk());
             return;
           }
 
@@ -344,6 +355,12 @@ export default function useWalletKit() {
                 );
               }
             }
+            await dispatch(Add_Tx_To_TxList_Thunk({
+              account: account,
+              authId: id,
+              blockchain: blockchain,
+              txHash: txhash,
+            }))
           } else {
             const txHash = await submitTransaction(
               account.address,
@@ -351,6 +368,12 @@ export default function useWalletKit() {
               destination
             );
             txhash = txHash;
+            await dispatch(Add_Tx_To_TxList_Thunk({
+              account: account,
+              authId: id,
+              blockchain: blockchain,
+              txHash: txhash,
+            }))
           }
         } else if (
           blockchain.name === "solana" &&

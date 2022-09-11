@@ -1,6 +1,7 @@
 import { IBudget, IBudgetTX, ISubBudget } from "firebaseConfig";
 import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { AltCoins } from "types";
+import { DecimalConverter } from "utils/api";
 import { IRemoxData } from "../remoxData";
 
 export default {
@@ -67,24 +68,24 @@ export default {
             if (budgetIndex !== -1) {
                 state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
                 // state.budgetExercises[index].budgets[budgetIndex].totalBudget -= (payload.tx.amount * payload.currency.priceUSD);
-                state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
-                state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].budgets[budgetIndex].totalUsed += (DecimalConverter(payload.tx.amount, payload.currency.decimals) * payload.currency.priceUSD);
+                state.budgetExercises[index].totalAvailable -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals) * payload.currency.priceUSD));
                 if (payload.isTxExecuted) {
-                    state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalUsed += ((DecimalConverter(payload.tx.amount, payload.currency.decimals) * payload.currency.priceUSD));
                 } else {
-                    state.budgetExercises[index].totalPending += (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals) * payload.currency.priceUSD));
                 }
 
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount -= (payload.tx.amount),
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += (payload.tx.amount),
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                         totalUsedAmount: payload.isTxExecuted ?
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += (payload.tx.amount)
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                             :
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
                     }
@@ -95,13 +96,13 @@ export default {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
                         second: second ? {
                             ...second,
-                            secondTotalAmount: second.secondTotalAmount -= (payload.tx.amount),
+                            secondTotalAmount: second.secondTotalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             secondTotalPending: payload.isTxExecuted ?
                                 second.secondTotalPending
                                 :
-                                second.secondTotalPending += (payload.tx.amount),
+                                second.secondTotalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             secondTotalUsedAmount: payload.isTxExecuted ?
-                                second.secondTotalUsedAmount += (payload.tx.amount)
+                                second.secondTotalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                                 :
                                 second.secondTotalUsedAmount,
                         } : null
@@ -119,24 +120,24 @@ export default {
                     .filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());
 
                 // state.budgetExercises[index].budgets[budgetIndex].totalBudget -= (payload.tx.amount * payload.currency.priceUSD);
-                state.budgetExercises[index].budgets[budgetIndex].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
-                state.budgetExercises[index].totalAvailable += (payload.tx.amount * payload.currency.priceUSD);
+                state.budgetExercises[index].budgets[budgetIndex].totalUsed -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
+                state.budgetExercises[index].totalAvailable += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                 if (payload.isTxExecuted) {
-                    state.budgetExercises[index].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalUsed -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                 } else {
-                    state.budgetExercises[index].totalPending -= (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                 }
 
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount += (payload.tx.amount),
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= (payload.tx.amount),
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                         totalUsedAmount: payload.isTxExecuted ?
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount -= (payload.tx.amount)
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                             :
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
                     }
@@ -147,13 +148,13 @@ export default {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
                         second: second ? {
                             ...second,
-                            secondTotalAmount: second.secondTotalAmount += (payload.tx.amount),
+                            secondTotalAmount: second.secondTotalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             secondTotalPending: payload.isTxExecuted ?
                                 second.secondTotalPending
                                 :
-                                second.secondTotalPending -= (payload.tx.amount),
+                                second.secondTotalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             secondTotalUsedAmount: payload.isTxExecuted ?
-                                second.secondTotalUsedAmount -= (payload.tx.amount)
+                                second.secondTotalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                                 :
                                 second.secondTotalUsedAmount,
                         } : null
@@ -179,33 +180,33 @@ export default {
                 const subBudgetIndex = (state.budgetExercises[index].budgets[budgetIndex] as IBudget).subbudgets.findIndex((subBudget) => subBudget.id === payload.subbudget.id);
                 if (subBudgetIndex !== -1) {
                     // state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalBudget -= payload.tx.amount * payload.currency.priceUSD;
-                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed += payload.tx.amount * payload.currency.priceUSD;
+                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed += (DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD;
 
                     state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
-                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     if (payload.isTxExecuted) {
-                        state.budgetExercises[index].budgets[budgetIndex].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].budgets[budgetIndex].totalUsed += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     } else {
-                        state.budgetExercises[index].budgets[budgetIndex].totalPending += (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].budgets[budgetIndex].totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     }
 
-                    state.budgetExercises[index].totalAvailable -= (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalAvailable -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     if (payload.isTxExecuted) {
-                        state.budgetExercises[index].totalUsed += (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].totalUsed += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     } else {
-                        state.budgetExercises[index].totalPending += (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     }
 
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount -= (payload.tx.amount),
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending += (payload.tx.amount),
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             totalUsedAmount: payload.isTxExecuted ?
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount += (payload.tx.amount)
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                                 :
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
                         }
@@ -216,13 +217,13 @@ export default {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
                             second: second ? {
                                 ...second,
-                                secondTotalAmount: second.secondTotalAmount -= (payload.tx.amount),
+                                secondTotalAmount: second.secondTotalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                                 secondTotalPending: payload.isTxExecuted ?
                                     second.secondTotalPending
                                     :
-                                    second.secondTotalPending += (payload.tx.amount),
+                                    second.secondTotalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                                 secondTotalUsedAmount: payload.isTxExecuted ?
-                                    second.secondTotalUsedAmount += (payload.tx.amount)
+                                    second.secondTotalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                                     :
                                     second.secondTotalUsedAmount,
                             } : null
@@ -240,34 +241,34 @@ export default {
                 const subBudgetIndex = (state.budgetExercises[index].budgets[budgetIndex] as IBudget).subbudgets.findIndex((subBudget) => subBudget.id === payload.subbudget.id);
                 if (subBudgetIndex !== -1) {
                     // state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalBudget -= payload.tx.amount * payload.currency.priceUSD;
-                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed -= payload.tx.amount * payload.currency.priceUSD;
+                    state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].totalUsed -= (DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD;
 
                     state.budgetExercises[index].budgets[budgetIndex].txs = state.budgetExercises[index].budgets[budgetIndex].txs
                         .filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());;
-                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable += (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].budgets[budgetIndex].totalAvailable += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     if (payload.isTxExecuted) {
-                        state.budgetExercises[index].budgets[budgetIndex].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].budgets[budgetIndex].totalUsed -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     } else {
-                        state.budgetExercises[index].budgets[budgetIndex].totalPending -= (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].budgets[budgetIndex].totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     }
 
-                    state.budgetExercises[index].totalAvailable += (payload.tx.amount * payload.currency.priceUSD);
+                    state.budgetExercises[index].totalAvailable += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     if (payload.isTxExecuted) {
-                        state.budgetExercises[index].totalUsed -= (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].totalUsed -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     } else {
-                        state.budgetExercises[index].totalPending -= (payload.tx.amount * payload.currency.priceUSD);
+                        state.budgetExercises[index].totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)) * payload.currency.priceUSD);
                     }
 
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount += (payload.tx.amount),
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending -= (payload.tx.amount),
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                             totalUsedAmount: payload.isTxExecuted ?
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount -= (payload.tx.amount)
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                                 :
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
                         }
@@ -278,13 +279,13 @@ export default {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
                             second: second ? {
                                 ...second,
-                                secondTotalAmount: second.secondTotalAmount += (payload.tx.amount),
+                                secondTotalAmount: second.secondTotalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                                 secondTotalPending: payload.isTxExecuted ?
                                     second.secondTotalPending
                                     :
-                                    second.secondTotalPending -= (payload.tx.amount),
+                                    second.secondTotalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
                                 secondTotalUsedAmount: payload.isTxExecuted ?
-                                    second.secondTotalUsedAmount -= (payload.tx.amount)
+                                    second.secondTotalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
                                     :
                                     second.secondTotalUsedAmount,
                             } : null
