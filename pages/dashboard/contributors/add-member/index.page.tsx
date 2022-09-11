@@ -214,7 +214,6 @@ export default () => {
                             </div>
                         </div>
                         <div className="flex flex-col ">
-                            <div className="text-greylish">Compensation Type</div>
                             <div className=" w-full ">
                                 <Dropdown
                                     parentClass={'w-full rounded-lg h-[3.15rem]'}
