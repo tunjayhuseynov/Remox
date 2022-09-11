@@ -157,7 +157,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const accounts = accountRes.data;
       const multi = accounts.accounts.filter((s) => s.signerType === "multi");
-     
+      
       const {
         approvedRequests,
         multisigRequests,

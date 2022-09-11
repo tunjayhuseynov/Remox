@@ -13,6 +13,7 @@ import useNextSelector from "hooks/useNextSelector";
 import { useAppDispatch } from "redux/hooks";
 import { Create_Individual_Thunk } from "redux/slices/account/thunks/individual";
 import useAsyncEffect from "hooks/useAsyncEffect";
+import { TextField } from "@mui/material";
 
 interface IFormInput {
   nftAddress?: string;
@@ -100,7 +101,7 @@ const CreateAccount = () => {
               {/* <div className="text-xs text-left text-black  dark:text-white">Choose Profile Photo Type</div> */}
               <div className={` flex items-center gap-3 w-full`}>
                 <Dropdown
-                  parentClass={"bg-white w-full rounded-lg h-[3.4rem]"}
+                  parentClass={" w-full rounded-lg h-[3.4rem]"}
                   className={"!rounded-lg h-[3.4rem]"}
                   label="Choose Profile Photo Type"
                   list={imageType}
@@ -148,25 +149,24 @@ const CreateAccount = () => {
               </div>
             )}
             <div className="flex flex-col mb-4 gap-1 w-full">
-              <div className="text-xs text-left  dark:text-white">Name</div>
               <div className={`w-full border rounded-lg`}>
-                <input
-                  type="text"
+                <TextField
+                  type={"text"}
                   {...register("name", { required: true })}
                   className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
+                  label="Name"
+
                 />
               </div>
             </div>
             <div className="flex flex-col mb-4 gap-1 w-full">
-              <div className="text-xs text-left dark:text-white">
-                Your Address
-              </div>
               <div className={`w-full border rounded-lg`}>
-                <input
-                  type="text"
-                  readOnly
+                <TextField
+                  type={'text'}
                   defaultValue={address}
                   className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
+                  label="Yor Address"
+                  disabled
                 />
               </div>
             </div>
