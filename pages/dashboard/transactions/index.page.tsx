@@ -18,7 +18,7 @@ import { TablePagination } from "@mui/material";
 import { IAccountORM } from "pages/api/account/index.api";
 import { BlockchainType } from "types/blockchains";
 import { ITag } from "pages/api/tags/index.api";
-import Filter from "./_components/filter";
+import Filter from "./_components/Filter";
 import { DateObject } from "react-multi-date-picker";
 import { IAccount, IBudget } from "firebaseConfig";
 

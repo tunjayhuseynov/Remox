@@ -13,9 +13,10 @@ import { ChainId, Fetcher, Fraction, JSBI as UbeJSBI, Percent, Route, Router, To
 import { getAddress } from "ethers/lib/utils"
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
 import { Coins } from "types"
+import { Blockchains } from "types/blockchains"
 
 
-const web3 = new Web3(CeloEndpoint)
+const web3 = new Web3(Blockchains.find(b => b.name === 'celo')!.rpcUrl)
 
 export const BatchPay = async (inputArr: IPaymentInput[], from: string, coins: Coins) => {
 
@@ -52,26 +53,15 @@ export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string, 
 
 export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPaymentInput, fromAddress: string, coins: Coins) => {
     const amountWei = toWei(amount.toString());
-    const provider = new ethers.providers.JsonRpcProvider(CeloEndpoint)
-    let nomContract = new ethers.Contract("0xABf8faBbC071F320F222A526A2e1fBE26429344d", nomAbi.abi, provider)
-
-    const isAddressExist = ethers.utils.isAddress(recipient)
-    if (!isAddressExist) {
-        if (recipient.slice(0, 2) != "0x") {
-            recipient = recipient.slice(recipient.length - 4) == ".nom" ? recipient.slice(0, recipient.length - 4) : recipient
-            const bytes = ethers.utils.formatBytes32String(recipient);
-            recipient = await nomContract.methods.resolve(bytes).call();
-
-            if (recipient.slice(0, 7) == "0x00000") throw new Error('There is not any wallet belong this address');
-        }
-        else throw new Error('There is not any wallet belong this address');
-    }
 
     const Coin = coins[coin]
     let token = new web3.eth.Contract(ERC20 as AbiItem[], Coin.address);
     let currentBalance = await token.methods.balanceOf(fromAddress).call();
     let celoBalance = fromWei(currentBalance)
 
+    if (recipient.slice(0, 2) != "0x") {
+        recipient = await NomSpace(recipient)
+    }
 
     if (amount.toString() >= celoBalance)
         throw new Error('Amount exceeds balance');
@@ -161,4 +151,24 @@ export const GenerateSwapData = async (swap: ISwap) => {
     const sender = await router.methods.swapExactTokensForTokens(...ubeRouter.args).encodeABI()
 
     return sender;
+}
+
+
+const NomSpace = async (recipient: string) => {
+    let nomContract = new web3.eth.Contract(nomAbi.abi as AbiItem[], "0xABf8faBbC071F320F222A526A2e1fBE26429344d")
+
+    const isAddressExist = ethers.utils.isAddress(recipient)
+    if (!isAddressExist) {
+        if (recipient.slice(0, 2) != "0x") {
+            recipient = recipient.slice(recipient.length - 4) == ".nom" ? recipient.slice(0, recipient.length - 4) : recipient
+            const bytes = ethers.utils.formatBytes32String(recipient);
+            recipient = await nomContract.methods.resolve(bytes).call();
+
+            if (recipient.slice(0, 7) == "0x00000") throw new Error('There is not any wallet belong this address');
+
+            return recipient;
+        }
+        else throw new Error('There is not any wallet belong this address');
+    }
+    return recipient;
 }

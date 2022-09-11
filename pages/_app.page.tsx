@@ -8,7 +8,7 @@ import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux'
 import Wallet from 'components/Wallet'
 import store from 'redux/store';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useEffect } from 'react';
 import { NextPage } from 'next';
 import { ThemeProvider } from "next-themes";
 
@@ -16,6 +16,9 @@ import App from 'layouts/App'
 import Guard from 'layouts/Guard';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from 'firebaseConfig';
+import { useRouter } from 'next/dist/client/router';
 
 const DashboardLayout = dynamic(() => import('layouts/dashboard'))
 
@@ -34,8 +37,16 @@ type AppPropsWithLayout = AppProps & {
 function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
   const url = `${router.route}`
 
+  const route = useRouter()
   // const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        route.push('/')
+      }
+    })
+  }, [])
 
 
   const disableLayout = Component?.disableLayout ?? false
