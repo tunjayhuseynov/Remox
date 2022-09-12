@@ -13,6 +13,7 @@ import { useModalSideExit } from "hooks";
 import Link from "next/link";
 import { SelectAccounts, SelectIndividual, SelectRemoxAccount } from "redux/slices/account/selector";
 import { useRouter } from "next/router";
+import _ from "lodash";
 
 
 enum Status {
@@ -94,7 +95,10 @@ const NotificationCointainer = () => {
                                         id: item.id,
                                         hash: item.hash,
                                         rawData: item.rawData,
-                                        payments: value
+                                        payments: value,
+                                        address: item.address,
+                                        tags: item.tags,
+                                        budget: item.budget,
                                     }
                                     TXs.push(tx)
                                 })

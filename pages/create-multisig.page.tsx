@@ -15,7 +15,7 @@ import { ToastRun } from 'utils/toast';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import useNextSelector from 'hooks/useNextSelector';
 import { selectStorage } from 'redux/slices/account/storage';
-import { UploadNFTorImageForUser } from 'hooks/singingProcess/utils';
+import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
 import { IAccount, Image } from 'firebaseConfig';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 
@@ -71,7 +71,7 @@ function CreateMultisig() {
             if (multisigIsUpload && !orgPhoto) throw new Error("No file uploaded")
             if (Owners.length === 0) throw new Error("No owners added")
 
-            let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+            let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
             if (orgPhoto || data.nftAddress) {
                 image =
                 {
@@ -85,7 +85,7 @@ function CreateMultisig() {
                     name: `organizations/${data.name}`
                 }
 
-                await UploadNFTorImageForUser(image)
+                await DownloadAndSetNFTorImageForUser(image)
             }
 
             let multisig: IAccount;

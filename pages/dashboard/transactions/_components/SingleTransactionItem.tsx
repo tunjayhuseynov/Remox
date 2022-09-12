@@ -77,6 +77,8 @@ const SingleTransactionItem = ({
         id: nanoid(),
         address: transaction.address,
         hash: transaction.hash,
+        contractType: "single",
+        provider: account?.provider ?? null
       },
       txIndex: txPositionInRemoxData
     })).unwrap()
@@ -102,7 +104,7 @@ const SingleTransactionItem = ({
                   <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} /> : account?.name.slice(0, 2).toUpperCase()}
               </span>
             </div>
-            <div className="text-sm truncate font-semibold">
+            <div className="text-sm truncate font-semibold pr-5">
               {account?.name ?? "N/A"}
             </div>
           </div>
@@ -195,12 +197,12 @@ const SingleTransactionItem = ({
             <div className="flex items-center justify-between mb-2">
               <div className="flex space-x-1 items-center font-semibold">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <div>Approved</div>
+                <div className=" lg:text-xs 2xl:text-base">Approved</div>
               </div>
-              <div className="text-gray-300">
+              <div className="text-gray-300 lg:text-xs 2xl:text-base">
                 |
               </div>
-              <div className="text-gray-300">
+              <div className="text-gray-300 lg:text-xs 2xl:text-base">
                 1 <span className="font-thin">/</span> 1
               </div>
             </div>

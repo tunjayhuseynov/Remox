@@ -1,18 +1,24 @@
 import axios from "axios";
-import { IBudget } from "firebaseConfig";
+import { IBudget, IBudgetTX } from "firebaseConfig";
 import { BlockchainType } from "types/blockchains";
 import { BASE_URL } from "utils/api";
-import { ISpendingResponse } from "../calculation/_spendingType.api";
+import { ISpendingResponse, ITagFlow } from "../calculation/_spendingType.api";
 import { IBudgetCoin, IBudgetORM, ISubbudgetORM } from "./index.api";
 import { IPriceResponse } from "../calculation/price.api";
 import { MultisigTxCal } from "./MultisigTxCal";
+import { ITag, ITxTag } from "../tags/index.api";
+import { isHex } from "web3-utils";
+import axiosRetry from "axios-retry";
 
-export const CalculateBudget = async (budget: IBudget, parentId: string, parsedAddress: string[], blockchain: string, blockchainType: BlockchainType, prices: IPriceResponse) => {
+export const CalculateBudget = async (budget: IBudget, parentId: string, parsedAddress: string[], blockchain: string, blockchainType: BlockchainType, prices: IPriceResponse, tags: ITag[]) => {
     let totalBudgetCoin: IBudgetCoin, orm: IBudgetORM;
     const singleTxs = budget.txs.filter(tx => tx.contractType === "single");
     const multiTxs = budget.txs.filter(tx => tx.contractType === "multi");
+
     let totalBudget: number = 0, totalBudgetUsed: number = 0, totalBudgetPending: number = 0, totalBudgetAvailable: number = 0;
     let totalFirstCoinPending = 0, totalSecondCoinPending = 0, totalFirstCoinSpent = 0, totalSecondCoinSpent = 0;
+
+    axiosRetry(axios, { retries: 10 });
     const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
         params: {
             addresses: parsedAddress,
@@ -24,6 +30,63 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             secondCoin: budget.secondToken ?? undefined
         }
     })
+
+    const tagTxs: IBudgetORM["tags"] = [];
+
+    for (const tag of tags) {
+        const singleTxs = tag.transactions.filter(
+            s => s.contractType == "single" && budget.txs.find(a => a.contractAddress.toLowerCase() === s.contractType.toLowerCase() && a.hashOrIndex.toLowerCase() === s.hash.toLowerCase())
+        );
+        const multiTxs = tag.transactions.filter(
+            s => s.contractType == "multi" && budget.txs.find(a => a.contractAddress.toLowerCase() === s.contractType.toLowerCase() && a.hashOrIndex.toLowerCase() === s.hash.toLowerCase())
+        );
+        if(singleTxs.length === 0 && multiTxs.length == 0) {
+            continue;
+        }
+        const tagSpending = singleTxs.length > 0 ? await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
+            params: {
+                addresses: parsedAddress,
+                blockchain: blockchain,
+                txs: singleTxs.map(s => s.hash),
+                id: parentId,
+                isTxNecessery: true,
+                coin: budget.token,
+                secondCoin: budget.secondToken ?? undefined
+            }
+        }) : null;
+
+        const coinParsed = tagSpending ? tagSpending.data.CoinStats.reduce<{ [name: string]: number }>((a, c) => {
+            if (a[c.coin]) {
+                a[c.coin] += c.totalSpending;
+            } else {
+                a[c.coin] = c.totalSpending;
+            }
+            return a;
+        }, {}) : null
+
+        const txMultisigResponse = await Promise.allSettled(multiTxs.map(s => MultisigTxCal(budget, {
+            contractAddress: s.address,
+            hashOrIndex: s.hash,
+            protocol: s.provider ?? "",
+        }, blockchainType, budget.token, budget.secondToken ?? undefined)))
+
+        tagTxs.push({
+            tag: tag,
+            budgetCoin: {
+                coin: budget.token,
+                totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
+                totalPending: txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalFirstCoinPending : 0), 0),
+                totalUsedAmount: (coinParsed?.[budget.token] ?? 0) + txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalFirstCoinSpent : 0), 0),
+                second: budget.secondToken && budget.secondAmount && coinParsed?.[budget.secondToken] ? {
+                    secondTotalAmount: budget.secondAmount,// - totalSecondCoinPending - coinParsed[budget.secondToken] - totalSecondCoinSpent,
+                    secondCoin: budget.secondToken,
+                    secondTotalPending: txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalSecondCoinPending : 0), 0),
+                    secondTotalUsedAmount: coinParsed[budget.secondToken] + txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalSecondCoinSpent : 0), 0)
+                } : null
+            }
+        })
+    }
+
 
     const txMultisigResponse = await Promise.allSettled(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType, budget.token, budget.secondToken ?? undefined)))
     txMultisigResponse.forEach(tx => {
@@ -145,7 +208,8 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         totalAvailable: totalBudgetAvailable,
         totalPending: totalBudgetPending,
         budgetCoins: budgetCoin,
-        subbudgets: subbudgets
+        subbudgets: subbudgets,
+        tags: tagTxs
     }
 
     return {

@@ -13,7 +13,7 @@ const DeletBudget = ({ onDisable, budget }: { budget: IBudgetORM, onDisable: Rea
     const onSubmit = async () => {
         await dispatch(Delete_Budget_Thunk({
             budget
-        }))
+        })).unwrap()
 
         onDisable(false)
     }

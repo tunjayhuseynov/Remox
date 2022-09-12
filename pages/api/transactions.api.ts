@@ -22,6 +22,7 @@ import ERC20 from "rpcHooks/ABI/erc20.json";
 import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { IBudgetORM } from "./budget/index.api";
+import axiosRetry from "axios-retry";
 
 
 // GET /api/transactions  --params blockchain, address
@@ -55,7 +56,7 @@ export default async function handler(
 
     if (parsedAddress.length === 0 || !blockchain)
       return res.status(400).send("Missing address or blockchain");
-
+  
     let myTags: { tags: ITag[] } | undefined;
     if (authId) {
       myTags = (
@@ -97,6 +98,7 @@ const GetTxs = async (
   coins: Coins,
   inTxs?: string[]
 ) => {
+  axiosRetry(axios, { retries: 10 });
   let txList: Transactions[] = [];
 
   if (blockchain.name === "solana") {
@@ -286,7 +288,7 @@ const ParseTxs = async (
 
     return FormattedTransaction;
   } catch (error) {
-    console.log(error);
+    console.log("Transactin Api", error);
 
     throw new Error(error as any);
   }

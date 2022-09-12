@@ -29,7 +29,8 @@ interface IProp<T> {
     setSelect?: Dispatch<T>,
     runFn?: (val: T) => () => any,
     sx?: SxProps<Theme>
-    textClass?: string
+    textClass?: string,
+    textContainerClass?: string,
 }
 
 interface IGenericExtendedProp {
@@ -43,7 +44,8 @@ interface IGenericExtendedProp {
     secondValue?: string | number
 }
 
-const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector }: IProp<T>) => {
+const Dropdown = <T extends IGenericExtendedProp,>(
+    { loading, selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
 
@@ -54,13 +56,13 @@ const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, s
 
     return (
         <div className={`relative ${parentClass}`}>
-            <FormControl className={`${className} w-full z-`}>
+            <FormControl className={`${className} w-full`}>
                 {label && <InputLabel id={labelId + "-label"}>{label}</InputLabel>}
                 <Select
                     id={id}
                     labelId={labelId + "-label"}
-                    MenuProps={MenuProps}
                     value={selected ?? ""}
+                    MenuProps={MenuProps}
                     // {...props}
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center `}>
@@ -70,9 +72,9 @@ const Dropdown = <T extends IGenericExtendedProp,>({ loading, selected, label, s
                                 {selected.logoUrl && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
                                 {selected.logoURI && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
                                 {selected.image && !loading && <img className="w-10 h-10 mr-2 rounded-full" src={`${selected.image}`} />}
-                                {!loading && <div className="flex flex-col items-start">
+                                {!loading && <div className={`${textContainerClass} flex flex-col items-start`}>
                                     <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
-                                    {selected.secondValue && <span className="text-left text-sm  text-gray-500">{selected.secondValue}</span>}
+                                    {selected.secondValue && <span className="text-left text-sm text-gray-500">{selected.secondValue}</span>}
                                 </div>}
                             </div>
                         </div>

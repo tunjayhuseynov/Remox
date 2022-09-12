@@ -15,15 +15,15 @@ import { SelectAccountType, SelectRemoxAccount } from 'redux/slices/account/sele
 
 interface IFormInput {
     name: string;
-    from: Date;
-    to: Date;
+    from?: Date;
+    to?: Date;
 }
 
 function NewExercise() {
 
     const { register, handleSubmit } = useForm<IFormInput>();
-    const paymentname: DropDownItem[] = [{ name: "Current full Year" }, { name: "Custom period" }]
-    const [selectedPayment, setSelectedPayment] = useState(paymentname[0])
+    const paymentType: DropDownItem[] = [{ name: "Current full year" }, { name: "Custom period" }]
+    const [selectedPayment, setSelectedPayment] = useState(paymentType[0])
     const { blockchain } = useWalletKit()
 
     const remoxAccount = useAppSelector(SelectRemoxAccount)
@@ -40,8 +40,8 @@ function NewExercise() {
         try {
             if (!remoxAccountType) return ToastRun(<>Please. sign in first</>, "warning")
             if (!remoxAccount) throw new Error("No remox account found")
-            const fromDate = new Date(From);
-            const toDate = new Date(To);
+            const fromDate = data.from ? new Date(data.from) : new Date(From);
+            const toDate = data.to ? new Date(data.to) : new Date(To);
 
             await dispatch(Create_Budget_Exercise_Thunk({
                 budgetExercise: {
@@ -57,7 +57,7 @@ function NewExercise() {
                 },
                 remoxAccount,
                 remoxAccountType,
-            }))
+            })).unwrap()
             navigate.push('/dashboard/budgets')
         } catch (error) {
             console.error(error as any)
@@ -74,17 +74,22 @@ function NewExercise() {
         </button>
         <form onSubmit={handleSubmit(submit)} className="w-1/2 mx-auto">
             <div className="text-2xl text-center font-medium py-6">Define  of your budgetary exercise</div>
-            <div className="px-12 flex flex-col gap-4">
+            <div className="px-12 flex flex-col space-y-12">
                 <div className="flex flex-col">
                     <span className="text-left  text-greylish  pb-2 ml-1" >Name  of your budgetary exercise</span>
                     <input type="text" {...register("name", { required: true })} className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
                 </div>
-                <div className="flex flex-col pt-6">
+                <div>
                     {/* <span className="text-left  text-greylish pb-2 ml-1" >Dates  of the budgetary exercise</span> */}
-                    <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3rem]'} className={'!rounded-lg h-[3rem] dark:border-white'} label="Dates  of the budgetary exercise" list={paymentname} selected={selectedPayment} setSelect={setSelectedPayment} />
+                    <Dropdown
+                        parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-full'}
+                        label="Dates  of the budgetary exercise"
+                        list={paymentType}
+                        selected={selectedPayment}
+                        setSelect={setSelectedPayment} />
                 </div>
                 <div className="flex pt-4">
-                    {selectedPayment.name === "Current full Year" ?
+                    {selectedPayment.name === "Current full year" ?
                         <div className="flex w-full gap-4 items-center justify-center">
                             <div className="flex flex-col gap-1 w-full">
                                 <div className="text-sm text-greylish ">From</div>
@@ -104,12 +109,12 @@ function NewExercise() {
                         <div className="flex w-full gap-4 items-center justify-center">
                             <div className="flex flex-col gap-1 w-full">
                                 <div className="text-sm text-greylish black:text-white">From</div>
-                                <input type="date" {...register("to")} className="border w-full py-2 px-1 rounded-lg  dark:bg-darkSecond bg-opacity-20" />
+                                <input type="date" {...register("to", { required: true })} className="border w-full py-2 px-1 rounded-lg  dark:bg-darkSecond bg-opacity-20" />
                             </div>
                             <div className="flex  border-b w-[10%] pt-4"></div>
                             <div className="flex flex-col gap-1 w-full">
                                 <div className="text-sm text-greylish black:text-white ">To</div>
-                                <input type="date" {...register("from")} className="border w-full py-2 px-1 rounded-lg  dark:bg-darkSecond bg-opacity-20" />
+                                <input type="date" {...register("from", { required: true })} className="border w-full py-2 px-1 rounded-lg  dark:bg-darkSecond bg-opacity-20" />
                             </div>
                         </div>}
                 </div>

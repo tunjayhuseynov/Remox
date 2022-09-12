@@ -5,6 +5,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, TokenType } from "types";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
+import axiosRetry from "axios-retry";
 
 export interface IPriceCoin {
     coins: AltCoins;
@@ -46,6 +47,7 @@ export default async function handler(
         const fetchCurrenicesReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
         const fetchCurrenices = fetchCurrenicesReq.docs.map(s => s.data() as AltCoins)
 
+        axiosRetry(axios, { retries: 10 });
    
         const balance = await axios.get<Balance>(BASE_URL + '/api/calculation/balance', {
             params: {

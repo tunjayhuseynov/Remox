@@ -7,8 +7,8 @@ import axios from "axios";
 import { IPriceResponse } from "../calculation/price.api";
 import { BlockchainType } from "types/blockchains";
 import { CalculateBudget } from "./budgetCal";
-
-const CeloTerminal = import("rpcHooks/ABI/CeloTerminal.json")
+import { ITag } from "../tags/index.api";
+import axiosRetry from "axios-retry";
 
 export interface IBudgetCoin {
     coin: string,
@@ -30,6 +30,10 @@ export interface IBudgetORM extends IBudget {
     totalAvailable: number,
     budgetCoins: IBudgetCoin,
     subbudgets: ISubbudgetORM[],
+    tags: {
+        tag: ITag,
+        budgetCoin: IBudgetCoin,
+    }[]
 }
 
 export interface ISubbudgetORM extends ISubBudget {
@@ -62,11 +66,13 @@ export default async function handler(
         if (!addresses) return res.status(200).json([]);
         if (!parentId || !blockchain || !parsedAddress) throw new Error("unavailable params")
 
+        const tagDoc = (await adminApp.firestore().collection("tags").doc(parentId).get()).data() as { tags: ITag[] };
+        const tags = tagDoc.tags;
 
         const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", parentId).get();
         let budget_exercises: IBudgetExercise[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise);
 
-
+        axiosRetry(axios, { retries: 10 });
 
         const prices = await axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
             params: {
@@ -89,7 +95,7 @@ export default async function handler(
             /*Budget Calculation */
             /*Budget Calculation */
             /*Budget Calculation */
-            const budgetResulst = await Promise.allSettled(budget_exercise.budgets.map(budget => CalculateBudget(budget, parentId, parsedAddress, blockchain, blockchainType, prices.data)))
+            const budgetResulst = await Promise.allSettled(budget_exercise.budgets.map(budget => CalculateBudget(budget, parentId, parsedAddress, blockchain, blockchainType, prices.data, tags)))
             budgetResulst.forEach(budget => {
                 if (budget.status === "fulfilled") {
                     orm.push(budget.value.orm)
@@ -99,7 +105,6 @@ export default async function handler(
             /*Budget Calculation END*/
             /*Budget Calculation END*/
             /*Budget Calculation END*/
-
 
             exercises.push({
                 ...budget_exercise,

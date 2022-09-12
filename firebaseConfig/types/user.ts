@@ -144,5 +144,5 @@ export interface Image {
     nftUrl: string;
     tokenId: number | null;
     type: "image" | "nft";
-    blockchain: BlockchainType;
+    blockchain: BlockchainType["name"];
 }

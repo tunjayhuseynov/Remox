@@ -12,7 +12,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { GetTime } from 'utils';
 import useLoading from 'hooks/useLoading';
 import { Create_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
-
+import { AiOutlinePlusCircle } from 'react-icons/ai'
 
 interface IFormInput {
     name: string;
@@ -48,7 +48,7 @@ function NewBudgets() {
         const coin = wallet
         const coin2 = wallet2
         const subbudgets = inputs
-        const { name, amount, subName } = data
+    
         let secondCoin = null, secondAmount = null, id = generate();
 
         if (data.amount2 && data.amount2 > 0) {
@@ -79,7 +79,7 @@ function NewBudgets() {
                     txs: [],
                 })),
             }
-        }))
+        })).unwrap()
 
         navigate.push('/dashboard/budgets')
     }
@@ -141,34 +141,41 @@ function NewBudgets() {
                     <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Name</span>
                     <input type="text" required  {...register("name", { required: true })} className="border w-full bg-white dark:bg-darkSecond py-2 px-1 rounded-lg" />
                 </div>
-                <div className="flex w-full gap-8 pt-4">
-                    <div className="flex flex-col  w-full">
+                <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
+                    <div className='grid grid-rows-[40%,60%]'>
+                        <div></div>
                         {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span> */}
                         <Dropdown
-                            className="!py-[0.35rem] border dark:border-white dark:bg-darkSecond text-sm !rounded-lg"
+                            parentClass='h-full'
+                            sx={{
+                                height: "3rem",
+                            }}
                             label="Budget Token"
                             selected={wallet}
                             list={Object.values(GetCoins) as AltCoins[]}
                             setSelect={setWallet}
                         />
                     </div>
-                    <div className="flex flex-col w-full">
+                    <div className="grid grid-rows-[40%,60%] w-full">
                         <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
                         <input required {...register("amount", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow bg-white pl-2 border  rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
                     </div>
                 </div>
                 {anotherToken &&
-                    <div className="flex w-full gap-8 pt-4">
-                        <div className="flex flex-col w-full">
-                            <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Token</span>
+                    <div className="grid grid-cols-2 w-full gap-8 pt-4">
+                        <div className='grid grid-rows-[40%,60%]'>
+                            <div></div>
                             <Dropdown
-                                className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
+                                parentClass='h-full'
+                                sx={{
+                                    height: "3rem",
+                                }}
                                 label="Budget Token"
                                 selected={wallet2}
                                 list={Object.values(GetCoins) as AltCoins[]}
                                 setSelect={setWallet2} />
                         </div>
-                        <div className="flex flex-col w-full">
+                        <div className="grid grid-rows-[40%,60%] w-full">
                             <div className="flex justify-between relative">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
                                 <div className="absolute -top-[-2.75rem] -right-[2rem]">
@@ -183,15 +190,15 @@ function NewBudgets() {
                     </div>}
                 {!anotherToken &&
                     <div className="text-primary  cursor-pointer " onClick={() => setAnotherToken(true)}>
-                        <span className="flex gap-2 items-center bg-opacity-5 font-semibold  pl-1 text-center rounded-xl ">
-                            <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token
+                        <span className="flex gap-2 items-center bg-opacity-5 font-semibold  pl-1 text-center rounded-xl">
+                            <AiOutlinePlusCircle className='text-primary' />  Add another token
                         </span>
                     </div>
                 }
                 {inputs.map((input, index) => {
                     // return <Subinput key={e.index} incomingIndex={e.index} indexs={i} />
                     return <div key={input.id}>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col mt-12">
                             <div className="flex justify-between relative">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Name</span>
                                 <div className="absolute -top-[-2.5rem] -right-[2rem]">
@@ -202,9 +209,9 @@ function NewBudgets() {
                                 </div></div>
                             <input type="text" className="bg-white dark:bg-darkSecond border w-full py-2 px-1 rounded-lg" onChange={(e) => updateInputName(input.id, e.target.value)} />
                         </div>
-                        <div className="flex w-full gap-8  pt-4">
-                            <div className="flex flex-col w-full">
-
+                        <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
+                            <div className="grid grid-rows-[40%,60%]">
+                                <div></div>
                                 {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
                                 <Dropdown
                                     // className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
@@ -214,13 +221,14 @@ function NewBudgets() {
                                     runFn={(val) => () => updateInputWallet(input.id, val)}
                                 />
                             </div>
-                            <div className="flex flex-col w-full">
+                            <div className="grid grid-rows-[40%,60%] w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
                                 <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseFloat(e.target.value))} />
                             </div>
                         </div>
-                        {input.subAnotherToken && <div className="flex w-full gap-8  pt-4">
-                            <div className="flex flex-col w-full">
+                        {input.subAnotherToken && <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
+                            <div className="grid grid-rows-[40%,60%]">
+                                <div></div>
                                 {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
                                 <Dropdown
                                     // className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
@@ -230,7 +238,7 @@ function NewBudgets() {
                                     runFn={val => () => updateInputWallet2(input.id, val)}
                                 />
                             </div>
-                            <div className="flex flex-col w-full">
+                            <div className="grid grid-rows-[40%,60%] w-full">
                                 <div className="flex justify-between relative">
                                     <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
                                     <div className="absolute -top-[-2.75rem] -right-[2rem]">
@@ -241,14 +249,17 @@ function NewBudgets() {
                             </div>
                         </div>
                         }
-                        {!input.subAnotherToken && <div className="text-primary  cursor-pointer " onClick={() => updateAnotherToken(input.id, true)}>
-                            <span className="flex gap-2 bg-opacity-5 font-semibold py-3 pl-1 text-center rounded-xl ">
-                                <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another subbuget
+                        {!input.subAnotherToken && <div className="text-primary  cursor-pointer mt-6" onClick={() => updateAnotherToken(input.id, true)}>
+                            <span className="flex gap-2 items-center bg-opacity-5 font-semibold  pl-1 text-center rounded-xl">
+                                <AiOutlinePlusCircle className='text-primary' />  Add another subbuget
                             </span>
                         </div>}</div>
                 })
                 }
-                {inputs.length < 10 && <div className="text-primary border border-primary rounded-lg px-3 py-1 text-center w-[30.8%] transition hover:bg-primary hover:transition hover:text-white cursor-pointer" onClick={addNewInput}  >Add Subbudget</div>}
+                {inputs.length < 10 &&
+                    <div className="text-primary border mt-10 border-primary rounded-lg px-3 py-1 text-center w-[30.8%] transition hover:bg-primary hover:transition hover:text-white cursor-pointer" onClick={addNewInput}  >
+                        Add Subbudget
+                    </div>}
                 <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8  pt-6">
                     <Button version="second" className="!rounded-xl" onClick={() => { navigate.back() }}>Cancel</Button>
                     <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading}>Create</Button>

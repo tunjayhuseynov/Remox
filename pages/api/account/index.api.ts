@@ -6,6 +6,7 @@ import axios from "axios";
 import { IPriceCoin, IPriceResponse } from "../calculation/price.api";
 import { BASE_URL, IPrice } from "utils/api";
 import { IAccountMultisig } from "../multisig/index.api";
+import axiosRetry from "axios-retry";
 
 export interface IAccountORM extends IAccount {
     multidata: IAccountMultisig | null;
@@ -22,7 +23,7 @@ export default async function handler(
         const accountId = req.query.accountId;
         if (typeof id !== "string") throw new Error("There should be an id parameter as string");
 
-
+        axiosRetry(axios, { retries: 10 });
         const fs = adminApp.firestore()
 
         const doc = await fs.collection(accountCollectionName).doc(id).get();

@@ -11,7 +11,7 @@ import { AltCoins, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
 import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
+import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import { addMemberToContributor } from "redux/slices/account/remoxData";
 import { useRouter } from 'next/router';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -90,7 +90,7 @@ export default () => {
         const dateEnd = endDate;
 
         try {
-            let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+            let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
             if (Photo || data.nftAddress) {
                 image = {
                     image: {
@@ -102,7 +102,7 @@ export default () => {
                     },
                     name: `individuals/${data.name}`,
                 };
-                await UploadNFTorImageForUser(image);
+                await DownloadAndSetNFTorImageForUser(image);
             }
 
             let taskId : string | null =  null

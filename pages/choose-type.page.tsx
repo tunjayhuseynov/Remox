@@ -37,10 +37,6 @@ function ChooseType() {
   }, [])
 
   const individualLogin = async () => {
-    console.log(address)
-    console.log(blockchain)
-    console.log(individual)
-    console.log(auth.currentUser)
     if (address && auth.currentUser && blockchain && individual) {
       dispatch(setAccountType("individual"))
       dispatch(setProviderID(individual.id));

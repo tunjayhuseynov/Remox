@@ -3,7 +3,7 @@ import axios from "axios";
 import { Get_Individual_Ref } from "crud/individual";
 import { Create_Organization, Get_Organizations } from "crud/organization";
 import { auth, IAccount, IIndividual, IOrganization } from "firebaseConfig";
-import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
+import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import { generate } from "shortid";
 import { BlockchainType } from "types/blockchains";
@@ -29,7 +29,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
     const { file, nftAddress, nftTokenId, blockchain, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
-    let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+    let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
     if (file || nftAddress) {
         image =
         {
@@ -42,7 +42,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
             },
             name: `organizations/${name}`
         }
-        await UploadNFTorImageForUser(image)
+        await DownloadAndSetNFTorImageForUser(image)
     }
 
     const id = generate();

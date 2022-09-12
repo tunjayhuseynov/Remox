@@ -20,7 +20,7 @@ import Loader from "components/Loader";
 import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { IFormInput } from "../add-member/index.page";
-import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
+import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import {
   SelectContributors,
   updateMemberFromContributor,
@@ -127,7 +127,7 @@ const EditMember = () => {
 
 
     try {
-      let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+      let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
       if (Photo || data.nftAddress) {
         image = {
           image: {
@@ -139,7 +139,7 @@ const EditMember = () => {
           },
           name: `individuals/${data.name}`,
         };
-        await UploadNFTorImageForUser(image);
+        await DownloadAndSetNFTorImageForUser(image);
       }
 
       let newMember: IMember = {

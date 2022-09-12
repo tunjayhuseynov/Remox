@@ -101,7 +101,7 @@ const Detail = ({
                     token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.payments[0].coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
                     isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
                 }
-            }))
+            })).unwrap()
         }
 
         await dispatch(Add_Tx_To_Budget_Thunk({
@@ -117,7 +117,7 @@ const Detail = ({
                 isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
             },
             isExecuted: isExecuted,
-        }))
+        })).unwrap()
         setBudgetLoading(false)
     }
 
@@ -235,8 +235,8 @@ const Detail = ({
                                         <div className={`sm:flex flex-col justify-center items-start `}>
                                             {!isMultisig && <div className="text-lg dark:text-white">
                                                 {swap && <div>Swap</div>}
-                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address ? transfer.to : (account?.name ?? account?.address)}</div>}
-                                                {!transfer && <div>{account?.name ?? account?.address}</div>}
+                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address.toLowerCase() ? transfer.rawData.from : (account?.name || account?.address || transaction.address)}</div>}
+                                                {!transfer && <div>{account?.name || account?.address || transaction.address}</div>}
                                             </div>}
                                         </div>
                                     </div>

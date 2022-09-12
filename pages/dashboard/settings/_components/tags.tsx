@@ -44,7 +44,7 @@ export default function TagsSetting() {
                 color: Color,
                 id: id,
                 name: data.name
-            }))
+            })).unwrap()
         }
         reset({ name: "" })
     }

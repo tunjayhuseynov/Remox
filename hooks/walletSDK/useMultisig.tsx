@@ -462,7 +462,7 @@ export default function useMultisig() {
                 blockchain: blockchain.name,
                 addresses: accounts.filter(s => s.signerType === "multi").map(s => s.address),
                 fetchable: true
-            }))
+            })).unwrap()
 
             return myResponse
         } catch (e: any) {

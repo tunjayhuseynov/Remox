@@ -4,6 +4,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 export interface ITxTag {
     id: string;
     address: string;
+    contractType: "single" | "multi";
+    provider: string | null;
     hash: string;
 }
 
