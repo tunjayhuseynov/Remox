@@ -60,53 +60,55 @@ const ContributorItem = ({member, teamName} : PageProps) => {
                 <Delete name={member.name} onCurrentModal={setDeleteModal} />
             </Modal>
         }
-        <div className="hover:bg-greylish hover:bg-opacity-5 hover:transition-all  grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[17%,15%,19%,19%,17%,23%] text-center items-center py-6 border-b  border-greylish border-opacity-10 pb-5   text-sm relative">
-            <div className="pl-[2px] items-start">
+        <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[15%,13%,14%,16%,15%,20%,7%] text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
+            <th className="pl-3 items-start">
                 <div className=" flex items-center space-x-1" >
                     {member.image !== null ? <img src={`/icons/profilePhoto/${member.image}`} alt="" className="rounded-full border w-10 object-cover h-10" /> : <Avatar name={member.first} surname={member.last} />}
                     <div className=" text-base text-left">
                         {member.name}
                     </div>
                 </div>
-            </div>
-            <div className="pl-[2px] flex items-start  text-base">
+            </th>
+            <th className="pl-[2px] flex items-start  text-base">
                 {teamName}
-            </div>
-            <div className="pl-[2px] flex items-start text-base">
+            </th>
+            <th className="pl-[2px] flex items-start text-base">
                 {member.role}
-            </div>
-            <div className="flex flex-col items-start space-y-4">
+            </th>
+            <th className="flex flex-col items-start space-y-4">
                 <div className=" pl-[2px] flex items-center justify-start gap-1">
-                    <div className=" text-base">{member.amount}</div>
                     {member.usdBase ? <div className="flex items-center gap-1">USD as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /> {coin1?.name}</div> :
                         <div className="flex items-center gap-1">
                             <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-                            {coin1?.name}
-                        </div>}
+                        </div>    
+                    }
+                    <div className=" text-base">{member.amount}</div>
                     <div>
 
                     </div>
                 </div>
                 {(member.secondaryCurrency && member.secondaryAmount) && <div className="pl-[2px] flex items-center justify-start gap-1">
-                    <div className=" text-base">{member.secondaryAmount}</div>
                     {member.secondaryUsdBase ? <div className="flex items-center gap-1">USD as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" /> {coin2?.name}</div> :
                         <div className="flex items-center gap-1">
                             <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-                            {coin2?.name}
-                        </div>}
+                        </div>
+                    }
+                    <div className=" text-base">{member.secondaryAmount}</div>
                     <div>
                     </div>
                 </div>}
-            </div>
-            <div className=" pt-3 sm:pt-0 flex items-start truncate text-base">
+            </th>
+            <th className=" pt-3 sm:pt-0 flex items-start truncate text-base">
                 {AddressReducer(member.address)}
-            </div>
-            <div className="flex items-center gap-16  pl-[2px] self-start truncate">
+            </th>
+            <th className="flex items-center gap-16 pl-[2px] truncate">
                 <span className="w-12 text-base">{member.compensation}</span>
+            </th>
+            <th>
                 <span ref={exceptRef} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold"><span className=" text-primary pb-4">...</span>
                     {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-8 -bottom-8 w-[8rem]  rounded-lg shadow-xl z-50 ">
                         <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all  text-sm border-b border-greylish border-opacity-20 flex w-full px-2 pr-6 py-2 gap-3" onClick={() => {
-                            navigate.push('/dashboard/contributors/edit-member?secondAnimation=true')
+                            navigate.push(`/dashboard/contributors/edit-member?id=${member.id}&teamId=${member.teamId}&secondAnimation=true`)
                             setModalVisible(false)
                         }}>
                             <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Edit</span>
@@ -119,11 +121,11 @@ const ContributorItem = ({member, teamName} : PageProps) => {
                         </div>
                     </div>}
                 </span>
-            </div>
+            </th>
             {/* {modalVisible && <Modal onDisable={setModalVisible} animatedModal={false}>
                 <Profile {...props} member={member} onDeleteModal={setDeleteModal} onCurrentModal={setModalVisible} onEditModal={setModalEditVisible} />
             </Modal>} */}
-        </div>
+        </tr>
     </>
 }
 

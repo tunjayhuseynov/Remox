@@ -275,6 +275,8 @@ export default function RequestId() {
                           required: true,
                           valueAsNumber: true,
                         })}
+                        type={'number'}
+                        inputProps={{step: 0.01}}
                         className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
                         variant="outlined"
                       />
@@ -308,6 +310,7 @@ export default function RequestId() {
                             required: true,
                             valueAsNumber: true,
                           })}
+                          inputProps={{step: 0.01}}
                           className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
                           required
                           variant="outlined"
