@@ -13,7 +13,8 @@ import { Checkbox } from "@mui/material";
 import RequestedUserItem from "./requestedUserItem";
 import {
   addApprovedRequest,
-  removePendingRequest
+  removePendingRequest,
+  removeApprovedRequest
 } from "redux/slices/account/remoxData";
 import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
@@ -29,12 +30,11 @@ export default function DynamicRequest({
 }) {
   const dispatch = useDispatch();
   const requests = useAppSelector(SelectRequests);
-  const { approveRequest } = useRequest();
+  const { approveRequest, removeRequest } = useRequest();
   const userId = useAppSelector(SelectID);
   const balance = useAppSelector(SelectBalance);
   const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget); 
-  const { GetCoins, Address, SendTransaction  } = useWalletKit();
-  const [address, setAddress] = useState<string | null>("");
+  const { GetCoins, SendTransaction } = useWalletKit();
   const [openNotify, setNotify] = useState(false);
   const [openNotify2, setNotify2] = useState(false);
   console.log(accountAndBudget)
@@ -70,16 +70,11 @@ export default function DynamicRequest({
     }
   }, [openNotify]);
 
-  useAsyncEffect(async () => {
-    const address = await Address;
-    setAddress(address);
-  }, [Address])
-
   const confirmRequest = async () => {
     try {
-      const inputs: IPaymentInput[] = [];
+      let inputs: IPaymentInput[] = [];
       const requests = [...selectedApprovedRequests];
-      requests.forEach((request) => {
+      for (const request of requests){
         const amount = request.amount;
         const currency = request.currency;
         const address = request.address;
@@ -99,7 +94,11 @@ export default function DynamicRequest({
           coin: coinSymbol,
           recipient: address,
         });
-      });
+
+        await removeRequest(request, userId!);
+        dispatch(removeApprovedRequest(request.id));
+
+      };
 
       console.log("inputs");
       console.log(inputs);
@@ -107,8 +106,8 @@ export default function DynamicRequest({
         budget: accountAndBudget.budget,
       })
 
+      inputs = [];
       setNotify(false);
-
     } catch (error) {
       console.log(error);
       throw new Error(error as any);

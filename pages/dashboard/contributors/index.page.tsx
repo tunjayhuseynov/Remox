@@ -1,13 +1,9 @@
 import { Fragment, useEffect, useState } from 'react';
-import TeamContainer from 'pages/dashboard/contributors/_components/teamContainer'
-import { generate } from 'shortid';
 import { useAppSelector } from 'redux/hooks'
 import Button from 'components/button';
 import { SelectContributors, SelectStorage } from 'redux/slices/account/remoxData';
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
-import useCurrency from "rpcHooks/useCurrency";
-import { Blockchains } from 'types/blockchains';
 import TeamItem from 'pages/dashboard/contributors/_components/teamItem';
 import ContributorItem from 'pages/dashboard/contributors/_components/contributorItem'
 
@@ -40,6 +36,10 @@ const Contributors = () => {
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
     const [activePage, setActivePage] = useState<string>("Active");
 
+    console.log(contributors);
+    
+    
+
     useEffect(() => {
         const datValue = data.find((item) => item.to === navigate.asPath)?.text
         setActivePage(datValue!)
@@ -67,7 +67,7 @@ const Contributors = () => {
             </div>
         </div>
 
-        {index !== 4 && contributors.filter(w => w.members && w.members.length > 0) ? 
+        {index !== 4  ? 
         <table className="w-full  pt-4 pb-6">
             <thead>
                 <tr id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[19%,13%,16%,18%,15%,29%] bg-[#F2F2F2] shadow-15 py-2   dark:bg-[#2F2F2F] rounded-md ">
@@ -80,13 +80,14 @@ const Contributors = () => {
                 </tr>
                 <>
                     {index === 0 ? <>
-                        {contributors.forEach((team) => team.members.map((member) => {
+                        {contributors.map((team) => team.members.map((member) => {
+
                             return <ContributorItem key={member.id} member={member} teamName={team.name} />
                         }))}
                     </>  
                      : 
                         <>
-                            {contributors.forEach((team) => team.members.filter((member) => member.compensation === activePage).map((member) => {
+                            {contributors.map((team) => team.members.filter((member) => member.compensation === activePage).map((member) => {
                                 return <ContributorItem key={member.id} member={member} teamName={team.name} />
                             }))}
                         </>
