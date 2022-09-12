@@ -84,7 +84,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 <div className="flex space-x-11 flex-shrink flex-grow ">
                     <Sidebar />
 
-                    <main key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-16 xl:pr-8 overflow-hidden transition-all  pl-[13.188rem] xl:pl-[18.5rem] pt-28`}>
+                    <main key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-[18.5rem] pt-28`}>
                         {children}
                     </main>
 

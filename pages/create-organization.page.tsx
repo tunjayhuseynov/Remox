@@ -52,7 +52,7 @@ const CreateOrganization = () => {
         nftAddress: data.nftAddress ?? null,
         nftTokenId: data.nftTokenId ?? null,
         uploadType: organizationIsUpload ? "image" : "nft"
-      }))
+      })).unwrap()
 
       navigate.push('/create-multisig')
     } catch (error) {

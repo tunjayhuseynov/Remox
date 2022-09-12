@@ -21,6 +21,7 @@ import { ITag } from "pages/api/tags/index.api";
 import Filter from "./_components/Filter";
 import { DateObject } from "react-multi-date-picker";
 import { IAccount, IBudget } from "firebaseConfig";
+import { AnimatePresence, motion } from "framer-motion";
 
 
 const Transactions = () => {
@@ -30,7 +31,7 @@ const Transactions = () => {
     const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
     const router = useRouter()
-  
+
     const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
     const [isOpen, setOpen] = useState(false)
@@ -145,25 +146,29 @@ const Transactions = () => {
                                     + Add Filter
                                 </div>
                                 <div ref={filterRef} className="absolute bottom-0 translate-y-full z-[900]">
-                                    {isOpen &&
-                                        <Filter
-                                            date={date}
-                                            setDate={setDate}
-                                            selectedTags={selectedTags}
-                                            setSelectedTags={setSelectedTags}
-                                            selectedBudgets={selectedBudgets}
-                                            setSelectedBudgets={setSelectedBudgets}
-                                            selectedAccounts={selectedAccounts}
-                                            setSelectedAccounts={setSelectedAccounts}
-                                            selectedDirection={selectedDirection}
-                                            setSelectedDirection={setSelectedDirection}
-                                            specificAmount={specificAmount}
-                                            setSpecificAmount={setSpecificAmount}
-                                            minAmount={minAmount}
-                                            setMinAmount={setMinAmount}
-                                            maxAmount={maxAmount}
-                                            setMaxAmount={setMaxAmount}
-                                        />}
+                                    <AnimatePresence>
+                                        {isOpen &&
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .33 }}>
+                                                <Filter
+                                                    date={date}
+                                                    setDate={setDate}
+                                                    selectedTags={selectedTags}
+                                                    setSelectedTags={setSelectedTags}
+                                                    selectedBudgets={selectedBudgets}
+                                                    setSelectedBudgets={setSelectedBudgets}
+                                                    selectedAccounts={selectedAccounts}
+                                                    setSelectedAccounts={setSelectedAccounts}
+                                                    selectedDirection={selectedDirection}
+                                                    setSelectedDirection={setSelectedDirection}
+                                                    specificAmount={specificAmount}
+                                                    setSpecificAmount={setSpecificAmount}
+                                                    minAmount={minAmount}
+                                                    setMinAmount={setMinAmount}
+                                                    maxAmount={maxAmount}
+                                                    setMaxAmount={setMaxAmount}
+                                                />
+                                            </motion.div>}
+                                    </AnimatePresence>
                                 </div>
                             </div>
                             <div className="w-[1px] h-full dark:bg-gray-500 bg-gray-500"></div>

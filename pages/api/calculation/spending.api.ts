@@ -8,6 +8,7 @@ import { ITag } from "../tags/index.api";
 import { ATag, CoinStats, ISpendingResponse } from "./_spendingType.api";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import BigNumber from "bignumber.js";
+import axiosRetry from "axios-retry";
 
 export default async function handler(
     req: NextApiRequest,
@@ -25,6 +26,8 @@ export default async function handler(
         //     return res.status(200).json(TxNull());
         // }
 
+        axiosRetry(axios, { retries: 10 });
+
         const parsedtxs = typeof inTxs === "string" ? [inTxs] : inTxs;
 
         const blockchainName = req.query.blockchain as BlockchainType["name"];
@@ -33,7 +36,7 @@ export default async function handler(
 
         const authId = req.query.id as string;
 
-
+      
         let specificTxs;
         if (parsedtxs && parsedtxs.length > 0) {
             specificTxs = await axios.get(BASE_URL + "/api/transactions", {
@@ -63,7 +66,7 @@ export default async function handler(
         })
 
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
-
+        
         const allTxs = specificTxs.data
    
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
@@ -137,7 +140,7 @@ export default async function handler(
             }
         })
     } catch (error) {
-        console.error((error as any).message)
+        console.error("Spending Api", (error as any))
         throw new Error(error as any)
     }
 }

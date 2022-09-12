@@ -92,6 +92,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 id: nanoid(),
                 address: tx.contractAddress,
                 hash: tx.hashOrIndex,
+                contractType: "multi",
+                provider: account?.provider ?? null,
             },
             txIndex: txPositionInRemoxData
         })).unwrap()
@@ -122,7 +124,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} /> : account?.name.slice(0, 2).toUpperCase()}
                             </span>
                         </div>
-                        <div className="text-sm truncate font-semibold">
+                        <div className="text-sm truncate font-semibold pr-5">
                             {account?.name ?? "N/A"}
                         </div>
                     </div>
@@ -215,12 +217,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
-                                <div>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
+                                <div className='lg:text-xs 2xl:text-base'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
                             </div>
-                            <div className="text-gray-300">
+                            <div className="text-gray-300 lg:text-xs 2xl:text-base">
                                 |
                             </div>
-                            <div className="text-gray-300">
+                            <div className="text-gray-300 lg:text-xs 2xl:text-base">
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>

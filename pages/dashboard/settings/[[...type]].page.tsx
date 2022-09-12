@@ -39,12 +39,12 @@ const SettingLayout = () => {
         <div>
             <div className="w-full">
                 <div className=" flex justify-between items-center w-full">
-                    <div className="text-4xl font-bold pb-12">
+                    <div className="text-2xl font-bold pb-12">
                         Settings
                     </div>
                 </div> {/*relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10 */}
-                <div className="flex  w-[90%] justify-between">
-                    <AnimatedTabBar data={data} index={index} className={'!text-2xl'} />
+                <div className="flex w-[90%] justify-between">
+                    <AnimatedTabBar data={data} index={index} className={'!text-xl'} />
                 </div>
             </div>
             <div className="">

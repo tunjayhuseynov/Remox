@@ -1,20 +1,53 @@
-import { accountInfoToSenchaPoolState } from '@jup-ag/core/dist/lib/sencha/swapLayout';
-import { useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { Image } from 'firebaseConfig';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { changeImage } from 'redux/slices/account/remoxData';
+import { SelectAccountType, SelectBlockchain, SelectID, SelectRemoxAccount } from 'redux/slices/account/selector';
 import { FirestoreWrite } from './useFirebase';
 
 export default function useProfile() {
   const accountType = useAppSelector(SelectAccountType)
-  const account = useAppSelector(SelectRemoxAccount)
+  const selectedId = useAppSelector(SelectID)
+  const blockchain = useAppSelector(SelectBlockchain)
   const collection = accountType === 'individual' ? 'individuals' : 'organizations'
 
+  const dispatch = useAppDispatch()
+
+  const UpdateImage = async (url: string, type: "image" | "nft") => {
+    try {
+      if (!selectedId) throw new Error('Account is not defined')
+      await FirestoreWrite<{
+        image: Image,
+      }>().updateDoc(collection, selectedId, {
+        image: {
+          blockchain: blockchain.name,
+          imageUrl: url,
+          nftUrl: url,
+          tokenId: null,
+          type: type
+        },
+      })
+
+      dispatch(changeImage({
+        image: {
+          blockchain: blockchain.name,
+          imageUrl: url,
+          nftUrl: url,
+          tokenId: null,
+          type: type
+        }
+      }))
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const UpdateName = async (name: string) => {
     try {
-      if (!account?.id) throw new Error('Account is not defined')
+      if (!selectedId) throw new Error('Account is not defined')
       await FirestoreWrite<{
         name: string,
-      }>().updateDoc('individuals', account.id, {
+      }>().updateDoc(collection, selectedId, {
         name: name,
       })
     } catch (error) {
@@ -23,23 +56,23 @@ export default function useProfile() {
   }
 
   const UpdateOrganizationName = async (company: string) => {
-    if (!account?.id) throw new Error('Account is not defined')
+    if (!selectedId) throw new Error('Account is not defined')
     await FirestoreWrite<{
       name: string,
-    }>().updateDoc('organizations', account.id, {
+    }>().updateDoc(collection, selectedId, {
       name: company,
     })
   }
 
   const UpdateSeenTime = async (time: number) => {
-    if (!account?.id) throw new Error('Account is not defined')
+    if (!selectedId) throw new Error('Account is not defined')
     await FirestoreWrite<{
       seenTime: number,
-    }>().updateDoc("individuals", account.id, {
+    }>().updateDoc(collection, selectedId, {
       seenTime: time,
     })
   }
 
 
-  return { UpdateOrganizationName, UpdateName, UpdateSeenTime }
+  return { UpdateOrganizationName, UpdateName, UpdateSeenTime, UpdateImage }
 };

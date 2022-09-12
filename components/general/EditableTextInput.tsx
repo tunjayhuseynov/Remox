@@ -1,6 +1,6 @@
 import { FilledInput, FormControl, Input, InputAdornment } from "@mui/material"
 import { useState } from "react";
-import { AiOutlineCheck } from "react-icons/ai";
+import { AiFillCheckCircle } from "react-icons/ai";
 import { ClipLoader } from "react-spinners";
 
 interface IProps {
@@ -37,7 +37,7 @@ export default ({ defaultValue, onSubmit, placeholder }: IProps) => {
                     <InputAdornment position="end">
                         {value !== savedDefaultValue &&
                             <div className="cursor-pointer" onClick={submit}>
-                                {isLoading ? <ClipLoader size={14} /> : <AiOutlineCheck color="#00ff55" />}
+                                {isLoading ? <ClipLoader size={14} /> : <AiFillCheckCircle color="#FF7348" />}
                             </div>
                         }
                     </InputAdornment>}

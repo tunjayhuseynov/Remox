@@ -4,21 +4,12 @@
 12. tags meselesi hell olunmalidi
 ********************************************************************************************************************* <= Done 
 
-3. createAccount is not okay with react hook form
-4. Budget Card duzgun datalar ile provide edilmeyib
-5. Budget Detials'de tags ve subbudgets yoxdu
-6. TotalPendingler yoxdur
-7. Total Detail'de umumen breakdownlar hele ki aktiv deyil
-8. allWallets => balance ile api'a kecid edilmelidi
-9. multisig ve ya individial sendlerde duzelis elemek lazimdi => storage?.accountAddress.toLowerCase() === selectedAccount.toLowerCase()
-10. editMember ve addMember taskId heleki null di 
-11. remox pay'de table'lar duzgun formada deyil
-13. gelato meselesi hell olunmalidi
-14. Budget, subbudget thunklarda update ve delete remoxData'da deyismir deyisersen
-15. Budget and txhash meselesi recurring yeni tasking meselelerinde botlar terefinden hell olunmalidi, ve multisig meselesi ise pending ucun vacib meseledi
-16. zebece sooy
-17. Description cixmalidi
-18. fromMinScale fromWei fromLamport meselesini decimals meselesine CeloProvider
-19. Edit ve Add memberde execution type Auto and Manual meselesinde problem var
-20. Balance'i her gun kimi goster
-21. Explorer url ucun subscription yazib qoshmaq
+1. Edit Budget
+2. Tag (Expension Label) in Budget detail
+3. Tranasction Export All
+4. Historical Price => Token Calculation
+5. Subbudget coinlerde limit meselesini qoy
+6. QR meselesini elave ele
+7. Fiat Money preference
+8. Task needs to be in backend not front end
+9. Blockchain Type Firebase'e dusmemelidi

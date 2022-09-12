@@ -1,7 +1,7 @@
 import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import { Create_Individual } from "crud/individual";
 import { auth, IIndividual } from "firebaseConfig";
-import { UploadNFTorImageForUser } from "hooks/singingProcess/utils";
+import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import { generate } from "shortid";
 import { BlockchainType } from "types/blockchains";
 import { GetTime } from "utils";
@@ -23,7 +23,7 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
     const { file, nftAddress, nftTokenId, blockchain, address, name, uploadType, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
-    let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+    let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
 
     if (file || nftAddress) {
         image =
@@ -37,7 +37,7 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
             },
             name: `individuals/${data.name}`
         }
-        await UploadNFTorImageForUser(image)
+        await DownloadAndSetNFTorImageForUser(image)
     }
 
     const id = auth.currentUser.uid;

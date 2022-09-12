@@ -33,7 +33,7 @@ function WalletItem({ item, setReplaceOwnerModal, setRemovable, setRemoveModal }
                 signerType,
             },
             name: val
-        }))
+        })).unwrap()
     }
 
     return <div className=" grid grid-cols-[25%,25%,25%,25%]  border-b dark:border-[#aaaaaa]  py-6 !mt-0 relative" >

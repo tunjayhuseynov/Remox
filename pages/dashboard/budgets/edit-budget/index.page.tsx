@@ -18,7 +18,7 @@ function EditBudget() {
     const [wallet, setWallet] = useState<AltCoins>(GetCoins[0])
     const [subInputs, setSubInputs] = useState<ISubInputs[]>([])
 
-
+    const { id, parentId } = navigate.query as { parentId: string, id: string }
 
     const addNewInput = () => {
         setSubInputs([...subInputs, {
@@ -66,65 +66,80 @@ function EditBudget() {
             <div className="text-2xl text-center font-medium">Edit Budgets</div>
             <div className="px-12 flex flex-col gap-4">
                 <div className="flex flex-col">
-                    <label htmlFor="name" className="text-left  text-greylish pb-2 ml-1" >Budget Name</label>
-                    <input id='name' type="text" className="border w-full py-2 px-1 rounded-lg" />
+                    <label htmlFor="name" className="text-left pb-2 ml-1" >Budget Name</label>
+                    <input id='name' type="text" className="border w-full py-2 px-1 rounded-lg h-[3rem]" />
                 </div>
-                <div className="flex w-full gap-8 pt-4">
-                    <div className="flex flex-col w-full">
+                <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
+                    <div className='grid grid-rows-[40%,60%]'>
+                        <div></div>
                         {/* <span className="text-left  text-greylish pb-2 ml-1" >Budget Token</span> */}
-                        <Dropdown className="!py-[0.6rem] border bg-white dark:bg-darkSecond text-sm rounded-lg" label="Budget Token" selected={wallet} list={Object.values(GetCoins)} setSelect={setWallet} />
+                        <Dropdown
+                            parentClass='h-full'
+                            sx={{
+                                height: "3rem",
+                            }}
+                            label="Budget Token"
+                            selected={wallet}
+                            list={Object.values(GetCoins)}
+                            setSelect={setWallet} />
                     </div>
-                    <div className="flex flex-col w-full">
-                        <label htmlFor='amount' className="text-left  text-greylish pb-2 ml-1" >Budget Amount</label>
+                    <div className="grid grid-rows-[40%,60%] w-full">
+                        <label htmlFor='amount' className="text-left pb-2 ml-1" >Budget Amount</label>
                         <input id='amount' className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
                     </div>
                 </div>
-                {/* {<div className="flex w-full gap-8 pt-4">
-                    <div className="flex flex-col w-full">
-                        {/* <span className="text-left  text-greylish pb-2 ml-1" >Budget Token</span> 
-                        <Dropdown className="!py-[0.6rem] border bg-white dark:bg-darkSecond text-sm rounded-lg" label="Budget Token" selected={wallet ?? Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))[0]} list={Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl }))} setSelect={val => {
-                            setWallet(val)
-                        }} />
-                    </div>
-                    <div className="flex flex-col w-full">
-                        <span className="text-left  text-greylish pb-2 ml-1" >Budget Amount</span>
-                        <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
-                    </div>
-                </div> */}
                 {subInputs.map((input, index) => {
-                    return <div key={input.id}> <div className="flex flex-col">
+                    return <div key={input.id}> <div className="flex flex-col mt-12">
                         <div className="flex justify-between relative">
                             <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Name</span>
-                            <div className="absolute -top-[-2.5rem] -right-[2rem]">
-                            </div></div>
-                        <input type="text" className="bg-white dark:bg-darkSecond border w-full py-2 px-1 rounded-lg" onChange={(e) => updateInputName(input.id, e.target.value)} />
+                        </div>
+                        <input type="text" className="bg-white dark:bg-darkSecond border w-full py-2 px-1 rounded-lg h-[3rem]" onChange={(e) => updateInputName(input.id, e.target.value)} />
                     </div>
-                        <div className="flex w-full gap-8  pt-4">
-                            <div className="flex flex-col w-full">
-
+                        <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
+                            <div className="grid grid-rows-[40%,60%]">
+                                <div></div>
                                 {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
-                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" label="Subbudget Token" selected={input.wallet} list={Object.values(GetCoins)} runFn={val => () => updateInputWallet(input.id, val)} />
+                                <Dropdown
+                                    parentClass='h-full'
+                                    sx={{
+                                        height: "3rem",
+                                    }}
+                                    label="Subbudget Token"
+                                    selected={input.wallet}
+                                    list={Object.values(GetCoins)}
+                                    runFn={val => () => updateInputWallet(input.id, val)}
+                                />
                             </div>
-                            <div className="flex flex-col w-full">
+                            <div className="grid grid-rows-[40%,60%] w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
                                 <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseInt(e.target.value))} />
                             </div>
                         </div>
-                        {input.subAnotherToken && <div className="flex w-full gap-8  pt-4">
-                            <div className="flex flex-col w-full">
-                                {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
-                                <Dropdown className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg" selected={subBudget} list={Object.values(GetCoins) as AltCoins[]} label="Subbudget Token" setSelect={setSubBudget} />
-                            </div>
-                            <div className="flex flex-col w-full">
-                                <div className="flex justify-between relative">
-                                    <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
-                                    <div className="absolute -top-[-2.75rem] -right-[2rem]">
-
-                                    </div>
+                        {input.subAnotherToken &&
+                            <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
+                                <div className="grid grid-rows-[40%,60%]">
+                                    <div></div>
+                                    {/* <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Token</span> */}
+                                    <Dropdown
+                                        parentClass='h-full'
+                                        sx={{
+                                            height: "3rem",
+                                        }}
+                                        selected={subBudget}
+                                        list={Object.values(GetCoins) as AltCoins[]}
+                                        label="Subbudget Token"
+                                        setSelect={setSubBudget} />
                                 </div>
-                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount2(input.id, parseInt(e.target.value))} />
-                            </div>
-                        </div>}
+                                <div className="grid grid-rows-[40%,60%] w-full">
+                                    <div className="flex justify-between relative">
+                                        <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
+                                        <div className="absolute -top-[-2.75rem] -right-[2rem]">
+
+                                        </div>
+                                    </div>
+                                    <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount2(input.id, parseInt(e.target.value))} />
+                                </div>
+                            </div>}
                     </div>
                 })}
 

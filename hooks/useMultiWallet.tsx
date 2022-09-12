@@ -85,9 +85,9 @@ export default function useMultiWallet() {
                             provider: null,
                             signerType: "single",
                         }
-                    }))
+                    })).unwrap()
                 }
-                await dispatch(Refresh_Data_Thunk())
+                await dispatch(Refresh_Data_Thunk()).unwrap()
                 // dispatch(setProviderAddress(account))
             }
         }

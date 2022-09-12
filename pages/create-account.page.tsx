@@ -64,7 +64,7 @@ const CreateAccount = () => {
           nftTokenId: data.nftTokenId ?? null,
           uploadType: individualIsUpload ? "image" : "nft",
         })
-      );
+      ).unwrap();
 
       navigate.push("/choose-type");
     } catch (error) {

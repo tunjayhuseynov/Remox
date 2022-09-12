@@ -18,7 +18,7 @@ import RecurringTaks from './reducers/tasks'
 import RequestReducers from './reducers/requests'
 import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail } from "./thunks/account";
-import { IAccount, IBudget, IMember, ISubBudget } from "firebaseConfig";
+import { IAccount, IBudget, Image, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
@@ -175,7 +175,14 @@ const remoxDataSlice = createSlice({
         changeDarkMode: (state: IRemoxData, action: PayloadAction<boolean>) => {
             localStorage.setItem('darkMode', action.payload.toString());
             state.darkMode = action.payload;
-        }
+        },
+        changeImage: (state: IRemoxData, action: { payload: { image: Image } }) => {
+            if (state.accountType === "individual" && state.storage?.individual) {
+                state.storage.individual.image = action.payload.image;
+            } else if (state.accountType === "organization" && state.storage?.organization) {
+                state.storage.organization.image = action.payload.image;
+            }
+        },
     },
     extraReducers: builder => {
         /* Tag */
@@ -382,7 +389,7 @@ export const {
     addContributor, removeContributor, setContributors, setBlockchain,
     addAccount, addOwner, addTx, removeAccount, removeOwner, setThreshold,
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
-    addMemberToContributor, removeMemberFromContributor, setProviderAddress, addTxToList,
+    addMemberToContributor, removeMemberFromContributor, setProviderAddress, addTxToList, changeImage,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
     updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget
 

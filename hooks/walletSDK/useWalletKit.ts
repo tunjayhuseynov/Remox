@@ -250,6 +250,7 @@ export default function useWalletKit() {
     ) => {
       try {
         let txhash;
+        let type: "single" | "multi" = "single";
         const Address = account.address;
 
         if (!blockchain) throw new Error("blockchain not found");
@@ -326,41 +327,16 @@ export default function useWalletKit() {
               command,
               inputArr
             );
-            await dispatch(Add_Tx_To_TxList_Thunk({
-              account: account,
-              authId: id,
-              blockchain: blockchain,
-              txHash: txHash,
-            }))
+            txhash = txHash;
+            if (account.signerType === "multi") {
+              type = "multi"
+            } else type = "single"
             // dispatch(Refresh_Data_Thunk());
-            return;
-          }
-
-          if (account.signerType === "single") {
+          } else if (account.signerType === "single") {
             const recipet = await web3.eth.sendTransaction(option);
             const hash = recipet.transactionHash;
+            type = "single"
             txhash = hash;
-            if (tags && tags.length > 0) {
-              for (const tag of tags) {
-                await dispatch(
-                  AddTransactionToTag({
-                    id: account.id,
-                    tagId: tag.id,
-                    transaction: {
-                      id: generate(),
-                      address: account.address,
-                      hash: hash,
-                    },
-                  })
-                );
-              }
-            }
-            await dispatch(Add_Tx_To_TxList_Thunk({
-              account: account,
-              authId: id,
-              blockchain: blockchain,
-              txHash: txhash,
-            }))
           } else {
             const txHash = await submitTransaction(
               account.address,
@@ -368,12 +344,7 @@ export default function useWalletKit() {
               destination
             );
             txhash = txHash;
-            await dispatch(Add_Tx_To_TxList_Thunk({
-              account: account,
-              authId: id,
-              blockchain: blockchain,
-              txHash: txhash,
-            }))
+            type = "multi"
           }
         } else if (
           blockchain.name === "solana" &&
@@ -390,21 +361,33 @@ export default function useWalletKit() {
               data,
               destination
             );
-            dispatch(Refresh_Data_Thunk());
-            return;
+            txhash = txHash;
+            type = "multi"
+            // dispatch(Refresh_Data_Thunk());
+          } else {
+            const transaction = new Transaction();
+            transaction.add(...data);
+
+            const signature = await sendTransaction(transaction, connection);
+            const latestBlockHash = await connection.getLatestBlockhash();
+            await connection.confirmTransaction({
+              blockhash: latestBlockHash.blockhash,
+              lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+              signature: signature,
+            });
+            txhash = signature;
+            type = "single"
           }
-          const transaction = new Transaction();
-          transaction.add(...data);
+        }
+        if (txhash) {
+          await dispatch(Add_Tx_To_TxList_Thunk({
+            account: account,
+            authId: id,
+            blockchain: blockchain,
+            txHash: txhash,
+          })).unwrap()
 
-          const signature = await sendTransaction(transaction, connection);
-          const latestBlockHash = await connection.getLatestBlockhash();
-          await connection.confirmTransaction({
-            blockhash: latestBlockHash.blockhash,
-            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-            signature: signature,
-          });
-
-          if (tags && tags.length > 0) {
+          if (tags && tags.length > 0 && type) {
             for (const tag of tags) {
               await dispatch(
                 AddTransactionToTag({
@@ -413,14 +396,17 @@ export default function useWalletKit() {
                   transaction: {
                     id: generate(),
                     address: account.address,
-                    hash: signature,
+                    hash: txhash,
+                    contractType: type,
+                    provider: account.provider
                   },
                 })
-              );
+              ).unwrap();
             }
           }
-          txhash = signature;
         }
+
+
         if (budget && txhash) {
           for (const input of inputArr) {
             await dispatch(
@@ -438,7 +424,7 @@ export default function useWalletKit() {
                 },
                 isExecuted: account.signerType === "single",
               })
-            );
+            ).unwrap();
 
             if (subbudget) {
               await dispatch(
@@ -455,12 +441,12 @@ export default function useWalletKit() {
                     timestamp: GetTime(),
                   },
                 })
-              );
+              ).unwrap();
             }
           }
         }
-        dispatch(Refresh_Data_Thunk());
-        return;
+        // await dispatch(Refresh_Data_Thunk()).unwrap();
+        return txhash;
       } catch (error) {
         throw Error((error as any).message);
       }

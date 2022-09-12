@@ -37,6 +37,7 @@ import { BASE_URL } from "utils/api";
 import { IBudgetORM } from "../budget/index.api";
 import Web3 from 'web3'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
+import axiosRetry from "axios-retry";
 
 export default async function handler(
   req: NextApiRequest,
@@ -59,7 +60,7 @@ export default async function handler(
       providerName?: string;
     };
     const skip = +Skip;
-
+    axiosRetry(axios, { retries: 10 });
     let tags = (
       await adminApp.firestore().collection("tags").doc(id).get()
     ).data() as { tags: ITag[] };

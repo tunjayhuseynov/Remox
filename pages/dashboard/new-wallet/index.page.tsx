@@ -9,7 +9,7 @@ import Upload from "components/upload";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { UploadNFTorImageForUser } from 'hooks/singingProcess/utils';
+import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
 import { auth, IAccount, IIndividual, IMember, IOrganization } from 'firebaseConfig';
 import { GetTime } from 'utils';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
@@ -84,7 +84,7 @@ function NewWalletModal() {
 
             const Photo = file;
 
-            let image: Parameters<typeof UploadNFTorImageForUser>[0] | undefined;
+            let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
             if (Photo || data.nftAddress) {
                 image = {
                     image: {
@@ -96,7 +96,7 @@ function NewWalletModal() {
                     },
                     name: `organizations/${data.name}`,
                 };
-                await UploadNFTorImageForUser(image);
+                await DownloadAndSetNFTorImageForUser(image);
             }
 
 
@@ -131,12 +131,12 @@ function NewWalletModal() {
                 await dispatch(Create_Account_For_Organization({
                     account: myResponse,
                     organization: (account as IOrganization)
-                }))
+                })).unwrap()
             } else if (type === "individual") {
                 await dispatch(Create_Account_For_Individual({
                     account: myResponse,
                     individual: (account as IIndividual)
-                }))
+                })).unwrap()
             }
 
             navigate.back();

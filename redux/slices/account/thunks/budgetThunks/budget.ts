@@ -1,9 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import { Create_Budget, Delete_Budget, Update_Budget } from "crud/budget";
 import { Get_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercise";
 import { IBudget, IBudgetTX } from "firebaseConfig";
-import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
 import { addBudget, addTxToBudget, deleteBudget, removeTxFromBudget, updateBudget } from "../../remoxData";
@@ -39,6 +37,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
         totalPending: 0,
         totalUsed: 0,
         totalAvailable: totalBudget,
+        tags: [],
         subbudgets: budget.subbudgets.map(sub => {
             let totalBudget = (currencies[sub.token].priceUSD * sub.amount) + ((currencies[sub?.secondToken ?? ""]?.priceUSD ?? 0) * (sub.secondAmount ?? 0))
             return {

@@ -9,7 +9,7 @@ import { AbiItem } from "web3-utils";
 const CeloTerminal = import("rpcHooks/ABI/CeloTerminal.json")
 
 
-export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainType: BlockchainType, coin?: string, secondCoin?: string) => {
+export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOrIndex" | "protocol" | "contractAddress">, blockchainType: BlockchainType, coin?: string, secondCoin?: string) => {
     try {
         let totalBudgetPending = 0, totalBudgetUsed = 0;
         let totalFirstCoinPending = 0, totalSecondCoinPending = 0;
@@ -97,6 +97,7 @@ export const MultisigTxCal = async (budget: IBudget, tx: IBudgetTX, blockchainTy
             totalSecondCoinPending,
             totalFirstCoinSpent,
             totalSecondCoinSpent,
+            budgetTx: tx
         }
     } catch (error) {
         console.log(error)

@@ -59,7 +59,7 @@ export const isAddressNftOwner = async (address: string, nft: string, blockchain
     (await nftOwner(nft, blockchain, tokenId)).trim().toLowerCase() === address.trim().toLowerCase()
 }
 
-export const UploadNFTorImageForUser = async (props: { image: Image | null, name: string }) => {
+export const DownloadAndSetNFTorImageForUser = async (props: { image: Image | null, name: string }) => {
     if (props.image) {
         const { imageUrl, nftUrl, blockchain, type, tokenId } = props.image;
         if (imageUrl && typeof imageUrl !== "string" && type === "image") {
@@ -78,7 +78,10 @@ export const UploadNFTorImageForUser = async (props: { image: Image | null, name
                     }
                 ], new CeloProvider("https://forno.celo.org"))
 
-                const uri = await nft.tokenURI(id)
+                let uri = await nft.tokenURI(id)
+                if (uri.includes("ipfs://")) {
+                    uri = "https://ipfs.io/ipfs/" + uri.split("ipfs://")[1]
+                }
                 const res = await axios.get<{ image: string }>(uri)
                 props.image.imageUrl = res.data.image;
             } else if (blockchain.name === "solana") {
@@ -99,3 +102,4 @@ export const isUserAllowToSystem = () => {
     if (typeof localStorage !== 'undefined' && localStorage.getItem("remoxUser")) return true;
     return false;
 }
+
