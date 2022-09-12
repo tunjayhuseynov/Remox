@@ -18,7 +18,7 @@ export default function Upload({
 }) {
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
   const [dropdown, setDropdown] = useState(false);
-  const randomString = nanoid(30)
+
 
   useEffect(() => {
     if (acceptedFiles.length > 0) {
@@ -57,9 +57,9 @@ export default function Upload({
             })}
           >
             <div className="w-full h-full rounded-full relative">
-              <input type="file" {...getInputProps()} className="w-9 h-9" />
+              {/* <input type="file" {...getInputProps()} className="w-9 h-9" /> */}
               <img
-                src={makeBlockie(randomString)}
+                src={makeBlockie("0x12121329873123861281612")}
                 alt=""
                 className="w-full h-full rounded-full relative"
               />
