@@ -1,8 +1,7 @@
-import { Dispatch, useEffect, useState } from "react";
+import {  useState } from "react";
 import { useDispatch } from "react-redux";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "components/button";
 import {
@@ -20,6 +19,8 @@ import { IFormInput } from "../add-member/index.page";
 import { Stack, TextField } from "@mui/material";
 import {
   SelectContributors,
+  SelectID,
+  SelectSelectedAccountAndBudget,
   updateMemberFromContributor,
 } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
@@ -28,14 +29,21 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { Image } from "firebaseConfig";
 
 const EditMember = () => {
   const { register, handleSubmit } = useForm<IFormInput>();
   const navigate = useRouter();
   const { id, teamId } = navigate.query as { id: string; teamId: string };
   const teams = useAppSelector(SelectContributors);
+  const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
+  const userId = useAppSelector(SelectID)
   const team: IContributor = teams.find((c) => c.id === teamId)!;
   const member: IMember = team?.members.find((m) => m.id === id)!;
+  const [url, setUrl] = useState<string | File>(member.image?.imageUrl ?? "");
+  const [type, setType] = useState<"image" | "nft">(member.image?.type ?? "image") 
+
+  console.log(member)
   const schedule: DropDownItem[] = [
     { name: "Full Time" },
     { name: "Part Time" },
@@ -47,11 +55,11 @@ const EditMember = () => {
     { name: "Pay with USD-based Amounts" },
   ];
   const [selectedPaymentBase, setSelectedPaymentBase] = useState(paymentBase[0]);
+  const paymentBaseIsToken = selectedPaymentBase.name === "Pay with Token Amounts";
   const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
   const [selectedPaymentType, setPaymentType] = useState(
     member?.execution === ExecutionType.auto ? paymentType[1] : paymentType[0]
   );
-  const selectedExecutionIsAuto = selectedPaymentType.name === "Auto";
   const dispatch = useDispatch();
   const { GetCoins, blockchain } = useWalletKit();
   const { editMember, isLoading } = useContributors();
@@ -62,8 +70,6 @@ const EditMember = () => {
   const [secondActive, setSecondActive] = useState(member.secondaryAmount ? true : false);
   const [startDate, setStartDate] = useState<Date>(new Date(member.paymantDate)); 
   const [endDate, setEndDate] = useState<Date>(new Date(member.paymantEndDate));
-  const [selectedType1, setSelectedType1] = useState(member.usdBase);
-  const [selectedAmoutnType2, setSelectedType2] = useState(member.secondaryAmount ? true : false)
   const Frequency = [
     { name: "Monthly", type: DateInterval.monthly },
     { name: "Weekly", type: DateInterval.weekly },
@@ -73,52 +79,68 @@ const EditMember = () => {
   const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>(member.interval === DateInterval.monthly ? Frequency[0] : Frequency[1]);
   const [selectedCoin1, setSelectedCoin1] = useState<AltCoins>(coin1 ?? Object.values(GetCoins)[0]);
   const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(coin2 ?? Object.values(GetCoins)[0]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     const Team = selectedTeam;
     const Compensation = selectedSchedule.name;
-    const dateStart = startDate;
-    const dateEnd = endDate;
+    const Photo : Image = {
+        imageUrl: url,
+        nftUrl: url.toString(),
+        type: type,
+        tokenId: null,
+        blockchain: blockchain.name
+    }
+    const dateNow = new Date().getTime()
 
+    setLoading(true)
 
     try {
-      // let newMember: IMember = {
-      //   taskId: null,
-      //   id: id,
-      //   image: image ? image.image : null,
-      //   first: `${data.name}`,
-      //   name: `${data.name} ${data.surname}`,
-      //   last: `${data.surname}`,
-      //   role: `${data.role}`,
-      //   address: data.address,
-      //   compensation: Compensation,
-      //   amount: data.amount,
-      //   currency: Wallet.name as CoinsName,
-      //   teamId: Team.id ? Team.id!.toString() : teamId.toString(),
-      //   usdBase: selectedType,
-      //   interval: selectedFrequency.type as DateInterval,
-      //   execution:
-      //     selectedPaymentType.name === "Auto" ? ExecutionType.auto : ExecutionType.manual,
-      //   paymantDate: dateStart!.toISOString(),
-      //   paymantEndDate: dateEnd!.toISOString(),
-      //   secondaryAmount: data.amount2 ? data.amount2 : null,
-      //   secondaryCurrency: Wallet2?.name ? (Wallet2.name as CoinsName) : null,
-      //   secondaryUsdBase: data.amount2 ? selectedType : null,
-      // };
-      // //   Task Id meselesi hell ele
-      // await editMember(teamId, id, newMember);
-      // dispatch(
-      //   updateMemberFromContributor({
-      //     id: teamId,
-      //     member: newMember,
-      //   })
-      // );
-      // navigate.back();
+      let newMember: IMember = {
+        taskId: member.taskId,
+        id: id,
+        image:  url ? Photo : null ,
+        first: `${data.name}`,
+        name: `${data.name} ${data.surname}`,
+        last: `${data.surname}`,
+        role: `${data.role}`,
+        address: data.address,
+        compensation: Compensation,
+        amount: data.amount.toString(),
+        currency: coin1?.name ?? Object.values(GetCoins)[0].name,
+        teamId: Team.id ? Team.id!.toString() : teamId.toString(),
+        usdBase: !paymentBaseIsToken,
+        interval: selectedFrequency.type as DateInterval,
+        execution:
+          selectedPaymentType.name === "Auto" ? ExecutionType.auto : ExecutionType.manual,
+        paymantDate: new Date(startDate ?? dateNow).getTime(),
+        paymantEndDate: new Date(startDate ?? dateNow).getTime(),
+        secondaryAmount: data.amount2 && secondActive ? data.amount2.toString() : null,
+        secondaryCurrency: coin2?.name ? coin2.name : null,
+      };
+      //   Task Id meselesi hell ele
+      await editMember(teamId, id, newMember);
+      dispatch(
+        updateMemberFromContributor({
+          id: teamId,
+          member: newMember,
+        })
+      );
+
+      setLoading(false);
+
+
+      navigate.back();
     } catch (error: any) {
       console.log(error);
       throw error;
     }
   };
+
+  const onChange = (url: string, type: "image" | "nft") => {
+    setType(type)
+    setUrl(url)
+  }
 
   return <>
         <div className="relative w-full mx-auto">
@@ -127,11 +149,12 @@ const EditMember = () => {
             </button>
             <div>
                 <form  
+                    onSubmit={handleSubmit(onSubmit)}
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Add Contributor</div>
                     <div className="flex flex-col space-y-4">
                         <div className="flex flex-col mb-4 space-y-1 w-full">
-                            {/* <EditableAvatar  avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  /> */}
+                            <EditableAvatar  avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  />
                         </div>
                         <div className="grid grid-cols-2 gap-x-10">
                             <TextField label="Name" {...register("name", { required: true })} defaultValue={member.first} className="bg-white dark:bg-darkSecond" variant="outlined" />
@@ -244,11 +267,9 @@ const EditMember = () => {
                                 <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md`}>
                                     <DesktopDatePicker
                                         label="Payment Start Date"
-
                                         inputFormat="MM/dd/yyyy"
                                         value={startDate}
                                         onChange={(newValue) =>  setStartDate(newValue!)}
-
                                         renderInput={(params) => <TextField {...params} />}
                                     />
                                 </Stack>
@@ -274,8 +295,8 @@ const EditMember = () => {
                         <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
-                        <Button className="px-8 py-3" type="submit" >
-                            Add Contributor
+                        <Button className="px-8 py-3" type="submit" isLoading={loading} >
+                            Save
                         </Button>
                     </div>
                 </form>

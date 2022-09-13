@@ -20,7 +20,6 @@ import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
 import { useWalletKit } from "hooks";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
-import useAsyncEffect from "hooks/useAsyncEffect";
 import { ToastRun } from "utils/toast";
 
 export default function DynamicRequest({

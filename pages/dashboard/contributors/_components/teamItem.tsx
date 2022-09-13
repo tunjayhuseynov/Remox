@@ -22,9 +22,11 @@ const teamItem = ({ props }: { props: IContributor }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const dark = useAppSelector(SelectDarkMode)
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
+    const [loading, setLoading] = useState(false)
 
     const DeleteTeam = async () => {
         try {
+            setLoading(true)
             for (let index = 0; index < props.members.length; index++) {
                 const element = props.members[index];
                 if (element.taskId) {
@@ -38,6 +40,7 @@ const teamItem = ({ props }: { props: IContributor }) => {
             }
             await removeTeam(props.id)
             dispatch(removeContributor(props.id));
+            setLoading(false)
             setDeleteModal(false)
         } catch (error) {
             console.error(error)
