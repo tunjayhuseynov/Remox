@@ -17,6 +17,7 @@ import {
 } from "redux/slices/account/selector";
 import TeamItem from "./_components/_teamItem";
 import { IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
+import { DecimalConverter } from "utils/api";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
@@ -27,30 +28,22 @@ const Automations = () => {
   const { GetCoins } = useWalletKit();
   const balance = useAppSelector(SelectBalance);
 
-  const totalPrice: { [name: string]: number } = useMemo(() => {
+  const totalPrice: [{ [name: string]: number }, number] = useMemo(() => {
     let res: { [name: string]: number } = {};
-
+    let total = 0;
     for (const task of tasks) {
       const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer | IAutomationCancel;
-
+      const amount = DecimalConverter(tx.amount, tx.coin.decimals)
+      total += amount * tx.coin.priceUSD;
+      if (res[tx.coin.symbol]) {
+        res[tx.coin.symbol] += amount;
+      } else {
+        res[tx.coin.symbol] = amount;
+      }
     }
 
-    return res;
+    return [res, total];
   }, [tasks, balance]);
-
-  const TotalCalculatedPrice = useMemo(() => {
-    return Object.entries(totalPrice)
-      .filter((s) => s[1])
-      .reduce((a, [currency, amount]) => {
-        a +=
-          amount *
-          (balance[
-            GetCoins[currency as keyof Coins].name as keyof typeof balance
-          ]?.tokenPrice ?? 1);
-        return a;
-      }, 0)
-      .toFixed(2);
-  }, [totalPrice]);
 
   return (
     <div className="w-full h-full flex flex-col space-y-3">
@@ -85,61 +78,47 @@ const Automations = () => {
           <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
             <div className="flex  space-y-3 gap-12">
               <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
-                <div className="text-lg font-semibold">
-                  Total Recurring Payment
+                <div className="text-base font-semibold text-gray-500">Total Recurring Payment</div>
+                <div className="text-3xl font-bold !mt-0">
+                  $ {totalPrice[1].toFixed(2)}
                 </div>
-                {totalPrice ? (
-                  <div className="text-3xl font-bold !mt-0">
-                    {TotalCalculatedPrice} USD
-                  </div>
-                ) : (
-                  <div>
-                    <Loader />
-                  </div>
-                )}
               </div>
               <div className="flex flex-col space-y-5 !mt-0">
-                <div className="text-xl font-semibold">Token Allocation</div>
+                <div className="text-base font-semibold text-gray-500">Token Allocation</div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12">
-                  {totalPrice ? (
-                    Object.entries(totalPrice)
+                  {
+                    Object.entries(totalPrice[0])
                       .filter((s) => s[1])
                       .map(([currency, amount]) => {
                         return (
                           <div
                             key={currency}
-                            className="flex space-x-2 relative h-fit"
+                            className="flex flex-col space-y-2 relative h-fit"
                           >
-                            <div className="font-bold text-xl">
-                              {amount.toFixed(2)}
+                            <div className="flex space-x-2">
+                              <div className="font-bold text-xl">
+                                {amount.toFixed(2)}
+                              </div>
+                              <div className="font-bold text-xl flex gap-1 items-center">
+                                <img
+                                  src={GetCoins[currency as keyof Coins].logoURI}
+                                  className="w-[1.563rem] h-[1.563rem] rounded-full"
+                                  alt=""
+                                />
+                                {GetCoins[currency as keyof Coins].name}
+                              </div>
                             </div>
-                            <div className="font-bold text-xl flex gap-1 items-center">
-                              <img
-                                src={GetCoins[currency as keyof Coins].coinUrl}
-                                className="w-[1.563rem] h-[1.563rem] rounded-full"
-                                alt=""
-                              />
-                              {GetCoins[currency as keyof Coins].name}
-                            </div>
-                            <div></div>
-                            <div className="absolute -left-1 -bottom-6 text-sm text-greylish opacity-75 text-left">
+                            <div className="text-sm text-greylish opacity-75 text-left">
                               {(
                                 amount *
-                                (balance[
-                                  GetCoins[currency as keyof Coins]
-                                    .name as keyof typeof balance
-                                ]?.tokenPrice ?? 1)
+                                (GetCoins[currency as keyof Coins].priceUSD ?? 1)
                               ).toFixed(2)}{" "}
                               USD
                             </div>
                           </div>
                         );
                       })
-                  ) : (
-                    <div className="flex py-1 justify-center">
-                      <Loader />
-                    </div>
-                  )}
+                  }
                 </div>
               </div>
             </div>

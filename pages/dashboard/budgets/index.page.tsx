@@ -113,9 +113,9 @@ const Budgets = () => {
                         </div>
                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">{new Date(selectedExercise.created_at * 1e3).toLocaleDateString('en-us', { year: "numeric", month: "short" })}</div>
                     </div>
-                    <div className="grid grid-cols-3 gap-5">
-                        {selectedExercise.budgets.length > 0 && <Button version='transparent'>Current Month</Button>}
-                        {selectedExercise.budgets.length > 0 && <Button version='half'>Overall</Button>}
+                    <div className="grid grid-cols-1 gap-5">
+                        {/* {selectedExercise.budgets.length > 0 && <Button version='transparent'>Current Month</Button>}
+                        {selectedExercise.budgets.length > 0 && <Button version='half'>Overall</Button>} */}
                         <Button onClick={() => { navigate.push(`/dashboard/budgets/new-budget?parentId=${selectedExerciseId}`) }}>Add Budget</Button>
                     </div>
                 </div>
