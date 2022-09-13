@@ -12,19 +12,18 @@ import { useModalSideExit } from "hooks";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
-import Profile from "./buttons/profile";
 
 interface PageProps {
     member: IMember,
     teamName: string,
 }
 
-const ContributorItem = ({member, teamName} : PageProps) => {
+const ContributorItem = ({ member, teamName }: PageProps) => {
 
     const { removeMember } = useContributors()
     const navigate = useRouter()
 
-    
+
     const [deleteModal, setDeleteModal] = useState(false)
     const [details, setDetails] = useState(false)
     const [loading, setLoading] = useState<boolean>(false)
@@ -52,7 +51,7 @@ const ContributorItem = ({member, teamName} : PageProps) => {
     return <>
         {
             deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-4'}>
-                <Delete name={member.name} loading={loading} onDelete={onDelete} onCurrentModal={setDeleteModal} />
+                <Delete name={member.name} onDelete={onDelete} onCurrentModal={setDeleteModal} />
             </Modal>
         }
         <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[15%,13%,14%,16%,15%,20%,7%] text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
@@ -75,7 +74,7 @@ const ContributorItem = ({member, teamName} : PageProps) => {
                     {member.usdBase ? <div className="flex items-center gap-1">USD as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
                         <div className="flex items-center gap-1">
                             <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-                        </div>    
+                        </div>
                     }
                     <div className=" text-base">{member.amount}</div>
                     <div>
@@ -83,9 +82,9 @@ const ContributorItem = ({member, teamName} : PageProps) => {
                     </div>
                 </div>
                 {(member.secondaryCurrency && member.secondaryAmount) && <div className="pl-[2px] flex items-center justify-start gap-1">
-                        <div className="flex items-center gap-1">
-                            <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-                        </div>
+                    <div className="flex items-center gap-1">
+                        <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+                    </div>
                     <div className=" text-base">{member.secondaryAmount}</div>
                     <div>
                     </div>
@@ -108,7 +107,7 @@ const ContributorItem = ({member, teamName} : PageProps) => {
                         <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all  text-sm flex w-full px-2 pr-6 py-2 gap-3" onClick={() => {
                             setDeleteModal(true)
                         }}>
-                            <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`}  className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Delete</span>
+                            <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Delete</span>
                         </div>
                     </div>}
                 </span>

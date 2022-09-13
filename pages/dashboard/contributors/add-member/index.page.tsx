@@ -4,7 +4,7 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { SelectContributors, SelectSelectedAccountAndBudget, SelectID , addMemberToContributor } from "redux/slices/account/remoxData";
+import { SelectContributors, SelectSelectedAccountAndBudget, SelectID, addMemberToContributor } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { AltCoins, CoinsURL } from "types";
@@ -34,7 +34,7 @@ export default () => {
     const navigate = useRouter()
     const { register, handleSubmit } = useForm<IFormInput>();
     const [url, setUrl] = useState<string>("");
-    const [type, setType] = useState<"image" | "nft">("image") 
+    const [type, setType] = useState<"image" | "nft">("image")
     const { addMember } = useContributors();
     const contributors = useAppSelector(SelectContributors);
     const userId = useAppSelector(SelectID);
@@ -63,9 +63,9 @@ export default () => {
     const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(Object.values(GetCoins)[0])
     const [selectedTeam, setSelectedTeam] = useState<DropDownItem>(
         contributors.length > 0
-        ? { name: "Select Team", coinUrl: CoinsURL.None }
-        : { name: "No Team", coinUrl: CoinsURL.None }
-        );
+            ? { name: "Select Team", coinUrl: CoinsURL.None }
+            : { name: "No Team", coinUrl: CoinsURL.None }
+    );
     const teams = contributors.map(w => { return { name: w.name, id: w.id } })
     const Frequency = [{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({
@@ -73,7 +73,7 @@ export default () => {
         type: DateInterval.monthly,
     });
     const [loading, setIsLoading] = useState(false);
-    
+
 
     const submit: SubmitHandler<IFormInput> = async (data) => {
         const Team = selectedTeam;
@@ -93,17 +93,15 @@ export default () => {
         const dateNow = new Date().getTime()
 
         try {
-            let taskId : string | null =  null
+            let taskId: string | null = null
             let inputs: IPaymentInput[] = []
-            if(isAutoPayment){ 
-                const startDate = new Date(dateStart!).getTime()
-                const interval = Frequency as DateInterval
+            if (isAutoPayment && startDate && endDate) {
                 inputs.push({
                     amount: data.amount,
                     coin: Coin1.symbol,
                     recipient: data.address,
                 })
-                if(data.amount2){
+                if (data.amount2) {
                     inputs.push({
                         amount: data.amount2,
                         coin: Coin2.symbol,
@@ -111,18 +109,16 @@ export default () => {
                     })
                 }
 
-                const id = await SendTransaction(accountAndBudget.account! , inputs, {
+                const id = await SendTransaction(accountAndBudget.account!, inputs, {
                     createStreaming: true,
-                    startTime: startDate,
-                    endTime: dateEnd!.getTime(),
-                    budget: accountAndBudget.budget,       
+                    startTime: startDate.getTime(),
+                    endTime: endDate.getTime(),
+                    budget: accountAndBudget.budget,
                 })
-               
+
                 taskId = id!
             }
 
-            //     taskId = id!
-            // }
 
             console.log(startDate, endDate)
             let member: IMember = {
@@ -133,7 +129,7 @@ export default () => {
                 last: `${data.surname}`,
                 role: `${data.role}`,
                 address: data.address,
-                image:  url ? Photo : null ,
+                image: url ? Photo : null,
                 compensation: Compensation,
                 currency: Coin1.name,
                 amount: data.amount.toString(),
@@ -169,17 +165,17 @@ export default () => {
                 <span className="text-3xl pb-1">&#171;</span> Back
             </button>
             <div>
-                <form onSubmit={handleSubmit(submit)} 
+                <form onSubmit={handleSubmit(submit)}
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Add Contributor</div>
                     <div className="flex flex-col space-y-4">
                         <div className="flex flex-col mb-4 space-y-1 w-full">
-                            <EditableAvatar  avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  />
+                            <EditableAvatar avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""} evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange} />
                         </div>
                         <div className="grid grid-cols-2 gap-x-10">
                             <TextField label="Name" {...register("name", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
                             <TextField label="Surname" {...register("surname", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
-                        </div>  
+                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
                         <Dropdown
@@ -228,8 +224,8 @@ export default () => {
                         </div>
                         <div className="w-full h-full flex flex-col relative">
 
-                        {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                            <TextField label="Amount" {...register("amount", { required: true, valueAsNumber: true })} type="number" inputProps={{step: "0.01"}}  className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
+                            {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
+                            <TextField label="Amount" {...register("amount", { required: true, valueAsNumber: true })} type="number" inputProps={{ step: "0.01" }} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
                         </div>
                     </div>
                     {secondActive ?
@@ -255,11 +251,11 @@ export default () => {
                                     </div>
                                 </div>
                                 {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                                <TextField type={'number'} label="Amount" {...register("amount2", { required: true, valueAsNumber: true })} inputProps={{step: 0.02}} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
+                                <TextField type={'number'} label="Amount" {...register("amount2", { required: true, valueAsNumber: true })} inputProps={{ step: 0.02 }} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
                             </div>
                         </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token</div>}
                     <div className="flex flex-col space-y-1">
-                        <TextField {...register("address", {required: true})} label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <TextField {...register("address", { required: true })} label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
                     </div>
                     <div className="flex gap-x-10">
                         <div className="flex flex-col space-y-1 w-full">
@@ -290,7 +286,7 @@ export default () => {
 
                                         inputFormat="MM/dd/yyyy"
                                         value={startDate}
-                                        onChange={(newValue) =>  setStartDate(newValue)}
+                                        onChange={(newValue) => setStartDate(newValue)}
 
                                         renderInput={(params) => <TextField {...params} />}
                                     />
