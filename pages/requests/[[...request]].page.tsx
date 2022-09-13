@@ -155,6 +155,8 @@ export default function RequestId() {
       setRequest(result);
       setFileName(Invoice?.name ?? "");
       setModal(true);
+
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
     }
@@ -387,7 +389,7 @@ export default function RequestId() {
                       <span className="text-black">(optional)</span>
                     </span>
                     <div className="grid grid-cols-1 bg-white">
-                      {/* <Upload setFile={setFile} noProfilePhoto={false} /> */}
+                      <Upload setFile={setFile} noProfilePhoto={false} />
                     </div>
                   </div>
                 </div>
