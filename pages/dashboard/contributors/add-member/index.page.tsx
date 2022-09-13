@@ -16,8 +16,6 @@ import { Stack, TextField } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { Task } from "hooks/walletSDK/useWalletKit";
-import { GetTime } from "utils";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import EditableAvatar from "components/general/EditableAvatar";
 
@@ -37,7 +35,7 @@ export default () => {
     const { register, handleSubmit } = useForm<IFormInput>();
     const [url, setUrl] = useState<string>("");
     const [type, setType] = useState<"image" | "nft">("image") 
-    const { addMember, isLoading } = useContributors();
+    const { addMember } = useContributors();
     const contributors = useAppSelector(SelectContributors);
     const userId = useAppSelector(SelectID);
     const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
@@ -74,6 +72,7 @@ export default () => {
         name: "Monthly",
         type: DateInterval.monthly,
     });
+    const [loading, setIsLoading] = useState(false);
     
 
     const submit: SubmitHandler<IFormInput> = async (data) => {
@@ -82,8 +81,7 @@ export default () => {
         const Coin1 = selectedCoin1;
         const Coin2 = selectedCoin2;
         const Frequency = selectedFrequency.type;
-        const dateStart = startDate;
-        const dateEnd = endDate;
+        setIsLoading(true);
         const Photo = {
             imageUrl: url,
             nftUrl: url,
@@ -92,42 +90,42 @@ export default () => {
             blockchain: blockchain.name
         }
 
+        const dateNow = new Date().getTime()
+
         try {
             let taskId : string | null =  null
             let inputs: IPaymentInput[] = []
-            if(isAutoPayment){ 
-                const startDate = new Date(dateStart!).getTime()
-                const interval = Frequency as DateInterval
-                inputs.push({
-                    amount: data.amount,
-                    coin: Coin1.symbol,
-                    recipient: data.address,
-                })
-                if(data.amount2){
-                    inputs.push({
-                        amount: data.amount2,
-                        coin: Coin2.symbol,
-                        recipient: data.address,
-                    })
-                }
+            // if(isAutoPayment){ 
+            //     const startDate = new Date(dateStart!).getTime()
+            //     const interval = Frequency as DateInterval
+            //     inputs.push({
+            //         amount: data.amount,
+            //         coin: Coin1.symbol,
+            //         recipient: data.address,
+            //     })
+            //     if(data.amount2){
+            //         inputs.push({
+            //             amount: data.amount2,
+            //             coin: Coin2.symbol,
+            //             recipient: data.address,
+            //         })
+            //     }
 
-                const task : Task = {
-                    interval: interval,
-                    startDate: startDate,
-                }
+            //     const task : Task = {
+            //         interval: interval,
+            //         startDate: startDate,
+            //     }
 
-                const id = await SendTransaction(accountAndBudget.account! , inputs, {
-                    task: task,
-                    isStreaming: false,
-                    budget: accountAndBudget.budget,       
-                })
+            //     const id = await SendTransaction(accountAndBudget.account! , inputs, {
+            //         task: task,
+            //         isStreaming: false,
+            //         budget: accountAndBudget.budget,       
+            //     })
 
-                taskId = id!
-            }
+            //     taskId = id!
+            // }
 
-            console.log(url)
-            console.log(type)
-
+            console.log(startDate, endDate)
             let member: IMember = {
                 taskId: isAutoPayment ? taskId : null,
                 id: uuidv4(),
@@ -144,18 +142,17 @@ export default () => {
                 usdBase: !paymentBaseIsToken,
                 execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
                 interval: Frequency as DateInterval,
-                paymantDate: GetTime(dateStart!) ,
-                paymantEndDate: GetTime(dateEnd!),
+                paymantDate: new Date(startDate ?? dateNow).getTime(),
+                paymantEndDate: new Date(endDate ?? dateNow).getTime(),
                 secondaryAmount: data.amount2 ? data.amount2.toString() : null,
                 secondaryCurrency: Coin2?.name ? (Coin2.name) : null,
-                secondaryUsdBase: data.amount2 ? !paymentBaseIsToken : null,
             };
 
-            console.log(member)
             await addMember(Team.id!.toString(), member);
             dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
+            setIsLoading(false);
+            navigate.back();
 
-            navigate.back()
         } catch (error: any) {
             console.error(error);
         }
@@ -321,7 +318,7 @@ export default () => {
                         <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
-                        <Button className="px-8 py-3" type="submit" >
+                        <Button className="px-8 py-3" type="submit" isLoading={loading} >
                             Add Contributor
                         </Button>
                     </div>

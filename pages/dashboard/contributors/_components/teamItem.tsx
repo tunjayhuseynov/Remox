@@ -20,9 +20,11 @@ const teamItem = ({props}: {props:  IContributor}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const dark = useAppSelector(SelectDarkMode)
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
+    const [loading, setLoading] = useState(false)
 
     const DeleteTeam = async () => {
         try {
+            setLoading(true)
             for (let index = 0; index < props.members.length; index++) {
                 const element = props.members[index];
                 if (element.taskId) {
@@ -31,6 +33,7 @@ const teamItem = ({props}: {props:  IContributor}) => {
             }
             await removeTeam(props.id)
             dispatch(removeContributor(props.id));
+            setLoading(false)
             setDeleteModal(false)
         } catch (error) {
             console.error(error)
@@ -60,7 +63,6 @@ const teamItem = ({props}: {props:  IContributor}) => {
                     </div>
                 </div>
                 <div className="flex pl-3 w-full">
-                    {}
                     {/* {props.members[1]?.image && props.members[1].image?.imageUrl !== null && <img src={`${props.members[1].image.imageUrl}`} className={` absolute z-[1] border bg-gray-400 w-8 h-8 rounded-full`} />}
                     {props.members[0]?.image && props.members[0].image?.imageUrl !== null && <img src={`${props.members[0].image.imageUrl}`} className={`relative z-[0] right-[10px] bg-gray-300  border  w-8 h-8 rounded-full`} />}
                     {props.members[2]?.image && props.members[2].image?.imageUrl !== null && <img src={`${props.members[2].image.imageUrl}`} className={` relative z-[1] -left-[15px] bg-gray-500  border  w-8 h-8 rounded-full`} />}
@@ -69,7 +71,7 @@ const teamItem = ({props}: {props:  IContributor}) => {
             </div>
         </div>
         {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-2'}>
-            <Delete name={props.name} onCurrentModal={setDeleteModal} onDelete={DeleteTeam} />
+            <Delete name={props.name} loading={loading} onCurrentModal={setDeleteModal} onDelete={DeleteTeam} />
         </Modal>}
     </>
   )

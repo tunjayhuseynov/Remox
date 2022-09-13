@@ -39,6 +39,5 @@ export interface IMember {
     usdBase: boolean,
     secondaryCurrency: string | null,
     secondaryAmount: string | null,
-    secondaryUsdBase: boolean | null,
     taskId: string | null,
 }

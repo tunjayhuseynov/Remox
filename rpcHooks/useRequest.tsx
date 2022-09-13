@@ -12,9 +12,9 @@ export interface IRequest {
     address: string;
     amount: string;
     image?: string;
-    currency: CoinsName;
+    currency: string;
     secondaryAmount: string | null;
-    secondaryCurrency: CoinsName | null;
+    secondaryCurrency: string | null;
 
     requestType: string;
     nameOfService: string;
