@@ -42,11 +42,13 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
   // const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        route.push('/')
-      }
-    })
+    if (!router.route.includes('/requests/[[...request]]')) {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          route.push('/')
+        }
+      })
+    }
   }, [])
 
 

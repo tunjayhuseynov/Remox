@@ -57,20 +57,23 @@ export default function RequestId() {
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
 
-  const collectionName = Blockchains.find(
-    (s) => s.name === coin
-  )!.currencyCollectionName;
+
 
   const dark = useSelector(SelectDarkMode);
   const [secondActive, setSecondActive] = useState(false);
 
   useAsyncEffect(async () => {
-    const collection: AltCoins[] = await FirestoreReadAll(collectionName);
-    setGetCoins(collection);
-    setSelectedCoin(collection[0]);
-    setSelectedCoin2(collection[0]);
-    setLoader(false);
-  }, []);
+    if (typeof window !== "undefined" && coin) {
+      const collectionName = Blockchains.find(
+        (s) => s.name === coin
+      )?.currencyCollectionName;
+      const collection: AltCoins[] = await FirestoreReadAll(collectionName ?? "");
+      setGetCoins(collection);
+      setSelectedCoin(collection[0]);
+      setSelectedCoin2(collection[0]);
+      setLoader(false);
+    }
+  }, [coin]);
 
   const paymentBase: DropDownItem[] = [
     { name: "Pay with Token Amounts" },
@@ -102,7 +105,7 @@ export default function RequestId() {
       }
       setModal(false);
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
   };
 
@@ -276,7 +279,7 @@ export default function RequestId() {
                           valueAsNumber: true,
                         })}
                         type={'number'}
-                        inputProps={{step: 0.01}}
+                        inputProps={{ step: 0.01 }}
                         className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
                         variant="outlined"
                       />
@@ -310,7 +313,7 @@ export default function RequestId() {
                             required: true,
                             valueAsNumber: true,
                           })}
-                          inputProps={{step: 0.01}}
+                          inputProps={{ step: 0.01 }}
                           className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
                           required
                           variant="outlined"
