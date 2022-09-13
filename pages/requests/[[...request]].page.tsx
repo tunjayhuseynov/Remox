@@ -69,7 +69,6 @@ export default function RequestId() {
     setGetCoins(collection);
     setSelectedCoin(collection[0]);
     setSelectedCoin2(collection[0]);
-
     setLoader(false);
   }, []);
 
@@ -87,7 +86,6 @@ export default function RequestId() {
   const [file, setFile] = useState<File>();
   const [fileName, setFileName] = useState<string>("");
   const [imageRef, setImageRef] = useState<StorageReference>();
-  const [imageUrl, setImageUrl] = useState<string>("");
 
   const [modal, setModal] = useState(false);
   const [request, setRequest] = useState<IRequest>();
@@ -277,6 +275,8 @@ export default function RequestId() {
                           required: true,
                           valueAsNumber: true,
                         })}
+                        type={'number'}
+                        inputProps={{step: 0.01}}
                         className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
                         variant="outlined"
                       />
@@ -310,6 +310,7 @@ export default function RequestId() {
                             required: true,
                             valueAsNumber: true,
                           })}
+                          inputProps={{step: 0.01}}
                           className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
                           required
                           variant="outlined"
@@ -433,9 +434,3 @@ export default function RequestId() {
 
 RequestId.disableLayout = true;
 RequestId.disableGuard = true;
-
-export async function getServerSideProps() {
-  return {
-    props: {}, // will be passed to the page component as props
-  };
-}

@@ -4,21 +4,22 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { SelectContributors } from "redux/slices/account/remoxData";
+import { SelectContributors, SelectSelectedAccountAndBudget, SelectID , addMemberToContributor } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
-import { AltCoins, CoinsName, CoinsURL } from "types";
+import { AltCoins, CoinsURL } from "types";
 import { useWalletKit } from "hooks";
-import Upload from "components/upload";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
-import { addMemberToContributor } from "redux/slices/account/remoxData";
 import { useRouter } from 'next/router';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Stack, TextField } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import { Task } from "hooks/walletSDK/useWalletKit";
+import { GetTime } from "utils";
+import { IPaymentInput } from "pages/api/payments/send/index.api";
+import EditableAvatar from "components/general/EditableAvatar";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -34,16 +35,18 @@ export interface IFormInput {
 export default () => {
     const navigate = useRouter()
     const { register, handleSubmit } = useForm<IFormInput>();
+    const [url, setUrl] = useState<string>("");
+    const [type, setType] = useState<"image" | "nft">("image") 
     const { addMember, isLoading } = useContributors();
     const contributors = useAppSelector(SelectContributors);
+    const userId = useAppSelector(SelectID);
+    const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const dispatch = useAppDispatch();
     const schedule: DropDownItem[] = [
         { name: "Full Time" },
         { name: "Part Time" },
         { name: "Bounty" },
     ];
-    const imageType: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }];
-    const [selectedImageType, setSelectedImageType] = useState(imageType[0]);
     const [selectedSchedule, setSelectedSchedule] = useState(schedule[0]);
     const paymentBase: DropDownItem[] = [
         { name: "Pay with Token Amounts" },
@@ -54,8 +57,7 @@ export default () => {
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);
     const isAutoPayment = selectedPaymentType.name === "Auto";
-    const { GetCoins, blockchain } = useWalletKit();
-    const [file, setFile] = useState<File>();
+    const { GetCoins, blockchain, SendTransaction } = useWalletKit();
     const [secondActive, setSecondActive] = useState(false);
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(new Date());
@@ -66,69 +68,92 @@ export default () => {
         ? { name: "Select Team", coinUrl: CoinsURL.None }
         : { name: "No Team", coinUrl: CoinsURL.None }
         );
-        const teams = contributors.map(w => { return { name: w.name, id: w.id } })
+    const teams = contributors.map(w => { return { name: w.name, id: w.id } })
     const Frequency = [{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({
         name: "Monthly",
         type: DateInterval.monthly,
     });
-    const userIsUpload = selectedImageType.name === "Upload Photo";
     
 
     const submit: SubmitHandler<IFormInput> = async (data) => {
-        const Photo = file;
         const Team = selectedTeam;
         const Compensation = selectedSchedule.name;
-        const coin1 = selectedCoin1;
-        const coin2 = selectedCoin2;
-        const PaymentType = selectedPaymentType ? "Auto" : "Manual";
+        const Coin1 = selectedCoin1;
+        const Coin2 = selectedCoin2;
         const Frequency = selectedFrequency.type;
         const dateStart = startDate;
         const dateEnd = endDate;
+        const Photo = {
+            imageUrl: url,
+            nftUrl: url,
+            type: type,
+            tokenId: null,
+            blockchain: blockchain.name
+        }
 
         try {
-            let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
-            if (Photo || data.nftAddress) {
-                image = {
-                    image: {
-                        blockchain,
-                        imageUrl: Photo ?? data.nftAddress!,
-                        nftUrl: data.nftAddress ?? "",
-                        tokenId: data.nftTokenId ?? null,
-                        type: imageType ? "image" : "nft",
-                    },
-                    name: `individuals/${data.name}`,
-                };
-                await DownloadAndSetNFTorImageForUser(image);
+            let taskId : string | null =  null
+            let inputs: IPaymentInput[] = []
+            if(isAutoPayment){ 
+                const startDate = new Date(dateStart!).getTime()
+                const interval = Frequency as DateInterval
+                inputs.push({
+                    amount: data.amount,
+                    coin: Coin1.symbol,
+                    recipient: data.address,
+                })
+                if(data.amount2){
+                    inputs.push({
+                        amount: data.amount2,
+                        coin: Coin2.symbol,
+                        recipient: data.address,
+                    })
+                }
+
+                const task : Task = {
+                    interval: interval,
+                    startDate: startDate,
+                }
+
+                const id = await SendTransaction(accountAndBudget.account! , inputs, {
+                    task: task,
+                    isStreaming: false,
+                    budget: accountAndBudget.budget,       
+                })
+
+                taskId = id!
             }
 
+            console.log(url)
+            console.log(type)
+
             let member: IMember = {
-                taskId: null,
+                taskId: isAutoPayment ? taskId : null,
                 id: uuidv4(),
                 first: `${data.name}`,
                 name: `${data.name} ${data.surname}`,
                 last: `${data.surname}`,
                 role: `${data.role}`,
                 address: data.address,
-                image: image ? image.image : null,
+                image:  url ? Photo : null ,
                 compensation: Compensation,
-                currency: coin1.name as CoinsName,
+                currency: Coin1.name,
                 amount: data.amount.toString(),
                 teamId: Team.id!.toString(),
                 usdBase: !paymentBaseIsToken,
                 execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
                 interval: Frequency as DateInterval,
-                paymantDate: dateStart!.toISOString(),
-                paymantEndDate: dateEnd!.toISOString(),
+                paymantDate: GetTime(dateStart!) ,
+                paymantEndDate: GetTime(dateEnd!),
                 secondaryAmount: data.amount2 ? data.amount2.toString() : null,
-                secondaryCurrency: coin2?.name ? coin2.name : null,
+                secondaryCurrency: Coin2?.name ? (Coin2.name) : null,
                 secondaryUsdBase: data.amount2 ? !paymentBaseIsToken : null,
             };
 
             console.log(member)
-
-            // await addMember(Team.id!.toString(), sent);
-            // dispatch(addMemberToContributor({ id: Team.id!.toString(), member: sent }));
+            await addMember(Team.id!.toString(), member);
+            dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
 
             navigate.back()
         } catch (error: any) {
@@ -136,37 +161,31 @@ export default () => {
         }
     };
 
+    const onChange = (url: string, type: "image" | "nft") => {
+        setUrl(url);
+        setType(type);
+    }
+
 
     return <>
         <div className="relative w-full mx-auto">
             <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-semibold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
-                {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                 <span className="text-3xl pb-1">&#171;</span> Back
             </button>
-            <form>
-                <form onSubmit={handleSubmit(submit)} className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
+            <div>
+                <form onSubmit={handleSubmit(submit)} 
+                    className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Add Contributor</div>
                     <div className="flex flex-col space-y-4">
-                        {<div className="flex flex-col mb-4 space-y-1 w-full">
-                            {!userIsUpload ? <input type="text"  {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.15rem]  w-full px-1" />
-                                :
-                                <Upload  setFile={setFile} />
-                            }
-
-                        </div>}
-                        {/* {blockchain.name === 'celo' && !userIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
-                            <div className=" text-left text-greylish">Token ID</div>
-                            <div className={`w-full border rounded-md`}>
-                                <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.15rem] unvisibleArrow  w-full px-1" />
-                            </div>
-                        </div>} */}
+                        <div className="flex flex-col mb-4 space-y-1 w-full">
+                            <EditableAvatar  avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  />
+                        </div>
                         <div className="grid grid-cols-2 gap-x-10">
                             <TextField label="Name" {...register("name", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
                             <TextField label="Surname" {...register("surname", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
-                        </div>
+                        </div>  
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
-
                         <Dropdown
                             label="Team"
                             setSelect={setSelectedTeam}
@@ -214,7 +233,7 @@ export default () => {
                         <div className="w-full h-full flex flex-col relative">
 
                         {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                            <TextField type={'number'} label="Amount" {...register("amount", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
+                            <TextField label="Amount" {...register("amount", { required: true, valueAsNumber: true })} type="number" inputProps={{step: "0.01"}}  className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
                         </div>
                     </div>
                     {secondActive ?
@@ -233,18 +252,18 @@ export default () => {
                             </div>
                             <div className="w-full h-full flex flex-col relative">
                                 <div className="flex items-center">
-                                    <div className="absolute -top-[-1.15rem] -right-[2rem]">
+                                    <div className="absolute -right-[2rem] top-[0.8rem]">
                                         <DeleteOutlinedIcon className="hover:text-gray-600 cursor-pointer w-5 h-5" onClick={() => {
                                             setSecondActive(false)
                                         }} />
                                     </div>
                                 </div>
                                 {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                                <TextField type={'number'} label="Amount" {...register("amount2", { required: true, valueAsNumber: true })} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
+                                <TextField type={'number'} label="Amount" {...register("amount2", { required: true, valueAsNumber: true })} inputProps={{step: 0.02}} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
                             </div>
                         </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token</div>}
                     <div className="flex flex-col space-y-1">
-                        <TextField label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <TextField {...register("address", {required: true})} label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
                     </div>
                     <div className="flex gap-x-10">
                         <div className="flex flex-col space-y-1 w-full">
@@ -302,16 +321,12 @@ export default () => {
                         <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
                             Close
                         </Button>
-                        <Button 
-                            type="submit"
-                            className="px-8 py-3"
-
-                        >
+                        <Button className="px-8 py-3" type="submit" >
                             Add Contributor
                         </Button>
                     </div>
                 </form>
-            </form>
+            </div>
         </div>
     </>
 };
