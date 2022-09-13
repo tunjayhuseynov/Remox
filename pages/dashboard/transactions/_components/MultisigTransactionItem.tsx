@@ -170,11 +170,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         )
                     }
                     {
-                        automationCanceled && (
-                            <div className="flex flex-col space-y-5">
-                                {automationCanceled.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
-                            </div>
-                        )
+                        automationCanceled && (CoinDesignGenerator({ transfer: automationCanceled }))
                     }
                     {automation && (
                         CoinDesignGenerator({ transfer: automation })

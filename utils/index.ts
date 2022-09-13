@@ -185,7 +185,7 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 		case TransactionDirection.AutomationOut:
 			img = blockchain.recurringPaymentProtocols[0].logoURL;
 			name = blockchain.recurringPaymentProtocols[0].name;
-			action = "Execute (A)"
+			action = "Stream Created"
 			break;
 		case TransactionDirection.AutomationIn:
 			img = blockchain.recurringPaymentProtocols[0].logoURL;
@@ -195,7 +195,7 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 		case TransactionDirection.AutomationCancel:
 			img = blockchain.recurringPaymentProtocols[0].logoURL;
 			name = blockchain.recurringPaymentProtocols[0].name;
-			action = "Canceled (A)"
+			action = "Stream Canceled"
 			break;
 		case TransactionDirection.AddOwner:
 			img = blockchain.multisigProviders[0].logoURL;

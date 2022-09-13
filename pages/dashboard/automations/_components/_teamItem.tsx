@@ -4,7 +4,7 @@ import { DateInterval, IMember } from "types/dashboard/contributors";
 import { useDispatch } from "react-redux";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "utils";
-import { ITasking } from "rpcHooks/useTasking";
+import { ITasking } from "redux/slices/account/remoxData";
 
 
 const TeamItem = ({ task }: { task: ITasking }) => {

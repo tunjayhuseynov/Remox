@@ -1,6 +1,6 @@
 import type { TransactionInstruction } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
-import { BatchPay, GenerateSwapData, GenerateTx } from "./_celo";
+import { BatchPay, GenerateStreamingTx, GenerateSwapData, GenerateTx } from "./_celo";
 import { solanaInstructions } from "./_solana";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { AltCoins, Coins } from "types";
@@ -61,7 +61,7 @@ export default async function Send(
         if (!blockchain) throw new Error("blockchain is required");
         if (requests.length === 0 && !swap) throw new Error("requests is required");
         console.log("blockchain", blockchain);
-        
+
 
         const Blockchain = Blockchains.find(s => s.name === blockchain)!
         const CoinsReq = await adminApp.firestore().collection(Blockchain.currencyCollectionName).get()
@@ -89,6 +89,17 @@ export default async function Send(
                 destination: null
             });
         } else if (blockchain === "celo") {
+            if (isStreaming && startTime && endTime) {
+                const data = await GenerateStreamingTx({
+                    amount: requests[0].amount,
+                    coin: requests[0].coin,
+                    recipient: requests[0].recipient,
+                }, startTime, endTime, coins)
+                return res.json({
+                    data: data,
+                    destination: Blockchain.streamingProtocols[0].contractAddress
+                })
+            }
             if (swap) {
                 const data = await GenerateSwapData(swap)
                 return res.json({
@@ -110,9 +121,9 @@ export default async function Send(
                     destination: coin.address
                 })
             }
-        } else if(blockchain.includes("evm")){
+        } else if (blockchain.includes("evm")) {
 
-            if(swap){
+            if (swap) {
                 const data = await GenerateSwapDataEvm(swap, Blockchain.chainId!)
                 return res.json({
                     data: data,
@@ -120,7 +131,7 @@ export default async function Send(
                 })
             }
 
-            if(requests.length > 1) {
+            if (requests.length > 1) {
 
             } else {
                 const data = await GenerateTxEvm(requests[0], Blockchain, coins)
@@ -130,7 +141,7 @@ export default async function Send(
                     destination: coin.address
                 })
             }
-            
+
         }
     } catch (error) {
         console.log(error)

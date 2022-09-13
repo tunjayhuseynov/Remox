@@ -15,9 +15,8 @@ import Ubeswap from "rpcHooks/ABI/Ubeswap.json";
 import Moola from "rpcHooks/ABI/Moola.json";
 import MoolaAirdrop from "rpcHooks/ABI/MoolaAirdrop.json";
 import BatchRequest from "rpcHooks/ABI/BatchRequest.json";
-import Gelato from "rpcHooks/ABI/Gelato.json";
+import Sablier from "rpcHooks/ABI/Sablier.json"; // Also Gecko
 import CeloTerminal from "rpcHooks/ABI/CeloTerminal.json";
-import { IBudget } from "firebaseConfig";
 import BigNumber from "bignumber.js";
 import Web3 from 'web3'
 import { IBudgetORM } from "pages/api/budget/index.api";
@@ -63,11 +62,11 @@ export interface IFormattedTransaction {
 }
 
 export interface IAddOwner extends IFormattedTransaction {
-  address: string;
+  to: string;
 }
 
 export interface IRemoveOwner extends IFormattedTransaction {
-  address: string;
+  to: string;
 }
 
 export interface IChangeThreshold extends IFormattedTransaction {
@@ -83,17 +82,18 @@ export interface ITransfer extends IFormattedTransaction {
 export interface IAutomationTransfer extends IFormattedTransaction {
   coin: AltCoins;
   startTime: number;
-  interval: number;
-  address: string;
+  endTime: number;
+  to: string;
   amount: string;
 }
 
 export interface IAutomationCancel extends IFormattedTransaction {
-  payments: {
-    coin: AltCoins;
-    to: string;
-    amount: string;
-  }[];
+  coin: AltCoins;
+  to: string;
+  amount: string;
+  endTime: number;
+  startTime: number;
+  streamId: string;
 }
 
 export interface IAutomationBatchRequest extends IFormattedTransaction {
@@ -193,7 +193,7 @@ export const
             decoder = new InputDataDecoder(BatchRequest.abi);
             result = decoder.decodeData(input);
             if (!result.method) {
-              decoder = new InputDataDecoder(Gelato);
+              decoder = new InputDataDecoder(Sablier.abi);
               result = decoder.decodeData(input);
               if (!result.method) {
                 decoder = new InputDataDecoder(MoolaAirdrop);
@@ -207,7 +207,7 @@ export const
           }
         }
       }
-     
+
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
 
       if (!result.method) {
@@ -327,69 +327,40 @@ export const
       //     tags: theTags,
       //   };
       // } 
-      else if (result.method === "cancelTask") {
+      else if (result.method === "cancelStream") {
         const web3 = new Web3(blockchain.rpcUrl);
         const contract = new web3.eth.Contract(blockchain.recurringPaymentProtocols[0].abi, blockchain.recurringPaymentProtocols[0].contractAddress)
-        const details = await contract.methods.getDetails(result.inputs[0]).call()
-        if (!details['1']) return {};
+        const details = await contract.methods.getStream((result.inputs[0] as string).startsWith("0x") ? result.inputs[0] : "0x" + result.inputs[0]).call()
+        const coin = Object.values(Coins).find(s => s.address.toLowerCase() === details["tokenAddress"].toLowerCase());
+        if (!coin) return {};
 
-        const res: any = await CeloInputReader(details["1"], { transaction, Coins, blockchain, tags: theTags, address })
-        return {
-          ...res,
+        const res = {
+          coin: coin,
+          to: details["recipient"],
+          amount: details["deposit"],
+          endTime: details["stopTime"],
+          startTime: details["startTime"],
           method: ERC20MethodIds.automatedCanceled,
           id: ERC20MethodIds.automatedCanceled,
+          streamId: (result.inputs[0] as string).startsWith("0x") ? result.inputs[0] : "0x" + result.inputs[0],
           tags: theTags,
         }
+        return res;
       }
-      else if (result.method === "createTimedTask") {
-        let decoder = new InputDataDecoder(ERC20);
-        let ercRes = decoder.decodeData(result.inputs[4]);
-        //Batch Request Checking
-        if (ercRes.method != ERC20MethodIds.transfer) {
-          const batchDecoder = new InputDataDecoder(BatchRequest.abi);
-          const batchData = batchDecoder.decodeData(input);
-          if (batchData.method != "executeTransactions") return {}
-
-          const txList = [];
-          const splitData = (batchData.inputs[2] as string).substring(2).split("23b872dd");
-
-          for (let i = 0; i < batchData.inputs[0].length; i++) {
-            const coin = Object.values(Coins).find(
-              (s) =>
-                s.address?.toLowerCase() === "0x" + batchData.inputs[0][i]?.toLowerCase()
-            );
-
-            let decoder = new InputDataDecoder(ERC20);
-            let erc = decoder.decodeData(`0x23b872dd${splitData[i]}`);
-            if (coin && erc.method === ERC20MethodIds.transferFrom) {
-              txList.push({
-                coin: coin,
-                startTime: batchData.inputs[0].toString(),
-                interval: batchData.inputs[1].toString(),
-                // address: "0x" + batchData.inputs[2].toString(),
-                amount: erc.method === "transfer" ? erc.inputs[1].toString() : 0
-              });
-            }
-          }
-          return {
-            method: ERC20MethodIds.automatedBatchRequest,
-            id: ERC20MethodIds.automatedBatchRequest,
-            payments: txList,
-            tags: theTags,
-          };
-        }
-        /// Batch Request Checking END
-
-        return {
+      else if (result.method === "createStream") {
+        const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase())
+        if (!coin) return {};
+        const res = {
           method: ERC20MethodIds.automatedTransfer,
           id: ERC20MethodIds.automatedTransfer,
           tags: theTags,
-          startTime: result.inputs[0].toString(),
-          interval: result.inputs[1].toString(),
-          address: "0x" + result.inputs[2].toString(),
-          coin: Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase()),
-          amount: ercRes.method === "transfer" ? ercRes.inputs[1].toString() : 0
+          startTime: result.inputs[3].toString(),
+          endTime: result.inputs[4].toString(),
+          to: "0x" + result.inputs[0].toString(),
+          coin: coin,
+          amount: result.inputs[1].toString(),
         };
+        return res;
       } else if (result.method === ERC20MethodIds.borrow) {
         const coins: AltCoins[] = Object.values(Coins);
         return {

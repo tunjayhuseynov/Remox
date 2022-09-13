@@ -2,6 +2,20 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const nextConfig = {
+  async headers() {
+    return [
+      {
+        // Apply these headers to all routes in your application.
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Referrer-Policy',
+            value: 'origin'
+          }
+        ],
+      },
+    ]
+  },
   reactStrictMode: true,
   webpack5: true,
   pageExtensions: ['page.tsx', 'page.ts', 'api.tsx', 'api.ts'],

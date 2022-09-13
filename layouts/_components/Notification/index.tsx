@@ -96,7 +96,7 @@ const NotificationCointainer = () => {
                                         hash: item.hash,
                                         rawData: item.rawData,
                                         payments: value,
-                                        address: item.address,
+                                        to: item.to,
                                         tags: item.tags,
                                         budget: item.budget,
                                     }

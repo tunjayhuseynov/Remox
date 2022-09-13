@@ -7,8 +7,8 @@ import { adminApp } from "firebaseConfig/admin"
 import { ISwap } from "./index.api"
 import { Jupiter } from "@jup-ag/core"
 import JSBI from "jsbi"
-import { ITasking } from "rpcHooks/useTasking"
 import { Coins } from "types";
+import { ITasking } from "redux/slices/account/remoxData";
 
 export async function solanaInstructions(coins: Coins, accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null): Promise<TransactionInstruction[]>;
 export async function solanaInstructions(coins: Coins, accountId: string, publicKey: string, recipient: string, coin: string, amount: number, swap: ISwap | null, isStreaming?: boolean, start_time?: number, end_time?: number): Promise<TransactionInstruction[]>;

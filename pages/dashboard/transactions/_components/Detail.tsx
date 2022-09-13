@@ -93,7 +93,7 @@ const Detail = ({
                 isExecuted: isExecuted,
                 tx: {
                     amount: amount,
-                    contractAddress: transaction.address,
+                    contractAddress: transaction.to,
                     contractType: isMultisig ? "multi" : "single",
                     hashOrIndex: transaction.hash,
                     timestamp: timestamp,
@@ -108,7 +108,7 @@ const Detail = ({
             budget: val,
             tx: {
                 amount: amount,
-                contractAddress: transaction.address,
+                contractAddress: transaction.to,
                 contractType: isMultisig ? "multi" : "single",
                 hashOrIndex: transaction.hash,
                 timestamp: timestamp,
@@ -235,8 +235,8 @@ const Detail = ({
                                         <div className={`sm:flex flex-col justify-center items-start `}>
                                             {!isMultisig && <div className="text-lg dark:text-white">
                                                 {swap && <div>Swap</div>}
-                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address.toLowerCase() ? transfer.rawData.from : (account?.name || account?.address || transaction.address)}</div>}
-                                                {!transfer && <div>{account?.name || account?.address || transaction.address}</div>}
+                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address.toLowerCase() ? transfer.rawData.from : (account?.name || account?.address || transaction.to)}</div>}
+                                                {!transfer && <div>{account?.name || account?.address || transaction.to}</div>}
                                             </div>}
                                         </div>
                                     </div>

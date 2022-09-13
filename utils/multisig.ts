@@ -65,7 +65,7 @@ export const MultisigTxParser = async (
         tags: tags.filter(s => s.transactions.find(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === txHashOrIndex.toLowerCase())),
         budget: budgets.find(s => s.txs.some(a => a.contractAddress.toLowerCase() === contractAddress.toLowerCase() && a.hashOrIndex.toLowerCase() === index.toString().toLowerCase())) ?? null,
         tx: {
-            address: destination,
+            to: destination,
             hash: txHashOrIndex,
             id: ERC20MethodIds.noInput,
             method: ERC20MethodIds.noInput,
@@ -95,7 +95,7 @@ export const MultisigTxParser = async (
             }
         } else if (parsedData.newOwner) {
             obj.tx = {
-                address: parsedData!.newOwner,
+                to: parsedData!.newOwner,
                 hash: txHashOrIndex,
                 id: ERC20MethodIds.addOwner,
                 method: ERC20MethodIds.addOwner,
@@ -111,7 +111,7 @@ export const MultisigTxParser = async (
             }
         } else if (parsedData.owner) {
             obj.tx = {
-                address: parsedData!.owner,
+                to: parsedData!.owner,
                 hash: txHashOrIndex,
                 id: ERC20MethodIds.removeOwner,
                 method: ERC20MethodIds.removeOwner,

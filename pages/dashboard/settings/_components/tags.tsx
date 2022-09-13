@@ -47,6 +47,7 @@ export default function TagsSetting() {
             })).unwrap()
         }
         reset({ name: "" })
+        setShowModal(false)
     }
 
     const [isLoading, OnSubmit] = useLoading(onSubmit)
@@ -61,7 +62,7 @@ export default function TagsSetting() {
                         </Button>
                     </div>
                 </div>
-                <div className="w-full pt-2 pb-2 border-t ">
+                <div className="w-full pt-2 pb-2">
                     <div>
                         {tags.length > 0 && tags.map((tag, index) => <TagItem key={tag.id} tag={tag} />)}
                         {tags.length === 0 && <div className="text-2xl text-center py-10 font-semibold tracking-wide">No tag yet. Create a tag to track what you care about.</div>}
@@ -77,7 +78,7 @@ export default function TagsSetting() {
                         <div className="flex items-end space-x-12">
                             <div className="flex flex-col space-y-3">
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
-                                <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="Marketing" />
+                                <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="E.g: Marketing" />
                             </div>
                             <div className="flex flex-col space-y-3 ">
                                 <label className="text-greylish bg-opacity-50"></label>
@@ -103,7 +104,7 @@ export default function TagsSetting() {
                             <Button type="submit" version="second" onClick={() => setShowModal(false)} className="px-8 !py-2">
                                 Back
                             </Button>
-                            <Button type="submit" className=" !py-2 " isLoading={isLoading} >
+                            <Button type="submit" className="!py-2" isLoading={isLoading} >
                                 Create
                             </Button>
                         </div>

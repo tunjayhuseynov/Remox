@@ -17,9 +17,9 @@ import {
   FirestoreReadAll,
   FirestoreReadMultiple,
 } from "rpcHooks/useFirebase";
-import { ITasking } from "rpcHooks/useTasking";
 import { AltCoins } from "types";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+
 
 type LaunchResponse = {
   Coins: AltCoins[];
@@ -157,7 +157,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const accounts = accountRes.data;
       const multi = accounts.accounts.filter((s) => s.signerType === "multi");
-      
+
       const {
         approvedRequests,
         multisigRequests,
@@ -180,7 +180,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const mapping = (s: ITransactionMultisig | IFormattedTransaction) => {
         const budget = allBudgets.find(
-          b => b.txs.find(t => t.hashOrIndex.toLowerCase() === ('tx' in s ? s.hashOrIndex : s.hash).toLowerCase() && t.contractAddress.toLowerCase() === ('tx' in s ? s.contractAddress : s.address).toLowerCase())
+          b => b.txs.find(t => t.hashOrIndex.toLowerCase() === ('tx' in s ? s.hashOrIndex : s.hash).toLowerCase() && t.contractAddress.toLowerCase() === ('tx' in s ? s.contractAddress : s.to).toLowerCase())
         )
 
         if (budget) {

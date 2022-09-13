@@ -1,5 +1,5 @@
-import { ITasking } from "rpcHooks/useTasking"
 import { IRemoxData } from "../remoxData"
+import { ITasking } from "../thunks/launch"
 
 // Add Task to RemoxData
 export default {

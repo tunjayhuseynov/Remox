@@ -34,7 +34,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         image =
         {
             image: {
-                blockchain,
+                blockchain: blockchain.name,
                 imageUrl: file ?? nftAddress!,
                 nftUrl: nftAddress ?? "",
                 tokenId: nftTokenId ?? null,

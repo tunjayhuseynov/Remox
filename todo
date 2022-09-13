@@ -4,7 +4,7 @@
 12. tags meselesi hell olunmalidi
 ********************************************************************************************************************* <= Done 
 
-1. Edit Budget
+1. Edit Budget, Subbudget 
 2. Tag (Expension Label) in Budget detail
 3. Tranasction Export All
 4. Historical Price => Token Calculation
@@ -13,3 +13,4 @@
 7. Fiat Money preference
 8. Task needs to be in backend not front end
 9. Blockchain Type Firebase'e dusmemelidi
+10. Xeggo elave ele

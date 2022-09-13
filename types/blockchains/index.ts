@@ -125,10 +125,10 @@ export const Blockchains: BlockchainType[] = [
     ],
     recurringPaymentProtocols: [
       {
-        name: "Gelato Remox Version",
-        contractAddress: "0x88FAcCc7D0C4148A73D2cC626e8192F4ba95F1C7",
-        abi: Gelato as AbiItem[],
-        logoURL: "/icons/companies/gelato.jpg",
+        name: "Xeggo",
+        contractAddress: "0x22651fc5799f1f046d5613f7622f1ee1b06f386e",
+        abi: Sablier.abi as AbiItem[],
+        logoURL: "/icons/companies/xeggo.jpg",
       },
     ],
   },

@@ -11,7 +11,7 @@ import { GetTime } from "utils";
 import { process } from "uniqid"
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "redux/slices/account/thunks/account";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectBlockchain, SelectOrganization, SelectProviderAddress, SelectRemoxAccount } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectBlockchain, SelectID, SelectOrganization, SelectProviderAddress, SelectRemoxAccount } from "redux/slices/account/remoxData";
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import Web3 from 'web3'
 import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
@@ -46,6 +46,7 @@ import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatch
 import { Optional } from "@metaplex/js";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { nanoid } from "@reduxjs/toolkit";
+import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
 
 
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
@@ -183,6 +184,8 @@ export default function useMultisig() {
     const { connection } = useConnection();
     const { publicKey, sendTransaction } = useWallet();
     const { Provider } = useSolanaProvider()
+
+    const selectedId = useAppSelector(SelectID)
 
 
     const selectedAddress = useAppSelector(SelectProviderAddress)
@@ -808,12 +811,13 @@ export default function useMultisig() {
         }
     }, [])
 
-    const submitTransaction = async (multisigAddress: string, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, optionals?: SafeTransactionOptionalProps,) => {
+    const submitTransaction = async (account: IAccount, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, optionals?: SafeTransactionOptionalProps,) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
+            if(!selectedId) throw new Error("Account is not selected")
             if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
                     const txs = new Transaction()
                     txs.add(...(data as TransactionInstruction[]))
@@ -829,15 +833,22 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                 const txHash = await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
                     from: address,
                     gas: 250000,
                     gasPrice: "5000000000",
-                })
+                }).on('confirmation', function (num: number, receipt: any) {
+                    dispatch(Add_Tx_To_TxList_Thunk({
+                        account: account,
+                        authId: selectedId,
+                        blockchain: blockchain,
+                        txHash: receipt.transactionHash,
+                    }))
+                });
 
-                return txHash as string
+                return txHash.transactionHash as string
             } else if (blockchain.name.includes("evm")) {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
@@ -850,7 +861,7 @@ export default function useMultisig() {
 
                 const safeSdk = await Safe.create({
                     ethAdapter,
-                    safeAddress: multisigAddress,
+                    safeAddress: account.address,
                     isL1SafeMasterCopy: false,
                 });
 
@@ -883,7 +894,7 @@ export default function useMultisig() {
                         const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
                         await safeService.proposeTransaction({
-                            safeAddress: multisigAddress,
+                            safeAddress: account.address,
                             safeTransactionData: safeTransaction.data,
                             safeTxHash,
                             senderAddress,
@@ -920,7 +931,7 @@ export default function useMultisig() {
                         const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
                         await safeService.proposeTransaction({
-                            safeAddress: multisigAddress,
+                            safeAddress: account.address,
                             safeTransactionData: safeTransaction.data,
                             safeTxHash,
                             senderAddress,
@@ -1104,12 +1115,12 @@ export default function useMultisig() {
 
                 let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
-                await contract.methods.executeTransaction(+transactionId).send({
+                const tx = await contract.methods.executeTransaction(+transactionId).send({
                     from: address,
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
-
+                return tx.transactionHash as string
             } else if (blockchain.name.includes("evm")) {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;

@@ -272,7 +272,7 @@ const ParseTxs = async (
       } else if (blockchain.name === "celo") {
         const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain, address });
 
-        if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0 || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn) || formatted.method === ERC20MethodIds.automatedCanceled)) {
+        if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0 || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn))) {
 
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,

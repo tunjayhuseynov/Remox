@@ -12,12 +12,12 @@ export default function useProfile() {
 
   const dispatch = useAppDispatch()
 
-  const UpdateImage = async (url: string, type: "image" | "nft") => {
+  const UpdateImage = async (url: string, type: "image" | "nft", accountType: "individual" | "organization") => {
     try {
       if (!selectedId) throw new Error('Account is not defined')
       await FirestoreWrite<{
         image: Image,
-      }>().updateDoc(collection, selectedId, {
+      }>().updateDoc(accountType === "individual" ? "individuals" : "organizations", selectedId, {
         image: {
           blockchain: blockchain.name,
           imageUrl: url,
@@ -34,7 +34,8 @@ export default function useProfile() {
           nftUrl: url,
           tokenId: null,
           type: type
-        }
+        },
+        type: accountType
       }))
 
     } catch (error) {

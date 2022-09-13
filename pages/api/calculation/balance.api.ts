@@ -13,6 +13,7 @@ import Web3 from 'web3'
 import erc20 from 'rpcHooks/ABI/erc20.json'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import { DecimalConverter } from "utils/api";
+import { toChecksumAddress } from "web3-utils";
 
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
@@ -26,6 +27,7 @@ export default async function handler(
     res: NextApiResponse<IBalanceAPI>
 ) {
     try {
+
         const addresses = req.query["addresses[]"];
         const blockchainName = req.query.blockchain as BlockchainType["name"];
         const blockchain = Blockchains.find(b => b.name === blockchainName);
@@ -103,13 +105,15 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType): Promise<[number, AltCoins]> => {
     try {
         if (blockchain.name === 'celo') {
-            const web3 = new Web3(blockchain.rpcUrl)
-            const ethers = new web3.eth.Contract(erc20 as AbiItem[], item.address);
+            const rpc = new Web3.providers.HttpProvider(blockchain.rpcUrl)
+            const web3 = new Web3(rpc)
+            
+            const ethers = new web3.eth.Contract(erc20 as AbiItem[], toChecksumAddress(item.address));
             if (item.address === '0x0000000000000000000000000000000000000000') {
                 const balance = await web3.eth.getBalance(addressParams)
                 return [DecimalConverter(balance, item.decimals), item]
             }
-            let balance = await ethers.methods.balanceOf(addressParams).call();
+            let balance = await ethers.methods.balanceOf(toChecksumAddress(addressParams)).call();
             return [DecimalConverter(balance.toString(), item.decimals), item]
         } else if (blockchain.name === 'solana') {
             let token;

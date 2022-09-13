@@ -29,9 +29,24 @@ import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
 import { Refresh_Data_Thunk } from "./thunks/refresh";
 import { BlockchainType } from "types/blockchains";
-import { ITasking } from "rpcHooks/useTasking";
 import { Coins } from "types";
 import { IPrice } from "utils/api";
+
+import { IPaymentInput } from 'pages/api/payments/send/index.api';
+import { DateInterval } from 'types/dashboard/contributors';
+
+export interface ITasking {
+  accountId: string;
+  taskId: string,
+  sender: string,
+  recipient: string,
+  blockchain: string,
+  protocol: string,
+  from: number,
+  to: number,
+  interval: DateInterval | null,
+  inputs: IPaymentInput[],
+}
 
 export type IAccountType = "individual" | "organization";
 
@@ -176,10 +191,10 @@ const remoxDataSlice = createSlice({
             localStorage.setItem('darkMode', action.payload.toString());
             state.darkMode = action.payload;
         },
-        changeImage: (state: IRemoxData, action: { payload: { image: Image } }) => {
-            if (state.accountType === "individual" && state.storage?.individual) {
+        changeImage: (state: IRemoxData, action: { payload: { image: Image, type: "organization" | "individual" } }) => {
+            if (action.payload.type === "individual" && state.storage?.individual) {
                 state.storage.individual.image = action.payload.image;
-            } else if (state.accountType === "organization" && state.storage?.organization) {
+            } else if (action.payload.type === "organization" && state.storage?.organization) {
                 state.storage.organization.image = action.payload.image;
             }
         },

@@ -2,7 +2,6 @@ import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransacti
 import { ethers } from "ethers"
 import { fromWei, toWei } from "utils/ray"
 import nomAbi from "rpcHooks/ABI/nom.json"
-import { CeloEndpoint } from "components/Wallet"
 import ERC20 from 'rpcHooks/ABI/erc20.json'
 import BatchRequestABI from 'rpcHooks/ABI/BatchRequest.json'
 import Web3 from 'web3'
@@ -11,7 +10,7 @@ import { Contracts } from "rpcHooks/Contracts/Contracts"
 import { IPaymentInput, ISwap } from "./index.api"
 import { ChainId, Fetcher, Fraction, JSBI as UbeJSBI, Percent, Route, Router, TokenAmount, Trade, TradeType } from '@ubeswap/sdk';
 import { getAddress } from "ethers/lib/utils"
-import { CeloProvider } from "@celo-tools/celo-ethers-wrapper"
+import { JsonRpcProvider } from "@ethersproject/providers"
 import { Coins } from "types"
 import { Blockchains } from "types/blockchains"
 
@@ -72,10 +71,18 @@ export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPa
         : from ? token.methods.transferFrom(from, recipient, amountWei).encodeABI() : token.methods.transfer(recipient, amountWei).encodeABI();
 }
 
+export const GenerateStreamingTx = async (input: IPaymentInput, startTime: number, endTime: number, coins: Coins) => {
+    const celo = Blockchains.find(b => b.name === 'celo')!;
+
+    const contract = new web3.eth.Contract(celo.streamingProtocols[0].abi as AbiItem[], celo.streamingProtocols[0].contractAddress)
+
+    return contract.methods.createStream(input.recipient, toWei(input.amount.toString()), coins[input.coin].address, startTime, endTime).encodeABI()
+}
+
 export const GenerateSwapData = async (swap: ISwap) => {
 
-    const provider = new CeloProvider('https://forno.celo.org')
-
+    const provider = new JsonRpcProvider(Blockchains.find(b => b.name === 'celo')!.rpcUrl)
+    await provider.ready
 
     let inputAddress = swap.inputCoin.address;
     const input = await Fetcher.fetchTokenData(ChainId.MAINNET, getAddress(inputAddress), provider);

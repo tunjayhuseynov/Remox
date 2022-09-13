@@ -23,7 +23,6 @@ import { IPaymentInput, ISwap } from "pages/api/payments/send/index.api";
 import Web3 from "web3";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useAllowance from "rpcHooks/useAllowance";
-import useTasking from "rpcHooks/useTasking";
 import { DateInterval } from "types/dashboard/contributors";
 import { ITag } from "pages/api/tags/index.api";
 import { IAccount, IBudget, ISubBudget } from "firebaseConfig";
@@ -59,7 +58,7 @@ export default function useWalletKit() {
   const id = useAppSelector(SelectID)
 
   const { allow } = useAllowance();
-  const { createTask } = useTasking();
+
   const { submitTransaction } = useMultisig();
 
   const { setVisible } = useWalletModal();
@@ -309,37 +308,21 @@ export default function useWalletKit() {
             }
           }
 
-          if (task) {
-            const command = data;
-            for (let index = 0; index < approveArr.length; index++) {
-              await allow(
-                Address,
-                approveArr[index].coin.address,
-                Contracts.Gelato.address,
-                approveArr[index].amount.toString()
-              );
-            }
-            const txHash = await createTask(
-              account,
-              task.startDate,
-              task.interval,
-              Contracts.BatchRequest.address,
-              command,
-              inputArr
-            );
-            txhash = txHash;
-            if (account.signerType === "multi") {
-              type = "multi"
-            } else type = "single"
-            // dispatch(Refresh_Data_Thunk());
-          } else if (account.signerType === "single") {
-            const recipet = await web3.eth.sendTransaction(option);
+          if (account.signerType === "single") {
+            const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
+              dispatch(Add_Tx_To_TxList_Thunk({
+                account: account,
+                authId: id,
+                blockchain: blockchain,
+                txHash: receipt.transactionHash,
+              }))
+            });
             const hash = recipet.transactionHash;
             type = "single"
             txhash = hash;
           } else {
             const txHash = await submitTransaction(
-              account.address,
+              account,
               data,
               destination
             );
@@ -357,7 +340,7 @@ export default function useWalletKit() {
 
           if (account.signerType === "multi") {
             const txHash = await submitTransaction(
-              account.address,
+              account,
               data,
               destination
             );
@@ -380,12 +363,12 @@ export default function useWalletKit() {
           }
         }
         if (txhash) {
-          await dispatch(Add_Tx_To_TxList_Thunk({
-            account: account,
-            authId: id,
-            blockchain: blockchain,
-            txHash: txhash,
-          })).unwrap()
+          // dispatch(Add_Tx_To_TxList_Thunk({
+          //   account: account,
+          //   authId: id,
+          //   blockchain: blockchain,
+          //   txHash: txhash,
+          // }))
 
           if (tags && tags.length > 0 && type) {
             for (const tag of tags) {

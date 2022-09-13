@@ -24,8 +24,11 @@ const ProfileSetting = () => {
     const id = useAppSelector(SelectID)
     const isOrganization = type === "organization" ? true : false
 
-    const onImageChange = async (url: string, type: "image" | "nft") => {
-        await UpdateImage(url, type)
+    const onOrganizationImageChange = async (url: string, type: "image" | "nft") => {
+        await UpdateImage(url, type, "organization")
+    }
+    const onindiviudalImageChange = async (url: string, type: "image" | "nft") => {
+        await UpdateImage(url, type, "individual")
     }
 
 
@@ -40,7 +43,7 @@ const ProfileSetting = () => {
                         blockchain={blockchain}
                         evm={blockchain.name !== "solana"}
                         userId={id ?? undefined}
-                        onChange={onImageChange}
+                        onChange={onOrganizationImageChange}
                     />
                 </div>}
             {isOrganization &&
@@ -57,7 +60,7 @@ const ProfileSetting = () => {
                     blockchain={blockchain}
                     evm={blockchain.name !== "solana"}
                     userId={id ?? undefined}
-                    onChange={onImageChange}
+                    onChange={onindiviudalImageChange}
                 />
             </div>
             <div className="w-full bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom px-10 flex items-center gap-[23.6rem] py-6">
