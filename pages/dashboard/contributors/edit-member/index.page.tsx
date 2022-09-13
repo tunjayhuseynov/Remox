@@ -40,7 +40,7 @@ const EditMember = () => {
   const userId = useAppSelector(SelectID)
   const team: IContributor = teams.find((c) => c.id === teamId)!;
   const member: IMember = team?.members.find((m) => m.id === id)!;
-  const [url, setUrl] = useState<string | File>(member.image?.imageUrl ?? "");
+  const [url, setUrl] = useState<string>(member.image?.imageUrl ?? "");
   const [type, setType] = useState<"image" | "nft">(member.image?.type ?? "image") 
 
   console.log(member)

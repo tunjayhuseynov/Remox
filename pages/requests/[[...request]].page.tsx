@@ -57,6 +57,7 @@ export default function RequestId() {
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
 
+
   const collectionName = Blockchains.find(
     (s) => s.name === coin
   )!.currencyCollectionName;
@@ -163,7 +164,7 @@ export default function RequestId() {
     try {
       if (request) {
         await addRequest(id, request);
-        router.push("/dashboard");
+        // router.push("/dashboard");
         console.log("Request added");
       }
     } catch (error) {
@@ -384,7 +385,7 @@ export default function RequestId() {
                       <span className="text-black">(optional)</span>
                     </span>
                     <div className="grid grid-cols-1 bg-white">
-                      <Upload setFile={setFile} noProfilePhoto={false} />
+                      {/* <Upload setFile={setFile} noProfilePhoto={false} /> */}
                     </div>
                   </div>
                 </div>
@@ -432,5 +433,7 @@ export default function RequestId() {
   );
 }
 
+
 RequestId.disableLayout = true;
 RequestId.disableGuard = true;
+
