@@ -1,13 +1,10 @@
 import { Fragment, useState, useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
 import {
-  DateInterval,
-  ExecutionType,
   IMember,
 } from "types/dashboard/contributors";
 import AddStopModal from "pages/dashboard/automations/_components/_buttons/_addStop";
 import Modal from "components/general/modal";
-import TeamContainer from "pages/dashboard/automations/_components/_teamContainer";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { Coins } from "types";
@@ -15,12 +12,16 @@ import Loader from "components/Loader";
 import _ from "lodash";
 import {
   SelectBalance,
+  SelectContributorMembers,
   SelectRecurringTasks,
 } from "redux/slices/account/selector";
+import TeamItem from "./_components/_teamItem";
+import { IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
   const tasks = useAppSelector(SelectRecurringTasks);
+  const members = useAppSelector(SelectContributorMembers)
   const [addStopModal, setAddStopModal] = useState(false);
   const memberState = useState<IMember[]>([]);
   const { GetCoins } = useWalletKit();
@@ -28,13 +29,11 @@ const Automations = () => {
 
   const totalPrice: { [name: string]: number } = useMemo(() => {
     let res: { [name: string]: number } = {};
-    tasks.forEach(({ inputs }) => {
-      inputs.forEach((curr) => {
-        res[curr.coin] = res[curr.coin]
-          ? res[curr.coin] + curr.amount
-          : curr.amount;
-      });
-    });
+
+    for (const task of tasks) {
+      const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer | IAutomationCancel;
+
+    }
 
     return res;
   }, [tasks, balance]);
@@ -56,15 +55,14 @@ const Automations = () => {
   return (
     <div className="w-full h-full flex flex-col space-y-3">
       <div className="flex justify-between items-center w-full pb-3">
-        <div className="text-4xl font-bold">Recurring</div>
+        <div className="text-2xl font-bold">Recurring</div>
       </div>
       {addStopModal && (
         <Modal
           onDisable={setAddStopModal}
           animatedModal={false}
-          className={`${
-            memberState[0].length > 0 && "!w-[75%] !pt-4 px-8"
-          } px-2`}
+          className={`${memberState[0].length > 0 && "!w-[75%] !pt-4 px-8"
+            } px-2`}
         >
           <AddStopModal
             onDisable={setAddStopModal}
@@ -84,10 +82,10 @@ const Automations = () => {
               {memberState[0].length > 0 ? "Confirm" : "Cancel Payment"}
             </Button>
           </div>
-          <div className=" px-5 pb-10 pt-6  ">
+          <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
             <div className="flex  space-y-3 gap-12">
               <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
-                <div className="text-xl font-semibold">
+                <div className="text-lg font-semibold">
                   Total Recurring Payment
                 </div>
                 {totalPrice ? (
@@ -146,27 +144,24 @@ const Automations = () => {
               </div>
             </div>
           </div>
-          <div className="w-full  px-5 pt-4 pb-6 h-full">
-            {tasks.length > 0 && (
-              <div
-                id="header"
-                className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,20%,15%,15%,15%,15%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 "
-              >
-                <div className="font-semibold py-3 pl-2">Name</div>
-                <div className="font-semibold py-3">Start Date</div>
-                <div className="font-semibold py-3">End Date</div>
-                <div className="font-semibold py-3 ">Amount</div>
-                <div className="font-semibold py-3">Frequency</div>
-                <div className="font-semibold py-3">Labels</div>
-              </div>
-            )}
-            <div>
-              {tasks.map((w) => (
-                <Fragment key={w.taskId}>
-                  <TeamContainer task={w} />
-                </Fragment>
-              ))}
-            </div>
+          <div className="w-full pt-4 pb-6 h-full">
+            <table className="w-full">
+              <thead>
+                <tr className="pl-5 grid grid-cols-[12.5%,repeat(5,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
+                  <th className="py-3 self-center text-left">Name</th>
+                  <th className="py-3 self-center text-left">Start Date</th>
+                  <th className="py-3 self-center text-left">End Date</th>
+                  <th className="py-3 self-center text-left">Amount</th>
+                  <th className="py-3 self-center text-left">Frequency</th>
+                  <th className="py-3 self-center text-left">Labels</th>
+                </tr>
+                {tasks.map((w) => {
+                  const hash = 'tx' in w ? w.tx.hash : w.hash;
+                  return <Fragment key={hash}> <TeamItem tx={w} members={members} /> </Fragment>
+                }
+                )}
+              </thead>
+            </table>
           </div>
         </>
       ) : (

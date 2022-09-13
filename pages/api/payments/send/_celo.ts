@@ -12,7 +12,9 @@ import { ChainId, Fetcher, Fraction, JSBI as UbeJSBI, Percent, Route, Router, To
 import { getAddress } from "ethers/lib/utils"
 import { JsonRpcProvider } from "@ethersproject/providers"
 import { Coins } from "types"
-import { Blockchains } from "types/blockchains"
+import { Blockchains, BlockchainType } from "types/blockchains"
+import { adminApp } from "firebaseConfig/admin"
+import { ITasking } from "redux/slices/account/remoxData"
 
 
 const web3 = new Web3(Blockchains.find(b => b.name === 'celo')!.rpcUrl)
@@ -77,6 +79,14 @@ export const GenerateStreamingTx = async (input: IPaymentInput, startTime: numbe
     const contract = new web3.eth.Contract(celo.streamingProtocols[0].abi as AbiItem[], celo.streamingProtocols[0].contractAddress)
 
     return contract.methods.createStream(input.recipient, toWei(input.amount.toString()), coins[input.coin].address, startTime, endTime).encodeABI()
+}
+
+export const GenerateCancelStreamingTx = async (streamId: string) => {
+    const celo = Blockchains.find(b => b.name === 'celo')!;
+
+    const contract = new web3.eth.Contract(celo.streamingProtocols[0].abi as AbiItem[], celo.streamingProtocols[0].contractAddress)
+
+    return contract.methods.cancelStream(streamId).encodeABI()
 }
 
 export const GenerateSwapData = async (swap: ISwap) => {

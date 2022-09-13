@@ -162,11 +162,7 @@ const Pay = () => {
             await SendTransaction(Wallet, pays, {
                 budget: Budget ?? undefined,
                 subbudget: subBudget ?? undefined,
-                task: startDate && endDate ? {
-                    startDate: GetTime(startDate),
-                    interval: GetTime(endDate),
-                } : undefined,
-                isStreaming: index === 1,
+                createStreaming: index === 1,
                 endTime: index === 1 && endDate ? GetTime(endDate) : undefined,
                 startTime: index === 1 && startDate ? GetTime(startDate) : undefined,
                 tags: selectedTags,

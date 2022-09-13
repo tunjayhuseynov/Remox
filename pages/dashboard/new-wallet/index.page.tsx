@@ -1,24 +1,21 @@
-import React, { useMemo } from 'react'
 import Button from "components/button";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useState, useEffect } from "react";
 import useMultiWallet from 'hooks/useMultiWallet';
-import { useWalletKit } from 'hooks'
 import { useRouter } from 'next/router';
-import Upload from "components/upload";
 import Dropdown from "components/general/dropdown";
-import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
-import { auth, IAccount, IIndividual, IMember, IOrganization } from 'firebaseConfig';
+import { auth, IAccount, IIndividual, Image, IMember, IOrganization } from 'firebaseConfig';
 import { GetTime } from 'utils';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectBlockchain, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectBlockchain, SelectID, SelectRemoxAccount } from 'redux/slices/account/selector';
 import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
 import { generate } from 'shortid';
 import axios from 'axios';
 import { ToastRun } from 'utils/toast';
 import useLoading from 'hooks/useLoading';
+import EditableAvatar from 'components/general/EditableAvatar';
+import { nanoid } from '@reduxjs/toolkit';
 
 export interface IFormInput {
     nftAddress?: string;
@@ -30,7 +27,8 @@ export interface IFormInput {
 function NewWalletModal() {
     const { register, handleSubmit } = useForm<IFormInput>();
 
-    const type = useAppSelector(SelectAccountType)
+    const id = useAppSelector(SelectID)
+    const accountType = useAppSelector(SelectAccountType)
     const account = useAppSelector(SelectRemoxAccount)
     const blockchain = useAppSelector(SelectBlockchain)
 
@@ -41,11 +39,9 @@ function NewWalletModal() {
     const providers = blockchain.multisigProviders;
 
     const { addWallet } = useMultiWallet()
-    const [file, setFile] = useState<File>()
+    const [url, setUrl] = useState<string>()
+    const [type, setType] = useState<"image" | "nft">()
 
-    const imageType: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
-    const [selectedImageType, setSelectedImageType] = useState(imageType[0])
-    const organizationIsUpload = selectedImageType.name === "Upload Photo"
 
     const [selectedWalletProvider, setSelectedWalletProvider] = useState(providers.length > 0 ? providers[0] : undefined)
 
@@ -76,27 +72,27 @@ function NewWalletModal() {
         }
     }, [index])
 
+    const imageSelected = async (url: string, type: "nft" | "image") => {
+        setUrl(url)
+        setType(type)
+    }
+
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
             if (!selectedWalletProvider) throw new Error("No provider selected")
             if (!auth.currentUser) throw new Error("No user signed in")
 
-            const Photo = file;
 
-            let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
-            if (Photo || data.nftAddress) {
+            let image: Image | null = null;
+            if (url || data.nftAddress) {
                 image = {
-                    image: {
-                        blockchain,
-                        imageUrl: Photo ?? data.nftAddress ?? "",
-                        nftUrl: data.nftAddress ?? "",
-                        tokenId: data.nftTokenId ?? null,
-                        type: imageType ? "image" : "nft",
-                    },
-                    name: `organizations/${data.name}`,
+                    blockchain: blockchain.name,
+                    imageUrl: url ?? data.nftAddress ?? "",
+                    nftUrl: data.nftAddress ?? "",
+                    tokenId: data.nftTokenId ?? null,
+                    type: type ?? "image"
                 };
-                await DownloadAndSetNFTorImageForUser(image);
             }
 
 
@@ -121,18 +117,18 @@ function NewWalletModal() {
                     image: null,
                     mail: "",
                 })),
-                image: image?.image ?? null,
+                image: image,
                 name: data.name,
                 provider: selectedWalletProvider.name,
                 signerType: "multi"
             }
 
-            if (type === "organization") {
+            if (accountType === "organization") {
                 await dispatch(Create_Account_For_Organization({
                     account: myResponse,
                     organization: (account as IOrganization)
                 })).unwrap()
-            } else if (type === "individual") {
+            } else if (accountType === "individual") {
                 await dispatch(Create_Account_For_Individual({
                     account: myResponse,
                     individual: (account as IIndividual)
@@ -160,28 +156,16 @@ function NewWalletModal() {
             <div className="flex justify-between w-[60%]  xl:w-[38%] py-7"><AnimatedTabBar data={data} index={index} /></div>
 
             {index === 0 && <form onSubmit={handleSubmit(submit)} className="flex flex-col w-[62%] gap-7">
-                <div className="flex flex-col gap-1">
-                    {/* <div className="text-sm">Choose Profile Photo Type</div> */}
-                    <Dropdown
-                        selectClass='py-2'
-                        className={'w-full'}
-                        label="Choose Profile Photo Type"
-                        list={imageType}
-                        selected={selectedImageType}
-                        setSelect={setSelectedImageType} />
+                <div className={`flex justify-center flex-shrink-0 flex-grow-0`}>
+                    <EditableAvatar
+                        avatarUrl={null}
+                        name={"random"}
+                        blockchain={blockchain}
+                        evm={blockchain.name !== "solana"}
+                        userId={`${id ?? ""}/accounts/${nanoid()}`}
+                        onChange={imageSelected}
+                    />
                 </div>
-                {<div className={`flex flex-col  gap-1 w-full`}>
-                    <div className="text-xs text-left  dark:text-white">{!organizationIsUpload ? "NFT Address" : "Your Photo"} </div>
-                    <div className={`  w-full border rounded-lg`}>
-                        {!organizationIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
-                    </div>
-                </div>}
-                {blockchain.name === 'celo' && !organizationIsUpload && <div className="flex flex-col  gap-1 w-full">
-                    <div className="text-xs text-left  dark:text-white">Token ID</div>
-                    <div className={`w-full border rounded-lg`}>
-                        <input type="number" {...register("nftTokenId", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
-                    </div>
-                </div>}
                 <div className="flex flex-col gap-1">
                     {/* <div className="text-sm">Choose Wallet Provider</div> */}
                     <Dropdown

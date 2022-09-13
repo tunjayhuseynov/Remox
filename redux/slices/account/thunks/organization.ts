@@ -15,7 +15,7 @@ import { CreateTag } from "./tags";
 
 interface ICreateMultisig {
     uploadType: "image" | "nft";
-    file: File | null,
+    imageUrl: string | null,
     nftAddress: string | null,
     nftTokenId: number | null,
     blockchain: BlockchainType,
@@ -26,45 +26,27 @@ interface ICreateMultisig {
 }
 
 export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreateMultisig>("remoxData/create_organization", async (data, api) => {
-    const { file, nftAddress, nftTokenId, blockchain, address, name, uploadType, individual, newAccountName } = data;
+    const { imageUrl, nftAddress, nftTokenId, blockchain, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
     let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
-    if (file || nftAddress) {
+    const id = generate();
+
+    if (imageUrl || nftAddress) {
         image =
         {
             image: {
                 blockchain: blockchain.name,
-                imageUrl: file ?? nftAddress!,
+                imageUrl: imageUrl ?? nftAddress!,
                 nftUrl: nftAddress ?? "",
                 tokenId: nftTokenId ?? null,
                 type: uploadType
             },
-            name: `organizations/${name}`
+            name: `organizations/${id}/${name}`
         }
-        await DownloadAndSetNFTorImageForUser(image)
     }
 
-    const id = generate();
-    // const account: IAccount = {
-    //     address: address,
-    //     blockchain,
-    //     created_date: GetTime(),
-    //     name: newAccountName,
-    //     id: address,
-    //     image: null,
-    //     members: [
-    //         {
-    //             address,
-    //             id: generate(),
-    //             image: null,
-    //             mail: null,
-    //             name: name,
-    //         }
-    //     ],
-    //     provider: null,
-    //     signerType: "single",
-    // }
+
     const response = await Create_Organization({
         blockchain,
         accounts: [

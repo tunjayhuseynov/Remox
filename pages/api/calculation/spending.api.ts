@@ -36,7 +36,7 @@ export default async function handler(
 
         const authId = req.query.id as string;
 
-      
+
         let specificTxs;
         if (parsedtxs && parsedtxs.length > 0) {
             specificTxs = await axios.get(BASE_URL + "/api/transactions", {
@@ -66,9 +66,9 @@ export default async function handler(
         })
 
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
-        
+
         const allTxs = specificTxs.data
-   
+
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
         const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
 
@@ -308,6 +308,15 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
             TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
             TotalInOut[stringTime(new Date())] = TotalBalance;
         }
+
+        TotalInOut = Object.entries(TotalInOut).sort((a, b) => {
+            const aDate = new Date(a[0])
+            const bDate = new Date(b[0])
+            return aDate.getTime() - bDate.getTime()
+        }).reduce<{ [name: string]: number }>((a, [key, value]) => {
+            a[key] = value;
+            return a;
+        }, {})
 
         return {
             AccountIn: {

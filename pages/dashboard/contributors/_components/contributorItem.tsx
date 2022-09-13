@@ -5,7 +5,6 @@ import Avatar from "../../../../components/avatar";
 import Delete from './buttons/delete'
 import { IMember } from "types/dashboard/contributors";
 import useContributors from "hooks/useContributors";
-import useTasking from "rpcHooks/useTasking";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../../utils";
 import { useAppSelector } from 'redux/hooks';
@@ -30,7 +29,7 @@ const ContributorItem = ({member, teamName} : PageProps) => {
     const [modalEditVisible, setModalEditVisible] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [details, setDetails] = useState(false)
-    const { cancelTask } = useTasking()
+
     const { GetCoins } = useWalletKit()
     const dark = useAppSelector(SelectDarkMode)
     const dispatch = useDispatch();

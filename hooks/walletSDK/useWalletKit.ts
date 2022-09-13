@@ -12,6 +12,7 @@ import * as spl from "easy-spl";
 import { TextDecoder, TextEncoder } from "util";
 import { GetSignedMessage, GetTime } from "utils";
 import {
+  removeRecurringTask,
   SelectBlockchain,
   SelectCurrencies,
   SelectID,
@@ -38,6 +39,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { useCelo } from "@celo/react-celo";
 import { generate } from "shortid";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
+import { hexToNumberString } from "web3-utils";
 
 export enum CollectionName {
   Celo = "currencies",
@@ -228,44 +230,56 @@ export default function useWalletKit() {
       account: IAccount,
       inputArr: IPaymentInput[],
       {
-        task,
         tags,
-        isStreaming = false,
+        createStreaming = false,
         startTime,
         endTime,
         budget,
         subbudget,
         swap,
+        cancelStreaming,
+        streamingIdTxHash
       }: {
-        task?: Task;
         tags?: ITag[];
-        isStreaming?: boolean;
+        createStreaming?: boolean;
         startTime?: number;
         endTime?: number;
         budget?: IBudgetORM | null;
         subbudget?: ISubbudgetORM | null;
         swap?: ISwap;
+        cancelStreaming?: boolean;
+        streamingIdTxHash?: string
       } = {}
     ) => {
       try {
         let txhash;
         let type: "single" | "multi" = "single";
+        let streamId: string | null = null;
+
         const Address = account.address;
 
         if (!blockchain) throw new Error("blockchain not found");
         if (!id) throw new Error("Your session is not active")
         if (!Address) throw new Error("Address not set");
         if (inputArr.length === 0) throw new Error("No inputs");
+
+        if (cancelStreaming && streamingIdTxHash) {
+          const web3 = new Web3(blockchain.rpcUrl);
+          streamId = hexToNumberString((await web3.eth.getTransactionReceipt(streamingIdTxHash)).logs[1].topics[1])
+        }
+
         const txData = await dispatch(
           FetchPaymentData({
-            accountId: account.id,
+            walletAddress: account.address,
             blockchain: blockchain.name,
             executer: Address,
             requests: inputArr,
             endTime: endTime ?? null,
             startTime: startTime ?? null,
-            isStreaming,
+            createStreaming: createStreaming,
             swap: swap ?? null,
+            cancelStreaming: cancelStreaming ?? null,
+            streamId: streamId
           })
         ).unwrap();
 
@@ -277,6 +291,7 @@ export default function useWalletKit() {
           const destination = txData.destination as string;
           const data = txData.data as string;
           const web3 = new Web3((window as any).celo);
+
 
           let option = {
             data,
@@ -329,6 +344,7 @@ export default function useWalletKit() {
             txhash = txHash;
             type = "multi"
           }
+
         } else if (
           blockchain.name === "solana" &&
           publicKey &&
@@ -427,6 +443,11 @@ export default function useWalletKit() {
               ).unwrap();
             }
           }
+        }
+        if (cancelStreaming && streamId) {
+          dispatch(removeRecurringTask({
+            streamId: streamId,
+          }))
         }
         // await dispatch(Refresh_Data_Thunk()).unwrap();
         return txhash;

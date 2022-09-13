@@ -1,6 +1,6 @@
 import type { TransactionInstruction } from "@solana/web3.js";
 import { NextApiRequest, NextApiResponse } from "next";
-import { BatchPay, GenerateStreamingTx, GenerateSwapData, GenerateTx } from "./_celo";
+import { BatchPay, GenerateCancelStreamingTx, GenerateStreamingTx, GenerateSwapData, GenerateTx } from "./_celo";
 import { solanaInstructions } from "./_solana";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { AltCoins, Coins } from "types";
@@ -36,14 +36,20 @@ export interface ISwapParam1inch {
 }
 
 export interface IPaymentDataBody {
-    accountId: string,
+    walletAddress: string,
     blockchain: BlockchainType["name"],
+
     executer: string,
     requests: IPaymentInput[],
+
     swap: ISwap | null,
-    isStreaming: boolean,
+
+    createStreaming: boolean,
     startTime: number | null,
-    endTime: number | null
+    endTime: number | null,
+
+    cancelStreaming: boolean | null,
+    streamId: string | null
 }
 
 export interface ISendTx {
@@ -57,7 +63,7 @@ export default async function Send(
 ) {
     try {
         if (req.method !== 'POST') throw new Error('Only POST method is allowed')
-        const { blockchain, requests, executer, isStreaming, endTime, startTime, swap, accountId } = req.body as IPaymentDataBody
+        const { blockchain, requests, executer, createStreaming: isStreaming, endTime, startTime, swap, walletAddress: accountId, cancelStreaming, streamId } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
         if (requests.length === 0 && !swap) throw new Error("requests is required");
         console.log("blockchain", blockchain);
@@ -89,6 +95,13 @@ export default async function Send(
                 destination: null
             });
         } else if (blockchain === "celo") {
+            if (cancelStreaming && streamId) {
+                const data = await GenerateCancelStreamingTx(streamId)
+                return res.json({
+                    data: data,
+                    destination: Blockchain.streamingProtocols[0].contractAddress
+                })
+            }
             if (isStreaming && startTime && endTime) {
                 const data = await GenerateStreamingTx({
                     amount: requests[0].amount,

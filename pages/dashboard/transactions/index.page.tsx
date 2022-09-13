@@ -93,13 +93,13 @@ const Transactions = () => {
         } else {
             const tx = c as any
             if (selectedDirection !== "Any") {
-                if (selectedDirection === "In" && c.to.toLowerCase() === c.rawData.from.toLowerCase()) return false
-                if (selectedDirection === "Out" && c.to.toLowerCase() !== c.rawData.from.toLowerCase()) return false
+                if (selectedDirection === "In" && c.address.toLowerCase() === c.rawData.from.toLowerCase()) return false
+                if (selectedDirection === "Out" && c.address.toLowerCase() !== c.rawData.from.toLowerCase()) return false
             }
 
             if (selectedTags.length > 0 && !c.tags.some(s => selectedTags.includes(s.id))) return false
 
-            if (selectedAccounts.length > 0 && !selectedAccounts.some(s => s.toLowerCase() === c.to.toLowerCase())) return false
+            if (selectedAccounts.length > 0 && !selectedAccounts.some(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
 
@@ -217,10 +217,10 @@ const Transactions = () => {
                                 </tr>
                                 {txs.slice(pagination - STABLE_INDEX, pagination).map((tx, i) => {
                                     if ((tx as IFormattedTransaction)['hash']) {
-                                        const address = (tx as IFormattedTransaction).to;
+                                        const address = (tx as IFormattedTransaction).address;
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
                                         const txData = (tx as IFormattedTransaction)
-                                        return <SingleTxContainer txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.to}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
+                                        return <SingleTxContainer txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
                                     } else {
                                         const txData = (tx as ITransactionMultisig)
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
@@ -270,7 +270,7 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
                     hash: transaction.hash,
                     rawData: transaction.rawData,
                     payments: value,
-                    to: transaction.to,
+                    address: transaction.address,
                     tags: transaction.tags,
                     // budget: transaction.budget,
                 }
@@ -286,7 +286,7 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
                     hash: transaction.hash,
                     rawData: transaction.rawData,
                     payments: value,
-                    to: transaction.to,
+                    address: transaction.address,
                     tags: transaction.tags,
                     // budget: transaction.budget,
                 }
@@ -300,8 +300,8 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
     let directionType = TransactionDirectionDeclare(transaction, accounts);
 
     return <>
-        {isBatch && TXs.map((s, i) => <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.to}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
-        {!isBatch && <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.to}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
+        {isBatch && TXs.map((s, i) => <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
+        {!isBatch && <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
     </>
 })
 

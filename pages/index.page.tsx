@@ -14,6 +14,7 @@ import { setBlockchain, setIndividual, setProviderAddress } from 'redux/slices/a
 import { Get_Individual } from 'crud/individual';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { Blockchains, BlockchainType } from 'types/blockchains';
+import Image from 'next/image'
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
@@ -76,19 +77,25 @@ const Home = () => {
   return <>
     <section className="flex justify-center items-center w-full h-screen">
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
-        <div className="w-[12.5rem] sm:w-[25rem] flex flex-col items-center justify-center gap-10">
-          <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" className="w-full" />
-          <span className="font-light text-greylish text-center">Contributor and Treasury Management Platform</span>
+        <div className="flex flex-col items-center justify-center gap-10">
+          <div className="w-[25rem]">
+            <Image src={dark ? "/logo.png" : "/logo_white.png"} alt="Remox DAO" layout='responsive' height={50} width={200}/>
+          </div>
+          <span className="font-semibold text-greylish text-center text-lg tracking-wider">Simplified and Collaborative Treasury Management</span>
         </div>
-        <div className="flex flex-col items-center justify-center gap-14">
+        <div className="flex flex-col items-center justify-center space-y-8">
           <Dropdown
             // className={"w-full"}
+            sx={{
+              height: "2.5rem",
+              width: "12rem",
+            }}
             label="Blockchain"
             selected={selected}
             setSelect={setSelected}
             list={Blockchains}
           />
-          <Button onClick={ConnectEvent} isLoading={isLoading}>{buttonText}</Button>
+          <Button onClick={ConnectEvent} className={"w-[12rem] text-sm px-0"} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>
     </section>

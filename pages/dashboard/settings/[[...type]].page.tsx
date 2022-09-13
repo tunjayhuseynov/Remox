@@ -43,7 +43,7 @@ const SettingLayout = () => {
                         Settings
                     </div>
                 </div> {/*relative after:absolute after:w-full after:h-[1px] after:bg-black after:bottom-[1px] after:left-0 after:z-10 */}
-                <div className="flex w-[90%] justify-between">
+                <div className="flex w-[65%] justify-between">
                     <AnimatedTabBar data={data} index={index} className={'!text-xl'} />
                 </div>
             </div>

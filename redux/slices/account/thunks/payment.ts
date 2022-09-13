@@ -3,13 +3,13 @@ import axios from "axios";
 import { IPaymentDataBody, ISendTx } from "pages/api/payments/send/index.api";
 
 
-export const FetchPaymentData = createAsyncThunk<ISendTx, IPaymentDataBody>("remoxData/fetchPayment", async ({ blockchain, executer, requests, isStreaming, endTime, startTime }) => {
+export const FetchPaymentData = createAsyncThunk<ISendTx, IPaymentDataBody>("remoxData/fetchPayment", async ({ blockchain, executer, requests, createStreaming, endTime, startTime }) => {
     try {
         const req = await axios.post<ISendTx>("/api/payments/send", {
             blockchain,
             executer,
             requests,
-            isStreaming,
+            createStreaming,
             startTime,
             endTime
         })

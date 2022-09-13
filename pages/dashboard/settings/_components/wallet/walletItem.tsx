@@ -1,82 +1,132 @@
 import { Avatar, AvatarGroup } from '@mui/material';
+import Button from 'components/button';
+import EditableAvatar from 'components/general/EditableAvatar';
 import EditableTextInput from 'components/general/EditableTextInput';
-import { useModalSideExit } from 'hooks';
+import Modal from 'components/general/modal';
+import useLoading from 'hooks/useLoading';
 import { IAccountORM } from 'pages/api/account/index.api';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { useState } from 'react';
+import { IoTrashOutline } from 'react-icons/io5';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectDarkMode } from 'redux/slices/account/selector';
-import { Update_Account_Name } from 'redux/slices/account/thunks/account';
-import { SetComma } from 'utils';
+import { SelectAccountType, SelectBlockchain, SelectID, SelectIndividual, SelectOrganization } from 'redux/slices/account/selector';
+import { Remove_Account_From_Individual, Remove_Account_From_Organization, Update_Account_Image, Update_Account_Name } from 'redux/slices/account/thunks/account';
+import { Blockchains } from 'types/blockchains';
+import { AddressReducer, SetComma } from 'utils';
+import { ToastRun } from 'utils/toast';
 
 
-function WalletItem({ item, setReplaceOwnerModal, setRemovable, setRemoveModal }: { item: IAccountORM, setReplaceOwnerModal: Dispatch<SetStateAction<boolean>>, setRemovable: Dispatch<SetStateAction<{ name: string, address: string }>>, setRemoveModal: Dispatch<SetStateAction<boolean>> }) {
+function WalletItem({ item }: { item: IAccountORM }) {
 
     const dispatch = useAppDispatch()
-    const [details, setDetails] = useState(false)
-    const dark = useAppSelector(SelectDarkMode)
-    const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
+    const [deleteModal, setDeleteModal] = useState(false)
+    const blockchain = useAppSelector(SelectBlockchain)
+    const accountType = useAppSelector(SelectAccountType)
+    const individual = useAppSelector(SelectIndividual)
+    const organization = useAppSelector(SelectOrganization)
+    const id = useAppSelector(SelectID)
 
     const updateAccountName = async (val: string) => {
-        const { address, blockchain, created_date, name, createdBy, id, image, mail, members, provider, signerType } = item;
         await dispatch(Update_Account_Name({
-            account: {
-                address,
-                blockchain,
-                created_date,
-                name,
-                createdBy,
-                id,
-                image,
-                mail,
-                members,
-                provider,
-                signerType,
-            },
+            account: item,
             name: val
         })).unwrap()
     }
 
-    return <div className=" grid grid-cols-[25%,25%,25%,25%]  border-b dark:border-[#aaaaaa]  py-6 !mt-0 relative" >
+    const updateImage = async (url: string, type: "image" | "nft") => {
+        console.log(url)
+        await dispatch(Update_Account_Image({
+            account: {
+                address: item.address,
+                blockchain: item.blockchain,
+                name: item.name,
+                created_date: item.created_date,
+                image: item.image,
+                createdBy: item.createdBy,
+                id: item.id,
+                mail: item.mail,
+                members: item.members,
+                provider: item.provider,
+                signerType: item.signerType,
+            },
+            image: {
+                blockchain: blockchain.name,
+                imageUrl: url,
+                nftUrl: url,
+                tokenId: null,
+                type
+            }
+        }))
+    }
+
+    const deleteWallet = async () => {
+        if (!id) return ToastRun(<>Cannot find your session</>, "error")
+        if (accountType === "individual") {
+            if (!individual) return ToastRun(<>Cannot find your session</>, "error")
+            await dispatch(Remove_Account_From_Individual({
+                account: item,
+                individual: individual,
+                userId: id
+            }))
+        } else {
+            if (!organization) return ToastRun(<>Cannot find your session</>, "error")
+            await dispatch(Remove_Account_From_Organization({
+                account: item,
+                organization: organization,
+                userId: id
+            }))
+        }
+    }
+
+    const [deleteLoading, DeleteWallet] = useLoading(deleteWallet)
+
+    return <div className="bg-white dark:bg-darkSecond rounded-md shadow-custom p-5 grid grid-cols-[25%,25%,25%,7.5%,1fr]" >
         <div className="flex items-center justify-start gap-2" >
-            {item.image ? <img src={`${item.image.imageUrl}`} className={` border bg-gray-600 w-12 h-12 rounded-full`} /> : <div className=" border bg-gray-600 w-12 h-12 rounded-full"></div>}
-            <div className="flex flex-col gap-1">
+            <EditableAvatar
+                avatarUrl={(typeof item.image?.imageUrl === "string" ? item.image?.imageUrl : null) ?? item.image?.nftUrl ?? null}
+                name={item.name}
+                blockchain={Object.values(Blockchains).find(b => b.name === item.blockchain)!}
+                evm={item.blockchain !== "solana"}
+                userId={item.address}
+                onChange={updateImage}
+                size={4.5}
+            />
+            <div className="flex flex-col">
                 <div className="">
-                    <EditableTextInput defaultValue={item.name} onSubmit={updateAccountName} placeholder="Name"/>
+                    <EditableTextInput defaultValue={item.name} onSubmit={updateAccountName} placeholder="Name" />
                 </div>
-                <div className="text-greylish dark:text-white text-sm">{item.mail}</div>
+                <div className="text-greylish dark:text-white text-sm mx-2">{AddressReducer(item.address)}</div>
             </div>
         </div>
         <div className="flex items-center justify-center">
-            <div className="flex items-center justify-center text-xl">
+            <div className="flex items-center justify-center text-lg font-semibold">
                 ${SetComma(item.totalValue)}
             </div>
         </div>
         <div className="flex items-center justify-center">
             <div className="flex pl-3">
                 <AvatarGroup max={3}>
-                    {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={member.image?.nftUrl ?? ""} />)}
+                    {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={member.image?.imageUrl ?? member.image?.nftUrl ?? ""} />)}
                 </AvatarGroup>
             </div>
         </div>
-        <div className="flex space-x-3 justify-end">
-            <span ref={exceptRef} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center  cursor-pointer  font-bold "><span className=" text-primary pb-4">...</span>
-                {details && <div ref={divRef} className="flex flex-col items-center bg-white dark:bg-darkSecond absolute right-0 -bottom-7 w-[8rem] rounded-lg shadow-xl z-50 ">
-                    {/* <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm border-b border-greylish border-opacity-20 flex w-full pl-2 py-2 gap-3" onClick={() => {
-                        setReplaceOwnerModal(true)
-                    }}>
-                        <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
-                    </div> */}
-                    <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm flex w-full pl-2 py-2 gap-3" onClick={() => {
-                        setRemovable({ name: item.name, address: item.address })
-                        setRemoveModal(true)
-                    }}>
-                        <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Delete</span>
-                    </div>
-                </div>}
-            </span>
-
+        <div className="flex space-x-3 justify-end items-center">
+            <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
+                <IoTrashOutline size={20} className="hover:text-red-500" />
+            </div>
         </div>
-
+        {deleteModal &&
+            <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-6'}>
+                <div className="flex flex-col space-y-8 items-center">
+                    <div className="text-2xl text-primary">Are You Sure?</div>
+                    <div className="flex items-center justify-center text-xl">
+                        Your Are About Delete This Wallet
+                    </div>
+                    <div className="flex justify-center items-center space-x-4">
+                        <Button version="second" className="border-2  w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={() => { setDeleteModal(false) }}>No</Button>
+                        <Button className="w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={DeleteWallet} isLoading={deleteLoading}>Yes</Button>
+                    </div>
+                </div>
+            </Modal>}
     </div>
 }
 

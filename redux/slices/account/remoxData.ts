@@ -17,7 +17,7 @@ import TagReducers from './reducers/tag'
 import RecurringTaks from './reducers/tasks'
 import RequestReducers from './reducers/requests'
 import { IAccountORM } from "pages/api/account/index.api";
-import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail } from "./thunks/account";
+import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail, Update_Account_Image } from "./thunks/account";
 import { IAccount, IBudget, Image, IMember, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
@@ -34,18 +34,16 @@ import { IPrice } from "utils/api";
 
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { DateInterval } from 'types/dashboard/contributors';
+import { UpdateProfileNameThunk, UpdateSeemTimeThunk } from "./thunks/profile";
 
 export interface ITasking {
-  accountId: string;
-  taskId: string,
-  sender: string,
-  recipient: string,
-  blockchain: string,
-  protocol: string,
-  from: number,
-  to: number,
-  interval: DateInterval | null,
-  inputs: IPaymentInput[],
+    taskId: string,
+    sender: string,
+    blockchain: string,
+    protocol: string,
+    from: number,
+    to: number,
+    inputs: IPaymentInput[],
 }
 
 export type IAccountType = "individual" | "organization";
@@ -93,7 +91,7 @@ export interface IRemoxData {
         budget: IBudgetORM | null,
         subbudget: ISubbudgetORM | null,
     },
-    recurringTasks: ITasking[]
+    recurringTasks: (IFormattedTransaction | ITransactionMultisig)[],
 }
 
 const init = (): IRemoxData => {
@@ -200,6 +198,27 @@ const remoxDataSlice = createSlice({
         },
     },
     extraReducers: builder => {
+        /* Profile */
+        /* Profile */
+        /* Profile */
+        /* Profile */
+        builder.addCase(UpdateProfileNameThunk.fulfilled, (state, action) => {
+            if (action.payload.accountType === "individual" && state.storage?.individual) {
+                state.storage.individual.name = action.payload.name;
+            }
+            else if (action.payload.accountType === "organization" && state.storage?.organization) {
+                state.storage.organization.name = action.payload.name;
+            }
+        })
+
+        builder.addCase(UpdateSeemTimeThunk.fulfilled, (state, action) => {
+            if (state.storage?.individual) {
+                state.storage.individual.seenTime = action.payload.time;
+            }
+        })
+
+
+
         /* Tag */
         /* Tag */
         /* Tag */
@@ -208,9 +227,14 @@ const remoxDataSlice = createSlice({
         })
         builder.addCase(UpdateTag.fulfilled, (state, action) => {
             state.tags = [...state.tags.filter(tag => tag.id !== action.payload.oldTag.id), action.payload.newTag];
+            state.cumulativeTransactions
         })
         builder.addCase(DeleteTag.fulfilled, (state, action) => {
             state.tags = [...state.tags.filter(tag => tag.id !== action.payload.id)];
+            state.cumulativeTransactions = state.cumulativeTransactions.map(transaction => {
+                transaction.tags = transaction.tags.filter(tag => tag.id !== action.payload.id);
+                return transaction;
+            })
         })
         builder.addCase(AddTransactionToTag.fulfilled, (state, action) => {
             state.tags = [...state.tags.map(tag => {
@@ -251,6 +275,15 @@ const remoxDataSlice = createSlice({
             })]
         })
 
+        builder.addCase(Update_Account_Image.fulfilled, (state, action) => {
+            state.accounts = [...state.accounts.map(account => {
+                if (account.id === action.payload.id) {
+                    account.image = action.payload.image;
+                }
+                return account;
+            })]
+        })
+
         builder.addCase(Create_Account_For_Individual.fulfilled, (state, action) => {
             state.accounts = [...state.accounts, action.payload];
         })
@@ -261,10 +294,13 @@ const remoxDataSlice = createSlice({
 
         builder.addCase(Remove_Account_From_Individual.fulfilled, (state, action) => {
             state.accounts = [...state.accounts.filter(account => account.id !== action.payload.id)];
+            state.cumulativeTransactions = state.cumulativeTransactions.filter(transaction => ('tx' in transaction) ? transaction.tx.address !== action.payload.address : transaction.address !== action.payload.address);
         })
 
         builder.addCase(Remove_Account_From_Organization.fulfilled, (state, action) => {
             state.accounts = [...state.accounts.filter(account => account.id !== action.payload.id)];
+            state.cumulativeTransactions = state.cumulativeTransactions.filter(transaction => ('tx' in transaction) ? transaction.tx.address !== action.payload.address : transaction.address !== action.payload.address);
+
         })
 
         builder.addCase(Remove_Member_From_Account_Thunk.fulfilled, (state, action) => {

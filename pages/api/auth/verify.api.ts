@@ -53,8 +53,6 @@ async function handler(
                 sig: signature as string,
             });
 
-            console.log("Address: ", address);
-            console.log("Public key: ", publicKey);
 
             if (address.toLowerCase() !== (publicKey as string).toLowerCase()) {
                 throw new Error("Invalid signature");

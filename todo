@@ -1,10 +1,4 @@
--1. Gas fee Label (tag) 
--2. Swap tag, 
--3. Payroll tag => Those are default
-12. tags meselesi hell olunmalidi
-********************************************************************************************************************* <= Done 
-
-1. Edit Budget, Subbudget 
+1. Edit Budget duzelmelidi, Subbudget ucun budget coinlere esasen limitler qoyulmalidi
 2. Tag (Expension Label) in Budget detail
 3. Tranasction Export All
 4. Historical Price => Token Calculation
@@ -13,4 +7,7 @@
 7. Fiat Money preference
 8. Task needs to be in backend not front end
 9. Blockchain Type Firebase'e dusmemelidi
-10. Xeggo elave ele
+10. Notification hissesini Elave ele
+11. Remove_Account_From_Individual => can be found more fastest way
+12. Fiat Price changable
+13. Usd base valuelar api'dan gelmemelidi, frontda cevrilmelidi

@@ -140,7 +140,7 @@ export interface IRegisteredIndividual {
 }
 
 export interface Image {
-    imageUrl: string | File;
+    imageUrl: string;
     nftUrl: string;
     tokenId: number | null;
     type: "image" | "nft";

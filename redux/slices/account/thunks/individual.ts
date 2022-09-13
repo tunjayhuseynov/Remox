@@ -10,7 +10,7 @@ import { CreateTag } from "./tags";
 
 interface ICreateIndividual {
     uploadType: "image" | "nft";
-    file: File | null,
+    imageUrl: string | null,
     nftAddress: string | null,
     nftTokenId: number | null,
     blockchain: BlockchainType,
@@ -20,27 +20,27 @@ interface ICreateIndividual {
 }
 
 export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndividual>("remoxData/create_individual", async (data, api) => {
-    const { file, nftAddress, nftTokenId, blockchain, address, name, uploadType, newAccountName } = data;
+    const { imageUrl, nftAddress, nftTokenId, blockchain, address, name, uploadType, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
     let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
+    const id = auth.currentUser.uid;
 
-    if (file || nftAddress) {
+    if (imageUrl || nftAddress) {
         image =
         {
             image: {
-                blockchain,
-                imageUrl: file ?? nftAddress!,
+                blockchain: blockchain.name,
+                imageUrl: imageUrl ?? nftAddress!,
                 nftUrl: nftAddress ?? "",
                 tokenId: nftTokenId ?? null,
                 type: uploadType
             },
-            name: `individuals/${data.name}`
+            name: `individuals/${id}/${data.name}`
         }
-        await DownloadAndSetNFTorImageForUser(image)
     }
 
-    const id = auth.currentUser.uid;
+    
 
     let individualState: IIndividual = {
         accounts: [

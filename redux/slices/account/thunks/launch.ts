@@ -1,11 +1,11 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
 import type { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import type { IBudgetExerciseORM } from "pages/api/budget/index.api";
 import type { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
 import type { IContributor } from "types/dashboard/contributors";
-import type { IAccountType, IRemoxData } from "../remoxData";
+import type { IAccountType, IRemoxData, ITasking } from "../remoxData";
 import type { IStorage } from "../storage";
 import type { IAccountMultisig } from "pages/api/multisig/index.api";
 import type { IRequest } from "rpcHooks/useRequest";
@@ -33,7 +33,7 @@ type LaunchResponse = {
   Transactions: IFormattedTransaction[];
   Requests: IRequest[];
   Tags: ITag[];
-  RecurringTasks: ITasking[];
+  RecurringTasks: IRemoxData["cumulativeTransactions"];
   multisigAccounts: {
     all: IAccountMultisig[];
     multisigTxs: IAccountMultisig["txs"];
@@ -119,13 +119,13 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         },
       });
 
-      const recurrings = FirestoreReadMultiple<ITasking>("recurring", [
-        {
-          firstQuery: "accountId",
-          secondQuery: id,
-          condition: "==",
-        },
-      ]);
+      // const recurrings = FirestoreReadMultiple<ITasking>("recurring", [
+      //   {
+      //     firstQuery: "accountId",
+      //     secondQuery: id,
+      //     condition: "==",
+      //   },
+      // ]);
 
       const coins = FirestoreReadAll<AltCoins>(
         blockchain.currencyCollectionName
@@ -140,7 +140,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         requestRes,
         tagsRes,
         balanceRes,
-        recurringsRes,
+        // recurringsRes,
         coinsRes,
       ] = await Promise.all([
         spending,
@@ -151,7 +151,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         requests,
         tags,
         balances,
-        recurrings,
+        // recurrings,
         coins,
       ]);
 
@@ -180,7 +180,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const mapping = (s: ITransactionMultisig | IFormattedTransaction) => {
         const budget = allBudgets.find(
-          b => b.txs.find(t => t.hashOrIndex.toLowerCase() === ('tx' in s ? s.hashOrIndex : s.hash).toLowerCase() && t.contractAddress.toLowerCase() === ('tx' in s ? s.contractAddress : s.to).toLowerCase())
+          b => b.txs.find(t => t.hashOrIndex.toLowerCase() === ('tx' in s ? s.hashOrIndex : s.hash).toLowerCase() && t.contractAddress.toLowerCase() === ('tx' in s ? s.contractAddress : s.address).toLowerCase())
         )
 
         if (budget) {
@@ -197,6 +197,13 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
 
+      const recurringList = allCumulativeTransactions
+        .filter(s => ('tx' in s) ?
+          s.tx.method === ERC20MethodIds.automatedTransfer || s.tx.method === ERC20MethodIds.automatedCanceled || s.tx.method === ERC20MethodIds.automatedBatchRequest
+          :
+          s.method === ERC20MethodIds.automatedTransfer || s.method === ERC20MethodIds.automatedCanceled || s.method === ERC20MethodIds.automatedBatchRequest
+        )
+
       const res: LaunchResponse = {
         Balance: balanceRes.data,
         RemoxAccount: accountRes.data,
@@ -208,7 +215,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         Transactions: transactionsRes.data,
         Requests: requestRes.data,
         Tags: tagsRes.data,
-        RecurringTasks: recurringsRes,
+        RecurringTasks: recurringList,
         multisigAccounts: {
           all: multisigAccounts,
           multisigTxs: multisigRequests,

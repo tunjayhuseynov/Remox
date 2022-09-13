@@ -111,17 +111,13 @@ export default () => {
                     })
                 }
 
-                const task : Task = {
-                    interval: interval,
-                    startDate: startDate,
-                }
-
                 const id = await SendTransaction(accountAndBudget.account! , inputs, {
-                    task: task,
-                    isStreaming: false,
+                    createStreaming: true,
+                    startTime: startDate,
+                    endTime: dateEnd!.getTime(),
                     budget: accountAndBudget.budget,       
                 })
-
+               
                 taskId = id!
             }
 

@@ -1,4 +1,3 @@
-import useProfile from "rpcHooks/useProfile";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import { generate } from "shortid";
@@ -11,9 +10,10 @@ import { TransactionDirectionDeclare, TransactionTypeDeclare } from "utils";
 import { LendingType } from "rpcHooks/useLending";
 import { useModalSideExit } from "hooks";
 import Link from "next/link";
-import { SelectAccounts, SelectIndividual, SelectRemoxAccount } from "redux/slices/account/selector";
+import { SelectAccounts, SelectIndividual } from "redux/slices/account/selector";
 import { useRouter } from "next/router";
 import _ from "lodash";
+import { UpdateSeemTimeThunk } from "redux/slices/account/thunks/profile";
 
 
 enum Status {
@@ -25,18 +25,22 @@ enum Status {
 const NotificationCointainer = () => {
 
     const [list] = useTransactionProcess()
-    const { UpdateSeenTime } = useProfile()
+
     const [openNotify, setNotify] = useState(false)
     const navigate = useRouter()
 
     const accounts = useAppSelector(SelectAccounts);
     const addresses = useMemo(() => accounts.map(a => a.address.toLowerCase()), [accounts]);
+    const dispatch = useAppDispatch()
     const individual = useAppSelector(SelectIndividual)
     const seenTime = individual?.seenTime ?? 0
 
     useEffect(() => {
         if (openNotify) {
-            UpdateSeenTime(new Date().getTime())
+            dispatch(UpdateSeemTimeThunk({
+                time: new Date().getTime(),
+                userId: individual?.id ?? ""
+            }))
         }
     }, [openNotify])
 
@@ -96,7 +100,7 @@ const NotificationCointainer = () => {
                                         hash: item.hash,
                                         rawData: item.rawData,
                                         payments: value,
-                                        to: item.to,
+                                        address: item.address,
                                         tags: item.tags,
                                         budget: item.budget,
                                     }

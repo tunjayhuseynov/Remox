@@ -1,7 +1,6 @@
 import { Dispatch, forwardRef, useEffect, useMemo, Fragment } from 'react'
 import _ from "lodash";
 import { motion, AnimatePresence } from "framer-motion"
-import useProfile from "rpcHooks/useProfile";
 import { ProgressBarWidth, SetComma } from 'utils';
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { useWalletKit } from 'hooks';

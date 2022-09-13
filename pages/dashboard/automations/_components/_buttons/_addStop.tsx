@@ -3,7 +3,6 @@ import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from "components/button";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import TeamItem from "./_stopItem";
-import useTasking from "rpcHooks/useTasking";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/slices/account/storage";
 
@@ -11,7 +10,7 @@ import { selectStorage } from "redux/slices/account/storage";
 const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<boolean>, memberState: IMember[] }) => {
 
     const dispatch = useAppDispatch()
-    const { cancelTask } = useTasking()
+
     const { removeMember, isLoading, editMember } = useContributors()
     const storage = useAppSelector(selectStorage)
 

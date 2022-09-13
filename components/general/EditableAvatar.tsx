@@ -17,7 +17,8 @@ import { BlockchainType } from "types/blockchains";
 interface IProps {
     avatarUrl: string | null;
     name: string;
-    imgContainerClassName?: string;
+    className?: string;
+    size?: number;
     onChange?: (url: string, type: "image" | "nft") => void;
     userId?: string,
     evm?: boolean,
@@ -43,7 +44,7 @@ const style = {
     p: 4,
 };
 
-const EditableAvatar = ({ avatarUrl, name, imgContainerClassName, onChange, evm = true, userId, blockchain }: IProps) => {
+const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, userId, blockchain, size }: IProps) => {
     const [avatar, setAvatar] = useState(avatarUrl);
     const [modal, setModal] = useState(false);
 
@@ -91,17 +92,23 @@ const EditableAvatar = ({ avatarUrl, name, imgContainerClassName, onChange, evm 
     const [loading, UploadNFT] = useLoading(uploadNFT)
 
     return <div className="relative">
-        <div className={`${imgContainerClassName} w-20 h-20 rounded-full`}>
-            <img src={avatar ?? makeBlockie(name)} className="rounded-full w-20 h-20 object-contain" />
+        <div className={`${className} rounded-full`} style={{
+            width: (size ?? 5) + "rem",
+            height: (size ?? 5) + "rem",
+        }}>
+            <img src={avatar ?? makeBlockie(name)} className="rounded-full object-contain" />
         </div>
         <div className="absolute right-0 bottom-0 w-[33%] h-[33%]">
             <div className="bg-gray-200 rounded-xl text-center self-center cursor-pointer w-full h-full hover:bg-gray-300" onClick={() => setModal(!modal)}>
-                <AddPhotoAlternateIcon className="text-primary" fontSize="small" />
+                <AddPhotoAlternateIcon className="text-primary" style={{
+                    width: ((size ?? 5) * 0.22) + "rem",
+                    height: ((size ?? 5) * 0.22) + "rem",
+                }} />
             </div>
             <div className="relative">
                 <AnimatePresence>
                     {modal && <ClickAwayListener onClickAway={() => setModal(false)}>
-                        <motion.div variants={variants} initial="hidden" animate="visible" exit="exit" className="absolute right-0 bottom-0 translate-y-full translate-x-full rounded-md dark:bg-darkSecond bg-white w-48 border">
+                        <motion.div variants={variants} initial="hidden" animate="visible" exit="exit" className="z-[999] absolute right-0 bottom-0 translate-y-full translate-x-full rounded-md dark:bg-darkSecond bg-white w-48 border">
                             <div className="grid grid-rows-2">
                                 <div className="border-b text-sm hover:bg-opacity-10 hover:dark:bg-opacity-10 hover:bg-gray-800 hover:dark:bg-gray-100 cursor-pointer relative">
                                     <label htmlFor="upload-photo" className="cursor-pointer flex items-center p-2"><BsImages className="float-left mr-2 w-5" /> Upload Image</label>
