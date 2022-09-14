@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { MdEdit } from 'react-icons/md'
 import Avatar from 'components/avatar'
 import Button from 'components/button'
-import Modal from 'components/general/modal'
+import Modal from 'components/general/Modal'
 import { useSelector } from 'react-redux'
 import { selectStorage } from 'redux/slices/account/storage'
 import { useAppSelector } from 'redux/hooks';

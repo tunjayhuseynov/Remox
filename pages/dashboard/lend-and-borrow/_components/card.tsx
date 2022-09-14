@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LendingUserComponentData } from 'rpcHooks/useLending';
 import Button from 'components/button';
-import Modal from 'components/general/modal';
+import Modal from 'components/general/Modal';
 import MdContent from './mdcontent';
 
 export default function Card({ box, type }: { box: LendingUserComponentData, type: "lend" | "borrow" }) {

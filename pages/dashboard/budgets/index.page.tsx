@@ -1,4 +1,4 @@
-import Modal from 'components/general/modal'
+import Modal from 'components/general/Modal'
 import React, { useState } from 'react'
 import TotalValues from 'pages/dashboard/budgets/_components/totalValues'
 import { IoIosArrowDown } from 'react-icons/io';

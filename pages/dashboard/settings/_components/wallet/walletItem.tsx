@@ -2,7 +2,7 @@ import { Avatar, AvatarGroup } from '@mui/material';
 import Button from 'components/button';
 import EditableAvatar from 'components/general/EditableAvatar';
 import EditableTextInput from 'components/general/EditableTextInput';
-import Modal from 'components/general/modal';
+import Modal from 'components/general/Modal';
 import useLoading from 'hooks/useLoading';
 import { IAccountORM } from 'pages/api/account/index.api';
 import React, { useState } from 'react';

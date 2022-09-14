@@ -13,3 +13,7 @@
 13. Usd base valuelar api'dan gelmemelidi, frontda cevrilmelidi
 14. Budgetda curren month ve overall'u hell elemek lazimdir
 15. Budgetda Share Link meselesi hell olunmalidi
+16. Polygonda ya da native token gonderen diger blockchainlere baxarsan, gor explorerde txlist icinde hemin native token gonderme tx'i dusur yoxsa elece token transfer listindedi
+17. Choose budget hissesinde wallet meselesini hell ele
+18. Subbudget transactionda elave ele
+19. Hem remox datadan hem firebaseden melumati deyismek ucun onlari thunk'a kecirmek lazimdi => misal Contributor

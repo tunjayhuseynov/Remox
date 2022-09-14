@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Button from 'components/button'
-import Modal from 'components/general/modal'
+import Modal from 'components/general/Modal'
 import OwnerItem from './owner/ownerItem'
 import RemoveOwner from './owner/removeOwner'
 import ChangeTreshold from './owner/changeTreshold'

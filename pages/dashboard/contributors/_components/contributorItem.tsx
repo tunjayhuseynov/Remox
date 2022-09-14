@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal from "components/general/modal";
+import Modal from "components/general/Modal";
 import Avatar from "../../../../components/avatar";
 import Delete from './buttons/delete'
 import { IMember } from "types/dashboard/contributors";

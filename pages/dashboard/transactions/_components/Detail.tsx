@@ -54,7 +54,7 @@ const Detail = ({
     const [mounted, setMounted] = useState(false)
     const [budgetLoading, setBudgetLoading] = useState(false)
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(budget)
-  
+
     const budgets = useAppSelector(SelectAllBudgets)
     const dispatch = useAppDispatch()
 
@@ -82,7 +82,7 @@ const Detail = ({
             +automation.amount :
             automationBatch ?
                 +automationBatch.payments.reduce((acc, curr) => acc + +curr.amount, 0) :
-                automationCanceled ? +automationCanceled.payments.reduce((acc, curr) => acc + +curr.amount, 0) : transferBatch?.payments.reduce((acc, curr) => acc + +curr.amount, 0) ?? 0;
+                automationCanceled ? +automationCanceled.amount : transferBatch?.payments.reduce((acc, curr) => acc + +curr.amount, 0) ?? 0;
 
     const budgetChangeFn = (val: IBudgetORM) => async () => {
         if (!account?.provider) return ToastRun(<>Cannot get the multisig provider</>, "error")
@@ -93,12 +93,12 @@ const Detail = ({
                 isExecuted: isExecuted,
                 tx: {
                     amount: amount,
-                    contractAddress: transaction.to,
+                    contractAddress: transaction.address,
                     contractType: isMultisig ? "multi" : "single",
                     hashOrIndex: transaction.hash,
                     timestamp: timestamp,
                     protocol: account.provider,
-                    token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.payments[0].coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
+                    token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
                     isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
                 }
             })).unwrap()
@@ -108,12 +108,12 @@ const Detail = ({
             budget: val,
             tx: {
                 amount: amount,
-                contractAddress: transaction.to,
+                contractAddress: transaction.address,
                 contractType: isMultisig ? "multi" : "single",
                 hashOrIndex: transaction.hash,
                 timestamp: timestamp,
                 protocol: account.provider,
-                token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.payments[0].coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
+                token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
                 isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
             },
             isExecuted: isExecuted,
@@ -147,7 +147,7 @@ const Detail = ({
                                             {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
                                             {automation && <div>-${+automation.amount * automation.coin.priceUSD}</div>}
                                             {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
-                                            {automationCanceled && <div>-${+automationCanceled.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
+                                            {automationCanceled && <div>-${+automationCanceled.amount * automationCanceled.coin.priceUSD}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}
@@ -173,9 +173,7 @@ const Detail = ({
                                             }
                                             {
                                                 automationCanceled && (
-                                                    <div className="flex space-x-5">
-                                                        {automationCanceled.payments.map((transfer, index) => <Fragment key={index}>{CoinDesignGenerator({ transfer })}</Fragment>)}
-                                                    </div>
+                                                    CoinDesignGenerator({ transfer: automationCanceled })
                                                 )
                                             }
                                             {automation && (
@@ -235,8 +233,8 @@ const Detail = ({
                                         <div className={`sm:flex flex-col justify-center items-start `}>
                                             {!isMultisig && <div className="text-lg dark:text-white">
                                                 {swap && <div>Swap</div>}
-                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address.toLowerCase() ? transfer.rawData.from : (account?.name || account?.address || transaction.to)}</div>}
-                                                {!transfer && <div>{account?.name || account?.address || transaction.to}</div>}
+                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address.toLowerCase() ? transfer.rawData.from : (account?.name || account?.address || transaction.address)}</div>}
+                                                {!transfer && <div>{account?.name || account?.address || transaction.address}</div>}
                                             </div>}
                                         </div>
                                     </div>
@@ -250,7 +248,7 @@ const Detail = ({
                                             {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
                                             {automation && <div>-${+automation.amount * automation.coin.priceUSD}</div>}
                                             {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
-                                            {automationCanceled && <div>-${+automationCanceled.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
+                                            {automationCanceled && <div>-${+automationCanceled.amount * automationCanceled.coin.priceUSD}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}

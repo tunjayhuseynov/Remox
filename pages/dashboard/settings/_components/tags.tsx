@@ -1,5 +1,5 @@
 import Button from 'components/button'
-import Modal from 'components/general/modal'
+import Modal from 'components/general/Modal'
 import { useModalSideExit } from 'hooks'
 import { useRef, useState } from 'react'
 import { TwitterPicker } from 'react-color'

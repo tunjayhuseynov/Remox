@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AltCoins, Coins } from "types";
 import { AddressReducer, SetComma } from "utils";
 import dateFormat from "dateformat";
-import Modal from "components/general/modal";
+import Modal from "components/general/Modal";
 import Button from "components/button";
 import useRequest from "hooks/useRequest";
 import { TotalUSDAmount } from "./totalAmount";
