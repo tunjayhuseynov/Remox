@@ -65,7 +65,8 @@ export default async function Send(
         if (req.method !== 'POST') throw new Error('Only POST method is allowed')
         const { blockchain, requests, executer, createStreaming: isStreaming, endTime, startTime, swap, walletAddress: accountId, cancelStreaming, streamId } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
-        if (requests.length === 0 && !swap) throw new Error("requests is required");
+        console.log(cancelStreaming)
+        if (requests.length === 0 && !swap && !isStreaming && !cancelStreaming) throw new Error("requests is required");
         console.log("blockchain", blockchain);
 
 

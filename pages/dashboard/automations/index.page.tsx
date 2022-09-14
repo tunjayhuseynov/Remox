@@ -8,12 +8,12 @@ import Modal from "components/general/Modal";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { Coins } from "types";
-import Loader from "components/Loader";
 import _ from "lodash";
 import {
   SelectBalance,
   SelectContributorMembers,
-  SelectRecurringTasks,
+  SelectNonCanceledRecurringTasks,
+  SelectSelectedAccountAndBudget
 } from "redux/slices/account/selector";
 import TeamItem from "./_components/_teamItem";
 import { IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
@@ -23,7 +23,9 @@ import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
   const { GetCoins } = useWalletKit();
-  const tasks = useAppSelector(SelectRecurringTasks);
+  const selectedAccount = useAppSelector(SelectSelectedAccountAndBudget)
+  const tasks = useAppSelector(SelectNonCanceledRecurringTasks).filter(task => (task as IAutomationTransfer).address.toLowerCase() === selectedAccount.account?.address.toLowerCase())
+
   const members = useAppSelector(SelectContributorMembers)
   const balance = useAppSelector(SelectBalance);
 

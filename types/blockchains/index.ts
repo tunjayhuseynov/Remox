@@ -7,7 +7,6 @@ import Sablier from 'rpcHooks/ABI/Sablier.json'
 import WETHGatewayV3 from 'rpcHooks/ABI/WETHGatewayV3.json'
 import WETHGatewayV2 from 'rpcHooks/ABI/WETHGatewayV2.json'
 import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
-import Gelato from 'rpcHooks/ABI/Gelato.json'
 import BR from 'rpcHooks/ABI/BatchRequest.json'
 
 export type BlockchainType = {
@@ -114,7 +113,14 @@ export const Blockchains: BlockchainType[] = [
         logoURL: "/icons/companies/moola.png",
       },
     ],
-    streamingProtocols: [],
+    streamingProtocols: [
+      {
+        name: "Xeggo",
+        abi: Sablier.abi as AbiItem[],
+        contractAddress: "0x22651fc5799f1f046d5613f7622f1ee1b06f386e",
+        logoURL: "/icons/companies/xeggo.jpg",
+      }
+    ],
     batchPaymentProtocols: [
       {
         name: "Remox Batch Payment",

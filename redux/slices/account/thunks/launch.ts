@@ -23,6 +23,7 @@ import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 
 type LaunchResponse = {
   Coins: AltCoins[];
+  NFTs: IFormattedTransaction[],
   Balance: IPriceResponse;
   RemoxAccount: IRemoxAccountORM;
   Budgets: IBudgetExerciseORM[];
@@ -193,9 +194,11 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       }
 
       let allCumulativeTransactions = [
-        ...transactionsRes.data.map(mapping),
+        ...transactionsRes.data.filter(s => !s.rawData.tokenId).map(mapping),
         ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+
+      const nfts = transactionsRes.data.filter(s => s.rawData.tokenId);
 
       const recurringList = allCumulativeTransactions
         .filter(s => ('tx' in s) ?
@@ -205,6 +208,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         )
 
       const res: LaunchResponse = {
+        NFTs: nfts,
         Balance: balanceRes.data,
         RemoxAccount: accountRes.data,
         Budgets: budgetRes.data,

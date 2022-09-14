@@ -4,6 +4,7 @@ import Select from '@mui/material/Select';
 import { CoinsURL } from 'types';
 import { FormControl, InputLabel, SxProps, Theme } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import { Image } from 'firebaseConfig';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -38,7 +39,7 @@ interface IGenericExtendedProp {
     name: string | number,
     displayName?: string,
     onClick?: Function,
-    image?: string,
+    image?: string | Image,
     coinUrl?: string,
     logoUrl?: string,
     secondValue?: string | number
@@ -71,7 +72,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                                 {selected.coinUrl && !loading && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
                                 {selected.logoURI && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
-                                {selected.image && !loading && <img className="w-10 h-10 mr-2 rounded-full" src={`${selected.image}`} />}
+                                {selected.image && !loading && <img className="w-10 h-10 mr-2 rounded-full" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
                                 {!loading && <div className={`${textContainerClass} flex flex-col items-start`}>
                                     <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
                                     {selected.secondValue && <span className="text-left text-sm text-gray-500">{selected.secondValue}</span>}
@@ -92,10 +93,10 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                 >
                     {list.map(e => {
                         return <MenuItem key={e.name} value={e as any} className="flex items-center z-[100000]">
-                            {e.coinUrl && <img className="w-4 h-4 mr-2" src={`${e.coinUrl}`} />}
-                            {e.logoUrl && <img className="w-4 h-4 mr-2" src={`${e.logoUrl}`} />}
-                            {e.logoURI && <img className="w-4 h-4 mr-2" src={`${e.logoURI}`} />}
-                            {e.image && <img className="w-4 h-4 mr-2" src={`${e.image}`} />}
+                            {e.coinUrl && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.coinUrl}`} />}
+                            {e.logoUrl && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.logoUrl}`} />}
+                            {e.logoURI && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.logoURI}`} />}
+                            {e.image && <img className="w-4 h-4 mr-2 rounded-full" src={`${typeof e.image === "string" ? e.image : e.image.imageUrl}`} />}
                             {<span>{e.displayName ?? e.name}</span>}
                         </MenuItem>
                     })}

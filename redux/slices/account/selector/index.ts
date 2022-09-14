@@ -1,5 +1,6 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
 import { IMember, IMemberORM } from "firebaseConfig";
+import { ERC20MethodIds, IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { IPriceCoin } from "pages/api/calculation/price.api";
 import { RootState } from "redux/store";
@@ -15,6 +16,16 @@ export const SelectStorage = createDraftSafeSelector(
 export const SelectBalance = createDraftSafeSelector(
   (state: RootState) => state.remoxData.balances,
   (balances) => balances
+);
+
+export const SelectNfts = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.nfts,
+  (nfts) => nfts
+);
+
+export const SelectCredintials = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.credentials,
+  (credentials) => credentials
 );
 
 export const SelectYieldBalance = createDraftSafeSelector(
@@ -198,6 +209,20 @@ export const SelectRecurringTasks = createDraftSafeSelector(
   (state: RootState) => state.remoxData.recurringTasks,
   (recurringTasks) => recurringTasks
 );
+
+export const SelectNonCanceledRecurringTasks = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.recurringTasks,
+  (recurringTasks) => {
+    const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERC20MethodIds.automatedCanceled : s.method !== ERC20MethodIds.automatedCanceled);
+    const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERC20MethodIds.automatedCanceled : s.method === ERC20MethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
+
+    return nonCanceledRecurringTasks.filter(s => !canceledReccuringTasks.includes((s as IAutomationTransfer).streamId));
+  }
+);
+
+
+
+// Budget Exercises
 
 export const SelectBudgetExercises = createDraftSafeSelector(
   (state: RootState) => state.remoxData.budgetExercises,

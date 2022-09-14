@@ -3,9 +3,11 @@ import axios from "axios";
 import { Add_Member_To_Account, Create_Account, Remove_Member_From_Account, Update_Account, Update_Members_In_Account } from "crud/account";
 import { Add_New_Individual_Account, Remove_Individual_Account } from "crud/individual";
 import { Add_New_Organization_Account, Remove_Organization_Account, Update_Organization } from "crud/organization";
+import { registeredIndividualCollectionName } from "crud/registeredIndividual";
 import { IAccount, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { IAccountORM } from "pages/api/account/index.api";
 import { RootState } from "redux/store";
+import { FirestoreWrite } from "rpcHooks/useFirebase";
 import { Remove_Tx_From_Budget_Thunk } from "./budgetThunks/budget";
 import { RemoveTransactionFromTag } from "./tags";
 
@@ -39,6 +41,10 @@ export const Create_Account_For_Individual = createAsyncThunk<IAccountORM, { acc
             accountId: individual.id,
         }
     });
+
+    FirestoreWrite().createDoc(registeredIndividualCollectionName, account.address, {
+        
+    })
 
     return accountReq.data;
 })

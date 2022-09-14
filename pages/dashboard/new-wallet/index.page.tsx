@@ -61,7 +61,8 @@ function NewWalletModal() {
         try {
             await addWallet()
         } catch (error) {
-
+            console.log(error)
+            ToastRun(<>{(error as any).message}</>, "error")
         }
         navigate.back();
     }

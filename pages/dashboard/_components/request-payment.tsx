@@ -3,12 +3,12 @@ import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
 import { ExecutionType } from 'types/dashboard/contributors';
-import { SelectContributorMembers, SelectDarkMode, SelectMultisig } from 'redux/slices/account/remoxData';
+import { SelectContributorMembers, SelectDarkMode, SelectMultisig, SelectNonCanceledRecurringTasks, SelectRecurringTasks } from 'redux/slices/account/remoxData';
 import { AiFillRightCircle } from 'react-icons/ai'
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
-    const recurring = useAppSelector(SelectContributorMembers)
+    const recurring = useAppSelector(SelectNonCanceledRecurringTasks)
 
     const dark = useAppSelector(SelectDarkMode)
     const router = useRouter()
@@ -36,7 +36,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         {
             header: "Recurring payments",
             icon: "subscription-model_1",
-            value: recurring.filter(s => s.execution === ExecutionType.auto).length,
+            value: recurring.length,
             router: "/dashboard/automations",
         }
 

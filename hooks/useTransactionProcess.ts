@@ -33,6 +33,8 @@ export const ERC20MethodIds = {
   automatedCanceled: "automatedCanceled",
   automatedBatchRequest: "automatedBatchRequest",
 
+  nftTokenERC721: "nftTokenERC721",
+
 
   reward: "reward",
   borrow: "borrow",
@@ -181,6 +183,16 @@ export const
       const theTags = tags.filter((s) =>
         s.transactions.find((t) => t.hash?.toLowerCase() === transaction.hash?.toLowerCase() && t.address?.toLowerCase() === address?.toLowerCase())
       );
+
+      if(transaction.tokenId){
+        return {
+          rawData: transaction,
+          method: ERC20MethodIds.nftTokenERC721,
+          hash: transaction.hash,
+          id: ERC20MethodIds.nftTokenERC721,
+          tags: theTags,
+        };
+      }
 
       let decoder = new InputDataDecoder(ERC20);
       let result = decoder.decodeData(input);

@@ -238,7 +238,8 @@ export default function useWalletKit() {
         subbudget,
         swap,
         cancelStreaming,
-        streamingIdTxHash
+        streamingIdTxHash,
+        streamingIdDirect
       }: {
         tags?: ITag[];
         createStreaming?: boolean;
@@ -248,7 +249,8 @@ export default function useWalletKit() {
         subbudget?: ISubbudgetORM | null;
         swap?: ISwap;
         cancelStreaming?: boolean;
-        streamingIdTxHash?: string
+        streamingIdTxHash?: string,
+        streamingIdDirect?: string
       } = {}
     ) => {
       try {
@@ -261,11 +263,13 @@ export default function useWalletKit() {
         if (!blockchain) throw new Error("blockchain not found");
         if (!id) throw new Error("Your session is not active")
         if (!Address) throw new Error("Address not set");
-        if (inputArr.length === 0) throw new Error("No inputs");
+        if (inputArr.length === 0 && !swap && !cancelStreaming && !createStreaming) throw new Error("No inputs");
 
         if (cancelStreaming && streamingIdTxHash) {
           const web3 = new Web3(blockchain.rpcUrl);
           streamId = hexToNumberString((await web3.eth.getTransactionReceipt(streamingIdTxHash)).logs[1].topics[1])
+        } else if(cancelStreaming && streamingIdDirect){
+          streamId = streamingIdDirect
         }
 
         const txData = await dispatch(
@@ -311,8 +315,8 @@ export default function useWalletKit() {
             );
           }
 
-          const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
           if (inputArr.length > 1) {
+            const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
             for (let index = 0; index < approveArr.length; index++) {
               await allow(
                 Address,

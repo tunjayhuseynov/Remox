@@ -56,7 +56,7 @@ export default async function handler(
 
     if (parsedAddress.length === 0 || !blockchain)
       return res.status(400).send("Missing address or blockchain");
-  
+
     let myTags: { tags: ITag[] } | undefined;
     if (authId) {
       myTags = (
@@ -194,9 +194,10 @@ const GetTxs = async (
       const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
 
       const tokens = tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
+      const nfts = tokenReq.data.result.filter(s => s.tokenId)
 
       const txs = exReq.data;
-      txList = txs.result.concat(tokens);
+      txList = txs.result.concat(tokens).concat(nfts);
     }
   } else if (blockchain.name === "polygon_evm") {
     if (inTxs) {
@@ -272,7 +273,9 @@ const ParseTxs = async (
       } else if (blockchain.name === "celo") {
         const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain, address });
 
-        if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0 || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn))) {
+        if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0
+          || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn)
+          || (formatted.method === ERC20MethodIds.nftTokenERC721))) {
 
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,

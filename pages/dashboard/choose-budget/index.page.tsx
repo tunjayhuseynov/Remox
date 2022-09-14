@@ -46,7 +46,7 @@ function ChooseBudget() {
         if (!page) return ToastRun(<>Page not found</>, "error")
         if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
         if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
-            ToastRun(<>You are not connected to the wallet you selected</>, "warning")
+            ToastRun(<>You are not connected to the wallet you've selected</>, "warning")
             return
         }
         if (selectedAccount.signerType === "multi" && !selectedAccount.members.find(s => s.address.toLowerCase() === address?.toLowerCase())) {
@@ -70,8 +70,8 @@ function ChooseBudget() {
                     {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                     <span className="text-4xl pb-1">&#171;</span> Back
                 </button>
-                <div className="text-2xl font-semibold py-6 text-center">
-                    Choose Payment Method
+                <div className="text-xl font-semibold py-6 text-center">
+                    Choose account and budget
                 </div>
                 <form onSubmit={onSubmit} className='flex flex-col space-y-5'>
                     <div className="flex flex-col gap-2 w-full">

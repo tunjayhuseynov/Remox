@@ -86,6 +86,31 @@ export default function useMultiWallet() {
                             signerType: "single",
                         }
                     })).unwrap()
+                } else {
+                    await dispatch(Create_Account_For_Organization({
+                        organization: remoxAccount as IOrganization,
+                        account: {
+                            mail: null,
+                            address: account,
+                            blockchain: blockchain.name,
+                            created_date: GetTime(),
+                            createdBy: auth.currentUser?.uid ?? providerAddress,
+                            id: generate(),
+                            image: null,
+                            name: `Remox #${accounts.length}`,
+                            members: [
+                                {
+                                    address: account,
+                                    id: generate(),
+                                    image: null,
+                                    name: `Remox #${Math.round(Math.random() * 100)}`,
+                                    mail: null,
+                                }
+                            ],
+                            provider: null,
+                            signerType: "single",
+                        }
+                    })).unwrap()
                 }
                 await dispatch(Refresh_Data_Thunk()).unwrap()
                 // dispatch(setProviderAddress(account))

@@ -33,7 +33,6 @@ import { Coins } from "types";
 import { IPrice } from "utils/api";
 
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
-import { DateInterval } from 'types/dashboard/contributors';
 import { UpdateProfileNameThunk, UpdateSeemTimeThunk } from "./thunks/profile";
 
 export interface ITasking {
@@ -68,6 +67,7 @@ export interface IRemoxData {
     isFetching: boolean;
     balances: IPrice;
     tags: ITag[],
+    nfts: IFormattedTransaction[],
     stats: ISpendingResponse | null; // +
     budgetExercises: IBudgetExerciseORM[], // +
     contributors: IContributor[], // +
@@ -92,11 +92,19 @@ export interface IRemoxData {
         subbudget: ISubbudgetORM | null,
     },
     recurringTasks: (IFormattedTransaction | ITransactionMultisig)[],
+    credentials: {
+        address: string,
+        password: string,
+    }
 }
 
 const init = (): IRemoxData => {
     return {
         coins: {},
+        credentials: {
+            address: "",
+            password: "",
+        },
         darkMode: (
             () => {
                 if (typeof window === 'undefined') return true
@@ -107,6 +115,7 @@ const init = (): IRemoxData => {
         organizations: [],
         stats: null,
         tags: [],
+        nfts: [],
         budgetExercises: [],
         contributors: [],
         balances: {},
@@ -165,6 +174,9 @@ const remoxDataSlice = createSlice({
         ...Transactions,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
+        },
+        setCredentials: (state: IRemoxData, action: { payload: { address: string, password: string } }) => {
+            state.credentials = action.payload;
         },
         setProviderID: (state: IRemoxData, action: { payload: string }) => {
             state.providerID = action.payload;
@@ -402,6 +414,7 @@ const remoxDataSlice = createSlice({
             state.tags = action.payload.Tags;
             state.balances = action.payload.Balance.AllPrices;
             state.recurringTasks = action.payload.RecurringTasks;
+            state.nfts = action.payload.NFTs;
 
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
@@ -441,7 +454,7 @@ export const {
     addAccount, addOwner, addTx, removeAccount, removeOwner, setThreshold,
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
     addMemberToContributor, removeMemberFromContributor, setProviderAddress, addTxToList, changeImage,
-    setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget,
+    setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget, setCredentials,
     updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget
 
 } = remoxDataSlice.actions;

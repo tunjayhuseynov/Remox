@@ -91,7 +91,7 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 
     const address = addresses[0];
 
-    const balanceRes = await Promise.allSettled(coinList.slice(0,25).map(item => GetBalance(item, address, blockchain)))
+    const balanceRes = await Promise.allSettled(coinList.map(item => GetBalance(item, address, blockchain)))
     balanceRes.forEach((altcoinBalance, index) => {
         if (altcoinBalance.status === "fulfilled") {
             const item = altcoinBalance.value[1]

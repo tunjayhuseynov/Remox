@@ -8,15 +8,27 @@ import useNextSelector from 'hooks/useNextSelector';
 import { IAccount } from 'firebaseConfig';
 import NotificationCointainer from './Notification';
 import { SelectDarkMode, SelectProviderAddress } from 'redux/slices/account/remoxData';
+import { useWalletKit } from 'hooks';
+import { useState } from 'react';
+import useAsyncEffect from 'hooks/useAsyncEffect';
 
 
 const Navbar = () => {
 
-    const storage = useNextSelector(selectStorage)
+    const storage = useAppSelector(selectStorage)
     const selectedAccount = useAppSelector(SelectProviderAddress)
     const dark = useNextSelector(SelectDarkMode)
-
+    const { Address } = useWalletKit()
     const { data } = useMultiWallet()
+
+    const [address, setAddress] = useState(storage?.lastSignedProviderAddress)
+
+    useAsyncEffect(async () => {
+        const address = await Address
+        if (address) {
+            setAddress(address)
+        }
+    }, [Address])
 
 
 
@@ -27,7 +39,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center  justify-end">
             <div className="flex gap-x-4">
                 {storage && selectedAccount !== storage.lastSignedProviderAddress && !data?.some(s => (s as IAccount).address.toLowerCase() === selectedAccount?.toLowerCase()) && <Visitcard name={'Multisig'} address={selectedAccount ?? ""} />}
-                {storage ? <Visitcard address={storage.lastSignedProviderAddress} /> : <Loader />}
+                {storage ? <Visitcard address={address ?? ""} /> : <Loader />}
                 <div className="relative items-center flex justify-center">
                     <NotificationCointainer />
                 </div>

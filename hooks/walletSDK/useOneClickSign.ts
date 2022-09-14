@@ -27,11 +27,11 @@ export default function useOneClickSign() {
             reqParams.id = dbUser[0].id
         }
 
-        const req = await axios.get<string>("/api/auth", {
+        const req = await axios.get<{nonce: string, password: string, address: string}>("/api/auth", {
             params: reqParams
         })
 
-        const nonce = req.data;
+        const nonce = req.data.nonce;
         const sign = await requestSignFromWallet(parseInt(nonce))
 
         let Token;
