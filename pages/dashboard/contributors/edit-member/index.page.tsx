@@ -163,7 +163,7 @@ const EditMember = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
                         <Dropdown
-                            label="Team"
+                            label="Workstream"
                             setSelect={setSelectedTeam}
                             selected={selectedTeam}
                             list={teams}

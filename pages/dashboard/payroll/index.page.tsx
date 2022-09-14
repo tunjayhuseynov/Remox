@@ -4,13 +4,13 @@ import {  IMember } from 'types/dashboard/contributors';
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import { useWalletKit } from 'hooks';
-import Runpayroll from './modalpay/Runpayroll';
-import TotalAmount, { TotalUSDAmount } from "pages/dashboard/requests/_components/totalAmount"
-import Modal from 'components/general/Modal';
+import  { TotalUSDAmount } from "pages/dashboard/requests/_components/totalAmount"
+import Modal from 'components/general/modal';
 import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
 import { SelectBalance, SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
-import PayrollItem from './PayrollItem';
+import PayrollItem from './_components/PayrollItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
+import TokensAllocation from './_components/tokensAllocation';
 
 
 export default function DynamicPayroll() {
@@ -93,7 +93,6 @@ export default function DynamicPayroll() {
       };
 
     return <div className="w-full h-full flex flex-col space-y-4">
-
         {<Modal onDisable={setRunmodal} openNotify={runmodal}  >
 
             {selectedContributors.length > 0 ? <div className="px-5 pt-20 w-[95%] h-[80%] mx-auto">
@@ -109,11 +108,12 @@ export default function DynamicPayroll() {
                         <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa] ">Compensation Type</div>
                     </div>
                     <div> 
-                        {selectedContributors.map((contributor, index) => <PayrollItem isRuning={isAvaible} member={contributor} setSelectedMembers={setSelectedContributors}  />)}
+                        {selectedContributors.map((contributor, index) => <PayrollItem key={contributor.id} runmodal={runmodal} isRuning={isAvaible} member={contributor} setSelectedMembers={setSelectedContributors}  />)}
                     </div>
                 </div>
                 <div className="flex flex-col space-y-3 pt-10">
                     <div className="text-2xl font-semibold tracking-wide">Review Treasury Impact</div>
+                    {/* <TokenBalance coinList={selectedContributors} /> */}
                     {/* <div className="w-full flex flex-col   p-5 ">
                         <div className="grid grid-cols-[20%,80%]  pb-2">
                             <div className="text-lg text-greylish dark:text-opacity-90 font-semibold">Treasury Balance</div>
@@ -149,14 +149,18 @@ export default function DynamicPayroll() {
         </Modal>}
         
         <>
-            <div className="w-full relative">
-                
-                <Button onClick={() => setIsAviable(!isAvaible)} className={"absolute right-0 -top-[4.75rem] !py-[.5rem] !font-medium !text-lg !px-0 min-w-[9.1rem]"} >
-                    {isAvaible ? "Cancel Payroll" : "Run Payroll"}
-                </Button>
-                {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"absolute right-0 -top-[4.75rem] !py-[.5rem] !font-medium !text-lg !px-0 min-w-[9.1rem]"} >
-                    Submit Payroll
-                </Button> }
+            <div className="flex justify-between items-center w-full space-y-3">
+                    <div className="text-4xl font-bold">
+                        Payroll
+                    </div>
+                    <div>
+                        <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-medium !text-lg !px-0 min-w-[9.1rem]"} >
+                            {isAvaible ? "Cancel Payroll" : "Run Payroll"}
+                        </Button>
+                        {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] ml-2 !font-medium !text-lg !px-0 min-w-[9.1rem]"} >
+                            Submit Payroll
+                        </Button> }
+                    </div>
             </div>
             <div className=" pt-4  pb-5 pl-5 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond  rounded-md">
                 <div className='flex '>
@@ -168,7 +172,19 @@ export default function DynamicPayroll() {
                     </div>
                     <div className="flex flex-col space-y-5 pl-8 !mt-0">
                         <div className='text-lg text-greylish dark:text-opacity-90 font-semibold'>Token Allocation</div>
-                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12 pb-5'>
+                        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12 pb-5'>    
+                                <TokensAllocation itemsList={contributors} />
+                            {/* <div className="flex flex-col items-start  h-fit">
+                                <div className="font-semibold text-2xl flex gap-2 items-center">
+                                    <img src={`/icons/currencies/celo.png`} width="24" height="24" className=" rounded-full" alt="" />
+                                    <div className="font-semibold text-xl">26,000</div>
+                                </div>
+                                <div>
+                                </div>
+                                <div className="font-medium text-sm  text-greylish  text-left pl-10">
+                                    $26,000
+                                </div>
+                            </div> */}
                         </div>
 
                     </div>
@@ -176,18 +192,19 @@ export default function DynamicPayroll() {
             </div>
             <table className="w-full pt-1 pb-4 ">
                 <thead>
-                    <th id="header" className={`hidden sm:grid grid-cols-[30%,30%,1fr]  lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md`} >
-                        <tr className={`text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ${isAvaible ? "pl-4" : "pl-2" }`}>Contributor</tr>
-                        <tr className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</tr>
-                        <tr className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</tr>
-                        <tr className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Salary</tr>
-                        <tr className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Frequency</tr>
-                        <tr className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Status</tr>
-                        <tr className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Compensation Type</tr>
-                    </th>
+                    <tr id="header" className={`hidden sm:grid grid-cols-[30%,30%,1fr]  lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md`} >
+                        <th className={`text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ${isAvaible ? "pl-4" : "pl-2" }`}>Contributor</th>
+                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</th>
+                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</th>
+                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Salary</th>
+                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Frequency</th>
+                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Status</th>
+                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Compensation Type</th>
+                    </tr>
                 </thead>
-                    {contributors.map((contributor) => <PayrollItem isRuning={isAvaible} key={contributor.id} member={contributor} selectedMembers={selectedContributors} setSelectedMembers={setSelectedContributors}  /> )}
-                        {/* {payroll.map(w => w && w.members && w.members.length > 0 ? <Fragment key={w.id}><TeamContainer {...w} memberState={memberState} confirm={confirm} /></Fragment> : undefined)} */}
+                <tbody>
+                    {contributors.map((contributor) => <PayrollItem runmodal={runmodal} isRuning={isAvaible} key={contributor.id} member={contributor} selectedMembers={selectedContributors} setSelectedMembers={setSelectedContributors}  /> )}
+                </tbody>
             </table>
         </>
     </div>
