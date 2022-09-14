@@ -194,11 +194,11 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       }
 
       let allCumulativeTransactions = [
-        ...transactionsRes.data.filter(s => !s.rawData.tokenId).map(mapping),
+        ...transactionsRes.data.filter(s => !s.rawData.tokenID).map(mapping),
         ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
 
-      const nfts = transactionsRes.data.filter(s => s.rawData.tokenId);
+      const nfts = transactionsRes.data.filter(s => s.rawData.tokenID);
 
       const recurringList = allCumulativeTransactions
         .filter(s => ('tx' in s) ?

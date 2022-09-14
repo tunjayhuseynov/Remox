@@ -184,7 +184,7 @@ export const
         s.transactions.find((t) => t.hash?.toLowerCase() === transaction.hash?.toLowerCase() && t.address?.toLowerCase() === address?.toLowerCase())
       );
 
-      if(transaction.tokenId){
+      if(transaction.tokenID){
         return {
           rawData: transaction,
           method: ERC20MethodIds.nftTokenERC721,
