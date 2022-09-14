@@ -42,10 +42,6 @@ export const Create_Account_For_Individual = createAsyncThunk<IAccountORM, { acc
         }
     });
 
-    FirestoreWrite().createDoc(registeredIndividualCollectionName, account.address, {
-        
-    })
-
     return accountReq.data;
 })
 

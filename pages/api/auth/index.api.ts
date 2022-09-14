@@ -65,11 +65,7 @@ export default async function handler(
             //     password,
             //     created_date: GetTime()
             // })
-            return res.status(200).send({
-                nonce,
-                password,
-                address: publicKey as string,
-            });
+            return res.status(200).send(nonce);
         }
 
         return res.status(200).send(inds.nonce);

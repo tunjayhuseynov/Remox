@@ -99,7 +99,7 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
             <img src={avatar ?? makeBlockie(name)} className="rounded-full object-contain" />
         </div>
         <div className="absolute right-0 bottom-0 w-[33%] h-[33%]">
-            <div className="bg-gray-200 rounded-xl text-center self-center cursor-pointer w-full h-full hover:bg-gray-300" onClick={() => setModal(!modal)}>
+            <div className="bg-gray-200 rounded-full flex justify-center items-center cursor-pointer w-full h-full hover:bg-gray-300" onClick={() => setModal(!modal)}>
                 <AddPhotoAlternateIcon className="text-primary" style={{
                     width: ((size ?? 5) * 0.22) + "rem",
                     height: ((size ?? 5) * 0.22) + "rem",

@@ -77,7 +77,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     </div>
     return <>
         <DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
-            <div className="flex flex-col min-h-screen overflow-hidden">
+            <div id='main' className="flex flex-col min-h-screen overflow-hidden">
                 <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>
@@ -86,7 +86,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                         <Sidebar />
                     </div>
 
-                    <main id='main' key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-12 pt-36`}>
+                    <main  key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-12 pt-36`}>
                         {children}
                     </main>
 

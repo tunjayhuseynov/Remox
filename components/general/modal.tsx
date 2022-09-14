@@ -53,7 +53,7 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
                     animate={{ x: 15 }}
                     exit={{ x: "100%" }}
                     transition={{ type: "tween", duration: .33 }}
-                    className="bg-light dark:bg-dark z-[9999] absolute h-full pr-1 w-full overflow-x-hidden cursor-default top-36 flex flex-col space-y-16 left-0">
+                    className="bg-light dark:bg-dark z-[9999] fixed h-full w-full overflow-x-hidden cursor-default top-[73px] pt-10 flex flex-col space-y-16 left-0 ml-[18.45rem] pr-[18.45rem]">
 
                     <button onClick={() => { onDisable(false); }} className="z-[9999] w-[4rem] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2 px-10">
                         {/* <img src="/icons/cross_greylish.png" alt="" /> */}
