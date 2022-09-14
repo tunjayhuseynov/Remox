@@ -6,7 +6,7 @@ import { TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { SetComma } from 'utils';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts } from 'redux/slices/account/remoxData';
 
 export interface INftData {
     totalBalance: number;
@@ -28,7 +28,8 @@ const Assets = () => {
     const balanceRedux = useAppSelector(SelectBalance)
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
-
+    const nfts = useAppSelector(SelectNfts);
+    console.log(nfts)
 
 
     const TypeCoin = [
@@ -44,6 +45,7 @@ const Assets = () => {
         }
 
     ]
+    
     const assetType = [
         {
             to: "/dashboard/assets?index=0&noAnimation=true",
@@ -54,6 +56,7 @@ const Assets = () => {
             text: "NFTs"
         }
     ]
+
     const nftdata:INftData = {
         totalBalance: 3453,
         nft: [
@@ -108,7 +111,7 @@ const Assets = () => {
                             return <div key={index}> 
                             <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%] pl-4">
                                 <div className="flex space-x-3 items-center">
-                                    <div><img src={item[1].coins?.coinUrl} width={20} height={20} alt="" className="rounded-full" /></div>
+                                    <div><img src={item[1].coins?.logoURI} width={20} height={20} alt="" className="rounded-full" /></div>
                                     <div className="font-semibold">{item[1].coins?.name}</div>
                                 </div>
                                 <div className={`font-semibold `} >
@@ -145,7 +148,7 @@ const Assets = () => {
                             <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,31%,4%] pl-4">
                                 <div className="flex space-x-3 items-center">
                                     <div><img src={item[1].coins?.coinUrl} width={20} height={20} alt="" className="rounded-full" /></div>
-                                    <div className="font-semibold">{item[1].coins?.name}</div>
+                                    <div className="font-semibold">{item[1].coins?.logoURI}</div>
                                 </div>
                                 <div className={`font-semibold `} >
                                     {(item[1].amount || 0).toFixed(2)}
