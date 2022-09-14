@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeError, changeSuccess, selectError, selectSuccess } from "redux/slices/notificationSlice";
 import Success from "components/general/success";
 import Error from "components/general/error";
-import Modal from "components/general/modal";
+import Modal from "components/general/Modal";
 import { useModalSideExit, useWalletKit } from 'hooks';
 import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";

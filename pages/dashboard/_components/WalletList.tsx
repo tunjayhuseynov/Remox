@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, Fragment } from "react";
 import { AddressReducer, SetComma } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
-import Modal from 'components/general/modal'
+import Modal from 'components/general/Modal'
 import DeleteWallet from "./deleteWallet";
 import Loader from "components/Loader";
 import { SelectDarkMode } from 'redux/slices/account/remoxData';

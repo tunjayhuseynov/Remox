@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Button from 'components/button';
-import Modal from 'components/general/modal';
+import Modal from 'components/general/Modal';
 import Copied from "components/copied";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';

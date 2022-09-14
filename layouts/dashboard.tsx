@@ -81,10 +81,12 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>
-                <div className="flex space-x-11 flex-shrink flex-grow ">
-                    <Sidebar />
+                <div className="flex flex-shrink flex-grow ">
+                    <div className="w-[18.45rem]">
+                        <Sidebar />
+                    </div>
 
-                    <main key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-[18.5rem] pt-28`}>
+                    <main id='main' key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-12 pt-36`}>
                         {children}
                     </main>
 

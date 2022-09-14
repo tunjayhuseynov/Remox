@@ -2,42 +2,41 @@ import { ExecutionType, IMember } from "types/dashboard/contributors";
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from "components/button";
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import TeamItem from "./_stopItem";
 import useContributors from "hooks/useContributors";
 import { selectStorage } from "redux/slices/account/storage";
+import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { IFormattedTransaction } from "hooks/useTransactionProcess";
+import { Dispatch, Fragment } from "react";
+import TeamItem from "../_teamItem";
+import { ToastRun } from "utils/toast";
 
-
-const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<boolean>, memberState: IMember[] }) => {
+interface IProps {
+    onDisable: React.Dispatch<boolean>,
+    reccuringState: [(ITransactionMultisig | IFormattedTransaction)[], Dispatch<(ITransactionMultisig | IFormattedTransaction)[]>],
+    memberState: [IMember[], Dispatch<IMember[]>],
+}
+const AddStopModal = ({ onDisable, reccuringState, memberState }: IProps) => {
 
     const dispatch = useAppDispatch()
 
     const { removeMember, isLoading, editMember } = useContributors()
-    const storage = useAppSelector(selectStorage)
 
-    const create = async () => {
+    const cancel = async () => {
         try {
-            for (const member of memberState) {
-                // await cancelTask(member.taskId!)
-                let mem = { ...member }
-                mem.name = `${mem.name}`
-                mem.address = mem.address
-                mem.amount = mem.amount
-                mem.execution = mem.execution
-                if (mem.secondaryAmount) {
-                    mem.secondaryAmount = mem.secondaryAmount
-                }
+            for (const member of memberState[0]) {
 
-                await editMember(mem.teamId, mem.id, {
-                    ...mem,
+
+                await editMember(member.teamId, member.id, {
+                    ...member,
                     taskId: null,
                     execution: ExecutionType.auto
                 })
             }
 
-            dispatch(changeSuccess({ activate: true, text: "Automations has been successfully stopped" }))
+            ToastRun(<>Automations has been successfully stopped</>)
         } catch (error) {
             console.error(error)
-            dispatch(changeError({ activate: true, text: "Failed to stop automations" }))
+            ToastRun(<>Failed to stop automations</>, "error")
         }
 
         onDisable(false)
@@ -45,31 +44,33 @@ const AddStopModal = ({ onDisable, memberState }: { onDisable: React.Dispatch<bo
 
     return <>
         <div className="flex flex-col space-y-8 px-10">
-            {memberState.length > 0 ? <>
-                <div className="text-2xl font-semibold py-2 ">Run Payroll</div>
+            {reccuringState.length > 0 ? <>
+                <div className="text-2xl font-semibold py-2 ">Cancel Payments</div>
                 <div className="w-full shadow-custom px-5 pt-4 pb-6 rounded-xl bg-white dark:bg-darkSecond">
-                    <div id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[2%,20%,18%,15%,15%,15%,15%] rounded-xl bg-light  dark:bg-dark sm:mb-5 px-5 " >
-                        <div></div>
-                        <div className="font-normal py-3 ">Name</div>
-                        <div className="font-normal py-3">Start Date</div>
-                        <div className="font-normal py-3">End Date</div>
-                        <div className="font-normal py-3 ">Amount</div>
-                        <div className="font-normal py-3">Frequency</div>
-                        <div className="font-normal py-3">Labels</div>
-
-                    </div>
-                    <div>
-                        {memberState && memberState.map(w =>
-                            <div key={w.id} className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[2%,20%,18%,15%,15%,15%,15%] py-6 border-b  pb-5 text-sm">
-                                <TeamItem member={w} memberState={memberState} />
-                            </div>
+                    <table>
+                        <thead>
+                            <tr className={`pl-5 grid grid-cols-[12.5%,repeat(5,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md`}>
+                                <th className="font-normal py-3 ">Name</th>
+                                <th className="font-normal py-3">Start Date</th>
+                                <th className="font-normal py-3">End Date</th>
+                                <th className="font-normal py-3 ">Amount</th>
+                                <th className="font-normal py-3">Frequency</th>
+                                <th className="font-normal py-3">Labels</th>
+                            </tr>
+                        </thead>
+                        {reccuringState && reccuringState[0].map(w => {
+                            const hash = 'tx' in w ? w.tx.hash : w.hash;
+                            return <Fragment key={hash}>
+                                <TeamItem tx={w} reccuringState={reccuringState} memberState={memberState} selectMode={false} members={[]} />
+                            </Fragment>
+                        }
                         )}
-                    </div>
+                    </table>
                 </div>
                 <div>
 
                 </div>
-                <Button type="submit" onClick={create} className="w-[85%] self-center py-3 text-2xl !rounded-lg" isLoading={isLoading}>
+                <Button type="submit" onClick={cancel} className="w-[85%] self-center py-3 text-2xl !rounded-lg" isLoading={isLoading}>
                     Confirm and Cancel Payment
                 </Button>
             </> : <div className="text-2xl font-semibold py-2 pb-8">No Team Member Yet</div>}

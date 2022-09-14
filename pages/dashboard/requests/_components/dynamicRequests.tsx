@@ -1,6 +1,6 @@
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import Button from "components/button";
-import Modal from "components/general/modal";
+import Modal from "components/general/Modal";
 import useRequest from "hooks/useRequest";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

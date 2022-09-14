@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { AltCoins, Coins, CoinsName, DropDownItem } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
-import Modal from "components/general/modal";
+import Modal from "components/general/Modal";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { FormControl, TextField } from "@mui/material";
 import { GetTime } from "utils";

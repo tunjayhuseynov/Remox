@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
-import Modal from 'components/general/modal';
+import Modal from 'components/general/Modal';
 import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from 'components/button';
 import useMultisig from 'hooks/walletSDK/useMultisig';
@@ -91,7 +91,7 @@ const Sidebar = () => {
 
 
     return <>
-        <div className={`hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish  scrollbar-thin h-full hidden md:block z-[1] md:col-span-2 transitiion-all w-[18.45rem] flex-none fixed overflow-y-auto pt-36 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
+        <div className={`hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish  scrollbar-thin h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none fixed overflow-y-auto pt-36 bg-[#FFFFFF] w-[18.45rem] dark:bg-darkSecond shadow-15`}>
             <div className="grid grid-rows-[95%,1fr] pb-4 px-9 mx-auto h-full">
                 <div className='absolute flex items-center gap-3'>
                     <Dropdown
