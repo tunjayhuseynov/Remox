@@ -14,11 +14,12 @@ import { AddressReducer, SetComma } from "utils";
 interface IProps {
   member: IMember;
   selectedMembers?: IMember[];
-  isRuning: boolean
+  isRuning: boolean,
+  runmodal: boolean,
   setSelectedMembers: Dispatch<SetStateAction<IMember[]>>
 }
 
-const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning }: IProps) => {
+const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, runmodal }: IProps) => {
     const {GetCoins } = useWalletKit()
     const coin1 = Object.values(GetCoins).find((coin) => coin.name ===  member.currency)
     const coin2 = Object.values(GetCoins).find((coin) => coin.name ===  member.secondaryCurrency)
@@ -33,7 +34,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning }: 
         } flex `}
       >
         <div className={`flex space-x-2 items-center `}>
-          {member.execution !== ExecutionType.auto && isRuning ? (
+          {member.execution !== ExecutionType.auto && isRuning && !runmodal ? (
             <Checkbox
                 sx={{ "&.Mui-checked": { color: "#ff7348" } }}
                 
@@ -45,11 +46,11 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning }: 
                         if (!members.includes(member)) {
                             members.push(member);
                             setSelectedMembers(members);
-                        } else {
-                          setSelectedMembers(
-                            members.filter((m) => m.id !== member.id)
-                          );
-                        }
+                        } 
+                    } else {
+                      setSelectedMembers(
+                        members.filter((m) => m.id !== member.id)
+                      );
                     }
                 }}
                 checked={

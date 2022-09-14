@@ -10,6 +10,7 @@ import {
   updateContributor,
 } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
+import { TextField } from "@mui/material";
 
 const EditTeam = () => {
   const { id, name } = useRouter().query as { id : string, name: string }
@@ -46,18 +47,18 @@ const EditTeam = () => {
     >
       <div className="flex items-center justify-center text-xl">
         <div className="text-2xl self-center pt-2 font-semibold ">
-          Edit Team
+          Edit Workstream
         </div>
       </div>
 
       <div className="flex flex-col w-[85%] ">
-        <div className="">Team Name</div>
-        <input
+        <TextField
           type="text"
+          label="Workstream Name"
           {...register("name", { required: true })}
           defaultValue={name}
           onChange={(e) => setInput(e.target.value)}
-          className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none dark:bg-darkSecond"
+          className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none"
           required
         />
       </div>

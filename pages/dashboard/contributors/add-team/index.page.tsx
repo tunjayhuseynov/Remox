@@ -51,12 +51,12 @@ const AddTeams = () => {
     <span className="text-4xl pb-1">&#171;</span> Back
 </button>
      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
-        <div className="text-2xl self-center pt-5 font-semibold ">Enter Your Team</div>
+        <div className="text-2xl self-center pt-5 font-semibold ">Enter Your Workstream</div>
         <div className="flex flex-col w-[85%]">
 
             <div>
                 <TextField
-                    label="Team Name"
+                    label="Workstream Name"
                     {...register("name", {required: true})}
                     type="text"
                     className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none "

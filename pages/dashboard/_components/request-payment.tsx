@@ -3,12 +3,13 @@ import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
 import { ExecutionType } from 'types/dashboard/contributors';
-import { SelectContributorMembers, SelectDarkMode, SelectMultisig } from 'redux/slices/account/remoxData';
+import { SelectContributorMembers, SelectDarkMode, SelectMultisig, SelectRequests } from 'redux/slices/account/remoxData';
 import { AiFillRightCircle } from 'react-icons/ai'
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
     const recurring = useAppSelector(SelectContributorMembers)
+    const requests = useAppSelector(SelectRequests)
 
     const dark = useAppSelector(SelectDarkMode)
     const router = useRouter()
@@ -24,13 +25,13 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         {
             header: "Pending requests",
             icon: "payment_1",
-            value: multisig?.pendingTxs.length ?? 0,
+            value: requests.pendingRequests.length,
             router: "/dashboard/requests"
         },
         {
             header: "Approve requests",
             icon: "cash-payment_1",
-            value: multisig?.approvedTxs.length ?? 0,
+            value: requests.approvedRequests.length ,
             router: "/dashboard/requests/approved"
         },
         {

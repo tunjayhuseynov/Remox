@@ -195,7 +195,7 @@ export default function DynamicRequest({
             <Button
               isLoading={isApproving}
               onClick={() => setApproving()}
-              className={"w-full py-2 mt-5 text-2xl"}
+              className={"w-full py-3 mt-10 mb-3 text-base"}
             >
               Approve Requests
             </Button>
@@ -377,10 +377,11 @@ export default function DynamicRequest({
             <Button
               isLoading={isExecuting}
               onClick={() => setExecuting()}
-              className={"w-full py-2 mt-5 text-2xl"}
+              className={"w-full py-2 mt-10 mb-3 text-base"}
             >
               Confirm and Create Transaction
             </Button>
+
           </div>
         </Modal>
       )}

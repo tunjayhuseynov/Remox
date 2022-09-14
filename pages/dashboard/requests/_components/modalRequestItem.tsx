@@ -1,18 +1,11 @@
 import { IRequest, RequestStatus } from 'rpcHooks/useRequest';
-import { Dispatch, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Coins } from 'types';
+import {  useEffect, useRef, useState } from 'react';
 import { AddressReducer, SetComma } from 'utils';
-import useRequest from 'hooks/useRequest';
-import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import { useWalletKit } from 'hooks';
 import Avatar from 'components/avatar';
 import dateFormat from 'dateformat';
 
-const ModalRequestItem = ({ request, payment }: { request: IRequest, payment?: boolean }) => {
-
-    const [modal, setModal] = useState(false)
-    const [isLoading, setLoading] = useState(false)
+const ModalRequestItem = ({ request }: { request: IRequest }) => {
     const [detect, setDetect] = useState(true);
     const divRef = useRef<HTMLTableRowElement>(null)
     const { GetCoins } = useWalletKit()

@@ -26,7 +26,7 @@ const data = [
     },
     {
         to: "/dashboard/contributors?index=4",
-        text: "Team"
+        text: "Workstream"
     },
 ]
 
@@ -57,7 +57,7 @@ const Contributors = () => {
                     Contributors
                 </div>
                 <div className={`pt-2 flex ${contributors.length > 0 && 'gap-5'} `}>
-                    <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-team')}>Add Team</Button>
+                    <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-team')}>Add Workstream</Button>
                     {contributors.length > 0 && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-member')}>Add Contributor
                     </Button>}
                 </div>

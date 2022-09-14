@@ -8,7 +8,6 @@ import _ from 'lodash'
 import { generate } from "shortid";
 import { useWalletKit } from "hooks";
 import { SelectBalance, SelectCurrencies } from "redux/slices/account/selector";
-import { IPriceCoin } from "pages/api/calculation/price.api";
 import { SetComma } from "utils";
 
 export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
@@ -45,7 +44,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
         {list.map((item, index) => {
             const coin = Object.values(GetCoins).find((c) => c.name === item.currency)
             const coinBalance = Object.values(balance).find((b) => b.name === item.currency)
-            return <Fragment key={generate()}>
+            return <Fragment key={item.id}>
                 <div className="flex flex-col items-start justify-center text-center gap-2 mb-2 w-[12.5rem]">
                     <div className="w-full flex items-center justify-start space-x-1">
                         <div className="flex justify-between items-center ">
