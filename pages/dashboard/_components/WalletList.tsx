@@ -15,6 +15,21 @@ import EditWallet from "./editWallet";
 import { IoTrashOutline } from "react-icons/io5";
 import { BiTransferAlt } from "react-icons/bi";
 import Deposit from "./Deposit";
+import MuiModal from "@mui/material/Modal";
+import { Box } from "@mui/material";
+
+
+const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
 
 function WalletList({ item }: { item: IAccountORM }) {
@@ -38,9 +53,11 @@ function WalletList({ item }: { item: IAccountORM }) {
         {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className="!pt-4">
             <DeleteWallet onDisable={setDeleteModal} account={item} />
         </Modal>}
-        <Modal onDisable={setDepositModal} openNotify={depositModal}>
-            <Deposit onDisable={setDepositModal} account={item} />
-        </Modal>
+        <MuiModal open={depositModal}>
+            <Box sx={style}>
+                <Deposit onDisable={setDepositModal} account={item} />
+            </Box>
+        </MuiModal>
 
         <div className="w-full shadow-15 pt-2 rounded-md bg-white dark:bg-darkSecond min-w-[50%] hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
             <div className="w-full">
@@ -73,6 +90,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                                     </div>
                                 </div>
                                 <div className="cursor-pointer text-sm flex w-full hover:bg-greylish hover:bg-opacity-5 hover:transition-all pl-3 pr-12 py-2 gap-3" onClick={() => {
+                                    setDepositModal(true)
                                     setModalVisible(false)
                                 }}>
                                     <div className="flex space-x-2">

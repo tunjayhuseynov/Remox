@@ -194,7 +194,7 @@ const GetTxs = async (
       const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
 
       const tokens = tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
-      const nfts = tokenReq.data.result.filter(s => s.tokenId)
+      const nfts = tokenReq.data.result.filter(s => s.tokenID)
 
       const txs = exReq.data;
       txList = txs.result.concat(tokens).concat(nfts);
