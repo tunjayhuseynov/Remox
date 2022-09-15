@@ -241,8 +241,11 @@ const ParseTxs = async (
     const uniqueHashs = Object.values(groupedHash).reduce(
       (acc: Transactions[], value: Transactions[]) => {
         const best = _(value).maxBy((o) =>
-          +o.value
+          +(o.value ?? o.blockNumber)
         );
+        if(best?.tokenID){
+          console.log(best.tokenID)
+        }
         if (best) acc.push(best);
         return acc;
       },
@@ -275,7 +278,8 @@ const ParseTxs = async (
 
         if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0
           || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn)
-          || (formatted.method === ERC20MethodIds.nftTokenERC721))) {
+          || (formatted.method === ERC20MethodIds.nftTokenERC721)
+        )) {
 
           FormattedTransaction.push({
             timestamp: +transaction.timeStamp,
