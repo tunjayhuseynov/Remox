@@ -2,7 +2,7 @@ import * as React from 'react';
 import Loader from "components/Loader";
 import { motion } from 'framer-motion'
 import { useAppSelector } from '../../../redux/hooks';
-import { TokenType } from "types/coins/index";
+import { AltCoins, TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { SetComma } from 'utils';
@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AssetItem from './_components/assetItem';
+import { IPriceCoin } from 'pages/api/calculation/price.api';
 
 
 export interface INftData {
@@ -29,6 +30,26 @@ export interface INftData {
         value: number;
     }[];
 }
+
+
+export interface IToken {
+    coins: AltCoins;
+    amountUSD: number;
+    amount: number;
+    percent: number;
+    tokenPrice: number;
+    name: string;
+    coinUrl: string;
+    type: TokenType;
+    address: string;
+    color: string;
+    decimals: number;
+    chainID: number;
+    logoURI: string;
+    priceUSD: number;
+    symbol: string;
+}
+
 
 const AccordionSummary = styled((props: AccordionSummaryProps) => (
     <MuiAccordionSummary
@@ -71,6 +92,8 @@ const Assets = () => {
     const dark = useNextSelector(SelectDarkMode)
     const spotTokens = useAppSelector(SelectSpotBalance);
     const yieldTokens = useAppSelector(SelectYieldBalance);
+    const mySpotTokens = Object.values(spotTokens ?? {}).filter((token) => token.amount > 0);
+    const myYieldTokens = Object.values(yieldTokens ?? {}).filter((token) => token.amount > 0);
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
 
@@ -80,7 +103,6 @@ const Assets = () => {
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
     const nfts = useAppSelector(SelectNfts);
-    console.log(nfts)
 
     
     const handleChange =
@@ -175,115 +197,10 @@ const Assets = () => {
                                             <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        
-                                    </tbody>
+                                        {mySpotTokens.map((token) => {
+                                            return <AssetItem asset={token} key={token.address} />
+                                        })}
                                 </table>
-                                <div className=' py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond  rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3'>
-                                    <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,23%,12%]  xl:grid-cols-[25%,20%,20%,29%,6%] ">
-                                        <div className="flex space-x-3 items-center">
-                                            <div><img src={`/icons/currencies/celo.png`} width={20} height={20} alt="" className="rounded-full" /></div>
-                                            <div className="font-medium text-lg">{'CELO'}</div>
-                                        </div>
-                                        <div className={`font-medium text-lg`} >
-                                            {SetComma(600000)}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg" >
-                                            ${1}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg" >
-                                            {-3}%
-                                        </div>
-                                        <div className="font-medium text-lg  text-right" >
-                                            ${SetComma(600000)}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-[95.5%,4.5%] items-center pt-2 pb-8 ">
-                                        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl relative my-3 h-3">
-                                            <motion.div className='h-full bg-primary rounded-2xl' animate={{ width: ((37.7) + '%') }} transition={{ ease: "easeOut", duration: 2 }}></motion.div>
-                                        </div>
-                                        <div className="text-right font-semibold"> {37.7}%</div>
-                                    </div>
-                                </div>
-                                <div className=" py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond  rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3">
-                                    <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%] xl:grid-cols-[25%,20%,20%,29%,6%] ">
-                                        <div className="flex space-x-3 items-center">
-                                            <div><img src={`/icons/currencies/celodollar.svg`} width={20} height={20} alt="" className="rounded-full" /></div>
-                                            <div className="font-medium text-lg">{'cUSD'}</div>
-                                        </div>
-                                        <div className={`font-medium text-lg `} >
-                                            {SetComma(610000)}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg" >
-                                            ${1}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg" >
-                                            {0.3}%
-                                        </div>
-                                        <div className="font-medium text-lg  text-right" >
-                                            ${SetComma(610000)}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-[95.5%,4.5%] items-center pt-2 pb-8 ">
-                                        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl relative my-3 h-3 ">
-                                            <motion.div className='h-full bg-primary rounded-2xl' animate={{ width: ((38.3) + '%') }} transition={{ ease: "easeOut", duration: 2 }}></motion.div>
-                                        </div>
-                                        <div className="text-right font-semibold"> {38.3}%</div>
-                                    </div>
-                                </div>
-                                <div className=" py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond  rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3">
-                                    <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  xl:grid-cols-[25%,20%,20%,29%,6%] ">
-                                        <div className="flex space-x-3 items-center">
-                                            <div><img src={`/icons/currencies/celoeuro.png`} width={20} height={20} alt="" className="rounded-full" /></div>
-                                            <div className="font-medium text-lg ">{'cEUR'}</div>
-                                        </div>
-                                        <div className={`font-medium text-lg  `} >
-                                            {SetComma(235000)}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg " >
-                                            ${1.02}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg " >
-                                            {1}%
-                                        </div>
-                                        <div className="font-medium text-lg text-right" >
-                                            ${SetComma(239700)}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-[95.5%,4.5%] items-center pt-2 pb-8 ">
-                                        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl relative my-3  h-3">
-                                            <motion.div className='h-full bg-primary rounded-2xl' animate={{ width: ((14.7) + '%') }} transition={{ ease: "easeOut", duration: 2 }}></motion.div>
-                                        </div>
-                                        <div className="text-right font-semibold"> {14.7}%</div>
-                                    </div>
-                                </div>
-                                <div className=" py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond  rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3">
-                                    <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  xl:grid-cols-[25%,20%,20%,29%,6%] ">
-                                        <div className="flex space-x-3 items-center">
-                                            <div><img src={`/icons/currencies/moola.png`} width={20} height={20} alt="" className="rounded-full" /></div>
-                                            <div className="font-medium text-lg ">{'MOO'}</div>
-                                        </div>
-                                        <div className={`font-medium text-lg  `} >
-                                            {SetComma(595238)}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg " >
-                                            ${0.007}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg " >
-                                            {-10}%
-                                        </div>
-                                        <div className="font-medium text-lg text-right" >
-                                            ${SetComma(4165)}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-[95.5%,4.5%] items-center pt-2 pb-8">
-                                        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl relative my-3 h-3 ">
-                                            <motion.div className='h-full bg-primary rounded-2xl' animate={{ width: ((0.2) + '%') }} transition={{ ease: "easeOut", duration: 2 }}></motion.div>
-                                        </div>
-                                        <div className="text-right font-semibold"> {0.2}%</div>
-                                    </div>
-                                </div>
-
                             </Typography>
                         </AccordionDetails>
                     </Accordion>
@@ -305,39 +222,20 @@ const Assets = () => {
 
                         <AccordionDetails className='bg-light dark:bg-dark'>
                             <Typography className='bg-light dark:bg-dark pt-6 flex flex-col gap-3'>
-                                <div id="header" className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  bg-[#F2F2F2] shadow-15 py-2 px-3  dark:bg-[#2F2F2F] rounded-md">
-                                    <div className="text-sm font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg">Asset</div>
-                                    <div className="text-sm font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg">Balance</div>
-                                    <div className="hidden font-semibold text-greylish dark:text-[#aaaaaa] sm:block sm:text-lg">Price</div>
-                                    <div className="hidden font-semibold text-greylish dark:text-[#aaaaaa] sm:block sm:text-lg">24h</div>
-                                    <div className="text-sm font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg pl-2">Value</div>
-                                </div>
-                                <div className=" py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3">
-                                    <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  2xl:grid-cols-[25%,20%,20%,29%,6%] ">
-                                        <div className="flex space-x-3 items-center">
-                                            <div><img src={`/icons/currencies/mcUSD.png`} width={20} height={20} alt="" className="rounded-full" /></div>
-                                            <div className="font-medium text-lg">{'mcUSD'}</div>
-                                        </div>
-                                        <div className={`font-medium text-lg `} >
-                                            {SetComma(50000)}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg" >
-                                            ${1}
-                                        </div>
-                                        <div className="hidden sm:block font-medium text-lg" >
-                                            {0.2}%
-                                        </div>
-                                        <div className="font-medium text-lg flex  xl:block text-right" >
-                                            ${SetComma(50000)}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-[95.5%,4.5%] items-center pt-2 pb-8 ">
-                                        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl relative my-3 h-3 ">
-                                            <motion.div className='h-full bg-primary rounded-2xl' animate={{ width: ((3.14) + '%') }} transition={{ ease: "easeOut", duration: 2 }}></motion.div>
-                                        </div>
-                                        <div className="text-right  font-semibold"> {3.14}%</div>
-                                    </div>
-                                </div>
+                                <table id="header" >
+                                    <thead>
+                                        <tr className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
+                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Asset</th>
+                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Balance</th>
+                                            <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">Price</th>
+                                            <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">24h</th>
+                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
+                                        </tr>
+                                    </thead>
+                                        {myYieldTokens.map((token) => {
+                                            return <AssetItem asset={token} key={token.address} />
+                                        })}
+                                </table>
 
                             </Typography>
                         </AccordionDetails>
