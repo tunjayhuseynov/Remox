@@ -52,17 +52,17 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
                     animate={{ x: 15 }}
                     exit={{ x: "100%" }}
                     transition={{ type: "tween", duration: .33 }}
-                    className="bg-light dark:bg-dark z-[9999] fixed h-full w-full overflow-x-hidden cursor-default top-[73px] pt-10 flex flex-col space-y-16 left-0 ml-[18.45rem] pr-[18.45rem]">
+                    className="bg-light dark:bg-dark  absolute h-full w-[calc(100%-20.45rem)] overflow-x-hidden cursor-default top-[73px] pb-[73px] pt-10 flex flex-col space-y-16 left-0 ml-[18.45rem] ">
 
                     <button onClick={() => { onDisable(false); }} className="z-[9999] w-[4rem] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2 px-10">
                         {/* <img src="/icons/cross_greylish.png" alt="" /> */}
                         <span className="text-4xl pb-1">&#171;</span> Back
                     </button>
-                    <div>
+                    <div className="overflow-x-hidden hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish  scrollbar-thin ">
                         {children}
                     </div>
                 </motion.div>}
-            </AnimatePresence>, document.querySelector('#main')!)
+            </AnimatePresence>, document.body!)
             :
             ReactDOM.createPortal(<>
                 <ClickAwayListener onClickAway={() => onDisable(false)}>

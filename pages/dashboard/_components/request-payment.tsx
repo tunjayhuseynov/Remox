@@ -2,13 +2,12 @@ import React, { useState } from 'react'
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
-import { ExecutionType } from 'types/dashboard/contributors';
-import { SelectContributorMembers, SelectDarkMode, SelectMultisig, SelectRequests } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectMultisig, SelectNonCanceledRecurringTasks, SelectRequests } from 'redux/slices/account/remoxData';
 import { AiFillRightCircle } from 'react-icons/ai'
 
 
 function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
-    const recurring = useAppSelector(SelectContributorMembers)
+    const recurring = useAppSelector(SelectNonCanceledRecurringTasks)
     const requests = useAppSelector(SelectRequests)
 
     const dark = useAppSelector(SelectDarkMode)
@@ -31,7 +30,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         {
             header: "Approve requests",
             icon: "cash-payment_1",
-            value: requests.approvedRequests.length ,
+            value: requests.approvedRequests.length,
             router: "/dashboard/requests/approved"
         },
         {

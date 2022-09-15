@@ -565,14 +565,15 @@ export default function useMultisig() {
     }, [])
 
 
-    const changeSigns = useCallback(async (multisigAddress: string, sign: number, internalSign: number, isSign = true, isInternal = true) => {
+    const changeSigns = useCallback(async (account: IAccount, sign: number, internalSign: number, isSign = true, isInternal = true) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
+            if (!selectedId) throw new Error("Account is not selected")
             if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
-                    const tx = await wallet.changeThreshold(sign)
+                    const tx = wallet.changeThreshold(sign)
                     const pending = await wallet.newTransactionFromEnvelope({ tx })
                     await pending.tx.confirm()
                     return true;
@@ -585,7 +586,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
 
                 const countOwners = (await contract.methods.getOwners().call()).length
@@ -601,7 +602,14 @@ export default function useMultisig() {
                         from: address,
                         gas: 25000,
                         gasPrice: "5000000000",
-                    })
+                    }).on('confirmation', function (num: number, receipt: any) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain,
+                            txHash: receipt.transactionHash,
+                        }))
+                    });
                 }
 
                 if (isInternal) {
@@ -624,7 +632,7 @@ export default function useMultisig() {
 
                 const safeSdk = await Safe.create({
                     ethAdapter,
-                    safeAddress: multisigAddress,
+                    safeAddress: account.address,
                     isL1SafeMasterCopy: false,
                 });
 
@@ -641,7 +649,7 @@ export default function useMultisig() {
                 const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
                 await safeService.proposeTransaction({
-                    safeAddress: multisigAddress,
+                    safeAddress: account.address,
                     safeTransactionData: safeTransaction.data,
                     safeTxHash,
                     senderAddress: senderAddress,
@@ -658,13 +666,14 @@ export default function useMultisig() {
     }, [])
 
 
-    const addOwner = useCallback(async (multisigAddress: string, newOwner: string, name = "", image: Image | null = null, mail: string | null = null) => {
+    const addOwner = useCallback(async (account: IAccount, newOwner: string, name = "", image: Image | null = null, mail: string | null = null) => {
         if (remoxAccount) {
             try {
                 if (!blockchain) throw new Error("Blockchain is not selected")
+                if (!selectedId) throw new Error("Account is not selected")
                 if (blockchain.name === 'solana') {
                     const { sdk } = await initGokiSolana();
-                    const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                    const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                     if (wallet.data) {
                         const newOwnerAddress = new PublicKey(newOwner)
                         const Allowners = [...wallet.data.owners, newOwnerAddress];
@@ -684,13 +693,20 @@ export default function useMultisig() {
 
                     const Multisig = await multisigContract
 
-                    const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                    const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                     await contract.methods.addOwner(newOwner).send({
                         from: address,
                         gas: 25000,
                         gasPrice: "5000000000",
-                    })
+                    }).on('confirmation', function (num: number, receipt: any) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain,
+                            txHash: receipt.transactionHash,
+                        }))
+                    });
                 } else if (blockchain.name.includes("evm")) {
                     if (!txServiceUrl) throw new Error("Tx service is not selected")
                     const web3Provider = (window as any).ethereum;
@@ -704,7 +720,7 @@ export default function useMultisig() {
 
                     const safeSdk = await Safe.create({
                         ethAdapter,
-                        safeAddress: multisigAddress,
+                        safeAddress: account.address,
                         isL1SafeMasterCopy: false,
                     });
 
@@ -729,7 +745,7 @@ export default function useMultisig() {
                     const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
                     await safeService.proposeTransaction({
-                        safeAddress: multisigAddress,
+                        safeAddress: account.address,
                         safeTransactionData: safeTransaction.data,
                         safeTxHash,
                         senderAddress: senderAddress,
@@ -742,7 +758,7 @@ export default function useMultisig() {
                 // await Add_Member(newOwner, name, image, mail)
                 dispatch(Add_Member_To_Account_Thunk(
                     {
-                        accountAddress: multisigAddress,
+                        accountAddress: account.address,
                         memberAddress: newOwner,
                         name,
                         image,
@@ -814,7 +830,7 @@ export default function useMultisig() {
     const submitTransaction = async (account: IAccount, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, optionals?: SafeTransactionOptionalProps,) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
-            if(!selectedId) throw new Error("Account is not selected")
+            if (!selectedId) throw new Error("Account is not selected")
             if (blockchain.name === 'solana') {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));

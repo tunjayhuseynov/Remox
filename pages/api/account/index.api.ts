@@ -46,7 +46,7 @@ export default async function handler(
         reqs.push(priceReq);
 
         let multidata: IAccountORM["multidata"] = null;
-       
+
         if (account.signerType === "multi") {
             const multisigReq = axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
                 params: {
@@ -59,17 +59,20 @@ export default async function handler(
             })
             reqs.push(multisigReq);
         }
-        
+
         const [{ data: balanceRes }, multisigRes] = await Promise.all(reqs)
-       
+
         const balance = balanceRes as IPriceResponse;
 
         if (multisigRes) {
             multidata = multisigRes.data as IAccountMultisig;
         }
 
+        const members = account.members.filter(s => multidata?.owners.some(d => d.toLowerCase() === s.address.toLowerCase()));
+
         let orm: IAccountORM = {
             ...account,
+            members: multidata ? members : account.members,
             multidata,
             totalValue: balance.TotalBalance,
             coins: Object.entries(balance.AllPrices).reduce<(IPrice[0])[]>((a, [key, value]) => {
