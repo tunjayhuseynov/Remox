@@ -4,7 +4,6 @@ import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";
 import Button from 'components/button';
 import { useRouter } from 'next/router';
-import { ISubInputs } from '../new-budget/index.page'
 import shortid, { generate } from 'shortid'
 import { AltCoins } from 'types';
 import { IBudgetORM } from 'pages/api/budget/index.api';
@@ -20,6 +19,16 @@ interface IFormInput {
     amount2?: number;
     subName: string;
 }
+
+interface ISubInputs {
+    id: string;
+    name: string;
+    amount: number;
+    amount2: number;
+    wallet?: AltCoins;
+    wallet2?: AltCoins;
+    subAnotherToken: boolean;
+}[]
 
 function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budget: IBudgetORM }) {
     const dark = useAppSelector(SelectDarkMode)
@@ -49,8 +58,8 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
         setInputs([...inputs, {
             id: generate(),
             name: "",
-            wallet: GetCoins[0],
-            wallet2: GetCoins[0],
+            wallet: wallet,
+            wallet2: wallet2,
             amount: 0,
             amount2: 0,
             subAnotherToken: false,
@@ -91,6 +100,11 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
 
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
+    const coinSubbudgets: AltCoins[] = [];
+    if (wallet) coinSubbudgets.push(wallet)
+    if (wallet2) coinSubbudgets.push(wallet2)
+    const maxSubbudgetValueForWalletFirst = inputs.reduce((a, c) => a + c.amount, 0)
+    const maxSubbudgetValueForWalletSecond = inputs.reduce((a, c) => a + c.amount2, 0)
 
     return <div>
         <div className="w-1/2 mx-auto pb-10">
@@ -176,13 +190,21 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     // className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
                                     label="Subbudget Token"
                                     selected={input.wallet}
-                                    list={Object.values(GetCoins)}
+                                    list={coinSubbudgets}
                                     runFn={(val) => () => updateInputWallet(input.id, val)}
                                 />
                             </div>
                             <div className="grid grid-rows-[40%,60%] w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
-                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount(input.id, parseFloat(e.target.value))} />
+                                <input
+                                    className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white"
+                                    type="number"
+                                    name={`amount__${index}`}
+                                    required
+                                    step={'any'}
+                                    min={0}
+                                    max={input.wallet?.symbol === wallet?.symbol ? maxSubbudgetValueForWalletFirst : input.wallet?.symbol === wallet2?.symbol ? maxSubbudgetValueForWalletSecond : Number.MAX_SAFE_INTEGER}
+                                    onChange={(e) => updateInputAmount(input.id, parseFloat(e.target.value))} />
                             </div>
                         </div>
                         {input.subAnotherToken && <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
@@ -193,7 +215,7 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     // className="!py-[0.35rem] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-lg"
                                     label='Subbudget Token'
                                     selected={input.wallet2}
-                                    list={Object.values(GetCoins) as AltCoins[]}
+                                    list={coinSubbudgets.filter(s => input.wallet?.symbol !== s.symbol)}
                                     runFn={val => () => updateInputWallet2(input.id, val)}
                                 />
                             </div>
@@ -204,7 +226,15 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                         {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => updateAnotherToken(input.id, false)} />}
                                     </div>
                                 </div>
-                                <input className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" name={`amount__${index}`} required step={'any'} min={0} onChange={(e) => updateInputAmount2(input.id, parseFloat(e.target.value))} />
+                                <input
+                                    className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white"
+                                    type="number"
+                                    name={`amount__${index}`}
+                                    required
+                                    step={'any'}
+                                    min={0}
+                                    max={input.wallet?.symbol === wallet?.symbol ? maxSubbudgetValueForWalletFirst : input.wallet?.symbol === wallet2?.symbol ? maxSubbudgetValueForWalletSecond : Number.MAX_SAFE_INTEGER}
+                                    onChange={(e) => updateInputAmount2(input.id, parseFloat(e.target.value))} />
                             </div>
                         </div>
                         }

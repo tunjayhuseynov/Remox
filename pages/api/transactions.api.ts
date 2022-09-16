@@ -221,7 +221,7 @@ const GetTxs = async (
       // txList = txList.filter((tx) => tx).map((tx: any) => tx["rawData"])
     }
   }
-  const parsedTxs = await ParseTxs(txList.filter(s => s.isError !== "1"), blockchain, tags, address, coins);
+  const parsedTxs = await ParseTxs(txList, blockchain, tags, address, coins);
 
   return parsedTxs;
 };
@@ -240,12 +240,13 @@ const ParseTxs = async (
     const groupedHash = _(result).groupBy("hash").value();
     const uniqueHashs = Object.values(groupedHash).reduce(
       (acc: Transactions[], value: Transactions[]) => {
-        const best = _(value).maxBy((o) =>
-          +(o.value ?? o.blockNumber)
-        );
-        if(best?.tokenID){
-          console.log(best.tokenID)
+        const best = _(value).maxBy((o) => {
+          if (value.some(s => s.tokenID)) {
+            return +(o.tokenID ?? 0)
+          }
+          return +o.value
         }
+        );
         if (best) acc.push(best);
         return acc;
       },
