@@ -24,7 +24,7 @@ export const NFTFetcher = async (blockchain: BlockchainType, contractAddress: st
         let uri = await nft.methods.tokenURI(id).call()
         if (uri.includes("ipfs://")) uri = "https://ipfs.io/ipfs/" + uri.split("ipfs://")[1]
         const res = await axios.get<{ image: string }>(uri)
-        return res.data.image;
+        return res.data.image.startsWith("ipfs://") ? "https://ipfs.io/ipfs/" + res.data.image.split("ipfs://")[1] : res.data.image;
     } else if (blockchain.name === "solana") {
         const connection = new Connection(SolanaEndpoint)
         let mintPubkey = new PublicKey(contractAddress);

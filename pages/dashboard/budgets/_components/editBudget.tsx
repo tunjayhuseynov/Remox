@@ -12,13 +12,7 @@ import useLoading from 'hooks/useLoading';
 import { AiOutlinePlusCircle } from 'react-icons/ai';
 import { useAppSelector } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/selector';
-
-interface IFormInput {
-    name: string;
-    amount: number;
-    amount2?: number;
-    subName: string;
-}
+import TextField from '@mui/material/TextField';
 
 interface ISubInputs {
     id: string;
@@ -37,8 +31,9 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
 
     const navigate = useRouter()
 
-    const { register, handleSubmit } = useForm<IFormInput>();
-
+    const [name, setName] = useState<string>(budget.name)
+    const [amount, setAmount] = useState<number>(budget.amount)
+    const [amountSecond, setAmountSecond] = useState<number | undefined>(budget.secondAmount ?? undefined)
     const [wallet, setWallet] = useState(Object.values(GetCoins).find(c => c.symbol === budget.token))
     const [wallet2, setWallet2] = useState(Object.values(GetCoins).find(c => c.symbol === budget.secondToken))
 
@@ -86,14 +81,13 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
     }
 
     const updateInputWallet = (id: string, wallet: AltCoins) => {
-        console.log(id, wallet);
-        setInputs(inputs.map(s => s.id === id ? { ...s, wallet } : s))
+        setInputs(inputs.map(s => s.id === id ? { ...s, wallet, amount: 0 } : s))
     }
     const updateInputWallet2 = (id: string, wallet2: AltCoins) => {
-        setInputs(inputs.map(s => s.id === id ? { ...s, wallet2 } : s))
+        setInputs(inputs.map(s => s.id === id ? { ...s, wallet2, amount: 0 } : s))
     }
 
-    const onSubmit: SubmitHandler<IFormInput> = async data => {
+    const onSubmit = async () => {
 
         onDisable(true)
     }
@@ -103,17 +97,20 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
     const coinSubbudgets: AltCoins[] = [];
     if (wallet) coinSubbudgets.push(wallet)
     if (wallet2) coinSubbudgets.push(wallet2)
-    const maxSubbudgetValueForWalletFirst = inputs.reduce((a, c) => a + c.amount, 0)
-    const maxSubbudgetValueForWalletSecond = inputs.reduce((a, c) => a + c.amount2, 0)
+    const maxSubbudgetValueForWalletFirst = amount - inputs.reduce((a, c) => a + c.amount, 0)
+    const maxSubbudgetValueForWalletSecond = (amountSecond ?? 0) - inputs.reduce((a, c) => a + c.amount2, 0)
 
     return <div>
         <div className="w-1/2 mx-auto pb-10">
-            <div className="text-2xl text-center font-bold">Edit Budget</div>
-            <form onSubmit={handleSubmit(OnSubmit)} className="px-12 flex flex-col">
-                <div className="flex flex-col">
-                    <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Name</span>
-                    <input type="text" required  {...register("name", { required: true, value: budget.name })} className="border w-full bg-white dark:bg-darkSecond py-2 px-1 rounded-lg" />
-                </div>
+            <div className="text-2xl text-center font-bold mb-5">Edit Budget</div>
+            <div className="px-12 flex flex-col">
+                <TextField
+                    value={name}
+                    label="Budget Name"
+                    variant="outlined"
+                    onChange={e => setName(e.target.value)}
+                    inputProps={{ required: true, name: "name" }}
+                />
                 <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
                     <div className='grid grid-rows-[40%,60%]'>
                         <div></div>
@@ -131,7 +128,13 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                     </div>
                     <div className="grid grid-rows-[40%,60%] w-full">
                         <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Budget Amount</span>
-                        <input required {...register("amount", { required: true, valueAsNumber: true, value: budget.amount })} className="outline-none unvisibleArrow bg-white pl-2 border  rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
+                        <TextField
+                            label="Budget Amount"
+                            value={amount}
+                            variant="outlined"
+                            onChange={e => setAmount(Number(e.target.value))}
+                            inputProps={{ required: true, name: "amount", inputMode: 'numeric', pattern: '[0-9]*', step: 0.01 }}
+                        />
                     </div>
                 </div>
                 {anotherToken &&
@@ -158,7 +161,12 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     }} />
                                 </div>
                             </div>
-                            <input {...register("amount2", { required: true, valueAsNumber: true, value: budget.secondAmount ?? undefined })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} />
+                            <TextField
+                                value={amountSecond}
+                                onChange={e => setAmountSecond(Number(e.target.value))}
+                                inputProps={{ required: true, name: "amount2", inputMode: 'numeric', pattern: '[0-9]*', step: 0.01 }}
+                            />
+                            {/* <input {...register("amount2", { required: true, valueAsNumber: true, value: budget.secondAmount ?? undefined })} className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white" type="number" step={'any'} min={0} /> */}
                         </div>
                     </div>}
                 {!anotherToken &&
@@ -172,15 +180,18 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                     // return <Subinput key={e.index} incomingIndex={e.index} indexs={i} />
                     return <div key={input.id}>
                         <div className="flex flex-col mt-12">
-                            <div className="flex justify-between relative">
-                                <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Name</span>
-                                <div className="absolute -top-[-2.5rem] -right-[2rem]">
-                                    {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => {
-                                        deleteInput(input.id)
-                                        //setRefreshPage(generate())
-                                    }} />}
-                                </div></div>
-                            <input type="text" className="bg-white dark:bg-darkSecond border w-full py-2 px-1 rounded-lg" onChange={(e) => updateInputName(input.id, e.target.value)} />
+                            <TextField
+                                label="Subbudget Name"
+                                value={input.name}
+                                onChange={e => { updateInputName(input.id, e.target.value) }}
+                                inputProps={{ required: true, name: "name" }}
+                            />
+                            <div className="absolute -top-[-2.5rem] -right-[2rem]">
+                                {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => {
+                                    deleteInput(input.id)
+                                    //setRefreshPage(generate())
+                                }} />}
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
                             <div className="grid grid-rows-[40%,60%]">
@@ -196,7 +207,21 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                             </div>
                             <div className="grid grid-rows-[40%,60%] w-full">
                                 <span className="text-left  text-greylish dark:text-white pb-2 ml-1" >Subbudget Amount</span>
-                                <input
+                                <TextField
+                                    label="Amount"
+                                    name={`amount__${index}`}
+                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', step: 0.01, required: true }}
+                                    type={'number'}
+                                    value={input.amount}
+                                    onChange={(e) => {
+                                        let maxVal = input.wallet?.symbol === wallet?.symbol ? maxSubbudgetValueForWalletFirst : input.wallet?.symbol === wallet2?.symbol ? maxSubbudgetValueForWalletSecond : Number.MAX_SAFE_INTEGER;
+                                        if (maxVal >= +e.target.value) {
+                                            updateInputAmount(input.id, parseFloat(e.target.value))
+                                        }
+                                    }}
+                                    variant="outlined"
+                                />
+                                {/* <input
                                     className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white"
                                     type="number"
                                     name={`amount__${index}`}
@@ -204,7 +229,7 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     step={'any'}
                                     min={0}
                                     max={input.wallet?.symbol === wallet?.symbol ? maxSubbudgetValueForWalletFirst : input.wallet?.symbol === wallet2?.symbol ? maxSubbudgetValueForWalletSecond : Number.MAX_SAFE_INTEGER}
-                                    onChange={(e) => updateInputAmount(input.id, parseFloat(e.target.value))} />
+                                    onChange={(e) => updateInputAmount(input.id, parseFloat(e.target.value))} /> */}
                             </div>
                         </div>
                         {input.subAnotherToken && <div className="grid grid-cols-2 w-full gap-8 pt-4 h-[6rem]">
@@ -226,7 +251,21 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                         {<img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="w-5 h-5 cursor-pointer" onClick={() => updateAnotherToken(input.id, false)} />}
                                     </div>
                                 </div>
-                                <input
+                                <TextField
+                                    label="Amount"
+                                    name={`amount__${index}`}
+                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', step: 0.01, required: true }}
+                                    type={'number'}
+                                    value={input.amount2}
+                                    onChange={(e) => {
+                                        let maxVal = input.wallet?.symbol === wallet?.symbol ? maxSubbudgetValueForWalletFirst : input.wallet?.symbol === wallet2?.symbol ? maxSubbudgetValueForWalletSecond : Number.MAX_SAFE_INTEGER;
+                                        if (maxVal >= +e.target.value) {
+                                            updateInputAmount2(input.id, parseFloat(e.target.value))
+                                        }
+                                    }}
+                                    variant="outlined"
+                                />
+                                {/* <input
                                     className="outline-none unvisibleArrow bg-white pl-2 border rounded-lg py-2 dark:bg-darkSecond dark:text-white"
                                     type="number"
                                     name={`amount__${index}`}
@@ -234,7 +273,7 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     step={'any'}
                                     min={0}
                                     max={input.wallet?.symbol === wallet?.symbol ? maxSubbudgetValueForWalletFirst : input.wallet?.symbol === wallet2?.symbol ? maxSubbudgetValueForWalletSecond : Number.MAX_SAFE_INTEGER}
-                                    onChange={(e) => updateInputAmount2(input.id, parseFloat(e.target.value))} />
+                                    onChange={(e) => updateInputAmount2(input.id, parseFloat(e.target.value))} /> */}
                             </div>
                         </div>
                         }
@@ -253,7 +292,7 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                     <Button version="second" className="!rounded-xl" onClick={() => { navigate.back() }}>Cancel</Button>
                     <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading}>Create</Button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 }

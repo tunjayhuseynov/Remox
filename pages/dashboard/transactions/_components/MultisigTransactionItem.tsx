@@ -75,7 +75,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const changeThreshold = transaction.id === ERC20MethodIds.changeThreshold ? transaction as unknown as IChangeThreshold : null;
     const changeInternalThreshold = transaction.id === ERC20MethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
 
-    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction);
+    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, true);
 
 
     const uniqTags = tags.filter(s => tx.tags?.findIndex(d => d.id === s.id) === -1)

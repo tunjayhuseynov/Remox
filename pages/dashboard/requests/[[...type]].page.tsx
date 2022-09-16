@@ -6,7 +6,7 @@ import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { BASE_URL } from 'utils/api';
 import { useAppSelector } from 'redux/hooks';
-import { SelectBlockchain, SelectStorage } from 'redux/slices/account/remoxData';
+import { SelectBlockchain, SelectRequests, SelectStorage } from 'redux/slices/account/remoxData';
 import DynamicRequest from './_components/dynamicRequests';
 
 export default function RequestLayout() {
@@ -15,20 +15,24 @@ export default function RequestLayout() {
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
     const selectedBlockchain = useAppSelector(SelectBlockchain)
     const storage = useAppSelector(SelectStorage);
+    const requests = useAppSelector(SelectRequests);
     const { type } = useRouter().query as { type: string[] | undefined }
 
     const data = [
         {
             to: "/dashboard/requests?noAnimation=true",
             text: "Pending Requests",
+            count: requests.pendingRequests.length.toString()
         },
         {
             to: "/dashboard/requests/approved?noAnimation=true",
-            text: "Approved Requests"
+            text: "Approved Requests",
+            count: requests.approvedRequests.length.toString()
         },
         {
             to: "/dashboard/requests/rejected?noAnimation=true",
-            text: "Rejected Requests"
+            text: "Rejected Requests",
+            count: requests.rejectedRequests.length.toString()
         }
     ]
 

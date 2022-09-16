@@ -36,7 +36,6 @@ export default function DynamicRequest({
   const { GetCoins, SendTransaction } = useWalletKit();
   const [openNotify, setNotify] = useState(false);
   const [openNotify2, setNotify2] = useState(false);
-  console.log(accountAndBudget)
 
   let page: RequestStatus;
   if (type === "pending") {

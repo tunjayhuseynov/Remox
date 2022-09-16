@@ -141,6 +141,25 @@ const Assets = () => {
         }
     ]
 
+    const nftdata:INftData = {
+        totalBalance: 3453,
+        nft: [
+            {
+                name: "Bored Rmx #31",
+                text: "Bored Ape Yacht Club",
+                currency: 71,
+                value: 876,
+            },
+            {
+                name: "Bored Rmx #32",
+                text: "Bored Ape Yacht Club",
+                currency: 42,
+                value: 623,
+            },
+        ]
+
+    }
+
     return <>
         <div>
             <div className="font-bold text-4xl">Assets</div>
@@ -150,7 +169,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {/* {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">${SetComma(nftdata.totalBalance)}</div>} */}
+                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">${SetComma(nftdata.totalBalance)}</div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -222,8 +241,7 @@ const Assets = () => {
                             </div>
                         </AccordionDetails>
                     </Accordion>
-                </div> : <NftContainer />}
-                    
+                </div> :<NftContainer />}
             </div>
         </div>
     </>

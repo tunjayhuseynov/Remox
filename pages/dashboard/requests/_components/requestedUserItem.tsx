@@ -7,14 +7,12 @@ import dateFormat from "dateformat";
 import Modal from "components/general/Modal";
 import Button from "components/button";
 import useRequest from "hooks/useRequest";
-import { TotalUSDAmount } from "./totalAmount";
+import { FaChevronCircleRight } from "react-icons/fa";
 import { useWalletKit } from "hooks";
 import {
   addRejectedRequest,
-  addApprovedRequest,
   removePendingRequest,
-  SelectCurrencies,
-  SelectBalance,
+  removeApprovedRequest,
 } from "redux/slices/account/remoxData";
 import { useAppDispatch } from "redux/hooks";
 import { Checkbox } from "@mui/material";
@@ -49,7 +47,7 @@ const RequestedUserItem = ({
   const [detect, setDetect] = useState(true);
   const divRef = useRef<HTMLTableRowElement>(null);
   const dispatch = useDispatch();
-  const { rejectRequest } = useRequest();
+  const { rejectRequest, approveRequest } = useRequest();
   const { GetCoins } = useWalletKit();
   const userId = useAppSelector(SelectID);
 
@@ -62,7 +60,11 @@ const RequestedUserItem = ({
   const Reject = async () => {
     try {
       await rejectRequest(request, userId?.toString() ?? "");
-      dispatch(removePendingRequest(request.id));
+      if(request.status === RequestStatus.pending){
+        dispatch(removePendingRequest(request.id));
+      } else if(request.status === RequestStatus.approved){
+        dispatch(removeApprovedRequest(request.id));
+      }
       const newRequest = { ...request, status: RequestStatus.rejected };
       dispatch(addRejectedRequest(newRequest));
     } catch (error: any) {
@@ -71,7 +73,20 @@ const RequestedUserItem = ({
     setModal(false);
   };
 
-  const [isLoading, setRejecting] = useLoading(Reject);
+  const Approve = async () => {
+    try{
+      await approveRequest(request, userId?.toString() ?? "");
+      dispatch(removePendingRequest(request.id));
+      const newRequest = { ...request, status: RequestStatus.approved };
+      dispatch(addRejectedRequest(newRequest));
+    } catch(error: any){
+      console.error(error.message);
+    }
+    setModal(false)
+  }
+
+  const [isRejecting, setRejecting] = useLoading(Reject);
+  const [isApproving, setApproving] = useLoading(Approve);
 
   return (
     <>
@@ -137,7 +152,7 @@ const RequestedUserItem = ({
                     }
                   }}
                 />
-              ))) : <span className="bg-[#EF2727] rounded-sm"><AiOutlineClose/></span> : "" }
+              ))) : <span className="bg-[#EF2727] text-white rounded-sm"><AiOutlineClose/></span> : "" }
             {!payment && request.status === RequestStatus.rejected && (
               <img src="/icons/request/close.png" className="mr-2" />
             )}
@@ -283,16 +298,7 @@ const RequestedUserItem = ({
         </td>
         <td className="flex justify-end cursor-pointer items-center md:pr-0 ">
           {request.status !== RequestStatus.rejected && !payment && (
-            <div
-              onClick={() => setModal(true)}
-              className={`text-primary text-center mr-7 ${
-                detect
-                  ? "px-5 max-h-[5rem] min-w-[8.5rem] border rounded-md border-primary hover:bg-primary hover:text-white"
-                  : "text-sm hover:text-black dark:hover:text-white "
-              }  py-1 transition-colors duration-300`}
-            >
-              View Details
-            </div>
+            <FaChevronCircleRight onClick={() => setModal(true)} className="mr-5  text-primary text-xl" />
           )}
         </td>
       </tr>
@@ -458,14 +464,24 @@ const RequestedUserItem = ({
               </div>
             </div>
             <div className="flex justify-center pt-5 sm:pt-0">
+              
                 <Button
                   version="second"
-                  className="w-[9.375rem] text-lg sm:w-full !py-2"
-                  isLoading={isLoading}
+                  className="w-[9.375rem] text-lg sm:w-full !py-2 mr-2"
+                  isLoading={isRejecting}
                   onClick={() => setRejecting()}
                 >
                   Reject Request
                 </Button>
+                {isAllowed && 
+                  <Button
+                    className="w-[9.375rem] text-lg sm:w-full !py-2 ml-2"
+                      isLoading={isApproving}
+                      onClick={() => setApproving()}
+                  >
+                    Approve Request
+                  </Button>
+                } 
             </div>
           </div>
         </Modal>

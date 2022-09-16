@@ -142,7 +142,7 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 	return directionType
 };
 
-export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainType, direction?: TransactionDirection,) => {
+export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainType, direction?: TransactionDirection, isMultisig?: boolean) => {
 	let img: string;
 	let name: string;
 	let action: string;
@@ -153,9 +153,24 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			action = "Swap"
 			break;
 		case TransactionDirection.In:
-			img = REMOX_LOGO
-			name = 'Remox'
+			if (isMultisig) {
+				img = blockchain.multisigProviders[0].logoURL;
+				name = blockchain.multisigProviders[0].name;
+			} else {
+				img = REMOX_LOGO
+				name = 'Remox'
+			}
 			action = "Received"
+			break;
+		case TransactionDirection.Out:
+			if (isMultisig) {
+				img = blockchain.multisigProviders[0].logoURL;
+				name = blockchain.multisigProviders[0].name;
+			} else {
+				img = REMOX_LOGO
+				name = 'Remox'
+			}
+			action = "Sent"
 			break;
 		case TransactionDirection.Borrow:
 			img = blockchain.lendingProtocols[0].logoURL;
@@ -216,11 +231,6 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			img = blockchain.multisigProviders[0].logoURL;
 			name = blockchain.multisigProviders[0].name;
 			action = "Change Threshold"
-			break;
-		case TransactionDirection.Out:
-			img = REMOX_LOGO
-			name = 'Remox'
-			action = "Sent"
 			break;
 		default:
 			img = REMOX_LOGO

@@ -259,11 +259,13 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
             const sTime = stringTime(tTime)
             if (tDay <= selectedDay) {
                 let calc = 0;
-                if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment) {
+                let feeToken = currencies[t.rawData.tokenSymbol ?? ""];
+                let fee = feeToken ? DecimalConverter((+t.rawData.gasPrice) * (+t.rawData.gasUsed) * (feeToken?.priceUSD ?? 0), feeToken.decimals) : 0;
+                if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment || t.id === ERC20MethodIds.automatedTransfer || t.id === ERC20MethodIds.automatedCanceled) {
                     const tx = t as ITransfer;
                     if (!tx.coin) return
                     const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.coin.symbol]?.priceUSD ?? 1));
-                    if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                    if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current + fee : current;
                     else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                     calc += current;
                 }
@@ -271,7 +273,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
                     const coin = (t as ITransfer).coin;
                     if (coin) {
                         const current = (DecimalConverter(t.rawData.value, coin.decimals) * coin.priceUSD ?? 1)
-                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current + fee : current;
                         else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                         calc += current;
                     }
@@ -280,14 +282,14 @@ const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance:
                     const tx = t as IBatchRequest;
                     tx.payments.forEach(transfer => {
                         const current = (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
-                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current : current;
+                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current + fee : current;
                         else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
                         calc += current;
                     })
                 }
                 if (isOut) {
-                    TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] - calc : -1 * calc;
-                    myout += calc
+                    TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] - calc - fee : -1 * (calc - fee);
+                    myout += calc + fee;
                 } else {
                     TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] + calc : calc;
                     myin += calc

@@ -15,7 +15,6 @@ const NftContainer = () => {
   const [nftsDataArray, setNftsDataArray] = useState<INFT[]>([]);
   const nfts = useAppSelector(SelectNfts);
 
-  console.log(nfts)
 
   useAsyncEffect(async () => {
     setLoading(true)
@@ -33,7 +32,6 @@ const NftContainer = () => {
     let link = ""
     if (url) {
       link = url.includes("ipfs://") ? url.replace("ipfs://", "https://ipfs.io/ipfs/") : url
-      console.log(url)
     } else {
       throw new Error("Cannot fetch NFT")
     }
@@ -48,15 +46,12 @@ const NftContainer = () => {
     return NFTData
   }
 
-  if(loading) {
-    return <Loader />
-  }
-  // if(loading) return <div className='w-full flex  justify-center '><Loader/> </div>
+  if(loading) return <div className='w-full flex  justify-center '><Loader/> </div>
 
 
   return (
-    <div className="w-full h-full  grid grid-cols-3 gap-20 ">
-      {nftsDataArray.map((nft: INFT, index: number) => {
+    <div className="w-full h-full grid grid-cols-3 gap-20 mb-10" >
+      {nftsDataArray.reverse().map((nft: INFT, index: number) => {
         return <NftItem key={index} nft={nft} />
       })}
     </div>

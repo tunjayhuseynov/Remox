@@ -3,11 +3,10 @@ import { INFT } from "../index.page";
 
 const nftItem = ({nft}: {nft: INFT}) => {
 
-  console.log(nft)
   return (
-    <div className=" h-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
-      <div className="w-full   rounded-xl">
-          <img src={nft.imageAddress} alt="" className="w-full  object-cover  rounded-xl" />
+    <div className="h-full w-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
+      <div className="max-w-[34rem]">
+          <img src={nft.imageAddress} alt="" className="w-full rounded-xl" />
       </div>
       <div className="flex justify-between items-center py-3 px-2 border-b dark:border-b-greylish">
           <div className="flex flex-col items-start justify-center">
