@@ -68,11 +68,6 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
     },
 }));
 
-// const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-//     padding: theme.spacing(2),
-//     borderTop: '1px solid rgba(0, 0, 0, .125)',
-// }));
-
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
@@ -179,14 +174,15 @@ const Assets = () => {
                             className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
                             sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
                         >
-                            <Typography className="w-full flex items-center h-10 rounded-md">
+                            <div className="w-full flex items-center h-10 rounded-md">
                                 <div className="flex items-center justify-between  w-full ">
                                     <div className="text-lg font-medium  font-sans  pl-2">{TypeCoin[0].header}</div>
                                     <div className={`text-lg font-medium  font-sans `}>${SetComma(+TypeCoin[0].balance)}</div>
-                                </div></Typography>
+                                </div>
+                            </div>
                         </AccordionSummary>
                         <AccordionDetails className='bg-light dark:bg-dark'>
-                            <Typography className='bg-light dark:bg-dark pt-6 flex flex-col gap-4'>
+                            <div className='bg-light dark:bg-dark pt-6 flex flex-col gap-4'>
                                 <table id="header" >
                                     <thead>
                                         <tr className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
@@ -197,11 +193,11 @@ const Assets = () => {
                                             <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
                                         </tr>
                                     </thead>
-                                        {mySpotTokens.map((token) => {
-                                            return <AssetItem asset={token} key={token.address} />
-                                        })}
                                 </table>
-                            </Typography>
+                                    {mySpotTokens.map((token) => {
+                                        return <AssetItem asset={token} key={token.address} />
+                                    })}
+                            </div>
                         </AccordionDetails>
                     </Accordion>
 
@@ -221,7 +217,7 @@ const Assets = () => {
                         </AccordionSummary>
 
                         <AccordionDetails className='bg-light dark:bg-dark'>
-                            <Typography className='bg-light dark:bg-dark pt-6 flex flex-col gap-3'>
+                            <div className='bg-light dark:bg-dark pt-6 flex flex-col gap-3'>
                                 <table id="header" >
                                     <thead>
                                         <tr className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
@@ -232,12 +228,11 @@ const Assets = () => {
                                             <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
                                         </tr>
                                     </thead>
-                                        {myYieldTokens.map((token) => {
-                                            return <AssetItem asset={token} key={token.address} />
-                                        })}
                                 </table>
-
-                            </Typography>
+                                    {myYieldTokens.map((token) => {
+                                        return <AssetItem asset={token} key={token.address} />
+                                    })}
+                            </div>
                         </AccordionDetails>
                     </Accordion>
                 </div> :
