@@ -14,12 +14,20 @@ import MuiAccordionSummary, {
     AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AssetItem from './_components/assetItem';
 import { IPriceCoin } from 'pages/api/calculation/price.api';
+import NftContainer from './_components/nftContainer';
 
+export interface INFT {
+    name: string;
+    text: string;
+    contractAddress: string;
+    imageAddress: string;
+    currency?: number;
+    value?: number;
+}
 
 export interface INftData {
     totalBalance: number;
@@ -97,7 +105,10 @@ const Assets = () => {
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
-    const nfts = useAppSelector(SelectNfts);
+
+
+    
+
 
     
     const handleChange =
@@ -130,31 +141,6 @@ const Assets = () => {
         }
     ]
 
-    const nftdata:INftData = {
-        totalBalance: 3453,
-        nft: [
-            {
-                name: "Bored Rmx #31",
-                text: "Bored Ape Yacht Club",
-                currency: 71,
-                value: 876,
-            },
-            {
-                name: "Bored Rmx #32",
-                text: "Bored Ape Yacht Club",
-                currency: 42,
-                value: 623,
-            },
-            {
-                name: "Bored Rmx #33",
-                text: "Bored Ape Yacht Club",
-                currency: 37,
-                value: 945,
-            },
-        ]
-
-    }
-
     return <>
         <div>
             <div className="font-bold text-4xl">Assets</div>
@@ -164,7 +150,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">${SetComma(nftdata.totalBalance)}</div>}
+                    {/* {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">${SetComma(nftdata.totalBalance)}</div>} */}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -209,11 +195,12 @@ const Assets = () => {
                             className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
                             sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
                         >
-                            <Typography className="w-full flex items-center h-10">
+                            <div className="w-full flex items-center h-10">
                                 <div className="flex items-center justify-between  w-full">
                                     <div className="text-lg font-medium  font-sans pl-2 ">{TypeCoin[1].header}</div>
                                     <div className=" text-lg font-medium  font-sans ">${SetComma(+TypeCoin[1].balance)}</div>
-                                </div></Typography>
+                                </div>
+                            </div>
                         </AccordionSummary>
 
                         <AccordionDetails className='bg-light dark:bg-dark'>
@@ -235,32 +222,8 @@ const Assets = () => {
                             </div>
                         </AccordionDetails>
                     </Accordion>
-                </div> :
-
-                    <div className="w-full h-full  grid grid-cols-3 gap-20 ">
-                        {nftdata.nft.map((i, index) => {
-                            return <div key={index} className=" h-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
-                                <div className="w-full   rounded-xl">
-                                    <img src="/icons/nftmonkey.png" alt="" className="w-full max-h-[16rem] object-cover rounded-xl" />
-                                </div>
-                                <div className="flex justify-between items-center py-3 px-2 border-b dark:border-b-greylish">
-                                    <div className="flex flex-col items-start justify-center">
-                                        <div className="text-xl font-semibold">{i.name}</div>
-                                        <div className="text-sm text-greylish">{i.text}</div>
-                                    </div>
-                                    <div className=" text-xl font-medium flex gap-1">{i.currency} <span><img src="/icons/celoicon.svg" alt="" w-2 h-2 /></span> CELO</div>
-                                </div>
-                                <div className="flex justify-between items-center  py-4 px-2">
-                                    <div className=" text-2xl font-semibold">${i.value}</div>
-                                    <div className="flex  items-center gap-3 justify-center">
-                                        <div className="text-2xl font-semibold">
-                                            <img src="/icons/copyicon.png" alt="" className="w-5 h-5 cursor-pointer" /></div>
-                                        <a href=""><img src="/icons/edit.png" className="w-6 h-6 cursor-pointer" alt="" /></a>
-                                    </div>
-                                </div>
-                            </div>
-                        })}
-                    </div>}
+                </div> : <NftContainer />}
+                    
             </div>
         </div>
     </>
