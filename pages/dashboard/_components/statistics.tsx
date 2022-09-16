@@ -33,7 +33,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 <div className="w-full px-5 pt-8 flex justify-between">
                     <div className="flex flex-col gap-1">
                         <div className="font-semibold text-greylish tracking-wide">Total Treasury Value</div>
-                        <div className="text-3xl font-semibold">${parseFloat(SetComma(stats?.TotalBalance)).toFixed(0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
+                        <div className="text-3xl font-semibold">${Math.floor(stats?.TotalBalance ?? 0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                     </div>
                     <div className="flex gap-3 pr-2">
                         <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-greylish text-sm font-semibold tracking-wide`} onClick={() => setChartDate("week")}>1W</span>

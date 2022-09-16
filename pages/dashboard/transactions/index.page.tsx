@@ -1,16 +1,16 @@
 import dateFormat from "dateformat";
-import { forwardRef, Fragment, useEffect, useState, useTransition } from "react";
-import { TransactionStatus, AltCoins, CoinsName, Coins } from "types";
-import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
+import { forwardRef, useEffect, useState, useTransition } from "react";
+import { TransactionStatus, CoinsName, AltCoins } from "types";
+import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
-import { TransactionDirectionDeclare } from "utils";
+import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration, TransactionTypeDeclare } from "utils";
 import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectProviderAddress, SelectTags, SelectTransactions } from "redux/slices/account/remoxData";
-import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags, SelectTransactions } from "redux/slices/account/remoxData";
+import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
 import MultisigTx from "./_components/MultisigTransactionItem";
@@ -18,10 +18,10 @@ import { TablePagination } from "@mui/material";
 import { IAccountORM } from "pages/api/account/index.api";
 import { BlockchainType } from "types/blockchains";
 import { ITag } from "pages/api/tags/index.api";
-import Filter from "./_components/filter";
+import Filter from "./_components/Filter";
 import { DateObject } from "react-multi-date-picker";
-import { IAccount, IBudget } from "firebaseConfig";
 import { AnimatePresence, motion } from "framer-motion";
+import { DecimalConverter } from "utils/api";
 
 
 const Transactions = () => {
@@ -30,12 +30,10 @@ const Transactions = () => {
     const tags = useAppSelector(SelectTags)
     const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
-    const router = useRouter()
 
     const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
     const [isOpen, setOpen] = useState(false)
-    const [isPending, startTransition] = useTransition()
 
     const [pagination, setPagination] = useState(STABLE_INDEX)
 
@@ -46,7 +44,7 @@ const Transactions = () => {
         if (val) setAddress(val)
     }, [Address])
 
-    const list = useAppSelector(SelectTransactions)
+    // const list = useAppSelector(SelectTransactions)
 
     const [date, setDate] = useState<DateObject[] | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -173,24 +171,65 @@ const Transactions = () => {
                             </div>
                             <div className="w-[1px] h-full dark:bg-gray-500 bg-gray-500"></div>
                         </div>
-                        {list && <div className="py-1">
-                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={list.map(w => {
-                                let tx = w.rawData
-                                let feeToken = Object.entries(CoinsName).find(s => s[0] === tx.tokenSymbol)?.[1]
+                        {txs.length > 0 && <div className="py-1">
+                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
+                                let directionType = TransactionDirectionDeclare(w, accounts);
+                                const [, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w);
+                                let method = 'tx' in w ? w.tx.method : w.method;
+
+                                const from = 'tx' in w ? w.contractAddress : w.rawData.from;
+
+                                let amountCoins: { amount: number, coin: string }[] = [];
+
+                                let swapping: {
+                                    amountIn: number,
+                                    amountOut: number,
+                                    amountInCoin: string,
+                                    amountOutCoin: string,
+                                } | null = null
+
+                                if (method === ERC20MethodIds.transfer || method === ERC20MethodIds.transferFrom || method === ERC20MethodIds.transferWithComment) {
+                                    const coinData = 'tx' in w ? (w.tx as ITransfer).coin : (w as ITransfer).coin;
+                                    amountCoins = [{ amount: DecimalConverter('tx' in w ? (w.tx as ITransfer).amount : (w as ITransfer).amount, coinData.decimals), coin: coinData.symbol }];
+                                } else if (method === ERC20MethodIds.batchRequest || method === ERC20MethodIds.automatedBatchRequest) {
+                                    const payments = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments : (w as IBatchRequest).payments;
+                                    amountCoins = payments.map(w => ({ amount: DecimalConverter(w.amount, w.coin.decimals), coin: w.coin.symbol }));
+                                } else if (method === ERC20MethodIds.swap) {
+                                    const swap = 'tx' in w ? (w.tx as unknown as ISwap) : (w as ISwap);
+                                    swapping = {
+                                        amountIn: DecimalConverter(swap.amountIn, swap.coinIn.decimals),
+                                        amountOut: DecimalConverter(swap.amountOutMin, swap.coinOutMin.decimals),
+                                        amountInCoin: swap.coinIn.symbol,
+                                        amountOutCoin: swap.coinOutMin.symbol,
+                                    }
+                                }
+
+                                let timestamp = w.timestamp * 1e3;
+
+                                let gasCoin = 'tx' in w ? "" : w.rawData.tokenSymbol ?? w.rawData.feeCurrency ?? "";
+                                let gas = 'tx' in w ? "" : +w.rawData.gasPrice * +w.rawData.gasUsed;
+                                let blockNumber = 'tx' in w ? "" : w.rawData.blockNumber;
+                                let hash = 'tx' in w ? "" : w.rawData.hash;
+                                let blockhash = 'tx' in w ? "" : w.rawData.blockHash;
+                                let data = 'tx' in w ? "" : w.rawData.input;
+
                                 return {
-                                    'Sent From:': tx.from,
-                                    'Amount:': parseFloat(fromMinScale(tx.value.toString())).toFixed(4) + ` ${feeToken && GetCoins ? GetCoins[feeToken].name : "Unknown"}`,
-                                    'To:': tx.to,
-                                    'Date': dateFormat(new Date(parseInt(tx.timeStamp) * 1e3), "mediumDate"),
-                                    "Gas": `${fromMinScale((parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)).toString())} ${tx.tokenSymbol === "cUSD" ? "cUSD" : "CELO"}`,
-                                    "Block Number": tx.blockNumber,
-                                    "Transaction Hash": tx.hash,
-                                    "Block Hash": tx.blockHash,
-                                    "Input": tx.input
+                                    'Method': action,
+                                    "Provider": name,
+                                    'Status': 'tx' in w ? w.isExecuted ? "Success" : w.confirmations.length === 0 ? "Rejected" : "Pending" : "Success",
+                                    'Sent From:': from,
+                                    'Amount:': swapping ? `${swapping.amountIn} ${swapping.amountInCoin} => ${swapping.amountOut} ${swapping.amountOutCoin}` : amountCoins.map(w => `${w.amount} ${w.coin}`).join(',\n'),
+                                    'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
+                                    'Date': dateFormat(new Date(timestamp), "mediumDate"),
+                                    "Gas": `${gas} ${gasCoin}`,
+                                    "Block Number": blockNumber,
+                                    "Transaction Hash": hash,
+                                    "Block Hash": blockhash,
+                                    "Input": data
                                 }
                             })}>
                                 <img className={`w-[1rem] h-[1rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
-                                <div >Export All</div>
+                                <div >{txs.length !== Txs.length ? "Export Filtered" : "Export All"}</div>
                             </CSVLink>
                         </div>}
                     </div>
