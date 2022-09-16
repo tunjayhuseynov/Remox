@@ -26,52 +26,27 @@ const RunModal = ({
   return (
     <>
       {selectedContributors.length > 0 ? (
-        <div className="px-5 pt-20 w-full h-[80%] mx-auto">
-          <div className="text-2xl font-semibold py-2 pb-5 pt-4">
+        <div className="px-5 w-full h-full mx-auto">
+          <div className="text-2xl font-semibold pb-5 ">
             Run Payroll
           </div>
-          <div className="w-full  pt-4 pb-6 ">
-            <div
-              id="header"
-              className={`hidden sm:grid grid-cols-[30%,30%,1fr]  lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md`}
-            >
-              <div
-                className={` text-lg font-semibold text-greylish dark:text-[#aaaaaa] pl-4 `}
-              >
-                Contributor
-              </div>
-              <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa] ">
-                Start Date
-              </div>
-              <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa]">
-                End Date
-              </div>
-              <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa] ">
-                Salary
-              </div>
-              <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa] ">
-                Frequency
-              </div>
-              <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa] ">
-                Status
-              </div>
-              <div className=" text-lg font-semibold text-greylish dark:text-[#aaaaaa] ">
-                Compensation Type
-              </div>
-            </div>
-            <div>
-              {selectedContributors.map((contributor, index) => (
-                <PayrollItem
-                  key={contributor.id}
-                  runmodal={runmodal}
-                  isRuning={isAvaible}
-                  member={contributor}
-                  setSelectedMembers={setSelectedContributors}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col space-y-3 pt-10">
+          <table className="w-full pt-1 pb-4 ">
+              <thead>
+                <tr id="header" className={`hidden sm:grid grid-cols-[30%,30%,1fr]  lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md`} >
+                  <th className={`text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ${isAvaible ? "pl-4" : "pl-2" }`}>Contributor</th>
+                  <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</th>
+                  <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</th>
+                  <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Salary</th>
+                  <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Frequency</th>
+                  <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Status</th>
+                  <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Compensation Type</th>
+                </tr>
+              </thead>
+                <tbody>
+                    {selectedContributors.map((contributor) => <PayrollItem runmodal={runmodal} isRuning={isAvaible} key={contributor.id} member={contributor} selectedMembers={selectedContributors} setSelectedMembers={setSelectedContributors}  /> )}
+                </tbody>
+            </table>
+          <div className="flex flex-col space-y-3 mt-5">
             <div className="text-2xl font-semibold tracking-wide">
               Review Treasury Impact
             </div>

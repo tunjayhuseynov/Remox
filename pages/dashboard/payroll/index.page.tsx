@@ -153,7 +153,7 @@ export default function DynamicPayroll() {
                                         <div className="font-medium text-sm  text-greylish  text-left pl-10">
                                             ${(amount * GetCoins[currency as keyof Coins].priceUSD).toLocaleString()}
                                         </div>
-                                    </div>})}
+                            </div>})}
                         </div>
                     </div>
                 </div>

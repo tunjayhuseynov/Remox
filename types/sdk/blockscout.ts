@@ -15,7 +15,7 @@ export interface Transactions{
     from: string,
     gas: string,
     gasPrice: string,
-    isError: string,
+    isError?: string,
     gasUsed: string,
     hash: string,
     input: string,

@@ -53,7 +53,7 @@ function WalletList({ item }: { item: IAccountORM }) {
         {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className="!pt-4">
             <DeleteWallet onDisable={setDeleteModal} account={item} />
         </Modal>}
-        <MuiModal open={depositModal}>
+        <MuiModal open={depositModal} onClose={()=> setDepositModal(false)}>
             <Box sx={style}>
                 <Deposit onDisable={setDepositModal} account={item} />
             </Box>

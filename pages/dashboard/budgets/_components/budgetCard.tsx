@@ -11,6 +11,7 @@ import DeleteBudget from './Modals/deleteBudgets';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { BiDotsVerticalRounded } from 'react-icons/bi'
 import { AnimatePresence, motion } from 'framer-motion';
+import EditBudget from './editBudget';
 
 const variants = {
     init: {
@@ -36,6 +37,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
     const dark = useAppSelector(SelectDarkMode)
     const navigate = useRouter()
     const [delBudget, setDelBudget] = useState(false)
+    const [editBudget, setEditBudget] = useState(false)
 
 
     const coin = item.budgetCoins;
@@ -72,7 +74,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                                         <div
                                             className="cursor-pointer  text-sm border-b hover:bg-greylish hover:bg-opacity-5 hover:transition-all  border-greylish border-opacity-20 flex w-full pl-2 py-2 gap-3"
                                             onClick={() => {
-                                                navigate.push(`/dashboard/budgets/edit-budget?parentId=${item.parentId}&id=${item.id}`)
+                                                setEditBudget(true)
                                             }}>
                                             <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-4 h-4" alt="" /> <span>Edit</span>
                                         </div>
@@ -153,6 +155,11 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                 <DeleteBudget onDisable={setDelBudget} budget={item} />
             </Modal>
         }
+
+        <Modal onDisable={setEditBudget} openNotify={editBudget} animatedModal={true}>
+            <EditBudget onDisable={setEditBudget} budget={item} />
+        </Modal>
+
     </>
 }
 
