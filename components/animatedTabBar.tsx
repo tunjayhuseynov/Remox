@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAppSelector } from "redux/hooks";
+import { SelectDarkMode } from "redux/slices/account/selector";
 
 export default function AnimatedTabBar({ data, index, className }: { data: { to: string, text: string, count?: string }[], index: number, className?: string }) {
     const [selected, setSelected] = useState(index);
+    const isDark = useAppSelector(SelectDarkMode)
 
     useEffect(() => setSelected(index), [index])
 
@@ -18,7 +21,7 @@ export default function AnimatedTabBar({ data, index, className }: { data: { to:
                                     <span className="">{item.text}</span>
                                     {i === selected && (<motion.span className="absolute w-full h-[3px] left-0 bg-primary rounded-[2px] bottom-0" layoutId="underline" />)}
                                     {item.count && 
-                                        <div className={`ml-2 absolute inline px-2  ${i === selected ? "selected bg-[#FFD8CC]" : "text-black bg-[#D9D9D9]  "} `}>{item.count}</div>
+                                        <div className={`ml-2 w-[20px] h-[20px] absolute inline rounded-sm text-center   ${i === selected ? `selected ${isDark ? "bg-[#FFBBA6]" : "bg-[#FFD8CC]"} ` : `${isDark ? "bg-[#707070]" : "bg-[#D9D9D9]"} text-black   `} `}>{item.count}</div>
                                     }
                                 </motion.div>
                             </span>

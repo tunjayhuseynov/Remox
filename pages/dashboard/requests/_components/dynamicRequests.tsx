@@ -139,7 +139,7 @@ export default function DynamicRequest({
                 <div
                   className={`font-semibold text-lg text-greylish dark:text-white ${
                     selectedApprovedRequests.length > 0 && "border-r"
-                  }  border-greylish dark:border-[#454545]  border-opacity-10  h-9`}
+                  } dark:border-[#D6D6D6]  border-opacity-10  h-9`}
                 >
                   Total Treasury
                 </div>
@@ -148,12 +148,12 @@ export default function DynamicRequest({
                   <TotalAmount coinList={selectedApprovedRequests} />
                 </div>
                 {selectedApprovedRequests.length > 0 && (
-                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-10 "></div>
                 )}
               </div>
               {selectedApprovedRequests.length > 0 && (
                 <div className=" w-full relative">
-                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-10 "></div>
                   <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
                     Token Allocation
                   </div>
@@ -211,7 +211,7 @@ export default function DynamicRequest({
                     sx={{ "&.Mui-checked": { color: "#ff7348" } }}
                     size="small"
                     className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:
-                    before:w-full checked:before:h-full checked:before:bg-primary checked:before:block"
+                    before:w-full checked:before:h-full checked:before:bg-primary checked:before:block rounded-sm"
                     onChange={(e) => {
                       if (e.target.checked) {
                         (page as RequestStatus) === RequestStatus.approved
@@ -350,7 +350,7 @@ export default function DynamicRequest({
                   <div
                     className={`font-semibold text-lg text-greylish dark:text-white ${
                       selectedApprovedRequests.length > 0 && "border-r"
-                    }  border-greylish dark:border-[#454545]  border-opacity-10  h-9`}
+                    }  dark:border-[#D6D6D6]  border-opacity-10  h-9`}
                   >
                     Total Treasury
                   </div>
@@ -359,12 +359,12 @@ export default function DynamicRequest({
                     <TotalAmount coinList={selectedApprovedRequests} />
                   </div>
                   {selectedApprovedRequests.length > 0 && (
-                    <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                    <div className="h-[1px] border-b dark:border-[#D6D6D6]  border-opacity-10 absolute w-full bottom-10 "></div>
                   )}
                 </div>
                 {selectedApprovedRequests.length > 0 && (
                   <div className=" w-full relative">
-                    <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                    <div className="h-[1px] border-b  dark:border-[#D6D6D6]  border-opacity-10 absolute w-full bottom-10 "></div>
                     <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
                       Token Allocation
                     </div>

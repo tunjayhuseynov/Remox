@@ -5,7 +5,7 @@ const nftItem = ({nft}: {nft: INFT}) => {
 
   return (
     <div className="h-full w-full shadow-custom rounded-xl bg-white dark:bg-darkSecond">
-      <div className="max-w-[34.5rem] rounded-xl">
+      <div className="rounded-xl">
           <img src={nft.imageAddress} alt="" className="w-full h-full rounded-xl" />
       </div>
       <div className="flex justify-between items-center py-3 px-2 border-b dark:border-b-greylish">

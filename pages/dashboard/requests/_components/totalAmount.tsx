@@ -44,7 +44,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
     const totalAmount = useMemo<number>(() => TotalUSDAmount(coinList, GetCoins ), [coinList, currency])
 
     return <>
-        <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r border-greylish dark:border-[#454545]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
+        <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r dark:border-[#D6D6D6]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
             <div className="w-full flex justify-start   items-center">
                 <div className={`font-semibold   text-xl`}>${SetComma(totalBalance)}</div>
             </div>

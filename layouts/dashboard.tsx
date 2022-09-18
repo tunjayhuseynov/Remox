@@ -81,12 +81,11 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>
-                <div className="flex flex-shrink flex-grow ">
-                    <div className="w-[18.45rem]">
+                <div className="grid grid-cols-[20%,80%]">
+                    <div>
                         <Sidebar />
                     </div>
-
-                    <main  key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-12 pt-36`}>
+                    <main  key={router.asPath} className={`relative pr-8 overflow-hidden transition-all pl-2 pt-36`}>
                         {children}
                     </main>
 
@@ -97,3 +96,23 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
 }
 
 //variants={noAnimation ? {} : variants}  exit="exit" animate="enter" initial="hidden" transition={{ type: "linear" }}
+
+{/* <>
+<DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
+    <div id='main' className="flex flex-col min-h-screen overflow-hidden">
+        <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
+            <Navbar></Navbar>
+        </div>
+        <div className="flex flex-shrink flex-grow ">
+            <div className="w-[18.45rem]">
+                <Sidebar />
+            </div>
+
+            <main  key={router.asPath} className={`relative col-span-11 md:col-span-8 flex-grow pr-8 overflow-hidden transition-all pl-12 pt-36`}>
+                {children}
+            </main>
+
+        </div>
+    </div>
+</DashboardContext.Provider>
+</> */}
