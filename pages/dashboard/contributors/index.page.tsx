@@ -16,9 +16,6 @@ const Contributors = () => {
     const [activePage, setActivePage] = useState<string>("Active");
     const members = useAppSelector(SelectContributorMembers)
 
-
-    console.log(contributors);
-    
     const data = [
         {
             to: "/dashboard/contributors",

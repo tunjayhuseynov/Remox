@@ -30,7 +30,7 @@ const RunModal = ({
   return (
     <>
       {selectedContributors.length > 0 ? (
-        <div className="px-5 w-full h-full mx-auto">
+        <div className="flex flex-col w-[92.5%] h-full mx-auto">
           <div className="text-2xl font-semibold pb-5 ">
             Run Payroll
           </div>
@@ -54,11 +54,11 @@ const RunModal = ({
             <div className="text-2xl font-semibold tracking-wide">
               Review Treasury Impact
             </div>
-                <ModalAllocation selectedPayrollList={selectedContributors}/>
+                <ModalAllocation selectedList={selectedContributors}/>
           </div>
           <div className="flex justify-end">
             <Button isLoading={isLoading} onClick={() => executePayroll()}  className={" py-3 mt-10 mb-3 text-base"}>
-              Confirm and Run Payroll
+              Run Payroll 
             </Button>
           </div>
         </div>

@@ -9,27 +9,27 @@ export default {
     },
     addMemberToContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
-            if (contributor !== undefined) {
-                contributor.members.push(action.payload.member);
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if (contributorIndex !== -1) {
+                state.contributors[contributorIndex].members = [...state.contributors[contributorIndex].members, action.payload.member];
             }
         }
     },
     removeMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
-            if (contributor !== undefined) {
-                contributor.members = contributor.members.filter((member) => member.id !== action.payload.member.id);
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if (contributorIndex !== -1) {
+                state.contributors[contributorIndex].members = state.contributors[contributorIndex].members.filter((member) => member.id !== action.payload.member.id);
             }
         }
     },
     updateMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
-            if (contributor !== undefined) {
-                let selectedMemberIndex = contributor.members.findIndex((member) => member.id === action.payload.member.id);
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if (contributorIndex !== -1) {
+                let selectedMemberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
                 if (selectedMemberIndex !== -1) {
-                   contributor.members[selectedMemberIndex] = action.payload.member; 
+                   state.contributors[contributorIndex].members[selectedMemberIndex] = action.payload.member; 
                 }
             }
         }

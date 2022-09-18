@@ -78,7 +78,6 @@ export default function DynamicPayroll() {
                   coin: coin.symbol,
                   recipient: address,
                 });
-
             }
           };
     
