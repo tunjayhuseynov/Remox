@@ -14,14 +14,18 @@ interface IProps {
     selectedContributors: IMember[];
     runmodal: boolean;
     isAvaible:boolean;
-    setSelectedContributors: Dispatch<SetStateAction<IMember[]>>
+    setSelectedContributors: Dispatch<SetStateAction<IMember[]>>,
+    executePayroll: (...type: any) => void,
+    isLoading:boolean
 }
 
 const RunModal = ({
     selectedContributors,
     runmodal,
     isAvaible,
-    setSelectedContributors
+    setSelectedContributors,
+    executePayroll,
+    isLoading
 } : IProps) => {
   return (
     <>
@@ -52,9 +56,11 @@ const RunModal = ({
             </div>
                 <ModalAllocation selectedPayrollList={selectedContributors}/>
           </div>
-          <Button  className={"w-full py-3 mt-10 mb-3 text-base"}>
-            Confirm and Run Payroll
-          </Button>
+          <div className="flex justify-end">
+            <Button isLoading={isLoading} onClick={() => executePayroll()}  className={" py-3 mt-10 mb-3 text-base"}>
+              Confirm and Run Payroll
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="text-primary text-2xl font-semibold pt-12  px-2">

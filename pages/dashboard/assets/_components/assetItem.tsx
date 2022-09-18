@@ -8,7 +8,7 @@ import { IToken } from "../index.page";
 
 const AssetItem = ({ asset }: { asset: IToken }) => {
   return (
-    <div className="py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond mt-5  rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3">
+    <div className="py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond mt-3  rounded-md border-opacity-10 hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full px-3">
       <div className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,27%,8%]  xl:grid-cols-[25%,20%,20%,29%,6%] ">
         <div className="flex space-x-3 items-center">
           <div>

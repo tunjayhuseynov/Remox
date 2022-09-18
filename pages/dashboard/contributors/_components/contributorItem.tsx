@@ -57,7 +57,7 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
         <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[15%,13%,14%,16%,15%,20%,7%] text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
             <th className="pl-3 items-start">
                 <div className=" flex items-center space-x-1" >
-                    {member.image !== null ? <img src={`/icons/profilePhoto/${member.image}`} alt="" className="rounded-full border w-10 object-cover h-10" /> : <Avatar name={member.first} surname={member.last} />}
+                    {member.image !== null ? <img src={member.image.imageUrl} alt="" className="rounded-full border w-10 object-cover h-10" /> : <Avatar name={member.first} surname={member.last} />}
                     <div className=" text-base text-left">
                         {member.name}
                     </div>

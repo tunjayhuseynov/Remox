@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function AnimatedTabBar({ data, index, className }: { data: { to: string, text: string }[], index: number, className?: string }) {
+export default function AnimatedTabBar({ data, index, className }: { data: { to: string, text: string, count?: string }[], index: number, className?: string }) {
     const [selected, setSelected] = useState(index);
 
     useEffect(() => setSelected(index), [index])
@@ -17,6 +17,9 @@ export default function AnimatedTabBar({ data, index, className }: { data: { to:
                                 <motion.div className={`${className} transition-all hover:!text-primary hover:transition-all gap-x-3  cursor-pointer pb-2 text-base font-bold  tracking-widertle relative  ${i === selected ? "selected text-primary" : "text-[#aaaaaa]   dark:text-[#aaaaaa] "}`} onClick={() => setSelected(i)} >
                                     <span className="">{item.text}</span>
                                     {i === selected && (<motion.span className="absolute w-full h-[3px] left-0 bg-primary rounded-[2px] bottom-0" layoutId="underline" />)}
+                                    {item.count && 
+                                        <div className={`ml-2 absolute inline px-2  ${i === selected ? "selected bg-[#FFD8CC]" : "text-black bg-[#D9D9D9]  "} `}>{item.count}</div>
+                                    }
                                 </motion.div>
                             </span>
                         </Link>

@@ -8,14 +8,14 @@ import { v4 as uuidv4 } from "uuid";
 import { GetTime } from "utils";
 import { addContributor , SelectStorage } from "redux/slices/account/remoxData";
 import { useRouter } from 'next/router';
+import InputAdornment from '@mui/material/InputAdornment';
 import { TextField } from "@mui/material";
+import { MdDone} from "react-icons/md";
+import IconTextField from "components/IconTextField";
 
-export interface IFormInput {
-    name: string;
-}
 const AddTeams = () => {
     const navigate = useRouter()
-    const { register, handleSubmit } = useForm<IFormInput>();
+    const [workstreamName, setWorkstreamName] = useState<string>("");
     const { addTeam, isLoading } = useContributors()
     const [error, setError] = useState(false)
     const storage = useAppSelector(SelectStorage);  
@@ -23,14 +23,17 @@ const AddTeams = () => {
 
     
 
-    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-        
-        if (data.name.trim()) {
+    const submit = async () => {
+        if(workstreamName.length == 0 ) {
+            setError(true)
+            return
+        }
+        if (workstreamName.trim()) {
             try {
                 setError(false)
                 const team : IContributor = {
                     id: uuidv4(),
-                    name: data.name.trim(),
+                    name: workstreamName,
                     members: [],
                     timestamp: GetTime(),
                     userId: storage!.signType === "individual" ? storage!.individual.id : storage!.organization!.id,
@@ -50,16 +53,30 @@ const AddTeams = () => {
     {/* <img src="/icons/cross_greylish.png" alt="" /> */}
     <span className="text-4xl pb-1">&#171;</span> Back
 </button>
-     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
+     <div className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
         <div className="text-2xl self-center pt-5 font-semibold ">Enter Your Workstream</div>
         <div className="flex flex-col w-[85%]">
 
             <div>
-                <TextField
+                {/* <TextField
                     label="Workstream Name"
                     {...register("name", {required: true})}
                     type="text"
-                    className="border pl-3 w-full rounded-xl h-10 py-6 text-lg outline-none "
+                    InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="end">
+                            <MdDone/>
+                          </InputAdornment>
+                        ),
+                    }}
+                    className="border pl-3 w-full rounded-xl h-10 py-6 text-lg \ "
+                /> */}
+                <IconTextField
+                    label="Workstream Name"
+                    onChange={(e) => setWorkstreamName(e.target.value)}
+                    value={workstreamName}
+                    iconEnd={<MdDone type="submit" className="cursor-pointer rounded-full bg-primary h-7 w-7 p-1 text-white "/>}
+                    className={`border pl-3 w-full rounded-xl h-10 py-6 text-lg ${error ? "animate__animated animate__shakeX" : ""} `}
                 />
             </div>
             {error && <div className="text-red-600"> Something went wrong</div>}
@@ -68,11 +85,8 @@ const AddTeams = () => {
             <Button version="second" onClick={() => navigate.back()} className="px-14 !py-2 font-light">
                 Close
             </Button>
-            <Button type="submit" isLoading={isLoading} className="px-14 !py-2 font-light">
-                Save
-            </Button>
         </div>
-    </form>
+    </div>
     </div>
 }
 

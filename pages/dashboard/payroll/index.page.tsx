@@ -12,6 +12,7 @@ import PayrollItem from './_components/PayrollItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { Coins } from 'types';
 import RunModal from './_components/modalpay/runModal';
+import useLoading from 'hooks/useLoading';
 
 
 export default function DynamicPayroll() {
@@ -33,7 +34,7 @@ export default function DynamicPayroll() {
 
     const totalAmount =  TotalUSDAmount(contributors, GetCoins);
 
-    const confirmRequest = async () => {
+    const ExecutePayroll = async () => {
         try {
           let inputs: IPaymentInput[] = [];
           const members = [...selectedContributors];
@@ -86,12 +87,16 @@ export default function DynamicPayroll() {
           })
     
           inputs = [];
+          setSelectedContributors([]);
+          setIsAviable(false)
           setRunmodal(false)
         } catch (error) {
           console.log(error);
           throw new Error(error as any);
         }
-      };
+    }
+    
+    const [isLoading, setExecuting] = useLoading(ExecutePayroll);
 
     const totalPrice: [{ [name: string]: number }, number] = useMemo(() => {
       let res: {[name: string]: number} = {};
@@ -107,6 +112,15 @@ export default function DynamicPayroll() {
         } else{
           res[coin1?.symbol ?? ""] = +amount
         }
+        if(contributor.secondaryAmount){
+          const secondaryAmount = contributor.secondaryAmount
+          total += +secondaryAmount * (coin2?.priceUSD ?? 0)
+          if(res[coin2?.symbol ?? ""]){
+            res[coin2?.symbol ?? ""] += +secondaryAmount
+          } else{
+            res[coin2?.symbol ?? ""] = +secondaryAmount
+          }
+        }
       }
 
 
@@ -116,7 +130,7 @@ export default function DynamicPayroll() {
 
     return <div className="w-full h-full flex flex-col space-y-4">
         {<Modal onDisable={setRunmodal} openNotify={runmodal}  >    
-            <RunModal selectedContributors={selectedContributors} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} />
+            <RunModal selectedContributors={selectedContributors} executePayroll={setExecuting} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} isLoading={isLoading} />
         </Modal>}
         
         <>

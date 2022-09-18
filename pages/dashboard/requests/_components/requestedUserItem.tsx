@@ -1,28 +1,28 @@
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { Dispatch, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AltCoins, Coins } from "types";
+import { AltCoins } from "types";
 import { AddressReducer, SetComma } from "utils";
 import dateFormat from "dateformat";
 import Modal from "components/general/Modal";
 import Button from "components/button";
 import useRequest from "hooks/useRequest";
-import { TotalUSDAmount } from "./totalAmount";
+import { FaChevronCircleRight } from "react-icons/fa";
 import { useWalletKit } from "hooks";
 import {
   addRejectedRequest,
-  addApprovedRequest,
   removePendingRequest,
-  SelectCurrencies,
-  SelectBalance,
+  removeApprovedRequest,
+  SelectDarkMode,
+  addApprovedRequest,
 } from "redux/slices/account/remoxData";
-import { useAppDispatch } from "redux/hooks";
 import { Checkbox } from "@mui/material";
 import Avatar from "components/avatar";
-import { SelectID } from "redux/slices/account/remoxData";
+import { SelectID, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
 import { useAppSelector } from "redux/hooks";
 import useLoading from "hooks/useLoading";
 import { AiOutlineClose } from "react-icons/ai";
+import { IPaymentInput } from "pages/api/payments/send/index.api";
 
 const RequestedUserItem = ({
   request,
@@ -45,12 +45,14 @@ const RequestedUserItem = ({
   setSelectedApprovedRequests: Dispatch<IRequest[]>;
   payment?: boolean;
 }) => {
+  const isDark = useAppSelector(SelectDarkMode)
   const [modal, setModal] = useState(false);
   const [detect, setDetect] = useState(true);
   const divRef = useRef<HTMLTableRowElement>(null);
+  const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget);
   const dispatch = useDispatch();
-  const { rejectRequest } = useRequest();
-  const { GetCoins } = useWalletKit();
+  const { rejectRequest, approveRequest, removeRequest } = useRequest();
+  const { GetCoins, SendTransaction } = useWalletKit();
   const userId = useAppSelector(SelectID);
 
   useEffect(() => {
@@ -62,7 +64,11 @@ const RequestedUserItem = ({
   const Reject = async () => {
     try {
       await rejectRequest(request, userId?.toString() ?? "");
-      dispatch(removePendingRequest(request.id));
+      if(request.status === RequestStatus.pending){
+        dispatch(removePendingRequest(request.id));
+      } else if(request.status === RequestStatus.approved){
+        dispatch(removeApprovedRequest(request.id));
+      }
       const newRequest = { ...request, status: RequestStatus.rejected };
       dispatch(addRejectedRequest(newRequest));
     } catch (error: any) {
@@ -71,7 +77,48 @@ const RequestedUserItem = ({
     setModal(false);
   };
 
-  const [isLoading, setRejecting] = useLoading(Reject);
+  const Approve = async () => {
+    try{
+      await approveRequest(request, userId?.toString() ?? "");
+      dispatch(removePendingRequest(request.id));
+      const newRequest = { ...request, status: RequestStatus.approved };
+      dispatch( addApprovedRequest(newRequest));
+    } catch(error: any){
+      console.error(error.message);
+    }
+    setModal(false)
+  }
+
+  const Execute = async () => {
+    let inputs: IPaymentInput[] = [
+      {
+        amount: Number(request.amount),
+        coin: coin1.symbol,
+        recipient: request.address,
+      }
+    ]
+
+    if(request.secondaryAmount && request.secondaryCurrency){
+      inputs.push({
+        amount: Number(request.secondaryAmount),
+        coin: coin2?.symbol ?? "",
+        recipient: request.address,
+      })
+    }
+
+    await SendTransaction(accountAndBudget.account!, inputs, {
+      budget: accountAndBudget.budget,
+    })
+
+    
+    dispatch(removeApprovedRequest(request.id));
+    await removeRequest(request, userId ?? "")
+
+  }
+
+  const [isRejecting, setRejecting] = useLoading(Reject);
+  const [isApproving, setApproving] = useLoading(Approve);
+  const [isExecuting, setExecuting] = useLoading(Execute);
 
   return (
     <>
@@ -137,7 +184,7 @@ const RequestedUserItem = ({
                     }
                   }}
                 />
-              ))) : <span className="bg-[#EF2727] rounded-sm"><AiOutlineClose/></span> : "" }
+              ))) : <span className="bg-[#EF2727] text-white rounded-sm"><AiOutlineClose/></span> : "" }
             {!payment && request.status === RequestStatus.rejected && (
               <img src="/icons/request/close.png" className="mr-2" />
             )}
@@ -283,193 +330,203 @@ const RequestedUserItem = ({
         </td>
         <td className="flex justify-end cursor-pointer items-center md:pr-0 ">
           {request.status !== RequestStatus.rejected && !payment && (
-            <div
-              onClick={() => setModal(true)}
-              className={`text-primary text-center mr-7 ${
-                detect
-                  ? "px-5 max-h-[5rem] min-w-[8.5rem] border rounded-md border-primary hover:bg-primary hover:text-white"
-                  : "text-sm hover:text-black dark:hover:text-white "
-              }  py-1 transition-colors duration-300`}
-            >
-              View Details
-            </div>
+            <FaChevronCircleRight onClick={() => setModal(true)} className="mr-5  text-primary text-xl" />
           )}
         </td>
       </tr>
-      {modal && (
-        <Modal onDisable={setModal} animatedModal={false} disableX={true}>
-          <div className="flex flex-col space-y-4 min-w-[30vw]">
-            <div className="font-semibold">Overview</div>
-            <div className="flex flex-col space-y-2">
-              <div className="flex justify-between border-b pb-8">
-                <div className="text-greylish">Status</div>
-                <div className="flex gap-x-2 items-center ">
-                  <span className={`w-2 h-2 rounded-full ${request.status === RequestStatus.approved ? "bg-green-500" : request.status === RequestStatus.pending ? "bg-primary" : "bg-red-500"} `}></span>
-                  {request?.status}
-                </div>
-              </div>
-            </div>
-            <div className="font-semibold">Payee information</div>
-            <div className="flex flex-col space-y-5">
-              {!!request?.name && (
-                <div className="flex justify-between">
-                  <div className="text-greylish">Full Name</div>
-                  <div>{`${request?.name} ${request?.surname}`}</div>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <div className="text-greylish">Wallet Adress</div>
-                <div className="truncate">
-                  {request?.address !== undefined &&
-                    AddressReducer(request?.address)}
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-greylish">Requesting Amount</div>
-                <div className="flex flex-col space-y-3">
-                  <div>
-                    <div className="flex gap-x-5 justify-between">
-                      <div className="flex gap-x-2 items-center">
-                        <span className="w-2 h-2 rounded-full bg-primary"></span>
-                        {request?.amount}
-                      </div>
-                      <div className="flex gap-x-2 items-center">
-                        {!!request?.currency && (
-                          <div className="flex items-center">
-                            {request.usdBase ? (
-                              <span className="mr-2">USD as</span>
-                            ) : (
-                              ""
-                            )}
-                            <img
-                              src={coin1!.logoURI}
-                              className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                            />
-                          </div>
-                        )}
-                        {coin1 ? (
-                          <span>{coin1!.name}</span>
-                        ) : (
-                          "Token not provided"
-                        )}
-                      </div>
+        <Modal onDisable={setModal} openNotify={modal}>
+          <div className="w-full flex justify-center">
+            <div className="flex flex-col space-y-4 w-[40%] ">
+              <div className={` ${!isDark ? "border-2 border-solid border-[#FFF]" : ""}  p-5`}>
+                <div className="font-semibold text-xl">Overview</div>
+                <div className="flex flex-col space-y-2 mt-5">
+                  <div className="flex justify-between border-b pb-8">
+                    <div className="text-greylish">Status</div>
+                    <div className="flex gap-x-2 items-center ">
+                      <span className={`w-2 h-2 rounded-full ${request.status === RequestStatus.approved ? "bg-green-500" : request.status === RequestStatus.pending ? "bg-primary" : "bg-red-500"} `}></span>
+                      {request?.status}
                     </div>
                   </div>
-                  {!!request?.secondaryCurrency && !!request?.secondaryAmount && (
-                    <div>
-                      <div className="flex gap-x-5 justify-between">
-                        <div className="flex gap-x-2 items-center">
-                          <span className="w-2 h-2 rounded-full bg-primary"></span>
-                          {request?.secondaryAmount}
+                </div>
+                <div className="font-semibold text-xl my-4">Payee information</div>
+                <div className="flex flex-col space-y-3">
+                  {!!request?.name && (
+                    <div className="flex justify-between">
+                      <div className="text-greylish">Full Name</div>
+                      <div>{`${request?.name} ${request?.surname}`}</div>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <div className="text-greylish">Wallet Adress</div>
+                    <div className="truncate">
+                      {request?.address !== undefined &&
+                        AddressReducer(request?.address)}
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="text-greylish">Requesting Amount</div>
+                    <div className="flex flex-col space-y-3">
+                      <div>
+                        <div className="flex gap-x-5 justify-between">
+                          <div className="flex gap-x-2 items-center">
+                            <span className="w-2 h-2 rounded-full bg-primary"></span>
+                            {request?.amount}
+                          </div>
+                          <div className="flex gap-x-2 items-center">
+                            {!!request?.currency && (
+                              <div className="flex items-center">
+                                {request.usdBase ? (
+                                  <span className="mr-2">USD as</span>
+                                ) : (
+                                  ""
+                                )}
+                                <img
+                                  src={coin1!.logoURI}
+                                  className="rounded-xl w-[1.25rem] h-[1.25rem]"
+                                />
+                              </div>
+                            )}
+                            {coin1 ? (
+                              <span>{coin1!.name}</span>
+                            ) : (
+                              "Token not provided"
+                            )}
+                          </div>
                         </div>
-                        <div className="flex gap-x-2 items-center">
-                          {coin2 ? (
-                            <div className="flex items-center">
-                              {request.usdBase ? (
-                                <span className="mr-2">USD as</span>
+                      </div>
+                      {!!request?.secondaryCurrency && !!request?.secondaryAmount && (
+                        <div>
+                          <div className="flex gap-x-5 justify-between">
+                            <div className="flex gap-x-2 items-center">
+                              <span className="w-2 h-2 rounded-full bg-primary"></span>
+                              {request?.secondaryAmount}
+                            </div>
+                            <div className="flex gap-x-2 items-center">
+                              {coin2 ? (
+                                <div className="flex items-center">
+                                  {request.usdBase ? (
+                                    <span className="mr-2">USD as</span>
+                                  ) : (
+                                    ""
+                                  )}
+                                  <img
+                                    src={coin2!.logoURI}
+                                    className="rounded-xl w-[1.25rem] h-[1.25rem]"
+                                  />
+                                </div>
                               ) : (
                                 ""
                               )}
-                              <img
-                                src={coin2!.logoURI}
-                                className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                              />
+                              {coin2 ? <span>{coin2.name}</span> : ""}
                             </div>
-                          ) : (
-                            ""
-                          )}
-                          {coin2 ? <span>{coin2.name}</span> : ""}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                  <div className="flex justify-between border-b pb-8">
+                    <div className="text-greylish">Total</div>
+                    <div>
+                      {!request.usdBase
+                        ? request?.secondaryAmount && coin2
+                          ? (
+                              +request?.secondaryAmount * coin2?.priceUSD +
+                              +request?.amount * coin1!.priceUSD
+                            ).toFixed(4)
+                          : (+request?.amount * coin1!.priceUSD).toFixed(4)
+                        : request?.secondaryAmount
+                        ? request.amount + request.secondaryAmount
+                        : request.amount}{" "}
+                      USD
+                    </div>
+                  </div>
+                </div>
+                <div className="font-semibold text-xl my-4">Details</div>
+                <div className="flex flex-col space-y-4 mt-5">
+                  <div className="flex justify-between">
+                    <div className="text-greylish">Request Type</div>
+                    <div>{request?.requestType}</div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="text-greylish">Name of service</div>
+                    <div>{request?.nameOfService}</div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="text-greylish">Date of service</div>
+                    <div>
+                      {dateFormat(
+                        new Date(request!.serviceDate * 1000),
+                        `mmm dd, yyyy`
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="text-greylish">
+                      Attach links <span className="text-black">(Optional)</span>
+                    </div>
+                    <div>
+                      {request?.attachLink ? (
+                        <a
+                          href={request?.attachLink}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          {request?.attachLink}
+                        </a>
+                      ) : (
+                        "No link provided"
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="text-greylish">
+                      Upload receipt or invoice{" "}
+                      <span className="text-black block">(Optional)</span>
+                    </div>
+                    <div>
+                      {request?.uploadedLink ? (
+                        <a
+                          href={request?.uploadedLink}
+                          rel="noreferrer"
+                          target="_blank"
+                        ></a>
+                      ) : (
+                        "No file uploaded"
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-between border-b pb-8">
-                <div className="text-greylish">Total</div>
-                <div>
-                  {!request.usdBase
-                    ? request?.secondaryAmount && coin2
-                      ? (
-                          +request?.secondaryAmount * coin2?.priceUSD +
-                          +request?.amount * coin1!.priceUSD
-                        ).toFixed(4)
-                      : (+request?.amount * coin1!.priceUSD).toFixed(4)
-                    : request?.secondaryAmount
-                    ? request.amount + request.secondaryAmount
-                    : request.amount}{" "}
-                  USD
-                </div>
-              </div>
-            </div>
-            <div className="font-semibold">Details</div>
-            <div className="flex flex-col space-y-4">
-              <div className="flex justify-between">
-                <div className="text-greylish">Request Type</div>
-                <div>{request?.requestType}</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-greylish">Name of service</div>
-                <div>{request?.nameOfService}</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-greylish">Date of service</div>
-                <div>
-                  {dateFormat(
-                    new Date(request!.serviceDate * 1000),
-                    `mmm dd, yyyy`
-                  )}
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-greylish">
-                  Attach links <span className="text-black">(Optional)</span>
-                </div>
-                <div>
-                  {request?.attachLink ? (
-                    <a
-                      href={request?.attachLink}
-                      rel="noreferrer"
-                      target="_blank"
+                {request.status === RequestStatus.pending  ? (
+                  <div className="flex justify-center pt-5 sm:pt-0">
+                    <Button
+                    version="second"
+                    className={`w-[9.375rem] text-lg sm:w-full ${isAllowed? "mr-2" : ""} !py `}
+                    isLoading={isRejecting}
+                    onClick={() => setRejecting()}
+                  >
+                    Reject Request
+                  </Button>
+                  {isAllowed && 
+                    <Button
+                      className="w-[9.375rem] text-lg sm:w-full !py-2 ml-2"
+                        isLoading={isApproving}
+                        onClick={() => setApproving()}
                     >
-                      {request?.attachLink}
-                    </a>
-                  ) : (
-                    "No link provided"
-                  )}
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-greylish">
-                  Upload receipt or invoice{" "}
-                  <span className="text-black block">(Optional)</span>
-                </div>
-                <div>
-                  {request?.uploadedLink ? (
-                    <a
-                      href={request?.uploadedLink}
-                      rel="noreferrer"
-                      target="_blank"
-                    ></a>
-                  ) : (
-                    "No file uploaded"
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-center pt-5 sm:pt-0">
-                <Button
-                  version="second"
-                  className="w-[9.375rem] text-lg sm:w-full !py-2"
-                  isLoading={isLoading}
-                  onClick={() => setRejecting()}
-                >
-                  Reject Request
-                </Button>
+                      Approve Request
+                    </Button>}
+                  </div>) : <div className="flex justify-end pt-5 sm:pt-0">
+                    <Button
+                      className=" text-lg !py-2"
+                        isLoading={isExecuting}
+                        onClick={() => setExecuting()}
+                    >
+                      Confirm & Submit
+                    </Button>
+                  </div> } 
             </div>
           </div>
         </Modal>
-      )}
     </>
   );
 };
