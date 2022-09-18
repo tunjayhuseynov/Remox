@@ -8,7 +8,7 @@ import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration, 
 import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
-import { useAppSelector } from "redux/hooks";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags, SelectTransactions } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import useAsyncEffect from "hooks/useAsyncEffect";
@@ -22,6 +22,9 @@ import Filter from "./_components/Filter";
 import { DateObject } from "react-multi-date-picker";
 import { AnimatePresence, motion } from "framer-motion";
 import { DecimalConverter } from "utils/api";
+import { Tx_Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh/txRefresh";
+import useLoading from "hooks/useLoading";
+import Loader from "components/Loader";
 
 
 const Transactions = () => {
@@ -31,7 +34,8 @@ const Transactions = () => {
     const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
 
-    const { GetCoins, fromMinScale, Address, blockchain } = useWalletKit()
+    const dispatch = useAppDispatch()
+    const { Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
     const [isOpen, setOpen] = useState(false)
 
@@ -59,6 +63,12 @@ const Transactions = () => {
     useEffect(() => {
         setPagination(STABLE_INDEX)
     }, [date, selectedTags, selectedBudgets, selectedAccounts, selectedDirection, specificAmount, minAmount, maxAmount])
+
+    const refreshFn = async () => {
+        await dispatch(Tx_Refresh_Data_Thunk())
+    }
+
+    const [refreshLoading, refresh] = useLoading(refreshFn)
 
 
     const filterFn = (c: (IFormattedTransaction | ITransactionMultisig)) => {
@@ -244,12 +254,12 @@ const Transactions = () => {
                                     <th className="py-3 self-center text-left">Labels</th>
                                     <th className="py-3 self-center text-left">Signatures</th>
                                     <th className="py-3 flex justify-start">
-                                        <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
+                                        <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                             <div>
                                                 <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />
                                             </div>
                                             <span className="tracking-wider">
-                                                Refresh
+                                                {refreshLoading ? <><Loader /> Refreshing</> : "Refresh"}
                                             </span>
                                         </div>
                                     </th>

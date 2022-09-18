@@ -18,9 +18,10 @@ export interface MultisigOwners {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<MultisigOwners>) {
 
     try {
-        const { blockchain: blockchainName, address: multisigAddress } = req.query as { blockchain: BlockchainType["name"], address: string };
+        const { blockchain: blockchainName, address: multisigAddress, providerName } = req.query as { blockchain: BlockchainType["name"], address: string, providerName: string };
 
         const blockchain = Blockchains.find((blch: BlockchainType) => blch.name === blockchainName);
+        if (!blockchain) throw new Error("Blockchain not found")
 
         if (blockchainName === 'solana') {
             const pb = new PublicKey(multisigAddress)
@@ -38,19 +39,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
             throw new Error("Wallet has no data")
         }
-        else if (blockchainName === "celo") {
+        else if (providerName === "Celo Terminal") {
             const provider = new ethers.providers.JsonRpcProvider("https://forno.celo.org", {
                 chainId: 42220,
                 name: "forno",
             })
 
-            
+
             const contract = new Contract(multisigAddress, CeloTerminal.abi, provider)
 
             const owners = await contract.getOwners();
             return res.status(200).json({ owners: owners })
-        } else if(blockchainName.includes("evm")){
-            const provider = new ethers.providers.JsonRpcProvider(blockchain!.rpcUrl);
+
+        } else if (providerName === "GnosisSafe") {
+            const provider = new ethers.providers.JsonRpcProvider(blockchain.rpcUrl);
 
 
             const contract = new Contract(multisigAddress, GnosisABI, provider)

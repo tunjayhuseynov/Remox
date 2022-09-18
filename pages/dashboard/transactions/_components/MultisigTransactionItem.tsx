@@ -41,7 +41,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const confirmFn = async () => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await confirmTransaction(tx.contractAddress, tx.hashOrIndex)
+        await confirmTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
         dispatch(addConfirmation({
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
@@ -51,7 +51,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const executeFn = async () => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await executeTransaction(tx.contractAddress, tx.hashOrIndex)
+        await executeTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
         dispatch(changeToExecuted({
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
@@ -118,11 +118,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     <div className="flex items-center space-x-3">
-                        <div className="h-full aspect-square bg-gray-500 rounded-full border-2 self-center relative p-3">
-                            <span className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
-                                {(account?.image?.imageUrl && typeof account.image.imageUrl === "string") || account?.image?.nftUrl ?
-                                    <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} /> : account?.name.slice(0, 2).toUpperCase()}
-                            </span>
+                        <div className={`w-10 h-10 bg-gray-500 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
+                            {(account?.image?.imageUrl) || account?.image?.nftUrl ?
+                                <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} className="w-full h-full rounded-xl" /> :
+                                <div className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
+                                    {account?.name.slice(0, 2).toUpperCase()}
+                                </div>
+                            }
                         </div>
                         <div className="text-sm truncate font-semibold pr-5">
                             {account?.name ?? "N/A"}

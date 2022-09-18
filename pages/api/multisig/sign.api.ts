@@ -18,7 +18,7 @@ export interface IMultisigThreshold {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IMultisigThreshold>) {
     try {
-        const { blockchain, address: multisigAddress } = req.query as { blockchain: BlockchainType["name"], address: string };
+        const { blockchain, address: multisigAddress, providerName } = req.query as { blockchain: BlockchainType["name"], address: string, providerName: string };
 
         const Blockchain = Blockchains.find((b) => b.name === blockchain);
 
@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
             throw new Error("Wallet has no data")
         }
-        else if (blockchain === "celo") {
+        else if (providerName === "Celo Terminal") {
             const provider = new ethers.providers.JsonRpcProvider("https://forno.celo.org", {
                 chainId: 42220,
                 name: "forno",
@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const sign = (await contract.required()).toNumber();
             const internalSign = (await contract.internalRequired()).toNumber();
             return res.status(200).json({ sign: sign, internalSign: internalSign })
-        } else if(blockchain.includes("evm")){
+        } else if(providerName === "GnosisSafe"){
             const provider = new ethers.providers.JsonRpcProvider(Blockchain?.rpcUrl);
 
             const contract = new Contract(multisigAddress, GnosisABI, provider)

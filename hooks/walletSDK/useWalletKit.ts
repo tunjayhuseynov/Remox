@@ -32,7 +32,7 @@ import { AddTransactionToTag } from "redux/slices/account/thunks/tags";
 import { Add_Tx_To_Budget_Thunk } from "redux/slices/account/thunks/budgetThunks/budget";
 import { Add_Tx_To_Subbudget_Thunk } from "redux/slices/account/thunks/budgetThunks/subbudget";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
-import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh";
+import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh/refresh";
 import { ethers } from "ethers";
 import useWeb3Connector from "hooks/useWeb3Connector";
 import { Blockchains, BlockchainType } from "types/blockchains";

@@ -95,12 +95,12 @@ function NewWalletModal() {
                     type: type ?? "image"
                 };
             }
-
-
+   
             const contract = (await axios.get<{ owners: string[] }>("/api/multisig/owners", {
                 params: {
                     blockchain: blockchain.name,
                     address: data.address,
+                    providerName: selectedWalletProvider.name
                 }
             })).data;
 
@@ -135,11 +135,11 @@ function NewWalletModal() {
                     individual: (account as IIndividual)
                 })).unwrap()
             }
-
+            ToastRun(<>Account is added successfully</>, "success")
             navigate.back();
         } catch (error) {
             console.error(error)
-            ToastRun(<>Please, be sure your address belongs to a multisig account</>, "error")
+            ToastRun(<>Please, be sure you are an owner</>, "error")
         }
     }
 

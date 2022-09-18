@@ -69,7 +69,7 @@ export const Add_Tx_To_Subbudget_Thunk = createAsyncThunk<void, ISubbudgetORMand
     const currency = currencies[tx.token];
 
     if (tx.contractType === "multi") {
-        const { data, status } = await axios.get<ITransactionMultisig | IMultisigSafeTransaction>("/api/multisig/tx", {
+        const { data, status } = await axios.get<ITransactionMultisig>("/api/multisig/tx", {
             params: {
                 id: (api.getState() as RootState).remoxData.providerID,
                 blockchain: (api.getState() as RootState).remoxData.blockchain.name,
@@ -77,6 +77,7 @@ export const Add_Tx_To_Subbudget_Thunk = createAsyncThunk<void, ISubbudgetORMand
                 address: tx.contractAddress,
                 Skip: 0,
                 name: tx.protocol,
+                providerName: tx.protocol
             }
         })
         if (status == 200) {

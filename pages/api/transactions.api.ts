@@ -247,6 +247,7 @@ const ParseTxs = async (
           return +o.value
         }
         );
+
         if (best) acc.push(best);
         return acc;
       },
@@ -261,7 +262,8 @@ const ParseTxs = async (
           tags,
           Coins: coins,
           blockchain,
-          address
+          address,
+          provider: ""
         });
         if (formatted && formatted.method) {
           FormattedTransaction.push({
@@ -275,7 +277,7 @@ const ParseTxs = async (
         }
 
       } else if (blockchain.name === "celo") {
-        const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain, address });
+        const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain, address, provider: "" });
 
         if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0
           || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn)

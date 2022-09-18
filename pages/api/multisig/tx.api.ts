@@ -37,6 +37,7 @@ import { IMultisigThreshold } from "./sign.api";
 import { IBudgetORM } from "../budget/index.api";
 import Web3 from 'web3'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
+import { MultisigOwners } from "./owners.api";
 
 export default async function handler(
     req: NextApiRequest,
@@ -58,7 +59,7 @@ export default async function handler(
             address: string;
             Skip: string;
             name: string;
-            providerName?: string;
+            providerName: string;
         };
         const skip = +Skip;
 
@@ -259,21 +260,28 @@ export default async function handler(
             const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/multisig-transactions/${index}`;
             const response = await axios.get(api);
             const transactionsData = response.data;
-            const { data: sign } = await axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
+
+            const { data } = await axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
                 params: {
                     blockchain,
                     address: multisigAddress,
+                    providerName: providerName
                 }
             })
 
-            const data = parseSafeTransaction(transactionsData, Coins, blockchain, multisigAddress, sign.sign, tags?.tags ?? [])
-            if (data) {
-                res.status(200).json(data);
-            } else {
-                res.status(404).json({ message: "not found" } as any);
-            }
+            const { data: ownerData } = await axios.get<MultisigOwners>(BASE_URL + "/api/multisig/owners", {
+                params: {
+                    blockchain,
+                    address: multisigAddress,
+                    providerName: providerName
+                }
+            })
+
+            const safeTxs = await Promise.all(transactionsData.results.map((tx: any) => parseSafeTransaction(tx, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])))
+            transactionArray.push(...safeTxs);
         }
 
+        return transactionArray;
 
     } catch (e: any) {
         console.error(e);

@@ -129,7 +129,7 @@ function NewBudgets() {
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
 
-    return <div className="w-full relative pt-20">
+    return <div className="w-full relative pt-20 pb-10">
         <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
             {/* <img src="/icons/cross_greylish.png" alt="" /> */}
             <span className="text-4xl pb-1">&#171;</span> Back

@@ -29,7 +29,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "../tags/index.api";
 import axios from "axios";
-import { AltCoins, Coins, CoinsName } from "types";
+import { AltCoins, Coins, CoinsName, GnosisTransaction } from "types";
 import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { IMultisigThreshold } from "./sign.api";
@@ -38,6 +38,7 @@ import { IBudgetORM } from "../budget/index.api";
 import Web3 from 'web3'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import axiosRetry from "axios-retry";
+import { MultisigOwners } from "./owners.api";
 
 export default async function handler(
   req: NextApiRequest,
@@ -72,8 +73,6 @@ export default async function handler(
 
 
     let transactionArray: ITransactionMultisig[] = [];
-
-    let safeTransactions: IMultisigSafeTransaction[] = [];
 
     const CoinsReq = await adminApp
       .firestore()
@@ -198,7 +197,7 @@ export default async function handler(
     //         }
     //     }
     // }
-    if (blockchain === "celo") {
+    if (blockchain === "celo" && providerName === "Celo Terminal") {
       const web3 = new Web3(Blockchain.rpcUrl);
 
       const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress);
@@ -255,30 +254,34 @@ export default async function handler(
       );
       transactionArray.push(...(list.filter(s => s.tx && s.tx.method)));
     }
-    else if (blockchain.includes("evm") && name === "GnosisSafe") {
-      const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/safes/${multisigAddress}/multisig-transactions/`;
-      const response = await axios.get(api);
+    else if (providerName === "GnosisSafe") {
+      const provider = Blockchain?.multisigProviders.find(s => s.name === providerName);
+      if (!provider) return;
+      const api = `${provider.txServiceUrl}/api/v1/safes/${multisigAddress}/multisig-transactions/`;
+      const response = await axios.get<{ results: GnosisTransaction[] }>(api);
       const transactionsData = response.data;
 
       const { data } = await axios.get<IMultisigThreshold>(BASE_URL + "/api/multisig/sign", {
         params: {
           blockchain,
           address: multisigAddress,
+          providerName: providerName
         }
       })
 
-      for (const tx of transactionsData.results) {
-        const safeTx = parseSafeTransaction(tx, Coins, blockchain, multisigAddress, data.sign, tags?.tags ?? []);
+      const { data: ownerData } = await axios.get<MultisigOwners>(BASE_URL + "/api/multisig/owners", {
+        params: {
+          blockchain,
+          address: multisigAddress,
+          providerName: providerName
+        }
+      })
 
-        safeTransactions.push(safeTx!);
-      }
+      const safeTxs = await Promise.all(transactionsData.results.map((tx: any) => parseSafeTransaction(tx, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])))
+      transactionArray.push(...safeTxs);
     }
 
-    if (blockchain.includes("evm") && name === "GnosisSafe") {
-      res.status(200).json(safeTransactions);
-    } else {
-      res.status(200).json(transactionArray);
-    }
+    res.status(200).json(transactionArray);
   } catch (e: any) {
     console.error(e);
     throw new Error(e);

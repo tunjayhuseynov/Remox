@@ -27,13 +27,14 @@ import { ITag } from "pages/api/tags/index.api";
 import { generate } from "shortid";
 import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
-import { Refresh_Data_Thunk } from "./thunks/refresh";
+import { Refresh_Data_Thunk } from "./thunks/refresh/refresh";
 import { BlockchainType } from "types/blockchains";
 import { Coins } from "types";
 import { IPrice } from "utils/api";
 
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { UpdateProfileNameThunk, UpdateSeemTimeThunk } from "./thunks/profile";
+import { Tx_Refresh_Data_Thunk } from "./thunks/refresh/txRefresh";
 
 export interface ITasking {
     taskId: string,
@@ -365,13 +366,14 @@ const remoxDataSlice = createSlice({
         //*****************************************************************************************
         // REFRESH
 
-        builder.addCase(Refresh_Data_Thunk.fulfilled, (state, action) => {
-            state.stats = action.payload.spending;
+        builder.addCase(Tx_Refresh_Data_Thunk.fulfilled, (state, action) => {
             state.accounts = action.payload.RemoxAccount.accounts;
+            state.nfts = action.payload.NFTs;
+            state.budgetExercises = action.payload.Budgets;
             state.totalBalance = action.payload.RemoxAccount.totalBalance;
-            state.transactions = action.payload.transactions;
-            state.balances = action.payload.balance.AllPrices;
             state.cumulativeTransactions = action.payload.cumulativeTransactions;
+            state.recurringTasks = action.payload.RecurringTasks;
+            state.transactions = action.payload.Transactions;
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
                 multisigTxs: action.payload.multisigAccounts.multisigTxs,

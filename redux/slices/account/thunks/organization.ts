@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Get_Individual_Ref } from "crud/individual";
 import { Create_Organization, Get_Organizations } from "crud/organization";
-import { auth, IAccount, IIndividual, IOrganization } from "firebaseConfig";
+import { auth, IAccount, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import { generate } from "shortid";
@@ -15,9 +15,7 @@ import { CreateTag } from "./tags";
 
 interface ICreateMultisig {
     uploadType: "image" | "nft";
-    imageUrl: string | null,
-    nftAddress: string | null,
-    nftTokenId: number | null,
+    image: Image | null,
     blockchain: BlockchainType,
     name: string,
     newAccountName: string,
@@ -26,26 +24,10 @@ interface ICreateMultisig {
 }
 
 export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreateMultisig>("remoxData/create_organization", async (data, api) => {
-    const { imageUrl, nftAddress, nftTokenId, blockchain, address, name, uploadType, individual, newAccountName } = data;
+    const { image, blockchain, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
-    let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
     const id = generate();
-
-    if (imageUrl || nftAddress) {
-        image =
-        {
-            image: {
-                blockchain: blockchain.name,
-                imageUrl: imageUrl ?? nftAddress!,
-                nftUrl: nftAddress ?? "",
-                tokenId: nftTokenId ?? null,
-                type: uploadType
-            },
-            name: `organizations/${id}/${name}`
-        }
-    }
-
 
     const response = await Create_Organization({
         blockchain,
@@ -53,7 +35,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
             // account
         ],
         budget_execrises: [],
-        image: image?.image ?? null,
+        image: image,
         members: [address],
         name: name,
         id,

@@ -1,21 +1,15 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useMemo, useState } from 'react';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
-import Modal from 'components/general/Modal';
-import { changeError, changeSuccess } from 'redux/slices/notificationSlice';
 import Button from 'components/button';
-import useMultisig from 'hooks/walletSDK/useMultisig';
 import { useRouter } from 'next/router';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
-import Create from 'pages/dashboard/multisig/_components/create';
 import { SetComma } from 'utils';
 import makeBlockie from 'ethereum-blockies-base64';
 
 const Sidebar = () => {
 
-    const { importMultisigAccount } = useMultisig()
     const allOrganizations = useAppSelector(SelectAllOrganizations)
     const organization = useAppSelector(SelectOrganization)
     const individual = useAppSelector(SelectIndividual)
@@ -23,39 +17,10 @@ const Sidebar = () => {
     const accounts = useAppSelector(SelectAccounts)
 
     const navigator = useRouter()
-    const accountType = useAppSelector(SelectAccountType)
     const [showBar, setShowBar] = useState<boolean>(true)
-    const dispatch = useDispatch()
-
-    const [isAccountModal, setAccountModal] = useState(false)
-    const [isImportModal, setImportModal] = useState(false)
-    const [isCreateModal, setCreateModal] = useState(false)
-    // const { setMainAnimate } = useContext(DashboardContext) as { setMainAnimate: React.Dispatch<React.SetStateAction<boolean>> }
-    // if(showBar){
-    //     setMainAnimate(true)
-    // }else{
-    //     setMainAnimate(false)
-    // }
-
-    const importInputRef = useRef<HTMLInputElement>(null)
-    const importNameInputRef = useRef<HTMLInputElement>(null)
-
-    const importClick = async () => {
-        if (importInputRef.current && importInputRef.current.value) {
-            try {
-                await importMultisigAccount(importInputRef.current.value, (importNameInputRef.current?.value ?? ""), null, accountType!)
-                dispatch(changeSuccess({ activate: true, text: "Successfully imported" }))
-                setImportModal(false)
-            } catch (error: any) {
-                console.error(error)
-                dispatch(changeError({ activate: true, text: (error || "Something went wrong") }))
-                setImportModal(false)
-            }
-        }
-    }
 
     const organizationList = useMemo(() => {
-        if (individual) return []
+        if (individual) return [{ id: "0", name: "+ Add Organization", secondValue: "", image: "", onClick: () => { navigator.push('/create-organization') } }]
         const list = [...allOrganizations.map(e => {
             return {
                 id: e.id,
@@ -67,17 +32,10 @@ const Sidebar = () => {
                 }
             }
         })]
-        if (list.length > 0) {
-            list.push({ id: "0", name: "Add Organization", secondValue: "", image: "", onClick: () => { navigator.push('/create-organization') } })
-        }
+        list.push({ id: "0", name: "Add Organization", secondValue: "", image: "", onClick: () => { navigator.push('/create-organization') } })
         return list;
     }, [allOrganizations, selectedAccountType])
 
-    // const list = [
-    //     { name: "Treasury vault 0", secondValue: '$2,800', image: "nftmonkey" },
-    //     { name: "Treasury vault 1", secondValue: '$3,700', image: "" },
-    //     { name: "Add Organization", onClick: () => { navigator.push('/create-organization') } }
-    // ]
 
     const currentOrganization = organization ? organizationList.find(e => e.id === organization.id) : undefined;
 
@@ -111,53 +69,6 @@ const Sidebar = () => {
                 </div>
             </div>
         </div>
-
-        {isAccountModal && <Modal onDisable={setAccountModal} disableX={true}>
-            <div className="flex flex-col gap-8 mt-[-2rem]">
-                <div className="text-center font-semibold pt-4 text-xl">Multi-Signature Account</div>
-                <div className="flex space-x-3 border border-greylish  py-3 rounded-md cursor-pointer items-center justify-center" onClick={() => {
-                    setCreateModal(true)
-                    setAccountModal(false)
-                }}>
-                    <span>Create Multisig Account</span>
-                </div>
-                <div className="flex space-x-3 border border-greylish  py-3 rounded-md cursor-pointer items-center justify-center" onClick={() => {
-                    setImportModal(true)
-                    setAccountModal(false)
-                }}>
-                    <span>Import Multisig Account</span>
-                </div>
-                <div className="flex items-center justify-center"><Button onClick={() => setAccountModal(false)} className=" w-[30%] !px-4 !py-2">Cancel</Button></div>
-            </div>
-        </Modal>}
-        {isImportModal && <Modal onDisable={setImportModal} disableX={true}>
-            <div className="flex flex-col gap-4 mt-[-2rem]">
-                <div className="text-center font-semibold text-xl">Import MultiSig Account</div>
-                <div className="flex flex-col">
-                    <span className="text-greylish opacity-35 pl-3">MultiSig Name</span>
-                    <input ref={importNameInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig name" />
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-greylish opacity-35 pl-3">MultiSig Address</span>
-                    <input ref={importInputRef} type="text" className="border p-3 rounded-md border-greylish dark:bg-darkSecond outline-none" placeholder="Multisig Address" />
-                </div>
-                <div className="flex justify-center gap-5">
-                    <Button className="!px-10 !py-2" version="second" onClick={() => setImportModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button className="!px-10 !py-2" onClick={importClick} >
-                        Import
-                    </Button>
-                </div>
-            </div>
-        </Modal>}
-        {
-            isCreateModal && <Modal onDisable={setCreateModal} disableX={true}>
-                <Create setCreateModal={setCreateModal} />
-            </Modal>
-        }
-        {/* {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-        {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />} */}
     </>
 }
 

@@ -9,6 +9,8 @@ import WETHGatewayV2 from 'rpcHooks/ABI/WETHGatewayV2.json'
 import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
 import BR from 'rpcHooks/ABI/BatchRequest.json'
 
+export type MultisigProviders = "Celo Terminal" | "GnosisSafe" | "Goki"
+
 export type BlockchainType = {
   name:
   | "celo"
@@ -39,10 +41,11 @@ export type BlockchainType = {
   explorerUrl: string;
   logoUrl: string;
   multisigProviders: {
-    name: string;
+    name: MultisigProviders;
     logoURL: string;
     abi: AbiItem[];
     txServiceUrl?: string;
+    displayName: string;
   }[];
   swapProtocols: {
     name: string;
@@ -94,7 +97,15 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "Celo Terminal",
         abi: CeloTerminal.abi as AbiItem[],
-        logoURL: "/icons/companies/celoterminal.png"
+        logoURL: "/icons/companies/celoterminal.png",
+        displayName: "Celo Terminal",
+      },
+      {
+        name: "GnosisSafe",
+        abi: CeloTerminal.abi as AbiItem[],
+        logoURL: "/icons/companies/celoterminal.png",
+        txServiceUrl: "https://transaction-service.gnosis-safe-staging.celo-networks-dev.org/",
+        displayName: "Celo Safe",
       },
     ],
     swapProtocols: [
@@ -150,7 +161,8 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "Goki",
         abi: [],
-        logoURL: "https://avatars.githubusercontent.com/u/89436329?s=280&v=4"
+        logoURL: "https://avatars.githubusercontent.com/u/89436329?s=280&v=4",
+        displayName: "Goki",
       },
     ],
     swapProtocols: [
@@ -202,6 +214,7 @@ export const Blockchains: BlockchainType[] = [
         txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -250,7 +263,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.polygon.gnosis.io",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -299,7 +313,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.optimism.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -346,7 +361,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.avalanche.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -396,6 +412,7 @@ export const Blockchains: BlockchainType[] = [
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.bsc.gnosis.io/",
         abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -441,7 +458,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.arbitrum.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -487,7 +505,8 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -529,7 +548,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.xdai.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [

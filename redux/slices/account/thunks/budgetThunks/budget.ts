@@ -80,24 +80,14 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
     const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
-    if (tx.contractType === "multi") {
-        // const { data, status } = await axios.get<ITransactionMultisig | IMultisigSafeTransaction>("/api/multisig/tx", {
-        //     params: {
-        //         id: (api.getState() as RootState).remoxData.providerID,
-        //         blockchain: (api.getState() as RootState).remoxData.blockchain.name,
-        //         index: tx.hashOrIndex,
-        //         address: tx.contractAddress,
-        //         Skip: 0,
-        //         name: tx.protocol,
-        //     }
-        // })
-        api.dispatch(addTxToBudget({
-            budget,
-            tx,
-            currency,
-            isTxExecuted: isExecuted
-        }))
-    }
+
+    api.dispatch(addTxToBudget({
+        budget,
+        tx,
+        currency,
+        isTxExecuted: isExecuted
+    }))
+
 })
 
 export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/remove_tx_from_budget", async ({ budget, tx, isExecuted }, api) => {
@@ -107,14 +97,14 @@ export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>(
         txs: budget.txs.filter(s => s.contractAddress.toLowerCase() !== tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== tx.hashOrIndex.toLowerCase())
     })
     const currency = currencies[tx.token];
-    if (tx.contractType === "multi") {
-        api.dispatch(removeTxFromBudget({
-            budget,
-            tx,
-            currency,
-            isTxExecuted: isExecuted
-        }))
-    }
+
+    api.dispatch(removeTxFromBudget({
+        budget,
+        tx,
+        currency,
+        isTxExecuted: isExecuted
+    }))
+
 })
 
 export const Update_Budget_Thunk = createAsyncThunk<void, IBaseOrmBudget>("remoxData/update_budget", async ({ budget }, api) => {

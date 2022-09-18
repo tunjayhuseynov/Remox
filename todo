@@ -21,3 +21,5 @@
 21. Add Owner meselesinde execution'dan sonra owner liste elave olunmalidi => bunun ucun serverless function yaratmaq olar
 22. Budget meselesinde hem de usd coin ile 
 //TODO: 23. Remox Pay meselesini hell ele
+24. Swap abi'si harcoding ile _celo faylindadi ve blockchain objectinde bosdur
+25. Create Multisig Dashboard'a getirilsin
