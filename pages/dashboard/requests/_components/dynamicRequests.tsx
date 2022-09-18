@@ -4,8 +4,8 @@ import Modal from "components/general/Modal";
 import useRequest from "hooks/useRequest";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectBalance, SelectRequests, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
+import {  SelectBalance, SelectDarkMode, SelectRequests, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount";
 import TokenBalance from "./tokenBalance";
 import ModalRequestItem from "./modalRequestItem";
@@ -20,15 +20,15 @@ import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
 import { useWalletKit } from "hooks";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
-import { ToastRun } from "utils/toast";
 
 export default function DynamicRequest({
   type,
 }: {
   type: "approved" | "pending" | "rejected";
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const requests = useAppSelector(SelectRequests);
+  const isDark = useAppSelector(SelectDarkMode)
   const { approveRequest, removeRequest } = useRequest();
   const userId = useAppSelector(SelectID);
   const balance = useAppSelector(SelectBalance);
@@ -93,7 +93,7 @@ export default function DynamicRequest({
           recipient: address,
         });
 
-        await removeRequest(request, userId!);
+        await removeRequest(request, userId ?? "");
         dispatch(removeApprovedRequest(request.id));
 
       };
@@ -166,8 +166,8 @@ export default function DynamicRequest({
           </>
         )}
         <Modal onDisable={setNotify2} openNotify={openNotify2}>
-          <div className="flex flex-col w-[92.5%] h-[80%] pt-20 mx-auto">
-            <div className="text-2xl font-semibold pt-4 pb-4">
+          <div className="flex flex-col w-[92.5%] h-[80%]  mx-auto">
+            <div className="text-2xl font-semibold  mb-4">
               Pending Requests
             </div>
             <table className="w-full pt-12 pb-4">
@@ -191,13 +191,15 @@ export default function DynamicRequest({
                 ))}
               </thead>
             </table>
-            <Button
-              isLoading={isApproving}
-              onClick={() => setApproving()}
-              className={"w-full py-3 mt-10 mb-3 text-base"}
-            >
-              Approve Requests
-            </Button>
+            <div className="w-full flex justify-end">
+              <Button
+                isLoading={isApproving}
+                onClick={() => setApproving()}
+                className={"py-3 px-16 mt-10 mb-3 text-lg"}
+              >
+                Approve Requests
+              </Button>
+            </div>
           </div>
         </Modal>
         <table className="w-full pt-4 pb-6 mt-5">
@@ -314,11 +316,11 @@ export default function DynamicRequest({
       </div>
       {page === RequestStatus.approved && (
         <Modal onDisable={setNotify} openNotify={openNotify}>
-          <div className="flex flex-col w-[92.5%] h-[80%] pt-20 mx-auto">
-            <div className="text-2xl font-semibold pt-4 pb-4">
+          <div className="flex flex-col w-[92.5%]  mx-auto">
+            <div className="text-2xl font-semibold  mb-4">
               Approved Requests
             </div>
-            <table className="w-full pt-12 pb-4">
+            <table className="w-full pb-4">
               <thead>
                 <tr className="grid grid-cols-[25%,20%,20%,20%,15%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
                   <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
@@ -373,14 +375,15 @@ export default function DynamicRequest({
                 )}
               </div>
             </>
-            <Button
-              isLoading={isExecuting}
-              onClick={() => setExecuting()}
-              className={"w-full py-2 mt-10 mb-3 text-base"}
-            >
-              Confirm and Create Transaction
-            </Button>
-
+            <div className="flex justify-end">
+              <Button
+                isLoading={isExecuting}
+                onClick={() => setExecuting()}
+                className={"py-2 mt-10 mb-3 text-lg"}
+              >
+                Confirm and Create Transaction
+              </Button>
+            </div>
           </div>
         </Modal>
       )}

@@ -50,7 +50,7 @@ export default function Upload({
   return (
     <>
       {noProfilePhoto ? (
-        <section>
+        <section className="border-solid border-2 border-black">
           <div
             {...getRootProps({
               className: `${className}  w-32 h-32 border bg-white dark:bg-darkSecond  rounded-full flex justify-center mx-auto items-center relative`,
@@ -71,7 +71,7 @@ export default function Upload({
           </div>{" "}
         </section>
       ) : (
-        <section>
+        <section className="border-solid border-2 border-black">
           <div
             {...getRootProps({
               className: ` ${className} h-[11.375rem] border bg-white dark:bg-darkSecond border-dashed rounded-md flex justify-center items-center`,

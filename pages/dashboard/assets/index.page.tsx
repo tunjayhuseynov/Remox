@@ -169,7 +169,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">${SetComma(nftdata.totalBalance)}</div>}
+                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl"></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>

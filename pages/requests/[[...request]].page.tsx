@@ -155,8 +155,6 @@ export default function RequestId() {
       setRequest(result);
       setFileName(Invoice?.name ?? "");
       setModal(true);
-
-      router.push("/dashboard");
     } catch (error) {
       console.error(error);
     }
@@ -168,8 +166,7 @@ export default function RequestId() {
     try {
       if (request) {
         await addRequest(id, request);
-        // router.push("/dashboard");
-        console.log("Request added");
+        router.push("/dashboard");
       }
     } catch (error) {
       console.log(error);
