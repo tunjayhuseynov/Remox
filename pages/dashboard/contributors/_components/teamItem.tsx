@@ -11,7 +11,8 @@ import Delete from "./buttons/delete";
 import Web3 from 'web3'
 import { hexToNumberString } from 'web3-utils';
 import { useWalletKit } from 'hooks';
-import Avatar from "components/avatar";
+import makeBlockie from "ethereum-blockies-base64";
+
 
 const teamItem = ({ props }: { props: IContributor }) => {
     const navigate = useRouter()
@@ -72,7 +73,7 @@ const teamItem = ({ props }: { props: IContributor }) => {
                     </div>
                     <div className="pl-3 w-full relative">
                         { props.members.slice(0,9).map((member, index) => {
-                            return member.image !== null ? <img src={member.image?.imageUrl} className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index}rem] w-8 h-8 rounded-full`} alt="" /> : <Avatar name={member.first} surname={member.last} className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index}rem] w-8 h-8 rounded-full`} />
+                            return <img src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index}rem] w-8 h-8 rounded-full`} alt="" /> 
                         }) }
                          {/* <div className={`z-[1] absolute bottom-0 border left-[0.3rem]  bg-gray-400 w-8 h-8 rounded-full`}></div>
                          <div className={`z-[2] absolute bottom-0 border left-[1rem] bg-gray-600 w-8 h-8 rounded-full`}></div>

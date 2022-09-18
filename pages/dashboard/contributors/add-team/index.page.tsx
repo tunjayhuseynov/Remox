@@ -12,6 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { TextField } from "@mui/material";
 import { MdDone} from "react-icons/md";
 import IconTextField from "components/IconTextField";
+import Loader from "components/Loader";
 
 const AddTeams = () => {
     const navigate = useRouter()
@@ -49,34 +50,19 @@ const AddTeams = () => {
     }
 
     return <div className="w-full mx-auto relative">
-    <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
-    {/* <img src="/icons/cross_greylish.png" alt="" /> */}
+    <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all text-primary hover:transition-all flex items-center text-xl gap-2">
     <span className="text-4xl pb-1">&#171;</span> Back
 </button>
      <div className="flex flex-col items-center justify-center space-y-10 w-[35%] mx-auto  pt-24">
         <div className="text-2xl self-center pt-5 font-semibold ">Enter Your Workstream</div>
         <div className="flex flex-col w-[85%]">
-
             <div>
-                {/* <TextField
-                    label="Workstream Name"
-                    {...register("name", {required: true})}
-                    type="text"
-                    InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="end">
-                            <MdDone/>
-                          </InputAdornment>
-                        ),
-                    }}
-                    className="border pl-3 w-full rounded-xl h-10 py-6 text-lg \ "
-                /> */}
                 <IconTextField
                     label="Workstream Name"
                     onChange={(e) => setWorkstreamName(e.target.value)}
                     value={workstreamName}
-                    iconEnd={<MdDone type="submit" className="cursor-pointer rounded-full bg-primary h-7 w-7 p-1 text-white "/>}
-                    className={`border pl-3 w-full rounded-xl h-10 py-6 text-lg ${error ? "animate__animated animate__shakeX" : ""} `}
+                    iconEnd={isLoading ? <Loader/> : <MdDone onClick={() => submit()} className="cursor-pointer rounded-full bg-primary h-7 w-7 p-1 text-white "/>}
+                    className={`border pl-3 w-full rounded-xl h-10 py-6 text-lg animate__animated animate__shakeX`}
                 />
             </div>
             {error && <div className="text-red-600"> Something went wrong</div>}

@@ -161,7 +161,7 @@ export default () => {
 
     return <>
         <div className="relative w-full mx-auto">
-            <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-semibold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
+            <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-semibold transition-all text-primary hover:transition-all flex items-center text-xl gap-2">
                 <span className="text-3xl pb-1">&#171;</span> Back
             </button>
             <div>
