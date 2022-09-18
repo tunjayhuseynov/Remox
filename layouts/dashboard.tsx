@@ -81,11 +81,11 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                 <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>
-                <div className="grid grid-cols-[20%,80%]">
+                <div className="grid lg:grid-cols-[25%,75%] xl:grid-cols-[20%,80%] 3xl:grid-cols-[15%,85%]">
                     <div>
                         <Sidebar />
                     </div>
-                    <main  key={router.asPath} className={`relative pr-8 overflow-hidden transition-all pl-2 pt-36`}>
+                    <main  key={router.asPath} className={`relative pr-8 overflow-hidden transition-all  pt-36`}>
                         {children}
                     </main>
 
