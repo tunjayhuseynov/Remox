@@ -42,8 +42,8 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
 
     return <>
         {list.map((item, index) => {
-            const coin = Object.values(GetCoins).find((c) => c.name === item.currency)
-            const coinBalance = Object.values(balance).find((b) => b.name === item.currency)
+            const coin = Object.values(GetCoins).find((c) => c.symbol === item.currency)
+            const coinBalance = Object.values(balance).find((b) => b.symbol === item.currency)
             return <Fragment key={item.id}>
                 <div className="flex flex-col items-start justify-center text-center gap-2 mb-2 w-[12.5rem]">
                     <div className="w-full flex items-center justify-start space-x-1">

@@ -26,10 +26,18 @@ export default {
     updateMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
             const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
-            if (contributorIndex !== -1) {
-                let selectedMemberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
-                if (selectedMemberIndex !== -1) {
-                   state.contributors[contributorIndex].members[selectedMemberIndex] = action.payload.member; 
+            if(contributorIndex !== -1){
+                const memberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
+                if(memberIndex !== -1){
+                    if(action.payload.id === action.payload.member.teamId){
+                        state.contributors[contributorIndex].members[memberIndex] = action.payload.member;
+                    } else {
+                        const newTeamIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.member.teamId);
+                        state.contributors[contributorIndex].members = state.contributors[contributorIndex].members.filter((member) => member.id !== action.payload.member.id);
+                        if(newTeamIndex !== -1){
+                            state.contributors[newTeamIndex].members = [...state.contributors[newTeamIndex].members, action.payload.member];
+                        }
+                    }
                 }
             }
         }

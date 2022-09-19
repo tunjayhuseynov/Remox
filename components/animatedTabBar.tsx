@@ -21,7 +21,7 @@ export default function AnimatedTabBar({ data, index, className }: { data: { to:
                                     <span className="">{item.text}</span>
                                     {i === selected && (<motion.span className="absolute w-full h-[3px] left-0 bg-primary rounded-[2px] bottom-0" layoutId="underline" />)}
                                     {item.count && 
-                                        <div className={`ml-2 w-[20px] h-[20px] absolute inline rounded-sm  ${i === selected ? `selected ${isDark ? "bg-[#FFBBA6] !text-[#FF7348]" : "bg-[#FFD8CC]"} ` : `${isDark ? "bg-[#707070] !text-white" : "bg-[#D9D9D9] "} text-black `}  `}><div className="flex items-center justify-center w-full h-full">{item.count}</div></div>
+                                        <div className={`ml-2 w-[20px] h-[20px] absolute top-1 inline rounded-sm  ${i === selected ? `selected ${isDark ? "bg-[#FFBBA6] !text-[#FF7348]" : "bg-[#FFD8CC]"} ` : `${isDark ? "bg-[#707070] !text-white" : "bg-[#D9D9D9] "} text-black `}  `}><div className="flex items-center justify-center w-full h-full">{item.count}</div></div>
                                     }
                                 </motion.div>
                             </span>

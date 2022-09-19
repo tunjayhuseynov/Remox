@@ -78,13 +78,13 @@ export default function DynamicRequest({
         const amount = request.amount;
         const currency = request.currency;
         const address = request.address;
-        const coin = Object.values(GetCoins).find((coin) => coin.name === currency);
+        const coin = Object.values(GetCoins).find((coin) => coin.symbol === currency);
         
         if(request.usdBase) {
           if (request.secondaryAmount) {
             const secondaryAmount = request.secondaryAmount;
             const secondaryCurrency = request.secondaryCurrency;
-            const coin2 = Object.values(GetCoins).find((coin) => coin.name === secondaryCurrency);
+            const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency);
             inputs.push({
               amount: Number(secondaryAmount) / (coin2?.priceUSD ?? 1),
               coin: coin2?.symbol ?? "",
@@ -100,7 +100,7 @@ export default function DynamicRequest({
           if (request.secondaryAmount) {
             const secondaryAmount = request.secondaryAmount;
             const secondaryCurrency = request.secondaryCurrency;
-            const coin2 = Object.values(GetCoins).find((coin) => coin.name === secondaryCurrency);
+            const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency);
             inputs.push({
               amount: Number(secondaryAmount),
               coin: coin2?.symbol ?? "",
@@ -257,17 +257,17 @@ export default function DynamicRequest({
             </tr>
             {requestsList.map((request) => {
               const coin1 = Object.values(GetCoins).find(
-                (coin) => coin.name === request.currency
+                (coin) => coin.symbol === request.currency
               );
               const coin2 = Object.values(GetCoins).find(
-                (coin) => coin.name === request.secondaryCurrency
+                (coin) => coin.symbol === request.secondaryCurrency
               );
               let isAllowed: boolean = true;
               const balance1 = Object.values(balance).find(
-                (coin) => coin.name === request.currency
+                (coin) => coin.symbol === request.currency
               )!.amount;
               const balance2 = Object.values(balance).find(
-                (coin) => coin.name === request.secondaryCurrency
+                (coin) => coin.symbol === request.secondaryCurrency
               )?.amount;
               if (request.secondaryCurrency) {
                 if (

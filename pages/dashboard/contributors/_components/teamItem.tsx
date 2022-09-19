@@ -75,15 +75,6 @@ const teamItem = ({ props }: { props: IContributor }) => {
                         { props.members.slice(0,9).map((member, index) => {
                             return <img src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index}rem] w-8 h-8 rounded-full`} alt="" /> 
                         }) }
-                         {/* <div className={`z-[1] absolute bottom-0 border left-[0.3rem]  bg-gray-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[2] absolute bottom-0 border left-[1rem] bg-gray-600 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[3] absolute bottom-0 border left-[2rem] bg-gray-500 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[4] absolute bottom-0 border left-[3rem] bg-gray-700 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[5] absolute bottom-0 border left-[4rem] bg-red-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[6] absolute bottom-0 border left-[5rem] bg-blue-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[7] absolute bottom-0 border left-[6rem] bg-gray-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[9] absolute bottom-0 border left-[7rem] bg-blue-700 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[10] absolute bottom-0 border left-[8rem] bg-green-400 w-8 h-8 rounded-full`}></div> */}
                     </div>
                 </div>
             </div>

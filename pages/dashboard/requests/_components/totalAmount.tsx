@@ -9,7 +9,7 @@ import { useWalletKit } from "hooks";
 
 export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) => {
     return coinList.reduce((acc, curr) => {
-        const coin = Object.values(Coins).find((c) => c.name === curr.currency)
+        const coin = Object.values(Coins).find((c) => c.symbol === curr.currency)
         if (coin) {
             const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
 
@@ -20,7 +20,7 @@ export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) =
             }
 
             if (curr.secondaryCurrency && curr.secondaryAmount) {
-                const secondaryCoin = Object.values(Coins).find((c) => c.name === curr.secondaryCurrency)
+                const secondaryCoin = Object.values(Coins).find((c) => c.symbol === curr.secondaryCurrency)
                 if (secondaryCoin) {
                     const secondaryAmount = typeof curr.secondaryAmount === "string" ? parseFloat(curr.secondaryAmount) : curr.secondaryAmount
                     if (curr.usdBase) {

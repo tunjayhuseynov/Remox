@@ -81,7 +81,6 @@ export default () => {
         const Coin1 = selectedCoin1;
         const Coin2 = selectedCoin2;
         const Frequency = selectedFrequency.type;
-        setIsLoading(true);
         const Photo = {
             imageUrl: url,
             nftUrl: url,
@@ -89,7 +88,7 @@ export default () => {
             tokenId: null,
             blockchain: blockchain.name
         }
-
+        setIsLoading(true)
         const dateNow = new Date().getTime()
 
         try {
@@ -119,19 +118,17 @@ export default () => {
                 taskId = id!
             }
 
-
-            console.log(startDate, endDate)
             let member: IMember = {
                 taskId: isAutoPayment ? taskId : null,
                 id: uuidv4(),
-                first: `${data.name}`,
+                first: `${data.name.trim()}`,
                 name: `${data.name} ${data.surname}`,
-                last: `${data.surname}`,
+                last: `${data.surname.trim()}`,
                 role: `${data.role}`,
                 address: data.address,
                 image: url ? Photo : null,
                 compensation: Compensation,
-                currency: Coin1.name,
+                currency: Coin1.symbol,
                 amount: data.amount.toString(),
                 teamId: Team.id!.toString(),
                 usdBase: !paymentBaseIsToken,
@@ -140,14 +137,13 @@ export default () => {
                 paymantDate: new Date(startDate ?? dateNow).getTime(),
                 paymantEndDate: new Date(endDate ?? dateNow).getTime(),
                 secondaryAmount: data.amount2 ? data.amount2.toString() : null,
-                secondaryCurrency: Coin2?.name ? (Coin2.name) : null,
+                secondaryCurrency: Coin2 ? (Coin2.symbol) : null,
             };
 
             await addMember(Team.id!.toString(), member);
             dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
             setIsLoading(false);
             navigate.back();
-
         } catch (error: any) {
             console.error(error);
         }

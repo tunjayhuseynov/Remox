@@ -101,8 +101,8 @@ export default function DynamicPayroll() {
       let res: {[name: string]: number} = {};
       let total = 0
       for(const contributor of contributors){
-        const coin1 = Object.values(GetCoins).find((coin) => coin.name === contributor.currency)
-        const coin2 = Object.values(GetCoins).find((coin) => coin.name === contributor.secondaryCurrency)
+        const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.currency)
+        const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.secondaryCurrency)
 
         const amount = contributor.amount
         total += +amount * (coin1?.priceUSD ?? 0)

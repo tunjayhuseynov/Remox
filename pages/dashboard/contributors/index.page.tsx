@@ -102,7 +102,7 @@ const Contributors = () => {
             </div>}
         </> : 
         <div className="flex flex-wrap gap-16 cursor-pointer" >
-            {contributors.length > 0 ? contributors.map(team => <TeamItem props={team}/>) : <div></div> }
+            {contributors.length > 0 ? contributors.map(team => <TeamItem props={team}/>) : <></> }
             <div onClick={() => navigate.push('/dashboard/contributors/add-team')} className=" rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-w-[23.5rem] min-h-[12rem] items-start justify-between pl-5">
                 <div className="flex items-center justify-center w-full h-full">
                     <span className={`text-8xl font-light ${isDark ? "" : "text-[#CCCCCC]"}`}>+</span>
