@@ -41,8 +41,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         }
 
     ]
-
-
+    
     return <>
         {data.map((item, index) => {
             return <div key={index} className="w-1/2 xl:w-[90%] 2xl:w-[85%] self-end cursor-pointer">

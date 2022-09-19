@@ -19,8 +19,8 @@ const SingleRequestModal = ({
   const isDark = useAppSelector(SelectDarkMode);
   return (
       <div
-        className={`w-[60%] ${
-          !isDark ? "border-2 border-solid border-[#FFF] bg-white" : "bg-[#1C1C1C]"
+        className={`w-[60%] shadow-15 transition-all hover:transition-all ${
+          !isDark ? "border-2 border-solid border-[#FFF] bg-white hover:bg-[#f9f9f9]" : "bg-[#1C1C1C] hover:!bg-[#191919]"
         }  py-5 px-11`}
       >
         {request.status !== RequestStatus.approved && (

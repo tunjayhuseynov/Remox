@@ -23,7 +23,7 @@ import { useAppSelector } from "redux/hooks";
 import useLoading from "hooks/useLoading";
 import { AiOutlineClose } from "react-icons/ai";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
-import SingleRequestModal from "./SIngleRequestModal";
+import SingleRequestModal from "./SingleRequestModal";
 
 
 const RequestedUserItem = ({

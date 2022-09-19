@@ -108,7 +108,7 @@ const EditMember = () => {
         compensation: Compensation,
         amount: data.amount.toString(),
         currency: coin1?.name ?? Object.values(GetCoins)[0].name,
-        teamId: Team.id ? Team.id!.toString() : teamId.toString(),
+        teamId:  Team.id!.toString(),
         usdBase: !paymentBaseIsToken,
         interval: selectedFrequency.type as DateInterval,
         execution:

@@ -27,7 +27,7 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
 
     const [deleteModal, setDeleteModal] = useState(false)
     const [details, setDetails] = useState(false)
-    const [loading, setLoading] = useState<boolean>(false)
+
     const { GetCoins } = useWalletKit()
     const dark = useAppSelector(SelectDarkMode)
     const dispatch = useDispatch();
@@ -37,10 +37,8 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
 
     const onDelete = async () => {
         try {
-            setLoading(true)
             await removeMember(member.teamId, member.id)
             dispatch(removeMemberFromContributor({ id: member.teamId, member: member }))
-            setLoading(false)
         } catch (error) {
             throw error
         }
@@ -55,7 +53,7 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
                 <Delete name={member.name} onDelete={onDelete} onCurrentModal={setDeleteModal} />
             </Modal>
         }
-        <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[15%,13%,14%,16%,15%,20%,7%] text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
+        <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%]  text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
             <th className="pl-3 items-start">
                 <div className=" flex items-center space-x-1" >
                     <img src={member.image ? member.image.imageUrl : makeBlockie(member.address)} alt="" className="rounded-full border w-10 object-cover h-10" />

@@ -71,7 +71,7 @@ const Contributors = () => {
         <>
             <table className="w-full  pt-4 pb-6">
                 <thead>
-                    <tr id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[15%,13%,14%,16%,15%,20%,7%] bg-[#F2F2F2] shadow-15 py-2   dark:bg-[#2F2F2F] rounded-md ">
+                    <tr id="header" className="hidden sm:grid grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%] bg-[#F2F2F2] shadow-15 py-2   dark:bg-[#2F2F2F] rounded-md ">
                         <th className="font-semibold text-left text-lg text-greylish dark:text-[#aaaaaa] pl-3">Contributor</th>
                         <th className="font-semibold text-left text-lg text-greylish dark:text-[#aaaaaa] hidden lg:block ">Workstream</th>
                         <th className="font-semibold text-left text-lg text-greylish dark:text-[#aaaaaa] ">Role</th>
