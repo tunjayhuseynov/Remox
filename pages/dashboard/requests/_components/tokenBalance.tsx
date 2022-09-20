@@ -51,7 +51,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className=" rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
-                            {/* <div>{coin.name === 'CELO' ? SetComma(balance[0].amount) : SetComma(balance[1].amount)}</div> */}
                             <div>{SetComma(coinBalance?.amount)}</div>
                         </div>
 
@@ -70,7 +69,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium" >
-                            {/* <div>{(selectedCoin.name === "CELO" ? SetComma(balance[0].amount - parseFloat(coin.amount)) : SetComma(balance[1].amount - parseFloat(coin.amount)))}</div> */}
                             <div>{SetComma(coinBalance!.amount - (+item!.amount))}</div>
                         </div>
 

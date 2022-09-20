@@ -13,6 +13,7 @@ import { hexToNumberString } from 'web3-utils';
 import { useWalletKit } from 'hooks';
 import makeBlockie from "ethereum-blockies-base64";
 import { generate } from 'shortid';
+import zIndex from '@mui/material/styles/zIndex';
 
 
 const teamItem = ({ props }: { props: IContributor }) => {
@@ -73,19 +74,12 @@ const teamItem = ({ props }: { props: IContributor }) => {
                         </div>
                     </div>
                     <div className="pl-3 w-full relative">
-                        { props.members.slice(0,9).map((member, index) => {
-                            return <img src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index+0.5}rem] w-8 h-8 rounded-full`} alt="" /> 
+                        {props.members.slice(0,9).map((member, index) => {
+                            return <img src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`absolute bottom-0 border  w-8 h-8 rounded-full`} style={{
+                                left: `${index === 0 ? 0.5 : index+0.5}rem`,
+                                zIndex: `${index}`
+                            }} alt="" /> 
                         }) }
-                        {/* <img src={makeBlockie(generate())} alt="" className={`z-[2] absolute bottom-0 border left-[1.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[3] absolute bottom-0 border left-[2.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[4] absolute bottom-0 border left-[3.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[5] absolute bottom-0 border left-[4.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[6] absolute bottom-0 border left-[5.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[7] absolute bottom-0 border left-[6.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[8] absolute bottom-0 border left-[7.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[9] absolute bottom-0 border left-[8.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[10] absolute bottom-0 border left-[9.5rem] w-8 h-8 rounded-full`} />
-                        <img src={makeBlockie(generate())} alt="" className={`z-[10] absolute bottom-0 border left-[9.5rem] w-8 h-8 rounded-full`} /> */}
                     </div>
                 </div>
             </div>

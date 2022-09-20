@@ -113,10 +113,6 @@ export default function DynamicRequest({
             recipient: address,
           });
         }
-
-        await removeRequest(request, userId ?? "");
-        dispatch(removeApprovedRequest(request.id));
-
       };
 
       await SendTransaction(accountAndBudget.account!, inputs, {
@@ -124,6 +120,12 @@ export default function DynamicRequest({
       })
 
       inputs = [];
+
+      for(const request of requests) {
+        await removeRequest(request, userId ?? "");
+        dispatch(removeApprovedRequest(request.id));
+      }
+
       setSelectedApprovedRequests([])
       setNotify(false);
     } catch (error) {
