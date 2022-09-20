@@ -57,13 +57,10 @@ const Contributors = () => {
                     Contributors
                 </div>
                 <div className={`pt-2 flex ${contributors.length > 0 && 'gap-5'} `}>
-                    {/* <Button className="text-xs sm:text-base !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-team')}>Add Workstream</Button>
-                    {contributors.length > 0 && <Button className="text-xs sm:text-base  !py-2 !px-6 rounded-2xl" onClick={() => navigate.push('/dashboard/contributors/add-member')}>Add Contributor
-                    </Button>} */}
                 </div>
             </div>
             <div className="flex justify-between items-center w-[90%] mb-5 ">
-                <AnimatedTabBar data={data} index={index} className={'text-2xl'} />
+                <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
             </div>
         </div>
 
@@ -81,16 +78,11 @@ const Contributors = () => {
                     </tr>
                     <>
                         {index === 0 ? <>
-                            {contributors.map((team) => team.members.map((member) => {
-
-                                return <ContributorItem key={member.id} member={member} teamName={team.name} />
-                            }))}
+                            {members.map((member) => <ContributorItem key={member.id} member={member} />)}
                         </>  
                          : 
                             <>
-                                {contributors.map((team) => team.members.filter((member) => member.compensation === activePage).map((member) => {
-                                    return <ContributorItem key={member.id} member={member} teamName={team.name} />
-                                }))}
+                                {members.filter((member) => member.compensation === activePage).map((member) => <ContributorItem key={member.id} member={member}/>) }
                             </>
                         }
                     </>

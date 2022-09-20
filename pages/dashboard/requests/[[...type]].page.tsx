@@ -42,7 +42,7 @@ export default function RequestLayout() {
 
     return (
         <div className="flex flex-col space-y-5 h-full">
-        <div className="flex justify-between pb-8  ">
+        <div className="flex justify-between pb-8 ">
             <div className="text-3xl font-semibold tracking-wider">Requests</div>
             <div>
                 <Button className="mt-1 !py-[.5rem] !font-medium !text-lg !px-3 min-w-[9.1rem]  flex items-center" onClick={() => setModalVisible(true)}> Share Request Link    </Button>

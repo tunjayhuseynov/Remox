@@ -9,14 +9,15 @@ import {
 import Button from "components/button";
 import PayrollItem from "../PayrollItem";
 import ModalAllocation from "./modalAllocation";
+import useLoading from "hooks/useLoading";
+import { useForm } from "react-hook-form";
 
 interface IProps {
     selectedContributors: IMember[];
     runmodal: boolean;
     isAvaible:boolean;
     setSelectedContributors: Dispatch<SetStateAction<IMember[]>>,
-    executePayroll: (...type: any) => void,
-    isLoading:boolean
+    ExecutePayroll:  () => Promise<void>
 }
 
 const RunModal = ({
@@ -24,9 +25,14 @@ const RunModal = ({
     runmodal,
     isAvaible,
     setSelectedContributors,
-    executePayroll,
-    isLoading
+    ExecutePayroll,
 } : IProps) => {
+
+  const {handleSubmit} = useForm()
+
+  const [isLoading, setExecuting] = useLoading(ExecutePayroll);
+
+
   return (
     <>
       {selectedContributors.length > 0 ? (
@@ -56,11 +62,11 @@ const RunModal = ({
             </div>
                 <ModalAllocation selectedList={selectedContributors}/>
           </div>
-          <div className="flex justify-end">
-            <Button isLoading={isLoading} onClick={() => executePayroll()}  className={" py-3 mt-10 mb-3 text-base"}>
+          <form onSubmit={handleSubmit(setExecuting)} className="flex justify-end">
+            <Button isLoading={isLoading} type="submit" className={" py-3 mt-10 mb-3 text-base"}>
               Run Payroll 
             </Button>
-          </div>
+          </form>
         </div>
       ) : (
         <div className="text-primary text-2xl font-semibold pt-12  px-2">

@@ -7,7 +7,7 @@ import useContributors from "hooks/useContributors";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { removeMemberFromContributor } from "redux/slices/account/remoxData";
+import { removeMemberFromContributor, SelectContributors } from "redux/slices/account/remoxData";
 import { useModalSideExit } from "hooks";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
@@ -16,13 +16,15 @@ import makeBlockie from "ethereum-blockies-base64";
 
 interface PageProps {
     member: IMember,
-    teamName: string,
 }
 
-const ContributorItem = ({ member, teamName }: PageProps) => {
+const ContributorItem = ({ member }: PageProps) => {
 
     const { removeMember } = useContributors()
     const navigate = useRouter()
+    const contirbutors = useAppSelector(SelectContributors)
+
+    const teamName = contirbutors.find((team) => team.id === member.teamId)?.name
 
 
     const [deleteModal, setDeleteModal] = useState(false)

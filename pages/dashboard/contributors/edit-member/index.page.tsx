@@ -54,11 +54,11 @@ const EditMember = () => {
       { name: "Pay with Token Amounts" },
       { name: "Pay with USD-based Amounts" },
     ];  
+
     const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === member.currency);
     const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === member.secondaryCurrency);
   
     // console.log(member)
-
 
 
     //States

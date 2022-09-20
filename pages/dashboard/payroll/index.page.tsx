@@ -95,7 +95,7 @@ export default function DynamicPayroll() {
         }
     }
     
-    const [isLoading, setExecuting] = useLoading(ExecutePayroll);
+
 
     const totalPrice: [{ [name: string]: number }, number] = useMemo(() => {
       let res: {[name: string]: number} = {};
@@ -129,7 +129,7 @@ export default function DynamicPayroll() {
 
     return <div className="w-full h-full flex flex-col space-y-4">
         {<Modal onDisable={setRunmodal} openNotify={runmodal}  >    
-            <RunModal selectedContributors={selectedContributors} executePayroll={setExecuting} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} isLoading={isLoading} />
+            <RunModal selectedContributors={selectedContributors} ExecutePayroll={ExecutePayroll} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} />
         </Modal>}
         
         <>

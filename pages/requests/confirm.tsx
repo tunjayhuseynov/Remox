@@ -26,8 +26,8 @@ export default ({
   if (request === null || request === undefined) return <>No Data</>;
   const { handleSubmit } = useForm();
 
-  const currency = GetCoins.find((coin) => coin.name === request.currency);
-  const secondCurrency = GetCoins.find((coin) => coin.name === request.secondaryCurrency);
+  const currency = GetCoins.find((coin) => coin.symbol === request.currency);
+  const secondCurrency = GetCoins.find((coin) => coin.symbol === request.secondaryCurrency);
   
   return (
     <div className="flex flex-col space-y-8 px-2">
@@ -133,7 +133,7 @@ export default ({
         </div>
           <div className="flex justify-between">
             <div className="text-greylish">
-              Attach links <span className="text-black">(Optional)</span>
+              Attach links <span className="">(Optional)</span>
             </div>
             <div>
               {request?.attachLink ? (
@@ -145,7 +145,7 @@ export default ({
         <div className="flex justify-between">
           <div className="text-greylish">
             Upload receipt or invoice{" "}
-            <span className="text-black block">(Optional)</span>
+            <span className="">(Optional)</span>
           </div>
           <div>
             {request?.uploadedLink ? (
