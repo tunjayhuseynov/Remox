@@ -9,7 +9,7 @@ import { useWalletKit } from "hooks";
 
 export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) => {
     return coinList.reduce((acc, curr) => {
-        const coin = Object.values(Coins).find((c) => c.name === curr.currency)
+        const coin = Object.values(Coins).find((c) => c.symbol === curr.currency)
         if (coin) {
             const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
 
@@ -20,7 +20,7 @@ export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) =
             }
 
             if (curr.secondaryCurrency && curr.secondaryAmount) {
-                const secondaryCoin = Object.values(Coins).find((c) => c.name === curr.secondaryCurrency)
+                const secondaryCoin = Object.values(Coins).find((c) => c.symbol === curr.secondaryCurrency)
                 if (secondaryCoin) {
                     const secondaryAmount = typeof curr.secondaryAmount === "string" ? parseFloat(curr.secondaryAmount) : curr.secondaryAmount
                     if (curr.usdBase) {
@@ -44,7 +44,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
     const totalAmount = useMemo<number>(() => TotalUSDAmount(coinList, GetCoins ), [coinList, currency])
 
     return <>
-        <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r border-greylish dark:border-[#454545]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
+        <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r dark:border-[#D6D6D6]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
             <div className="w-full flex justify-start   items-center">
                 <div className={`font-semibold   text-xl`}>${SetComma(totalBalance)}</div>
             </div>

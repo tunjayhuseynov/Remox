@@ -29,7 +29,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
         {/* <Modal onDisable={setNotify} openNotify={openNotify} >
             <NewWalletModal onDisable={setNotify} />
         </Modal> */}
-        <div className="flex flex-col gap-3 pt-7 h-full w-full">
+        <div className="flex flex-col gap-3  h-full w-full">
             <div className="text-[2.42857rem] font-semibold text-left">Welcome, {getName}</div>
             <div className="bg-white  dark:bg-darkSecond rounded-md shadow-15 w-full h-full">
                 <div className="w-full px-5 pt-8 flex justify-between">

@@ -33,6 +33,9 @@ module.exports = {
       boxShadow: {
         custom: "0px 2px 7px 0px #dad8d8",
         customDark: "0px 2px 7px 0px #1C1C1C"
+      },
+      screens: {
+        '3xl': '1920px',
       }
     },
   },

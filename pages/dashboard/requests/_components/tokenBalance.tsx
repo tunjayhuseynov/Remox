@@ -42,8 +42,8 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
 
     return <>
         {list.map((item, index) => {
-            const coin = Object.values(GetCoins).find((c) => c.name === item.currency)
-            const coinBalance = Object.values(balance).find((b) => b.name === item.currency)
+            const coin = Object.values(GetCoins).find((c) => c.symbol === item.currency)
+            const coinBalance = Object.values(balance).find((b) => b.symbol === item.currency)
             return <Fragment key={item.id}>
                 <div className="flex flex-col items-start justify-center text-center gap-2 mb-2 w-[12.5rem]">
                     <div className="w-full flex items-center justify-start space-x-1">
@@ -51,7 +51,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className=" rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
-                            {/* <div>{coin.name === 'CELO' ? SetComma(balance[0].amount) : SetComma(balance[1].amount)}</div> */}
                             <div>{SetComma(coinBalance?.amount)}</div>
                         </div>
 
@@ -70,7 +69,6 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium" >
-                            {/* <div>{(selectedCoin.name === "CELO" ? SetComma(balance[0].amount - parseFloat(coin.amount)) : SetComma(balance[1].amount - parseFloat(coin.amount)))}</div> */}
                             <div>{SetComma(coinBalance!.amount - (+item!.amount))}</div>
                         </div>
 

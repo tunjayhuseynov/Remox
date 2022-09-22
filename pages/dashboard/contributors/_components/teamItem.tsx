@@ -11,7 +11,10 @@ import Delete from "./buttons/delete";
 import Web3 from 'web3'
 import { hexToNumberString } from 'web3-utils';
 import { useWalletKit } from 'hooks';
-import Avatar from "components/avatar";
+import makeBlockie from "ethereum-blockies-base64";
+import { generate } from 'shortid';
+import zIndex from '@mui/material/styles/zIndex';
+
 
 const teamItem = ({ props }: { props: IContributor }) => {
     const navigate = useRouter()
@@ -71,18 +74,12 @@ const teamItem = ({ props }: { props: IContributor }) => {
                         </div>
                     </div>
                     <div className="pl-3 w-full relative">
-                        { props.members.slice(0,9).map((member, index) => {
-                            return member.image !== null ? <img src={member.image?.imageUrl} className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index}rem] w-8 h-8 rounded-full`} alt="" /> : <Avatar name={member.first} surname={member.last} className={`z-[${index+1}] absolute bottom-0 border left-[${index == 0 ? "0.3" : index}rem] w-8 h-8 rounded-full`} />
+                        {props.members.slice(0,9).map((member, index) => {
+                            return <img src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`absolute bottom-0 border  w-8 h-8 rounded-full`} style={{
+                                left: `${index === 0 ? 0.5 : index+0.5}rem`,
+                                zIndex: `${index}`
+                            }} alt="" /> 
                         }) }
-                         {/* <div className={`z-[1] absolute bottom-0 border left-[0.3rem]  bg-gray-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[2] absolute bottom-0 border left-[1rem] bg-gray-600 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[3] absolute bottom-0 border left-[2rem] bg-gray-500 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[4] absolute bottom-0 border left-[3rem] bg-gray-700 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[5] absolute bottom-0 border left-[4rem] bg-red-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[6] absolute bottom-0 border left-[5rem] bg-blue-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[7] absolute bottom-0 border left-[6rem] bg-gray-400 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[9] absolute bottom-0 border left-[7rem] bg-blue-700 w-8 h-8 rounded-full`}></div>
-                         <div className={`z-[10] absolute bottom-0 border left-[8rem] bg-green-400 w-8 h-8 rounded-full`}></div> */}
                     </div>
                 </div>
             </div>

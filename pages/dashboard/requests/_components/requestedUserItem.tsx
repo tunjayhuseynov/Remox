@@ -23,6 +23,8 @@ import { useAppSelector } from "redux/hooks";
 import useLoading from "hooks/useLoading";
 import { AiOutlineClose } from "react-icons/ai";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
+import SingleRequestModal from "./SingleRequestModal";
+
 
 const RequestedUserItem = ({
   request,
@@ -124,7 +126,7 @@ const RequestedUserItem = ({
     <>
       <tr
         ref={divRef}
-        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed  ? "" : request.status !== RequestStatus.rejected ? "!border-[#EF2727] border-2" : "" }  ${
+        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed  ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : "" }  ${
           detect
             ? "grid-cols-[25%,20.5%,19.5%,21%,14%] sm:grid-cols-[25%,20.5%,19.5%,21%,14%]"
             : "grid-cols-[27%,48%,25%]"
@@ -143,7 +145,7 @@ const RequestedUserItem = ({
                       ? true
                       : false
                   }
-                  className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block mr-2"
+                  className="relative cursor-pointer rounded-sm w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block mr-2"
                   onChange={(e) => {
                     const requests = [...selectedApprovedRequests];
                     if (e.target.checked) {
@@ -169,7 +171,7 @@ const RequestedUserItem = ({
                       ? true
                       : false
                   }
-                  className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block mr-2"
+                  className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:before:w-full rounded-sm checked:before:h-full checked:before:bg-primary checked:before:block mr-2"
                   onChange={(e) => {
                     const requests2 = [...selectedPendingRequests];
                     if (e.target.checked) {
@@ -184,7 +186,7 @@ const RequestedUserItem = ({
                     }
                   }}
                 />
-              ))) : <span className="bg-[#EF2727] text-white rounded-sm"><AiOutlineClose/></span> : "" }
+              ))) : <span className="bg-[#A60000] text-white rounded-sm"><AiOutlineClose/></span> : "" }
             {!payment && request.status === RequestStatus.rejected && (
               <img src="/icons/request/close.png" className="mr-2" />
             )}
@@ -335,172 +337,12 @@ const RequestedUserItem = ({
         </td>
       </tr>
         <Modal onDisable={setModal} openNotify={modal}>
-          <div className="w-full flex justify-center">
-            <div className="flex flex-col space-y-4 w-[40%] ">
-              <div className={` ${!isDark ? "border-2 border-solid border-[#FFF]" : ""}  p-5`}>
-                <div className="font-semibold text-xl">Overview</div>
-                <div className="flex flex-col space-y-2 mt-5">
-                  <div className="flex justify-between border-b pb-8">
-                    <div className="text-greylish">Status</div>
-                    <div className="flex gap-x-2 items-center ">
-                      <span className={`w-2 h-2 rounded-full ${request.status === RequestStatus.approved ? "bg-green-500" : request.status === RequestStatus.pending ? "bg-primary" : "bg-red-500"} `}></span>
-                      {request?.status}
-                    </div>
-                  </div>
-                </div>
-                <div className="font-semibold text-xl my-4">Payee information</div>
-                <div className="flex flex-col space-y-3">
-                  {!!request?.name && (
-                    <div className="flex justify-between">
-                      <div className="text-greylish">Full Name</div>
-                      <div>{`${request?.name} ${request?.surname}`}</div>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Wallet Adress</div>
-                    <div className="truncate">
-                      {request?.address !== undefined &&
-                        AddressReducer(request?.address)}
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Requesting Amount</div>
-                    <div className="flex flex-col space-y-3">
-                      <div>
-                        <div className="flex gap-x-5 justify-between">
-                          <div className="flex gap-x-2 items-center">
-                            <span className="w-2 h-2 rounded-full bg-primary"></span>
-                            {request?.amount}
-                          </div>
-                          <div className="flex gap-x-2 items-center">
-                            {!!request?.currency && (
-                              <div className="flex items-center">
-                                {request.usdBase ? (
-                                  <span className="mr-2">USD as</span>
-                                ) : (
-                                  ""
-                                )}
-                                <img
-                                  src={coin1!.logoURI}
-                                  className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                                />
-                              </div>
-                            )}
-                            {coin1 ? (
-                              <span>{coin1!.name}</span>
-                            ) : (
-                              "Token not provided"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      {!!request?.secondaryCurrency && !!request?.secondaryAmount && (
-                        <div>
-                          <div className="flex gap-x-5 justify-between">
-                            <div className="flex gap-x-2 items-center">
-                              <span className="w-2 h-2 rounded-full bg-primary"></span>
-                              {request?.secondaryAmount}
-                            </div>
-                            <div className="flex gap-x-2 items-center">
-                              {coin2 ? (
-                                <div className="flex items-center">
-                                  {request.usdBase ? (
-                                    <span className="mr-2">USD as</span>
-                                  ) : (
-                                    ""
-                                  )}
-                                  <img
-                                    src={coin2!.logoURI}
-                                    className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                                  />
-                                </div>
-                              ) : (
-                                ""
-                              )}
-                              {coin2 ? <span>{coin2.name}</span> : ""}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between border-b pb-8">
-                    <div className="text-greylish">Total</div>
-                    <div>
-                      {!request.usdBase
-                        ? request?.secondaryAmount && coin2
-                          ? (
-                              +request?.secondaryAmount * coin2?.priceUSD +
-                              +request?.amount * coin1!.priceUSD
-                            ).toFixed(4)
-                          : (+request?.amount * coin1!.priceUSD).toFixed(4)
-                        : request?.secondaryAmount
-                        ? request.amount + request.secondaryAmount
-                        : request.amount}{" "}
-                      USD
-                    </div>
-                  </div>
-                </div>
-                <div className="font-semibold text-xl my-4">Details</div>
-                <div className="flex flex-col space-y-4 mt-5">
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Request Type</div>
-                    <div>{request?.requestType}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Name of service</div>
-                    <div>{request?.nameOfService}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">Date of service</div>
-                    <div>
-                      {dateFormat(
-                        new Date(request!.serviceDate * 1000),
-                        `mmm dd, yyyy`
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">
-                      Attach links <span className="text-black">(Optional)</span>
-                    </div>
-                    <div>
-                      {request?.attachLink ? (
-                        <a
-                          href={request?.attachLink}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          {request?.attachLink}
-                        </a>
-                      ) : (
-                        "No link provided"
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="text-greylish">
-                      Upload receipt or invoice{" "}
-                      <span className="text-black block">(Optional)</span>
-                    </div>
-                    <div>
-                      {request?.uploadedLink ? (
-                        <a
-                          href={request?.uploadedLink}
-                          rel="noreferrer"
-                          target="_blank"
-                        ></a>
-                      ) : (
-                        "No file uploaded"
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="w-full z-[10] flex flex-col items-center gap-4  ">
+            <SingleRequestModal request={request} coin1={coin1} coin2={coin2}  />
                 {request.status === RequestStatus.pending  ? (
-                  <div className="flex justify-center pt-5 sm:pt-0">
+                  <div className="flex justify-center w-[60%] pt-5 sm:pt-0">
                     <Button
-                    version="second"
+                    version="reject"
                     className={`w-[9.375rem] text-lg sm:w-full ${isAllowed? "mr-2" : ""} !py `}
                     isLoading={isRejecting}
                     onClick={() => setRejecting()}
@@ -515,16 +357,15 @@ const RequestedUserItem = ({
                     >
                       Approve Request
                     </Button>}
-                  </div>) : <div className="flex justify-end pt-5 sm:pt-0">
+                  </div>) : <div className="w-[60%] flex justify-end pt-5 sm:pt-0">
                     <Button
-                      className=" text-lg !py-2"
+                      className=" text-lg !py-2 w-[40%]"
                         isLoading={isExecuting}
                         onClick={() => setExecuting()}
                     >
                       Confirm & Submit
                     </Button>
                   </div> } 
-            </div>
           </div>
         </Modal>
     </>

@@ -50,8 +50,8 @@ export default function RequestId() {
 
   const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
   const [selectedCoin, setSelectedCoin] = useState<AltCoins>();
-
   const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(GetCoins[0]);
+
   const [loader, setLoader] = useState<boolean>(true);
 
   const { register, handleSubmit } = useForm<IFormInput>();
@@ -111,8 +111,6 @@ export default function RequestId() {
 
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
-    const Wallet = selectedCoin;
-    const Wallet2 = selectedCoin2;
     const ServDate = dateValue;
     console.log(data.link);
 
@@ -129,24 +127,14 @@ export default function RequestId() {
         surname: data.surname,
         address: data.address,
         amount: data.amount.toString(),
-        currency:
-          Wallet === undefined
-            ? coin === "solana"
-              ? CoinsName.SOL
-              : CoinsName.CELO
-            : (Wallet.name as CoinsName),
+        currency: selectedCoin?.symbol ?? "",
         requestType: data.requestType,
         nameOfService: data.serviceName,
         serviceDate: GetTime(ServDate!),
         usdBase: selectedTypeIsUsd,
         timestamp: GetTime(),
         secondaryAmount: data.amount2 ? data.amount2.toString() : null,
-        secondaryCurrency:
-          Wallet2 === undefined
-            ? coin === "solana"
-              ? CoinsName.SOL
-              : CoinsName.CELO
-            : (Wallet2.name as CoinsName),
+        secondaryCurrency: selectedCoin2?.symbol ?? "",
         status: RequestStatus.pending,
         attachLink: data.link ? data.link : null,
         uploadedLink: Invoice ? url : null,

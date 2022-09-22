@@ -10,8 +10,8 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
     const divRef = useRef<HTMLTableRowElement>(null)
     const { GetCoins } = useWalletKit()
 
-    const coin1 = Object.values(GetCoins).find((coin) => coin.name === request.currency);
-    const coin2 = Object.values(GetCoins).find((coin) => coin.name === request.secondaryCurrency);
+    const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
+    const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondaryCurrency);
 
     useEffect(() => {
         if (divRef.current && window.innerWidth / divRef.current.clientWidth > 3) {

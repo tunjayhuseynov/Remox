@@ -42,13 +42,13 @@ export default function DynamicPayroll() {
             const amount = member.amount;
             const currency = member.currency;
             const address = member.address;
-            const coin = Object.values(GetCoins).find((coin) => coin.name === currency)!;
+            const coin = Object.values(GetCoins).find((coin) => coin.symbol === currency)!;
 
             if(member.usdBase){
                 if (member.secondaryAmount) {
                     const secondaryAmount = member.secondaryAmount;
                     const secondaryCurrency = member.secondaryCurrency;
-                    const coin2 = Object.values(GetCoins).find((coin) => coin.name === secondaryCurrency)!;
+                    const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency)!;
                     inputs.push({
                       amount: Number(secondaryAmount) / coin2.priceUSD,
                       coin: coin2.symbol,
@@ -65,7 +65,7 @@ export default function DynamicPayroll() {
                 if (member.secondaryAmount) {
                   const secondaryAmount = member.secondaryAmount;
                   const secondaryCurrency = member.secondaryCurrency;
-                  const coin2Symbol = Object.values(GetCoins).find((coin) => coin.name === secondaryCurrency)!.symbol;
+                  const coin2Symbol = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency)!.symbol;
                   inputs.push({
                     amount: Number(secondaryAmount),
                     coin: coin2Symbol,
@@ -78,7 +78,6 @@ export default function DynamicPayroll() {
                   coin: coin.symbol,
                   recipient: address,
                 });
-
             }
           };
     
@@ -96,14 +95,14 @@ export default function DynamicPayroll() {
         }
     }
     
-    const [isLoading, setExecuting] = useLoading(ExecutePayroll);
+
 
     const totalPrice: [{ [name: string]: number }, number] = useMemo(() => {
       let res: {[name: string]: number} = {};
       let total = 0
       for(const contributor of contributors){
-        const coin1 = Object.values(GetCoins).find((coin) => coin.name === contributor.currency)
-        const coin2 = Object.values(GetCoins).find((coin) => coin.name === contributor.secondaryCurrency)
+        const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.currency)
+        const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.secondaryCurrency)
 
         const amount = contributor.amount
         total += +amount * (coin1?.priceUSD ?? 0)
@@ -130,7 +129,7 @@ export default function DynamicPayroll() {
 
     return <div className="w-full h-full flex flex-col space-y-4">
         {<Modal onDisable={setRunmodal} openNotify={runmodal}  >    
-            <RunModal selectedContributors={selectedContributors} executePayroll={setExecuting} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} isLoading={isLoading} />
+            <RunModal selectedContributors={selectedContributors} ExecutePayroll={ExecutePayroll} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} />
         </Modal>}
         
         <>

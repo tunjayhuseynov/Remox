@@ -13,6 +13,7 @@ import useLoading from "hooks/useLoading";
 import { NFTFetcher } from "utils/nft";
 import { ToastRun } from "utils/toast";
 import { BlockchainType } from "types/blockchains";
+import Loader from "components/Loader";
 
 interface IProps {
     avatarUrl: string | null;
@@ -48,12 +49,14 @@ const style = {
 const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, userId, blockchain, size, noNFT = false }: IProps) => {
     const [avatar, setAvatar] = useState(avatarUrl);
     const [modal, setModal] = useState(false);
+    const [isLoading, setLoader] = useState<boolean>(false);
 
     const [nftModal, setNftModal] = useState(false);
 
     const dark = useAppSelector(SelectDarkMode)
 
     const uploadImage = async (e: SyntheticEvent<HTMLInputElement>) => {
+        setLoader(true);
         const file = e.currentTarget.files![0];
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -64,12 +67,14 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
                 onChange?.(url, "image")
             }
             setModal(false)
+            setLoader(false);
         }
     }
 
     const uploadNFT = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!blockchain) return ToastRun(<>Cannot find in which blockchain you are</>, "error")
+        setLoader(true);
         const { address, id } = e.target as { address?: HTMLInputElement, id?: HTMLInputElement };
         if (!address) return ToastRun(<>Please fill NFT address field</>, "error")
         if (blockchain.name !== "solana") {
@@ -88,6 +93,7 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
         } else {
             throw new Error("Cannot fetch NFT")
         }
+        setLoader(false);
     }
 
     const [loading, UploadNFT] = useLoading(uploadNFT)
@@ -97,7 +103,9 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
             width: (size ?? 5) + "rem",
             height: (size ?? 5) + "rem",
         }}>
-            <img src={avatar ?? makeBlockie(name)} className="rounded-full object-contain" />
+            {
+                isLoading ? <div className="flex items-center justify-center"><Loader/></div>  : <img src={avatar ?? makeBlockie(name)} className="rounded-full object-contain" />
+            }
         </div>
         <div className="absolute right-0 bottom-0 w-[33%] h-[33%]">
             <div className="bg-gray-200 rounded-full flex justify-center items-center cursor-pointer w-full h-full hover:bg-gray-300" onClick={() => setModal(!modal)}>

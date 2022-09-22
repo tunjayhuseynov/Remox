@@ -78,13 +78,13 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     <span className="font-sans font-semibold  xl:text-sm leading-4 ">Payments</span>
                 </AccordionSummary>
                 <AccordionDetails >
-                    <Typography  >
+                    <div>
                         <NavLink to="/dashboard/budgets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Budgets"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><BudgetsSVG active={isActive} darkMode={darkMode} />{showbar && 'Budgets'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=payroll" className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Payroll"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><PayrollSVG active={isActive} darkMode={darkMode} />{showbar && 'Payroll'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=requests" className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Request"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><RequestsSVG active={isActive} darkMode={darkMode} />{showbar && 'Requests'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=contributors" className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Contributors"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><TeamsSVG active={isActive} darkMode={darkMode} />{showbar && 'Contributors'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Recurring"} showbar={showbar}><AutomationsSVG active={isActive} darkMode={darkMode} />{showbar && 'Recurring'}</Li>}</NavLink>
-                    </Typography>
+                    </div>
                 </AccordionDetails>
             </Accordion>
 
@@ -96,11 +96,11 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     <span className="font-sans font-semibold  xl:text-sm  leading-4 ">Analytics</span>
                 </AccordionSummary>
                 <AccordionDetails  >
-                    <Typography  >
+                    <div>
                         <NavLink to="/dashboard/transactions" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Transactions"} showbar={showbar}><TransactionsSVG active={isActive} darkMode={darkMode} />{showbar && 'Transactions'}</Li>}</NavLink>
                         <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Assets"} showbar={showbar}><AssetsSVG active={isActive} darkMode={darkMode} />{showbar && 'Assets'}</Li>}</NavLink>
                         <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Insight"} showbar={showbar}><InsightSVG active={isActive} darkMode={darkMode} />{showbar && 'Insights'}</Li>}</NavLink>
-                    </Typography>
+                    </div>
                 </AccordionDetails>
             </Accordion>
 
@@ -113,11 +113,11 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     <span className="font-sans font-semibold  xl:text-sm  leading-4 ">Investments</span>
                 </AccordionSummary>
                 <AccordionDetails >
-                    <Typography  >
+                    <div>
                         <NavLink to="/dashboard/risk" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Risk Assessment"} showbar={showbar}><RiskSVG active={isActive} darkMode={darkMode} />{showbar && 'Risk Assessment'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend & Borrow'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=swap" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
-                    </Typography>
+                    </div>
                 </AccordionDetails>
             </Accordion>
             {showbar && <><div className=" border-b dark:border-[#454545] my-4 w-full"></div>

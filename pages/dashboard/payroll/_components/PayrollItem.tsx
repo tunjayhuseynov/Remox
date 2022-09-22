@@ -1,6 +1,7 @@
 import { Checkbox } from "@mui/material";
 import Avatar from "components/avatar";
 import dateFormat from "dateformat";
+import makeBlockie from "ethereum-blockies-base64";
 import { useWalletKit } from "hooks";
 import { Dispatch, SetStateAction } from "react";
 import { useAppSelector } from "redux/hooks";
@@ -21,8 +22,8 @@ interface IProps {
 
 const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, runmodal }: IProps) => {
     const {GetCoins } = useWalletKit()
-    const coin1 = Object.values(GetCoins).find((coin) => coin.name ===  member.currency)
-    const coin2 = Object.values(GetCoins).find((coin) => coin.name ===  member.secondaryCurrency)
+    const coin1 = Object.values(GetCoins).find((coin) => coin.symbol ===  member.currency)
+    const coin2 = Object.values(GetCoins).find((coin) => coin.symbol ===  member.secondaryCurrency)
 
   return (
     <tr className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
@@ -67,15 +68,11 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
                 : "pl-3"
             } `}
           >
-            {member.image !== null ? (
               <img
-                src={`/icons/profilePhoto/${member.image}`}
+                src={member.image?.imageUrl ?? makeBlockie(member.address)}
                 alt=""
                 className="rounded-full border w-12 object-cover h-12"
               />
-            ) : (
-              <Avatar name={member.first} surname={member.last} />
-            )}
             <div className="flex flex-col text-left   ">
               <div className=" h-6 font-medium text-lg">{member.name}</div>
               <div className="text-greylish font-medium text-[10px]">
@@ -119,7 +116,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
               <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full " />
             </div>
           )}
-          <div className="text-lg font-medium flex justify-start">
+          <div className="text-lg font-medium flex justify-start ml-2">
             {SetComma(parseFloat(member.amount))}
           </div>
           <div></div>

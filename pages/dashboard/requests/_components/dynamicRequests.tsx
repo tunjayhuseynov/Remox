@@ -20,6 +20,8 @@ import useLoading from "hooks/useLoading";
 import { SelectID } from "redux/slices/account/remoxData";
 import { useWalletKit } from "hooks";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
+import ModalAllocation from "pages/dashboard/payroll/_components/modalpay/modalAllocation";
+import ApprovePendings from "./Modals/ApprovePendings";
 
 export default function DynamicRequest({
   type,
@@ -76,35 +78,55 @@ export default function DynamicRequest({
         const amount = request.amount;
         const currency = request.currency;
         const address = request.address;
-        const coinSymbol = Object.values(GetCoins).find((coin) => coin.name === currency)!.symbol;
-        if (request.secondaryAmount) {
-          const secondaryAmount = request.secondaryAmount;
-          const secondaryCurrency = request.secondaryCurrency;
-          const coin2Symbol = Object.values(GetCoins).find((coin) => coin.name === secondaryCurrency)!.symbol;
+        const coin = Object.values(GetCoins).find((coin) => coin.symbol === currency);
+        
+        if(request.usdBase) {
+          if (request.secondaryAmount) {
+            const secondaryAmount = request.secondaryAmount;
+            const secondaryCurrency = request.secondaryCurrency;
+            const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency);
+            inputs.push({
+              amount: Number(secondaryAmount) / (coin2?.priceUSD ?? 1),
+              coin: coin2?.symbol ?? "",
+              recipient: address,
+            });
+          }
           inputs.push({
-            amount: Number(secondaryAmount),
-            coin: coin2Symbol,
+            amount: Number(amount) / (coin?.priceUSD ?? 1),
+            coin: coin?.symbol ?? "",
+            recipient: address,
+          });
+        } else {
+          if (request.secondaryAmount) {
+            const secondaryAmount = request.secondaryAmount;
+            const secondaryCurrency = request.secondaryCurrency;
+            const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency);
+            inputs.push({
+              amount: Number(secondaryAmount),
+              coin: coin2?.symbol ?? "",
+              recipient: address,
+            });
+          }
+          inputs.push({
+            amount: Number(amount),
+            coin: coin?.symbol ?? "",
             recipient: address,
           });
         }
-        inputs.push({
-          amount: Number(amount),
-          coin: coinSymbol,
-          recipient: address,
-        });
-
-        await removeRequest(request, userId ?? "");
-        dispatch(removeApprovedRequest(request.id));
-
       };
 
-      console.log("inputs");
-      console.log(inputs);
       await SendTransaction(accountAndBudget.account!, inputs, {
         budget: accountAndBudget.budget,
       })
 
       inputs = [];
+
+      for(const request of requests) {
+        await removeRequest(request, userId ?? "");
+        dispatch(removeApprovedRequest(request.id));
+      }
+
+      setSelectedApprovedRequests([])
       setNotify(false);
     } catch (error) {
       console.log(error);
@@ -139,7 +161,7 @@ export default function DynamicRequest({
                 <div
                   className={`font-semibold text-lg text-greylish dark:text-white ${
                     selectedApprovedRequests.length > 0 && "border-r"
-                  }  border-greylish dark:border-[#454545]  border-opacity-10  h-9`}
+                  } dark:border-[#D6D6D6]  border-opacity-10  h-9`}
                 >
                   Total Treasury
                 </div>
@@ -148,12 +170,12 @@ export default function DynamicRequest({
                   <TotalAmount coinList={selectedApprovedRequests} />
                 </div>
                 {selectedApprovedRequests.length > 0 && (
-                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-10 "></div>
                 )}
               </div>
               {selectedApprovedRequests.length > 0 && (
                 <div className=" w-full relative">
-                  <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
+                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-10 "></div>
                   <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
                     Token Allocation
                   </div>
@@ -166,41 +188,7 @@ export default function DynamicRequest({
           </>
         )}
         <Modal onDisable={setNotify2} openNotify={openNotify2}>
-          <div className="flex flex-col w-[92.5%] h-[80%]  mx-auto">
-            <div className="text-2xl font-semibold  mb-4">
-              Pending Requests
-            </div>
-            <table className="w-full pt-12 pb-4">
-              <thead>
-                <tr className="grid grid-cols-[25%,20%,20%,20%,15%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
-                    Name
-                  </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                    Request date
-                  </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                    Requested Amount
-                  </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                    Requests Type
-                  </th>
-                </tr>
-                {selectedpPendingRequests.map((s) => (
-                  <ModalRequestItem key={s.id} request={s} />
-                ))}
-              </thead>
-            </table>
-            <div className="w-full flex justify-end">
-              <Button
-                isLoading={isApproving}
-                onClick={() => setApproving()}
-                className={"py-3 px-16 mt-10 mb-3 text-lg"}
-              >
-                Approve Requests
-              </Button>
-            </div>
-          </div>
+          <ApprovePendings selectedpPendingRequests={selectedpPendingRequests} isApproving={isApproving} setApproving={setApproving} />
         </Modal>
         <table className="w-full pt-4 pb-6 mt-5">
           <thead>
@@ -211,7 +199,7 @@ export default function DynamicRequest({
                     sx={{ "&.Mui-checked": { color: "#ff7348" } }}
                     size="small"
                     className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:
-                    before:w-full checked:before:h-full checked:before:bg-primary checked:before:block"
+                    before:w-full checked:before:h-full checked:before:bg-primary checked:before:block rounded-sm"
                     onChange={(e) => {
                       if (e.target.checked) {
                         (page as RequestStatus) === RequestStatus.approved
@@ -271,17 +259,17 @@ export default function DynamicRequest({
             </tr>
             {requestsList.map((request) => {
               const coin1 = Object.values(GetCoins).find(
-                (coin) => coin.name === request.currency
+                (coin) => coin.symbol === request.currency
               );
               const coin2 = Object.values(GetCoins).find(
-                (coin) => coin.name === request.secondaryCurrency
+                (coin) => coin.symbol === request.secondaryCurrency
               );
               let isAllowed: boolean = true;
               const balance1 = Object.values(balance).find(
-                (coin) => coin.name === request.currency
+                (coin) => coin.symbol === request.currency
               )!.amount;
               const balance2 = Object.values(balance).find(
-                (coin) => coin.name === request.secondaryCurrency
+                (coin) => coin.symbol === request.secondaryCurrency
               )?.amount;
               if (request.secondaryCurrency) {
                 if (
@@ -345,35 +333,7 @@ export default function DynamicRequest({
               <p className="py-2 text-xl font-semibold">
                 Review Treasury Impact
               </p>
-              <div className="w-full flex  py-6 px-7 bg-white shadow-15 dark:bg-darkSecond  rounded-md">
-                <div className="relative">
-                  <div
-                    className={`font-semibold text-lg text-greylish dark:text-white ${
-                      selectedApprovedRequests.length > 0 && "border-r"
-                    }  border-greylish dark:border-[#454545]  border-opacity-10  h-9`}
-                  >
-                    Total Treasury
-                  </div>
-
-                  <div className="flex flex-col items-end w-[11.05rem] ">
-                    <TotalAmount coinList={selectedApprovedRequests} />
-                  </div>
-                  {selectedApprovedRequests.length > 0 && (
-                    <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
-                  )}
-                </div>
-                {selectedApprovedRequests.length > 0 && (
-                  <div className=" w-full relative">
-                    <div className="h-[1px] border-b border-greylish dark:border-[#454545]  border-opacity-10 absolute w-full bottom-10 "></div>
-                    <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
-                      Token Allocation
-                    </div>
-                    <div className="pl-5">
-                      <TokenBalance coinList={selectedApprovedRequests} />
-                    </div>
-                  </div>
-                )}
-              </div>
+              <ModalAllocation selectedList={selectedApprovedRequests} />
             </>
             <div className="flex justify-end">
               <Button

@@ -7,39 +7,40 @@ import useContributors from "hooks/useContributors";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { removeMemberFromContributor } from "redux/slices/account/remoxData";
+import { removeMemberFromContributor, SelectContributors } from "redux/slices/account/remoxData";
 import { useModalSideExit } from "hooks";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import makeBlockie from "ethereum-blockies-base64";
 
 interface PageProps {
     member: IMember,
-    teamName: string,
 }
 
-const ContributorItem = ({ member, teamName }: PageProps) => {
+const ContributorItem = ({ member }: PageProps) => {
 
     const { removeMember } = useContributors()
     const navigate = useRouter()
+    const contirbutors = useAppSelector(SelectContributors)
+
+    const teamName = contirbutors.find((team) => team.id === member.teamId)?.name
 
 
     const [deleteModal, setDeleteModal] = useState(false)
     const [details, setDetails] = useState(false)
-    const [loading, setLoading] = useState<boolean>(false)
+
     const { GetCoins } = useWalletKit()
     const dark = useAppSelector(SelectDarkMode)
     const dispatch = useDispatch();
 
-    const coin1 = Object.values(GetCoins).find(w => w.name === member.currency)
-    const coin2 = Object.values(GetCoins).find(w => w.name === member.secondaryCurrency)
+    const coin1 = Object.values(GetCoins).find(w => w.symbol === member.currency)
+    const coin2 = Object.values(GetCoins).find(w => w.symbol === member.secondaryCurrency)
 
     const onDelete = async () => {
         try {
-            setLoading(true)
             await removeMember(member.teamId, member.id)
             dispatch(removeMemberFromContributor({ id: member.teamId, member: member }))
-            setLoading(false)
         } catch (error) {
             throw error
         }
@@ -54,11 +55,11 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
                 <Delete name={member.name} onDelete={onDelete} onCurrentModal={setDeleteModal} />
             </Modal>
         }
-        <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[15%,13%,14%,16%,15%,20%,7%] text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
+        <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%]  text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
             <th className="pl-3 items-start">
-                <div className=" flex items-center space-x-1" >
-                    {member.image !== null ? <img src={member.image.imageUrl} alt="" className="rounded-full border w-10 object-cover h-10" /> : <Avatar name={member.first} surname={member.last} />}
-                    <div className=" text-base text-left">
+                <div className="flex !items-center space-x-1" >
+                    <img src={member.image ? member.image.imageUrl : makeBlockie(member.address)} alt="" className="rounded-full border w-10 object-cover h-10 mr-2" />
+                    <div className="text-base">
                         {member.name}
                     </div>
                 </div>
@@ -72,7 +73,7 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
             <th className="flex flex-col items-start space-y-4">
                 <div className=" pl-[2px] flex items-center justify-start gap-1">
                     {member.usdBase ? <div className="flex items-center gap-1">USD as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center mr-1">
                             <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
                         </div>
                     }
@@ -82,7 +83,7 @@ const ContributorItem = ({ member, teamName }: PageProps) => {
                     </div>
                 </div>
                 {(member.secondaryCurrency && member.secondaryAmount) && <div className="pl-[2px] flex items-center justify-start gap-1">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 mr-1">
                         <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
                     </div>
                     <div className=" text-base">{member.secondaryAmount}</div>

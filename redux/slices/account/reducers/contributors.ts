@@ -9,27 +9,35 @@ export default {
     },
     addMemberToContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
-            if (contributor !== undefined) {
-                contributor.members.push(action.payload.member);
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if (contributorIndex !== -1) {
+                state.contributors[contributorIndex].members = [...state.contributors[contributorIndex].members, action.payload.member];
             }
         }
     },
     removeMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
-            if (contributor !== undefined) {
-                contributor.members = contributor.members.filter((member) => member.id !== action.payload.member.id);
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if (contributorIndex !== -1) {
+                state.contributors[contributorIndex].members = state.contributors[contributorIndex].members.filter((member) => member.id !== action.payload.member.id);
             }
         }
     },
     updateMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
-            const contributor = state.contributors.find((contributor) => contributor.id === action.payload.id);
-            if (contributor !== undefined) {
-                let selectedMemberIndex = contributor.members.findIndex((member) => member.id === action.payload.member.id);
-                if (selectedMemberIndex !== -1) {
-                   contributor.members[selectedMemberIndex] = action.payload.member; 
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if(contributorIndex !== -1){
+                const memberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
+                if(memberIndex !== -1){
+                    if(action.payload.id === action.payload.member.teamId){
+                        state.contributors[contributorIndex].members[memberIndex] = action.payload.member;
+                    } else {
+                        const newTeamIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.member.teamId);
+                        state.contributors[contributorIndex].members = state.contributors[contributorIndex].members.filter((member) => member.id !== action.payload.member.id);
+                        if(newTeamIndex !== -1){
+                            state.contributors[newTeamIndex].members = [...state.contributors[newTeamIndex].members, action.payload.member];
+                        }
+                    }
                 }
             }
         }

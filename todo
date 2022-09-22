@@ -28,3 +28,4 @@
 //TODO: 28.Spendingde Fee meselesini tamamla
 //TODO: 29. Multisigde Sign elemek var amm Reject elemek yoxdu!!!!!!!!!
 //TODO: 30. Transaction API post methodu ile body qebul etmelidi ve addressler ve onlarin blockchain'leri gonderilmelidi ki, multi chain olsun 
+//TODO: 31. Edit Contributors Edit Team ishlemir, ve ikinci defe dit basanda error verir
