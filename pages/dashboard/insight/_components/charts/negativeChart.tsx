@@ -1,6 +1,6 @@
 import useNextSelector from 'hooks/useNextSelector';
 import dynamic from 'next/dynamic';
-import { IFlowDetail } from 'pages/api/calculation/_spendingType.api';
+import { IFlowDetail } from 'pages/api/calculation/_spendingType';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 
 const ReactApexChart = dynamic(

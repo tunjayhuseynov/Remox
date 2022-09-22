@@ -12,6 +12,12 @@ export interface AltCoins {
   chainID: number;
   logoURI: string;
   priceUSD: number;
+  priceAUD: number;
+  priceCAD: number;
+  priceEUR: number;
+  priceGBP: number;
+  priceJPY: number;
+  priceTRY: number;
   symbol: string;
   current_balance?: number;
 }

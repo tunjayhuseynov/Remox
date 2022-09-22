@@ -24,10 +24,6 @@ export interface IBudgetCoin {
 }
 
 export interface IBudgetORM extends IBudget {
-    totalBudget: number,
-    totalUsed: number,
-    totalPending: number,
-    totalAvailable: number,
     budgetCoins: IBudgetCoin,
     subbudgets: ISubbudgetORM[],
     tags: {
@@ -37,19 +33,11 @@ export interface IBudgetORM extends IBudget {
 }
 
 export interface ISubbudgetORM extends ISubBudget {
-    totalBudget: number,
-    totalUsed: number,
-    totalPending: number,
-    totalAvailable: number,
     budgetCoins: IBudgetCoin,
 }
 
 export interface IBudgetExerciseORM extends IBudgetExercise {
     budgets: IBudgetORM[],
-    totalBudget: number,
-    totalUsed: number,
-    totalAvailable: number,
-    totalPending: number,
     budgetCoins: IBudgetCoin[],
 }
 
@@ -109,10 +97,6 @@ export default async function handler(
             exercises.push({
                 ...budget_exercise,
                 budgets: orm,
-                totalBudget: orm.reduce((a, c) => c.totalBudget + a, 0),
-                totalAvailable: orm.reduce((a, c) => c.totalAvailable + a, 0),
-                totalUsed: orm.reduce((a, c) => c.totalUsed + a, 0),
-                totalPending: orm.reduce((a, c) => c.totalPending + a, 0),
                 budgetCoins: totalBudgetCoin.reduce<IBudgetCoin[]>((a, c) => {
                     if (a.some(s => s.coin === c.coin)) {
                         const index = a.findIndex(s => s.coin === c.coin)

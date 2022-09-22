@@ -105,14 +105,6 @@ export default function useWalletKit() {
     }
   };
 
-  const fromMinScale = useMemo(() => {
-    if (blockchain.name === "celo") {
-      return fromWei;
-    }
-
-    return fromLamport;
-  }, [blockchain]);
-
   const signMessageInWallet = useCallback(
     async (nonce: number) => {
       if (blockchain.name === "celo") {
@@ -268,7 +260,7 @@ export default function useWalletKit() {
         if (cancelStreaming && streamingIdTxHash) {
           const web3 = new Web3(blockchain.rpcUrl);
           streamId = hexToNumberString((await web3.eth.getTransactionReceipt(streamingIdTxHash)).logs[1].topics[1])
-        } else if(cancelStreaming && streamingIdDirect){
+        } else if (cancelStreaming && streamingIdDirect) {
           streamId = streamingIdDirect
         }
 
@@ -329,6 +321,7 @@ export default function useWalletKit() {
 
           if (account.signerType === "single") {
             const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
+              console.log(receipt)
               dispatch(Add_Tx_To_TxList_Thunk({
                 account: account,
                 authId: id,
@@ -340,10 +333,12 @@ export default function useWalletKit() {
             type = "single"
             txhash = hash;
           } else {
+            if (!account.provider) throw new Error("Provider not found")
             const txHash = await submitTransaction(
               account,
               data,
-              destination
+              destination,
+              account.provider
             );
             txhash = txHash;
             type = "multi"
@@ -359,10 +354,12 @@ export default function useWalletKit() {
           const destination = txData.destination;
 
           if (account.signerType === "multi") {
+            if (!account.provider) throw new Error("Provider not found")
             const txHash = await submitTransaction(
               account,
               data,
-              destination
+              destination,
+              account.provider
             );
             txhash = txHash;
             type = "multi"
@@ -474,7 +471,6 @@ export default function useWalletKit() {
     SendTransaction,
     Collection,
     setBlockchainAuto,
-    fromMinScale,
     signMessageInWallet,
   };
 }

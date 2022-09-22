@@ -4,7 +4,7 @@ import Siderbarlist from './sidebarlist'
 import Button from 'components/button';
 import { useRouter } from 'next/router';
 import { useAppSelector } from 'redux/hooks';
-import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization, SelectTotalBalance } from 'redux/slices/account/remoxData';
 import { SetComma } from 'utils';
 import makeBlockie from 'ethereum-blockies-base64';
 
@@ -15,6 +15,7 @@ const Sidebar = () => {
     const individual = useAppSelector(SelectIndividual)
     const selectedAccountType = useAppSelector(SelectAccountType)
     const accounts = useAppSelector(SelectAccounts)
+    const totalBalance = useAppSelector(SelectTotalBalance)
 
     const navigator = useRouter()
     const [showBar, setShowBar] = useState<boolean>(true)
@@ -43,7 +44,7 @@ const Sidebar = () => {
         id: "0",
         name: individual?.name ?? "",
         image: (typeof individual?.image?.imageUrl === 'string' ? individual.image.imageUrl : null) ?? individual?.image?.nftUrl ?? makeBlockie(individual!.id),
-        secondValue: `$${SetComma(accounts.reduce((acc, e) => acc + e.totalValue, 0))}`,
+        secondValue: `$${totalBalance.toFixed(2)}`,
         onClick: () => { }
     })
 

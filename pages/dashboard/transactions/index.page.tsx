@@ -9,7 +9,7 @@ import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags, SelectTransactions } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
@@ -314,6 +314,7 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
             Object.entries(groupBatch).forEach(([key, value]) => {
                 let tx: IBatchRequest = {
                     timestamp: transaction.timestamp,
+                    isError: transaction.isError,
                     method: transaction.method,
                     id: transaction.id,
                     hash: transaction.hash,
@@ -330,6 +331,7 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
             Object.entries(groupBatch).forEach(([key, value]) => {
                 let tx: IAutomationBatchRequest = {
                     timestamp: transaction.timestamp,
+                    isError: transaction.isError,
                     method: transaction.method,
                     id: transaction.id,
                     hash: transaction.hash,

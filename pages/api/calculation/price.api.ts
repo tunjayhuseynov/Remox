@@ -1,11 +1,14 @@
 import { BASE_URL, IPrice } from "utils/api";
 import axios from "axios";
-import { Balance } from "hooks/useCalculation";
 import { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, TokenType } from "types";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import axiosRetry from "axios-retry";
+
+export interface Balance {
+    [name: string]: string;
+}
 
 export interface IPriceCoin {
     coins: AltCoins;
@@ -29,7 +32,7 @@ export interface IPriceCoin {
 
 export interface IPriceResponse {
     AllPrices: IPrice,
-    TotalBalance: number
+    // TotalBalance: number
 }
 
 export default async function handler(
@@ -48,27 +51,27 @@ export default async function handler(
         const fetchCurrenices = fetchCurrenicesReq.docs.map(s => s.data() as AltCoins)
 
         axiosRetry(axios, { retries: 10 });
-   
+
         const balance = await axios.get<Balance>(BASE_URL + '/api/calculation/balance', {
             params: {
                 addresses: parsedAddress,
                 blockchain: blockchain.name,
             }
-        })  
+        })
 
         const AllPrices = ParseAllPrices(fetchCurrenices, balance.data, blockchain)
-        const totalPrice = Total(fetchCurrenices, balance.data)
+        // const totalPrice = Total(fetchCurrenices, balance.data)
 
         res.status(200).json({
             AllPrices: AllPrices,
-            TotalBalance: totalPrice
         })
     } catch (error) {
         throw new Error((error as any).message)
     }
 }
 
-const Total = (fetchedCurrencies: AltCoins[], balance: Balance) => fetchedCurrencies.reduce((a, c) => a + (c.priceUSD * parseFloat((balance?.[c.symbol]) ?? "0")), 0)
+// const Total = (fetchedCurrencies: AltCoins[], balance: Balance, fiatPrice: "priceUSD" | "priceAUD" | 'priceCAD' | 'priceEUR' | 'priceGBP' | 'priceJPY' | "priceTRY") =>
+//     fetchedCurrencies.reduce((a, c) => a + (c[fiatPrice] * parseFloat((balance?.[c.symbol]) ?? "0")), 0)
 
 const ParseAllPrices = (fetchedCurrencies: AltCoins[], balance: Balance, blockchain: BlockchainType) => {
     // const CoinsReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
@@ -88,13 +91,25 @@ const ParseAllPrices = (fetchedCurrencies: AltCoins[], balance: Balance, blockch
         return 0
     }).reduce<IPrice>((a, c) => {
         const amount = parseFloat((balance?.[c.symbol]) ?? "0");
-        const price = c.priceUSD * amount;
-        const obj : IPrice[0] = {
+        // const price = c.priceUSD * amount;
+        const obj: IPrice[0] = {
             coins: c,
-            amountUSD: price,
+            // amountUSD: price,
+            // amountAUD: amount * c.priceAUD,
+            // amountCAD: amount * c.priceCAD,
+            // amountEUR: amount * c.priceEUR,
+            // amountGBP: amount * c.priceGBP,
+            // amountJPY: amount * c.priceJPY,
+            // amountTRY: amount * c.priceTRY,
             amount,
-            percent: (price * 100) / Total(fetchedCurrencies, balance),
-            tokenPrice: c.priceUSD,
+            // percentUSD: (price * 100) / Total(fetchedCurrencies, balance, "priceUSD"),
+            // percentAUD: (price * 100) / Total(fetchedCurrencies, balance, "priceAUD"),
+            // percentCAD: (price * 100) / Total(fetchedCurrencies, balance, "priceCAD"),
+            // percentEUR: (price * 100) / Total(fetchedCurrencies, balance, "priceEUR"),
+            // percentGBP: (price * 100) / Total(fetchedCurrencies, balance, "priceGBP"),
+            // percentJPY: (price * 100) / Total(fetchedCurrencies, balance, "priceJPY"),
+            // percentTRY: (price * 100) / Total(fetchedCurrencies, balance, "priceTRY"),
+            // tokenPrice: c.priceUSD,
             ...c
         };
         a[c.symbol] = obj;

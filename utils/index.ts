@@ -155,7 +155,7 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 		case TransactionDirection.In:
 			if (isMultisig) {
 				img = blockchain.multisigProviders[0].logoURL;
-				name = blockchain.multisigProviders[0].name;
+				name = blockchain.multisigProviders[0].displayName;
 			} else {
 				img = REMOX_LOGO
 				name = 'Remox'
@@ -165,7 +165,7 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 		case TransactionDirection.Out:
 			if (isMultisig) {
 				img = blockchain.multisigProviders[0].logoURL;
-				name = blockchain.multisigProviders[0].name;
+				name = blockchain.multisigProviders[0].displayName;
 			} else {
 				img = REMOX_LOGO
 				name = 'Remox'
@@ -214,22 +214,22 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			break;
 		case TransactionDirection.AddOwner:
 			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].name;
+			name = blockchain.multisigProviders[0].displayName;
 			action = "Add Owner"
 			break;
 		case TransactionDirection.RemoveOwner:
 			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].name;
+			name = blockchain.multisigProviders[0].displayName;
 			action = "Remove Owner"
 			break;
 		case TransactionDirection.changeInternalRequirement:
 			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].name;
+			name = blockchain.multisigProviders[0].displayName;
 			action = "Change Internal Threshold"
 			break;
 		case TransactionDirection.ChangeRequirement:
 			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].name;
+			name = blockchain.multisigProviders[0].displayName;
 			action = "Change Threshold"
 			break;
 		default:

@@ -30,22 +30,14 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
     const exercise = await Get_Budget_Exercise(budget.parentId);
     (exercise.budgets as IBudget[]) = [...exercise.budgets as IBudget[], budget];
     await Update_Budget_Exercise(exercise)
-    const totalBudget = (currencies[budget.token].priceUSD * budget.amount) + ((currencies[budget?.secondToken ?? ""]?.priceUSD ?? 0) * (budget.secondAmount ?? 0))
+
     api.dispatch(addBudget({
         ...budget,
-        totalBudget,
-        totalPending: 0,
-        totalUsed: 0,
-        totalAvailable: totalBudget,
         tags: [],
         subbudgets: budget.subbudgets.map(sub => {
-            let totalBudget = (currencies[sub.token].priceUSD * sub.amount) + ((currencies[sub?.secondToken ?? ""]?.priceUSD ?? 0) * (sub.secondAmount ?? 0))
+
             return {
                 ...sub,
-                totalBudget,
-                totalAvailable: totalBudget,
-                totalUsed: 0,
-                totalPending: 0,
                 budgetCoins: {
                     coin: sub.token,
                     totalAmount: sub.amount,

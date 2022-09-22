@@ -2,12 +2,11 @@ import axios from "axios";
 import { IBudget, IBudgetTX } from "firebaseConfig";
 import { BlockchainType } from "types/blockchains";
 import { BASE_URL } from "utils/api";
-import { ISpendingResponse, ITagFlow } from "../calculation/_spendingType.api";
+import { ISpendingResponse, ITagFlow } from "../calculation/_spendingType";
 import { IBudgetCoin, IBudgetORM, ISubbudgetORM } from "./index.api";
 import { IPriceResponse } from "../calculation/price.api";
 import { MultisigTxCal } from "./MultisigTxCal";
-import { ITag, ITxTag } from "../tags/index.api";
-import { isHex } from "web3-utils";
+import { ITag } from "../tags/index.api";
 import axiosRetry from "axios-retry";
 
 export const CalculateBudget = async (budget: IBudget, parentId: string, parsedAddress: string[], blockchain: string, blockchainType: BlockchainType, prices: IPriceResponse, tags: ITag[]) => {
@@ -15,7 +14,6 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
     const singleTxs = budget.txs.filter(tx => tx.contractType === "single");
     const multiTxs = budget.txs.filter(tx => tx.contractType === "multi");
 
-    let totalBudget: number = 0, totalBudgetUsed: number = 0, totalBudgetPending: number = 0, totalBudgetAvailable: number = 0;
     let totalFirstCoinPending = 0, totalSecondCoinPending = 0, totalFirstCoinSpent = 0, totalSecondCoinSpent = 0;
 
     axiosRetry(axios, { retries: 10 });
@@ -40,7 +38,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         const multiTxs = tag.transactions.filter(
             s => s.contractType == "multi" && budget.txs.find(a => a.contractAddress.toLowerCase() === s.contractType.toLowerCase() && a.hashOrIndex.toLowerCase() === s.hash.toLowerCase())
         );
-        if(singleTxs.length === 0 && multiTxs.length == 0) {
+        if (singleTxs.length === 0 && multiTxs.length == 0) {
             continue;
         }
         const tagSpending = singleTxs.length > 0 ? await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
@@ -91,8 +89,6 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
     const txMultisigResponse = await Promise.allSettled(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType, budget.token, budget.secondToken ?? undefined)))
     txMultisigResponse.forEach(tx => {
         if (tx.status === "fulfilled") {
-            totalBudgetPending += tx.value.totalBudgetPending;
-            totalBudgetUsed += tx.value.totalBudgetUsed;
 
             totalFirstCoinPending += tx.value.totalFirstCoinPending;
             totalSecondCoinPending += tx.value.totalSecondCoinPending;
@@ -111,7 +107,6 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         return a;
     }, {})
 
-    totalBudget += ((budget.amount * prices.AllPrices[budget.token].priceUSD) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].priceUSD : 0)));
     let budgetCoin: IBudgetCoin = {
         coin: budget.token,
         totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
@@ -128,9 +123,6 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
     totalBudgetCoin = budgetCoin
 
 
-    totalBudgetUsed += spending.data.TotalSpend;
-    totalBudgetAvailable += totalBudget - totalBudgetUsed - totalBudgetPending;
-
     /*Subbudget Calculation */
     /*Subbudget Calculation */
     /*Subbudget Calculation */
@@ -138,7 +130,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
     for (const subbudget of budget.subbudgets) {
         const singleTxs = subbudget.txs.filter(tx => tx.contractType === "single");
         const multiTxs = subbudget.txs.filter(tx => tx.contractType === "multi");
-        let totalSubBudget: number = 0, totalSubUsed: number = 0, totalSubPending: number = 0, totalSubAvailable: number = 0;
+
         let totalSubFirstCoinPending = 0, totalSubSecondCoinPending = 0, totalSubFirstCoinSpent = 0, totalSubSecondCoinSpent = 0;
         const spending = await axios.get<ISpendingResponse>(BASE_URL + "/api/calculation/spending", {
             params: {
@@ -162,15 +154,11 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
 
         const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType)))
         txMultisigResponse.forEach(tx => {
-            totalSubPending += tx.totalBudgetPending;
-            totalSubUsed += tx.totalBudgetUsed;
             totalSubFirstCoinPending += tx.totalFirstCoinPending;
             totalSubSecondCoinPending += tx.totalSecondCoinPending;
             totalSubFirstCoinSpent += tx.totalFirstCoinSpent;
             totalSubSecondCoinSpent += tx.totalSecondCoinSpent;
         })
-
-        totalSubBudget += ((budget.amount * prices.AllPrices[budget.token].priceUSD) + ((budget.secondAmount ?? 1) * (budget.secondToken ? prices.AllPrices[budget.secondToken].priceUSD : 1)));
 
         let budgetCoin: IBudgetCoin = {
             coin: subbudget.token,
@@ -185,16 +173,10 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             } : null
         }
 
-        totalSubUsed += spending.data.TotalSpend;
-        totalSubAvailable += totalSubBudget - totalSubUsed - totalSubPending;
 
         subbudgets.push({
             ...subbudget,
-            totalBudget: totalSubBudget,
-            totalPending: totalSubPending,
             budgetCoins: budgetCoin,
-            totalAvailable: totalSubAvailable,
-            totalUsed: totalSubUsed,
         })
     }
     /*Subbudget Calculation END*/
@@ -203,10 +185,6 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
 
     orm = {
         ...budget,
-        totalBudget,
-        totalUsed: totalBudgetUsed,
-        totalAvailable: totalBudgetAvailable,
-        totalPending: totalBudgetPending,
         budgetCoins: budgetCoin,
         subbudgets: subbudgets,
         tags: tagTxs

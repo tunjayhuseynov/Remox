@@ -964,7 +964,7 @@ export default function useMultisig() {
         }
     }
 
-    const revokeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
+const revokeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (provider === "Goki") {

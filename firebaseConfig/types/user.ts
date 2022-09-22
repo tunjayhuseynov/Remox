@@ -1,5 +1,5 @@
 import type { DocumentReference } from "firebase/firestore";
-import { BlockchainType } from "types/blockchains";
+import { BlockchainType, MultisigProviders } from "types/blockchains";
 
 export interface IMultiwallet {
     name: string;
@@ -35,9 +35,9 @@ export interface IBudgetExercise {
     created_at: number;
 }
 
-export interface IBudgetTX{
+export interface IBudgetTX {
     contractAddress: string;
-    contractType: 'single'| 'multi';
+    contractType: 'single' | 'multi';
     protocol: string;
     hashOrIndex: string,
     timestamp: number,
@@ -65,7 +65,7 @@ export interface ISubBudget {
     id: string;
     parentId: string;
     name: string;
-    
+
     token: string;
     amount: number;
 
@@ -77,17 +77,26 @@ export interface ISubBudget {
     created_at: number;
 }
 
+export type FiatMoneyList = "USD" | "AUD" | "CAD" | "EUR" | "GBP" | "JPY" | "TRY"
 
+export interface IModerator{
+    id: string
+    name: string
+    address: string
+    image: Image | null;
+    mail: string | null
+}
 export interface IOrganization {
     id: string;
     name: string;
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
+    moderators: IModerator[]
     created_date: number;
     budget_execrises: DocumentReference[] | IBudgetExercise[];
+    fiatMoneyPreference: FiatMoneyList;
 
-    
     creator: DocumentReference | IIndividual;
     blockchain: BlockchainType;
 }
@@ -98,8 +107,10 @@ export interface IIndividual {
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
+    moderators: IModerator[]
     created_date: number;
     budget_execrises: DocumentReference[] | IBudgetExercise[];
+    fiatMoneyPreference: FiatMoneyList;
     
     seenTime: number;
 }
@@ -120,7 +131,7 @@ export interface IAccount {
     id: string;
     image: Image | null,
     signerType: "single" | "multi";
-    provider: string | null;
+    provider: MultisigProviders | null;
     blockchain: BlockchainType["name"];
     createdBy: string;
     address: string;
@@ -146,4 +157,28 @@ export interface Image {
     tokenId: number | null;
     type: "image" | "nft";
     blockchain: BlockchainType["name"];
+}
+
+
+export interface IHpPriceData {
+    date: string,
+    price: number
+}
+
+export interface IHpPrice {
+    blockchain: string,
+    coins: {
+        name: string,
+        symbol: string,
+        address: string,
+        historicalPrices: {
+            usd: IHpPriceData[],
+            eur: IHpPriceData[],
+            gbp: IHpPriceData[],
+            try: IHpPriceData[],
+            aud: IHpPriceData[],
+            cad: IHpPriceData[],
+            jpy: IHpPriceData[],
+        }
+    }[]
 }

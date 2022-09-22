@@ -1,22 +1,18 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
-import { IMember, IMemberORM } from "firebaseConfig";
-import { ERC20MethodIds, IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
-import { IBudgetORM } from "pages/api/budget/index.api";
-import { IPriceCoin } from "pages/api/calculation/price.api";
+import { IMemberORM } from "firebaseConfig";
 import { RootState } from "redux/store";
-import { TokenType } from "types";
-import { ExecutionType, IContributor } from "types/dashboard/contributors";
-import { IPrice } from "utils/api";
+export * from "./balance";
+export * from './darkmode';
+export * from './reccuring';
+export * from './contributor';
+export * from './budget';
+export * from './storage';
+export * from './hp';
+export * from './ab';
+export * from './stats';
+export * from './tag';
 
-export const SelectStorage = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.storage,
-  (storage) => storage
-);
 
-export const SelectBalance = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.balances,
-  (balances) => balances
-);
 
 export const SelectNfts = createDraftSafeSelector(
   (state: RootState) => state.remoxData.nfts,
@@ -28,87 +24,19 @@ export const SelectCredintials = createDraftSafeSelector(
   (credentials) => credentials
 );
 
-export const SelectYieldBalance = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.balances,
-  (balances) => {
-    if (balances) {
-      return Object.entries(balances).reduce<IPrice>(
-        (a, c) => {
-          if (c[1].coins.type === TokenType.YieldToken) {
-            a[c[0]] = c[1];
-          }
-          return a;
-        },
-        {}
-      );
-    }
-    return null;
-  }
-);
 
 export const SelectCurrencies = createDraftSafeSelector(
   (state: RootState) => state.remoxData.coins,
   (currencies) => currencies
 );
 
-export const SelectTotalBalance = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.totalBalance,
-  (totalBalance) => totalBalance
+export const SelectFiatPreference = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (storage) => storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD"
 );
 
-export const SelectSpotBalance = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.balances,
-  (balances) => {
-    if (balances) {
-      return Object.entries(balances).reduce<IPrice>(
-        (a, c) => {
-          if (c[1].coins.type !== TokenType.YieldToken) {
-            a[c[0]] = c[1];
-          }
-          return a;
-        },
-        {}
-      );
-    }
-    return null;
-  }
-);
 
-export const SelectSpotTotalBalance = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.balances,
-  (balances) => {
-    if (balances) {
-      return Object.entries(balances).reduce<number>((a, c) => {
-        if (c[1].coins.type !== TokenType.YieldToken) {
-          a += c[1].tokenPrice * c[1].amount;
-        }
-        return a;
-      }, 0);
-    }
-    return 0;
-  }
-);
 
-export const SelectYieldTotalBalance = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.balances,
-  (balances) => {
-    if (balances) {
-      return Object.entries(balances).reduce<number>((a, c) => {
-        if (c[1].coins.type === TokenType.YieldToken) {
-          a += c[1].tokenPrice * c[1].amount;
-        }
-        return a;
-      }, 0);
-    }
-    return 0;
-  }
-);
-
-// This is for choose-budget Page
-export const SelectSelectedAccountAndBudget = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.selectedAccountAndBudget,
-  (selectedAccountAndBudget) => selectedAccountAndBudget
-);
 
 // This is for Request Page
 export const SelectRequests = createDraftSafeSelector(
@@ -160,138 +88,28 @@ export const SelectOwners = createDraftSafeSelector(
   }
 );
 
-export const SelectIndividualAccounts = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.storage?.individual.accounts,
-  (accounts) => accounts
-);
-
-export const SelectSingleAccounts = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.accounts,
-  (accounts) => accounts.filter((account) => account.signerType === "single")
-);
-
 export const SelectBlockchain = createDraftSafeSelector(
   (state: RootState) => state.remoxData.blockchain,
   (blockchain) => blockchain
 );
 
-export const SelectContributors = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.contributors,
-  (contributors) => contributors
-);
-
-export const SelectContributorMembers = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.contributors,
-  (contributors) => {
-    if (contributors && contributors.length > 0) {
-      return [
-        ...contributors.reduce<IContributor["members"]>(
-          (a, c) => [...a, ...c.members.map((s) => ({ ...s, parent: c }))],
-          []
-        ),
-      ];
-    }
-    return [];
-  }
-);
-
-export const SelectContributorsAutoPayment = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.contributors,
-  (contributors) =>
-    contributors.filter((s) => ({
-      ...s,
-      members: s.members.filter((m) => m.execution === ExecutionType.auto),
-    }))
-);
-
-// Reccuring Tasks
-export const SelectRecurringTasks = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.recurringTasks,
-  (recurringTasks) => recurringTasks
-);
-
-export const SelectNonCanceledRecurringTasks = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.recurringTasks,
-  (recurringTasks) => {
-    const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERC20MethodIds.automatedCanceled : s.method !== ERC20MethodIds.automatedCanceled);
-    const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERC20MethodIds.automatedCanceled : s.method === ERC20MethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
-
-    return nonCanceledRecurringTasks.filter(s => !canceledReccuringTasks.includes((s as IAutomationTransfer).streamId));
-  }
-);
-
-
-
-// Budget Exercises
-
-export const SelectBudgetExercises = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.budgetExercises,
-  (budgets) => budgets
-);
-
-export const SelectAllBudgets = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.budgetExercises,
-  (budgets) =>
-    budgets.reduce<IBudgetORM[]>((a, c) => {
-      a.push(...c.budgets);
-      return a;
-    }, [])
-);
-
-export const SelectAllOrganizations = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.organizations,
-  (organizations) => organizations
-);
-
-export const SelectStats = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.stats,
-  (stats) => stats
-);
-
-export const SelectAccountType = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.accountType,
-  (type) => type
-);
 
 export const SelectProviderAddress = createDraftSafeSelector(
   (state: RootState) => state.remoxData.providerAddress,
   (providerAddress) => providerAddress
 );
 
-export const SelectIndividual = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.storage?.individual,
-  (individual) => individual
-);
-
-export const SelectOrganization = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.storage?.organization,
-  (organization) => organization
-);
 
 export const SelectIsRemoxDataFetching = createDraftSafeSelector(
   (state: RootState) => state.remoxData.isFetching,
   (isFetching) => isFetching
 );
 
-export const SelectTags = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.tags,
-  (tags) => tags
-);
-
-export const SelectRemoxAccount = createDraftSafeSelector(
+export const SelectModerators = createDraftSafeSelector(
   (state: RootState) => state.remoxData.storage,
   (storage) => {
-    if (storage?.organization) {
-      return storage.organization;
-    }
-
-    return storage?.individual;
+    return storage?.organization?.moderators ?? storage?.individual.moderators ?? []
   }
-);
+)
 
-//////
-// Dark Mode
-export const SelectDarkMode = createDraftSafeSelector(
-  (state: RootState) => state.remoxData.darkMode,
-  (darkMode) => darkMode
-);
+

@@ -34,9 +34,11 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         accounts: [
             // account
         ],
+        moderators: [],
         budget_execrises: [],
         image: image,
         members: [address],
+        fiatMoneyPreference: "USD",
         name: name,
         id,
         creator: Get_Individual_Ref(individual.id),
@@ -77,28 +79,27 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
 
 
 
-export const Get_Organizations_Thunk = createAsyncThunk<IOrganizationORM[], string>("remoxData/get_organizations", async (id, api) => {
+export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], string>("remoxData/get_organizations", async (id, api) => {
     const response = await Get_Organizations(id);
 
-    let organizations: IOrganizationORM[] = [];
+    // let organizations: IOrganization[] = [];
 
-    const accounts = await Promise.all(response.map(s => {
-        return axios.get<IRemoxAccountORM>("/api/account/multiple", {
-            params: {
-                id: s.id,
-                type: "organization"
-            }
-        });
-    }))
+    // const accounts = await Promise.all(response.map(s => {
+    //     return axios.get<IRemoxAccountORM>("/api/account/multiple", {
+    //         params: {
+    //             id: s.id,
+    //             type: "organization"
+    //         }
+    //     });
+    // }))
 
-    accounts.forEach((s, i) => {
-        const data = s.data
+    // accounts.forEach((s, i) => {
+    //     const data = s.data
 
-        organizations.push({
-            ...response[i],
-            totalBalance: data.totalBalance,
-        })
-    })
+    //     organizations.push({
+    //         ...response[i],
+    //     })
+    // })
 
-    return organizations;
+    return response;
 })

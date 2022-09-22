@@ -3,14 +3,13 @@ import { IAccount } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import { IPriceCoin, IPriceResponse } from "../calculation/price.api";
+import { IPriceResponse } from "../calculation/price.api";
 import { BASE_URL, IPrice } from "utils/api";
 import { IAccountMultisig } from "../multisig/index.api";
 import axiosRetry from "axios-retry";
 
 export interface IAccountORM extends IAccount {
     multidata: IAccountMultisig | null;
-    totalValue: number;
     coins: IPrice[0][]
 }
 
@@ -74,7 +73,6 @@ export default async function handler(
             ...account,
             members: multidata ? members : account.members,
             multidata,
-            totalValue: balance.TotalBalance,
             coins: Object.entries(balance.AllPrices).reduce<(IPrice[0])[]>((a, [key, value]) => {
                 a.push({
                     ...value,

@@ -1,7 +1,7 @@
-import useMultisig, { IMultisigSafeTransaction, ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
-import { forwardRef, Fragment, useState } from 'react'
-import { AltCoins, Coins, TransactionDirection, TransactionStatus } from 'types'
-import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils";
+import useMultisig, { ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
+import { forwardRef, useState } from 'react'
+import { TransactionDirection } from 'types'
+import { TransactionDirectionImageNameDeclaration } from "utils";
 import { IAccount } from 'firebaseConfig';
 import { AiFillRightCircle } from 'react-icons/ai';
 import { CoinDesignGenerator } from './CoinsGenerator';
@@ -25,6 +25,7 @@ import { addConfirmation, changeToExecuted } from 'redux/slices/account/remoxDat
 interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
 const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account }, ref) => {
     const transaction = tx.tx;
+    const timestamp = tx.timestamp;
     const [isLabelActive, setLabelActive] = useState(false);
     const [selectedLabel, setSelectedLabel] = useState<ITag>();
     const [labelLoading, setLabelLoading] = useState(false)
@@ -155,32 +156,33 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     {transfer && (
-                        CoinDesignGenerator({ transfer })
+                        <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
                     )}
                     {
                         transferBatch && (
                             <div className="flex flex-col space-y-5">
-                                {transferBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                                {transferBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
                             </div>
                         )
                     }
                     {
                         automationBatch && (
                             <div className="flex flex-col space-y-5">
-                                {automationBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                                {automationBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
                             </div>
                         )
                     }
                     {
-                        automationCanceled && (CoinDesignGenerator({ transfer: automationCanceled }))
+                        automationCanceled && <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} />
                     }
                     {automation && (
-                        CoinDesignGenerator({ transfer: automation })
+                        <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
                     )}
                     {swap && (
                         <div className="flex flex-col space-y-5">
-                            {CoinDesignGenerator({ transfer: { amount: swap.amountIn, coin: swap.coinIn } })}
-                            {CoinDesignGenerator({ transfer: { amount: swap.amountOutMin, coin: swap.coinOutMin } })}
+                            <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
+                            <img src="/icons/swap.png" className="w-5 h-5" />
+                            <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
                         </div>
                     )}
 
@@ -188,7 +190,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 <td className="text-left flex flex-col">
                     <div className="flex flex-col">
                         {
-                            tx.tags?.map(tag => <div className="flex space-x-5">
+                            tx.tags?.map(tag => <div className="flex space-x-5" key={tag.id}>
                                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></div>
                                 <span className="text-xs">{tag.name}</span>
                             </div>)
@@ -260,6 +262,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 transaction={{
                     ...transaction,
                     rawData: GenerateTransaction({}),
+                    isError: false,
                     tags: tags,
                     timestamp: tx.timestamp,
                     budget: tx.budget ?? undefined,

@@ -40,7 +40,7 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
         }
     }
 
-    
+
 
     let individualState: IIndividual = {
         accounts: [
@@ -66,10 +66,12 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
                 signerType: "single",
             }
         ],
+        moderators: [],
         budget_execrises: [],
         image: image?.image ?? null,
         members: [address],
         name: data.name,
+        fiatMoneyPreference: "USD",
         seenTime: GetTime(),
         id,
         created_date: GetTime(),

@@ -119,7 +119,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     </div>
                     <div className="w-[75%] rounded-xl">
                         <div className="w-full pt-2 h-full" ref={customRef}>
-                            {[...item.coins].sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
+                            {[...item.coins].sort((a, b) => a.percentUSD > b.percentUSD ? -1 : 1).slice(0, 4).map((item, index) => {
                                 return <div className="border-b dark:border-greylish w-full" key={item.coins.address} >
                                     <CoinItem
                                         key={item.coins.address + item.coins.name}
@@ -133,7 +133,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                                         title={item.coins.symbol}
                                         coin={item.amount}
                                         usd={((item.tokenPrice ?? 0) * item.amount)}
-                                        percent={(item.percent || 0).toFixed(1)}
+                                        percent={(item.percentUSD || 0).toFixed(1)}
                                         img={item.coins.logoURI}
                                     />
                                 </div>

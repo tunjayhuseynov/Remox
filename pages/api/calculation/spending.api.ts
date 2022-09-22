@@ -5,11 +5,13 @@ import date from 'date-and-time'
 import axios from "axios";
 import { FirestoreRead } from "rpcHooks/useFirebase";
 import { ITag } from "../tags/index.api";
-import { ATag, CoinStats, ISpendingResponse } from "./_spendingType.api";
+import { ATag, CoinStats, ISpendingResponse } from "./_spendingType";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import BigNumber from "bignumber.js";
 import axiosRetry from "axios-retry";
-
+import { IPriceResponse } from "./price.api";
+import { AltCoins } from "types";
+import date from 'date-and-time';
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ISpendingResponse>
@@ -36,7 +38,6 @@ export default async function handler(
 
         const authId = req.query.id as string;
 
-
         let specificTxs;
         if (parsedtxs && parsedtxs.length > 0) {
             specificTxs = await axios.get(BASE_URL + "/api/transactions", {
@@ -58,7 +59,7 @@ export default async function handler(
             })
         }
 
-        const prices = await axios.get(BASE_URL + "/api/calculation/price", {
+        const prices = await axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
             params: {
                 addresses: parsedAddress,
                 blockchain: blockchainName
@@ -70,21 +71,21 @@ export default async function handler(
         const allTxs = specificTxs.data
 
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
-        const average = AverageMonthlyAndTotalSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
 
-        const AccountReqWeek = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 7, prices.data.AllPrices, blockchain)
-        const AccountReqMonth = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 30, prices.data.AllPrices, blockchain)
-        const AccountReqQuart = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 90, prices.data.AllPrices, blockchain)
-        const AccountReqYear = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        const AccountReqCM = AccountInOut(allTxs, prices.data.TotalBalance, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
+        const AccountReq = await AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
+        // const AccountReqWeek = AccountInOut(allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
+        // const AccountReqMonth = AccountInOut(allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
+        // const AccountReqQuart = AccountInOut(allTxs, parsedAddress, 90, prices.data.AllPrices, blockchain)
+        // const AccountReqYear = AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
+        // const AccountReqCM = AccountInOut(allTxs, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
 
-        const [
-            { AccountIn: AccountInWeek, AccountOut: AccountOutWeek, TotalInOut: TotalWeek },
-            { AccountIn: AccountInMonth, AccountOut: AccountOutMonth, TotalInOut: TotalMonth },
-            { AccountIn: AccountInQuart, AccountOut: AccountOutQuart, TotalInOut: TotalQuart },
-            { AccountIn: AccountInYear, AccountOut: AccountOutYear, TotalInOut: TotalYear },
-            { AccountIn: AccountInCM, AccountOut: AccountOuCM, TotalInOut: TotalCM }
-        ] = await Promise.all([AccountReqWeek, AccountReqMonth, AccountReqQuart, AccountReqYear, AccountReqCM])
+        // const [
+        //     { Account: AccountWeek, AccountAge },
+        //     { Account: AccountMonth },
+        //     { Account: AccountQuart },
+        //     { Account: AccountYear },
+        //     { Account: AccountCM }
+        // ] = await Promise.all([AccountReqWeek, AccountReqMonth, AccountReqQuart, AccountReqYear, AccountReqCM])
 
         const { inATag: inATag7, outATag: outATag7 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { inATag: inATag30, outATag: outATag30 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -93,36 +94,15 @@ export default async function handler(
         const { inATag: inATagCM, outATag: outATagCM } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
 
 
-        const age = AccountAge(allTxs)
-        const percentChange = TotalBalanceChangePercent(prices.data.AllPrices)
+        // const percentChange = TotalBalanceChangePercent(prices.data.AllPrices)
 
         res.status(200).json({
             CoinStats: coinsSpending,
-            AverageSpend: average.average,
-            TotalSpend: average.total,
-            AccountAge: age,
-            TotalBalance: prices.data.TotalBalance,
-            AccountTotalBalanceChangePercent: percentChange,
-            TotalBalanceByDay: {
-                currentMonth: TotalCM,
-                year: TotalYear,
-                quart: TotalQuart,
-                month: TotalMonth,
-                week: TotalWeek
-            },
-            AccountIn: {
-                week: AccountInWeek,
-                month: AccountInMonth,
-                quart: AccountInQuart,
-                year: AccountInYear,
-                currentMonth: AccountInCM
-            },
-            AccountOut: {
-                week: AccountOutWeek,
-                month: AccountOutMonth,
-                quart: AccountOutQuart,
-                year: AccountOutYear,
-                currentMonth: AccountOuCM
+            AccountAge: AccountReq.AccountAge,
+            TotalBalance: prices.data.AllPrices,
+            // AccountTotalBalanceChangePercent: percentChange,
+            Account: {
+                ...AccountReq.Account
             },
             AccountInTag: {
                 week: inATag7,
@@ -150,10 +130,17 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
     if (!transactions || transactions.length === 0) return [];
 
     let sum: CoinStats[] = []
-    console.log(coin)
+
     transactions.forEach(transaction => {
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
-            if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
+            if (transaction.id === ERC20MethodIds.transfer ||
+                transaction.id === ERC20MethodIds.transferFrom ||
+                transaction.id === ERC20MethodIds.transferWithComment ||
+                transaction.id === ERC20MethodIds.automatedCanceled ||
+                transaction.id === ERC20MethodIds.automatedTransfer ||
+                transaction.id === ERC20MethodIds.repay ||
+                transaction.id === ERC20MethodIds.deposit
+            ) {
                 const tx = transaction as ITransfer;
                 if (!tx.coin.symbol) return
                 if (coin && tx.coin.symbol !== coin) return
@@ -173,7 +160,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                     totalSpending: DecimalConverter(transaction.rawData.value, currentCoin.decimals),
                 })
             }
-            if (transaction.id === ERC20MethodIds.batchRequest) {
+            if (transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
                     if (coin && transfer.coin.symbol !== coin) return
@@ -188,187 +175,82 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
     })
     return sum;
 }
-const AverageMonthlyAndTotalSpending = (transactions: IFormattedTransaction[], selectedAccounts: string[], currencies: IPrice, blockchain: BlockchainType, coin?: string, secondCoin?: string) => {
-    if (transactions.length === 0) return {
-        average: 0,
-        total: 0
-    };
-    let average = 0;
-    let oldest: IFormattedTransaction = transactions[0];
 
-    let timeIndex = Math.ceil(new Date().getTime() / 1000);
-    transactions.forEach(transaction => {
-        if (Number(transaction.rawData.timeStamp) < timeIndex) {
-            timeIndex = Number(transaction.rawData.timeStamp);
-            oldest = transaction;
-        }
-        if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
-            if (transaction.id === ERC20MethodIds.transfer || transaction.id === ERC20MethodIds.transferFrom || transaction.id === ERC20MethodIds.transferWithComment) {
-                const tx = transaction as ITransfer;
-                if (coin && tx.coin.symbol !== coin) return
-                if (secondCoin && tx.coin.symbol !== secondCoin) return
-                average += (DecimalConverter(tx.amount, tx.coin.decimals) * tx.coin.priceUSD ?? 1);
-            }
-            if (transaction.id === ERC20MethodIds.noInput) {
-                const currentCoin = (transaction as ITransfer).coin;
-                if (coin && currentCoin.symbol !== coin) return
-                if (secondCoin && currentCoin.symbol !== secondCoin) return
-                if (currentCoin) {
-                    average += (DecimalConverter(transaction.rawData.value, currentCoin.decimals) * currentCoin.priceUSD ?? 1);
-                }
-            }
-            if (transaction.id === ERC20MethodIds.batchRequest) {
-                const tx = transaction as IBatchRequest;
-                tx.payments.forEach(transfer => {
-                    if (coin && transfer.coin.symbol !== coin) return
-                    if (secondCoin && transfer.coin.symbol !== secondCoin) return
-                    average += (DecimalConverter(transfer.amount, transfer.coin.decimals) * currencies[transfer.coin.symbol]?.priceUSD ?? 1);
-                })
-            }
-        }
-    })
-    const days = date.subtract(new Date(), new Date(Number(oldest.rawData.timeStamp) * 1000)).toDays()
-    const months = Math.ceil(Math.abs(days) / 30)
-    return {
-        average: average / months,
-        total: average
-    };
-}
 
-const AccountInOut = async (transactions: IFormattedTransaction[], TotalBalance: number, selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
+interface CalendarType { name: AltCoins, amount: string, type: "in" | "out" }
+const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
     try {
-        let myin = 0;
-        let myout = 0;
-        const calendarOut: {
-            [key: string]: number
-        } = {}
-        const calendarIn: {
-            [key: string]: number
+        let calendar: {
+            [key: string]: CalendarType[]
         } = {}
 
-        let TotalInOut: {
-            [key: string]: number
+        const feeAll: {
+            [key: string]: { name: AltCoins, amount: string }[]
         } = {}
 
-        const stringTime = (time: Date) => `${time.getMonth() + 1}/${time.getDate()}/${time.getFullYear()}`
 
-        transactions.forEach(t => {
+        const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1}/${time.getDate()}`
+
+        let oldest: IFormattedTransaction | null = null
+        let timeIndex = Math.ceil(new Date().getTime() / 1000);
+
+        let newest: number = 0;
+        for (const t of transactions) {
+            if (t.timestamp > newest) newest = t.timestamp
+            if (Number(t.rawData.timeStamp) < timeIndex) {
+                timeIndex = Number(t.rawData.timeStamp);
+                oldest = t;
+            }
             const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
+
             const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
             const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
             const sTime = stringTime(tTime)
             if (tDay <= selectedDay) {
-                let calc = 0;
                 let feeToken = currencies[t.rawData.tokenSymbol ?? ""];
-                let fee = feeToken ? DecimalConverter((+t.rawData.gasPrice) * (+t.rawData.gasUsed) * (feeToken?.priceUSD ?? 0), feeToken.decimals) : 0;
-                if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment || t.id === ERC20MethodIds.automatedTransfer || t.id === ERC20MethodIds.automatedCanceled) {
-                    const tx = t as ITransfer;
-                    if (!tx.coin) return
-                    const current = (DecimalConverter(tx.amount, tx.coin.decimals) * Number(currencies[tx.coin.symbol]?.priceUSD ?? 1));
-                    if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current + fee : current;
-                    else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
-                    calc += current;
-                }
-                if (t.id === ERC20MethodIds.noInput) {
-                    const coin = (t as ITransfer).coin;
-                    if (coin) {
-                        const current = (DecimalConverter(t.rawData.value, coin.decimals) * coin.priceUSD ?? 1)
-                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current + fee : current;
-                        else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
-                        calc += current;
+                feeAll[sTime] = [...(feeAll[sTime] ?? []), { name: feeToken, amount: ((+t.rawData.gasPrice) * (+t.rawData.gasUsed)).toString() }]
+
+                if (!t.isError) {
+
+                    if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment || t.id === ERC20MethodIds.automatedTransfer || t.id === ERC20MethodIds.automatedCanceled) {
+                        const tx = t as ITransfer;
+                        if (!tx.coin) continue;
+                        const current: CalendarType = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in" };
+                        calendar[sTime] = [...(calendar[sTime] ?? []), current];
+                    }
+                    if (t.id === ERC20MethodIds.noInput) {
+                        const coin = (t as ITransfer).coin;
+                        if (coin) {
+                            const current: CalendarType = { name: coin, amount: t.rawData.value, type: isOut ? "out" : "in" };
+                            calendar[sTime] = [...(calendar[sTime] ?? []), current];
+                        }
+                    }
+                    if (t.id === ERC20MethodIds.batchRequest || t.id === ERC20MethodIds.automatedBatchRequest) {
+                        const tx = t as IBatchRequest;
+                        tx.payments.forEach(transfer => {
+                            const current: CalendarType = { name: transfer.coin, amount: transfer.amount, type: isOut ? "out" : "in" };
+                            calendar[sTime] = [...(calendar[sTime] ?? []), current];
+                        })
                     }
                 }
-                if (t.id === ERC20MethodIds.batchRequest) {
-                    const tx = t as IBatchRequest;
-                    tx.payments.forEach(transfer => {
-                        const current = (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
-                        if (isOut) calendarOut[sTime] = calendarOut[sTime] ? calendarOut[sTime] + current + fee : current;
-                        else calendarIn[sTime] = calendarIn[sTime] ? calendarIn[sTime] + current : current;
-                        calc += current;
-                    })
-                }
-                if (isOut) {
-                    TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] - calc - fee : -1 * (calc - fee);
-                    myout += calc + fee;
-                } else {
-                    TotalInOut[sTime] = TotalInOut[sTime] ? TotalInOut[sTime] + calc : calc;
-                    myin += calc
-                }
             }
-        })
-        let tv = TotalBalance;
-        const totalInOut = Object.entries(TotalInOut)
-        TotalInOut = totalInOut.reduce<{ [name: string]: number }>((a, [key, value]) => {
-            tv += value;
-            a[key] = tv;
-            return a;
-        }, {})
-
-        const currTime = stringTime(new Date());
-        if (!TotalInOut[currTime]) TotalInOut[stringTime(new Date())] = TotalBalance;
-        if (totalInOut.length === 0) {
-            TotalInOut[stringTime(date.addDays(new Date(), -selectedDay))] = TotalBalance
-            TotalInOut[stringTime(new Date())] = TotalBalance;
         }
 
-        TotalInOut = Object.entries(TotalInOut).sort((a, b) => {
-            const aDate = new Date(a[0])
-            const bDate = new Date(b[0])
-            return aDate.getTime() - bDate.getTime()
-        }).reduce<{ [name: string]: number }>((a, [key, value]) => {
-            a[key] = value;
-            return a;
-        }, {})
+        // if (calendar[stringTime(new Date())] === undefined) calendar[stringTime(new Date())] = calendar[stringTime(new Date(newest * 1e3))] ?? []
+        calendar = Object.entries(calendar).sort((([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1)).reduce<typeof calendar>((a, c) => { a[c[0]] = c[1]; return a; }, {})
 
         return {
-            AccountIn: {
-                total: myin,
-                ...calendarIn
+            Account: {
+                ...calendar
             },
-            AccountOut: {
-                total: myout,
-                ...calendarOut
-            },
-            TotalInOut
+            AccountAge: oldest ? Math.abs(date.subtract(new Date(), new Date(Number(oldest.rawData.timeStamp) * 1000)).toDays()) / 30 : 0,
+            feeAll
         }
     } catch (error) {
         throw new Error(error as any)
     }
 }
 
-const AccountAge = (transactions: IFormattedTransaction[]) => {
-    if (transactions && transactions.length > 0) {
-        let oldest: IFormattedTransaction = transactions[0];
-
-        let timeIndex = Math.ceil(new Date().getTime() / 1000);
-        transactions.forEach(transaction => {
-            if (Number(transaction.rawData.timeStamp) < timeIndex) {
-                timeIndex = Number(transaction.rawData.timeStamp);
-                oldest = transaction;
-            }
-        })
-
-        return Math.abs(date.subtract(new Date(), new Date(Number(oldest.rawData.timeStamp) * 1000)).toDays()) / 30
-    } else return 0
-}
-
-const TotalBalanceChangePercent = (currencies: IPrice) => {
-    if (currencies) {
-        const currencObj = Object.values(currencies)
-
-        let indexable = 0;
-        const per = currencObj.reduce((a, c, index) => {
-            if (c.amount > 0) {
-                a += c.percent
-                indexable++
-            }
-            return a;
-        }, 0)
-
-        return (per / indexable)
-    }
-    return 0;
-}
 
 const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction[], selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
     let outATag: ATag[] = []
@@ -379,42 +261,20 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
         newInTag = {
             ...tag,
             txs: [],
-            totalAmount: 0
         }
         newOutTag = {
             ...tag,
             txs: [],
-            totalAmount: 0
         }
         tag.transactions.forEach(transaction => {
             const tx = transactions!.find((s: IFormattedTransaction) => s.rawData.hash.toLowerCase() === transaction.hash.toLowerCase())
             if (tx && currencies) {
                 const tTime = new Date(parseInt(tx.rawData.timeStamp) * 1e3)
                 if (Math.abs(date.subtract(new Date(), tTime).toDays()) <= selectedDay) {
-                    let amount = 0;
-                    if (tx.id === ERC20MethodIds.transfer || tx.id === ERC20MethodIds.transferFrom || tx.id === ERC20MethodIds.transferWithComment) {
-                        const txm = tx as ITransfer;
-                        if (!txm?.coin) return
-                        amount += (DecimalConverter(txm.amount, txm.coin.decimals) * Number(currencies[txm.coin.symbol]?.priceUSD ?? 1));
-                    }
-                    if (tx.id === ERC20MethodIds.noInput) {
-                        const coin = (tx as ITransfer).coin;
-                        if (coin) {
-                            amount += (DecimalConverter(tx.rawData.value, coin.decimals) * coin.priceUSD ?? 1);
-                        }
-                    }
-                    if (tx.id === ERC20MethodIds.batchRequest) {
-                        const txm = tx as IBatchRequest;
-                        txm.payments.forEach(transfer => {
-                            amount += (DecimalConverter(transfer.amount, transfer.coin.decimals) * Number(currencies[transfer.coin.name]?.priceUSD ?? 1));
-                        })
-                    }
                     if (selectedAccounts.some(s => s.toLowerCase() === tx.rawData.from.toLowerCase())) {
                         newOutTag.txs.push(tx)
-                        newOutTag.totalAmount += amount
                     } else {
                         newInTag.txs.push(tx)
-                        newInTag.totalAmount += amount
                     }
                 }
             }
@@ -430,22 +290,8 @@ const SpendingAccordingTags = (tags: ITag[], transactions: IFormattedTransaction
 
 const TxNull: () => ISpendingResponse = () => ({
     AccountAge: 0,
-    AccountIn: {
-        currentMonth: {
-            total: 0,
-        },
-        month: {
-            total: 0,
-        },
-        quart: {
-            total: 0,
-        },
-        week: {
-            total: 0,
-        },
-        year: {
-            total: 0,
-        }
+    Account: {
+
     },
     AccountInTag: {
         currentMonth: [],
@@ -453,23 +299,6 @@ const TxNull: () => ISpendingResponse = () => ({
         quart: [],
         week: [],
         year: []
-    },
-    AccountOut: {
-        currentMonth: {
-            total: 0,
-        },
-        month: {
-            total: 0,
-        },
-        quart: {
-            total: 0,
-        },
-        week: {
-            total: 0,
-        },
-        year: {
-            total: 0,
-        }
     },
     AccountOutTag: {
         currentMonth: [],
@@ -481,7 +310,7 @@ const TxNull: () => ISpendingResponse = () => ({
     AccountTotalBalanceChangePercent: 0,
     AverageSpend: 0,
     CoinStats: [],
-    TotalBalance: 0,
+    TotalBalance: {},
     TotalBalanceByDay: {
         currentMonth: {},
         month: {},

@@ -7,7 +7,7 @@ import { AltCoins, Coins, CoinsName } from "types";
 import { selectTags } from "redux/slices/tags";
 import useWalletKit from "./walletSDK/useWalletKit";
 import { ITag } from "pages/api/tags/index.api";
-import { Blockchains, BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import InputDataDecoder from "ethereum-input-data-decoder";
 import { ethers } from "ethers";
 import ERC20 from "rpcHooks/ABI/erc20.json";
@@ -61,7 +61,8 @@ export interface IFormattedTransaction {
   id: string;
   tags: ITag[];
   budget?: IBudgetORM,
-  address: string
+  address: string,
+  isError: boolean
 }
 
 export interface IAddOwner extends IFormattedTransaction {
@@ -173,7 +174,7 @@ interface IReader {
   Coins: Coins;
   blockchain: BlockchainType;
   address: string,
-  provider: string
+  provider: MultisigProviders
 }
 
 export const
@@ -196,7 +197,7 @@ export const
           tags: theTags,
         };
       }
-
+      
       let decoder = new InputDataDecoder(ERC20);
       let result = decoder.decodeData(input);
       if (!result.method) {
@@ -226,7 +227,7 @@ export const
           }
         }
       }
-
+     
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
 
       if (!result.method) {

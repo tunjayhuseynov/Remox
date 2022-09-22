@@ -17,8 +17,6 @@ interface ISubbudgetORMandTx {
 }
 
 export const Create_Subbudget_Thunk = createAsyncThunk<void, IBaseSubbudget>("remoxData/create_subbudget", async ({ subbudget }, api) => {
-    const currencies = (api.getState() as RootState).remoxData.coins
-
     const budget = await Get_Budget(subbudget.parentId)
     budget.subbudgets = [...budget.subbudgets, subbudget]
     await Update_Budget(budget)
@@ -26,14 +24,8 @@ export const Create_Subbudget_Thunk = createAsyncThunk<void, IBaseSubbudget>("re
     const budgetExercise = (api.getState() as RootState).remoxData.budgetExercises.find(exercise => exercise.id === budget.parentId)
     const budgetORM = budgetExercise?.budgets.find(budget => budget.id === budget.id)
     if (budgetORM) {
-        const totalBudget = (currencies[subbudget.token].priceUSD * subbudget.amount) + ((currencies[subbudget?.secondToken ?? ""]?.priceUSD ?? 0) * (subbudget.secondAmount ?? 0))
-
         budgetORM.subbudgets = [...budgetORM.subbudgets, {
             ...subbudget,
-            totalBudget: totalBudget,
-            totalUsed: 0,
-            totalPending: 0,
-            totalAvailable: totalBudget,
             budgetCoins: {
                 coin: subbudget.token,
                 totalAmount: subbudget.amount,

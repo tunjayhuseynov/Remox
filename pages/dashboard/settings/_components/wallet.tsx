@@ -14,7 +14,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { DropDownItem } from "types/dropdown";
 import Dropdown from "components/general/dropdown";
 import { SetComma } from 'utils'
-import { SelectAccounts } from 'redux/slices/account/selector'
+import { SelectAccounts, SelectTotalBalance } from 'redux/slices/account/selector'
 import { IAccountORM } from 'pages/api/account/index.api'
 
 export interface IWallets {
@@ -41,9 +41,10 @@ export interface IFormInput {
 
 const WalletSetting = () => {
     const accounts = useAppSelector(SelectAccounts)
+    const totalBalance = useAppSelector(SelectTotalBalance)
 
     const walletData: IWalletData = {
-        total: accounts.reduce((s, c) => s + c.totalValue, 0),
+        total: totalBalance,
         wallets: accounts
     }
 

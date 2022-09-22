@@ -9,7 +9,6 @@ import { IAccountORM } from "./index.api";
 
 export interface IRemoxAccountORM {
     accounts: IAccountORM[];
-    totalBalance: number;
 }
 
 export default async function handler(
@@ -32,7 +31,6 @@ export default async function handler(
         if (!Data) throw new Error(`${type} not found`);
 
         let result: IAccountORM[] = [];
-        let totalBalance = 0;
         const organization = Data as IOrganization | IIndividual;
 
         const list = await Promise.all(organization.accounts.map(acc => axios.get<IAccountORM>(BASE_URL + "/api/account", {
@@ -43,12 +41,10 @@ export default async function handler(
         })));
 
         for (const account of list) {
-            totalBalance += account.data.totalValue;
             result.push(account.data);
         }
 
         res.status(200).json({
-            totalBalance,
             accounts: result
         });
     } catch (error) {

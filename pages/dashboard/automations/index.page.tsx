@@ -1,8 +1,6 @@
 import { Fragment, useState, useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
-import {
-  IMember,
-} from "types/dashboard/contributors";
+import { IMember } from "types/dashboard/contributors";
 import AddStopModal from "pages/dashboard/automations/_components/_buttons/_addStop";
 import Modal from "components/general/Modal";
 import Button from "components/button";
@@ -12,6 +10,7 @@ import _ from "lodash";
 import {
   SelectBalance,
   SelectContributorMembers,
+  SelectFiatPreference,
   SelectNonCanceledRecurringTasks,
   SelectSelectedAccountAndBudget
 } from "redux/slices/account/selector";
@@ -19,9 +18,13 @@ import TeamItem from "./_components/_teamItem";
 import { IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { DecimalConverter } from "utils/api";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { GetFiatPrice } from "utils/const";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
+  const fiatPreference = useAppSelector(SelectFiatPreference)
+
+
   const { GetCoins } = useWalletKit();
   const selectedAccount = useAppSelector(SelectSelectedAccountAndBudget)
   const tasks = useAppSelector(SelectNonCanceledRecurringTasks).filter(task => (task as IAutomationTransfer).address.toLowerCase() === selectedAccount.account?.address.toLowerCase())
@@ -40,7 +43,7 @@ const Automations = () => {
     for (const task of tasks) {
       const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer | IAutomationCancel;
       const amount = DecimalConverter(tx.amount, tx.coin.decimals)
-      total += amount * tx.coin.priceUSD;
+      total += amount * GetFiatPrice(tx.coin, fiatPreference);
       if (res[tx.coin.symbol]) {
         res[tx.coin.symbol] += amount;
       } else {
@@ -112,7 +115,7 @@ const Automations = () => {
                           <div className="text-sm text-greylish opacity-75 text-left">
                             {(
                               amount *
-                              (GetCoins[currency as keyof Coins].priceUSD ?? 1)
+                              (GetFiatPrice(GetCoins[currency as keyof Coins], fiatPreference) ?? 1)
                             ).toFixed(2)}{" "}
                             USD
                           </div>

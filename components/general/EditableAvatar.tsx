@@ -22,6 +22,7 @@ interface IProps {
     onChange?: (url: string, type: "image" | "nft") => void;
     userId?: string,
     evm?: boolean,
+    noNFT?: boolean,
     blockchain?: BlockchainType,
 }
 
@@ -44,7 +45,7 @@ const style = {
     p: 4,
 };
 
-const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, userId, blockchain, size }: IProps) => {
+const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, userId, blockchain, size, noNFT = false }: IProps) => {
     const [avatar, setAvatar] = useState(avatarUrl);
     const [modal, setModal] = useState(false);
 
@@ -109,16 +110,16 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
                 <AnimatePresence>
                     {modal && <ClickAwayListener onClickAway={() => setModal(false)}>
                         <motion.div variants={variants} initial="hidden" animate="visible" exit="exit" className="z-[999] absolute right-0 bottom-0 translate-y-full translate-x-full rounded-md dark:bg-darkSecond bg-white w-48 border">
-                            <div className="grid grid-rows-2">
+                            <div className={`grid ${noNFT ? "grid-rows-1" : "grid-rows-2"}`}>
                                 <div className="border-b text-sm hover:bg-opacity-10 hover:dark:bg-opacity-10 hover:bg-gray-800 hover:dark:bg-gray-100 cursor-pointer relative">
                                     <label htmlFor="upload-photo" className="cursor-pointer flex items-center p-2"><BsImages className="float-left mr-2 w-5" /> Upload Image</label>
                                     <input id="upload-photo" type="file" accept="image/*" className="hidden z-[900] absolute w-full h-full left-0 top-0" onChange={uploadImage} />
                                 </div>
-                                <div className="border-b text-sm hover:bg-opacity-10 hover:dark:bg-opacity-10 hover:bg-gray-800 hover:dark:bg-gray-100 cursor-pointer" onClick={() => setNftModal(true)}>
+                                {!noNFT && <div className="border-b text-sm hover:bg-opacity-10 hover:dark:bg-opacity-10 hover:bg-gray-800 hover:dark:bg-gray-100 cursor-pointer" onClick={() => setNftModal(true)}>
                                     <div className="cursor-pointer flex items-center p-2 space-x-2">
                                         <img className="w-5 h-5" src={dark ? "/icons/settings/nft_dark.png" : "/icons/settings/nft.png"} /> <span> Choose NFT</span>
                                     </div>
-                                </div>
+                                </div>}
                             </div>
                         </motion.div>
                     </ClickAwayListener>}

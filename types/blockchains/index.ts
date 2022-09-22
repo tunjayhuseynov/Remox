@@ -34,6 +34,7 @@ export type BlockchainType = {
   | "Gnosis Smart Chain"
   | "Optimism"
   | "Polygon";
+  hpCollection: string;
   currencyCollectionName: string;
   nativeToken: string;
   chainId?: number;
@@ -89,9 +90,10 @@ export const Blockchains: BlockchainType[] = [
     name: "celo",
     displayName: "Celo",
     nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
-    rpcUrl: "https://forno.celo.org",
+    rpcUrl: "https://rpc.ankr.com/celo",
     explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "celoCurrency",
+    hpCollection: "hpCELO",
     logoUrl: CoinsURL.CELO,
     multisigProviders: [
       {
@@ -157,6 +159,7 @@ export const Blockchains: BlockchainType[] = [
     explorerUrl: "https://explorer-api.mainnet-beta.solana.com/",
     logoUrl: CoinsURL.SOL,
     currencyCollectionName: "solanaCurrency",
+    hpCollection: "hpSOL",
     multisigProviders: [
       {
         name: "Goki",
@@ -206,6 +209,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://rpc.ankr.com/eth",
     explorerUrl: "https://blockscout.com/eth/mainnet/api",
     currencyCollectionName: "ethereumCurrency",
+    hpCollection: "hpETH",
     logoUrl: CoinsURL.ETH,
     chainId: 1,
     multisigProviders: [
@@ -256,6 +260,7 @@ export const Blockchains: BlockchainType[] = [
     nativeToken: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
     explorerUrl: "https://api.polygonscan.com/api",
     currencyCollectionName: "polygonCurrency",
+    hpCollection: "hpMATIC",
     chainId: 137,
     logoUrl: CoinsURL.MATIC,
     multisigProviders: [
@@ -305,6 +310,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://optimistic.etherscan.io",
     explorerUrl: "https://optimistic.etherscan.io/",
     currencyCollectionName: "optimismCurrency",
+    hpCollection: "hpOPTIMISM",
     nativeToken: "0x4200000000000000000000000000000000000006",
     chainId: 10,
     logoUrl: CoinsURL.OPTI,
@@ -354,6 +360,7 @@ export const Blockchains: BlockchainType[] = [
     explorerUrl: "https://avascan.info/",
     nativeToken: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
     currencyCollectionName: "avaxCurrency",
+    hpCollection: "hpAVAX",
     chainId: 43114,
     logoUrl: CoinsURL.AVAX,
     multisigProviders: [
@@ -404,6 +411,7 @@ export const Blockchains: BlockchainType[] = [
     explorerUrl: "https://bscscan.com/",
     nativeToken: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     currencyCollectionName: "bscCurrency",
+    hpCollection: "hpBSC",
     chainId: 56,
     logoUrl: CoinsURL.BNB,
     multisigProviders: [
@@ -450,6 +458,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://arb1.arbitrum.io/rpc",
     explorerUrl: "https://arbiscan.io/",
     currencyCollectionName: "artbitrumCurrency",
+    hpCollection: "hpArbitrum",
     chainId: 42161,
     nativeToken: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
     logoUrl: CoinsURL.ARBI,
@@ -498,6 +507,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://rpc.ankr.com/fantom",
     explorerUrl: "https://ftmscan.com/",
     currencyCollectionName: "fantomCurrency",
+    hpCollection: "hpFantom",
     nativeToken: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
     chainId: 250,
     logoUrl: CoinsURL.FANT,
@@ -540,6 +550,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://rpc.gnosischain.com",
     explorerUrl: "https://blockscout.com/eth/mainnet/",
     currencyCollectionName: "gnosisCurrency",
+    hpCollection: "hpGnosis",
     nativeToken: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
     chainId: 100,
     logoUrl: CoinsURL.xDAI,

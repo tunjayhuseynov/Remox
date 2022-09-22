@@ -1,6 +1,8 @@
 import AnimatedTabBar from "components/animatedTabBar";
 import { useRouter } from "next/router";
-import OwnerSetting from "./_components/owner";
+import { useAppSelector } from "redux/hooks";
+import { SelectAccountType } from "redux/slices/account/selector";
+import ModeratorSetting from "./_components/moderators";
 import ProfileSetting from "./_components/profile";
 import TagsSetting from "./_components/tags";
 import WalletSetting from "./_components/wallet";
@@ -10,29 +12,33 @@ import WalletSetting from "./_components/wallet";
 const SettingLayout = () => {
 
     const { type } = useRouter().query as { type: string[] | undefined }
+    const accountType = useAppSelector(SelectAccountType)
 
     const path = '/dashboard/settings'
     const navigate = useRouter()
 
     const data = [
         {
-            to: `${path}?noAnimation=true`,
+            to: `${path}`,
             text: "General"
         },
         {
-            to: `${path}/Labels?index=1&noAnimation=true`,
+            to: `${path}/Labels`,
             text: "Labels"
         },
         {
-            to: `${path}/Wallets?index=2&noAnimation=true`,
+            to: `${path}/Wallets`,
             text: "Wallets"
         },
-        {
-            to: `${path}/Owners?index=3&noAnimation=true`,
-            text: "Owners"
-        },
+
     ]
-    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
+    if (accountType === "organization") {
+        data.push({
+            to: `${path}/Moderators`,
+            text: "Moderators"
+        })
+    }
+    const index = type?.[0] === "Labels" ? 1 : type?.[0] === "Wallets" ? 2 : type?.[0] ? 3 : 0
 
 
     return (
@@ -51,7 +57,7 @@ const SettingLayout = () => {
                 {!type && <ProfileSetting />}
                 {type?.[0] === "Labels" && <TagsSetting />}
                 {type?.[0] === "Wallets" && <WalletSetting />}
-                {(type?.[0] === "Owners") && <OwnerSetting />}
+                {(type?.[0] === "Moderators") && <ModeratorSetting />}
             </div>
         </div>
     )

@@ -11,7 +11,6 @@ const CeloTerminal = import("rpcHooks/ABI/CeloTerminal.json")
 
 export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOrIndex" | "protocol" | "contractAddress">, blockchainType: BlockchainType, coin?: string, secondCoin?: string) => {
     try {
-        let totalBudgetPending = 0, totalBudgetUsed = 0;
         let totalFirstCoinPending = 0, totalSecondCoinPending = 0;
         let totalFirstCoinSpent = 0, totalSecondCoinSpent = 0;
 
@@ -43,39 +42,40 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
                     return a;
                 }, {}),
                 address: tx.contractAddress,
+                provider: "Celo Terminal"
             })
 
             if (txRes) {
                 if (txRes.method === ERC20MethodIds.batchRequest || txRes.method === ERC20MethodIds.automatedBatchRequest) {
                     const x = txRes as unknown as IBatchRequest
                     if (executed == false) {
-                        totalBudgetPending += x.payments.reduce((acc, curr) => {
-                            if (coin && curr.coin.symbol !== coin) return acc;
-                            if (secondCoin && curr.coin.symbol !== secondCoin) return acc;
-                            return acc + (DecimalConverter(curr.amount, curr.coin.decimals) * curr.coin.priceUSD);
-                        }, 0)
+                        x.payments.forEach(p => {
+                            if (p.coin.symbol === budget.token) {
+                                totalFirstCoinPending += DecimalConverter(p.amount, p.coin.decimals)
+                            }
+                            if (p.coin.symbol === budget.secondToken) {
+                                totalSecondCoinPending += DecimalConverter(p.amount, p.coin.decimals)
+                            }
+                        })
                     } else {
-                        totalBudgetUsed += x.payments.reduce((acc, curr) => {
-                            if (coin && curr.coin.symbol !== coin) return acc;
-                            if (secondCoin && curr.coin.symbol !== secondCoin) return acc;
-                            return acc + (DecimalConverter(curr.amount, curr.coin.decimals) * curr.coin.priceUSD);
-                        }, 0)
+                        x.payments.forEach(p => {
+                            if (p.coin.symbol === budget.token) {
+                                totalFirstCoinSpent += DecimalConverter(p.amount, p.coin.decimals)
+                            }
+                            if (p.coin.symbol === budget.secondToken) {
+                                totalSecondCoinSpent += DecimalConverter(p.amount, p.coin.decimals)
+                            }
+                        })
                     }
                 } else if (txRes.method === ERC20MethodIds.transfer || txRes.method === ERC20MethodIds.transferFrom || txRes.method === ERC20MethodIds.automatedTransfer) {
                     const x = txRes as unknown as ITransfer
                     if (executed == false) {
-                        if (budget.token === x.coin.symbol || budget.secondToken === x.coin.symbol) {
-                            totalBudgetPending += (DecimalConverter(x.amount, x.coin.decimals) * x.coin.priceUSD)
-                        }
                         if (budget.token === x.coin.symbol) {
                             totalFirstCoinPending += DecimalConverter(x.amount, x.coin.decimals)
                         } else if (budget.secondToken === x.coin.symbol) {
                             totalSecondCoinPending += DecimalConverter(x.amount, x.coin.decimals)
                         }
                     } else {
-                        if (budget.token === x.coin.symbol || budget.secondToken === x.coin.symbol) {
-                            totalBudgetUsed += (DecimalConverter(x.amount, x.coin.decimals) * x.coin.priceUSD)
-                        }
                         if (budget.token === x.coin.symbol) {
                             totalFirstCoinSpent += DecimalConverter(x.amount, x.coin.decimals)
                         } else if (budget.secondToken === x.coin.symbol) {
@@ -91,8 +91,6 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
 
 
         return {
-            totalBudgetPending,
-            totalBudgetUsed,
             totalFirstCoinPending,
             totalSecondCoinPending,
             totalFirstCoinSpent,

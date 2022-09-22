@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 import { IBudgetExercise } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { IPriceResponse } from "pages/api/calculation/price.api";
-import { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
+import { ISpendingResponse } from "pages/api/calculation/_spendingType";
 
 interface Params { addresses: string[], blockchain: string, authId?: string }
 

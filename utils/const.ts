@@ -1,5 +1,7 @@
 import chroma from "chroma-js";
+import { FiatMoneyList } from "firebaseConfig";
 import { StylesConfig } from "react-select";
+import { AltCoins } from "types";
 
 const env = process.env.NODE_ENV
 
@@ -83,3 +85,25 @@ export const dot = (color = 'transparent') => ({
         width: 10,
     },
 });
+
+
+export const GetFiatPrice = (coin: AltCoins, fiat: FiatMoneyList) => {
+    switch (fiat) {
+        case "CAD":
+            return coin.priceCAD;
+        case "EUR":
+            return coin.priceEUR;
+        case "GBP":
+            return coin.priceGBP;
+        case "JPY":
+            return coin.priceJPY;
+        case "TRY":
+            return coin.priceTRY;
+        case "AUD":
+            return coin.priceAUD;
+        case "USD":
+            return coin.priceUSD;
+        default:
+            return coin.priceUSD
+    }
+}

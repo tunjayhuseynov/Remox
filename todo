@@ -23,3 +23,8 @@
 //TODO: 23. Remox Pay meselesini hell ele
 24. Swap abi'si harcoding ile _celo faylindadi ve blockchain objectinde bosdur
 25. Create Multisig Dashboard'a getirilsin
+//TODO: 26. Send Tranasction Callback system
+//TODO: 27. Sehfeden kenarda girenler anonymus olaraq login elesinler (request) 
+//TODO: 28.Spendingde Fee meselesini tamamla
+//TODO: 29. Multisigde Sign elemek var amm Reject elemek yoxdu!!!!!!!!!
+//TODO: 30. Transaction API post methodu ile body qebul etmelidi ve addressler ve onlarin blockchain'leri gonderilmelidi ki, multi chain olsun 
