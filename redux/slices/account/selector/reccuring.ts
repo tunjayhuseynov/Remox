@@ -1,6 +1,7 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
 import { ERC20MethodIds, IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
 import { RootState } from "redux/store";
+import { GetTime } from "utils";
 
 // Reccuring Tasks
 export const SelectRecurringTasks = createDraftSafeSelector(
@@ -14,6 +15,6 @@ export const SelectNonCanceledRecurringTasks = createDraftSafeSelector(
         const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERC20MethodIds.automatedCanceled : s.method !== ERC20MethodIds.automatedCanceled);
         const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERC20MethodIds.automatedCanceled : s.method === ERC20MethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
 
-        return nonCanceledRecurringTasks.filter(s => !canceledReccuringTasks.includes((s as IAutomationTransfer).streamId));
+        return nonCanceledRecurringTasks.filter(s => !canceledReccuringTasks.includes((s as IAutomationTransfer).streamId) && (s as IAutomationTransfer).endTime > GetTime());
     }
 );

@@ -27,13 +27,13 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
     const { image, blockchain, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
-    const id = generate();
+    const id = `${generate()}-${generate()}`;
 
     const response = await Create_Organization({
-        blockchain,
         accounts: [
             // account
         ],
+        priceCalculation: "current",
         moderators: [],
         budget_execrises: [],
         image: image,

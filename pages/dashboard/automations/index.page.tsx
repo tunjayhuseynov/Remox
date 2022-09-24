@@ -2,7 +2,7 @@ import { Fragment, useState, useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
 import { IMember } from "types/dashboard/contributors";
 import AddStopModal from "pages/dashboard/automations/_components/_buttons/_addStop";
-import Modal from "components/general/Modal";
+import Modal from "components/general/modal";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { Coins } from "types";
@@ -12,22 +12,21 @@ import {
   SelectContributorMembers,
   SelectFiatPreference,
   SelectNonCanceledRecurringTasks,
+  SelectPriceCalculationFn,
   SelectSelectedAccountAndBudget
 } from "redux/slices/account/selector";
 import TeamItem from "./_components/_teamItem";
 import { IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { DecimalConverter } from "utils/api";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
-import { GetFiatPrice } from "utils/const";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
-  const fiatPreference = useAppSelector(SelectFiatPreference)
 
 
   const { GetCoins } = useWalletKit();
-  const selectedAccount = useAppSelector(SelectSelectedAccountAndBudget)
-  const tasks = useAppSelector(SelectNonCanceledRecurringTasks).filter(task => (task as IAutomationTransfer).address.toLowerCase() === selectedAccount.account?.address.toLowerCase())
+  const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+  const tasks = useAppSelector(SelectNonCanceledRecurringTasks)
 
   const members = useAppSelector(SelectContributorMembers)
   const balance = useAppSelector(SelectBalance);
@@ -43,7 +42,7 @@ const Automations = () => {
     for (const task of tasks) {
       const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer | IAutomationCancel;
       const amount = DecimalConverter(tx.amount, tx.coin.decimals)
-      total += amount * GetFiatPrice(tx.coin, fiatPreference);
+      total += calculatePrice({ ...tx.coin, amount, coins: tx.coin });
       if (res[tx.coin.symbol]) {
         res[tx.coin.symbol] += amount;
       } else {
@@ -113,10 +112,8 @@ const Automations = () => {
                             </div>
                           </div>
                           <div className="text-sm text-greylish opacity-75 text-left">
-                            {(
-                              amount *
-                              (GetFiatPrice(GetCoins[currency as keyof Coins], fiatPreference) ?? 1)
-                            ).toFixed(2)}{" "}
+                            {
+                              (calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coins: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)}{" "}
                             USD
                           </div>
                         </div>

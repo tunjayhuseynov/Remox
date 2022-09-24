@@ -14,6 +14,8 @@ import { useAppDispatch } from "redux/hooks";
 import { Create_Individual_Thunk } from "redux/slices/account/thunks/individual";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import { TextField } from "@mui/material";
+import EditableAvatar from "components/general/EditableAvatar";
+import { nanoid } from "@reduxjs/toolkit";
 
 interface IFormInput {
   nftAddress?: string;
@@ -38,31 +40,26 @@ const CreateAccount = () => {
   const navigate = useRouter();
   const dark = useNextSelector(SelectDarkMode);
 
-  const [file, setFile] = useState<File>();
 
-  const imageType: DropDownItem[] = [
-    { name: "Upload Photo", id: "image" },
-    { name: "NFT", id: "nft" },
-  ];
-  const [selectedImageType, setSelectedImageType] = useState(imageType[0]);
-  const individualIsUpload = selectedImageType.id === "image";
+  const [imageURl, setImageUrl] = useState<string>();
+  const [imageType, setImageType] = useState<"image" | "nft">()
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-    const File = file;
     const Address = address;
 
     if (!Address) return ToastRun(<>Please. sign in first</>, "warning");
+
     try {
       await dispatch(
         Create_Individual_Thunk({
           address: Address,
           blockchain,
-          file: File ?? null,
+          imageUrl: imageURl ?? null,
           name: data.name,
           newAccountName: Wallet,
-          nftAddress: data.nftAddress ?? null,
-          nftTokenId: data.nftTokenId ?? null,
-          uploadType: individualIsUpload ? "image" : "nft",
+          nftAddress: null,
+          nftTokenId: null,
+          uploadType: imageType ?? "image",
         })
       ).unwrap();
 
@@ -74,6 +71,12 @@ const CreateAccount = () => {
   };
 
   const [isLoading, Submit] = useLoading(onSubmit);
+
+
+  const onAvatarChange = (url: string, type: "image" | "nft") => {
+    setImageUrl(url);
+    setImageType(type);
+  };
 
   return (
     <div className="h-screen w-full">
@@ -92,80 +95,40 @@ const CreateAccount = () => {
       >
         <section className="flex flex-col items-center h-full justify-center gap-8 pt-12">
           <div className="flex flex-col gap-4">
-            <div className="text-xl sm:text-3xl  dark:text-white text-center font-bold">
+            <div className="text-xl sm:text-2xl  dark:text-white text-center font-bold">
               Set Account Details
             </div>
           </div>
-          <div className="flex flex-col px-3 items-center justify-center min-w-[25%]">
-            <div className="flex flex-col mb-4 space-y-1 w-full">
-              {/* <div className="text-xs text-left text-black  dark:text-white">Choose Profile Photo Type</div> */}
-              <div className={` flex items-center gap-3 w-full`}>
-                <Dropdown
-                  parentClass={" w-full rounded-lg h-[3.4rem]"}
-                  className={"!rounded-lg h-[3.4rem]"}
-                  label="Choose Profile Photo Type"
-                  list={imageType}
-                  selected={selectedImageType}
-                  setSelect={setSelectedImageType}
-                />
-              </div>
+          <div className="flex flex-col space-y-5 items-center justify-center min-w-[25%]">
+            <div className="flex">
+              <EditableAvatar
+                avatarUrl={null}
+                name={"random"}
+                blockchain={blockchain}
+                evm={blockchain.name !== "solana"}
+                userId={`accounts/${nanoid()}`}
+                onChange={onAvatarChange}
+              />
             </div>
-            {
-              <div className="flex flex-col mb-4 space-y-1 w-full">
-                <div className="text-xs text-left  dark:text-white">
-                  {!individualIsUpload ? "NFT Address" : "Your Photo"}{" "}
-                </div>
-                <div className={`  w-full border rounded-lg`}>
-                  {!individualIsUpload ? (
-                    <input
-                      type="text"
-                      {...register("nftAddress", { required: true })}
-                      className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1"
-                    />
-                  ) : (
-                    <Upload
-                      className={"!h-[3.4rem] block border-none w-full"}
-                      setFile={setFile}
-                    />
-                  )}
-                </div>
-              </div>
-            }
-            {blockchain.name === "celo" && !individualIsUpload && (
-              <div className="flex flex-col mb-4 gap-1 w-full">
-                <div className="text-xs text-left  dark:text-white">
-                  Token ID
-                </div>
-                <div className={`w-full border rounded-lg`}>
-                  <input
-                    type="number"
-                    {...register("nftTokenId", {
-                      required: true,
-                      valueAsNumber: true,
-                    })}
-                    className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
-                  />
-                </div>
-              </div>
-            )}
             <div className="flex flex-col mb-4 gap-1 w-full">
-              <div className={`w-full border rounded-lg`}>
+              <div className={`w-full rounded-lg`}>
                 <TextField
                   type={"text"}
                   {...register("name", { required: true })}
                   className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
                   label="Name"
-
+                  placeholder="E.g. Satoshi Nakamoto"
                 />
               </div>
             </div>
             <div className="flex flex-col mb-4 gap-1 w-full">
-              <div className={`w-full border rounded-lg`}>
+              <div className={`w-full rounded-lg`}>
                 <TextField
                   type={'text'}
-                  defaultValue={address}
+                  variant="outlined"
+                  value={address}
                   className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
-                  label="Yor Address"
+                  label="Your Address"
                   disabled
                 />
               </div>

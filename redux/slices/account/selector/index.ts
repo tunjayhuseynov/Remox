@@ -1,6 +1,8 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
 import { IMemberORM } from "firebaseConfig";
 import { RootState } from "redux/store";
+import { GetFiatPrice } from "utils/const";
+import { IPrice } from 'utils/api'
 export * from "./balance";
 export * from './darkmode';
 export * from './reccuring';
@@ -12,7 +14,33 @@ export * from './ab';
 export * from './stats';
 export * from './tag';
 
+export const SelectPriceCalculationFn = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (state: RootState) => state.remoxData.historyPriceList,
+  (storage, hp) => {
+    let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
+    let fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
 
+    return (coin: IPrice[0]) => {
+      switch (pc) {
+        case "current":
+          return coin.amount * GetFiatPrice(coin, fiat);
+        case "5":
+          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-5).reduce((a, b) => a + b.price, 0) / 5) ?? GetFiatPrice(coin, fiat);
+        case "10":
+          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10) ?? GetFiatPrice(coin, fiat);
+        case "15":
+          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-15).reduce((a, b) => a + b.price, 0) / 15) ?? GetFiatPrice(coin, fiat);
+        case "20":
+          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-20).reduce((a, b) => a + b.price, 0) / 20) ?? GetFiatPrice(coin, fiat);
+        case "30":
+          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-30).reduce((a, b) => a + b.price, 0) / 30) ?? GetFiatPrice(coin, fiat);
+        default:
+          return coin.amount * GetFiatPrice(coin, fiat);
+      }
+    }
+  }
+)
 
 export const SelectNfts = createDraftSafeSelector(
   (state: RootState) => state.remoxData.nfts,
@@ -35,7 +63,35 @@ export const SelectFiatPreference = createDraftSafeSelector(
   (storage) => storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD"
 );
 
+export const SelectPriceCalculation = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (storage) => storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current"
+);
 
+export const SelectFiatSymbol = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (storage) => {
+    const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
+    switch (fiat) {
+      case "USD":
+        return "$";
+      case "EUR":
+        return "€";
+      case "GBP":
+        return "£";
+      case "JPY":
+        return "¥";
+      case "TRY":
+        return "₺";
+      case "CAD":
+        return "C$";
+      case "AUD":
+        return "A$";
+      default:
+        return "$";
+    }
+  }
+);
 
 
 // This is for Request Page
@@ -73,6 +129,7 @@ export const SelectAccounts = createDraftSafeSelector(
   (accounts) => accounts
 );
 
+// Select All Owners
 export const SelectOwners = createDraftSafeSelector(
   (state: RootState) => state.remoxData.accounts,
   (accounts) => {

@@ -1,8 +1,8 @@
 
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectBlockchain, SelectDarkMode } from 'redux/slices/account/remoxData';
 import Button from 'components/button';
 import { AddressReducer } from "utils";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useAppSelector } from "redux/hooks";
 import { useWalletKit } from "hooks";
@@ -18,13 +18,17 @@ import { selectStorage } from 'redux/slices/account/storage';
 import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
 import { IAccount, Image } from 'firebaseConfig';
 import useAsyncEffect from 'hooks/useAsyncEffect';
+import EditableAvatar from 'components/general/EditableAvatar';
+import { nanoid } from '@reduxjs/toolkit';
+import { TextField } from '@mui/material';
+import { Blockchains, MultisigProviders } from 'types/blockchains';
+import { BiTrash } from 'react-icons/bi';
 
 interface IFormInput {
-    nftAddress?: string;
-    nftTokenId?: number;
     name: string;
+    ownerName: string;
     multisigAddress?: string;
-    confirmOwners?: number;
+    threshold?: number;
 }
 
 function CreateMultisig() {
@@ -32,7 +36,7 @@ function CreateMultisig() {
     const { register, handleSubmit } = useForm<IFormInput>();
 
     const { Address, blockchain } = useWalletKit();
-    
+
     const [address, setProviderAddress] = useState<string>("")
     useAsyncEffect(async () => {
         const val = await Address
@@ -42,70 +46,62 @@ function CreateMultisig() {
     })
 
     const { createMultisigAccount, importMultisigAccount } = useMultisig()
-    // const {
-    //     createMultisigAccount
-    // } = useMultisig()
+
+
     const storage = useNextSelector(selectStorage)
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
     const isCreate = index === 0;
 
-    const addressRef = useRef<HTMLInputElement>(null)
-    const nameRef = useRef<HTMLInputElement>(null)
+
     const dark = useAppSelector(SelectDarkMode)
     const [sign, setSign] = useState<number | undefined>(1)
-    const [newOwner, setNewOwner] = useState(false)
 
-    const [owners, setOwners] = useState<{ name: string; address: string; }[]>([])
-    const [file, setFile] = useState<File>()
+    const [owners, setOwners] = useState<{ id: string, name: string; address: string; }[]>([])
 
-    const imageTypes: DropDownItem[] = [{ id: "image", name: "Upload Photo" }, { id: "nft", name: "NFT" }]
-    const [selectedImage, setSelectedImage] = useState(imageTypes[0])
-    let multisigIsUpload = selectedImage.id === "image"
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
-            const orgPhoto = file ?? null
-            const Owners = owners
-            if (multisigIsUpload && !orgPhoto) throw new Error("No file uploaded")
-            if (Owners.length === 0) throw new Error("No owners added")
+            if (!selectedProvider) throw new Error("No provider selected")
 
-            let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
-            if (orgPhoto || data.nftAddress) {
-                image =
-                {
-                    image: {
-                        blockchain,
-                        imageUrl: orgPhoto ?? data.nftAddress!,
-                        nftUrl: data.nftAddress ?? "",
-                        tokenId: data.nftTokenId ?? null,
-                        type: multisigIsUpload ? "image" : "nft"
-                    },
-                    name: `organizations/${data.name}`
+            let image: Image | null = null;
+            if (imageURL && imageType) {
+                image = {
+                    blockchain: blockchain.name,
+                    imageUrl: imageURL,
+                    nftUrl: imageURL,
+                    tokenId: null,
+                    type: imageType,
                 }
-
-                await DownloadAndSetNFTorImageForUser(image)
             }
 
             let multisig: IAccount;
             if (isCreate) {
+                if (owners.length === 0) throw new Error("No owners added")
+                if (!address) throw new Error("No address")
+                const Owners = [...owners, { name: data.ownerName, address }]
+
                 multisig =
                     await createMultisigAccount(
-                        Owners.map(s => s.address),
+                        Owners,
                         data.name,
-                        data.confirmOwners ?? 1,
-                        data.confirmOwners ?? 1,
-                        image?.image ?? null,
-                        storage?.organization ? "organization" : "individual"
+                        data.threshold ?? 1,
+                        data.threshold ?? 1,
+                        image,
+                        storage?.organization ? "organization" : "individual",
+                        selectedProvider.name
                     )
             } else {
+                if (!data.multisigAddress) throw new Error("No owners added")
+
                 multisig =
                     await importMultisigAccount(
-                        data.multisigAddress!,
+                        data.multisigAddress,
                         data.name,
-                        image?.image ?? null,
-                        storage?.organization ? "organization" : "individual"
+                        image,
+                        storage?.organization ? "organization" : "individual",
+                        selectedProvider.name
                     )
             }
 
@@ -120,11 +116,18 @@ function CreateMultisig() {
 
 
     const addOwner = () => {
-        if (addressRef.current?.value && nameRef.current?.value) {
-            setOwners([...owners, { name: nameRef.current.value, address: addressRef.current.value }])
-            nameRef.current.value = ""
-            addressRef.current.value = ""
+        setOwners([...owners, { id: nanoid(), name: "", address: "" }])
+    }
+
+    const removeOwner = (id: string) => {
+        setOwners(owners.filter(s => s.id !== id))
+        if (sign && sign > owners.length - 1) {
+            setSign(owners.length)
         }
+    }
+
+    const changeOwner = (id: string, name: string, address: string) => {
+        setOwners(owners.map(s => s.id === id ? { ...s, name, address } : s))
     }
 
 
@@ -134,10 +137,29 @@ function CreateMultisig() {
             text: "Create Multisig"
         },
         {
-            to: "/create-multisig?index=1&noAnimation=true",
+            to: "/create-multisig?index=1",
             text: "Import Multisig"
         }
     ]
+
+    const [imageURL, setImageURL] = useState<string>();
+    const [imageType, setImageType] = useState<"image" | "nft">()
+
+    const onAvatarChange = (url: string, type: "image" | "nft") => {
+        setImageURL(url);
+        setImageType(type);
+    };
+
+    const [selectedProvider, setSelectedProvider] = useState<typeof multisigProviders[0]>()
+    // const [selectedBlockchain, setSelectedBlockchain] = useState<typeof Blockchains[0]>()
+    const selectedBlockchain = useAppSelector(SelectBlockchain)
+    const multisigProviders = useMemo(() => {
+        if (selectedBlockchain) {
+            return Blockchains.find(s => s.name === selectedBlockchain.name)?.multisigProviders ?? []
+        }
+        return []
+    }, [selectedBlockchain])
+
 
 
     return <div className="h-screen w-full">
@@ -146,107 +168,82 @@ function CreateMultisig() {
                 <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
             </div>
         </header>
-        <form onSubmit={handleSubmit(onSubmit)} className="py-[6.25rem] sm:py-0 sm:h-full " >
-            <section className="flex flex-col items-center h-full  gap-6 pt-20">
+        <form onSubmit={handleSubmit(onSubmit)} className="py-[10rem] sm:py-0 sm:h-full " >
+            <section className="flex flex-col items-center h-full  gap-6 pt-36">
                 <div className="flex flex-col items-center justify-center gap-4">
                     <div className="text-xl sm:text-3xl  dark:text-white text-center font-semibold">Set Account Details</div>
                     <div className="flex  pt-2 w-full justify-between">
                         <AnimatedTabBar data={pages} index={index} className={'!text-lg'} />
                     </div>
                 </div>
-                <div className="flex flex-col px-3 gap-1 items-center justify-center min-w-[25%]">
+                <div className="flex flex-col px-3 space-y-10 items-center justify-start min-w-[25%]">
+                    <EditableAvatar
+                        avatarUrl={null}
+                        name={"random"}
+                        blockchain={blockchain}
+                        evm={blockchain.name !== "solana"}
+                        userId={`accounts/${nanoid()}`}
+                        onChange={onAvatarChange}
+                    />
+
+                    {/* <div className="flex flex-col mb-4 space-y-1 w-full">
+                        <Dropdown
+                            list={Blockchains}
+                            selected={selectedBlockchain}
+                            setSelect={setSelectedBlockchain}
+                            label="Blockchain"
+                        />
+                    </div> */}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
-                        {/* <div className="text-xs text-left  dark:text-white">Choose Organisation Profile Photo Type</div> */}
-                        <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <Dropdown parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-[3.4rem]'} label="Choose Organisation Profile Photo Type" className={'!rounded-lg h-[3.4rem]'} list={imageTypes} selected={selectedImage} setSelect={setSelectedImage} />
-                        </div>
+                        <Dropdown
+                            list={multisigProviders}
+                            selected={selectedProvider}
+                            setSelect={setSelectedProvider}
+                            label="Multisig Provider"
+                        />
                     </div>
-                    {<div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs text-left  dark:text-white">{!multisigIsUpload ? "NFT Address" : "Your Photo"} </div>
-                        <div className={`  w-full border rounded-lg`}>
-                            {!multisigIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem]  w-full px-1" /> : <Upload className={'!h-[3.4rem] block border-none w-full'} setFile={setFile} />}
-                        </div>
-                    </div>}
-                    {blockchain.name === 'celo' && !multisigIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
-                        <div className="text-xs text-left  dark:text-white">Token ID</div>
-                        <div className={`w-full border rounded-lg`}>
-                            <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
-                        </div>
-                    </div>}
                     {!isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs  text-left  dark:text-white">Multisig Adress</div>
-                        <div className={` flex items-center gap-3 w-full border rounded-lg`}>
-                            <input type="text" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder="Multisig Address" />
+                        <div className={`flex items-center gap-3 w-full rounded-lg`}>
+                            <TextField label="Multisig Address" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder='E.g. 0xabcd...' />
                         </div>
                     </div>}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <div className="text-xs  text-left  dark:text-white">Wallet Name</div>
-                        <div className={` flex items-center gap-3 w-full border rounded-lg`}>
-                            {<input type="text"  {...register("name", { required: true })} placeholder="Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />}
+                        <div className={` flex items-center gap-3 w-full rounded-lg`}>
+                            <TextField label="Name"  {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />
                         </div>
                     </div>
-                    {newOwner && isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
-                        <span className="text-greylish opacity-35">Add Owners</span>
-                        <div className="flex gap-5">
-                            <div className={` w-[25%]`}>
-                                <div className="w-full mb-4" >
-                                    <input ref={nameRef} type="text" className="border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" placeholder="Name" />
-                                </div>
-                            </div>
-                            <div className={` w-[75%]`}>
-                                <div className="w-full mb-4">
-                                    <input ref={addressRef} type="text" className="border p-3 rounded-md w-full  outline-none  dark:bg-darkSecond" placeholder="0xabc..." />
-                                </div>
-                            </div>
+
+                    <div className='flex flex-col space-y-5'>
+                        {isCreate && <div className="text-greylish opacity-35 w-full">{isCreate ? "Owners" : "You"}</div>}
+                        <div className="grid grid-cols-[25%,5%,70%]">
+                            <TextField {...register("ownerName")} className="cursor-pointer border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" label="Name" />
+                            <div></div>
+                            <TextField disabled className="cursor-pointer border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={address !== null ? `${AddressReducer(address)} (You)` : ""} />
                         </div>
-                        <div className="flex flex-col items-start mb-4  w-full ">
-                            <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={addOwner}>+ Add to Owner</div>
-                        </div>
-                    </div>}
-                    <div className="flex flex-col space-y-1 w-full">
-                        <span className="text-greylish opacity-35">Add Owners</span>
-                        <div className="flex gap-5">
-                            <div className={` w-[25%]`}>
-                                <div className="w-full mb-4" >
-                                    <input type="text" readOnly className="cursor-pointer border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" value="Your Name" />
+                        {isCreate && owners.map((w, i) => {
+                            return <div className="relative grid grid-cols-[25%,5%,70%]">
+                                <TextField type="text" label="Name" className="cursor-pointer rounded-md  dark:bg-darkSecond" value={w.name} onChange={(e) => changeOwner(w.id, e.target.value, w.address)} />
+                                <div></div>
+                                <TextField type="text" label="Address" className="cursor-pointer ml-4 rounded-md  bg-greylish bg-opacity-20  dark:bg-darkSecond" onChange={(e) => changeOwner(w.id, w.name, e.target.value)} value={w.address !== null ? AddressReducer(w.address) : ""} />
+                                <div className="absolute right-0 top-1/2 translate-x-[150%] -translate-y-1/2 cursor-pointer" onClick={() => removeOwner(w.id)}>
+                                    <BiTrash />
                                 </div>
                             </div>
-                            <div className={` w-[75%]`}>
-                                <div className="w-full mb-4">
-                                    <input type="text" readOnly className="cursor-pointer  border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={address !== null ? AddressReducer(address) : ""} />
-                                </div>
-                            </div>
-                        </div>
+                        })}
+                        {isCreate && <div className="flex flex-col items-start mb-4  w-full ">
+                            <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => addOwner()}>+ Add to Owner</div>
+                        </div>}
                     </div>
-                    {!newOwner && isCreate && <div className="flex flex-col items-start mb-4  w-full ">
-                        <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => { setNewOwner(true) }}>+ Add to Owner</div>
-                    </div>}
-                    {isCreate && owners.map((w, i) => {
-                        return <div key={i} className="flex flex-col  space-y-1 w-full">
-                            <div className="flex gap-5">
-                                <div className={` w-[25%]`}>
-                                    <div className="w-full mb-4" >
-                                        <input type="text" className="cursor-pointer border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" value={w.name} />
-                                    </div>
-                                </div>
-                                <div className={` w-[75%]`}>
-                                    <div className="w-full mb-4">
-                                        <input type="text" className="cursor-pointer  border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={w.address !== null ? AddressReducer(w.address) : ""} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    })}
-                    {isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
+                    {isCreate && <div className="flex flex-col mb-4 space-y-5 w-full">
                         <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
-                        <div className="w-ful flex justify-start items-center">
-                            <input type="number" {...register("confirmOwners", { required: true, valueAsNumber: true })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" max={owners.length + 1} value={sign} onChange={(e) => { if (!isNaN(+e.target.value)) setSign(+e.target.value || undefined) }} required />
+                        <div className="space-x-5 flex justify-start items-center">
+                            <TextField type="number" {...register("threshold", { required: true, valueAsNumber: true, max: (owners.length + 1) })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value) && +e.target.value <= owners.length + 1) { setSign(+e.target.value || undefined) } }} />
                             <p className="text-greylish w-[30%]">out of {owners.length + 1} owners</p>
                         </div>
                     </div>}
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 min-w-[26%] pb-5">
-                    <Button version="second" onClick={() => navigate.push('/create-organisation')}>Back</Button>
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 min-w-[26%] pb-10">
+                    <Button version="second" onClick={() => navigate.push('/create-organization')}>Back</Button>
                     {isCreate ? <Button type="submit">Create</Button> : <Button type="submit">Import</Button>}
                 </div>
             </section>

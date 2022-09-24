@@ -84,7 +84,7 @@ function ChooseType() {
                   <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
                   <div className="flex flex-col">
                     <p className="text-base">{i.name}</p>
-                    <p className="text-sm text-greylish">{i.totalBalance}</p>
+                    {/* <p className="text-sm text-greylish">{i.}</p> */}
                   </div>
                 </div>
               })}

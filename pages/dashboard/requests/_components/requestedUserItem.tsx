@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AltCoins } from "types";
 import { AddressReducer, SetComma } from "utils";
 import dateFormat from "dateformat";
-import Modal from "components/general/Modal";
+import Modal from "components/general/modal";
 import Button from "components/button";
 import useRequest from "hooks/useRequest";
 import { FaChevronCircleRight } from "react-icons/fa";

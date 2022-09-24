@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeError, changeSuccess, selectError, selectSuccess } from "redux/slices/notificationSlice";
 import Success from "components/general/success";
 import Error from "components/general/error";
-import Modal from "components/general/Modal";
+import Modal from "components/general/modal";
 import { useModalSideExit, useWalletKit } from 'hooks';
 import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";
@@ -207,7 +207,7 @@ const Swap = () => {
                             <div>
                                 <Dropdown
                                     label="Token"
-                                    runFn={val => () => {
+                                    runFn={val => async () => {
                                         if (val.name === token2.name) {
                                             setToken2(token1)
                                         }
@@ -260,7 +260,7 @@ const Swap = () => {
                         <div className="flex flex-col space-y-2 w-[8.125rem]">
                             <div>
                                 <Dropdown
-                                    runFn={val => () => {
+                                    runFn={val => async () => {
                                         if (val.name === token1.name) {
                                             setToken1(token2)
                                         }

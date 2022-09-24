@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
 import Button from 'components/button';
 import { useRouter } from 'next/router';
 import { useAppSelector } from 'redux/hooks';
-import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectIndividual, SelectOrganization, SelectTotalBalance } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectFiatSymbol, SelectIndividual, SelectOrganization, SelectTotalBalance } from 'redux/slices/account/remoxData';
 import { SetComma } from 'utils';
 import makeBlockie from 'ethereum-blockies-base64';
 
@@ -19,6 +19,7 @@ const Sidebar = () => {
 
     const navigator = useRouter()
     const [showBar, setShowBar] = useState<boolean>(true)
+    const symbol = useAppSelector(SelectFiatSymbol)
 
     const organizationList = useMemo(() => {
         if (individual) return [{ id: "0", name: "+ Add Organization", secondValue: "", image: "", onClick: () => { navigator.push('/create-organization') } }]
@@ -27,7 +28,7 @@ const Sidebar = () => {
                 id: e.id,
                 name: e.name,
                 image: (typeof e.image?.imageUrl === 'string' ? e.image.imageUrl : null) || e.image?.nftUrl || makeBlockie(e.id),
-                secondValue: `$${SetComma(e.totalBalance)}`,
+                secondValue: `${symbol}${SetComma(0/*e.totalBalance*/)}`,
                 onClick: () => {
                     navigator.push(`/organization/${e.id}`)
                 }
@@ -40,21 +41,34 @@ const Sidebar = () => {
 
     const currentOrganization = organization ? organizationList.find(e => e.id === organization.id) : undefined;
 
-    const [selectedItem, setItem] = useState(selectedAccountType === "organization" ? currentOrganization : {
-        id: "0",
-        name: individual?.name ?? "",
-        image: (typeof individual?.image?.imageUrl === 'string' ? individual.image.imageUrl : null) ?? individual?.image?.nftUrl ?? makeBlockie(individual!.id),
-        secondValue: `$${totalBalance.toFixed(2)}`,
-        onClick: () => { }
-    })
+    const [selectedItem, setItem] = useState<{
+        id: string;
+        name: string;
+        secondValue: string;
+        image: string;
+        onClick: () => void;
+    }>()
 
+    useEffect(() => {
+        if (selectedAccountType === "individual") {
+            setItem({
+                id: "0",
+                name: individual?.name ?? "",
+                image: (typeof individual?.image?.imageUrl === 'string' ? individual.image.imageUrl : null) ?? individual?.image?.nftUrl ?? makeBlockie(individual!.id),
+                secondValue: `${symbol}${totalBalance.toFixed(2)}`,
+                onClick: () => { }
+            })
+        } else {
+            setItem(currentOrganization)
+        }
+    }, [totalBalance])
 
     return <>
-        <div className={`hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish  scrollbar-thin h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none fixed overflow-y-auto pt-36 bg-[#FFFFFF] w-[18.45rem] dark:bg-darkSecond shadow-15`}>
-            <div className="grid grid-rows-[95%,1fr] pb-4 px-9 mx-auto h-full">
-                <div className='absolute flex items-center gap-3'>
+        <div className={`hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish fixed w-[17.5%] 2xl:w-[15%] 3xl:w-[15%] scrollbar-thin h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none  overflow-y-auto pt-36 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
+            <div className='flex flex-col px-9'>
+                <div className='flex items-center gap-3'>
                     <Dropdown
-                        parentClass="min-w-[14rem] bg-white dark:bg-darkSecond truncate"
+                        parentClass="w-full bg-white dark:bg-darkSecond truncate"
                         list={organizationList}
                         selected={selectedItem}
                         setSelect={setItem as any}
@@ -62,11 +76,13 @@ const Sidebar = () => {
                         sx={{ '.MuiSelect-select ': { paddingTop: '5px !important', paddingBottom: '5px !important', paddingLeft: '7px', maxHeight: '50px' } }}
                     />
                 </div>
-                <div>
-                    <Siderbarlist showbar={showBar} />
-                    <Button className="px-8 !py-[.5rem] !text-lg  mb-10  w-full font-semibold" onClick={() => {
-                        navigator.push("/dashboard/choose-budget?page=pay")
-                    }}>Send</Button>
+                <div className="grid grid-rows-[95%,1fr] pb-4  h-full">
+                    <div>
+                        <Siderbarlist showbar={showBar} />
+                        <Button className="px-8 !py-[.5rem] !text-lg  mb-10  w-full font-semibold" onClick={() => {
+                            navigator.push("/dashboard/choose-budget?page=pay")
+                        }}>Send</Button>
+                    </div>
                 </div>
             </div>
         </div>

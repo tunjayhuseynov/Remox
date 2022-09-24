@@ -167,7 +167,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
                                 step={'any'}
                             />
                             <Dropdown className="border-transparent text-sm border-none"
-                                runFn={val => () => {
+                                runFn={val => async () => {
                                     const thatInput = { ...input }
                                     thatInput.wallet = val
                                     setInput([...inputs.filter((s, i) => i === index), thatInput])

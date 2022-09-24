@@ -5,7 +5,7 @@ import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import { useWalletKit } from 'hooks';
 import  { TotalUSDAmount } from "pages/dashboard/requests/_components/totalAmount"
-import Modal from 'components/general/Modal';
+import Modal from 'components/general/modal';
 import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
 import { SelectBalance, SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import PayrollItem from './_components/PayrollItem';

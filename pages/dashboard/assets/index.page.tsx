@@ -7,7 +7,7 @@ import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { SetComma } from 'utils';
 import { styled } from '@mui/material/styles';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts, SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import useNextSelector from 'hooks/useNextSelector';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -40,25 +40,6 @@ export interface INftData {
 }
 
 
-export interface IToken {
-    coins: AltCoins;
-    amountUSD: number;
-    amount: number;
-    percent: number;
-    tokenPrice: number;
-    name: string;
-    coinUrl: string;
-    type: TokenType;
-    address: string;
-    color: string;
-    decimals: number;
-    chainID: number;
-    logoURI: string;
-    priceUSD: number;
-    symbol: string;
-}
-
-
 const AccordionSummary = styled((props: AccordionSummaryProps) => (
     <MuiAccordionSummary
         expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '1.1rem' }} />}
@@ -68,7 +49,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 
     flexDirection: 'row-reverse',
     '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-        
+
         transform: 'rotate(180deg)',
     },
     '& .MuiAccordionSummary-content': {
@@ -107,29 +88,29 @@ const Assets = () => {
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
 
 
-    
+    const symbol = useAppSelector(SelectFiatSymbol)
 
 
-    
+
     const handleChange =
         (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
             setExpanded(newExpanded ? panel : false);
-    };
+        };
 
     const TypeCoin = [
         {
             header: "Spot Assets",
-            balance: spotTotalBalance.toFixed(2) ,
+            balance: spotTotalBalance.toFixed(2),
             tokenTypes: TokenType.YieldToken,
         },
         {
             header: "Yield Bearing Assets",
-            balance: yieldTotalBalance.toFixed(2) ,
+            balance: yieldTotalBalance.toFixed(2),
             tokenTypes: TokenType.YieldToken,
         }
 
     ]
-    
+
     const assetType = [
         {
             to: "/dashboard/assets?index=0&noAnimation=true",
@@ -141,7 +122,7 @@ const Assets = () => {
         }
     ]
 
-    const nftdata:INftData = {
+    const nftdata: INftData = {
         totalBalance: 3453,
         nft: [
             {
@@ -169,7 +150,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `$${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl"></div>}
+                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `${symbol}${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl"></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -199,9 +180,9 @@ const Assets = () => {
                                         </tr>
                                     </thead>
                                 </table>
-                                    {mySpotTokens.map((token) => {
-                                        return <AssetItem asset={token} key={token.address} />
-                                    })}
+                                {mySpotTokens.map((token) => {
+                                    return <AssetItem asset={token} key={token.address} />
+                                })}
                             </div>
                         </AccordionDetails>
                     </Accordion>
@@ -209,7 +190,7 @@ const Assets = () => {
 
                     <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '10px' }}>
                         <AccordionSummary
-                         expandIcon={<ExpandMoreIcon />}
+                            expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel2d-content" id="panel2d-header"
                             className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
                             sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
@@ -235,13 +216,13 @@ const Assets = () => {
                                         </tr>
                                     </thead>
                                 </table>
-                                    {myYieldTokens.map((token) => {
-                                        return <AssetItem asset={token} key={token.address} />
-                                    })}
+                                {myYieldTokens.map((token) => {
+                                    return <AssetItem asset={token} key={token.address} />
+                                })}
                             </div>
                         </AccordionDetails>
                     </Accordion>
-                </div> :<NftContainer />}
+                </div> : <NftContainer />}
             </div>
         </div>
     </>

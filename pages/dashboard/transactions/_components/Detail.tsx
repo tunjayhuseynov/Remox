@@ -13,11 +13,10 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets, SelectFiatPreference, SelectHistoricalPrices } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectHistoricalPrices, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { ToastRun } from 'utils/toast';
-import { GetFiatPrice } from 'utils/const';
 
 interface IProps {
     // date: string;
@@ -56,6 +55,7 @@ const Detail = ({
     const [budgetLoading, setBudgetLoading] = useState(false)
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(budget)
 
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
 
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const hp = useAppSelector(SelectHistoricalPrices)
@@ -152,12 +152,12 @@ const Detail = ({
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>
                                                 {direction === TransactionDirection.In ? "+" : "-"}
-                                                ${DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? GetFiatPrice(transfer.coin, fiatPreference))}
+                                                ${DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? calculatePrice({ ...transfer.coin, coins: transfer.coin, amount: DecimalConverter(+transfer.amount, transfer.coin.decimals) }))}
                                             </div>}
-                                            {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (+c.amount * (getHpCoinPrice(c.coin) ?? GetFiatPrice(c.coin, fiatPreference))), 0)}</div>}
-                                            {automation && <div>-${+automation.amount * (getHpCoinPrice(automation.coin) ?? GetFiatPrice(automation.coin, fiatPreference))}</div>}
-                                            {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (+c.amount * (getHpCoinPrice(c.coin) ?? GetFiatPrice(c.coin, fiatPreference))), 0)}</div>}
-                                            {automationCanceled && <div>-${+automationCanceled.amount * (getHpCoinPrice(automationCanceled.coin) ?? GetFiatPrice(automationCanceled.coin, fiatPreference))}</div>}
+                                            {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coins: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)}</div>}
+                                            {automation && <div>-${DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? calculatePrice({ ...automation.coin, coins: automation.coin, amount: DecimalConverter(automation.amount, automation.coin.decimals) }))}</div>}
+                                            {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coins: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)}</div>}
+                                            {automationCanceled && <div>-${DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? calculatePrice({ ...automationCanceled.coin, coins: automationCanceled.coin, amount: DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) }))}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}

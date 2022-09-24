@@ -17,7 +17,8 @@ const nextConfig = {
     ]
   },
   reactStrictMode: true,
-  webpack5: true,
+  // webpack5: true,
+  // swcMinify: true,
   pageExtensions: ['page.tsx', 'page.ts', 'api.tsx', 'api.ts'],
   webpack: (config) => {
     config.module.rules.push({

@@ -47,6 +47,7 @@ export default async function handler(
     const blockchaiName = req.query.blockchain as BlockchainType["name"];
     const blockchain = Blockchains.find((b) => b.name === blockchaiName);
     if (!blockchain) throw new Error("Blockchain not found");
+    if (!parsedAddress) throw new Error("Address not found");
 
     const CoinsReq = await adminApp
       .firestore()

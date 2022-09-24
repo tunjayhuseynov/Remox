@@ -6,7 +6,7 @@ import { useModalSideExit, useWalletKit } from "hooks";
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { useRouter } from 'next/router';
 import { ProgressBarWidth, SetComma } from 'utils';
-import Modal from 'components/general/Modal';
+import Modal from 'components/general/modal';
 import DeleteBudget from './Modals/deleteBudgets';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { BiDotsVerticalRounded } from 'react-icons/bi'

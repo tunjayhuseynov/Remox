@@ -2,8 +2,8 @@ import { createDraftSafeSelector } from "@reduxjs/toolkit";
 import { IFlowDetail, IFlowDetailItem } from "pages/api/calculation/_spendingType";
 import { RootState } from "redux/store";
 import { DecimalConverter } from "utils/api";
-import { GetFiatPrice } from "utils/const";
 import date from 'date-and-time';
+import { generatePriceCalculation } from "utils/const";
 
 export const SelectStats = createDraftSafeSelector(
     (state: RootState) => state.remoxData.stats,
@@ -22,6 +22,8 @@ export const SelectDailyBalance = createDraftSafeSelector(
             const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1}/${time.getDate()}`
             const timeCoins: { [time: string]: { [symbol: string]: number } } = {}
             const preference = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
+            let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
+
             let response: { [time: string]: number } = {}
             let balance: typeof balances = Object.entries(balances).reduce<typeof balances>((a, c) => {
                 a[c[0]] = { ...c[1] }
@@ -44,7 +46,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     // total += (item.type === "in" ? 1 : -1) * DecimalConverter(item.amount, item.name.decimals)
                 })
                 response[flowKey] = Object.entries(timeCoins[flowKey]).reduce((a, [key, val]) => {
-                    a += (hp[balance[key].symbol]?.[preference].find(s => key === s.date)?.price ?? GetFiatPrice(balance[key], preference)) * val
+                    a += (hp[balance[key].symbol]?.[preference].find(s => key === s.date)?.price ?? generatePriceCalculation(balance[key], hp, pc, preference))
                     return a;
                 }, 0);
             })
@@ -52,7 +54,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
             let totalBalance = 0;
             accounts.forEach((account) => {
                 account.coins.forEach((coin) => {
-                    totalBalance += GetFiatPrice(coin, preference) * coin.amount;
+                    totalBalance += generatePriceCalculation(coin, hp, pc, preference);
                 })
             })
 

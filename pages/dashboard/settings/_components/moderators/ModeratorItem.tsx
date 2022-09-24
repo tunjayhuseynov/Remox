@@ -4,7 +4,7 @@ import { IModerator } from "firebaseConfig";
 import { IoTrashOutline } from "react-icons/io5";
 import { AddressReducer, SetComma } from "utils";
 import { useState } from 'react'
-import Modal from "components/general/Modal";
+import Modal from "components/general/modal";
 import Button from "components/button";
 import useLoading from "hooks/useLoading";
 import { useAppDispatch, useAppSelector } from "redux/hooks";

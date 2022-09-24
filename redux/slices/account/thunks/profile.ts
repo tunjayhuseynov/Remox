@@ -1,5 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Image } from "firebaseConfig";
+import axios from "axios";
+import { FiatMoneyList, Image } from "firebaseConfig";
+import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import { RootState } from "redux/store";
 import { FirestoreWrite } from "rpcHooks/useFirebase";
 import { changeImage } from "../remoxData";
@@ -64,4 +66,42 @@ export const UpdateSeemTimeThunk = createAsyncThunk<ISeendTimeProps, ISeendTimeP
     })
 
     return { time, userId };
+})
+
+
+export const UpdateFiatCurrencyThunk = createAsyncThunk<[FiatMoneyList, IHpApiResponse], FiatMoneyList>("remoxData/updateFiatCurrency", async (currency, api) => {
+    const type = (api.getState() as RootState).remoxData.accountType
+    const userId = (api.getState() as RootState).remoxData.storage?.organization?.id ?? (api.getState() as RootState).remoxData.storage?.individual?.id
+    if (!userId) throw new Error('Account is not defined')
+    await FirestoreWrite<{
+        fiatMoneyPreference: FiatMoneyList,
+    }>().updateDoc(type === "individual" ? "individuals" : "organizations", userId, {
+        fiatMoneyPreference: currency,
+    })
+
+    const state = api.getState() as RootState
+    const allCumulativeTransactions = state.remoxData.cumulativeTransactions;
+    const blockchain = state.remoxData.blockchain;
+
+    const hpList = await axios.post<IHpApiResponse>('/api/calculation/hp', {
+        coinList: Object.keys(state.remoxData.coins), //Array.from(new Set(allCoins.filter(s => s))),
+        lastTxDate: allCumulativeTransactions.at(-1)?.timestamp,
+        blockchain: blockchain.name,
+        fiatMoney: currency
+    })
+
+    return [currency, hpList.data];
+})
+
+export const UpdatePriceCalculationThunk = createAsyncThunk<"current" | "5" | "10" | "15" | "20" | "30", "current" | "5" | "10" | "15" | "20" | "30">("remoxData/updatePriceCalculation", async (priceCalculation, api) => {
+    const type = (api.getState() as RootState).remoxData.accountType
+    const userId = (api.getState() as RootState).remoxData.storage?.organization?.id ?? (api.getState() as RootState).remoxData.storage?.individual?.id
+    if (!userId) throw new Error('Account is not defined')
+    await FirestoreWrite<{
+        priceCalculation: "current" | "5" | "10" | "15" | "20" | "30"
+    }>().updateDoc(type === "individual" ? "individuals" : "organizations", userId, {
+        priceCalculation: priceCalculation,
+    })
+
+    return priceCalculation;
 })

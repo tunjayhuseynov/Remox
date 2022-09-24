@@ -217,7 +217,7 @@ export default function useMultisig() {
         return newProgramMap<Programs>(Provider, GOKI_IDLS, allAddresses);
     }
 
-    const createMultisigAccount = useCallback(async (owners: string[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual", provider: MultisigProviders) => {
+    const createMultisigAccount = useCallback(async (owners: { name: string; address: string }[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual", provider: MultisigProviders) => {
         let proxyAddress: string;
 
         if (!blockchain) throw new Error("Blockchain is not selected")
@@ -243,7 +243,7 @@ export default function useMultisig() {
             const instruction = programs.SmartWallet.instruction.createSmartWallet(
                 bump,
                 owners.length,
-                owners.map(o => new PublicKey(o)),
+                owners.map(o => new PublicKey(o.address)),
                 new BN(sign),
                 new BN(0),
                 {
@@ -285,7 +285,7 @@ export default function useMultisig() {
             });
 
             const safeAccountConfig: SafeAccountConfig = {
-                owners: owners.map((owner) => owner),
+                owners: owners.map((owner) => owner.address),
                 threshold: internalSign,
             };
 
@@ -320,7 +320,7 @@ export default function useMultisig() {
             proxyAddress = proxy.options.address;
             const multisigAddress = multisig.options.address;
 
-            const initData = multisig.methods.initialize(owners, new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
+            const initData = multisig.methods.initialize(owners.map(s => s.address), new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
 
             await proxy.methods._setAndInitializeImplementation(multisigAddress, initData).send({
                 from: address,
@@ -343,9 +343,9 @@ export default function useMultisig() {
             address: proxyAddress,
             id: nanoid(),
             members: owners.map<IMember>(s => ({
-                address: s,
+                address: s.address,
                 id: process(),
-                name: "",
+                name: s.name,
                 image: null,
                 mail: "",
             })),
@@ -435,7 +435,7 @@ export default function useMultisig() {
                 id: process(name.split(" ").join("")),
                 members: members.map<IMember>(s => ({
                     address: s,
-                    id: process(),
+                    id: nanoid(),
                     name: "",
                     image: null,
                     mail: "",
@@ -964,7 +964,7 @@ export default function useMultisig() {
         }
     }
 
-const revokeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
+    const revokeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (provider === "Goki") {

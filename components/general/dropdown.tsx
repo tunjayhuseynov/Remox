@@ -1,7 +1,6 @@
-import { Dispatch, useId } from 'react'
+import { Dispatch, useId, useState } from 'react'
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { CoinsURL } from 'types';
 import { FormControl, InputLabel, SxProps, Theme } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import { Image } from 'firebaseConfig';
@@ -28,7 +27,7 @@ interface IProp<T> {
     selected?: T,
     list: Array<T>,
     setSelect?: Dispatch<T>,
-    runFn?: (val: T) => () => any,
+    runFn?: (val: T) => () => Promise<any>,
     sx?: SxProps<Theme>
     textClass?: string,
     textContainerClass?: string,
@@ -49,6 +48,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
     { loading, selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
+    const [internalLaoding, setInternalLoading] = useState(false)
 
     // const props: { value?: T } = {}
     // if (selected) {
@@ -68,27 +68,31 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center `}>
                             <div className="flex items-center">
-                                {loading && <span><ClipLoader size={16} /></span>}
-                                {selected.coinUrl && !loading && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
-                                {selected.logoUrl && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
-                                {selected.logoURI && !loading && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
-                                {selected.image && !loading && <img className="w-10 h-10 mr-2 rounded-full" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
-                                {!loading && <div className={`${textContainerClass} flex flex-col items-start`}>
-                                    <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
-                                    {selected.secondValue && <span className="text-left text-sm text-gray-500">{selected.secondValue}</span>}
-                                </div>}
+                                {(loading || internalLaoding) && <span><ClipLoader size={16} /></span>}
+                                {selected.coinUrl && (!loading && !internalLaoding) && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
+                                {selected.logoUrl && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
+                                {selected.logoURI && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
+                                {selected.image && (!loading && !internalLaoding) && <img className="w-10 h-10 mr-2 rounded-full" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
+                                {(!loading && !internalLaoding) &&
+                                    <div className={`${textContainerClass} flex flex-col items-start`}>
+                                        <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
+                                        {selected.secondValue && <span className="text-left text-sm text-gray-500">{selected.secondValue}</span>}
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
                     sx={sx}
                     label={label}
-                    onChange={(e) => {
+                    onChange={async (e) => {
+                        setInternalLoading(true)
                         const selected = e.target.value as T;
                         if (setSelect) setSelect(selected)
                         if (selected["onClick"]) selected["onClick"]()
                         if (runFn) {
-                            runFn(e.target.value as T)()
+                            await (runFn(e.target.value as T))()
                         }
+                        setInternalLoading(false)
                     }}
                 >
                     {list.map(e => {

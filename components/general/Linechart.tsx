@@ -1,8 +1,6 @@
-import useNextSelector from 'hooks/useNextSelector';
 import dynamic from 'next/dynamic';
-import { IFlowDetail } from 'pages/api/calculation/_spendingType';
 import { useAppSelector } from 'redux/hooks';
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 
 const ReactApexChart = dynamic(
   () => import('react-apexcharts'),
@@ -12,6 +10,7 @@ const ReactApexChart = dynamic(
 function LineChart({ data, type }: { data: { [key: string]: number }, type: string }) {
   const dark = useAppSelector(SelectDarkMode)
   const keys = Object.keys(data).map(s => new Date(s).getTime())
+  const symbol = useAppSelector(SelectFiatSymbol)
   const series = [
     {
       name: "Value",
@@ -39,7 +38,7 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const label = w?.globals?.labels;
         const date = keys[dataPointIndex];
-        
+
         return (
           `<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">
           <div class="flex justify-between">
@@ -55,7 +54,7 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
           Balance
           </span>
           <span class='text-base font-bold'>
-          $${series[seriesIndex][dataPointIndex].toFixed(2)}
+          ${symbol}${series[seriesIndex][dataPointIndex].toFixed(2)}
           </span>
           </div>
           </div>`

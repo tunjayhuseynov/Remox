@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Modal from 'components/general/Modal'
+import Modal from 'components/general/modal'
 import { useAppSelector } from 'redux/hooks'
 import { SelectModerators } from 'redux/slices/account/selector'
 import ModeratorItem from './moderators/ModeratorItem'
@@ -18,7 +18,7 @@ const ModeratorSetting = () => {
     return <>
         <div className="flex flex-col space-y-7  mt-10">
             {moderators.map((item, index) => {
-                return <ModeratorItem key={index} item={item} />
+                return <ModeratorItem key={item.id} item={item} />
             })}
             <div className='flex justify-center w-full'>
                 <CreateButton onClick={() => setAddModal(true)} />

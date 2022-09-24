@@ -1,15 +1,17 @@
 import { ITransfer } from "hooks/useTransactionProcess"
 import { useAppSelector } from "redux/hooks"
-import { SelectFiatPreference, SelectHistoricalPrices } from "redux/slices/account/selector"
+import { SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectPriceCalculationFn } from "redux/slices/account/selector"
 import { DecimalConverter } from "utils/api"
-import { GetFiatPrice } from "utils/const"
+
 
 interface IProps { transfer: Pick<ITransfer, "coin" | "amount">, timestamp: number }
 export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const hp = useAppSelector(SelectHistoricalPrices)
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    const symbol = useAppSelector(SelectFiatSymbol)
 
-    const fiatPrice = GetFiatPrice(transfer.coin, fiatPreference)
+    const fiatPrice = calculatePrice({ ...transfer.coin, amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coins: transfer.coin })
 
     const date = new Date(timestamp)
     const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
@@ -29,7 +31,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
                 {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
             </span>
             <span className="text-xs text-gray-200">
-                {`$${(DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice).toFixed(0).length > 18 ? 0 : (DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice).toLocaleString()}`}
+                {`${symbol}${(DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice).toFixed(0).length > 18 ? 0 : (DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice).toLocaleString()}`}
             </span>
         </div>
     </div>

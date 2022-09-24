@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import useMultiWallet from "hooks/useMultiWallet";
 import { useAppSelector } from "redux/hooks";
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import { CSVLink } from "react-csv";
 import AllCharts from "./_components/allCharts";
 
@@ -222,7 +222,7 @@ const Insight = () => {
         }
     ]
 
-
+    const symbol = useAppSelector(SelectFiatSymbol)
 
     return (
         <div className="flex flex-col space-y-3">
@@ -255,7 +255,7 @@ const Insight = () => {
                                             {item.name}</div>
                                     </div>
                                     <div className=" text-sm text-greylish dark:text-white opacity-75 text-left">
-                                        ${item.usdValue} USD
+                                        ${item.usdValue} {symbol}
                                     </div>
                                 </div>
                             })}

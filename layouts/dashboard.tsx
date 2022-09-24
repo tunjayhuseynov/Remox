@@ -1,4 +1,4 @@
-import { createContext, Dispatch, useState } from 'react'
+import { createContext, Dispatch, useState, useEffect } from 'react'
 import { useRefetchData } from 'hooks'
 import Loader from 'components/Loader'
 import { useAppDispatch, useAppSelector } from 'redux/hooks'
@@ -43,26 +43,28 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const remoxAccount = useAppSelector(SelectRemoxAccount)
     const blockchain = useAppSelector(SelectBlockchain)
 
-    useAsyncEffect(async () => {
-        if (!auth.currentUser) return router.push("/")
-        const individual = await Get_Individual(auth.currentUser.uid)
-        if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
-            dispatch(launchApp({
-                accountType: accountType,
-                addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
-                blockchain: blockchain,
-                id: remoxAccount.id,
-                storage: {
-                    lastSignedProviderAddress: address,
-                    signType: accountType,
-                    uid: auth.currentUser.uid,
-                    individual: individual,
-                    organization: accountType === "organization" ? (remoxAccount as IOrganization) : null,
-                }
-            }))
-        } else {
-            router.push("/")
-        }
+    useEffect(() => {
+        (async () => {
+            if (!auth.currentUser) return router.push("/")
+            const individual = await Get_Individual(auth.currentUser.uid)
+            if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
+                dispatch(launchApp({
+                    accountType: accountType,
+                    addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
+                    blockchain: blockchain,
+                    id: remoxAccount.id,
+                    storage: {
+                        lastSignedProviderAddress: address,
+                        signType: accountType,
+                        uid: auth.currentUser.uid,
+                        individual: individual,
+                        organization: accountType === "organization" ? (remoxAccount as IOrganization) : null,
+                    }
+                }))
+            } else {
+                router.push("/")
+            }
+        })()
     }, [])
 
     const { fetching, isAppLoaded } = useRefetchData()
@@ -77,15 +79,15 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     </div>
     return <>
         <DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
-            <div id='main' className="flex flex-col min-h-screen overflow-hidden">
+            <div id='main' className="flex flex-col min-h-screen ">
                 <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>
-                <div className="grid lg:grid-cols-[25%,75%] xl:grid-cols-[20%,80%] 3xl:grid-cols-[15%,85%]">
-                    <div>
+                <div className="flex space-x-16">
+                    <div className='w-[20%] 2xl:w-[15%] 3xl:w-[15%]'>
                         <Sidebar />
                     </div>
-                    <main  key={router.asPath} className={`relative pr-8 overflow-hidden transition-all  pt-36`}>
+                    <main key={router.asPath} className={`relative pr-8 w-[82.5%] 2xl:w-[85%] 3xl:w-[85%] -screen transition-all  pt-36`}>
                         {children}
                     </main>
 

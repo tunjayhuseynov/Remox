@@ -14,7 +14,7 @@ import { PublicKey } from "@solana/web3.js";
 import { IAccount } from "firebaseConfig";
 import { useCelo } from "@celo/react-celo";
 import Web3 from "web3";
-import { SelectCurrencies, SelectFiatPreference } from "redux/slices/account/selector";
+import { SelectCurrencies, SelectFiatPreference, SelectPriceCalculationFn } from "redux/slices/account/selector";
 import { useAppSelector } from "redux/hooks";
 import { DecimalConverter } from "utils/api";
 import { GetFiatPrice } from "utils/const";
@@ -45,7 +45,6 @@ export default function useLending(account: IAccount) {
     const [initLoading, setInitLaoding] = useState(false)
     const { GetCoins, blockchain } = useWalletKit()
     const { Provider } = useSolanaProvider()
-
 
     const dispatch = useDispatch()
     const MoolaUserData = useSelector(selectMoolaData)

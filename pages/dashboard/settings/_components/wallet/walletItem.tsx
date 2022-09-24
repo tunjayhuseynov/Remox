@@ -2,23 +2,21 @@ import { Accordion, AccordionDetails, AccordionSummary, Avatar, AvatarGroup, Too
 import Button from 'components/button';
 import EditableAvatar from 'components/general/EditableAvatar';
 import EditableTextInput from 'components/general/EditableTextInput';
-import Modal from 'components/general/Modal';
+import Modal from 'components/general/modal';
 import useLoading from 'hooks/useLoading';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { IAccountORM } from 'pages/api/account/index.api';
 import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { AiOutlineRight } from 'react-icons/ai';
 import { IoPersonAddSharp, IoTrashOutline } from 'react-icons/io5';
-import { MdPublishedWithChanges } from 'react-icons/md';
-import { TbTextResize } from 'react-icons/tb';
+import { MdKeyboardArrowRight, MdPublishedWithChanges } from 'react-icons/md';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectID, SelectIndividual, SelectOrganization } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectID, SelectIndividual, SelectOrganization, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Remove_Account_From_Individual, Remove_Account_From_Organization, Update_Account_Image, Update_Account_Name } from 'redux/slices/account/thunks/account';
 import { Blockchains } from 'types/blockchains';
 import { AddressReducer, SetComma } from 'utils';
-import { GetFiatPrice } from 'utils/const';
 import { ToastRun } from 'utils/toast';
+import OwnerItem from './OwnerItem';
 
 
 function WalletItem({ item }: { item: IAccountORM }) {
@@ -40,10 +38,13 @@ function WalletItem({ item }: { item: IAccountORM }) {
     const organization = useAppSelector(SelectOrganization)
     const id = useAppSelector(SelectID)
     const preference = useAppSelector(SelectFiatPreference)
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+
+
 
     const totalValue = useMemo(() => {
         return item.coins.reduce((a, b) => {
-            return a + (b.amount * GetFiatPrice(coins[b.coins.symbol], preference))
+            return a + calculatePrice(b)    
         }, 0)
     }, [item, coins, preference])
 
@@ -143,15 +144,15 @@ function WalletItem({ item }: { item: IAccountORM }) {
         };
 
     return <div>
-        <Accordion expanded={isAccordionOpend} onChange={handleChange()} className="border-0 shadow-none" TransitionProps={{
+        <Accordion expanded={isAccordionOpend} onChange={handleChange()} className="border-0 !shadow-none" TransitionProps={{
             className: "dark:!bg-dark !bg-light",
         }}>
-            <div className="bg-white dark:bg-darkSecond rounded-md shadow-custom p-5 grid grid-cols-[2.5%,25%,25%,25%,7.5%,1fr] cursor-pointer " onClick={() => setAccordionOpend(!isAccordionOpend)}>
-                <div>
-                    <AiOutlineRight color='#707070' style={{
+            <div className={`bg-white dark:bg-darkSecond rounded-md shadow-custom p-5 pr-9 grid grid-cols-[2.5%,25%,20%,25%,7.5%,1fr] `} >
+                <div className='flex items-center' onClick={() => { if (item.multidata) { setAccordionOpend(!isAccordionOpend) } }}>
+                    {item.multidata && <MdKeyboardArrowRight color='#C4C4C4' className='font-semibold cursor-pointer' size={25} style={{
                         transform: isAccordionOpend ? 'rotate(90deg)' : 'rotate(0deg)',
                         transition: "all 0.1s ease-in-out"
-                    }} />
+                    }} />}
                 </div>
                 <div className="flex items-center justify-start gap-2" >
                     <EditableAvatar
@@ -174,6 +175,9 @@ function WalletItem({ item }: { item: IAccountORM }) {
                     <div className="flex items-center justify-center text-lg font-semibold">
                         ${SetComma(totalValue)}
                     </div>
+                </div>
+                <div className={`flex items-center justify-center`}>
+                    <span className={`${!item.multidata && "hidden"}`}>{item.multidata?.threshold.sign} out of {item.multidata?.owners.length}</span>
                 </div>
                 <div className="flex items-center justify-center">
                     <div className="flex pl-3">
@@ -200,12 +204,11 @@ function WalletItem({ item }: { item: IAccountORM }) {
                     </div>
                 </div>
             </div>
-            <AccordionDetails className='!ml-5 '>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                sit amet blandit leo lobortis eget.
-            </AccordionDetails>
+            {item.multidata && <AccordionDetails className='!ml-[9%] bg-white dark:bg-darkSecond shadow-custom mt-1 rounded-sm'>
+                {item.members.map((s, i) => <div key={item.id} className={`${i !== item.members.length - 1 && "border-b dark:border-gray-500 py-3"}`}>
+                    <OwnerItem item={s} account={item} />
+                </div>)}
+            </AccordionDetails>}
         </Accordion>
         {deleteModal &&
             <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-6'}>

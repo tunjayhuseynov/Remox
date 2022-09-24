@@ -104,7 +104,7 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
             height: (size ?? 5) + "rem",
         }}>
             {
-                isLoading ? <div className="flex items-center justify-center"><Loader/></div>  : <img src={avatar ?? makeBlockie(name)} className="rounded-full object-contain" />
+                isLoading ? <div className="flex items-center justify-center"><Loader /></div> : <img src={avatar ?? makeBlockie((name || "random"))} className="rounded-full object-contain" />
             }
         </div>
         <div className="absolute right-0 bottom-0 w-[33%] h-[33%]">

@@ -1,4 +1,5 @@
 import type { DocumentReference } from "firebase/firestore";
+import { type } from "os";
 import { BlockchainType, MultisigProviders } from "types/blockchains";
 
 export interface IMultiwallet {
@@ -78,15 +79,17 @@ export interface ISubBudget {
 }
 
 export type FiatMoneyList = "USD" | "AUD" | "CAD" | "EUR" | "GBP" | "JPY" | "TRY"
+export type PriceCalculationList = "current" | "5" | "10" | "15" | "20" | "30"
 
-export interface IModerator{
+export interface IModerator {
     id: string
     name: string
     address: string
     image: Image | null;
     mail: string | null
 }
-export interface IOrganization {
+
+interface ICommonUserTypes {
     id: string;
     name: string;
     image: Image | null,
@@ -96,23 +99,21 @@ export interface IOrganization {
     created_date: number;
     budget_execrises: DocumentReference[] | IBudgetExercise[];
     fiatMoneyPreference: FiatMoneyList;
+    priceCalculation: PriceCalculationList
 
+}
+export interface IOrganization extends ICommonUserTypes {
     creator: DocumentReference | IIndividual;
-    blockchain: BlockchainType;
 }
 
-export interface IIndividual {
+export interface IAddressBook {
     id: string;
     name: string;
-    image: Image | null,
-    accounts: DocumentReference[] | IAccount[];
-    members: string[];
-    moderators: IModerator[]
-    created_date: number;
-    budget_execrises: DocumentReference[] | IBudgetExercise[];
-    fiatMoneyPreference: FiatMoneyList;
-    
+    address: string;
+}
+export interface IIndividual extends ICommonUserTypes {
     seenTime: number;
+    addressBook: IAddressBook[];
 }
 
 export interface IMember {

@@ -21,6 +21,7 @@ import { AltCoins } from "types";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import { RootState } from "redux/store";
+import axiosRetry from 'axios-retry';
 
 
 type LaunchResponse = {
@@ -61,6 +62,8 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
   "remoxData/launch",
   async ({ addresses, blockchain, id, accountType, storage }, api) => {
     try {
+      axiosRetry(axios, { retries: 3 });
+
       const spending = axios.get<ISpendingResponse>(
         "/api/calculation/spending",
         {

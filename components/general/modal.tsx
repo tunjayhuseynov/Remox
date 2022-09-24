@@ -57,7 +57,7 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
                     <button onClick={() => { onDisable(false); }} className="z-[9999] w-[4rem] tracking-wider font-bold transition-all  text-primary hover:transition-all text-xl flex items-center gap-2 px-10">
                         <span className="text-4xl pb-1 ">&#171;</span> Back
                     </button>
-                    <div className="overflow-x-hidden hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish  scrollbar-thin">
+                    <div className="overflow-x-hiddenhover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin">
                         {children}
                     </div>
                 </motion.div>}
