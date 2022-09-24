@@ -47,16 +47,18 @@ import { Optional } from "@metaplex/js";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { nanoid } from "@reduxjs/toolkit";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
+import { MultisigProviders } from "types/blockchains";
 
 
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 let multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
 
 export interface ITransactionMultisig {
-    provider?: string,
+    provider: MultisigProviders,
     name: string;
     destination: string,
     hashOrIndex: string,
+    txHash?: string,
     contractAddress: string,
     contractOwnerAmount: number,
     contractOwners: string[],
@@ -65,6 +67,7 @@ export interface ITransactionMultisig {
     isExecuted: boolean,
     confirmations: string[],
     timestamp: number,
+    executedAt?: number,
     tags: ITag[],
     budget: IBudgetORM | null
 
@@ -214,8 +217,8 @@ export default function useMultisig() {
         return newProgramMap<Programs>(Provider, GOKI_IDLS, allAddresses);
     }
 
-    const createMultisigAccount = useCallback(async (owners: string[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual") => {
-        let proxyAddress: string, provider: IAccount["provider"];
+    const createMultisigAccount = useCallback(async (owners: { name: string; address: string }[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual", provider: MultisigProviders) => {
+        let proxyAddress: string;
 
         if (!blockchain) throw new Error("Blockchain is not selected")
         if (!auth.currentUser) throw new Error("User is not logged in")
@@ -226,7 +229,7 @@ export default function useMultisig() {
             if (!individual) throw new Error("Individual is not selected")
         }
 
-        if (blockchain.name === 'solana' && publicKey) {
+        if (provider === "Goki" && publicKey) {
 
             const programs = GokiProgram();
 
@@ -240,7 +243,7 @@ export default function useMultisig() {
             const instruction = programs.SmartWallet.instruction.createSmartWallet(
                 bump,
                 owners.length,
-                owners.map(o => new PublicKey(o)),
+                owners.map(o => new PublicKey(o.address)),
                 new BN(sign),
                 new BN(0),
                 {
@@ -267,7 +270,7 @@ export default function useMultisig() {
             proxyAddress = smartWalletBase.publicKey.toBase58();
             provider = "Goki"
 
-        } else if (blockchain.name.includes("evm")) {
+        } else if (provider === "GnosisSafe") {
             const web3Provider = (window as any).ethereum;
             const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
             const safeOwner = ethersProvider.getSigner();
@@ -282,7 +285,7 @@ export default function useMultisig() {
             });
 
             const safeAccountConfig: SafeAccountConfig = {
-                owners: owners.map((owner) => owner),
+                owners: owners.map((owner) => owner.address),
                 threshold: internalSign,
             };
 
@@ -317,7 +320,7 @@ export default function useMultisig() {
             proxyAddress = proxy.options.address;
             const multisigAddress = multisig.options.address;
 
-            const initData = multisig.methods.initialize(owners, new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
+            const initData = multisig.methods.initialize(owners.map(s => s.address), new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
 
             await proxy.methods._setAndInitializeImplementation(multisigAddress, initData).send({
                 from: address,
@@ -330,8 +333,6 @@ export default function useMultisig() {
                 gas: 25000,
                 gasPrice: "5000000000",
             })
-
-            provider = "CeloTerminal"
         }
 
         let myResponse: IAccount = {
@@ -342,9 +343,9 @@ export default function useMultisig() {
             address: proxyAddress,
             id: nanoid(),
             members: owners.map<IMember>(s => ({
-                address: s,
+                address: s.address,
                 id: process(),
-                name: "",
+                name: s.name,
                 image: null,
                 mail: "",
             })),
@@ -370,16 +371,16 @@ export default function useMultisig() {
         return myResponse;
     }, [blockchain])
 
-    const importMultisigAccount = async (contractAddress: string, name = "", image: Image | null, type: "organization" | "individual") => {
+    const importMultisigAccount = async (contractAddress: string, name = "", image: Image | null, type: "organization" | "individual", provider: MultisigProviders) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (accounts.some(s => s.address.toLowerCase() === contractAddress.toLowerCase())) throw new Error("This address already exist");
             if (!publicKey) throw new Error("Public key is not selected")
             if (!auth.currentUser) throw new Error("User is not logged in")
 
-            let members: string[] = [], provider: IAccount["provider"] = null;
+            let members: string[] = [];
 
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const programs = GokiProgram(contractAddress);
 
                 const data = await programs.SmartWallet.account.smartWallet.fetch(new PublicKey(contractAddress));
@@ -390,7 +391,7 @@ export default function useMultisig() {
 
                 provider = "Goki"
 
-            } else if (blockchain.name === 'celo') {
+            } else if (provider === "Celo Terminal") {
                 const web3 = new Web3((window as any).celo);
 
                 const Multisig = await multisigContract
@@ -401,9 +402,8 @@ export default function useMultisig() {
                 const owners = await contract.methods.getOwners().call();
 
                 members = [...owners];
-                provider = "CeloTerminal"
                 if (!isOwner) throw new Error("You are not an owner in this multisig address");
-            } else if (blockchain.name.includes('evm')) {
+            } else if (provider === "GnosisSafe") {
                 const web3Provider = (window as any).ethereum;
                 const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = ethersProvider.getSigner();
@@ -424,8 +424,6 @@ export default function useMultisig() {
                 const owners = await safeSdk.getOwners();
 
                 members = [...owners];
-
-                provider = "GnosisSafe"
             }
 
             let myResponse: IAccount = {
@@ -437,7 +435,7 @@ export default function useMultisig() {
                 id: process(name.split(" ").join("")),
                 members: members.map<IMember>(s => ({
                     address: s,
-                    id: process(),
+                    id: nanoid(),
                     name: "",
                     image: null,
                     mail: "",
@@ -474,12 +472,12 @@ export default function useMultisig() {
     }
 
 
-    const removeOwner = useCallback(async (multisigAddress: string, ownerAddress: string, newInternalSign?: number) => {
+    const removeOwner = useCallback(async (multisigAddress: string, ownerAddress: string, provider: MultisigProviders, newInternalSign?: number) => {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
 
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -489,7 +487,7 @@ export default function useMultisig() {
                     return true;
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name === 'celo') {
+            } else if (provider === "Celo Terminal") {
                 if (!address) throw new Error("Address is not selected")
 
                 const web3 = new Web3((window as any).celo);
@@ -503,7 +501,7 @@ export default function useMultisig() {
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
-            } else if (blockchain.name.includes('evm')) {
+            } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
@@ -565,11 +563,11 @@ export default function useMultisig() {
     }, [])
 
 
-    const changeSigns = useCallback(async (account: IAccount, sign: number, internalSign: number, isSign = true, isInternal = true) => {
+    const changeSigns = useCallback(async (account: IAccount, sign: number, internalSign: number, isSign = true, isInternal = true, provider: MultisigProviders) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Account is not selected")
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
@@ -579,7 +577,7 @@ export default function useMultisig() {
                     return true;
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name === 'celo') {
+            } else if (provider === "Celo Terminal") {
                 if (!address) throw new Error("Address is not selected")
 
                 const web3 = new Web3((window as any).celo);
@@ -620,7 +618,7 @@ export default function useMultisig() {
                     })
                 }
                 return true;
-            } else if (blockchain.name.includes("evm")) {
+            } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
@@ -666,12 +664,12 @@ export default function useMultisig() {
     }, [])
 
 
-    const addOwner = useCallback(async (account: IAccount, newOwner: string, name = "", image: Image | null = null, mail: string | null = null) => {
+    const addOwner = useCallback(async (account: IAccount, newOwner: string, name = "", image: Image | null = null, mail: string | null = null, provider: MultisigProviders) => {
         if (remoxAccount) {
             try {
                 if (!blockchain) throw new Error("Blockchain is not selected")
                 if (!selectedId) throw new Error("Account is not selected")
-                if (blockchain.name === 'solana') {
+                if (provider === "Goki") {
                     const { sdk } = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                     if (wallet.data) {
@@ -687,7 +685,7 @@ export default function useMultisig() {
                         return true;
                     }
                     throw new Error("Wallet has no data")
-                } else if (blockchain.name === 'celo') {
+                } else if (provider === "Celo Terminal") {
 
                     const web3 = new Web3((window as any).celo);
 
@@ -707,7 +705,7 @@ export default function useMultisig() {
                             txHash: receipt.transactionHash,
                         }))
                     });
-                } else if (blockchain.name.includes("evm")) {
+                } else if (provider === "GnosisSafe") {
                     if (!txServiceUrl) throw new Error("Tx service is not selected")
                     const web3Provider = (window as any).ethereum;
                     const provider = new ethers.providers.Web3Provider(web3Provider);
@@ -777,12 +775,12 @@ export default function useMultisig() {
     }, [])
 
 
-    const replaceOwner = useCallback(async (multisigAddress: string, oldOwner: string, newOwner: string) => {
+    const replaceOwner = useCallback(async (multisigAddress: string, oldOwner: string, newOwner: string, provider: MultisigProviders) => {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
 
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -799,7 +797,7 @@ export default function useMultisig() {
                     return true;
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name === "celo") {
+            } else if (provider === "Celo Terminal") {
                 const web3 = new Web3((window as any).celo);
 
                 const Multisig = await multisigContract
@@ -827,11 +825,11 @@ export default function useMultisig() {
         }
     }, [])
 
-    const submitTransaction = async (account: IAccount, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, optionals?: SafeTransactionOptionalProps,) => {
+    const submitTransaction = async (account: IAccount, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, provider: MultisigProviders, optionals?: SafeTransactionOptionalProps,) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Account is not selected")
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
@@ -842,7 +840,7 @@ export default function useMultisig() {
                     return reciept.signature
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name === "celo") {
+            } else if (provider === "Celo Terminal") {
                 if (!destination) throw new Error("Destination is not selected")
                 if (!address) throw new Error("Address is not selected")
                 const web3 = new Web3((window as any).celo);
@@ -865,7 +863,7 @@ export default function useMultisig() {
                 });
 
                 return txHash.transactionHash as string
-            } else if (blockchain.name.includes("evm")) {
+            } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
@@ -966,10 +964,10 @@ export default function useMultisig() {
         }
     }
 
-    const revokeTransaction = async (multisigAddress: string, transactionId: string, safeTxHash?: string) => {
+    const revokeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -986,7 +984,7 @@ export default function useMultisig() {
                     return { message: "sucess" }
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name === "celo") {
+            } else if (provider === "Celo Terminal") {
                 const web3 = new Web3((window as any).celo);
 
                 const Multisig = await multisigContract
@@ -1002,7 +1000,7 @@ export default function useMultisig() {
 
                 return { message: "success" }
             }
-            else if (blockchain.name.includes("evm")) {
+            else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
@@ -1036,11 +1034,11 @@ export default function useMultisig() {
         }
     }
 
-    const confirmTransaction = async (multisigAddress: string, transactionId: string) => {
+    const confirmTransaction = async (multisigAddress: string, transactionId: string, providerName: MultisigProviders) => {
         try {
             if (!selectedAddress) throw new Error("No address selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
-            if (blockchain.name === 'solana') {
+            if (providerName === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -1050,7 +1048,7 @@ export default function useMultisig() {
                     return { message: "sucess" }
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name.includes("evm")) {
+            } else if (providerName === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
@@ -1088,11 +1086,11 @@ export default function useMultisig() {
                 const ethSignuture = new EthSignSignature(onwerAddress, signature.data);
 
                 if (transaction!.confirmations!.length + 1 >= threshold) {
-                    const receipt = await executeTransaction(multisigAddress, transactionId, ethSignuture)
+                    const receipt = await executeTransaction(multisigAddress, transactionId, providerName, ethSignuture)
 
                 }
 
-            } else if (blockchain.name === "celo") {
+            } else if (providerName === "Celo Terminal") {
                 let web3 = new Web3((window as any).celo);
 
                 let Multisig = await multisigContract
@@ -1111,10 +1109,10 @@ export default function useMultisig() {
         }
     }
 
-    const executeTransaction = async (multisigAddress: string, transactionId: string, ethSignuture?: EthSignSignature) => {
+    const executeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, ethSignuture?: EthSignSignature) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
-            if (blockchain.name === 'solana') {
+            if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
                 if (wallet.data) {
@@ -1124,7 +1122,7 @@ export default function useMultisig() {
                     return { message: "sucess" }
                 }
                 throw new Error("Wallet has no data")
-            } else if (blockchain.name === "celo") {
+            } else if (provider === "Celo Terminal") {
                 let web3 = new Web3((window as any).celo);
 
                 let Multisig = await multisigContract
@@ -1137,7 +1135,7 @@ export default function useMultisig() {
                     gasPrice: "5000000000",
                 })
                 return tx.transactionHash as string
-            } else if (blockchain.name.includes("evm")) {
+            } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any).ethereum;
                 const provider = new ethers.providers.Web3Provider(web3Provider);

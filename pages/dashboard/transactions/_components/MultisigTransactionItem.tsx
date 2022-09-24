@@ -1,7 +1,7 @@
-import useMultisig, { IMultisigSafeTransaction, ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
-import { forwardRef, Fragment, useState } from 'react'
-import { AltCoins, Coins, TransactionDirection, TransactionStatus } from 'types'
-import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils";
+import useMultisig, { ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
+import { forwardRef, useState } from 'react'
+import { TransactionDirection } from 'types'
+import { TransactionDirectionImageNameDeclaration } from "utils";
 import { IAccount } from 'firebaseConfig';
 import { AiFillRightCircle } from 'react-icons/ai';
 import { CoinDesignGenerator } from './CoinsGenerator';
@@ -18,13 +18,14 @@ import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
 import useLoading from 'hooks/useLoading';
-import { ClipLoader } from 'react-spinners';
 import { addConfirmation, changeToExecuted } from 'redux/slices/account/remoxData';
+import Loader from 'components/Loader';
 
 
 interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
 const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account }, ref) => {
     const transaction = tx.tx;
+    const timestamp = tx.timestamp;
     const [isLabelActive, setLabelActive] = useState(false);
     const [selectedLabel, setSelectedLabel] = useState<ITag>();
     const [labelLoading, setLabelLoading] = useState(false)
@@ -41,7 +42,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const confirmFn = async () => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await confirmTransaction(tx.contractAddress, tx.hashOrIndex)
+        await confirmTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
         dispatch(addConfirmation({
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
@@ -51,7 +52,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const executeFn = async () => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await executeTransaction(tx.contractAddress, tx.hashOrIndex)
+        await executeTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
         dispatch(changeToExecuted({
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
@@ -118,11 +119,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     <div className="flex items-center space-x-3">
-                        <div className="h-full aspect-square bg-gray-500 rounded-full border-2 self-center relative p-3">
-                            <span className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
-                                {(account?.image?.imageUrl && typeof account.image.imageUrl === "string") || account?.image?.nftUrl ?
-                                    <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} /> : account?.name.slice(0, 2).toUpperCase()}
-                            </span>
+                        <div className={`w-10 h-10 bg-gray-500 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
+                            {(account?.image?.imageUrl) || account?.image?.nftUrl ?
+                                <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} className="w-full h-full rounded-xl" /> :
+                                <div className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
+                                    {account?.name.slice(0, 2).toUpperCase()}
+                                </div>
+                            }
                         </div>
                         <div className="text-sm truncate font-semibold pr-5">
                             {account?.name ?? "N/A"}
@@ -153,32 +156,33 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     {transfer && (
-                        CoinDesignGenerator({ transfer })
+                        <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
                     )}
                     {
                         transferBatch && (
                             <div className="flex flex-col space-y-5">
-                                {transferBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                                {transferBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
                             </div>
                         )
                     }
                     {
                         automationBatch && (
                             <div className="flex flex-col space-y-5">
-                                {automationBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                                {automationBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
                             </div>
                         )
                     }
                     {
-                        automationCanceled && (CoinDesignGenerator({ transfer: automationCanceled }))
+                        automationCanceled && <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} />
                     }
                     {automation && (
-                        CoinDesignGenerator({ transfer: automation })
+                        <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
                     )}
                     {swap && (
                         <div className="flex flex-col space-y-5">
-                            {CoinDesignGenerator({ transfer: { amount: swap.amountIn, coin: swap.coinIn } })}
-                            {CoinDesignGenerator({ transfer: { amount: swap.amountOutMin, coin: swap.coinOutMin } })}
+                            <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
+                            <img src="/icons/swap.png" className="w-5 h-5" />
+                            <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
                         </div>
                     )}
 
@@ -186,7 +190,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 <td className="text-left flex flex-col">
                     <div className="flex flex-col">
                         {
-                            tx.tags?.map(tag => <div className="flex space-x-5">
+                            tx.tags?.map(tag => <div className="flex space-x-5" key={tag.id}>
                                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></div>
                                 <span className="text-xs">{tag.name}</span>
                             </div>)
@@ -236,13 +240,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
                                     <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                         <span className="tracking-wider" onClick={ConfirmFn}>
-                                            {confirmFnLoading ? <ClipLoader size={14} /> : "Sign"}
+                                            {confirmFnLoading ? <Loader size={14} /> : "Sign"}
                                         </span>
                                     </div> :
                                     isApprovable ?
                                         <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                             <span className="tracking-wider" onClick={ExecuteFn}>
-                                                {executeFnLoading ? <ClipLoader size={14} /> : "Execute"}
+                                                {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
                                         <></>
@@ -258,6 +262,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 transaction={{
                     ...transaction,
                     rawData: GenerateTransaction({}),
+                    isError: false,
                     tags: tags,
                     timestamp: tx.timestamp,
                     budget: tx.budget ?? undefined,

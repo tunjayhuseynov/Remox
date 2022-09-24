@@ -1,22 +1,22 @@
-import { Avatar, AvatarGroup, Tooltip } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Avatar, AvatarGroup, Tooltip } from '@mui/material';
 import Button from 'components/button';
 import EditableAvatar from 'components/general/EditableAvatar';
 import EditableTextInput from 'components/general/EditableTextInput';
-import Modal from 'components/general/Modal';
-import { Image } from 'firebaseConfig';
+import Modal from 'components/general/modal';
 import useLoading from 'hooks/useLoading';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { IAccountORM } from 'pages/api/account/index.api';
-import React, { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IoPersonAddSharp, IoTrashOutline } from 'react-icons/io5';
-import { TbTextResize } from 'react-icons/tb';
+import { MdKeyboardArrowRight, MdPublishedWithChanges } from 'react-icons/md';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectBlockchain, SelectID, SelectIndividual, SelectOrganization } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectID, SelectIndividual, SelectOrganization, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Remove_Account_From_Individual, Remove_Account_From_Organization, Update_Account_Image, Update_Account_Name } from 'redux/slices/account/thunks/account';
 import { Blockchains } from 'types/blockchains';
 import { AddressReducer, SetComma } from 'utils';
 import { ToastRun } from 'utils/toast';
+import OwnerItem from './OwnerItem';
 
 
 function WalletItem({ item }: { item: IAccountORM }) {
@@ -31,11 +31,22 @@ function WalletItem({ item }: { item: IAccountORM }) {
     const [addOwnerImageType, setAddOwnerImageType] = useState<'image' | 'nft'>('image')
 
     const dispatch = useAppDispatch()
+    const coins = useAppSelector(SelectCurrencies)
     const blockchain = useAppSelector(SelectBlockchain)
     const accountType = useAppSelector(SelectAccountType)
     const individual = useAppSelector(SelectIndividual)
     const organization = useAppSelector(SelectOrganization)
     const id = useAppSelector(SelectID)
+    const preference = useAppSelector(SelectFiatPreference)
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+
+
+
+    const totalValue = useMemo(() => {
+        return item.coins.reduce((a, b) => {
+            return a + calculatePrice(b)    
+        }, 0)
+    }, [item, coins, preference])
 
     const { addOwner, changeSigns } = useMultisig()
 
@@ -105,72 +116,100 @@ function WalletItem({ item }: { item: IAccountORM }) {
 
 
     const addNewOwner = async (data: { name: string, address: string, mail?: string }) => {
+        if (!item.provider) return ToastRun(<>Cannot find the account's multisig provider</>, "error")
         await addOwner(item, data.address, data.name, addOwnerImageURL ? {
             blockchain: item.blockchain,
             imageUrl: addOwnerImageURL,
             nftUrl: addOwnerImageURL,
             tokenId: null,
             type: addOwnerImageType
-        } : null, data.mail)
+        } : null, data.mail, item.provider)
         ToastRun(<>Transaction is created</>, "success")
     }
 
     const changeThreshold = async (data: { threshold: number }) => {
-        await changeSigns(item, data.threshold, data.threshold, true, false)
+        if (!item.provider) return ToastRun(<>Cannot find the account's multisig provider</>, "error")
+        await changeSigns(item, data.threshold, data.threshold, true, false, item.provider)
         ToastRun(<>Transaction is created</>, "success")
     }
 
     const [addOwnerLoading, AddOwner] = useLoading(addNewOwner)
     const [changeThresholdLoading, ChangeThreshold] = useLoading(changeThreshold)
     const [deleteLoading, DeleteWallet] = useLoading(deleteWallet)
+    const [isAccordionOpend, setAccordionOpend] = useState(false)
 
-    return <div className="bg-white dark:bg-darkSecond rounded-md shadow-custom p-5 grid grid-cols-[25%,25%,25%,7.5%,1fr]" >
-        <div className="flex items-center justify-start gap-2" >
-            <EditableAvatar
-                avatarUrl={(typeof item.image?.imageUrl === "string" ? item.image?.imageUrl : null) ?? item.image?.nftUrl ?? null}
-                name={item.name}
-                blockchain={Object.values(Blockchains).find(b => b.name === item.blockchain)!}
-                evm={item.blockchain !== "solana"}
-                userId={item.address}
-                onChange={updateImage}
-                size={4.5}
-            />
-            <div className="flex flex-col">
-                <div className="">
-                    <EditableTextInput defaultValue={item.name} onSubmit={updateAccountName} placeholder="Name" />
+    const handleChange =
+        () => (event: React.SyntheticEvent, newExpanded: boolean) => {
+            setAccordionOpend(!!newExpanded);
+        };
+
+    return <div>
+        <Accordion expanded={isAccordionOpend} onChange={handleChange()} className="border-0 !shadow-none" TransitionProps={{
+            className: "dark:!bg-dark !bg-light",
+        }}>
+            <div className={`bg-white dark:bg-darkSecond rounded-md shadow-custom p-5 pr-9 grid grid-cols-[2.5%,25%,20%,25%,7.5%,1fr] `} >
+                <div className='flex items-center' onClick={() => { if (item.multidata) { setAccordionOpend(!isAccordionOpend) } }}>
+                    {item.multidata && <MdKeyboardArrowRight color='#C4C4C4' className='font-semibold cursor-pointer' size={25} style={{
+                        transform: isAccordionOpend ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: "all 0.1s ease-in-out"
+                    }} />}
                 </div>
-                <div className="text-greylish dark:text-white text-sm mx-2">{AddressReducer(item.address)}</div>
-            </div>
-        </div>
-        <div className="flex items-center justify-center">
-            <div className="flex items-center justify-center text-lg font-semibold">
-                ${SetComma(item.totalValue)}
-            </div>
-        </div>
-        <div className="flex items-center justify-center">
-            <div className="flex pl-3">
-                <AvatarGroup max={3}>
-                    {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={member.image?.imageUrl ?? member.image?.nftUrl ?? ""} />)}
-                </AvatarGroup>
-            </div>
-        </div>
-        <div className="flex space-x-3 justify-end items-center">
-            {item.signerType === "multi" && <>
-                <div className="cursor-pointer" onClick={() => setAddOwnerModal(true)}>
-                    <Tooltip title={"Add a new owner"}>
-                        <IoPersonAddSharp size={20} />
-                    </Tooltip>
+                <div className="flex items-center justify-start gap-2" >
+                    <EditableAvatar
+                        avatarUrl={(typeof item.image?.imageUrl === "string" ? item.image?.imageUrl : null) ?? item.image?.nftUrl ?? null}
+                        name={item.name}
+                        blockchain={Object.values(Blockchains).find(b => b.name === item.blockchain)!}
+                        evm={item.blockchain !== "solana"}
+                        userId={item.address}
+                        onChange={updateImage}
+                        size={4.5}
+                    />
+                    <div className="flex flex-col">
+                        <div className="">
+                            <EditableTextInput defaultValue={item.name} onSubmit={updateAccountName} placeholder="Name" />
+                        </div>
+                        <div className="text-greylish dark:text-white text-sm mx-2">{AddressReducer(item.address)}</div>
+                    </div>
                 </div>
-                <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
-                    <Tooltip title={"Change threshold"}>
-                        <TbTextResize size={20} />
-                    </Tooltip>
+                <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center text-lg font-semibold">
+                        ${SetComma(totalValue)}
+                    </div>
                 </div>
-            </>}
-            <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
-                <IoTrashOutline size={20} className="hover:text-red-500" />
+                <div className={`flex items-center justify-center`}>
+                    <span className={`${!item.multidata && "hidden"}`}>{item.multidata?.threshold.sign} out of {item.multidata?.owners.length}</span>
+                </div>
+                <div className="flex items-center justify-center">
+                    <div className="flex pl-3">
+                        <AvatarGroup max={3}>
+                            {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={member.image?.imageUrl ?? member.image?.nftUrl ?? ""} />)}
+                        </AvatarGroup>
+                    </div>
+                </div>
+                <div className="flex space-x-3 justify-end items-center">
+                    {item.signerType === "multi" && <>
+                        <div className="cursor-pointer" onClick={() => setAddOwnerModal(true)}>
+                            <Tooltip title={"Add a new owner"}>
+                                <IoPersonAddSharp size={20} />
+                            </Tooltip>
+                        </div>
+                        <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
+                            <Tooltip title={"Change threshold"}>
+                                <MdPublishedWithChanges size={20} />
+                            </Tooltip>
+                        </div>
+                    </>}
+                    <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
+                        <IoTrashOutline size={20} className="hover:text-red-500" />
+                    </div>
+                </div>
             </div>
-        </div>
+            {item.multidata && <AccordionDetails className='!ml-[9%] bg-white dark:bg-darkSecond shadow-custom mt-1 rounded-sm'>
+                {item.members.map((s, i) => <div key={item.id} className={`${i !== item.members.length - 1 && "border-b dark:border-gray-500 py-3"}`}>
+                    <OwnerItem item={s} account={item} />
+                </div>)}
+            </AccordionDetails>}
+        </Accordion>
         {deleteModal &&
             <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-6'}>
                 <div className="flex flex-col space-y-8 items-center">

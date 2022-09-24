@@ -54,12 +54,15 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     const Coins = CoinsReq.docs.map(doc => doc.data() as AltCoins)
     const coinList = Object.values(Coins);
     let balances: { [name: string]: string } = {};
+    const rpc = new Web3.providers.HttpProvider(blockchain.rpcUrl)
+    const web3 = new Web3(rpc)
+
     if (addresses.length > 1) {
 
         const balanceArray = await Promise.all(addresses.map(async (addressItem) => {
             let balances: { [name: string]: string } = {};
 
-            const balancesRes = await Promise.all(coinList.map(item => GetBalance(item, addressItem, blockchain)))
+            const balancesRes = await Promise.all(coinList.map(item => GetBalance(item, addressItem, blockchain, web3)))
 
             balancesRes.forEach((v, index) => {
                 const item = v[1];
@@ -91,7 +94,9 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 
     const address = addresses[0];
 
-    const balanceRes = await Promise.allSettled(coinList.map(item => GetBalance(item, address, blockchain)))
+
+
+    const balanceRes = await Promise.allSettled(coinList.map(item => GetBalance(item, address, blockchain, web3)))
     balanceRes.forEach((altcoinBalance, index) => {
         if (altcoinBalance.status === "fulfilled") {
             const item = altcoinBalance.value[1]
@@ -102,12 +107,9 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     return balances;
 }
 
-const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType): Promise<[number, AltCoins]> => {
+const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType, web3: Web3): Promise<[number, AltCoins]> => {
     try {
         if (blockchain.name === 'celo') {
-            const rpc = new Web3.providers.HttpProvider(blockchain.rpcUrl)
-            const web3 = new Web3(rpc)
-            
             const ethers = new web3.eth.Contract(erc20 as AbiItem[], toChecksumAddress(item.address));
             if (item.address === '0x0000000000000000000000000000000000000000') {
                 const balance = await web3.eth.getBalance(addressParams)

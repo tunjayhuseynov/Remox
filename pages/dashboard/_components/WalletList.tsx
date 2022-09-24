@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef, Fragment } from "react";
+import { useEffect, useState, useRef, Fragment, useMemo } from "react";
 import { AddressReducer, SetComma } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
-import Modal from 'components/general/Modal'
+import Modal from 'components/general/modal'
 import DeleteWallet from "./deleteWallet";
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectFiatPreference, SelectFiatSymbol, SelectPriceCalculationFn } from 'redux/slices/account/remoxData';
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
 import { useRouter } from "next/router";
@@ -17,6 +17,7 @@ import { BiTransferAlt } from "react-icons/bi";
 import Deposit from "./Deposit";
 import MuiModal from "@mui/material/Modal";
 import { Box } from "@mui/material";
+import { useAppSelector } from "redux/hooks";
 
 
 const style = {
@@ -41,8 +42,24 @@ function WalletList({ item }: { item: IAccountORM }) {
     const dark = useNextSelector(SelectDarkMode)
     const [selectcoin, setSelectcoin] = useState<string>("")
     const [customRef] = useModalSideExit<string>(selectcoin, setSelectcoin, "")
-    const route = useRouter()
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
 
+    const preference = useAppSelector(SelectFiatPreference)
+    const symbol = useAppSelector(SelectFiatSymbol)
+
+    const totalValue = useMemo(() => {
+        return item.coins.reduce((a, b) => a + calculatePrice(b), 0)
+    }, [preference])
+
+    const coins = useMemo(() => {
+        return item.coins.map((coin) => {
+            const percent = totalValue > 0 ? (calculatePrice(coin) / totalValue) * 100 : 0
+            return {
+                ...coin,
+                percent
+            }
+        }, [])
+    }, [item.coins, totalValue])
 
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
     return <>
@@ -53,7 +70,7 @@ function WalletList({ item }: { item: IAccountORM }) {
         {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className="!pt-4">
             <DeleteWallet onDisable={setDeleteModal} account={item} />
         </Modal>}
-        <MuiModal open={depositModal} onClose={()=> setDepositModal(false)}>
+        <MuiModal open={depositModal} onClose={() => setDepositModal(false)}>
             <Box sx={style}>
                 <Deposit onDisable={setDepositModal} account={item} />
             </Box>
@@ -105,7 +122,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     <div className="min-w-[24%] flex flex-col gap-3 py-5 px-3 items-start border-r dark:border-[#454545]">
                         <div className="flex flex-col">
                             <div className="text-greylish text-sm">Total Value</div>
-                            <div className="text-lg font-semibold">${SetComma(item.totalValue)}</div>
+                            <div className="text-lg font-semibold">{symbol}{SetComma(totalValue)}</div>
                         </div>
                         <div className="flex flex-col mr-2 gap-1">
                             <div className="text-greylish dark:text-white text-sm">Signers</div>
@@ -119,7 +136,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     </div>
                     <div className="w-[75%] rounded-xl">
                         <div className="w-full pt-2 h-full" ref={customRef}>
-                            {[...item.coins].sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
+                            {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
                                 return <div className="border-b dark:border-greylish w-full" key={item.coins.address} >
                                     <CoinItem
                                         key={item.coins.address + item.coins.name}
@@ -132,7 +149,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                                         selectcoin={selectcoin}
                                         title={item.coins.symbol}
                                         coin={item.amount}
-                                        usd={((item.tokenPrice ?? 0) * item.amount)}
+                                        usd={calculatePrice(item)}
                                         percent={(item.percent || 0).toFixed(1)}
                                         img={item.coins.logoURI}
                                     />

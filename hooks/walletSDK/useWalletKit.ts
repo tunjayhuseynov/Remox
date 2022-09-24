@@ -32,7 +32,7 @@ import { AddTransactionToTag } from "redux/slices/account/thunks/tags";
 import { Add_Tx_To_Budget_Thunk } from "redux/slices/account/thunks/budgetThunks/budget";
 import { Add_Tx_To_Subbudget_Thunk } from "redux/slices/account/thunks/budgetThunks/subbudget";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
-import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh";
+import { Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh/refresh";
 import { ethers } from "ethers";
 import useWeb3Connector from "hooks/useWeb3Connector";
 import { Blockchains, BlockchainType } from "types/blockchains";
@@ -104,14 +104,6 @@ export default function useWalletKit() {
       dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "solana")!));
     }
   };
-
-  const fromMinScale = useMemo(() => {
-    if (blockchain.name === "celo") {
-      return fromWei;
-    }
-
-    return fromLamport;
-  }, [blockchain]);
 
   const signMessageInWallet = useCallback(
     async (nonce: number) => {
@@ -268,7 +260,7 @@ export default function useWalletKit() {
         if (cancelStreaming && streamingIdTxHash) {
           const web3 = new Web3(blockchain.rpcUrl);
           streamId = hexToNumberString((await web3.eth.getTransactionReceipt(streamingIdTxHash)).logs[1].topics[1])
-        } else if(cancelStreaming && streamingIdDirect){
+        } else if (cancelStreaming && streamingIdDirect) {
           streamId = streamingIdDirect
         }
 
@@ -329,6 +321,7 @@ export default function useWalletKit() {
 
           if (account.signerType === "single") {
             const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
+              console.log(receipt)
               dispatch(Add_Tx_To_TxList_Thunk({
                 account: account,
                 authId: id,
@@ -340,10 +333,12 @@ export default function useWalletKit() {
             type = "single"
             txhash = hash;
           } else {
+            if (!account.provider) throw new Error("Provider not found")
             const txHash = await submitTransaction(
               account,
               data,
-              destination
+              destination,
+              account.provider
             );
             txhash = txHash;
             type = "multi"
@@ -359,10 +354,12 @@ export default function useWalletKit() {
           const destination = txData.destination;
 
           if (account.signerType === "multi") {
+            if (!account.provider) throw new Error("Provider not found")
             const txHash = await submitTransaction(
               account,
               data,
-              destination
+              destination,
+              account.provider
             );
             txhash = txHash;
             type = "multi"
@@ -474,7 +471,6 @@ export default function useWalletKit() {
     SendTransaction,
     Collection,
     setBlockchainAuto,
-    fromMinScale,
     signMessageInWallet,
   };
 }

@@ -202,7 +202,7 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     label="Subbudget Token"
                                     selected={input.wallet}
                                     list={coinSubbudgets}
-                                    runFn={(val) => () => updateInputWallet(input.id, val)}
+                                    runFn={(val) => async () => updateInputWallet(input.id, val)}
                                 />
                             </div>
                             <div className="grid grid-rows-[40%,60%] w-full">
@@ -241,7 +241,7 @@ function EditBudget({ budget, onDisable }: { onDisable: Dispatch<boolean>, budge
                                     label='Subbudget Token'
                                     selected={input.wallet2}
                                     list={coinSubbudgets.filter(s => input.wallet?.symbol !== s.symbol)}
-                                    runFn={val => () => updateInputWallet2(input.id, val)}
+                                    runFn={val => async () => updateInputWallet2(input.id, val)}
                                 />
                             </div>
                             <div className="grid grid-rows-[40%,60%] w-full">

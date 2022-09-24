@@ -140,6 +140,7 @@ async function handler(
                     budget_execrises: [],
                     created_date,
                     id: user.id,
+                    fiatMoneyPreference: "USD",
                     image: null,
                     name: (name ?? `Remox User #${Math.round(Math.random() * 1000)}`),
                 }

@@ -20,7 +20,7 @@ import { useCeloInternal } from '@celo/react-celo/lib/use-celo';
 import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
 import { GetTime } from 'utils';
 import { generate } from 'shortid';
-import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh';
+import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh/refresh';
 import { setProviderAddress } from 'redux/slices/account/remoxData';
 
 

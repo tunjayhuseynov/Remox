@@ -1,103 +1,104 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import Dropdown from "components/general/dropdown";
 import { useWalletKit } from "hooks";
 import { useDispatch } from "react-redux";
 import { changeAddress, changeAmount, changeName, changeSecondAmount, changeSecondWallet, changeWallet, IPayInput, removePayInput, removeSeconField, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
 import { useSelector } from "react-redux";
+import { Autocomplete, TextField } from "@mui/material";
+import { FiatMoneyList, IAddressBook } from "firebaseConfig";
+import PriceInputField from "components/general/PriceInputField";
+import { IPrice } from "utils/api";
+import { IPaymentInputs } from "../[[...name]].page";
+import { BiTrash } from "react-icons/bi";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 
-const Input = ({ payInput, index, request = false }: { payInput: IPayInput, index: number, request?: boolean }) => {
-    const { GetCoins } = useWalletKit()
-    const dispatch = useDispatch()
+interface IProps {
+    addressBook: IAddressBook[],
+    onChange: (amount: number | null, address: string | null, coin: IPrice[0], fiatMoney: FiatMoneyList | null, name: string | null, amountSecond: number | null, coinSecond: IPrice[0], fiatMoneySecond: FiatMoneyList | null) => void,
+    onDelete: () => void,
+    onDeleteSecond: () => void,
+    input: IPaymentInputs,
+    length: number,
+}
 
-    const isBasedOnDollar = useSelector(SelectIsBaseOnDollar)
-    const inputAmounts = useSelector(SelectInputAmount)
-    const coins = useMemo(() => Object.values(GetCoins).map(s => ({
-        coinUrl: s.coinUrl,
-        name: s.name as string,
-    })), [GetCoins])
+const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length }: IProps) => {
+    const [amount, setAmount] = useState<number | null>(input.amount)
+    const [address, setAddress] = useState<string | null>(input.address)
+    const [coin, setCoin] = useState<IPrice[0]>(input.coin)
+    const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>(input.fiatMoney)
+    const [name, setName] = useState<string | null>(input.name ?? null)
 
 
-    const [anotherToken, setAnotherToken] = useState(false)
+    const [amountSecond, setAmountSecond] = useState<number | null>(input.amount)
+    const [coinSecond, setCoinSecond] = useState<IPrice[0]>(input.coin)
+    const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>(input.fiatMoney)
+
+    const [isSecondOptionActive, setSecondOptionActive] = useState<boolean>(false)
+
+    useEffect(() => {
+        onChange(amount, address, coin, fiatMoney, name, amountSecond, coinSecond, fiatMoneySecond)
+    }, [amount, address, coin, fiatMoney, name])
 
 
     return <>
-        <div className="flex flex-col">
-            <span className="text-left text-sm pb-1 ml-1"> {request ? "First Name" : "Receiver Name"} <span className="text-greylish" >(Optional)</span> </span>
-            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="Name" defaultValue={payInput.name} type="text" name={`name__${index}`}
-                onChange={(e) => { dispatch(changeName({ index: payInput.index, name: e.target.value })) }} />
-        </div>
-        <div className="flex flex-col">
-            <div className="flex relative">
-                <span className="text-left text-sm pb-1 ml-1" >{request ? "Wallet Adress" : "Receiver Wallet Adress"}</span>
-                <div className="absolute -top-[-3.75rem] -right-[2rem]">
-                    {inputAmounts > 1 && <BsFillTrashFill className="text-red-500 cursor-pointer w-5 h-5" onClick={() => {
-                        dispatch(removePayInput(payInput.index))
-                    }} />}
-                </div>
-            </div>
-            <input className="col-span-4 py-3 md:col-span-1 border dark:border-darkSecond px-3  rounded-md dark:bg-darkSecond" placeholder="0x30....c40d263" defaultValue={payInput.address} type="text" name={`address__${index}`} onChange={(e) => { dispatch(changeAddress({ index: payInput.index, address: e.target.value })) }} required />
-        </div>
-        <div>
-            <Dropdown
-                label="Token"
-                className="sm:h-[3rem] border bg-white dark:bg-darkSecond text-sm !rounded-md z-50"
-                runFn={val => () => dispatch(changeWallet({ index: payInput.index, wallet: { coinUrl: val.coinUrl!, name: val.name.toString() } }))}
-                selected={{ coinUrl: payInput.wallet.coinUrl!, name: payInput.wallet.name }}
-                list={coins}
-            />
-            {!anotherToken && (index === 0 || request) && <div className="text-primary text-sm cursor-pointer pt-4" onClick={() => {
-                setAnotherToken(true)
-                dispatch(changeSecondWallet({ index: payInput.index, wallet: coins[0] }))
-            }}>
-                <span className="flex gap-2 bg-opacity-5 font-semibold  pl-1 text-center rounded-xl ">
-                    <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token
-                </span>
-            </div>}
-        </div>
-        <div className="flex flex-col ">
-            <span className="text-left text-sm m pb-1 ml-1" >Amount</span>
-            <div className={`col-span-4 sm:h-[3rem] md:col-span-1 border  bg-white dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                <input className="outline-none unvisibleArrow bg-white pl-2 dark:bg-darkSecond dark:text-white" placeholder="Your Amount here" defaultValue={payInput.amount} type="number" name={`amount__${index}`} onChange={(e) => {
-                    dispatch(changeAmount({ index: payInput.index, amount: Number(e.target.value) }))
-                }} required step={'any'} min={0} />
-                {isBasedOnDollar && <span className="text-xs self-center bg-white text-right opacity-70 dark:text-white">USD as</span>}
-            </div>
-        </div>
-        {(!!(payInput.amount2) || anotherToken) && <>
-            <div className="flex flex-col ">
-                {/* <span className="text-left text-sm pb-1 ml-1" >Token</span> */}
-                <Dropdown
-                    label="Token"
-                    className="sm:h-[3rem] bg-white dark:bg-darkSecond border text-sm !rounded-md"
-                    runFn={val => () => {
-                        dispatch(changeSecondWallet({ index: payInput.index, wallet: val }))
+        <div className="grid grid-cols-2 gap-x-10 gap-y-5 py-10">
+            <div>
+                <Autocomplete
+                    freeSolo
+                    fullWidth
+                    className='dark:bg-darkSecond bg-white'
+                    options={addressBook.map(s => s.name)}
+                    onInputChange={(e, v) => {
+                        setName(v)
                     }}
-                    selected={payInput.wallet2 ?? coins[0]}
-                    list={coins}
+                    renderInput={(params) => <TextField {...params} label="Receiver Name (Optional)" />}
                 />
             </div>
-            <div className="flex flex-col">
-                <div className="flex justify-between relative">
-                    <span className="text-left text-sm pb-1 ml-2" >Amount</span>
-                    <div className="absolute -top-[-2.75rem] -right-[2rem]">
-                        {<BsFillTrashFill className="text-red-500 cursor-pointer w-5 h-5" onClick={() => {
-                            setAnotherToken(false)
-                            dispatch(removeSeconField(payInput.index))
-                        }} />}
-                    </div>
-                </div>
-                <div>
-                    {isBasedOnDollar && <span className="text-xs self-center opacity-70 dark:text-white">USD as</span>}
-                    <div className={`col-span-4 sm:h-[3rem] md:col-span-1 bg-white border dark:border-darkSecond dark:bg-darkSecond text-black dark:text-white py-1 rounded-md grid ${isBasedOnDollar ? "grid-cols-[40%,15%,45%]" : "grid-cols-[50%,50%]"}`}>
-                        <input className={` outline-none unvisibleArrow pl-2 dark:bg-darkSecond dark:text-white`} placeholder="Your Amount here" defaultValue={payInput.amount2} type="number" name={`amount__${index + 1}`} onChange={(e) => {
-                            dispatch(changeSecondAmount({ index: payInput.index, amount: Number(e.target.value) }))
-                        }} step={'any'} min={0} />
-                    </div>
-                </div>
+            <div>
+                <TextField
+                    fullWidth
+                    className='dark:bg-darkSecond bg-white'
+                    label="Receiver Wallet Address"
+                    value={address}
+                    onChange={(e) => {
+                        setAddress(e.target.value)
+                    }}
+                />
             </div>
-        </>
-        }
+            <div className="col-span-2 relative">
+                <PriceInputField isMaxActive onChange={(val, coin, fiatMoney) => {
+                    setAmount(val)
+                    setCoin(coin)
+                    setFiatMoney(fiatMoney ?? null)
+                }} />
+                {length > 1 && <div className="absolute -right-6 top-5 cursor-pointer" onClick={onDelete}>
+                    <BiTrash />
+                </div>}
+            </div>
+            {!isSecondOptionActive ?
+                <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setSecondOptionActive(true)}>
+                    <div className="self-center">
+                        <AiOutlinePlusCircle color={"#FF7348"} />
+                    </div>
+                    <span className="text-primary font-medium">Add</span>
+                </div>
+                :
+                <div className="col-span-2 relative">
+                    <PriceInputField isMaxActive onChange={(val, coin, fiatMoney) => {
+                        setAmountSecond(val)
+                        setCoinSecond(coin)
+                        setFiatMoneySecond(fiatMoney ?? null)
+                    }} />
+                    <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
+                        onDeleteSecond()
+                        setSecondOptionActive(false)
+                    }}>
+                        <BiTrash />
+                    </div>
+                </div>
+            }
+        </div>
     </>
 }
 export default Input;

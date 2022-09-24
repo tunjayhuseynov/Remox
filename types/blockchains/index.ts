@@ -9,6 +9,8 @@ import WETHGatewayV2 from 'rpcHooks/ABI/WETHGatewayV2.json'
 import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
 import BR from 'rpcHooks/ABI/BatchRequest.json'
 
+export type MultisigProviders = "Celo Terminal" | "GnosisSafe" | "Goki"
+
 export type BlockchainType = {
   name:
   | "celo"
@@ -32,6 +34,7 @@ export type BlockchainType = {
   | "Gnosis Smart Chain"
   | "Optimism"
   | "Polygon";
+  hpCollection: string;
   currencyCollectionName: string;
   nativeToken: string;
   chainId?: number;
@@ -39,10 +42,11 @@ export type BlockchainType = {
   explorerUrl: string;
   logoUrl: string;
   multisigProviders: {
-    name: string;
+    name: MultisigProviders;
     logoURL: string;
     abi: AbiItem[];
     txServiceUrl?: string;
+    displayName: string;
   }[];
   swapProtocols: {
     name: string;
@@ -86,15 +90,24 @@ export const Blockchains: BlockchainType[] = [
     name: "celo",
     displayName: "Celo",
     nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
-    rpcUrl: "https://forno.celo.org",
+    rpcUrl: "https://rpc.ankr.com/celo",
     explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "celoCurrency",
+    hpCollection: "hpCELO",
     logoUrl: CoinsURL.CELO,
     multisigProviders: [
       {
         name: "Celo Terminal",
         abi: CeloTerminal.abi as AbiItem[],
-        logoURL: "/icons/companies/celoterminal.png"
+        logoURL: "/icons/companies/celoterminal.png",
+        displayName: "Celo Terminal",
+      },
+      {
+        name: "GnosisSafe",
+        abi: CeloTerminal.abi as AbiItem[],
+        logoURL: "/icons/companies/celoterminal.png",
+        txServiceUrl: "https://transaction-service.gnosis-safe-staging.celo-networks-dev.org/",
+        displayName: "Celo Safe",
       },
     ],
     swapProtocols: [
@@ -146,11 +159,13 @@ export const Blockchains: BlockchainType[] = [
     explorerUrl: "https://explorer-api.mainnet-beta.solana.com/",
     logoUrl: CoinsURL.SOL,
     currencyCollectionName: "solanaCurrency",
+    hpCollection: "hpSOL",
     multisigProviders: [
       {
         name: "Goki",
         abi: [],
-        logoURL: "https://avatars.githubusercontent.com/u/89436329?s=280&v=4"
+        logoURL: "https://avatars.githubusercontent.com/u/89436329?s=280&v=4",
+        displayName: "Goki",
       },
     ],
     swapProtocols: [
@@ -194,6 +209,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://rpc.ankr.com/eth",
     explorerUrl: "https://blockscout.com/eth/mainnet/api",
     currencyCollectionName: "ethereumCurrency",
+    hpCollection: "hpETH",
     logoUrl: CoinsURL.ETH,
     chainId: 1,
     multisigProviders: [
@@ -202,6 +218,7 @@ export const Blockchains: BlockchainType[] = [
         txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -243,6 +260,7 @@ export const Blockchains: BlockchainType[] = [
     nativeToken: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
     explorerUrl: "https://api.polygonscan.com/api",
     currencyCollectionName: "polygonCurrency",
+    hpCollection: "hpMATIC",
     chainId: 137,
     logoUrl: CoinsURL.MATIC,
     multisigProviders: [
@@ -250,7 +268,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.polygon.gnosis.io",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -291,6 +310,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://optimistic.etherscan.io",
     explorerUrl: "https://optimistic.etherscan.io/",
     currencyCollectionName: "optimismCurrency",
+    hpCollection: "hpOPTIMISM",
     nativeToken: "0x4200000000000000000000000000000000000006",
     chainId: 10,
     logoUrl: CoinsURL.OPTI,
@@ -299,7 +319,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.optimism.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -339,6 +360,7 @@ export const Blockchains: BlockchainType[] = [
     explorerUrl: "https://avascan.info/",
     nativeToken: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
     currencyCollectionName: "avaxCurrency",
+    hpCollection: "hpAVAX",
     chainId: 43114,
     logoUrl: CoinsURL.AVAX,
     multisigProviders: [
@@ -346,7 +368,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.avalanche.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -388,6 +411,7 @@ export const Blockchains: BlockchainType[] = [
     explorerUrl: "https://bscscan.com/",
     nativeToken: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     currencyCollectionName: "bscCurrency",
+    hpCollection: "hpBSC",
     chainId: 56,
     logoUrl: CoinsURL.BNB,
     multisigProviders: [
@@ -396,6 +420,7 @@ export const Blockchains: BlockchainType[] = [
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.bsc.gnosis.io/",
         abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -433,6 +458,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://arb1.arbitrum.io/rpc",
     explorerUrl: "https://arbiscan.io/",
     currencyCollectionName: "artbitrumCurrency",
+    hpCollection: "hpArbitrum",
     chainId: 42161,
     nativeToken: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
     logoUrl: CoinsURL.ARBI,
@@ -441,7 +467,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.arbitrum.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -480,6 +507,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://rpc.ankr.com/fantom",
     explorerUrl: "https://ftmscan.com/",
     currencyCollectionName: "fantomCurrency",
+    hpCollection: "hpFantom",
     nativeToken: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
     chainId: 250,
     logoUrl: CoinsURL.FANT,
@@ -487,7 +515,8 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [
@@ -521,6 +550,7 @@ export const Blockchains: BlockchainType[] = [
     rpcUrl: "https://rpc.gnosischain.com",
     explorerUrl: "https://blockscout.com/eth/mainnet/",
     currencyCollectionName: "gnosisCurrency",
+    hpCollection: "hpGnosis",
     nativeToken: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
     chainId: 100,
     logoUrl: CoinsURL.xDAI,
@@ -529,7 +559,8 @@ export const Blockchains: BlockchainType[] = [
         name: "GnosisSafe",
         logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
         txServiceUrl: "https://safe-transaction.xdai.gnosis.io/",
-        abi: []
+        abi: [],
+        displayName: "Gnosis Safe",
       },
     ],
     swapProtocols: [

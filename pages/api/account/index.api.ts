@@ -3,14 +3,14 @@ import { IAccount } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import { IPriceCoin, IPriceResponse } from "../calculation/price.api";
+import { IPriceResponse } from "../calculation/price.api";
 import { BASE_URL, IPrice } from "utils/api";
 import { IAccountMultisig } from "../multisig/index.api";
 import axiosRetry from "axios-retry";
+import { nanoid } from "@reduxjs/toolkit";
 
 export interface IAccountORM extends IAccount {
     multidata: IAccountMultisig | null;
-    totalValue: number;
     coins: IPrice[0][]
 }
 
@@ -66,6 +66,19 @@ export default async function handler(
 
         if (multisigRes) {
             multidata = multisigRes.data as IAccountMultisig;
+            if (account.members.length !== multidata.owners.length) {
+                for (const owner of multidata.owners) {
+                    if (!account.members.find(s => s.address === owner)) {
+                        account.members = [...account.members, {
+                            address: owner,
+                            name: owner,
+                            id: nanoid(),
+                            image: null,
+                            mail: null,
+                        }]
+                    }
+                }
+            }
         }
 
         const members = account.members.filter(s => multidata?.owners.some(d => d.toLowerCase() === s.address.toLowerCase()));
@@ -74,7 +87,6 @@ export default async function handler(
             ...account,
             members: multidata ? members : account.members,
             multidata,
-            totalValue: balance.TotalBalance,
             coins: Object.entries(balance.AllPrices).reduce<(IPrice[0])[]>((a, [key, value]) => {
                 a.push({
                     ...value,

@@ -7,7 +7,7 @@ import { AltCoins, Coins, CoinsName } from "types";
 import { selectTags } from "redux/slices/tags";
 import useWalletKit from "./walletSDK/useWalletKit";
 import { ITag } from "pages/api/tags/index.api";
-import { Blockchains, BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import InputDataDecoder from "ethereum-input-data-decoder";
 import { ethers } from "ethers";
 import ERC20 from "rpcHooks/ABI/erc20.json";
@@ -15,8 +15,9 @@ import Ubeswap from "rpcHooks/ABI/Ubeswap.json";
 import Moola from "rpcHooks/ABI/Moola.json";
 import MoolaAirdrop from "rpcHooks/ABI/MoolaAirdrop.json";
 import BatchRequest from "rpcHooks/ABI/BatchRequest.json";
-import Sablier from "rpcHooks/ABI/Sablier.json"; // Also Gecko
+import Sablier from "rpcHooks/ABI/Sablier.json"; // Also Xeggo
 import CeloTerminal from "rpcHooks/ABI/CeloTerminal.json";
+import GnosisSafe from "rpcHooks/ABI/Gnosis.json";
 import BigNumber from "bignumber.js";
 import Web3 from 'web3'
 import { IBudgetORM } from "pages/api/budget/index.api";
@@ -60,7 +61,8 @@ export interface IFormattedTransaction {
   id: string;
   tags: ITag[];
   budget?: IBudgetORM,
-  address: string
+  address: string,
+  isError: boolean
 }
 
 export interface IAddOwner extends IFormattedTransaction {
@@ -171,21 +173,22 @@ interface IReader {
   tags: ITag[];
   Coins: Coins;
   blockchain: BlockchainType;
-  address: string
+  address: string,
+  provider: MultisigProviders
 }
 
 export const
   CeloInputReader = async (
     input: string,
-    { transaction, tags, Coins, blockchain, address }: IReader
+    { transaction, tags, Coins, blockchain, address, provider }: IReader
   ) => {
     try {
       const theTags = tags.filter((s) =>
         s.transactions.find((t) => t.hash?.toLowerCase() === transaction.hash?.toLowerCase() && t.address?.toLowerCase() === address?.toLowerCase())
       );
 
-      if(transaction.tokenID){
-      
+      if (transaction.tokenID) {
+
         return {
           rawData: transaction,
           method: ERC20MethodIds.nftTokenERC721,
@@ -194,7 +197,7 @@ export const
           tags: theTags,
         };
       }
-
+      
       let decoder = new InputDataDecoder(ERC20);
       let result = decoder.decodeData(input);
       if (!result.method) {
@@ -212,8 +215,11 @@ export const
               if (!result.method) {
                 decoder = new InputDataDecoder(MoolaAirdrop);
                 result = decoder.decodeData(input);
-                if (!result.method) {
+                if (!result.method && provider === "Celo Terminal") {
                   decoder = new InputDataDecoder(CeloTerminal.abi);
+                  result = decoder.decodeData(input);
+                } else if (!result.method && provider === "GnosisSafe") {
+                  decoder = new InputDataDecoder(GnosisSafe);
                   result = decoder.decodeData(input);
                 }
               }
@@ -221,7 +227,7 @@ export const
           }
         }
       }
-
+     
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
 
       if (!result.method) {
@@ -256,26 +262,50 @@ export const
           amount: (result.inputs[1] as BigNumber).toString(),
           tags: theTags,
         };
-      } else if (result.method === "changeInternalRequirement" || result.method === "changeRequirement") {
+      } else if ((result.method === "changeInternalRequirement" || result.method === "changeRequirement") && provider === "Celo Terminal") { // Celo Terminal
         return {
           method: result.method === "changeInternalRequirement" ? ERC20MethodIds.changeInternalThreshold : ERC20MethodIds.changeThreshold,
           id: result.method === "changeInternalRequirement" ? ERC20MethodIds.changeInternalThreshold : ERC20MethodIds.changeThreshold,
           amount: (result.inputs[0] as BigNumber).toString(),
           tags: theTags,
         }
-      } else if (result.method === "removeOwner") {
+      } else if (result.method === "changeThreshold" && provider === "GnosisSafe") {
         return {
-          method: ERC20MethodIds.removeOwner,
-          id: ERC20MethodIds.removeOwner,
-          address: "0x" + result.inputs[0],
+          method: ERC20MethodIds.changeThreshold,
+          id: ERC20MethodIds.changeThreshold,
+          amount: (result.inputs[0] as BigNumber).toString(),
           tags: theTags,
         }
       }
-      else if (result.method === "addOwner") {
+      else if (result.method === "removeOwner" && provider === "Celo Terminal") { // Celo Terminal
+        return {
+          method: ERC20MethodIds.removeOwner,
+          id: ERC20MethodIds.removeOwner,
+          to: "0x" + result.inputs[0],
+          tags: theTags,
+        }
+      } else if (result.method === "removeOwner" && provider === "GnosisSafe") { // Gnosis Safe
+        return {
+          method: ERC20MethodIds.removeOwner,
+          id: ERC20MethodIds.removeOwner,
+          to: "0x" + result.inputs[1],
+          tags: theTags,
+        }
+      }
+      else if (result.method === "addOwner" && provider === "Celo Terminal") { // Celo Terminal
         return {
           method: ERC20MethodIds.addOwner,
           id: ERC20MethodIds.addOwner,
-          address: "0x" + result.inputs[0],
+          to: "0x" + result.inputs[0],
+          tags: theTags,
+        }
+      }
+      else if (result.method === "addOwnerWithThreshold" && provider === "GnosisSafe") // Gnosis Safe
+      {
+        return {
+          method: ERC20MethodIds.addOwner,
+          id: ERC20MethodIds.addOwner,
+          to: "0x" + result.inputs[0],
           tags: theTags,
         }
       }
@@ -324,23 +354,6 @@ export const
         };
 
       }
-      // else if (result.method === ERC20MethodIds.transferWithComment) {
-      //   const len = ERC20MethodIds.transferWithComment.length;
-      //   return {
-      //     method: "transferWithComment",
-      //     id: ERC20MethodIds.transferWithComment,
-      //     to: "0x" + input.slice(len, len + 64).substring(24),
-      //     coin: Coins[transaction.tokenSymbol as keyof Coins],
-      //     amount: hexToNumberString(
-      //       "0x" + input.slice(len + 64, len + 64 + 64)
-      //     ).toString(),
-      //     comment: hexToUtf8(
-      //       "0x" +
-      //       input.slice(len + 64 + 64 + 64 + 64, len + 64 + 64 + 64 + 64 + 64)
-      //     ),
-      //     tags: theTags,
-      //   };
-      // } 
       else if (result.method === "cancelStream") {
         const web3 = new Web3(blockchain.rpcUrl);
         const contract = new web3.eth.Contract(blockchain.recurringPaymentProtocols[0].abi, blockchain.recurringPaymentProtocols[0].contractAddress)

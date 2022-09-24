@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Modal from 'components/general/Modal';
+import Modal from 'components/general/modal';
 import BudgetDetail from './budgetDetail';
 import { ProgressBarWidth } from 'utils';
 import { IBudgets } from '../index.page';

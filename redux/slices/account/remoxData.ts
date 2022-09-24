@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
+import { ISpendingResponse } from "pages/api/calculation/_spendingType";
 import { IStorage } from "./storage";
 import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IContributor } from "types/dashboard/contributors";
@@ -15,7 +15,9 @@ import Currencies from './reducers/currencies'
 import Transactions from './reducers/transaction'
 import TagReducers from './reducers/tag'
 import RecurringTaks from './reducers/tasks'
+import Moderators from './reducers/moderators'
 import RequestReducers from './reducers/requests'
+import AccountMembers from './reducers/accountMembers'
 import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail, Update_Account_Image } from "./thunks/account";
 import { IAccount, IBudget, Image, IMember, ISubBudget } from "firebaseConfig";
@@ -27,13 +29,16 @@ import { ITag } from "pages/api/tags/index.api";
 import { generate } from "shortid";
 import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
-import { Refresh_Data_Thunk } from "./thunks/refresh";
+import { Refresh_Data_Thunk } from "./thunks/refresh/refresh";
 import { BlockchainType } from "types/blockchains";
 import { Coins } from "types";
 import { IPrice } from "utils/api";
 
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
-import { UpdateProfileNameThunk, UpdateSeemTimeThunk } from "./thunks/profile";
+import { UpdateFiatCurrencyThunk, UpdatePriceCalculationThunk, UpdateProfileNameThunk, UpdateSeemTimeThunk } from "./thunks/profile";
+import { Tx_Refresh_Data_Thunk } from "./thunks/refresh/txRefresh";
+import { IHpApiResponse } from "pages/api/calculation/hp.api";
+import accountMembers from "./reducers/accountMembers";
 
 export interface ITasking {
     taskId: string,
@@ -77,8 +82,8 @@ export interface IRemoxData {
         rejectedRequests: IRequest[],
     }, // +
     blockchain: BlockchainType,
+    historyPriceList: IHpApiResponse,
     accounts: IAccountORM[], // ++
-    totalBalance: number, // +
     storage: IStorage | null,
     providerAddress: string | null,
     providerID: string | null,
@@ -116,6 +121,7 @@ const init = (): IRemoxData => {
         stats: null,
         tags: [],
         nfts: [],
+        historyPriceList: {},
         budgetExercises: [],
         contributors: [],
         balances: {},
@@ -128,6 +134,7 @@ const init = (): IRemoxData => {
             multisigProviders: [],
             batchPaymentProtocols: [],
             currencyCollectionName: "",
+            hpCollection: "",
             explorerUrl: "",
             displayName: "Solana",
             nativeToken: "SOL",
@@ -140,7 +147,6 @@ const init = (): IRemoxData => {
             swapProtocols: [],
         },
         accounts: [],
-        totalBalance: 0,
         storage: null,
         providerAddress: null,
         accountType: null,
@@ -172,6 +178,8 @@ const remoxDataSlice = createSlice({
         ...Currencies,
         ...RequestReducers,
         ...Transactions,
+        ...accountMembers,
+        ...Moderators,
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
         },
@@ -229,7 +237,24 @@ const remoxDataSlice = createSlice({
             }
         })
 
+        builder.addCase(UpdateFiatCurrencyThunk.fulfilled, (state, action) => {
+            state.historyPriceList = action.payload[1];
+            if (state.storage?.organization) {
+                state.storage.organization.fiatMoneyPreference = action.payload[0];
+            }
+            else if (state.storage?.individual) {
+                state.storage.individual.fiatMoneyPreference = action.payload[0];
+            }
+        })
 
+        builder.addCase(UpdatePriceCalculationThunk.fulfilled, (state, action) => {
+            if (state.storage?.organization) {
+                state.storage.organization.priceCalculation = action.payload;
+            }
+            else if (state.storage?.individual) {
+                state.storage.individual.priceCalculation = action.payload;
+            }
+        })
 
         /* Tag */
         /* Tag */
@@ -365,13 +390,13 @@ const remoxDataSlice = createSlice({
         //*****************************************************************************************
         // REFRESH
 
-        builder.addCase(Refresh_Data_Thunk.fulfilled, (state, action) => {
-            state.stats = action.payload.spending;
+        builder.addCase(Tx_Refresh_Data_Thunk.fulfilled, (state, action) => {
             state.accounts = action.payload.RemoxAccount.accounts;
-            state.totalBalance = action.payload.RemoxAccount.totalBalance;
-            state.transactions = action.payload.transactions;
-            state.balances = action.payload.balance.AllPrices;
+            state.nfts = action.payload.NFTs;
+            state.budgetExercises = action.payload.Budgets;
             state.cumulativeTransactions = action.payload.cumulativeTransactions;
+            state.recurringTasks = action.payload.RecurringTasks;
+            state.transactions = action.payload.Transactions;
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
                 multisigTxs: action.payload.multisigAccounts.multisigTxs,
@@ -408,9 +433,9 @@ const remoxDataSlice = createSlice({
             };
             state.blockchain = action.payload.Blockchain;
             state.accounts = action.payload.RemoxAccount.accounts;
-            state.totalBalance = action.payload.RemoxAccount.totalBalance;
             state.storage = action.payload.Storage;
             state.transactions = action.payload.Transactions;
+            state.historyPriceList = action.payload.HistoryPriceList;
             state.tags = action.payload.Tags;
             state.balances = action.payload.Balance.AllPrices;
             state.recurringTasks = action.payload.RecurringTasks;
@@ -455,8 +480,9 @@ export const {
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
     addMemberToContributor, removeMemberFromContributor, setProviderAddress, addTxToList, changeImage,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget, setCredentials,
-    updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget
-
+    updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget,
+    AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
+    Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name,
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

@@ -10,6 +10,7 @@ import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction } from "types/
 import { DecimalConverter } from "./api";
 import erc20 from 'rpcHooks/ABI/erc20.json'
 import { IBudgetORM } from "pages/api/budget/index.api";
+import { GetTime } from "utils";
 
 export const EVM_WALLET_SIZE = 39;
 export const SOLANA_WALLET_SIZE = 43;
@@ -46,7 +47,7 @@ export const MultisigTxParser = async (
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string, created_at: number,
-            budgets: IBudgetORM[], coins: Coins, contractOwners: string[], provider?: string
+            budgets: IBudgetORM[], coins: Coins, contractOwners: string[], provider: string
         }
 ) => {
 
@@ -56,6 +57,7 @@ export const MultisigTxParser = async (
         destination: destination,
         isExecuted: executed,
         confirmations: confirmations,
+        provider: 'Celo Terminal',
         timestamp: timestamp,
         contractAddress: contractAddress,
         contractInternalThresholdAmount: contractInternalThreshold,
@@ -82,9 +84,10 @@ export const MultisigTxParser = async (
                 hash: txHashOrIndex,
                 to: destination
             }),
-            address: contractAddress
+            address: contractAddress,
+            provider: provider
         })
-        obj.tx = reader
+        obj.tx = reader as any
     } else {
         if (parsedData.requiredCount) {
             obj.tx = {
@@ -122,141 +125,41 @@ export const MultisigTxParser = async (
     return obj;
 }
 
-export const parseSafeTransaction = (tx: GnosisTransaction, Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, tags: ITag[],) => {
-    const coins: AltCoins[] = Object.values(Coins);
+export const parseSafeTransaction = async (tx: GnosisTransaction, Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, owners: string[], tags: ITag[],) => {
     const blockchain = Blockchains.find((b) => b.name === blockchainName);
-
-    if (tx.dataDecoded === null && tx.value !== "0") {
-        const coin = coins.find((c) => c.address.toLowerCase() === blockchain?.nativeToken.toLowerCase())!
-        const parsedTx: IMultisigSafeTransaction = {
-            type: ERC20MethodIds.transfer,
-            data: tx.data,
-            nonce: tx.nonce,
-            executionDate: tx.executionDate,
-            submissionDate: tx.submissionDate,
-            modified: tx.modified,
-            blockNumber: tx.blockNumber,
-            transactionHash: tx.transactionHash,
-            safeTxHash: tx.safeTxHash,
-            executor: tx.executor,
-            isExecuted: tx.isExecuted,
-            isSuccessful: tx.isSuccessful,
-            confirmations: tx.confirmations,
-            signatures: tx.signatures,
-            txType: tx.txType,
-            settings: null,
-            transfer: {
-                dataDecoded: null,
+    if (!blockchain) throw new Error("Blockchain not found");
+    const transaction: ITransactionMultisig = {
+        budget: null,
+        confirmations: tx.confirmations.map(s => s.owner),
+        contractAddress: contractAddress,
+        contractInternalThresholdAmount: contractThreshold,
+        contractThresholdAmount: contractThreshold,
+        contractOwnerAmount: tx.confirmations.length,
+        contractOwners: owners,
+        destination: tx.to,
+        hashOrIndex: tx.safeTxHash,
+        txHash: tx.transactionHash ?? undefined,
+        isExecuted: tx.isExecuted,
+        timestamp: tx.submissionDate ? GetTime(new Date(tx.submissionDate)) : GetTime(),
+        executedAt: tx.executionDate ? GetTime(new Date(tx.executionDate)) : undefined,
+        provider: "GnosisSafe",
+        name: "GnosisSafe",
+        tags: tags.filter(s => s.transactions.find(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
+        tx: await CeloInputReader(tx.data ?? "", {
+            address: contractAddress,
+            blockchain: blockchain,
+            Coins: Coins,
+            provider: "GnosisSafe",
+            tags: tags,
+            transaction: GenerateTransaction({
+                hash: tx.safeTxHash,
                 to: tx.to,
-                coin: coin,
+                contractAddress: contractAddress,
+                from: contractAddress,
                 value: tx.value,
-            },
-            contractAddress: contractAddress,
-            contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
-        }
-
-        return parsedTx
-    } else if (tx.dataDecoded !== null && tx.to === tx.safe) {
-        let id;
-        switch (tx.dataDecoded.method) {
-            case "addOwnerWithThreshold":
-                id = ERC20MethodIds.addOwner;
-                break;
-            case "changeThreshold":
-                id = ERC20MethodIds.changeThreshold;
-                break;
-            case "rejectionTransaction":
-                id = ERC20MethodIds.rejection;
-                break;
-            case "removeOwner":
-                id = ERC20MethodIds.removeOwner;
-                break;
-            default:
-                id = ERC20MethodIds.transfer;
-                break;
-        }
-        const parsedTx: IMultisigSafeTransaction = {
-            type: id,
-            data: tx.data,
-            nonce: tx.nonce,
-            executionDate: tx.executionDate,
-            submissionDate: tx.submissionDate,
-            modified: tx.modified,
-            blockNumber: tx.blockNumber,
-            transactionHash: tx.transactionHash,
-            safeTxHash: tx.safeTxHash,
-            executor: tx.executor,
-            isExecuted: tx.isExecuted,
-            isSuccessful: tx.isSuccessful,
-            confirmations: tx.confirmations,
-            signatures: tx.signatures,
-            txType: tx.txType,
-            settings: {
-                dataDecoded: tx.dataDecoded,
-            },
-            transfer: null,
-            contractAddress: contractAddress,
-            contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
-        }
-        return parsedTx
-    } else if (tx.dataDecoded !== null && tx.to !== tx.safe) {
-        const coin = coins.find((c) => c.address.toLowerCase() === tx.to.toLowerCase())!
-        const parsedTx: IMultisigSafeTransaction = {
-            type: ERC20MethodIds.transfer,
-            data: tx.data,
-            nonce: tx.nonce,
-            executionDate: tx.executionDate,
-            submissionDate: tx.submissionDate,
-            modified: tx.modified,
-            blockNumber: tx.blockNumber,
-            transactionHash: tx.transactionHash,
-            safeTxHash: tx.safeTxHash,
-            executor: tx.executor,
-            isExecuted: tx.isExecuted,
-            isSuccessful: tx.isSuccessful,
-            confirmations: tx.confirmations,
-            signatures: tx.signatures,
-            txType: tx.txType,
-            settings: null,
-            transfer: {
-                dataDecoded: tx.dataDecoded,
-                to: tx.dataDecoded.parameters[0].value,
-                coin: coin,
-                value: tx.dataDecoded.parameters[1].value,
-            },
-            contractAddress: contractAddress,
-            contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
-        }
-
-        return parsedTx
-    } else if (tx.dataDecoded === null && tx.to === tx.safe) {
-
-        const parsedTx: IMultisigSafeTransaction = {
-            type: ERC20MethodIds.rejection,
-            data: tx.data,
-            nonce: tx.nonce,
-            executionDate: tx.executionDate,
-            submissionDate: tx.submissionDate,
-            modified: tx.modified,
-            blockNumber: tx.blockNumber,
-            transactionHash: tx.transactionHash,
-            safeTxHash: tx.safeTxHash,
-            executor: tx.executor,
-            isExecuted: tx.isExecuted,
-            isSuccessful: tx.isSuccessful,
-            confirmations: tx.confirmations,
-            signatures: tx.signatures,
-            txType: tx.txType,
-            settings: null,
-            transfer: null,
-            contractAddress: contractAddress,
-            contractThresholdAmount: contractThreshold,
-            tags: tags.filter(s => s.transactions.some(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
-        }
-
-        return parsedTx
+            }),
+        }) as any
     }
+
+    return transaction;
 }

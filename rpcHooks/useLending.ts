@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/slices/lending";
-import { AltCoins,TokenType } from "types";
+import { AltCoins, TokenType } from "types";
 import BigNumber from 'bignumber.js'
 import { BN, etherSize, print, printRay, printRayRate, printRayRateRaw, toWei } from "utils/ray";
 import { AbiItem } from "./ABI/AbiItem";
@@ -14,8 +14,10 @@ import { PublicKey } from "@solana/web3.js";
 import { IAccount } from "firebaseConfig";
 import { useCelo } from "@celo/react-celo";
 import Web3 from "web3";
-import { SelectCurrencies } from "redux/slices/account/selector";
+import { SelectCurrencies, SelectFiatPreference, SelectPriceCalculationFn } from "redux/slices/account/selector";
 import { useAppSelector } from "redux/hooks";
+import { DecimalConverter } from "utils/api";
+import { GetFiatPrice } from "utils/const";
 
 
 const MoolaProxy = import("./ABI/MoolaProxy.json")
@@ -34,15 +36,15 @@ export const LendingType = (type: string) => type === "withdraw" ? "Withdrawn" :
 
 
 export default function useLending(account: IAccount) {
-    const { kit } = useCelo()
+    const fiatPreference = useAppSelector(SelectFiatPreference)
+
     const contractRef = useRef<string>()
     const priceOracleRef = useRef<string>()
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
-    const { GetCoins, fromMinScale, blockchain } = useWalletKit()
+    const { GetCoins, blockchain } = useWalletKit()
     const { Provider } = useSolanaProvider()
-
 
     const dispatch = useDispatch()
     const MoolaUserData = useSelector(selectMoolaData)
@@ -325,7 +327,7 @@ export default function useLending(account: IAccount) {
                     availableBorrow: "0",
                     averageStableBorrowRate: 0,
                     currency: currencies["USDC"],
-                    currencyPrice: currencies["USDC"].priceUSD.toString(),
+                    currencyPrice: GetFiatPrice(currencies["USDC"], fiatPreference).toString(),
                     lendingBalance: (await vaultClient.getUserValue(new PublicKey(account.address))).getAmount(),
                     loanBalance: 0,
                     walletBalance: 0,
@@ -380,13 +382,13 @@ export default function useLending(account: IAccount) {
             const element = currency;
             const contract = new web3.eth.Contract(erc20 as AbiItem[], element.address)
             const weiBalance = await contract.methods.balanceOf(account.address).call()
-            const balance = fromMinScale(weiBalance)
-            const price = currencies[element.name].priceUSD
+            const balance = DecimalConverter(weiBalance, element.decimals)
+            const price = GetFiatPrice(currencies[element.name], fiatPreference)
             const celoPerToken = await getPrice(element.address)
             const data = await getUserAccountData(element.address)
             const coinData = await getReserveData(element.address)
-            const lendingBalance = fromMinScale(data.currentATokenBalance)
-            const loanBalance = parseFloat(fromMinScale(data.currentStableDebt)) + parseFloat(fromMinScale(data.currentVariableDebt))
+            const lendingBalance = DecimalConverter(data.currentATokenBalance, 18)
+            const loanBalance = DecimalConverter(data.currentStableDebt, 18) + DecimalConverter(data.currentVariableDebt, 18)
             const maxBorrow = await getBorrowLimit()
 
 
@@ -398,7 +400,7 @@ export default function useLending(account: IAccount) {
                 currencyPrice: price.toString(),
                 availableBorrow: maxBorrowValue,
                 apy: parseFloat(coinData.liquidityRate),
-                walletBalance: parseFloat(balance),
+                walletBalance: balance,
                 lendingBalance: parseFloat(BN(lendingBalance).toFixed(2, 2)),
                 loanBalance: parseFloat(BN(loanBalance).toFixed(2, 2)),
                 currency: element,
@@ -435,8 +437,8 @@ export default function useLending(account: IAccount) {
         const celo = currencies.CELO;
         const bases = collaterals.map((item) => {
             const isCelo = item.currency.name === "CELO";
-            const deposit = item.deposit.multipliedBy((isCelo ? 1 : currencies[item.currency.name].priceUSD)).div((isCelo ? 1 : celo.priceUSD))
-            const debt = item.debt.multipliedBy((isCelo ? 1 : currencies[item.currency.name].priceUSD)).div((isCelo ? 1 : celo.priceUSD))
+            const deposit = item.deposit.multipliedBy((isCelo ? 1 : GetFiatPrice(currencies[item.currency.name], fiatPreference))).div((isCelo ? 1 : GetFiatPrice(celo, fiatPreference)))
+            const debt = item.debt.multipliedBy((isCelo ? 1 : GetFiatPrice(currencies[item.currency.name], fiatPreference))).div((isCelo ? 1 : GetFiatPrice(celo, fiatPreference)))
             return {
                 celoBaseDeposit: deposit,
                 celoBaseDebt: debt,

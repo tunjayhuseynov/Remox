@@ -227,14 +227,14 @@ const Filter = ({
                         <div className='text-sm text-gray-400'>
                             Specific Amount
                         </div>
-                        <input className='border p-1 rounded-md' value={specificAmount} onChange={(val) => changeSpecificAmount(val.target.value)} type="number" />
+                        <input className='border p-1 rounded-md' value={specificAmount} onChange={(val) => changeSpecificAmount(val.target.value)} type="number" step={0.1} />
                     </div>
                     <div className='grid grid-cols-[40%,20%,40%] mt-5 w-full'>
                         <div className='flex flex-col'>
                             <div className='text-sm text-gray-400'>
                                 Min
                             </div>
-                            <input className='border p-1 rounded-md' value={minAmount} onChange={(val) => changeMinAmount(val.target.value)} type="number" />
+                            <input className='border p-1 rounded-md' value={minAmount} onChange={(val) => changeMinAmount(val.target.value)} type="number" step={0.1} />
                         </div>
                         <div className='flex items-center translate-y-3 justify-center'>
                             <div className='w-[80%] h-[1px] bg-gray-400' />
@@ -243,7 +243,7 @@ const Filter = ({
                             <div className='text-sm text-gray-400'>
                                 Max
                             </div>
-                            <input className='border p-1 rounded-md' value={maxAmount} onChange={(val) => changeMaxAmount(val.target.value)} type="number" />
+                            <input className='border p-1 rounded-md' value={maxAmount} onChange={(val) => changeMaxAmount(val.target.value)} type="number" step={0.1} />
                         </div>
                     </div>
                 </AccordionDetails>

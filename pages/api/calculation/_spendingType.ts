@@ -1,12 +1,14 @@
 import { IFormattedTransaction } from "hooks/useTransactionProcess"
+import { AltCoins } from "types"
+import { IPrice } from "utils/api"
 import { ITag } from "../tags/index.api"
 
-export type ATag = ITag & { txs: IFormattedTransaction[], totalAmount: number }
+export type ATag = ITag & { txs: IFormattedTransaction[] }
 
-
+export interface IFlowDetailItem { amount: string, name: AltCoins, type: "in" | "out" }
 export interface IFlowDetail {
-    [key: string]: number,
-    total: number,
+    [key: string]: IFlowDetailItem[],
+    // total: number,
 }
 
 export interface ITagFlow {
@@ -26,14 +28,6 @@ export interface IMoneyFlow {
     currentMonth: IFlowDetail
 }
 
-export interface ITotalBalanceByDay {
-    week: Omit<IFlowDetail, "total">
-    month: Omit<IFlowDetail, "total">
-    quart: Omit<IFlowDetail, "total">
-    year: Omit<IFlowDetail, "total">,
-    currentMonth: Omit<IFlowDetail, "total">
-}
-
 export interface CoinStats {
     coin: string
     totalSpending: number
@@ -41,14 +35,11 @@ export interface CoinStats {
 
 export interface ISpendingResponse {
     CoinStats: CoinStats[],
-    AverageSpend: number,
     AccountAge: number,
-    TotalBalance: number,
-    TotalSpend: number,
-    TotalBalanceByDay: ITotalBalanceByDay,
-    AccountTotalBalanceChangePercent: number,
-    AccountIn: IMoneyFlow,
-    AccountOut: IMoneyFlow,
+    TotalBalance: IPrice,
+    // TotalBalanceByDay: ITotalBalanceByDay,
+    // AccountTotalBalanceChangePercent: number,
+    Account: IFlowDetail,
     AccountInTag: ITagFlow,
     AccountOutTag: ITagFlow,
 }

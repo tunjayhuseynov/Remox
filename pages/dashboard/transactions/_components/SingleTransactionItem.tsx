@@ -51,6 +51,8 @@ const SingleTransactionItem = ({
 
   const coins = useAppSelector(SelectCurrencies)
 
+  const timestamp = transaction.timestamp;
+
   let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id) > -1 ? transaction as ITransfer : null;
   const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as IBatchRequest : null;
   const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as IAutomationTransfer : null;
@@ -135,33 +137,33 @@ const SingleTransactionItem = ({
         </td>
         <td className="text-left">
           {transfer && (
-            CoinDesignGenerator({ transfer })
+            <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
           )}
           {
             transferBatch && (
               <div className="flex flex-col space-y-5">
-                {transferBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                {transferBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
               </div>
             )
           }
           {
             automationBatch && (
               <div className="flex flex-col space-y-5">
-                {automationBatch.payments.map((transfer) => <Fragment>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                {automationBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
               </div>
             )
           }
           {
-            automationCanceled && CoinDesignGenerator({ transfer: automationCanceled })
+            automationCanceled && <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} />
           }
           {automation && (
-            CoinDesignGenerator({ transfer: automation })
+            <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
           )}
           {swap && (
             <div className="flex flex-col space-y-5">
-              {CoinDesignGenerator({ transfer: { amount: swap.amountIn, coin: swap.coinIn } })}
+              <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
               <img src="/icons/swap.png" className="w-5 h-5" />
-              {CoinDesignGenerator({ transfer: { amount: swap.amountOutMin, coin: swap.coinOutMin } })}
+              <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
             </div>
           )}
         </td>

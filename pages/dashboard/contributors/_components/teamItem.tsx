@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import useContributors from "hooks/useContributors";
 import { useRouter } from 'next/router';
 import { removeContributor } from "redux/slices/account/remoxData";
-import Modal from "components/general/Modal";
+import Modal from "components/general/modal";
 import Delete from "./buttons/delete";
 import Web3 from 'web3'
 import { hexToNumberString } from 'web3-utils';

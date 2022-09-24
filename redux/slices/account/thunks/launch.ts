@@ -1,9 +1,9 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap } from "hooks/useTransactionProcess";
 import type { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import type { IBudgetExerciseORM } from "pages/api/budget/index.api";
-import type { ISpendingResponse } from "pages/api/calculation/_spendingType.api";
+import type { ISpendingResponse } from "pages/api/calculation/_spendingType";
 import type { IContributor } from "types/dashboard/contributors";
 import type { IAccountType, IRemoxData, ITasking } from "../remoxData";
 import type { IStorage } from "../storage";
@@ -19,10 +19,14 @@ import {
 } from "rpcHooks/useFirebase";
 import { AltCoins } from "types";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { IHpApiResponse } from "pages/api/calculation/hp.api";
+import { RootState } from "redux/store";
+import axiosRetry from 'axios-retry';
 
 
 type LaunchResponse = {
   Coins: AltCoins[];
+  HistoryPriceList: IHpApiResponse,
   NFTs: IFormattedTransaction[],
   Balance: IPriceResponse;
   RemoxAccount: IRemoxAccountORM;
@@ -58,6 +62,8 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
   "remoxData/launch",
   async ({ addresses, blockchain, id, accountType, storage }, api) => {
     try {
+      axiosRetry(axios, { retries: 3 });
+
       const spending = axios.get<ISpendingResponse>(
         "/api/calculation/spending",
         {
@@ -192,11 +198,39 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         }
         return s;
       }
-
+      const state = (api.getState() as RootState)
+      const singleAddresses = state.remoxData.accounts.filter(s => s.signerType === "single").map(s => s.address)
       let allCumulativeTransactions = [
-        ...transactionsRes.data.filter(s => !s.rawData.tokenID).map(mapping),
+        ...transactionsRes.data.filter(s => !s.rawData.tokenID && !singleAddresses.find(d => d.toLowerCase() === s.rawData.from.toLowerCase())).map(mapping),
         ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+
+      const allCoins: string[] = []
+
+      allCumulativeTransactions.forEach(s => {
+        const data = ('tx' in s ? s.tx : s)
+        if (data.method !== ERC20MethodIds.swap) {
+          if ('payments' in data) {
+            allCoins.push(data.coin?.symbol ?? '')
+          } else {
+            allCoins.push(...(data as IBatchRequest).payments?.map(s => s.coin.symbol) ?? [])
+          }
+        } else {
+          allCoins.push((data as ISwap).coinIn?.symbol ?? "")
+          allCoins.push((data as ISwap).coinOutMin?.symbol ?? "")
+        }
+      })
+
+
+      const storageState = state.remoxData.storage;
+      const fiatPreference = storageState?.organization?.fiatMoneyPreference ?? storageState?.individual.fiatMoneyPreference ?? "USD"
+
+      const hpList = await axios.post<IHpApiResponse>('/api/calculation/hp', {
+        coinList: Object.keys(state.remoxData.coins), //Array.from(new Set(allCoins.filter(s => s))),
+        lastTxDate: allCumulativeTransactions.at(-1)?.timestamp,
+        blockchain: blockchain.name,
+        fiatMoney: fiatPreference
+      })
 
       const nfts = transactionsRes.data.filter(s => s.rawData.tokenID);
 
@@ -209,6 +243,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const res: LaunchResponse = {
         NFTs: nfts,
+        HistoryPriceList: hpList.data,
         Balance: balanceRes.data,
         RemoxAccount: accountRes.data,
         Budgets: budgetRes.data,

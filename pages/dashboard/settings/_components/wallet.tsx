@@ -1,20 +1,7 @@
-import { useState } from 'react'
-import { MdEdit } from 'react-icons/md'
-import Avatar from 'components/avatar'
-import Button from 'components/button'
-import Modal from 'components/general/Modal'
-import { useSelector } from 'react-redux'
-import { selectStorage } from 'redux/slices/account/storage'
 import { useAppSelector } from 'redux/hooks';
-import Paydropdown from "pages/dashboard/pay/_components/paydropdown";
-import { useWalletKit } from 'hooks'
-import useModalSideExit from 'hooks/useModalSideExit';
 import WalletItem from './wallet/walletItem'
-import { useForm, SubmitHandler } from "react-hook-form";
-import { DropDownItem } from "types/dropdown";
-import Dropdown from "components/general/dropdown";
 import { SetComma } from 'utils'
-import { SelectAccounts } from 'redux/slices/account/selector'
+import { SelectAccounts, SelectTotalBalance } from 'redux/slices/account/selector'
 import { IAccountORM } from 'pages/api/account/index.api'
 
 export interface IWallets {
@@ -41,9 +28,10 @@ export interface IFormInput {
 
 const WalletSetting = () => {
     const accounts = useAppSelector(SelectAccounts)
+    const totalBalance = useAppSelector(SelectTotalBalance)
 
     const walletData: IWalletData = {
-        total: accounts.reduce((s, c) => s + c.totalValue, 0),
+        total: totalBalance,
         wallets: accounts
     }
 
@@ -52,7 +40,7 @@ const WalletSetting = () => {
             <div className="text-greylish font-semibold">Total Balance</div>
             <div className="text-3xl font-semibold">${SetComma(walletData.total)}</div>
         </div>
-        <div className='flex flex-col space-y-5'>
+        <div className='flex flex-col space-y-5 pb-10'>
             {walletData.wallets.map((item, index) => {
                 return <WalletItem item={item} key={item.id} />
             })}

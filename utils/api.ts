@@ -1,8 +1,5 @@
 import BigNumber from "bignumber.js";
-import { CollectionName } from "hooks/walletSDK/useWalletKit";
 import { AltCoins, TokenType } from "types";
-import { BlockchainType } from "types/blockchains";
-import { fromLamport, fromWei } from "utils/ray";
 
 
 // export const CeloExplorer = "https://explorer.celo.org/api"
@@ -11,11 +8,17 @@ export const BASE_URL = process.env.NODE_ENV === "production" ? "https://remox.v
 export interface IPrice {
     [name: string]: {
         coins: AltCoins;
-        amountUSD: number;
+        // amountUSD: number;
+        // amountAUD: number;
+        // amountCAD: number;
+        // amountEUR: number;
+        // amountGBP: number;
+        // amountJPY: number;
+        // amountTRY: number;
+        
         amount: number;
-        percent: number;
-        tokenPrice: number;
-
+        // tokenPrice: number;
+        
         name: string;
         coinUrl: string;
         type: TokenType;
@@ -24,7 +27,22 @@ export interface IPrice {
         decimals: number;
         chainID: number;
         logoURI: string;
+        
         priceUSD: number;
+        priceAUD: number;
+        priceCAD: number;
+        priceEUR: number;
+        priceGBP: number;
+        priceJPY: number;
+        priceTRY: number;
+        // percentUSD: number;
+        // percentAUD: number;
+        // percentCAD: number;
+        // percentEUR: number;
+        // percentGBP: number;
+        // percentJPY: number;
+        // percentTRY: number;
+        
         symbol: string;
     };
 }

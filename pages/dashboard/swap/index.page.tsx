@@ -191,7 +191,7 @@ const Swap = () => {
                         <div className="flex flex-col space-y-2 w-[9rem]">
                             <div>
                                 <Dropdown
-                                    runFn={val => () => {
+                                    runFn={val => async () => {
                                         if (val.name === token2.name) {
                                             setToken2(token1)
                                         }
@@ -253,7 +253,7 @@ const Swap = () => {
                         <div className="flex flex-col space-y-2 w-[9rem]">
                             <div>
                                 <Dropdown
-                                    runFn={val => () => {
+                                    runFn={val => async () => {
                                         if (val.name === token1.name) {
                                             setToken1(token2)
                                         }

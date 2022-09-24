@@ -1,5 +1,9 @@
 import chroma from "chroma-js";
+import { FiatMoneyList } from "firebaseConfig";
+import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import { StylesConfig } from "react-select";
+import { AltCoins } from "types";
+import { IPrice } from "./api";
 
 const env = process.env.NODE_ENV
 
@@ -83,3 +87,44 @@ export const dot = (color = 'transparent') => ({
         width: 10,
     },
 });
+
+
+export const GetFiatPrice = (coin: AltCoins, fiat: FiatMoneyList) => {
+    switch (fiat) {
+        case "CAD":
+            return coin.priceCAD;
+        case "EUR":
+            return coin.priceEUR;
+        case "GBP":
+            return coin.priceGBP;
+        case "JPY":
+            return coin.priceJPY;
+        case "TRY":
+            return coin.priceTRY;
+        case "AUD":
+            return coin.priceAUD;
+        case "USD":
+            return coin.priceUSD;
+        default:
+            return coin.priceUSD
+    }
+}
+
+export const generatePriceCalculation = (coin: IPrice[0], hp: IHpApiResponse, pc: string, fiat: FiatMoneyList) => {
+    switch (pc) {
+        case "current":
+            return coin.amount * GetFiatPrice(coin, fiat);
+        case "5":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-5).reduce((a, b) => a + b.price, 0) / 5) ?? GetFiatPrice(coin, fiat);
+        case "10":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10) ?? GetFiatPrice(coin, fiat);
+        case "15":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-15).reduce((a, b) => a + b.price, 0) / 15) ?? GetFiatPrice(coin, fiat);
+        case "20":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-20).reduce((a, b) => a + b.price, 0) / 20) ?? GetFiatPrice(coin, fiat);
+        case "30":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-30).reduce((a, b) => a + b.price, 0) / 30) ?? GetFiatPrice(coin, fiat);
+        default:
+            return coin.amount * GetFiatPrice(coin, fiat);
+    }
+}

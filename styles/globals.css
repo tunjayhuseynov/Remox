@@ -33,7 +33,18 @@ input[class~="checkboxborder"] {
 	-o-appearance:none;
 }
 
-@media only screen and (max-height: 967px) and  (min-width: 1024px) {
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* @media only screen and (max-height: 967px) and  (min-width: 1024px) {
   html {
     font-size: 12px;
   }
@@ -48,7 +59,7 @@ input[class~="checkboxborder"] {
   html {
     font-size: 14px;
   }
-}
+} */
 
 html{
   font-family: 'Inter', sans-serif ;

@@ -1,9 +1,8 @@
 import { useEffect, useState, useContext } from "react";
-import Paydropdown from "pages/dashboard/pay/_components/paydropdown";
 import { BasicCharts } from "./charts/basicChart";
 import { NegativeChart } from "./charts/negativeChart";
 import { StackedChart } from "./charts/stackedChart";
-import Modal from 'components/general/Modal';
+import Modal from 'components/general/modal';
 import { motion, AnimatePresence } from "framer-motion"
 import ReactDOM, { createPortal } from 'react-dom';
 import { DashboardContext } from 'layouts/dashboard';

@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Get_Individual_Ref } from "crud/individual";
 import { Create_Organization, Get_Organizations } from "crud/organization";
-import { auth, IAccount, IIndividual, IOrganization } from "firebaseConfig";
+import { auth, IAccount, IIndividual, Image, IOrganization } from "firebaseConfig";
 import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import { generate } from "shortid";
@@ -15,9 +15,7 @@ import { CreateTag } from "./tags";
 
 interface ICreateMultisig {
     uploadType: "image" | "nft";
-    imageUrl: string | null,
-    nftAddress: string | null,
-    nftTokenId: number | null,
+    image: Image | null,
     blockchain: BlockchainType,
     name: string,
     newAccountName: string,
@@ -26,35 +24,21 @@ interface ICreateMultisig {
 }
 
 export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreateMultisig>("remoxData/create_organization", async (data, api) => {
-    const { imageUrl, nftAddress, nftTokenId, blockchain, address, name, uploadType, individual, newAccountName } = data;
+    const { image, blockchain, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
-    let image: Parameters<typeof DownloadAndSetNFTorImageForUser>[0] | undefined;
-    const id = generate();
-
-    if (imageUrl || nftAddress) {
-        image =
-        {
-            image: {
-                blockchain: blockchain.name,
-                imageUrl: imageUrl ?? nftAddress!,
-                nftUrl: nftAddress ?? "",
-                tokenId: nftTokenId ?? null,
-                type: uploadType
-            },
-            name: `organizations/${id}/${name}`
-        }
-    }
-
+    const id = `${generate()}-${generate()}`;
 
     const response = await Create_Organization({
-        blockchain,
         accounts: [
             // account
         ],
+        priceCalculation: "current",
+        moderators: [],
         budget_execrises: [],
-        image: image?.image ?? null,
+        image: image,
         members: [address],
+        fiatMoneyPreference: "USD",
         name: name,
         id,
         creator: Get_Individual_Ref(individual.id),
@@ -95,28 +79,27 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
 
 
 
-export const Get_Organizations_Thunk = createAsyncThunk<IOrganizationORM[], string>("remoxData/get_organizations", async (id, api) => {
+export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], string>("remoxData/get_organizations", async (id, api) => {
     const response = await Get_Organizations(id);
 
-    let organizations: IOrganizationORM[] = [];
+    // let organizations: IOrganization[] = [];
 
-    const accounts = await Promise.all(response.map(s => {
-        return axios.get<IRemoxAccountORM>("/api/account/multiple", {
-            params: {
-                id: s.id,
-                type: "organization"
-            }
-        });
-    }))
+    // const accounts = await Promise.all(response.map(s => {
+    //     return axios.get<IRemoxAccountORM>("/api/account/multiple", {
+    //         params: {
+    //             id: s.id,
+    //             type: "organization"
+    //         }
+    //     });
+    // }))
 
-    accounts.forEach((s, i) => {
-        const data = s.data
+    // accounts.forEach((s, i) => {
+    //     const data = s.data
 
-        organizations.push({
-            ...response[i],
-            totalBalance: data.totalBalance,
-        })
-    })
+    //     organizations.push({
+    //         ...response[i],
+    //     })
+    // })
 
-    return organizations;
+    return response;
 })

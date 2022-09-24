@@ -2,14 +2,10 @@ import { useState } from "react";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import LineChart from "components/general/Linechart";
 import Button from "components/button";
-import useNextSelector from "hooks/useNextSelector";
 import useStorage from "hooks/storage/useStorage";
 import WalletList from "./WalletList";
-import useMultiWallet from "hooks/useMultiWallet";
-import { IAccount } from "firebaseConfig";
-import { SelectAccounts, SelectStats } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectDailyBalance, SelectFiatSymbol, SelectStats, SelectTotalBalance } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
-import { SetComma } from "utils";
 import { useAppSelector } from "redux/hooks";
 
 const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
@@ -22,7 +18,9 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
     // const [openNotify, setNotify] = useState<boolean>(false)
 
     const accounts = useAppSelector(SelectAccounts)
-
+    const totalBalance = useAppSelector(SelectTotalBalance)
+    const dailyBalance = useAppSelector(SelectDailyBalance)
+    const symbol = useAppSelector(SelectFiatSymbol)
     return <>
         {/* <Modal onDisable={setNotify} openNotify={openNotify} >
             <NewWalletModal onDisable={setNotify} />
@@ -33,7 +31,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 <div className="w-full px-5 pt-8 flex justify-between">
                     <div className="flex flex-col gap-1">
                         <div className="font-semibold text-greylish tracking-wide">Total Treasury Value</div>
-                        <div className="text-3xl font-semibold">${Math.floor(stats?.TotalBalance ?? 0)}<sup className="text-sm">{`.${stats?.TotalBalance?.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
+                        <div className="text-3xl font-semibold">{symbol}{Math.floor(totalBalance)}<sup className="text-sm">{`.${totalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                     </div>
                     <div className="flex gap-3 pr-2">
                         <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-greylish text-sm font-semibold tracking-wide`} onClick={() => setChartDate("week")}>1W</span>
@@ -44,7 +42,7 @@ const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | u
                 </div>
                 {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
                 <div className="w-full h-full flex items-center justify-center">
-                    <LineChart data={stats?.TotalBalanceByDay[chartDate] ?? {}} type={'area'} />
+                    <LineChart data={dailyBalance?.[chartDate] ?? {}} type={'area'} />
                 </div>
             </div>
             <div className="flex flex-col gap-5 pt-2">

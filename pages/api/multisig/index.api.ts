@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             params: {
                 blockchain,
                 address: account.address,
+                providerName: provider
             }
         })
 
@@ -42,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             params: {
                 blockchain,
                 address: account.address,
+                providerName: provider
             }
         })
 

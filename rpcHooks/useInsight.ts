@@ -1,4 +1,4 @@
-import { ATag, IMoneyFlow, ITagFlow } from 'pages/api/calculation/_spendingType.api'
+import { ATag, IMoneyFlow, ITagFlow } from 'pages/api/calculation/_spendingType'
 import { useEffect, useState } from 'react'
 
 

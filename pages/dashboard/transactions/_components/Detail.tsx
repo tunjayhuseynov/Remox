@@ -13,7 +13,7 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectHistoricalPrices, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { ToastRun } from 'utils/toast';
@@ -55,8 +55,16 @@ const Detail = ({
     const [budgetLoading, setBudgetLoading] = useState(false)
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(budget)
 
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+
+    const fiatPreference = useAppSelector(SelectFiatPreference)
+    const hp = useAppSelector(SelectHistoricalPrices)
     const budgets = useAppSelector(SelectAllBudgets)
     const dispatch = useAppDispatch()
+
+    const date = new Date(timestamp)
+    const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+    const getHpCoinPrice = (coin: AltCoins) => hp[coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
 
     useEffect(() => {
         setMounted(true)
@@ -131,7 +139,6 @@ const Detail = ({
             {openDetail &&
                 <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className="fixed shadow-custom h-[100vh] w-[35%] scrollbar-thin overflow-y-auto overflow-x-hidden top-0 right-0 cursor-default ">
                     <ClickAwayListener onClickAway={handleClickAway} mouseEvent={'onMouseUp'}>
-
                         <div>
                             <div className="w-full h-full backdrop-blur-[2px]" onClick={() => setOpenDetail(false)}></div>
                             <div className="flex flex-col space-y-10 min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center bg-white dark:bg-darkSecond ">
@@ -143,11 +150,14 @@ const Detail = ({
                                     <div className='flex flex-col'>
                                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-xl font-semibold pt-4">
                                             {swap && <div>Swap</div>}
-                                            {transfer && <div>-${DecimalConverter(+transfer.amount * transfer.coin.priceUSD, transfer.coin.decimals)}</div>}
-                                            {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
-                                            {automation && <div>-${+automation.amount * automation.coin.priceUSD}</div>}
-                                            {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
-                                            {automationCanceled && <div>-${+automationCanceled.amount * automationCanceled.coin.priceUSD}</div>}
+                                            {transfer && <div>
+                                                {direction === TransactionDirection.In ? "+" : "-"}
+                                                ${DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? calculatePrice({ ...transfer.coin, coins: transfer.coin, amount: DecimalConverter(+transfer.amount, transfer.coin.decimals) }))}
+                                            </div>}
+                                            {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coins: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)}</div>}
+                                            {automation && <div>-${DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? calculatePrice({ ...automation.coin, coins: automation.coin, amount: DecimalConverter(automation.amount, automation.coin.decimals) }))}</div>}
+                                            {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coins: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)}</div>}
+                                            {automationCanceled && <div>-${DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? calculatePrice({ ...automationCanceled.coin, coins: automationCanceled.coin, amount: DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) }))}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}
@@ -155,35 +165,35 @@ const Detail = ({
                                         </div>
                                         <div className="pt-3 flex flex-col gap-7 items-center">
                                             {transfer && (
-                                                CoinDesignGenerator({ transfer })
+                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
                                             )}
                                             {
                                                 transferBatch && (
                                                     <div className="flex space-x-5">
-                                                        {transferBatch.payments.map((transfer, index) => <Fragment key={index}>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                                                        {transferBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} />)}
                                                     </div>
                                                 )
                                             }
                                             {
                                                 automationBatch && (
                                                     <div className="flex space-x-5">
-                                                        {automationBatch.payments.map((transfer, index) => <Fragment key={index}>{CoinDesignGenerator({ transfer })}</Fragment>)}
+                                                        {automationBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} />)}
                                                     </div>
                                                 )
                                             }
                                             {
                                                 automationCanceled && (
-                                                    CoinDesignGenerator({ transfer: automationCanceled })
+                                                    <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} />
                                                 )
                                             }
                                             {automation && (
-                                                CoinDesignGenerator({ transfer: automation })
+                                                <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
                                             )}
                                             {swap && (
                                                 <div className="flex flex-col space-y-5">
-                                                    {CoinDesignGenerator({ transfer: { amount: swap.amountIn, coin: swap.coinIn } })}
+                                                    <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
                                                     <img src="/icons/swap.png" className="w-5 h-5" />
-                                                    {CoinDesignGenerator({ transfer: { amount: swap.amountOutMin, coin: swap.coinOutMin } })}
+                                                    <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
                                                 </div>
                                             )}
                                         </div>
@@ -245,10 +255,10 @@ const Detail = ({
                                         <div className={`flex gap-x-1 items-center text-sm font-medium`}>
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>{transfer.to.toLowerCase() === account?.address ? (account?.name ?? account?.address) : transfer.to}</div>}
-                                            {transferBatch && <div>-${transferBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
-                                            {automation && <div>-${+automation.amount * automation.coin.priceUSD}</div>}
-                                            {automationBatch && <div>-${automationBatch.payments.reduce((a, c) => a + (+c.amount * c.coin.priceUSD), 0)}</div>}
-                                            {automationCanceled && <div>-${+automationCanceled.amount * automationCanceled.coin.priceUSD}</div>}
+                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map(s => <div>{s.to}</div>)}</div>}
+                                            {automation && <div>{automation.to}</div>}
+                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map(s => <div>{s.to}</div>)}</div>}
+                                            {automationCanceled && <div>{automationCanceled.to}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}

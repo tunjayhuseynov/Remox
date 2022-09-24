@@ -1,10 +1,10 @@
 //TODO: 1. Edit Budget duzelmelidi, Subbudget ucun budget coinlere esasen limitler qoyulmalidi
 //TODO: 2. Tag (Expension Label) in Budget detail
-++++++++++ 3. Tranasction Export All
+             ++++++++++ 3. Tranasction Export All
 4. Historical Price => Token Calculation
-++++++++++ 5. QR meselesini elave ele
+             ++++++++++ 5. QR meselesini elave ele
 6. Fiat Money preference
-++++++++++ 7. Task needs to be in backend not front end
+             ++++++++++ 7. Task needs to be in backend not front end
 8. Blockchain Type Firebase'e dusmemelidi
 //TODO: 9. Notification hissesini Elave ele
 10. Remove_Account_From_Individual => can be found more fastest way
@@ -21,4 +21,13 @@
 21. Add Owner meselesinde execution'dan sonra owner liste elave olunmalidi => bunun ucun serverless function yaratmaq olar
 22. Budget meselesinde hem de usd coin ile 
 //TODO: 23. Remox Pay meselesini hell ele
-//TODO: 24. Edit Contributors Edit Team ishlemir, ve ikinci defe dit basanda error verir
+24. Swap abi'si harcoding ile _celo faylindadi ve blockchain objectinde bosdur
+25. Create Multisig Dashboard'a getirilsin
+//TODO: 26. Send Tranasction Callback system
+//TODO: 27. Sehfeden kenarda girenler anonymus olaraq login elesinler (request) 
+//TODO: 28.Spendingde Fee meselesini tamamla
+//TODO: 29. Multisigde Sign elemek var amm Reject elemek yoxdu  !!!!!!!!!!!
+//TODO: 30. Transaction API post methodu ile body qebul etmelidi ve addressler ve onlarin blockchain'leri gonderilmelidi ki, multi chain olsun 
+//TODO: 31. Edit Contributors Edit Team ishlemir, ve ikinci defe dit basanda error verir
+//TODO: 32. Paymentlerde amount ve fee remoxDatadaki balancedan cixilmalidi
+//TODO: 33. Add owner, remove owner ucun pending owner listi yarat
