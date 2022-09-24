@@ -17,6 +17,37 @@ export interface IOrgData {
 
 
 const ProfileSetting = () => {
+    const fiatList = [
+        {
+            name: "AUD",
+            logo: "https://cdn.countryflags.com/thumbs/australia/flag-400.png"
+        },
+        {
+            name: "CAD",
+            logo: "https://cdn.countryflags.com/thumbs/canada/flag-400.png"
+        },
+        {
+            name: "EUR",
+            logo: "https://cdn.countryflags.com/thumbs/europe/flag-400.png"
+        },
+        {
+            name: "GBP",
+            logo: "https://cdn.countryflags.com/thumbs/united-kingdom/flag-400.png"
+        },
+        {
+            name: "JPY",
+            logo: "https://cdn.countryflags.com/thumbs/japan/flag-400.png"
+        },
+        {
+            name: "USD",
+            logo: "https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png"
+        },
+        {
+            name: "TRY",
+            logo: "https://cdn.countryflags.com/thumbs/turkey/flag-400.png"
+        },
+    ]
+
 
     const blockchain = useAppSelector(SelectBlockchain)
     const dispatch = useAppDispatch()
@@ -26,8 +57,8 @@ const ProfileSetting = () => {
     const preference = useAppSelector(SelectFiatPreference)
     const priceCalculation = useAppSelector(SelectPriceCalculation)
 
-    const [selectedFiatCurrency, SetSelectedFiatCurrency] = useState({ name: preference })
-    const [selectedPriceCalculation, SetSelectedPriceCalculation] = useState({ name: priceCalculation, displayName: `${priceCalculation === "current" ? "Curren Price" : `${priceCalculation} days average`}` })
+    const [selectedFiatCurrency, SetSelectedFiatCurrency] = useState({ name: preference, logoURI: fiatList.find(x => x.name === preference)?.logo })
+    const [selectedPriceCalculation, SetSelectedPriceCalculation] = useState({ name: priceCalculation, displayName: `${priceCalculation === "current" ? "Current Price" : `${priceCalculation} days average`}` })
 
     const type = useAppSelector(SelectAccountType)
     const id = useAppSelector(SelectID)
@@ -81,7 +112,7 @@ const ProfileSetting = () => {
             <div className="text-lg font-semibold self-center">Fiat Currency</div>
             <div className="flex">
                 <Dropdown
-                    list={["USD", "AUD", "CAD", "EUR", "GBP", "JPY", "TRY"].map(s => ({ name: (s as FiatMoneyList) }))}
+                    list={fiatList.map(s => ({ name: (s.name as FiatMoneyList), logoURI: s.logo }))}
                     selected={selectedFiatCurrency}
                     setSelect={SetSelectedFiatCurrency}
                     runFn={(val) => async () => {

@@ -3,9 +3,8 @@ import { generate } from 'shortid'
 import { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "redux/hooks";
-import { SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { SelectBalance, SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Button from "components/button";
-import Select from 'react-select';
 import { Coins } from "types";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
@@ -13,9 +12,7 @@ import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs }
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useAppSelector } from 'redux/hooks';
 import Loader from "components/Loader";
-import { DropDownItem } from 'types';
 import { useForm, SubmitHandler } from "react-hook-form";
-import Dropdown from 'components/general/dropdown';
 import { colourStyles, SelectType } from "utils/const";
 import { SelectSelectedAccountAndBudget, SelectStats, SelectTags } from "redux/slices/account/remoxData";
 import useLoading from "hooks/useLoading";
@@ -24,9 +21,26 @@ import { ITag } from "pages/api/tags/index.api";
 import { ToastRun } from "utils/toast";
 import { GetTime } from "utils";
 import Input from "./_components/payinput";
+import { IPrice } from "utils/api";
+import { FiatMoneyList } from "firebaseConfig";
+import { nanoid } from "@reduxjs/toolkit";
 
 export interface IFormInput {
     description?: string;
+}
+
+export interface IPaymentInputs {
+    id: string,
+    name?: string;
+    address: string | null;
+    amount: number | null;
+    coin: IPrice[0];
+    fiatMoney: FiatMoneyList | null,
+    second: {
+        amount: number | null;
+        coin: IPrice[0];
+        fiatMoney: FiatMoneyList | null,
+    } | null
 }
 
 const Pay = () => {
@@ -34,7 +48,19 @@ const Pay = () => {
     const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const tags = useSelector(SelectTags)
     const dark = useAppSelector(SelectDarkMode)
-    const MyInputs = useSelector(SelectInputs)
+    const coins = useAppSelector(SelectBalance)
+    // const MyInputs = useSelector(SelectInputs)
+
+    const [inputs, setInputs] = useState<IPaymentInputs[]>([
+        {
+            id: nanoid(),
+            address: '',
+            amount: null,
+            coin: Object.values(coins)[0],
+            fiatMoney: null,
+            second: null
+        }
+    ])
 
     let balance = parseFloat(`${totalBalance ?? 0}`).toFixed(2)
 
@@ -61,13 +87,8 @@ const Pay = () => {
 
     const fileInput = useRef<HTMLInputElement>(null);
 
-    const amountTypeList: DropDownItem[] = [{ name: "Pay with Token Amounts", id: 0 }, { name: "Pay with USD-based Amounts", id: 1 }]
-    const [selectedAmountType, setSelectedAmountType] = useState(amountTypeList[0])
-
-
     // const timeInterval: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
     // const [selectedTimeInterval, setSelectedTimeInterval] = useState(timeInterval[0])
-    const coins = useMemo(() => Object.values(GetCoins!).map(w => ({ name: w.name, coinUrl: w.coinUrl })), [GetCoins])
 
     useEffect(() => {
         dispatch(addPayInput({
@@ -128,26 +149,25 @@ const Pay = () => {
             if (!Wallet) throw new Error("No wallet selected")
             const Budget = selectedAccountAndBudget.budget
             const subBudget = selectedAccountAndBudget.subbudget
-            console.log(MyInputs, data)
 
             const pays: IPaymentInput[] = []
-            for (const input of MyInputs) {
-                const { wallet, amount, address, amount2, wallet2 } = input;
-                if (wallet && amount && address) {
-                    pays.push({
-                        coin: wallet.name,
-                        recipient: address,
-                        amount: amount,
-                    })
-                }
-                if (wallet2 && amount2 && address) {
-                    pays.push({
-                        coin: wallet2.name,
-                        recipient: address,
-                        amount: amount2,
-                    })
-                }
-            }
+            // for (const input of MyInputs) {
+            //     const { wallet, amount, address, amount2, wallet2 } = input;
+            //     if (wallet && amount && address) {
+            //         pays.push({
+            //             coin: wallet.name,
+            //             recipient: address,
+            //             amount: amount,
+            //         })
+            //     }
+            //     if (wallet2 && amount2 && address) {
+            //         pays.push({
+            //             coin: wallet2.name,
+            //             recipient: address,
+            //             amount: amount2,
+            //         })
+            //     }
+            // }
             let startDate: Date | null = null;
             let endDate: Date | null = null;
             if (startDateState && startTime) {
@@ -213,22 +233,54 @@ const Pay = () => {
                         </div>
                         <div className="sm:flex flex-col gap-3 py-5 xl:py-10">
                             <div className="sm:flex flex-col  gap-y-10  ">
-
                                 <div className="flex flex-col">
-                                    {/* <div className="flex space-x-5 sm:space-x-0 sm:justify-between py-4 items-center">
-                                        <input ref={fileInput} type="file" className="hidden" onChange={(e) => e.target.files!.length > 0 ? CSV.Import(e.target.files![0]).then(e => setCsvImport(e)).catch(e => console.error(e)) : null} />
-                                    </div> */}
                                     <div>
-                                        {MyInputs.map((e, i) => <Input key={e.index} index={index} payInput={e} addressBook={[]} />)}
+                                        {inputs.map((e, i) => <Input key={e.id} input={e} length={inputs.length}
+                                            onDelete={() => {
+                                                if (inputs.length > 1) {
+                                                    setInputs(inputs.filter((r, index) => r.id !== e.id))
+                                                }
+                                            }}
+                                            onDeleteSecond={() => {
+                                                setInputs(inputs.map((input, index) => {
+                                                    if (e.id === input.id) {
+                                                        return { ...input, second: null }
+                                                    }
+                                                    return input;
+                                                }))
+                                            }}
+                                            onChange={(amount, address, coin, fiat, name, amountSecond, coinSecond, fiatSecond) => {
+                                                setInputs(inputs.map((input, index) => {
+                                                    if (input.id === e.id) {
+                                                        return {
+                                                            ...input, amount, address, coin, fiatMoney: fiat, name: name ?? undefined, second: amountSecond ?
+                                                                {
+                                                                    amount: amountSecond,
+                                                                    coin: coinSecond,
+                                                                    fiatMoney: fiatSecond
+                                                                } : null
+                                                        }
+                                                    }
+                                                    return input;
+                                                }))
+                                            }}
+                                            addressBook={[]}
+                                        />
+                                        )}
                                     </div>
                                 </div>
                                 <div className="py-5 sm:py-0 w-full gap-16">
                                     <div className="w-[50%] flex gap-4">
                                         <Button version="second" className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
-                                            dispatch(addPayInput({
-                                                index: generate(),
-                                                wallet: coins[0]
-                                            }))
+                                            setInputs([...inputs, {
+                                                id: nanoid(),
+                                                amount: null,
+                                                address: null,
+                                                coin: Object.values(coins)[0],
+                                                fiatMoney: null,
+                                                name: undefined,
+                                                second: null
+                                            }])
                                         }}>
                                             + Add More
                                         </Button>
@@ -265,7 +317,6 @@ const Pay = () => {
                                             </div>
                                         </div>
                                     </div>}
-
                                 <div className="flex flex-col space-y-3">
                                     <span className="text-left">Description <span className="text-greylish">(Optional)</span></span>
                                     <div className="grid grid-cols-1">

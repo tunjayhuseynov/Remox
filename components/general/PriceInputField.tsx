@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 
 interface IProps {
     isMaxActive?: boolean;
-    onChange: (val: number | undefined, coin: IPrice[0] | undefined, fiatMoney: FiatList["name"] | undefined) => void
+    onChange: (val: number | null, coin: IPrice[0], fiatMoney: FiatList["name"] | undefined) => void
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
@@ -20,8 +20,8 @@ const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
     const coins = useAppSelector(SelectBalance)
     const [dropdown, setDropdown] = useState<boolean>(false);
 
-    const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | undefined>(Object.values(coins)[0]);
-    const [value, setValue] = useState<number | undefined>(0);
+    const [selectedCoin, setSelectedCoin] = useState<IPrice[0]>(Object.values(coins)[0]);
+    const [value, setValue] = useState<number | null>(null);
     const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>();
 
     useEffect(() => {
@@ -76,12 +76,16 @@ const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
                 id="display-amount"
                 fullWidth
                 type="number"
-                value={value?.toString()}
+                value={value?.toString() ?? ""}
                 className='dark:bg-darkSecond bg-white '
                 inputProps={{ step: 0.01, value: value, inputMode: "numeric", }}
                 onChange={(e) => {
                     const val = +e.target.value;
-                    if (!val) return setValue(0);
+                    if (!val) {
+                        setValue(null)
+                        onChange(null, selectedCoin, selectedFiat?.name)
+                        return
+                    };
                     if (val && !isNaN(val)) {
                         if (max && val > (selectedFiat ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER) : (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER))) return;
                         onChange(val, selectedCoin, selectedFiat?.name)
@@ -95,8 +99,10 @@ const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
                                 if (selectedCoin) {
                                     if (selectedFiat) {
                                         setValue(selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount)
+                                        onChange(selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount, selectedCoin, selectedFiat?.name)
                                     } else {
                                         setValue(selectedCoin.amount)
+                                        onChange(selectedCoin.amount, selectedCoin, undefined)
                                     }
                                 }
                             }}>

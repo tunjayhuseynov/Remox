@@ -2,8 +2,8 @@ import { Dispatch, useId, useState } from 'react'
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { FormControl, InputLabel, SxProps, Theme } from '@mui/material';
-import { ClipLoader } from 'react-spinners';
 import { Image } from 'firebaseConfig';
+import Loader from 'components/Loader';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -68,7 +68,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center `}>
                             <div className="flex items-center">
-                                {(loading || internalLaoding) && <span><ClipLoader size={16} /></span>}
+                                {(loading || internalLaoding) && <span><Loader size={16} /></span>}
                                 {selected.coinUrl && (!loading && !internalLaoding) && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
                                 {selected.logoURI && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}

@@ -18,8 +18,8 @@ import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
 import useLoading from 'hooks/useLoading';
-import { ClipLoader } from 'react-spinners';
 import { addConfirmation, changeToExecuted } from 'redux/slices/account/remoxData';
+import Loader from 'components/Loader';
 
 
 interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
@@ -240,13 +240,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
                                     <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                         <span className="tracking-wider" onClick={ConfirmFn}>
-                                            {confirmFnLoading ? <ClipLoader size={14} /> : "Sign"}
+                                            {confirmFnLoading ? <Loader size={14} /> : "Sign"}
                                         </span>
                                     </div> :
                                     isApprovable ?
                                         <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                             <span className="tracking-wider" onClick={ExecuteFn}>
-                                                {executeFnLoading ? <ClipLoader size={14} /> : "Execute"}
+                                                {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
                                         <></>
