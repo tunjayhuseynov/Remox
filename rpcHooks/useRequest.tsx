@@ -7,8 +7,7 @@ import { SelectProviderAddress } from "redux/slices/account/remoxData";
 
 export interface IRequest {
     id: string;
-    name: string;
-    surname: string;
+    fullname: string;
     address: string;
     amount: string;
     image?: string;

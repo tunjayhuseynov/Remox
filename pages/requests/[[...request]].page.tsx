@@ -23,14 +23,15 @@ import Loader from "components/Loader";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Confirm from "./confirm";
-
 import Stack from "@mui/material/Stack";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { nanoid } from "@reduxjs/toolkit";
+import PriceInputField from "components/general/PriceInputField";
+import { IPrice } from "utils/api";
+import { FiatMoneyList } from 'firebaseConfig';
 
 export interface IFormInput {
-  name: string;
-  surname: string;
+  fullname: string;
   address: string;
   amount: number;
   amount2?: number;
@@ -38,6 +39,7 @@ export interface IFormInput {
   link?: string;
   requestType: string;
 }
+
 
 export default function RequestId() {
   const router = useRouter();
@@ -50,7 +52,10 @@ export default function RequestId() {
 
   const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
   const [selectedCoin, setSelectedCoin] = useState<AltCoins>();
-  const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(GetCoins[0]);
+  const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>();
+  const [amount1, setAmount1] = useState<number | null>()
+  const [amount2, setAmount2] = useState<number>()
+  const [fiatMoney1, setFiat1] = useState<FiatMoneyList | null>()
 
   const [loader, setLoader] = useState<boolean>(true);
 
@@ -69,22 +74,9 @@ export default function RequestId() {
       )?.currencyCollectionName;
       const collection: AltCoins[] = await FirestoreReadAll(collectionName ?? "");
       setGetCoins(collection);
-      setSelectedCoin(collection[0]);
-      setSelectedCoin2(collection[0]);
       setLoader(false);
     }
   }, [coin]);
-
-  const paymentBase: DropDownItem[] = [
-    { name: "Pay with Token Amounts" },
-    { name: "Pay with USD-based Amounts" },
-  ];
-
-  const [selectedPaymentBase, setSelectedPaymentBase] = useState(
-    paymentBase[0]
-  );
-  const selectedTypeIsUsd =
-    selectedPaymentBase.name === "Pay with USD-based Amounts";
 
   const [file, setFile] = useState<File>();
   const [fileName, setFileName] = useState<string>("");
@@ -109,6 +101,15 @@ export default function RequestId() {
     }
   };
 
+  const onChange1 = (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatMoneyList | undefined ) => {
+    console.log(val)
+    console.log(coin)
+    console.log(fiatMoney)
+    setAmount1(val);
+    setSelectedCoin(coin);
+    setFiat1(fiatMoney)
+  }
+
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
     const ServDate = dateValue;
@@ -121,34 +122,39 @@ export default function RequestId() {
         setImageRef(ref(storage, url));
       }
 
-      const result: IRequest = {
-        id: nanoid(),
-        name: data.name,
-        surname: data.surname,
-        address: data.address,
-        amount: data.amount.toString(),
-        currency: selectedCoin?.symbol ?? "",
-        requestType: data.requestType,
-        nameOfService: data.serviceName,
-        serviceDate: GetTime(ServDate!),
-        usdBase: selectedTypeIsUsd,
-        timestamp: GetTime(),
-        secondaryAmount: data.amount2 ? data.amount2.toString() : null,
-        secondaryCurrency: selectedCoin2?.symbol ?? "",
-        status: RequestStatus.pending,
-        attachLink: data.link ? data.link : null,
-        uploadedLink: Invoice ? url : null,
-      };
+      // const result = {
+      //   id: nanoid(),
+      //   address: data.address,
+      //   fullname: data.fullname,
+      //   amount: data.amount.toString(),
+      //   currency: selectedCoin?.symbol ?? "",
+      //   requestType: data.requestType,
+      //   nameOfService: data.serviceName,
+      //   serviceDate: GetTime(ServDate!),
+      //   timestamp: GetTime(),
+      //   secondaryAmount: data.amount2 ? data.amount2.toString() : null,
+      //   secondaryCurrency: selectedCoin2?.symbol ?? "",
+      //   status: RequestStatus.pending,
+      //   attachLink: data.link ? data.link : null,
+      //   uploadedLink: Invoice ? url : null,
+      // };
+      
+      console.log(amount1)
+      console.log(fiatMoney1)
+      console.log(selectedCoin)
 
-      setRequest(result);
-      setFileName(Invoice?.name ?? "");
-      setModal(true);
+      // setRequest(result);
+      // setFileName(Invoice?.name ?? "");
+      // setModal(true);
     } catch (error) {
       console.error(error);
     }
   };
 
   const [isLoading, SetModalVisible] = useLoading(setModalVisible);
+
+
+
 
   const submit = async () => {
     try {
@@ -202,35 +208,10 @@ export default function RequestId() {
                   </div>
                   <div className="grid grid-cols-2 gap-x-10">
                     <TextField
-                      label="First Name"
-                      {...register("name", { required: true })}
+                      label="Full Name"
+                      {...register("fullname", { required: true })}
                       className="bg-white dark:bg-darkSecond"
                       variant="outlined"
-                    />
-
-                    <TextField
-                      label="Last Name"
-                      {...register("surname", { required: true })}
-                      className="bg-white dark:bg-darkSecond"
-                      variant="outlined"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-10">
-                    <Dropdown
-                      label="Amount Type"
-                      className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                      parentClass={" w-full rounded-md h-[3.15rem] "}
-                      selectClass={"!text-sm"}
-                      sx={{
-                        ".MuiSelect-select": {
-                          paddingTop: "6px",
-                          paddingBottom: "6px",
-                          maxHeight: "52px",
-                        },
-                      }}
-                      list={paymentBase}
-                      selected={selectedPaymentBase}
-                      setSelect={setSelectedPaymentBase}
                     />
                     <TextField
                       label="Wallet Address"
@@ -239,44 +220,18 @@ export default function RequestId() {
                       variant="outlined"
                     />
                   </div>
-                  <div className="flex w-full gap-x-10">
-                    <div className="w-full h-full">
-                      <Dropdown
-                        label="Token"
-                        className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                        selected={selectedCoin}
-                        sx={{
-                          ".MuiSelect-select": {
-                            paddingTop: "6px",
-                            paddingBottom: "6px",
-                            maxHeight: "52px",
-                          },
-                        }}
-                        setSelect={(val) => {
-                          setSelectedCoin(val);
-                        }}
-                        list={Object.values(GetCoins)}
-                      />
-                    </div>
-                    <div className="w-full h-full">
-                      <TextField
-                        label="Amount"
-                        {...register("amount", {
-                          required: true,
-                          valueAsNumber: true,
-                        })}
-                        type={'number'}
-                        inputProps={{ step: 0.01 }}
-                        className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
-                        variant="outlined"
-                      />
-                    </div>
+                  <div>
+                    <PriceInputField 
+                      isMaxActive
+                      coins={GetCoins.reduce((a, v) => ({...a, [v.name] : v}), {})} 
+                      onChange={onChange1}
+                    />
                   </div>
                   {secondActive ? (
                     <div className="flex gap-x-10">
                       <div className="w-full h-full">
                         <Dropdown
-                          label="Tosken"
+                          label="Token"
                           className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                           selected={selectedCoin2}
                           sx={{

@@ -1,6 +1,6 @@
 import { ClickAwayListener, FormControl, InputAdornment, InputLabel, TextField } from '@mui/material';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BiSearch } from 'react-icons/bi';
 import { IPrice } from 'utils/api';
@@ -21,10 +21,19 @@ interface FiatList { logo: string, name: FiatMoneyList }
 const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin }: IProps) => {
     // const coins = useAppSelector(SelectBalance)
     const [dropdown, setDropdown] = useState<boolean>(false);
-
+    const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
     const [value, setValue] = useState<string | null>(defaultValue?.toString() ?? null);
     const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>();
+
+    const searching = (e:  React.ChangeEvent<HTMLInputElement>) => {
+        if(e.target.value.trim() === ""){
+            setCoinsList(Object.values(coins))
+        } else{
+            const filteredCoins = Object.values(coins).filter((coin) => coin.name.toLowerCase().includes(e.target.value.toLowerCase()) || coin.symbol.toLowerCase().includes(e.target.value.toLowerCase()))
+            setCoinsList(filteredCoins)
+        }
+    }
 
     useEffect(() => {
         if (selectedCoin && value && max && 'amount' in selectedCoin) {
@@ -140,6 +149,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                     <div>
                                         <TextField
                                             placeholder='Search'
+                                            onChange={searching}
                                             InputProps={{
                                                 style: {
                                                     height: '35px'
@@ -155,7 +165,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                     </div>
                                     <div className='text-greylish mt-3 font-semibold tracking-wide'>Token</div>
                                     <div className='flex flex-col overflow-y-auto pb-2 h-[10rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
-                                        {Object.values(coins).map((coin, index) => {
+                                        {coinsList.map((coin, index) => {
                                             return <div key={index} onClick={() => { setSelectedCoin(coin); onChange(value ? +value : null, coin, selectedFiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedCoin?.symbol === coin.symbol && "bg-gray-400 bg-opacity-20"}`}>
                                                 <div className='w-6 h-6 rounded-full'><img className='w-full h-full rounded-full' src={coin.logoURI} /></div>
                                                 <div className='text-sm font-semibold'>{coin.symbol}</div>
