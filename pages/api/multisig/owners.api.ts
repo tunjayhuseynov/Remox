@@ -2,6 +2,7 @@ import { GOKI_ADDRESSES, GOKI_IDLS, Programs } from "@gokiprotocol/client";
 import { newProgramMap } from "@saberhq/anchor-contrib";
 import { SolanaReadonlyProvider } from "@saberhq/solana-contrib";
 import { Connection, PublicKey } from "@solana/web3.js";
+import axios from "axios";
 import { SolanaSerumEndpoint } from "components/Wallet";
 import { Contract, ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -52,13 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             return res.status(200).json({ owners: owners })
 
         } else if (providerName === "GnosisSafe") {
-            const provider = new ethers.providers.JsonRpcProvider(blockchain.rpcUrl);
-
-
-            const contract = new Contract(multisigAddress, GnosisABI, provider)
-
-            const owners = await contract.getOwners();
-            return res.status(200).json({ owners: owners })
+            const { data } = await axios.get(blockchain.multisigProviders.find(p => p.name === providerName)?.txServiceUrl + "/api/v1/safes/" + multisigAddress)
+            return res.status(200).json({ owners: data.owners })
         }
         throw new Error(`Invalid multiSignature`)
     } catch (e: any) {

@@ -66,7 +66,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             contractAddress: s.address,
             hashOrIndex: s.hash,
             protocol: s.provider ?? "",
-        }, blockchainType, budget.token, budget.secondToken ?? undefined)))
+        }, blockchainType, parentId)))
 
         tagTxs.push({
             tag: tag,
@@ -86,7 +86,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
     }
 
 
-    const txMultisigResponse = await Promise.allSettled(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType, budget.token, budget.secondToken ?? undefined)))
+    const txMultisigResponse = await Promise.allSettled(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType, parentId)))
     txMultisigResponse.forEach(tx => {
         if (tx.status === "fulfilled") {
 
@@ -152,7 +152,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         }, {})
 
 
-        const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType)))
+        const txMultisigResponse = await Promise.all(multiTxs.map(s => MultisigTxCal(budget, s, blockchainType, parentId)))
         txMultisigResponse.forEach(tx => {
             totalSubFirstCoinPending += tx.totalFirstCoinPending;
             totalSubSecondCoinPending += tx.totalSecondCoinPending;

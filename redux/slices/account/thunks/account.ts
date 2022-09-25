@@ -72,13 +72,15 @@ export const Remove_Account_From_Individual = createAsyncThunk<IAccount, { accou
             }
         }
         for (const budget of budgets) {
-            const targetTx = budget.txs.find(s => s.contractAddress.toLowerCase() === account.address.toLowerCase() && s.hashOrIndex.toLowerCase() === hash?.toLowerCase())
-            if (targetTx) {
-                await api.dispatch(Remove_Tx_From_Budget_Thunk({
-                    budget: budget,
-                    isExecuted: 'tx' in tx ? tx.isExecuted : true,
-                    tx: targetTx,
-                }))
+            const targetTx = budget.txs.filter(s => s.contractAddress.toLowerCase() === account.address.toLowerCase())
+            if (targetTx.length > 0) {
+                for (const target of targetTx) {
+                    await api.dispatch(Remove_Tx_From_Budget_Thunk({
+                        budget: budget,
+                        isExecuted: 'tx' in tx ? tx.isExecuted : true,
+                        tx: target,
+                    }))
+                }
             }
         }
     }
@@ -135,13 +137,15 @@ export const Remove_Account_From_Organization = createAsyncThunk<IAccount, { acc
             }
         }
         for (const budget of budgets) {
-            const targetTx = budget.txs.find(s => s.contractAddress.toLowerCase() === account.address.toLowerCase() && s.hashOrIndex.toLowerCase() === hash?.toLowerCase())
-            if (targetTx) {
-                await api.dispatch(Remove_Tx_From_Budget_Thunk({
-                    budget: budget,
-                    isExecuted: 'tx' in tx ? tx.isExecuted : true,
-                    tx: targetTx,
-                }))
+            const targetTx = budget.txs.filter(s => s.contractAddress.toLowerCase() === account.address.toLowerCase())
+            if (targetTx.length > 0) {
+                for (const target of targetTx) {
+                    await api.dispatch(Remove_Tx_From_Budget_Thunk({
+                        budget: budget,
+                        isExecuted: 'tx' in tx ? tx.isExecuted : true,
+                        tx: target,
+                    }))
+                }
             }
         }
     }

@@ -29,11 +29,11 @@ export interface IPaymentInputs {
     name?: string;
     address: string | null;
     amount: number | null;
-    coin: AltCoins;
+    coin: AltCoins | null;
     fiatMoney: FiatMoneyList | null,
     second: {
         amount: number | null;
-        coin: AltCoins;
+        coin: AltCoins | null;
         fiatMoney: FiatMoneyList | null,
     } | null
 }
@@ -65,20 +65,27 @@ const Pay = () => {
     const [note, setNote] = useState<string>()
     const [attachLink, setAttachLink] = useState<string>()
 
-    const [selectedLabel, setSelectedLabel] = useState<ITag>();
-    const [labelLoading, setLabelLoading] = useState(false)
-
-
     const labels = useSelector(SelectTags)
     const dark = useAppSelector(SelectDarkMode)
     const coins = useAppSelector(SelectBalance)
+
+    const router = useRouter();
+    const { GetCoins, SendTransaction } = useWalletKit()
+
+    const symbol = useAppSelector(SelectFiatSymbol)
+
+    const [selectedTags, setSelectedTags] = useState<ITag[]>([])
+
+    const [csvImport, setCsvImport] = useState<csvFormat[]>([]);
+
+    const fileInput = useRef<HTMLInputElement>(null);
 
     const [inputs, setInputs] = useState<IPaymentInputs[]>([
         {
             id: nanoid(),
             address: '',
             amount: null,
-            coin: Object.values(coins)[0].coin,
+            coin: null,
             fiatMoney: null,
             second: null
         }
@@ -124,20 +131,7 @@ const Pay = () => {
     }, [inputs])
 
 
-    const dispatch = useAppDispatch()
-    const router = useRouter();
-    const { GetCoins, SendTransaction } = useWalletKit()
 
-    const symbol = useAppSelector(SelectFiatSymbol)
-
-
-
-    const [selectedTags, setSelectedTags] = useState<ITag[]>([])
-
-
-    const [csvImport, setCsvImport] = useState<csvFormat[]>([]);
-
-    const fileInput = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (csvImport.length > 0 && GetCoins) {
@@ -194,23 +188,23 @@ const Pay = () => {
             const subBudget = selectedAccountAndBudget.subbudget
 
             const pays: IPaymentInput[] = []
-            // for (const input of inputs) {
-            //     const { wallet, amount, address, amount2, wallet2 } = input;
-            //     if (wallet && amount && address) {
-            //         pays.push({
-            //             coin: wallet.name,
-            //             recipient: address,
-            //             amount: amount,
-            //         })
-            //     }
-            //     if (wallet2 && amount2 && address) {
-            //         pays.push({
-            //             coin: wallet2.name,
-            //             recipient: address,
-            //             amount: amount2,
-            //         })
-            //     }
-            // }
+            for (const input of inputs) {
+                const { amount, address, coin, fiatMoney, id, second, name } = input;
+                if (coin && amount && address) {
+                    pays.push({
+                        coin: coin.name,
+                        recipient: address,
+                        amount: amount,
+                    })
+                }
+                if (second && second.coin && second.amount && address) {
+                    pays.push({
+                        coin: second.coin.name,
+                        recipient: address,
+                        amount: second.amount,
+                    })
+                }
+            }
             let startDate: Date | null = null;
             let endDate: Date | null = null;
             if (startDateState && startTime) {
@@ -252,7 +246,7 @@ const Pay = () => {
                         <div className="text-2xl font-bold">Remox Pay</div>
                     </div>
                     <div className="w-full flex justify-center py-4">
-                        <div className="flex justify-between w-[50%] xl:w-[23%] ">
+                        <div className="flex justify-between w-[45%] ">
                             <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
                         </div>
                     </div>
@@ -304,7 +298,6 @@ const Pay = () => {
                                             }))
                                         }}
                                         onChange={(amount, address, coin, fiat, name, amountSecond, coinSecond, fiatSecond) => {
-                                            console.log(amount, coin)
                                             setInputs(inputs.map((input, index) => {
                                                 if (input.id === e.id) {
                                                     return {
@@ -406,7 +399,12 @@ const Pay = () => {
                                                             backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
                                                         }
                                                     },
-                                                    option: colourStyles(dark).option,
+                                                    option: (styles: any, { data, isDisabled, isFocused, isSelected }: any) => {
+                                                        return {
+                                                            ...colourStyles(dark).option(styles, { data, isDisabled, isFocused, isSelected }),
+                                                            backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+                                                        }
+                                                    },
                                                 }}
                                                 className="h-full"
                                                 onChange={onTagChange}

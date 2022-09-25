@@ -90,7 +90,7 @@ export const Blockchains: BlockchainType[] = [
     name: "celo",
     displayName: "Celo",
     nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
-    rpcUrl: "https://rpc.ankr.com/celo",
+    rpcUrl: "https://rpc.ankr.com/celo/eb990af6ca75cdcc3d06ff7e9f6f8fdecdb08abc587142224199970e4dc46964",
     explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "celoCurrency",
     hpCollection: "hpCELO",

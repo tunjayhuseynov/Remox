@@ -12,8 +12,9 @@ import { adminApp } from "firebaseConfig/admin";
 import Web3 from 'web3'
 import erc20 from 'rpcHooks/ABI/erc20.json'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
-import { DecimalConverter } from "utils/api";
+import { BASE_URL, DecimalConverter } from "utils/api";
 import { toChecksumAddress } from "web3-utils";
+import axios from "axios";
 
 const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
@@ -34,7 +35,7 @@ export default async function handler(
         if (!blockchain) throw new Error("Blockchain not found");
 
         let parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
-
+        if (!parsedAddress) throw new Error("Addresses not found");
 
         const balance = await GetAllBalance(parsedAddress, blockchain)
         if (balance) {
@@ -110,13 +111,14 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType, web3: Web3): Promise<[number, AltCoins]> => {
     try {
         if (blockchain.name === 'celo') {
-            const ethers = new web3.eth.Contract(erc20 as AbiItem[], toChecksumAddress(item.address));
-            if (item.address === '0x0000000000000000000000000000000000000000') {
-                const balance = await web3.eth.getBalance(addressParams)
-                return [DecimalConverter(balance, item.decimals), item]
-            }
-            let balance = await ethers.methods.balanceOf(toChecksumAddress(addressParams)).call();
-            return [DecimalConverter(balance.toString(), item.decimals), item]
+            const { data } = await axios.get<{ result: string }>(`https://explorer.celo.org/api?module=account&action=tokenbalance&contractaddress=${item.address}&address=${addressParams}`)
+            // const ethers = new web3.eth.Contract(erc20 as AbiItem[], toChecksumAddress(item.address));
+            // if (item.address === '0x0000000000000000000000000000000000000000') {
+            //     const balance = await web3.eth.getBalance(addressParams)
+            //     return [DecimalConverter(balance, item.decimals), item]
+            // }
+            // let balance = await ethers.methods.balanceOf(toChecksumAddress(addressParams)).call();
+            return [DecimalConverter(data.result.toString(), item.decimals), item]
         } else if (blockchain.name === 'solana') {
             let token;
             if (item.type === TokenType.GoldToken) {

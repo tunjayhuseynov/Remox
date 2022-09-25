@@ -156,7 +156,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                     <div className='text-greylish mt-3 font-semibold tracking-wide'>Token</div>
                                     <div className='flex flex-col overflow-y-auto pb-2 h-[10rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
                                         {Object.values(coins).map((coin, index) => {
-                                            return <div key={index} onClick={() => { setSelectedCoin(coin); onChange(value ? +value : null, selectedCoin, selectedFiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedCoin?.symbol === coin.symbol && "bg-gray-400 bg-opacity-20"}`}>
+                                            return <div key={index} onClick={() => { setSelectedCoin(coin); onChange(value ? +value : null, coin, selectedFiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedCoin?.symbol === coin.symbol && "bg-gray-400 bg-opacity-20"}`}>
                                                 <div className='w-6 h-6 rounded-full'><img className='w-full h-full rounded-full' src={coin.logoURI} /></div>
                                                 <div className='text-sm font-semibold'>{coin.symbol}</div>
                                             </div>
@@ -174,7 +174,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                                 <div className='text-sm font-semibold'>None</div>
                                             </div>
                                             {fiatList.map((fiat, index) => {
-                                                return <div key={index} onClick={() => { setSelectedFiat(fiat); onChange(value ? +value : null, selectedCoin, selectedFiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedFiat?.name === fiat.name && "bg-gray-400 bg-opacity-20"}`}>
+                                                return <div key={index} onClick={() => { setSelectedFiat(fiat); onChange(value ? +value : null, selectedCoin, fiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedFiat?.name === fiat.name && "bg-gray-400 bg-opacity-20"}`}>
                                                     <div className='w-6 h-6 rounded-full'><img className='w-full h-full rounded-full' src={fiat.logo} /></div>
                                                     <div className='text-sm font-semibold'>{fiat.name}</div>
                                                 </div>
