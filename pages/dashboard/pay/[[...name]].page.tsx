@@ -1,33 +1,28 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { generate } from 'shortid'
-import { csvFormat } from 'utils/CSV'
+import CSV, { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "redux/hooks";
-import { SelectBalance, SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectBalance, SelectDarkMode, SelectFiatSymbol, SelectPriceCalculationFn, SelectTotalBalance } from 'redux/slices/account/remoxData';
 import Button from "components/button";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/slices/payinput";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useAppSelector } from 'redux/hooks';
-import Loader from "components/Loader";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { colourStyles, SelectType } from "utils/const";
-import { SelectSelectedAccountAndBudget, SelectStats, SelectTags } from "redux/slices/account/remoxData";
+import { SelectType, colourStyles } from "utils/const";
+import { SelectSelectedAccountAndBudget, SelectTags } from "redux/slices/account/remoxData";
 import useLoading from "hooks/useLoading";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import { ITag } from "pages/api/tags/index.api";
 import { ToastRun } from "utils/toast";
-import { GetTime } from "utils";
+import { GetTime, SetComma } from "utils";
 import Input from "./_components/payinput";
-import { IPrice } from "utils/api";
 import { FiatMoneyList } from "firebaseConfig";
 import { nanoid } from "@reduxjs/toolkit";
-
-export interface IFormInput {
-    description?: string;
-}
+import { AiOutlineDownload } from "react-icons/ai";
+import { Tooltip } from "@mui/material";
+import TextField from '@mui/material/TextField';
+import Select from 'react-select';
 
 export interface IPaymentInputs {
     id: string,
@@ -43,13 +38,40 @@ export interface IPaymentInputs {
     } | null
 }
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+
 const Pay = () => {
-    let totalBalance = useAppSelector(SelectStats)?.TotalBalance
+
+    const totalBalance = useAppSelector(SelectTotalBalance)
+    const accounts = useAppSelector(SelectAccounts)
     const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
-    const tags = useSelector(SelectTags)
+    const priceCalculation = useAppSelector(SelectPriceCalculationFn)
+
+    const [startDateState, setStartDate] = useState<string>()
+    const [startTime, setStartTime] = useState<string>()
+
+    const [endDateState, setEndDate] = useState<string>()
+    const [endTime, setEndTime] = useState<string>()
+
+    const [note, setNote] = useState<string>()
+    const [attachLink, setAttachLink] = useState<string>()
+
+    const [selectedLabel, setSelectedLabel] = useState<ITag>();
+    const [labelLoading, setLabelLoading] = useState(false)
+
+
+    const labels = useSelector(SelectTags)
     const dark = useAppSelector(SelectDarkMode)
     const coins = useAppSelector(SelectBalance)
-    // const MyInputs = useSelector(SelectInputs)
 
     const [inputs, setInputs] = useState<IPaymentInputs[]>([
         {
@@ -62,11 +84,45 @@ const Pay = () => {
         }
     ])
 
-    let balance = parseFloat(`${totalBalance ?? 0}`).toFixed(2)
+    const walletBalance = useMemo(() => {
+        const coins = accounts.find(s => s.id === selectedAccountAndBudget.account?.id)?.coins
+        if (coins) {
+            return coins.reduce((a, c) => {
+                return a + priceCalculation(c);
+            }, 0)
+        }
+        return 0;
+    }, [selectedAccountAndBudget])
 
+    const tokenAllocation = useMemo(() => {
+        const coins = inputs.reduce<{
+            [name: string]: {
+                coin: AltCoins,
+                amount: number
+            }
+        }>((a, c) => {
+            if (c.amount && c.coin) {
+                a[c.coin.symbol] = {
+                    coin: c.coin,
+                    amount: (a[c.coin.symbol]?.amount || 0) + c.amount
+                }
+                if (c.second && c.second.amount && c.second.coin) {
+                    a[c.second.coin.symbol] = {
+                        coin: c.second.coin,
+                        amount: (a[c.second.coin.symbol]?.amount || 0) + c.second.amount
+                    }
+                }
+            }
+            return a;
+        }, {})
+        return Object.entries(coins).map(([key, value]) => {
+            return {
+                ...value,
+                fiatAmount: priceCalculation(null, { altcoin: value.coin, amount: value.amount })
+            }
+        })
+    }, [inputs])
 
-    const { register, handleSubmit } = useForm<IFormInput>();
-    // const [stream, setStream] = useState(false)
 
     const dispatch = useAppDispatch()
     const router = useRouter();
@@ -74,11 +130,7 @@ const Pay = () => {
 
     const symbol = useAppSelector(SelectFiatSymbol)
 
-    const [startDateState, setStartDate] = useState<string>()
-    const [startTime, setStartTime] = useState<string>()
 
-    const [endDateState, setEndDate] = useState<string>()
-    const [endTime, setEndTime] = useState<string>()
 
     const [selectedTags, setSelectedTags] = useState<ITag[]>([])
 
@@ -87,39 +139,30 @@ const Pay = () => {
 
     const fileInput = useRef<HTMLInputElement>(null);
 
-    // const timeInterval: DropDownItem[] = [{ name: "Days" }, { name: "Weeks" }, { name: "Months" }]
-    // const [selectedTimeInterval, setSelectedTimeInterval] = useState(timeInterval[0])
-
-    useEffect(() => {
-        dispatch(addPayInput({
-            index: generate(),
-            wallet: coins[0]
-        }))
-        return () => {
-            dispatch(resetPayInput())
-        }
-    }, [])
-
-
-
     useEffect(() => {
         if (csvImport.length > 0 && GetCoins) {
-            const list = csvImport.filter(w => w.address && w.amount && w.coin)
+            console.log(csvImport)
+            const list = csvImport.filter(w => w["Wallet address"] && w["Amount 1"] && w["Token 1 id"])
+            const newInputs: IPaymentInputs[] = []
             for (let index = 0; index < list.length; index++) {
-                const { name, address, amount, coin, amount2, coin2 } = list[index]
+                const { "Name (optional)": name, "Wallet address": address, "Amount 1": amount, "Token 1 id": coin, "Amount 2 (opt.)": amount2, "Token 2 id (opt.)": coin2 } = list[index]
 
-                let newInput: IPayInput = {
-                    index: generate(),
+                let newInput: IPaymentInputs = {
+                    id: nanoid(),
                     name,
                     address,
                     amount: parseFloat(amount || "0"),
-                    wallet: GetCoins[coin as keyof Coins],
+                    coin: coins[coin as keyof Coins],
+                    fiatMoney: null,
+                    second: amount2 && coin2 ? {
+                        amount: parseFloat(amount2 || "0"),
+                        coin: coins[coin2 as keyof Coins],
+                        fiatMoney: null,
+                    } : null
                 }
-
-                if (amount2) newInput.amount2 = parseFloat(amount2)
-                if (coin2) newInput.wallet2 = GetCoins[coin2 as keyof Coins]
-                dispatch(addPayInput(newInput))
+                newInputs.push(newInput)
             }
+            setInputs(s => [...s, ...newInputs])
             // setRefreshPage(generate())
             fileInput.current!.files = new DataTransfer().files;
         }
@@ -143,7 +186,7 @@ const Pay = () => {
         setSelectedTags(value.map((s: SelectType) => ({ color: s.color, id: s.value, name: s.label, transactions: s.transactions, isDefault: s.isDefault })));
     }
 
-    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    const onSubmit = async () => {
         try {
             const Wallet = selectedAccountAndBudget.account
             if (!Wallet) throw new Error("No wallet selected")
@@ -151,7 +194,7 @@ const Pay = () => {
             const subBudget = selectedAccountAndBudget.subbudget
 
             const pays: IPaymentInput[] = []
-            // for (const input of MyInputs) {
+            // for (const input of inputs) {
             //     const { wallet, amount, address, amount2, wallet2 } = input;
             //     if (wallet && amount && address) {
             //         pays.push({
@@ -204,136 +247,191 @@ const Pay = () => {
     return <>
         <div >
             <div className="relative bg-light dark:bg-dark">
-                <form onSubmit={handleSubmit(submit)} >
-                    <div className="w-[40vw] min-h-[75vh] h-auto mx-auto">
-                        <div className="pb-4 text-center w-full">
-                            <div className="text-2xl font-bold">Remox Pay</div>
+                <div className="w-[40vw] min-h-[75vh] h-auto mx-auto">
+                    <div className="pb-4 text-center w-full">
+                        <div className="text-2xl font-bold">Remox Pay</div>
+                    </div>
+                    <div className="w-full flex justify-center py-4">
+                        <div className="flex justify-between w-[50%] xl:w-[23%] ">
+                            <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
                         </div>
-                        <div className="w-full flex justify-center py-4">
-                            <div className="flex justify-between w-[30%] xl:w-[23%] ">
-                                <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
+                    </div>
+                    <div className="w-full flex flex-col p-5 bg-white dark:bg-darkSecond shadow-custom">
+                        <div className={`grid grid-cols-[30%,30%,40%]`}>
+                            <div className="flex flex-col gap-2 mb-4 border-r">
+                                <div className="font-medium text-greylish dark:text-white ">Total Treasury</div>
+                                <div className="text-3xl font-bold">{`${symbol}${SetComma(totalBalance)}`}</div>
                             </div>
-                        </div>
-                        <div className="w-full flex flex-col px-3 py-2">
-                            <div className={`grid grid-cols-[30%,30%,40%]`}>
-                                <div className="flex flex-col gap-2 mb-4 border-r">
-                                    <div className="font-semibold text-lg text-greylish dark:text-white ">Total Treasury</div>
-                                    <div className="text-2xl font-bold">{(balance) || (balance !== undefined && parseFloat(balance) === 0) ? `${symbol}${balance} USD` : <Loader />}</div>
-                                </div>
-                                <div className="flex flex-col gap-2 mb-4 border-r">
-                                    <div className="font-semibold pl-5 text-lg text-greylish dark:text-white ">Wallet Balance</div>
-                                    <div className="text-xl pl-5  font-bold">{(balance) || (balance !== undefined && parseFloat(balance) === 0) ? `${symbol}${balance} USD` : <Loader />}</div>
+                            <div className="flex flex-col gap-2 mb-4 border-r pl-5">
+                                <div className="font-medium text-greylish dark:text-white ">Wallet Balance</div>
+                                <div className="text-xl font-bold">{`${symbol}${SetComma(walletBalance)}`}</div>
 
-                                </div>
-                                <div className="flex flex-col gap-2 mb-4">
-                                    <div className="font-semibold pl-5 text-lg text-greylish dark:text-white ">Token Allocation</div>
-                                    <div className="text-2xl font-bold">{(balance) || (balance !== undefined && parseFloat(balance) === 0) ? `${symbol}${balance} USD` : <Loader />}</div>
-                                </div>
                             </div>
-                        </div>
-                        <div className="sm:flex flex-col gap-3 py-5 xl:py-10">
-                            <div className="sm:flex flex-col gap-y-10">
-                                <div className="flex flex-col">
-                                    <div className="text-xl font-semibold tracking-wide mb-5">General</div>
-                                    <div>
-                                        {inputs.map((e, i) => <Input key={e.id} input={e} length={inputs.length}
-                                            onDelete={() => {
-                                                if (inputs.length > 1) {
-                                                    setInputs(inputs.filter((r, index) => r.id !== e.id))
-                                                }
-                                            }}
-                                            onDeleteSecond={() => {
-                                                setInputs(inputs.map((input, index) => {
-                                                    if (e.id === input.id) {
-                                                        return { ...input, second: null }
-                                                    }
-                                                    return input;
-                                                }))
-                                            }}
-                                            onChange={(amount, address, coin, fiat, name, amountSecond, coinSecond, fiatSecond) => {
-                                                setInputs(inputs.map((input, index) => {
-                                                    if (input.id === e.id) {
-                                                        return {
-                                                            ...input, amount, address, coin, fiatMoney: fiat, name: name ?? undefined, second: amountSecond ?
-                                                                {
-                                                                    amount: amountSecond,
-                                                                    coin: coinSecond,
-                                                                    fiatMoney: fiatSecond
-                                                                } : null
-                                                        }
-                                                    }
-                                                    return input;
-                                                }))
-                                            }}
-                                            addressBook={[]}
-                                        />
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="py-5 sm:py-0 w-full gap-16">
-                                    <div className="w-[50%] flex gap-4">
-                                        <Button version="second" className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
-                                            setInputs([...inputs, {
-                                                id: nanoid(),
-                                                amount: null,
-                                                address: null,
-                                                coin: Object.values(coins)[0],
-                                                fiatMoney: null,
-                                                name: undefined,
-                                                second: null
-                                            }])
-                                        }}>
-                                            Add receiver
-                                        </Button>
-                                        <Button version="second" onClick={() => {
-                                            fileInput.current?.click()
-                                        }} className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
-                                            Import CSV file
-                                        </Button>
-                                    </div>
-                                </div>
-                                {index === 1 &&
-                                    <div className="w-full grid grid-cols-2 gap-8">
-                                        <div className="w-full flex flex-col">
-                                            <span className="text-left text-sm pb-1 ml-1 font-semibold">Start time</span>
-                                            <div className="w-full grid grid-cols-[60%,35%] gap-5">
-                                                <input type="date" onChange={(e) => {
-                                                    setStartDate(e.target.value)
-                                                }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg " />
-                                                <input type="time" onChange={(e) => {
-                                                    setStartTime(e.target.value)
-                                                }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg" />
-                                            </div>
+                            <div className="flex flex-col gap-2 mb-4 pl-5">
+                                <div className="font-medium  text-greylish dark:text-white ">Token Allocation</div>
+                                <div className="flex flex-col space-y-4">{tokenAllocation.map((s, i) => {
+                                    return <div key={i} className="grid grid-cols-[8.5%,1fr] gap-x-2">
+                                        <div className="self-center">
+                                            <img className="rounded-full w-full aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
-
-                                        <div className="w-full flex flex-col">
-                                            <span className="text-left text-sm pb-1 ml-1 font-semibold">Completion time</span>
-                                            <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
-                                                <input type="date" onChange={(e) => {
-                                                    setEndDate(e.target.value)
-                                                }} className=" w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-darkSecond" />
-                                                <input type="time" onChange={(e) => {
-                                                    setEndTime(e.target.value)
-                                                }} className="w-full border dark:border-darkSecond p-2 rounded-lg mr-5 bg-gray-300 dark:bg-darkSecond" />
-                                            </div>
+                                        <div className="flex flex-col">
+                                            <div>{s.amount}</div>
+                                            <div className="text-xs text-gray-400">{symbol}{s.fiatAmount.toLocaleString()}</div>
                                         </div>
-                                    </div>}
-                                <div className="flex flex-col space-y-3">
-                                    <span className="text-left">Note <span className="text-greylish">(Optional)</span></span>
-                                    <div className="grid grid-cols-1">
-                                        <textarea placeholder="Paid 50 CELO to Ermak....." {...register("description")} className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-center pt-5">
-                                <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
-                                    <Button version="second" onClick={() => router.back()}>Close</Button>
-                                    <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading}>Send</Button>
+                                })}
                                 </div>
                             </div>
                         </div>
                     </div>
-                </form>
+                    <div className="sm:flex flex-col gap-3 py-5 xl:py-10">
+                        <div className="sm:flex flex-col gap-y-10">
+                            <div className="flex flex-col">
+                                <div className="text-xl font-semibold tracking-wide mb-5">General</div>
+                                <div>
+                                    {inputs.map((e, i) => <Input key={e.id} input={e} allowSecond={index === 0} length={inputs.length}
+                                        onDelete={() => {
+                                            if (inputs.length > 1) {
+                                                setInputs(inputs.filter((r, index) => r.id !== e.id))
+                                            }
+                                        }}
+                                        onDeleteSecond={() => {
+                                            setInputs(inputs.map((input, index) => {
+                                                if (e.id === input.id) {
+                                                    return { ...input, second: null }
+                                                }
+                                                return input;
+                                            }))
+                                        }}
+                                        onChange={(amount, address, coin, fiat, name, amountSecond, coinSecond, fiatSecond) => {
+                                            console.log(amount, coin)
+                                            setInputs(inputs.map((input, index) => {
+                                                if (input.id === e.id) {
+                                                    return {
+                                                        ...input, amount, address, coin, fiatMoney: fiat, name: name ?? undefined, second: amountSecond ?
+                                                            {
+                                                                amount: amountSecond,
+                                                                coin: coinSecond,
+                                                                fiatMoney: fiatSecond
+                                                            } : null
+                                                    }
+                                                }
+                                                return input;
+                                            }))
+                                        }}
+                                        addressBook={[]}
+                                    />
+                                    )}
+                                </div>
+                            </div>
+                            {index === 0 && <div className="py-5 sm:py-0 w-full gap-16">
+                                <div className="w-[50%] flex gap-4 items-center">
+                                    <Button version="second" className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
+                                        setInputs([...inputs, {
+                                            id: nanoid(),
+                                            amount: null,
+                                            address: null,
+                                            coin: Object.values(coins)[0],
+                                            fiatMoney: null,
+                                            name: undefined,
+                                            second: null
+                                        }])
+                                    }}>
+                                        Add receiver
+                                    </Button>
+                                    <Button version="second" onClick={() => {
+                                        fileInput.current?.click()
+                                    }} className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
+                                        Import CSV file
+                                    </Button>
+                                    <input ref={fileInput} type={'file'} className="hidden" onChange={async (e) => {
+                                        try {
+                                            if (e.target.files && e.target.files[0]) {
+                                                const res = await CSV.Import(e.target.files[0])
+                                                setCsvImport(res)
+                                            }
+                                        } catch (error) {
+                                            ToastRun(<>{(error as any)?.message}</>, "error")
+                                            fileInput.current!.files = new DataTransfer().files;
+                                        }
+                                    }} />
+                                    <Tooltip title="Download an example file">
+                                        <div className="bg-greylish rounded-full p-1 cursor-pointer" onClick={() => {
+                                            window.open("/Example/Remox_Example.csv")
+                                        }}>
+                                            <AiOutlineDownload />
+                                        </div>
+                                    </Tooltip>
+                                </div>
+                            </div>}
+                            {index === 1 &&
+                                <div className="w-full grid grid-cols-2 gap-8">
+                                    <div className="w-full flex flex-col">
+                                        <span className="text-left text-sm pb-1 ml-1 font-semibold">Start time</span>
+                                        <div className="w-full grid grid-cols-[60%,35%] gap-5">
+                                            <input type="date" onChange={(e) => {
+                                                setStartDate(e.target.value)
+                                            }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg " />
+                                            <input type="time" onChange={(e) => {
+                                                setStartTime(e.target.value)
+                                            }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg" />
+                                        </div>
+                                    </div>
+                                    <div className="w-full flex flex-col">
+                                        <span className="text-left text-sm pb-1 ml-1 font-semibold">Completion time</span>
+                                        <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
+                                            <input type="date" onChange={(e) => {
+                                                setEndDate(e.target.value)
+                                            }} className=" w-full border dark:border-darkSecond p-2 rounded-lg mr-5 dark:bg-darkSecond" />
+                                            <input type="time" onChange={(e) => {
+                                                setEndTime(e.target.value)
+                                            }} className="w-full border dark:border-darkSecond p-2 rounded-lg mr-5 dark:bg-darkSecond" />
+                                        </div>
+                                    </div>
+                                </div>}
+                            <div>
+                                <div className="text-xl font-semibold">Details</div>
+                                <div className="grid grid-cols-2 gap-x-10">
+                                    <div>
+                                        {labels && labels.length > 0 &&
+                                            <Select
+                                                closeMenuOnSelect={true}
+                                                isMulti
+                                                isClearable={false}
+                                                options={labels.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
+                                                styles={{
+                                                    control: (styles: any) => {
+                                                        return {
+                                                            ...colourStyles(dark).control(styles),
+                                                            backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+                                                        }
+                                                    },
+                                                    option: colourStyles(dark).option,
+                                                }}
+                                                className="h-full"
+                                                onChange={onTagChange}
+                                            />}
+                                    </div>
+                                    <div>
+                                        <TextField className="w-full bg-white dark:bg-darkSecond" label="Attach Link (Optional)" variant="outlined" onChange={(e) => setAttachLink(e.target.value)} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col space-y-3">
+                                <span className="text-left">Note <span className="text-greylish">(Optional)</span></span>
+                                <div className="grid grid-cols-1">
+                                    <textarea placeholder="Paid 50 CELO to Ermak....." onChange={(e) => setNote(e.target.value)} className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-center pt-5">
+                            <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
+                                <Button version="second" onClick={() => router.back()}>Close</Button>
+                                <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading}>Send</Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </>

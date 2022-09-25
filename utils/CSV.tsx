@@ -1,12 +1,12 @@
 import { csv } from 'd3-fetch'
 
 export interface csvFormat {
-    name: string,
-    address: string,
-    amount: string
-    coin: string
-    amount2: string
-    coin2: string
+    "Name (optional)": string,
+    "Wallet address": string,
+    "Token 1 id": string
+    "Amount 1": string
+    "Token 2 id (opt.)": string
+    "Amount 2 (opt.)": string
 }
 
 class CSV {
@@ -17,7 +17,7 @@ class CSV {
 
             const res = await csv(url)
             if (res) {
-                if (res.columns.join(';').toLowerCase().includes("name;address;amount;coin;amount2;coin2")) {
+                if (res.columns.join(';').includes("Name (optional);Wallet address;Token 1 id;Amount 1;Token 2 id (opt.);Amount 2 (opt.)")) {
                     const result: csvFormat[] = []
                     for (let index = 0; index < res.length; index++) {
                         const data = res[index] as unknown as csvFormat;
