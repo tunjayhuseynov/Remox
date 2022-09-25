@@ -3,8 +3,6 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BiSearch } from 'react-icons/bi';
-import { SelectBalance, SelectCurrencies } from 'redux/slices/account/selector';
-import { useAppSelector } from 'redux/hooks';
 import { IPrice } from 'utils/api';
 import { FiatMoneyList } from 'firebaseConfig';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -78,9 +76,8 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins }: IProps) => {
                 id="display-amount"
                 fullWidth
                 type="number"
-                value={value?.toString() ?? ""}
                 className='dark:bg-darkSecond bg-white '
-                inputProps={{ step: 0.01, value: value, inputMode: "numeric", }}
+                inputProps={{ step: 0.01, value: value?.toString() ?? "", inputMode: "numeric", }}
                 onChange={(e) => {
                     const val = +e.target.value;
                     if (!val) {
