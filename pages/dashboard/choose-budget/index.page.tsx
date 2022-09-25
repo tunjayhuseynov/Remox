@@ -104,10 +104,10 @@ function ChooseBudget() {
                         />
                     </div>}
                     <div className="grid grid-cols-2 w-full pt-4 gap-4 ">
-                        <Button version="second" className={'!py-2 px-9 w-full rounded-xl'} onClick={() => { router.back() }}>Close</Button>
+                        <Button version="second" className={'flex items-center justify-center !py-2 w-full rounded-xl'} onClick={() => { router.back() }}>Close</Button>
                         {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}
                         <div className="w-full">
-                            <Button type="submit" className={'!py-2 px-10 w-full rounded-xl'} >Next</Button>
+                            <Button type="submit" className={'flex items-center justify-center !py-2 w-full rounded-xl'} >Next</Button>
                         </div>
                     </div>
                 </form>

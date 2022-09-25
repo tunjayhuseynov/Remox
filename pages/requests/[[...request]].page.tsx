@@ -27,10 +27,10 @@ import Confirm from "./confirm";
 import Stack from "@mui/material/Stack";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { nanoid } from "@reduxjs/toolkit";
+import PriceInputField from "components/general/PriceInputField";
 
 export interface IFormInput {
-  name: string;
-  surname: string;
+  fullname: string;
   address: string;
   amount: number;
   amount2?: number;
@@ -123,9 +123,8 @@ export default function RequestId() {
 
       const result: IRequest = {
         id: nanoid(),
-        name: data.name,
-        surname: data.surname,
         address: data.address,
+        fullname: data.fullname,
         amount: data.amount.toString(),
         currency: selectedCoin?.symbol ?? "",
         requestType: data.requestType,
@@ -202,35 +201,10 @@ export default function RequestId() {
                   </div>
                   <div className="grid grid-cols-2 gap-x-10">
                     <TextField
-                      label="First Name"
-                      {...register("name", { required: true })}
+                      label="Full Name"
+                      {...register("fullname", { required: true })}
                       className="bg-white dark:bg-darkSecond"
                       variant="outlined"
-                    />
-
-                    <TextField
-                      label="Last Name"
-                      {...register("surname", { required: true })}
-                      className="bg-white dark:bg-darkSecond"
-                      variant="outlined"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-10">
-                    <Dropdown
-                      label="Amount Type"
-                      className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                      parentClass={" w-full rounded-md h-[3.15rem] "}
-                      selectClass={"!text-sm"}
-                      sx={{
-                        ".MuiSelect-select": {
-                          paddingTop: "6px",
-                          paddingBottom: "6px",
-                          maxHeight: "52px",
-                        },
-                      }}
-                      list={paymentBase}
-                      selected={selectedPaymentBase}
-                      setSelect={setSelectedPaymentBase}
                     />
                     <TextField
                       label="Wallet Address"
@@ -239,7 +213,10 @@ export default function RequestId() {
                       variant="outlined"
                     />
                   </div>
-                  <div className="flex w-full gap-x-10">
+                  <div>
+                    <PriceInputField/>
+                  </div>
+                  {/* <div className="flex w-full gap-x-10">
                     <div className="w-full h-full">
                       <Dropdown
                         label="Token"
@@ -271,12 +248,12 @@ export default function RequestId() {
                         variant="outlined"
                       />
                     </div>
-                  </div>
+                  </div> */}
                   {secondActive ? (
                     <div className="flex gap-x-10">
                       <div className="w-full h-full">
                         <Dropdown
-                          label="Tosken"
+                          label="Token"
                           className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                           selected={selectedCoin2}
                           sx={{
