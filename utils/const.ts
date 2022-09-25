@@ -14,7 +14,7 @@ export type SelectType = { value: string, label: string, color: string, transact
 
 // Remox Pay
 export const colourStyles = (dark: boolean) => ({
-    control: (styles: any) => ({ ...styles, boxShadow: 'none', border: "1px solid #1C1C1C", "&:hover": { border: "1px solid #1C1C1C", }, backgroundColor: dark ? "text-dark" : 'white' }),
+    control: (styles: any) => ({ ...styles, boxShadow: 'none', border: "1px solid #1C1C1C", "&:hover": { border: "1px solid #1C1C1C", }, backgroundColor: dark ? "text-dark" : 'white', height: "100%" }),
     option: (styles: any, { data, isDisabled, isFocused, isSelected }: any) => {
         const color = chroma(data.color);
         return {

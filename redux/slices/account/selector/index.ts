@@ -3,6 +3,7 @@ import { IMemberORM } from "firebaseConfig";
 import { RootState } from "redux/store";
 import { GetFiatPrice } from "utils/const";
 import { IPrice } from 'utils/api'
+import { AltCoins } from "types";
 export * from "./balance";
 export * from './darkmode';
 export * from './reccuring';
@@ -21,23 +22,43 @@ export const SelectPriceCalculationFn = createDraftSafeSelector(
     let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
     let fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
 
-    return (coin: IPrice[0]) => {
-      switch (pc) {
-        case "current":
-          return coin.amount * GetFiatPrice(coin, fiat);
-        case "5":
-          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-5).reduce((a, b) => a + b.price, 0) / 5) ?? GetFiatPrice(coin, fiat);
-        case "10":
-          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10) ?? GetFiatPrice(coin, fiat);
-        case "15":
-          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-15).reduce((a, b) => a + b.price, 0) / 15) ?? GetFiatPrice(coin, fiat);
-        case "20":
-          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-20).reduce((a, b) => a + b.price, 0) / 20) ?? GetFiatPrice(coin, fiat);
-        case "30":
-          return coin.amount * (hp[coin.symbol]?.[fiat].slice(-30).reduce((a, b) => a + b.price, 0) / 30) ?? GetFiatPrice(coin, fiat);
-        default:
-          return coin.amount * GetFiatPrice(coin, fiat);
+    return (coin: IPrice[0] | null, { altcoin, amount }: { altcoin?: AltCoins, amount?: number } = {}) => {
+      if (altcoin && amount) {
+        switch (pc) {
+          case "current":
+            return amount * GetFiatPrice(altcoin, fiat);
+          case "5":
+            return amount * (hp[altcoin.symbol]?.[fiat].slice(-5).reduce((a, b) => a + b.price, 0) / 5) ?? GetFiatPrice(altcoin, fiat);
+          case "10":
+            return amount * (hp[altcoin.symbol]?.[fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10) ?? GetFiatPrice(altcoin, fiat);
+          case "15":
+            return amount * (hp[altcoin.symbol]?.[fiat].slice(-15).reduce((a, b) => a + b.price, 0) / 15) ?? GetFiatPrice(altcoin, fiat);
+          case "20":
+            return amount * (hp[altcoin.symbol]?.[fiat].slice(-20).reduce((a, b) => a + b.price, 0) / 20) ?? GetFiatPrice(altcoin, fiat);
+          case "30":
+            return amount * (hp[altcoin.symbol]?.[fiat].slice(-30).reduce((a, b) => a + b.price, 0) / 30) ?? GetFiatPrice(altcoin, fiat);
+          default:
+            return amount * GetFiatPrice(altcoin, fiat);
+        }
+      } else if (coin) {
+        switch (pc) {
+          case "current":
+            return coin.amount * GetFiatPrice(coin, fiat);
+          case "5":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-5).reduce((a, b) => a + b.price, 0) / 5) ?? GetFiatPrice(coin, fiat);
+          case "10":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10) ?? GetFiatPrice(coin, fiat);
+          case "15":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-15).reduce((a, b) => a + b.price, 0) / 15) ?? GetFiatPrice(coin, fiat);
+          case "20":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-20).reduce((a, b) => a + b.price, 0) / 20) ?? GetFiatPrice(coin, fiat);
+          case "30":
+            return coin.amount * (hp[coin.symbol]?.[fiat].slice(-30).reduce((a, b) => a + b.price, 0) / 30) ?? GetFiatPrice(coin, fiat);
+          default:
+            return coin.amount * GetFiatPrice(coin, fiat);
+        }
       }
+      return 0;
     }
   }
 )

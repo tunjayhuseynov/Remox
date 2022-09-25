@@ -24,9 +24,10 @@ interface IProps {
     onDeleteSecond: () => void,
     input: IPaymentInputs,
     length: number,
+    allowSecond: boolean,
 }
 
-const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length }: IProps) => {
+const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length, allowSecond }: IProps) => {
     const coins = useAppSelector(SelectBalance)
 
     const [amount, setAmount] = useState<number | null>(input.amount)
@@ -40,7 +41,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
     const [coinSecond, setCoinSecond] = useState<AltCoins>(input.coin)
     const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>(input.fiatMoney)
 
-    const [isSecondOptionActive, setSecondOptionActive] = useState<boolean>(false)
+    const [isSecondOptionActive, setSecondOptionActive] = useState<boolean>(!!input.second)
 
     useEffect(() => {
         onChange(amount, address, coin, fiatMoney, name, amountSecond, coinSecond, fiatMoneySecond)
@@ -55,6 +56,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                     fullWidth
                     className='dark:bg-darkSecond bg-white'
                     options={addressBook.map(s => s.name)}
+                    value={name ?? ""}
                     onInputChange={(e, v) => {
                         setName(v)
                     }}
@@ -73,7 +75,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                 />
             </div>
             <div className="col-span-2 relative">
-                <PriceInputField isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
+                <PriceInputField isMaxActive coins={coins} defaultValue={input.amount} defaultCoin={input.coin} onChange={(val, coin, fiatMoney) => {
                     setAmount(val)
                     setCoin('amount' in coin ? coin.coin : coin)
                     setFiatMoney(fiatMoney ?? null)
@@ -82,7 +84,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                     <BiTrash />
                 </div>}
             </div>
-            {!isSecondOptionActive ?
+            {allowSecond && (!isSecondOptionActive ?
                 <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setSecondOptionActive(true)}>
                     <div className="self-center">
                         <AiOutlinePlusCircle color={"#FF7348"} />
@@ -91,10 +93,11 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                 </div>
                 :
                 <div className="col-span-2 relative">
-                    <PriceInputField isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
+                    <PriceInputField isMaxActive coins={coins} defaultValue={input.second?.amount ?? null} defaultCoin={input.second?.coin} onChange={(val, coin, fiatMoney) => {
                         setAmountSecond(val)
                         setCoinSecond('amount' in coin ? coin.coin : coin)
                         setFiatMoneySecond(fiatMoney ?? null)
+                        console.log(val)
                     }} />
                     <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
                         onDeleteSecond()
@@ -102,7 +105,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                     }}>
                         <IoMdRemoveCircle color="red" />
                     </div>
-                </div>
+                </div>)
             }
         </div>
     </>

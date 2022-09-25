@@ -40,8 +40,6 @@ export interface IFormInput {
   requestType: string;
 }
 
-interface FiatList { logo: string, name: FiatMoneyList }
-
 
 export default function RequestId() {
   const router = useRouter();
@@ -54,7 +52,7 @@ export default function RequestId() {
 
   const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
   const [selectedCoin, setSelectedCoin] = useState<AltCoins>();
-  const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(GetCoins[0]);
+  const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>();
   const [amount1, setAmount1] = useState<number | null>()
   const [amount2, setAmount2] = useState<number>()
   const [fiatMoney1, setFiat1] = useState<FiatMoneyList | null>()
@@ -76,8 +74,6 @@ export default function RequestId() {
       )?.currencyCollectionName;
       const collection: AltCoins[] = await FirestoreReadAll(collectionName ?? "");
       setGetCoins(collection);
-      setSelectedCoin(collection[0]);
-      setSelectedCoin2(collection[0]);
       setLoader(false);
     }
   }, [coin]);
@@ -104,6 +100,15 @@ export default function RequestId() {
       console.log(error);
     }
   };
+
+  const onChange1 = (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatMoneyList | undefined ) => {
+    console.log(val)
+    console.log(coin)
+    console.log(fiatMoney)
+    setAmount1(val);
+    setSelectedCoin(coin);
+    setFiat1(fiatMoney)
+  }
 
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
@@ -139,7 +144,7 @@ export default function RequestId() {
       console.log(selectedCoin)
 
       // setRequest(result);
-      setFileName(Invoice?.name ?? "");
+      // setFileName(Invoice?.name ?? "");
       // setModal(true);
     } catch (error) {
       console.error(error);
@@ -148,11 +153,7 @@ export default function RequestId() {
 
   const [isLoading, SetModalVisible] = useLoading(setModalVisible);
 
-  const onChange1 = (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatList["name"] | undefined ) => {
-    setAmount1(val);
-    setSelectedCoin(coin);
-    setFiat1(fiatMoney)
-  }
+
 
 
   const submit = async () => {
@@ -223,11 +224,7 @@ export default function RequestId() {
                     <PriceInputField 
                       isMaxActive
                       coins={GetCoins.reduce((a, v) => ({...a, [v.name] : v}), {})} 
-                      onChange={(val, coin, fiatMoney) => {
-                        setAmount1(val)
-                        setSelectedCoin('amount' in coin ? coin.coin : coin)
-                        setFiat1(fiatMoney ?? null)
-                      }}  
+                      onChange={onChange1}
                     />
                   </div>
                   {secondActive ? (
