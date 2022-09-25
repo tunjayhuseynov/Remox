@@ -77,6 +77,8 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
             <div className="col-span-2 relative">
                 <PriceInputField isMaxActive coins={coins} defaultValue={input.amount} defaultCoin={input.coin} onChange={(val, coin, fiatMoney) => {
                     setAmount(val)
+                    console.log(fiatMoney)
+                    console.log(coin)
                     setCoin('amount' in coin ? coin.coin : coin)
                     setFiatMoney(fiatMoney ?? null)
                 }} />

@@ -33,8 +33,6 @@ import { FiatMoneyList } from 'firebaseConfig';
 export interface IFormInput {
   fullname: string;
   address: string;
-  amount: number;
-  amount2?: number;
   serviceName: string;
   link?: string;
   requestType: string;
@@ -44,39 +42,40 @@ export interface IFormInput {
 export default function RequestId() {
   const router = useRouter();
 
-  const { id, coin, signer } = router.query as {
+  const { id, coin: blockchain, signer } = router.query as {
     id: string;
     coin: string;
     signer: string;
   };
 
   const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
-  const [selectedCoin, setSelectedCoin] = useState<AltCoins>();
-  const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>();
-  const [amount1, setAmount1] = useState<number | null>()
-  const [amount2, setAmount2] = useState<number>()
-  const [fiatMoney1, setFiat1] = useState<FiatMoneyList | null>()
+
+  const [amount, setAmount] = useState<number | null>()
+  const [coin, setCoin] = useState<AltCoins>();
+  const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>()
+  
+  const [amountSecond, setAmountSecond] = useState<number | null>()
+  const [coinSecond, setCoinSecond] = useState<AltCoins>()
+  const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>()
 
   const [loader, setLoader] = useState<boolean>(true);
 
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
 
-
-
   const dark = useSelector(SelectDarkMode);
   const [secondActive, setSecondActive] = useState(false);
 
   useAsyncEffect(async () => {
-    if (typeof window !== "undefined" && coin) {
+    if (typeof window !== "undefined" && blockchain) {
       const collectionName = Blockchains.find(
-        (s) => s.name === coin
+        (s) => s.name === blockchain
       )?.currencyCollectionName;
       const collection: AltCoins[] = await FirestoreReadAll(collectionName ?? "");
       setGetCoins(collection);
       setLoader(false);
     }
-  }, [coin]);
+  }, [blockchain]);
 
   const [file, setFile] = useState<File>();
   const [fileName, setFileName] = useState<string>("");
@@ -105,9 +104,9 @@ export default function RequestId() {
     console.log(val)
     console.log(coin)
     console.log(fiatMoney)
-    setAmount1(val);
-    setSelectedCoin(coin);
-    setFiat1(fiatMoney)
+    setAmount(val);
+    setCoin(coin);
+    setFiatMoney(fiatMoney)
   }
 
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
@@ -139,9 +138,9 @@ export default function RequestId() {
       //   uploadedLink: Invoice ? url : null,
       // };
       
-      console.log(amount1)
-      console.log(fiatMoney1)
-      console.log(selectedCoin)
+      console.log(amount)
+      console.log(fiatMoney)
+      console.log(coin)
 
       // setRequest(result);
       // setFileName(Invoice?.name ?? "");
@@ -152,9 +151,6 @@ export default function RequestId() {
   };
 
   const [isLoading, SetModalVisible] = useLoading(setModalVisible);
-
-
-
 
   const submit = async () => {
     try {
@@ -224,12 +220,16 @@ export default function RequestId() {
                     <PriceInputField 
                       isMaxActive
                       coins={GetCoins.reduce((a, v) => ({...a, [v.name] : v}), {})} 
-                      onChange={onChange1}
+                      onChange={(val, coin, fiatMoney) => {
+                        setAmount(val)
+                        setCoin('amount' in coin ? coin.coin : coin)
+                        setFiatMoney(fiatMoney ?? null)
+                      }}
                     />
                   </div>
                   {secondActive ? (
                     <div className="flex gap-x-10">
-                      <div className="w-full h-full">
+                      {/* <div className="w-full h-full">
                         <Dropdown
                           label="Token"
                           className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
@@ -260,7 +260,7 @@ export default function RequestId() {
                           required
                           variant="outlined"
                         />
-                      </div>
+                      </div> */}
                     </div>
                   ) : (
                     <div
