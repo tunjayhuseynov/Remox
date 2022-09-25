@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "redux/hooks";
 import { SelectBalance, SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Button from "components/button";
-import { Coins } from "types";
+import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { addPayInput, changeBasedValue, IPayInput, resetPayInput, SelectInputs } from "redux/slices/payinput";
@@ -34,11 +34,11 @@ export interface IPaymentInputs {
     name?: string;
     address: string | null;
     amount: number | null;
-    coin: IPrice[0];
+    coin: AltCoins;
     fiatMoney: FiatMoneyList | null,
     second: {
         amount: number | null;
-        coin: IPrice[0];
+        coin: AltCoins;
         fiatMoney: FiatMoneyList | null,
     } | null
 }
@@ -56,7 +56,7 @@ const Pay = () => {
             id: nanoid(),
             address: '',
             amount: null,
-            coin: Object.values(coins)[0],
+            coin: Object.values(coins)[0].coin,
             fiatMoney: null,
             second: null
         }
@@ -232,8 +232,9 @@ const Pay = () => {
                             </div>
                         </div>
                         <div className="sm:flex flex-col gap-3 py-5 xl:py-10">
-                            <div className="sm:flex flex-col  gap-y-10  ">
+                            <div className="sm:flex flex-col gap-y-10">
                                 <div className="flex flex-col">
+                                    <div className="text-xl font-semibold tracking-wide mb-5">General</div>
                                     <div>
                                         {inputs.map((e, i) => <Input key={e.id} input={e} length={inputs.length}
                                             onDelete={() => {
@@ -271,7 +272,7 @@ const Pay = () => {
                                 </div>
                                 <div className="py-5 sm:py-0 w-full gap-16">
                                     <div className="w-[50%] flex gap-4">
-                                        <Button version="second" className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
+                                        <Button version="second" className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
                                             setInputs([...inputs, {
                                                 id: nanoid(),
                                                 amount: null,
@@ -282,11 +283,11 @@ const Pay = () => {
                                                 second: null
                                             }])
                                         }}>
-                                            + Add More
+                                            Add receiver
                                         </Button>
                                         <Button version="second" onClick={() => {
                                             fileInput.current?.click()
-                                        }} className="min-w-[12.5rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
+                                        }} className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
                                             Import CSV file
                                         </Button>
                                     </div>
@@ -318,7 +319,7 @@ const Pay = () => {
                                         </div>
                                     </div>}
                                 <div className="flex flex-col space-y-3">
-                                    <span className="text-left">Description <span className="text-greylish">(Optional)</span></span>
+                                    <span className="text-left">Note <span className="text-greylish">(Optional)</span></span>
                                     <div className="grid grid-cols-1">
                                         <textarea placeholder="Paid 50 CELO to Ermak....." {...register("description")} className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
                                     </div>

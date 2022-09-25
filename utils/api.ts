@@ -7,17 +7,8 @@ export const BASE_URL = process.env.NODE_ENV === "production" ? "https://remox.v
 
 export interface IPrice {
     [name: string]: {
-        coins: AltCoins;
-        // amountUSD: number;
-        // amountAUD: number;
-        // amountCAD: number;
-        // amountEUR: number;
-        // amountGBP: number;
-        // amountJPY: number;
-        // amountTRY: number;
-        
+        coin: AltCoins;    
         amount: number;
-        // tokenPrice: number;
         
         name: string;
         coinUrl: string;
@@ -35,13 +26,6 @@ export interface IPrice {
         priceGBP: number;
         priceJPY: number;
         priceTRY: number;
-        // percentUSD: number;
-        // percentAUD: number;
-        // percentCAD: number;
-        // percentEUR: number;
-        // percentGBP: number;
-        // percentJPY: number;
-        // percentTRY: number;
         
         symbol: string;
     };

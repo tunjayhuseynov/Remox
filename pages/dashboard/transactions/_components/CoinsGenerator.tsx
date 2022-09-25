@@ -11,7 +11,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const symbol = useAppSelector(SelectFiatSymbol)
 
-    const fiatPrice = calculatePrice({ ...transfer.coin, amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coins: transfer.coin })
+    const fiatPrice = calculatePrice({ ...transfer.coin, amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coin: transfer.coin })
 
     const date = new Date(timestamp)
     const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`

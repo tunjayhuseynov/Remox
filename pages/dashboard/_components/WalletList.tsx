@@ -137,21 +137,21 @@ function WalletList({ item }: { item: IAccountORM }) {
                     <div className="w-[75%] rounded-xl">
                         <div className="w-full pt-2 h-full" ref={customRef}>
                             {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
-                                return <div className="border-b dark:border-greylish w-full" key={item.coins.address} >
+                                return <div className="border-b dark:border-greylish w-full" key={item.coin.address} >
                                     <CoinItem
-                                        key={item.coins.address + item.coins.name}
+                                        key={item.coin.address + item.coin.name}
                                         setSelectcoin={setSelectcoin}
                                         onClick={() => {
                                             if (item.amount) {
-                                                setSelectcoin(item.coins.name)
+                                                setSelectcoin(item.coin.name)
                                             }
                                         }}
                                         selectcoin={selectcoin}
-                                        title={item.coins.symbol}
+                                        title={item.coin.symbol}
                                         coin={item.amount}
                                         usd={calculatePrice(item)}
                                         percent={(item.percent || 0).toFixed(1)}
-                                        img={item.coins.logoURI}
+                                        img={item.coin.logoURI}
                                     />
                                 </div>
                             })}

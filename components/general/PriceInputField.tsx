@@ -9,23 +9,25 @@ import { IPrice } from 'utils/api';
 import { FiatMoneyList } from 'firebaseConfig';
 import FormHelperText from '@mui/material/FormHelperText';
 import { useEffect } from 'react';
+import { AltCoins } from 'types';
 
 interface IProps {
+    coins: IPrice | { [coin: string]: AltCoins }
     isMaxActive?: boolean;
-    onChange: (val: number | null, coin: IPrice[0], fiatMoney: FiatList["name"] | undefined) => void
+    onChange: (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatList["name"] | undefined) => void
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
-const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
-    const coins = useAppSelector(SelectBalance)
+const PriceInputField = ({ isMaxActive: max, onChange, coins }: IProps) => {
+    // const coins = useAppSelector(SelectBalance)
     const [dropdown, setDropdown] = useState<boolean>(false);
 
-    const [selectedCoin, setSelectedCoin] = useState<IPrice[0]>(Object.values(coins)[0]);
+    const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(Object.values(coins)[0]);
     const [value, setValue] = useState<number | null>(null);
     const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>();
 
     useEffect(() => {
-        if (selectedCoin && value) {
+        if (selectedCoin && value && max && 'amount' in selectedCoin) {
             if (selectedFiat) {
                 if (value > selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount) {
                     setValue(selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount)
@@ -87,14 +89,14 @@ const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
                         return
                     };
                     if (val && !isNaN(val)) {
-                        if (max && val > (selectedFiat ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER) : (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER))) return;
+                        if (max && 'amount' in selectedCoin && val > (selectedFiat ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER) : (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER))) return;
                         onChange(val, selectedCoin, selectedFiat?.name)
                         setValue(val)
                     }
                 }}
                 endAdornment={<>
                     <div className='w-full flex space-x-3 justify-end'>
-                        <div className='self-center'>
+                        {'amount' in selectedCoin && <div className='self-center'>
                             <div className='px-2 dark:bg-greylish bg-[#D9D9D9] text-xs cursor-pointer' onClick={() => {
                                 if (selectedCoin) {
                                     if (selectedFiat) {
@@ -108,7 +110,7 @@ const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
                             }}>
                                 MAX
                             </div>
-                        </div>
+                        </div>}
                         <div className='w-[65%] border border-[#a7a7a7] dark:border-[#777777] px-2 py-1 rounded-md cursor-pointer select-none' onClick={() => setDropdown(!dropdown)}>
                             {selectedCoin &&
                                 <div className='flex space-x-2 tracking-wide text-sm items-center justify-center'>
@@ -124,7 +126,7 @@ const PriceInputField = ({ isMaxActive: max, onChange }: IProps) => {
                 </>}
                 label="Amount"
             />
-            <FormHelperText>Max Amount: {selectedFiat && selectedCoin ? selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount : selectedCoin?.amount} {selectedFiat?.name ?? selectedCoin?.symbol}</FormHelperText>
+            {'amount' in selectedCoin && <FormHelperText>Max Amount: {selectedFiat && selectedCoin ? selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount : selectedCoin?.amount} {selectedFiat?.name ?? selectedCoin?.symbol}</FormHelperText>}
             <AnimatePresence>
                 {dropdown &&
                     <ClickAwayListener onClickAway={() => setDropdown(false)}>
