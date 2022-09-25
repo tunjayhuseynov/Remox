@@ -12,10 +12,14 @@ import { IPrice } from "utils/api";
 import { IPaymentInputs } from "../[[...name]].page";
 import { BiTrash } from "react-icons/bi";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { IoMdRemoveCircle } from "react-icons/io";
+import { useAppSelector } from "redux/hooks";
+import { SelectBalance } from "redux/slices/account/selector";
+import { AltCoins } from "types";
 
 interface IProps {
     addressBook: IAddressBook[],
-    onChange: (amount: number | null, address: string | null, coin: IPrice[0], fiatMoney: FiatMoneyList | null, name: string | null, amountSecond: number | null, coinSecond: IPrice[0], fiatMoneySecond: FiatMoneyList | null) => void,
+    onChange: (amount: number | null, address: string | null, coin: AltCoins, fiatMoney: FiatMoneyList | null, name: string | null, amountSecond: number | null, coinSecond: AltCoins, fiatMoneySecond: FiatMoneyList | null) => void,
     onDelete: () => void,
     onDeleteSecond: () => void,
     input: IPaymentInputs,
@@ -23,26 +27,28 @@ interface IProps {
 }
 
 const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length }: IProps) => {
+    const coins = useAppSelector(SelectBalance)
+
     const [amount, setAmount] = useState<number | null>(input.amount)
     const [address, setAddress] = useState<string | null>(input.address)
-    const [coin, setCoin] = useState<IPrice[0]>(input.coin)
+    const [coin, setCoin] = useState<AltCoins>(input.coin)
     const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>(input.fiatMoney)
     const [name, setName] = useState<string | null>(input.name ?? null)
 
 
     const [amountSecond, setAmountSecond] = useState<number | null>(input.amount)
-    const [coinSecond, setCoinSecond] = useState<IPrice[0]>(input.coin)
+    const [coinSecond, setCoinSecond] = useState<AltCoins>(input.coin)
     const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>(input.fiatMoney)
 
     const [isSecondOptionActive, setSecondOptionActive] = useState<boolean>(false)
 
     useEffect(() => {
         onChange(amount, address, coin, fiatMoney, name, amountSecond, coinSecond, fiatMoneySecond)
-    }, [amount, address, coin, fiatMoney, name])
+    }, [amount, address, coin, fiatMoney, name, amountSecond, coinSecond, fiatMoneySecond])
 
 
     return <>
-        <div className="grid grid-cols-2 gap-x-10 gap-y-5 py-10">
+        <div className="grid grid-cols-2 gap-x-10 gap-y-5 pb-10">
             <div>
                 <Autocomplete
                     freeSolo
@@ -67,9 +73,9 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                 />
             </div>
             <div className="col-span-2 relative">
-                <PriceInputField isMaxActive onChange={(val, coin, fiatMoney) => {
+                <PriceInputField isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
                     setAmount(val)
-                    setCoin(coin)
+                    setCoin('amount' in coin ? coin.coin : coin)
                     setFiatMoney(fiatMoney ?? null)
                 }} />
                 {length > 1 && <div className="absolute -right-6 top-5 cursor-pointer" onClick={onDelete}>
@@ -85,16 +91,16 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length 
                 </div>
                 :
                 <div className="col-span-2 relative">
-                    <PriceInputField isMaxActive onChange={(val, coin, fiatMoney) => {
+                    <PriceInputField isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
                         setAmountSecond(val)
-                        setCoinSecond(coin)
+                        setCoinSecond('amount' in coin ? coin.coin : coin)
                         setFiatMoneySecond(fiatMoney ?? null)
                     }} />
                     <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
                         onDeleteSecond()
                         setSecondOptionActive(false)
                     }}>
-                        <BiTrash />
+                        <IoMdRemoveCircle color="red" />
                     </div>
                 </div>
             }

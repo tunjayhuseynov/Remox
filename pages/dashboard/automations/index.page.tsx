@@ -42,7 +42,7 @@ const Automations = () => {
     for (const task of tasks) {
       const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer | IAutomationCancel;
       const amount = DecimalConverter(tx.amount, tx.coin.decimals)
-      total += calculatePrice({ ...tx.coin, amount, coins: tx.coin });
+      total += calculatePrice({ ...tx.coin, amount, coin: tx.coin });
       if (res[tx.coin.symbol]) {
         res[tx.coin.symbol] += amount;
       } else {
@@ -113,7 +113,7 @@ const Automations = () => {
                           </div>
                           <div className="text-sm text-greylish opacity-75 text-left">
                             {
-                              (calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coins: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)}{" "}
+                              (calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coin: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)}{" "}
                             USD
                           </div>
                         </div>

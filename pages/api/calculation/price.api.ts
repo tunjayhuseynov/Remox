@@ -93,7 +93,7 @@ const ParseAllPrices = (fetchedCurrencies: AltCoins[], balance: Balance, blockch
         const amount = parseFloat((balance?.[c.symbol]) ?? "0");
         // const price = c.priceUSD * amount;
         const obj: IPrice[0] = {
-            coins: c,
+            coin: c,
             // amountUSD: price,
             // amountAUD: amount * c.priceAUD,
             // amountCAD: amount * c.priceCAD,
