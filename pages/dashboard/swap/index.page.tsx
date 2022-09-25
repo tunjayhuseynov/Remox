@@ -1,31 +1,26 @@
 import Dropdown from "components/general/dropdown";
-import { AltCoins, Coins, DropDownItem } from 'types'
+import { AltCoins, Coins } from 'types'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeError, changeSuccess, selectError, selectSuccess } from "redux/slices/notificationSlice";
-import Success from "components/general/success";
-import Error from "components/general/error";
-import Modal from "components/general/modal";
 import { useModalSideExit, useWalletKit } from 'hooks';
 import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";
 import { motion, AnimatePresence } from "framer-motion"
 import Loader from "components/Loader";
 import { useAppSelector } from "redux/hooks";
-import { SelectBalance, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
+import { SelectBalance, SelectDarkMode, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
 import { ToastRun } from "utils/toast";
 import useLoading from "hooks/useLoading";
 
 const Swap = () => {
-    const { GetCoins } = useWalletKit()
-    const [token1, setToken1] = useState<AltCoins>()
+    const { SendTransaction, GetCoins, blockchain } = useWalletKit()
+    const { MinmumAmountOut, isLoading } = useSwap()
+    const isDark = useAppSelector(SelectDarkMode)
+    const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)
+    const balances = useAppSelector(SelectBalance)
+    const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<AltCoins>()
-
-    useEffect(() => {
-        setToken1(Object.values(GetCoins)[0])
-        setToken2(Object.values(GetCoins)[1])
-    }, [GetCoins])
+    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1])
 
 
     const token1Input = useRef<HTMLInputElement>(null)
@@ -33,9 +28,8 @@ const Swap = () => {
     const [appAmount, setAppAmount] = useState<string>("0")
     const [fee, setFee] = useState<string>("")
     const [oneCoinPrice, setOneCoinPrice] = useState<string>("")
-
-    const [isOpen, setOpen] = useState<boolean>(false)
     const [isSetting, setSetting] = useState<boolean>(false)
+
 
     const [slippageArr, setSlippageArr] = useState([
         { value: 1, label: '0,1%', selected: false },
@@ -46,32 +40,23 @@ const Swap = () => {
 
     const [deadline, setDeadline] = useState<number>(1.5)
 
-    const balances = useSelector(SelectBalance)
-    const isSuccess = useSelector(selectSuccess)
-    const isError = useSelector(selectError)
-    const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)
     const account = selectedBudgetAndAccount.account
 
-    const dispatch = useDispatch()
-
-    const { MinmumAmountOut, isLoading } = useSwap()
-    const { SendTransaction } = useWalletKit()
     const [settingRef, exceptRef] = useModalSideExit<boolean>(isSetting, setSetting, false)
 
     const change = useCallback(async (value?: number) => {
-        if (token1!.name && token2!.name) {
+        if (token1!.symbol && token2!.symbol) {
             try {
-
                 const data = await MinmumAmountOut(
-                    GetCoins[token1!.name as keyof Coins],
-                    GetCoins[token2!.name as keyof Coins],
+                    GetCoins[token1!.symbol],
+                    GetCoins[token2!.symbol],
                     (value || (token1Amount ?? 0)).toString(),
                     slippageArr.find(item => item.selected)!.value.toString(),
                     Math.floor(deadline * 60)
                 )
-                setAppAmount(data.minimumAmountOut)
-                setFee(data.feeAmount)
-                setOneCoinPrice(data.oneTokenValue)
+                setAppAmount(data!.minimumAmountOut)
+                setFee(data!.feeAmount)
+                setOneCoinPrice(data!.oneTokenValue)
             } catch (error) {
                 console.error(error)
             }
@@ -79,38 +64,38 @@ const Swap = () => {
         }
     }, [token1, token2, token1Amount, slippageArr, deadline])
 
-    const startSwap = async () => {
-        if (token1!.name && token2!.name && token1Amount && token1Amount > 0 && account) {
-            try {
-                const data = await SendTransaction(account, [], {
-                    swap: {
-                        account: account.address,
-                        inputCoin: GetCoins[token1!.name as keyof Coins],
-                        outputCoin: GetCoins[token2!.name as keyof Coins],
-                        amount: token1Amount.toString(),
-                        slippage: slippageArr.find(item => item.selected)!.value.toString(),
-                        deadline: Math.floor(deadline * 60)
-                    }
-                })
+    // const startSwap = async () => {
+    //     if (token1!.name && token2!.name && token1Amount && token1Amount > 0 && account) {
+    //         try {
+    //             const data = await SendTransaction(account, [], {
+    //                 swap: {
+    //                     account: account.address,
+    //                     inputCoin: GetCoins[token1!.name as keyof Coins],
+    //                     outputCoin: GetCoins[token2!.name as keyof Coins],
+    //                     amount: token1Amount.toString(),
+    //                     slippage: slippageArr.find(item => item.selected)!.value.toString(),
+    //                     deadline: Math.floor(deadline * 60)
+    //                 }
+    //             })
 
-                ToastRun(
-                    <div className="flex flex-col items-center space-y-1">
-                        <div className="font-semobold text-xl">Successfully Swapped</div>
-                        {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
-                    </div>
-                )
+    //             ToastRun(
+    //                 <div className="flex flex-col items-center space-y-1">
+    //                     <div className="font-semobold text-xl">Successfully Swapped</div>
+    //                     {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
+    //                 </div>
+    //             )
 
-                setOpen(false)
-            } catch (error) {
-                const message = (error as any).message || "Something went wrong"
-                console.error(message)
-                // dispatch(changeError({ activate: true }))
-                ToastRun(<div>{message}</div>)
-            }
-        }
-    }
+    //             setOpen(false)
+    //         } catch (error) {
+    //             const message = (error as any).message || "Something went wrong"
+    //             console.error(message)
+    //             // dispatch(changeError({ activate: true }))
+    //             ToastRun(<div>{message}</div>)
+    //         }
+    //     }
+    // }
 
-    const [isSwappingLoading, swapping] = useLoading(startSwap)
+    // const [isSwappingLoading, swapping] = useLoading(startSwap)
 
     useEffect(() => {
         if (token1 && token2) {
@@ -136,7 +121,7 @@ const Swap = () => {
     if (!token1 || !token2) return <></>
     return <>
         <div className="flex justify-start">
-            <div className="text-4xl font-bold ">Swap</div>
+            <div className="text-2xl font-semibold ">Swap</div>
         </div>
         <div className="flex flex-col items-center justify-center pt-12">
             <div className="flex flex-col w-[50%]">
@@ -202,36 +187,42 @@ const Swap = () => {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <div className="bg-greylish bg-opacity-10 min-h-[6.25rem] items-center flex justify-between rounded-md py-3 px-3">
-                        <div className="flex flex-col space-y-2 w-[8.125rem]">
+                    <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem] items-center flex justify-between rounded-xl py-3 px-4`}>
+                        <div className="flex flex-col space-y-2 w-[9rem]">
                             <div>
                                 <Dropdown
-                                    label="Token"
                                     runFn={val => async () => {
                                         if (val.name === token2.name) {
                                             setToken2(token1)
                                         }
                                     }}
-                                    parentClass="bg-white dark:bg-darkSecond rounded-md"
+                                    sx={{ '.MuiSelect-select': { paddingTop: '5px', paddingBottom: '5px', maxHeight: '32px' }, '.MuiOutlinedInput-notchedOutline': { border: 0 } }}
+                                    className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50 " :  "bg-[#F9F9F9]"}   text-sm !rounded-xl !border-none w-52`}
                                     setSelect={setToken1 as any}
-                                    className="border-none py-2 space-x-4 text-sm"
                                     selected={token1 as any}
                                     displaySelector={"symbol"}
-                                    list={Object.values(GetCoins)} />
+                                    list={Object.values(GetCoins)}
+                                />
                             </div>
                             <div>
-                                <input ref={token1Input} onChange={async (e) => { setToken1Amount(parseFloat((e.target.value))); await change(parseFloat((e.target.value))); }} type="number" className="font-bold text-2xl bg-transparent text-center outline-none unvisibleArrow max-w-[8.125rem]" placeholder="0" min="0" step="any" />
+                                <input ref={token1Input} onChange={async (e) => { 
+                                    setToken1Amount(parseFloat((e.target.value))); 
+                                    await change(parseFloat((e.target.value))); 
+                                }} 
+                                type="number" 
+                                className=" text-[22px] bg-transparent outline-none unvisibleArrow ml-4 max-w-[8.125rem]" 
+                                placeholder="0" min="0" step="any" />
                             </div>
                         </div>
-                        <div className="flex flex-col space-y-2 items-end ">
-                            <div className="text-xl">
-                                Balance: {token1 && token1.name && balances[token1.name as keyof typeof balances] ? (balances[token1.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
+                        <div className="flex flex-col space-y-7 items-end ">
+                            <div className="text-lg">
+                                Balance: {token1 && token1.name && balances[token1.symbol] ? (balances[token1.symbol]?.amount.toFixed(2) ?? 0) : 0}
                             </div>
                             <div className="flex space-x-2">
-                                <button className="shadow-custom bg-white dark:bg-darkSecond px-2 py-2 rounded-xl text-xs" onClick={
+                                <button className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} px-3 py-1 rounded-lg text-xs`} onClick={
                                     () => {
-                                        if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
-                                            const amount = balances[token1.name as keyof typeof balances]!.amount * 0.5
+                                        if (balances && token1 && balances[token1.symbol] && balances[token1.symbol]!.amount > 0) {
+                                            const amount = balances[token1.symbol]!.amount * 0.5
                                             token1Input.current!.value = amount.toFixed(2)
                                             setToken1Amount(amount)
                                         }
@@ -239,9 +230,9 @@ const Swap = () => {
                                 }>
                                     50%
                                 </button>
-                                <button className="shadow-custom bg-white dark:bg-darkSecond px-2 py-2 rounded-xl text-xs" onClick={() => {
-                                    if (balances && token1 && balances[token1.name as keyof typeof balances] && balances[token1.name as keyof typeof balances]!.amount > 0) {
-                                        const amount = balances[token1.name as keyof typeof balances]!.amount
+                                <button className={` ${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} px-3 py-1 rounded-lg text-xs`} onClick={() => {
+                                    if (balances && token1 && balances[token1.symbol] && balances[token1.symbol]!.amount > 0) {
+                                        const amount = balances[token1.symbol]!.amount
                                         token1Input.current!.value = amount.toFixed(2)
                                         setToken1Amount(amount)
                                     }
@@ -252,12 +243,14 @@ const Swap = () => {
                         </div>
                     </div>
                     <div className="flex items-center justify-center">
-                        <div className="bg-greylish bg-opacity-10 my-2 px-3 py-1 rounded-lg cursor-pointer" onClick={changeSwap}>
-                            <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
+                        <div className={` ${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F9F9F9]"}  my-2 py-1 px-1 rounded-lg cursor-pointer `} onClick={changeSwap}>
+                            <div className={` ${isDark ? "" : "bg-[#f5F5F5]"} py-1 px-3`}>
+                                <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
+                            </div>
                         </div>
                     </div>
-                    <div className="flex min-h-[6.25rem] bg-greylish bg-opacity-10 justify-between rounded-md py-3 px-3">
-                        <div className="flex flex-col space-y-2 w-[8.125rem]">
+                    <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem]  flex justify-between rounded-xl py-3 px-4`}>
+                        <div className="flex flex-col space-y-2 w-[9rem]">
                             <div>
                                 <Dropdown
                                     runFn={val => async () => {
@@ -265,28 +258,26 @@ const Swap = () => {
                                             setToken1(token2)
                                         }
                                     }}
-                                    label="Token"
-                                    parentClass=" bg-white dark:bg-darkSecond rounded-md"
                                     setSelect={setToken2 as any}
-                                    className="border-none py-2 space-x-4 text-sm"
+                                    sx={{ '.MuiSelect-select': { paddingTop: '5px', paddingBottom: '5px', maxHeight: '32px' }, '.MuiOutlinedInput-notchedOutline': { border: 0 } }}
+                                    className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" :  "bg-[#F9F9F9]"}  text-sm !rounded-xl !border-none w-52`}
                                     selected={token2 as any}
-                                    displaySelector={"symbol"}
-                                    list={Object.values(GetCoins)} />
+                                    list={Object.values(GetCoins)}
+                                />
                             </div>
                             <div>
                                 {!(!token1Amount) && (!isLoading ?
                                     <>
-                                        <div className="font-bold text-2xl text-center outline-none unvisibleArrow">
+                                        <div className="text-[22px] bg-transparent outline-none unvisibleArrow ml-4 max-w-[8.125rem]">
                                             {parseFloat(appAmount).toFixed(2)}
                                         </div>
                                     </> : <div className="text-center"><Loader /></div>)
                                 }
                             </div>
                         </div>
-                        <div className="flex flex-col items-end h-full">
-                            <div className="text-right text-xl outline-none unvisibleArrow">
-                                Balance: {token2 && token2.name && balances[token2.name as keyof typeof balances] ? (balances[token2.name as keyof typeof balances]?.amount.toFixed(2) ?? 0) : 0}
-
+                        <div className="flex justify-end h-full">
+                            <div className="text-right text-lg outline-none unvisibleArrow">
+                                Balance: {token2 && token2.name && balances[token2.symbol] ? (balances[token2.symbol]?.amount.toFixed(2) ?? 0) : 0}
                             </div>
                         </div>
                     </div>
@@ -298,63 +289,29 @@ const Swap = () => {
                     </div>
                     <div className="flex justify-between">
                         <div>Fee:</div>
-                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
+                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} </div>
                     </div>
                 </div>
                 <div className="text-center ">
-                    <Button className="w-[97%] text-2xl" onClick={() => setOpen(true)} isLoading={isLoading || isSwappingLoading}>
+                    <Button className="w-[97%] text-[20px] !rounded-2xl" 
+                    // isLoading={isLoading || isSwappingLoading}
+                    >
                         Swap
                     </Button>
                 </div>
-            </div>
-            {isOpen && <Modal onDisable={setOpen} animatedModal={false} title="Confirm Swap" className="lg:left-[55.5%]">
-                <div className="flex flex-col -mx-5 space-y-5">
-                    <div className="flex flex-col py-2 pb-10 space-y-7 border-b-2 px-5">
-                        <div className="grid grid-cols-[7%,73%,20%] items-center">
-                            <div>
-                                <img src={`${token1.coinUrl}`} alt="" className="w-[1.25rem] h-[1.25rem]" />
-                            </div>
-                            <div className="font-bold">
-                                {token1Amount}
-                            </div>
-                            <div className="text-right">
-                                {token1.name}
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-[7%,73%,20%] items-center">
-                            <div>
-                                <img src={`/icons/longdown.svg`} alt="" className="dark:invert dark:brightness-0" />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-[7%,73%,20%] items-center">
-                            <div>
-                                <img src={`${token2.coinUrl}`} className="w-[1.25rem] h-[1.25rem]" alt="" />
-                            </div>
-                            <div className="font-bold">
-                                {parseFloat(appAmount).toFixed(2)}
-                            </div>
-                            <div className="text-right">
-                                {token2.name}
-                            </div>
-                        </div>
+                <div className="flex justify-center items-center mt-6 space-x-2">
+                    <p className="text-base text-[#707070] ">Powered by</p>
+                    {blockchain.name.includes("evm") ? isDark ? <img src="/icons/swap/1inch_color_white.png" className="w-20" alt="1inch"/> : <img src="/icons/swap/1inch_bw_black.png" className="w-20" alt="1inch"/>  : blockchain.name === "celo" ? 
+                    <div className="flex space-x-2 items-center">
+                        <img src="/icons/swap/ubseSwapLogo.png" className="w-5 h-5" alt="ubeswap" />
+                        <p>Ubeswap</p>
+                    </div> : <div className="flex space-x-2 items-center">
+                        <img src="/icons/swap/jupiter-logo (1) 1.png" className="w-5 h-5" alt="hence" /> 
+                        <p>Jupiter</p>
                     </div>
-                    <div className="flex flex-col px-5 text-xs space-y-1">
-                        <div className="flex justify-between">
-                            <div>Rate:</div>
-                            <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) : <div className="px-3"><Loader /></div>} {token2.name}</div>
-                        </div>
-                        <div className="flex justify-between">
-                            <div>Fee:</div>
-                            <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {token1.name}</div>
-                        </div>
-                    </div>
-                    <div className="flex justify-center">
-                        <Button className="w-3/5" onClick={swapping} isLoading={isLoading || isSwappingLoading}>Confirm Swap</Button>
-                    </div>
+                    } 
                 </div>
-            </Modal>}
-            {isSuccess && <Success onClose={(val: boolean) => dispatch(changeSuccess({ activate: val }))} />}
-            {isError && <Error onClose={(val: boolean) => dispatch(changeError({ activate: val }))} />}
+            </div> 
         </div>
     </>
 }

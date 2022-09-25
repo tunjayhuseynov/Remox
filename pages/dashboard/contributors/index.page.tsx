@@ -1,19 +1,19 @@
-import { Fragment, useEffect, useState } from 'react';
+import {useEffect, useState } from 'react';
 import { useAppSelector } from 'redux/hooks'
-import Button from 'components/button';
 import { SelectContributorMembers, SelectContributors, SelectDarkMode, SelectStorage } from 'redux/slices/account/remoxData';
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import TeamItem from 'pages/dashboard/contributors/_components/teamItem';
 import ContributorItem from 'pages/dashboard/contributors/_components/contributorItem'
+import { TablePagination } from '@mui/material';
 
 
 const Contributors = () => {
+    const STABLE_INDEX = 5
+    const [pagination, setPagination] = useState(STABLE_INDEX)
     const contributors = useAppSelector(SelectContributors)
     const isDark = useAppSelector(SelectDarkMode)
     const navigate = useRouter()
-    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
-    const [activePage, setActivePage] = useState<string>("Active");
     const members = useAppSelector(SelectContributorMembers)
 
     const data = [
@@ -44,10 +44,18 @@ const Contributors = () => {
         },
     ]
 
+    const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
+    const ActivePage =  index === 0 ? "Active" : data.find((item) => item.to === navigate.asPath)?.text
+    const membersLength = index === 0 ? members.length : members.filter((item) => item.compensation === ActivePage).length
+
+    console.log(membersLength)
+    
+
     useEffect(() => {
-        const datValue = data.find((item) => item.to === navigate.asPath)?.text
-        setActivePage(datValue!)
-    }, [])
+        setPagination(STABLE_INDEX)
+        
+    }, [members, contributors])
+
 
     
     return <div>
@@ -55,8 +63,6 @@ const Contributors = () => {
             <div className="flex justify-between items-center w-full">
                 <div className="text-4xl font-bold">
                     Contributors
-                </div>
-                <div className={`pt-2 flex ${contributors.length > 0 && 'gap-5'} `}>
                 </div>
             </div>
             <div className="flex justify-between items-center w-[90%] mb-5 ">
@@ -78,23 +84,36 @@ const Contributors = () => {
                     </tr>
                     <>
                         {index === 0 ? <>
-                            {members.map((member) => <ContributorItem key={member.id} member={member} />)}
+                            {members.slice(pagination - STABLE_INDEX, pagination).map((member) => <ContributorItem key={member.id} member={member} />)}
                         </>  
                          : 
                             <>
-                                {members.filter((member) => member.compensation === activePage).map((member) => <ContributorItem key={member.id} member={member}/>) }
+                                {members.filter((member) => member.compensation === ActivePage).map((member) => <ContributorItem key={member.id} member={member}/>) }
                             </>
                         }
                     </>
                 </thead>
             </table> 
             {contributors.length > 0 &&
-            <div className='w-full flex justify-center mt-5'>
-                <span onClick={() => navigate.push('/dashboard/contributors/add-member')} className={`text-4xl round border-2 ${isDark ? "" : "border-[#CCCCCC] text-[#CCCCCC] " } px-14 py-2 cursor-pointer rounded-full`}>+</span>
-            </div>}
+            <>
+                <div>
+                    <TablePagination
+                        component="div"
+                        rowsPerPageOptions={[]}
+                        count={membersLength}
+                        page={(pagination / STABLE_INDEX) - 1}
+                        onPageChange={(e, newPage) => setPagination((newPage + 1) * STABLE_INDEX)}
+                        rowsPerPage={STABLE_INDEX}            
+                    />
+                </div>
+                <div className='w-full flex justify-center mt-5'>
+                    <span onClick={() => navigate.push('/dashboard/contributors/add-member')} className={`text-4xl round border-2 ${isDark ? "" : "border-[#CCCCCC] text-[#CCCCCC] " } px-14 py-2 cursor-pointer rounded-full`}>+</span>
+                </div>
+            </>
+            }
         </> : 
         <div className="flex flex-wrap gap-16 cursor-pointer" >
-            {contributors.length > 0 ? contributors.map(team => <TeamItem props={team}/>) : <></> }
+            {contributors.length > 0 && contributors.map(team => <TeamItem key={team.id} props={team}/>)}
             <div onClick={() => navigate.push('/dashboard/contributors/add-team')} className=" rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-w-[23.5rem] min-h-[12rem] items-start justify-between pl-5">
                 <div className="flex items-center justify-center w-full h-full">
                     <span className={`text-8xl font-light ${isDark ? "" : "text-[#CCCCCC]"}`}>+</span>
