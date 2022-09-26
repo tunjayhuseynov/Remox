@@ -35,7 +35,7 @@ const ContributorItem = ({ member }: PageProps) => {
     const dispatch = useDispatch();
 
     const coin1 = Object.values(GetCoins).find(w => w.symbol === member.currency)
-    const coin2 = Object.values(GetCoins).find(w => w.symbol === member.secondaryCurrency)
+    const coin2 = Object.values(GetCoins).find(w => w.symbol === member.secondCurrency)
 
     const onDelete = async () => {
         try {
@@ -52,7 +52,7 @@ const ContributorItem = ({ member }: PageProps) => {
     return <>
         {
             deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-4'}>
-                <Delete name={member.name} onDelete={onDelete} onCurrentModal={setDeleteModal} />
+                <Delete name={member.fullname} onDelete={onDelete} onCurrentModal={setDeleteModal} />
             </Modal>
         }
         <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%]  text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
@@ -60,7 +60,7 @@ const ContributorItem = ({ member }: PageProps) => {
                 <div className="flex !items-center space-x-1" >
                     <img src={member.image ? member.image.imageUrl : makeBlockie(member.address)} alt="" className="rounded-full border w-10 object-cover h-10 mr-2" />
                     <div className="text-base">
-                        {member.name}
+                        {member.fullname}
                     </div>
                 </div>
             </th>
@@ -72,21 +72,21 @@ const ContributorItem = ({ member }: PageProps) => {
             </th>
             <th className="flex flex-col items-start space-y-4">
                 <div className=" pl-[2px] flex items-center justify-start gap-1">
-                    {member.usdBase ? <div className="flex items-center gap-1">USD as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
-                        <div className="flex items-center mr-1">
-                            <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+                    {member.fiat ? <div className="flex items-center gap-1"> <span className="text-base">{member.amount}</span> {member.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
+                        <div className="flex items-center">
+                            <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-1" />
+                            <span className="text-base">{member.amount}</span>
                         </div>
                     }
-                    <div className=" text-base">{member.amount}</div>
+                    
                     <div>
-
                     </div>
                 </div>
-                {(member.secondaryCurrency && member.secondaryAmount) && <div className="pl-[2px] flex items-center justify-start gap-1">
+                {(member.secondCurrency && member.secondAmount) && <div className="pl-[2px] flex items-center justify-start gap-1">
                     <div className="flex items-center gap-1 mr-1">
                         <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
                     </div>
-                    <div className=" text-base">{member.secondaryAmount}</div>
+                    <div className=" text-base">{member.secondAmount}</div>
                     <div>
                     </div>
                 </div>}

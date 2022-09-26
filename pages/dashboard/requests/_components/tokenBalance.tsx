@@ -9,22 +9,51 @@ import { generate } from "shortid";
 import { useWalletKit } from "hooks";
 import { SelectBalance, SelectCurrencies } from "redux/slices/account/selector";
 import { SetComma } from "utils";
-
+import { GetFiatPrice } from "utils/const";
+ 
 export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
     const balance = useSelector(SelectBalance)
     const { GetCoins } = useWalletKit()
 
     const cleanList: (IRequest | IMember)[] = []
     coinList.forEach(item => {
-        if (item.secondaryAmount && item.secondaryCurrency) {
-            cleanList.push({
-                ...item,
-                amount: item.secondaryAmount,
-                currency: item.secondaryCurrency,
-            })
-        } else {
-            cleanList.push(item)
+        const coin = Object.values(GetCoins).find((coin) => coin.symbol === item.currency)
+        if (item.secondAmount && item.secondCurrency) {
+            if(item.fiatSecond) {
+                const coin = Object.values(GetCoins).find((coin) => coin.symbol === item.secondCurrency)
+                const fiatPrice = GetFiatPrice((coin ?? Object.values(GetCoins)[0]), item.fiatSecond)
+                cleanList.push({
+                    ...item,
+                    amount: (+item.secondAmount / fiatPrice).toString(),
+                    currency: item.secondCurrency,
+                })
+            } else {
+                cleanList.push({
+                    ...item,
+                    amount: item.secondAmount ,
+                    currency: item.secondCurrency,
+                })
+            }
         }
+
+        if(coin) {
+            if(item.fiat){
+                const fiatPrice = GetFiatPrice((coin ?? Object.values(GetCoins)[0]), item.fiat)
+                cleanList.push({
+                    ...item,
+                    amount: (+item.amount / fiatPrice).toString(),
+                    currency: item.currency,
+                })
+            } else {
+                cleanList.push({
+                    ...item,
+                    amount: item.amount,
+                    currency: item.currency
+                })
+            }
+
+        }
+            
     })
 
 

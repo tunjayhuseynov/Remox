@@ -4,7 +4,7 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { SelectContributors, SelectSelectedAccountAndBudget, SelectID, addMemberToContributor } from "redux/slices/account/remoxData";
+import { SelectContributors, SelectSelectedAccountAndBudget, SelectID, addMemberToContributor, SelectBalance } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { AltCoins, CoinsURL } from "types";
@@ -18,15 +18,13 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import EditableAvatar from "components/general/EditableAvatar";
+import PriceInputField from "components/general/PriceInputField";
+import { FiatMoneyList } from "firebaseConfig";
+import { IoMdRemoveCircle } from "react-icons/io";
 
 export interface IFormInput {
-    nftAddress?: string;
-    nftTokenId?: number;
-    name: string;
-    surname: string;
+    fullname: string;
     address: string;
-    amount: number;
-    amount2?: number;
     role: string;
 }
 
@@ -46,12 +44,7 @@ export default () => {
         { name: "Bounty" },
     ];
     const [selectedSchedule, setSelectedSchedule] = useState(schedule[0]);
-    const paymentBase: DropDownItem[] = [
-        { name: "Pay with Token Amounts" },
-        { name: "Pay with USD-based Amounts" },
-    ];
-    const [selectedPaymentBase, setSelectedPaymentBase] = useState(paymentBase[0]);
-    const paymentBaseIsToken = selectedPaymentBase.name === "Pay with Token Amounts";
+
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);
     const isAutoPayment = selectedPaymentType.name === "Auto";
@@ -59,27 +52,37 @@ export default () => {
     const [secondActive, setSecondActive] = useState(false);
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(new Date());
-    const [selectedCoin1, setSelectedCoin1] = useState<AltCoins>(Object.values(GetCoins)[0])
-    const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(Object.values(GetCoins)[0])
     const [selectedTeam, setSelectedTeam] = useState<DropDownItem>(
         contributors.length > 0
-            ? { name: "Select Team", coinUrl: CoinsURL.None }
-            : { name: "No Team", coinUrl: CoinsURL.None }
-    );
+        ? { name: "Select Team", coinUrl: CoinsURL.None }
+        : { name: "No Team", coinUrl: CoinsURL.None }
+        );
+        
+    const [amount, setAmount] = useState<number | null>()
+    const [coin, setCoin] = useState<AltCoins>()
+    const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>()
+
+    const [amountSecond, setAmountSecond] = useState<number | null>()
+    const [coinSecond, setCoinSecond] = useState<AltCoins>()
+    const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>()
+        
+        
     const teams = contributors.map(w => { return { name: w.name, id: w.id } })
     const Frequency = [{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({
         name: "Monthly",
         type: DateInterval.monthly,
     });
+    
     const [loading, setIsLoading] = useState(false);
-
 
     const submit: SubmitHandler<IFormInput> = async (data) => {
         const Team = selectedTeam;
         const Compensation = selectedSchedule.name;
-        const Coin1 = selectedCoin1;
-        const Coin2 = selectedCoin2;
+        const Amount = amount
+        const Amount2 = amountSecond
+        const Coin1 = coin;
+        const Coin2 = coinSecond;
         const Frequency = selectedFrequency.type;
         const Photo = {
             imageUrl: url,
@@ -96,13 +99,13 @@ export default () => {
             let inputs: IPaymentInput[] = []
             if (isAutoPayment && startDate && endDate) {
                 inputs.push({
-                    amount: data.amount,
-                    coin: Coin1.symbol,
+                    amount: Amount ?? 1,
+                    coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol ,
                     recipient: data.address,
                 })
-                if (data.amount2) {
+                if (Amount2 && Coin2) {
                     inputs.push({
-                        amount: data.amount2,
+                        amount: Amount2,
                         coin: Coin2.symbol,
                         recipient: data.address,
                     })
@@ -118,28 +121,29 @@ export default () => {
                 taskId = id!
             }
 
+
             let member: IMember = {
-                taskId: isAutoPayment ? taskId : null,
                 id: uuidv4(),
-                first: `${data.name.trim()}`,
-                name: `${data.name} ${data.surname}`,
-                last: `${data.surname.trim()}`,
-                role: `${data.role}`,
-                address: data.address,
-                image: url ? Photo : null,
-                compensation: Compensation,
-                currency: Coin1.symbol,
-                amount: data.amount.toString(),
+                fullname: `${data.fullname.trim()}`,
                 teamId: Team.id!.toString(),
-                usdBase: !paymentBaseIsToken,
+                compensation: Compensation,
+                role: `${data.role}`,
+                amount: (amount ?? 0).toString() ,
+                currency: Coin1?.symbol ?? "",
+                fiat: fiatMoney ?? null,
+                secondAmount: amountSecond ? amountSecond.toString() : null,
+                secondCurrency: Coin2 ? (Coin2.symbol) : null,
+                fiatSecond: fiatMoneySecond ?? null,
+                address: data.address,
                 execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
                 interval: Frequency as DateInterval,
                 paymantDate: new Date(startDate ?? dateNow).getTime(),
                 paymantEndDate: new Date(endDate ?? dateNow).getTime(),
-                secondaryAmount: data.amount2 ? data.amount2.toString() : null,
-                secondaryCurrency: Coin2 ? (Coin2.symbol) : null,
+                image: url ? Photo : null,
+                taskId: isAutoPayment ? taskId : null,
             };
 
+            console.log(member)
             await addMember(Team.id!.toString(), member);
             dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
             setIsLoading(false);
@@ -163,26 +167,24 @@ export default () => {
             <div>
                 <form onSubmit={handleSubmit(submit)}
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
-                    <div className="text-2xl self-center pt-2 font-semibold ">Add Contributor</div>
+                    <div className="text-2xl self-center pt-2 font-semibold ">Add Member</div>
                     <div className="flex flex-col space-y-4">
                         <div className="flex flex-col mb-4 space-y-1 w-full">
                             <EditableAvatar avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""} evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange} />
                         </div>
                         <div className="grid grid-cols-2 gap-x-10">
-                            <TextField label="Name" {...register("name", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
-                            <TextField label="Surname" {...register("surname", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                            <TextField label="Full Name" {...register("fullname", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                            <Dropdown
+                                label="Workstream"
+                                setSelect={setSelectedTeam}
+                                selected={selectedTeam}
+                                list={teams}
+                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                            />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
-                        <Dropdown
-                            label="Workstream"
-                            setSelect={setSelectedTeam}
-                            selected={selectedTeam}
-                            list={teams}
-                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                        />
-
                         <Dropdown
                             label="Compensation Type"
                             className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
@@ -191,65 +193,38 @@ export default () => {
                             setSelect={setSelectedSchedule}
                             sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
                         />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-10">
-                        <Dropdown
-                            label="Amount Type"
-                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                            parentClass={' w-full rounded-md h-[3.15rem] '}
-                            selectClass={'!text-sm'}
-                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                            list={paymentBase}
-                            selected={selectedPaymentBase}
-                            setSelect={setSelectedPaymentBase}
-                        />
                         <TextField label="Role" {...register("role", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
                     </div>
                     <div className="flex w-full gap-x-10">
-                        <div className="w-full h-full flex flex-col ">
-                            <Dropdown
-                                label="Token"
-                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                                selected={selectedCoin1}
-                                setSelect={val => {
-                                    setSelectedCoin1(val)
-                                }}
-                                list={Object.values(GetCoins)}
-                            />
-                        </div>
-                        <div className="w-full h-full flex flex-col relative">
-
-                            {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                            <TextField label="Amount" {...register("amount", { required: true, valueAsNumber: true })} type="number" inputProps={{ step: "0.01" }} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
-                        </div>
+                        <PriceInputField 
+                          isMaxActive={true}
+                          coins={GetCoins} 
+                          onChange={(val, coin, fiatMoney) => {
+                            setAmount(val)
+                            setCoin('amount' in coin ? coin.coin : coin)
+                            setFiatMoney(fiatMoney ?? null)
+                          }}
+                        />
                     </div>
-                    {secondActive ?
-                        <div className="flex w-full gap-x-10">
-                            <div className="w-full h-full flex flex-col ">
-                                <Dropdown
-                                    label="Token"
-                                    className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                                    selected={selectedCoin2}
-                                    sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                                    setSelect={val => {
-                                        setSelectedCoin2(val)
-                                    }}
-                                    list={Object.values(GetCoins)}
-                                />
-                            </div>
-                            <div className="w-full h-full flex flex-col relative">
-                                <div className="flex items-center">
-                                    <div className="absolute -right-[2rem] top-[0.8rem]">
-                                        <DeleteOutlinedIcon className="hover:text-gray-600 cursor-pointer w-5 h-5" onClick={() => {
-                                            setSecondActive(false)
-                                        }} />
-                                    </div>
-                                </div>
-                                {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                                <TextField type={'number'} label="Amount" {...register("amount2", { required: true, valueAsNumber: true })} inputProps={{ step: 0.02 }} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
-                            </div>
-                        </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token</div>}
+                    {secondActive ? 
+                        <div className="col-span-2 relative">
+                            <PriceInputField 
+                              isMaxActive={true}
+                              coins={GetCoins} 
+                              onChange={(val, coin, fiatMoney) => {
+                                setAmountSecond(val)
+                                setCoinSecond('amount' in coin ? coin.coin : coin)
+                                setFiatMoneySecond(fiatMoney ?? null)
+                              }}
+                            />
+                        <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
+                          setSecondActive(false),
+                          setCoinSecond(undefined),
+                          setAmountSecond(undefined)
+                        }}>
+                          <IoMdRemoveCircle color="red" />
+                        </div>
+                      </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span>Add</div>}
                     <div className="flex flex-col space-y-1">
                         <TextField {...register("address", { required: true })} label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
                     </div>

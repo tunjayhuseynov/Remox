@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from "components/button";
-import ModalRequestItem from "../modalRequestItem";
+import ModalRequestItem from "./modalRequestItem";
 import { IRequest } from 'rpcHooks/useRequest'
 
 const ApprovePendings = ({selectedpPendingRequests , isApproving, setApproving} : {selectedpPendingRequests: IRequest[] , isApproving: boolean, setApproving: (...type: any) => void}) => {

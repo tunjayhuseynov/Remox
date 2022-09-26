@@ -79,8 +79,6 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     setAmount(val)
                     setCoin('amount' in coin ? coin.coin : coin)
                     setFiatMoney(fiatMoney ?? null)
-                    console.log(coin)
-                    console.log(fiatMoney)
                 }} />
                 {length > 1 && <div className="absolute -right-6 top-5 cursor-pointer" onClick={onDelete}>
                     <BiTrash />
@@ -99,6 +97,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                         setAmountSecond(val)
                         setCoinSecond('amount' in coin ? coin.coin : coin)
                         setFiatMoneySecond(fiatMoney ?? null)
+                        console.log(val)
                     }} />
                     <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
                         onDeleteSecond()

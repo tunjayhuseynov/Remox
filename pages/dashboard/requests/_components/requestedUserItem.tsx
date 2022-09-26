@@ -15,6 +15,7 @@ import {
   removeApprovedRequest,
   SelectDarkMode,
   addApprovedRequest,
+  SelectOwners,
 } from "redux/slices/account/remoxData";
 import { Checkbox } from "@mui/material";
 import Avatar from "components/avatar";
@@ -23,7 +24,8 @@ import { useAppSelector } from "redux/hooks";
 import useLoading from "hooks/useLoading";
 import { AiOutlineClose } from "react-icons/ai";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
-import SingleRequestModal from "./SingleRequestModal";
+import SingleRequestModal from "./Modals/SingleRequestModal";
+import { GetFiatPrice } from "utils/const";
 
 
 const RequestedUserItem = ({
@@ -56,6 +58,9 @@ const RequestedUserItem = ({
   const { rejectRequest, approveRequest, removeRequest } = useRequest();
   const { GetCoins, SendTransaction } = useWalletKit();
   const userId = useAppSelector(SelectID);
+  const owners = useAppSelector(SelectOwners)
+
+  const owner = owners.find((owner) => owner.address === request.address)
 
   useEffect(() => {
     if (divRef.current && window.innerWidth / divRef.current.clientWidth > 3) {
@@ -92,26 +97,48 @@ const RequestedUserItem = ({
   }
 
   const Execute = async () => {
-    let inputs: IPaymentInput[] = [
-      {
-        amount: Number(request.amount),
-        coin: coin1.symbol,
-        recipient: request.address,
-      }
-    ]
+    let inputs: IPaymentInput[] = [];
+    const amount = request.amount
+    if(request.fiat) {
+      const fiatPrice = GetFiatPrice(coin1!, request.fiat)
 
-    if(request.secondaryAmount && request.secondaryCurrency){
       inputs.push({
-        amount: Number(request.secondaryAmount),
-        coin: coin2?.symbol ?? "",
+        amount: Number(amount) / (fiatPrice),
+        coin: coin1?.symbol ?? "",
         recipient: request.address,
-      })
+      });
+    } else {
+      inputs.push({
+        amount: Number(amount),
+        coin: coin1?.symbol ?? "",
+        recipient: request.address,
+      });
     }
+
+    if(request.secondCurrency && request.secondAmount) {
+      const secondAmount = request.secondAmount;
+      const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+
+      if(request.fiatSecond) {
+        const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
+
+        inputs.push({
+          amount: Number(secondAmount) / (fiatPrice),
+          coin: coin2?.symbol ?? "",
+          recipient: request.address,
+        });
+      } else {
+        inputs.push({
+          amount: Number(secondAmount),
+          coin: coin2?.symbol ?? "",
+          recipient: request.address,
+        });
+      }
+    } 
 
     await SendTransaction(accountAndBudget.account!, inputs, {
       budget: accountAndBudget.budget,
     })
-
     
     dispatch(removeApprovedRequest(request.id));
     await removeRequest(request, userId ?? "")
@@ -207,14 +234,15 @@ const RequestedUserItem = ({
                   : "w-[1.563rem] h-[1.563rem] text-xs"
               } flex items-center justify-center rounded-full font-bold `}
             >
-              {request.image ? (
+              {owner ? (
+                owner.image ? 
                 <img
-                  src={`/icons/profilePhoto/${request.image}`}
+                  src={owner!.image!.imageUrl}
                   alt=""
-                  className="  w-12 h-12 border items-center justify-center rounded-full"
-                />
+                  className="w-[2.5rem] h-[2.5rem] border items-center justify-center rounded-full"
+                /> : <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               ) : (
-                <Avatar name={request.name} surname={request.surname} />
+                <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               )}
             </div>
           </div>
@@ -226,10 +254,7 @@ const RequestedUserItem = ({
             <div className="font-medium text-lg  ">
               {
                 <span>
-                  {" "}
-                  {request.name
-                    ? `${request.name} ${request.surname}`
-                    : "Unknown"}{" "}
+                    {request.fullname}
                 </span>
               }
             </div>
@@ -247,85 +272,23 @@ const RequestedUserItem = ({
             </div>
           )}
         </td>
-        <td className="flex items-center  ">
-          <div className="space-y-2">
-            <div
-              className={`flex ${
-                detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"
-              } items-center space-x-4`}
-            >
-              {GetCoins && coin1 ? (
-                <div
-                  className={`flex ${
-                    detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"
-                  } gap-x-2 items-center text-lg font-medium`}
-                >
-                  <div className="flex items-center">
-                    <img
-                      src={coin1.logoURI}
-                      width="20"
-                      height="20"
-                      className="rounded-full mr-2"
-                    />
-                  </div>
-                  <div
-                    className={`flex ${
-                      detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"
-                    } gap-x-2 items-center justify-start text-lg font-medium`}
-                  >
-                    <span>
-                      {request.usdBase
-                        ? SetComma(
-                            parseFloat(request.amount) / coin1!.priceUSD!
-                          )
-                        : SetComma(+request.amount)}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div>Unknown Coin</div>
-              )}
-            </div>
-            {!!request.secondaryAmount && !!request.secondaryCurrency && (
-              <div
-                className={`flex ${
-                  detect ? "grid-cols-[20%,80%]" : "grid-cols-[45%,55%]"
-                } items-center space-x-4`}
-              >
-                {GetCoins && coin2 ? (
-                  <div
-                    className={`flex ${
-                      detect ? "grid-cols-[10%,90%]" : "grid-cols-[30%,70%]"
-                    } gap-x-2 items-center text-lg font-medium`}
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={coin2.logoURI}
-                        width="20"
-                        height="20"
-                        className="rounded-full mr-2"
-                      />
-                    </div>
-                    <div
-                      className={`flex ${
-                        detect ? "grid-cols-[15%,85%]" : "grid-cols-[25%,75%]"
-                      } gap-x-2 items-center justify-start text-lg font-medium`}
-                    >
-                      <span>
-                        {request.usdBase
-                          ? SetComma(
-                              +request.secondaryAmount / coin2!.priceUSD!
-                            )
-                          : SetComma(+request.secondaryAmount)}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div>Unknown Coin</div>
-                )}
+        <td className="flex flex-col justify-center">
+          <div className="flex items-center justify-start gap-1">
+            {request.fiat ? <div className="flex items-center gap-1"> <span className="text-base">{request.amount}</span> {request.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
+              <div className="flex items-center">
+                  <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                  <span className="text-base">{request.amount}</span>
               </div>
-            )}
+            } 
           </div>
+          {(request.secondCurrency && request.secondAmount) && <div className="flex items-center justify-start gap-1 mt-2">
+          {request.fiatSecond ? <div className="flex items-center gap-1"> <span className="text-base">{request.secondAmount}</span> {request.fiatSecond} as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" /></div> :
+              <div className="flex items-center">
+                  <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                  <span className="text-base">{request.secondAmount}</span>
+              </div>
+            }      
+          </div>}
         </td>
         <td className="items-center flex text-lg font-medium ">
           {request.requestType}

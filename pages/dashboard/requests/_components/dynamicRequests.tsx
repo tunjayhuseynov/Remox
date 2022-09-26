@@ -3,12 +3,11 @@ import Button from "components/button";
 import Modal from "components/general/modal";
 import useRequest from "hooks/useRequest";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import {  SelectBalance, SelectDarkMode, SelectRequests, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
+import {  SelectBalance, SelectRequests, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
 import TotalAmount from "pages/dashboard/requests/_components/totalAmount";
 import TokenBalance from "./tokenBalance";
-import ModalRequestItem from "./modalRequestItem";
+import ModalRequestItem from "./Modals/modalRequestItem";
 import { Checkbox } from "@mui/material";
 import RequestedUserItem from "./requestedUserItem";
 import {
@@ -22,6 +21,7 @@ import { useWalletKit } from "hooks";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import ModalAllocation from "pages/dashboard/payroll/_components/modalpay/modalAllocation";
 import ApprovePendings from "./Modals/ApprovePendings";
+import { GetFiatPrice } from "utils/const";
 
 export default function DynamicRequest({
   type,
@@ -30,7 +30,6 @@ export default function DynamicRequest({
 }) {
   const dispatch = useAppDispatch();
   const requests = useAppSelector(SelectRequests);
-  const isDark = useAppSelector(SelectDarkMode)
   const { approveRequest, removeRequest } = useRequest();
   const userId = useAppSelector(SelectID);
   const balance = useAppSelector(SelectBalance);
@@ -76,43 +75,45 @@ export default function DynamicRequest({
       const requests = [...selectedApprovedRequests];
       for (const request of requests){
         const amount = request.amount;
-        const currency = request.currency;
         const address = request.address;
-        const coin = Object.values(GetCoins).find((coin) => coin.symbol === currency);
-        
-        if(request.usdBase) {
-          if (request.secondaryAmount) {
-            const secondaryAmount = request.secondaryAmount;
-            const secondaryCurrency = request.secondaryCurrency;
-            const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency);
-            inputs.push({
-              amount: Number(secondaryAmount) / (coin2?.priceUSD ?? 1),
-              coin: coin2?.symbol ?? "",
-              recipient: address,
-            });
-          }
+        const coin = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
+
+        if(request.fiat) {
+          const fiatPrice = GetFiatPrice(coin!, request.fiat)
+
           inputs.push({
-            amount: Number(amount) / (coin?.priceUSD ?? 1),
+            amount: Number(amount) / (fiatPrice),
             coin: coin?.symbol ?? "",
             recipient: address,
           });
         } else {
-          if (request.secondaryAmount) {
-            const secondaryAmount = request.secondaryAmount;
-            const secondaryCurrency = request.secondaryCurrency;
-            const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency);
-            inputs.push({
-              amount: Number(secondaryAmount),
-              coin: coin2?.symbol ?? "",
-              recipient: address,
-            });
-          }
           inputs.push({
             amount: Number(amount),
             coin: coin?.symbol ?? "",
             recipient: address,
           });
         }
+
+        if(request.secondCurrency && request.secondAmount) {
+          const secondAmount = request.secondAmount;
+          const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+
+          if(request.fiatSecond) {
+            const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
+
+            inputs.push({
+              amount: Number(secondAmount) / (fiatPrice),
+              coin: coin2?.symbol ?? "",
+              recipient: address,
+            });
+          } else {
+            inputs.push({
+              amount: Number(secondAmount),
+              coin: coin2?.symbol ?? "",
+              recipient: address,
+            });
+          }
+        } 
       };
 
       await SendTransaction(accountAndBudget.account!, inputs, {
@@ -262,19 +263,19 @@ export default function DynamicRequest({
                 (coin) => coin.symbol === request.currency
               );
               const coin2 = Object.values(GetCoins).find(
-                (coin) => coin.symbol === request.secondaryCurrency
+                (coin) => coin.symbol === request.secondCurrency
               );
               let isAllowed: boolean = true;
               const balance1 = Object.values(balance).find(
                 (coin) => coin.symbol === request.currency
               )!.amount;
               const balance2 = Object.values(balance).find(
-                (coin) => coin.symbol === request.secondaryCurrency
+                (coin) => coin.symbol === request.secondCurrency
               )?.amount;
-              if (request.secondaryCurrency) {
+              if (request.secondCurrency) {
                 if (
                   balance1 < +request.amount ||
-                  balance2! < +request.secondaryAmount!
+                  balance2! < +request.secondAmount!
                 ) {
                   isAllowed = false;
                   notAllowed.push(request);
