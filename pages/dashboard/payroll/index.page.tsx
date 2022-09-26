@@ -4,15 +4,15 @@ import {  IMember } from 'types/dashboard/contributors';
 import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import { useWalletKit } from 'hooks';
-import  { TotalUSDAmount } from "pages/dashboard/requests/_components/totalAmount"
+import  { TotalFiatAmount } from "pages/dashboard/requests/_components/totalAmount"
 import Modal from 'components/general/modal';
-import TokenBalance from 'pages/dashboard/requests/_components/tokenBalance';
-import { SelectBalance, SelectContributorMembers, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
+import { SelectBalance, SelectContributorMembers, SelectFiatPreference, SelectFiatSymbol, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import PayrollItem from './_components/PayrollItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { Coins } from 'types';
 import RunModal from './_components/modalpay/runModal';
 import useLoading from 'hooks/useLoading';
+import { GetFiatPrice } from 'utils/const';
 
 
 export default function DynamicPayroll() {
@@ -21,6 +21,8 @@ export default function DynamicPayroll() {
     const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const contributors = useAppSelector(SelectContributorMembers)
     const [selectedContributors, setSelectedContributors] = useState<IMember[]>([]);
+    const defaultFiat = useAppSelector(SelectFiatPreference)
+    const fiatSymbol = useAppSelector(SelectFiatSymbol)
 
 
     useEffect(() => {
@@ -30,9 +32,8 @@ export default function DynamicPayroll() {
     }, [isAvaible])
 
     const { GetCoins, SendTransaction } = useWalletKit()
-    const balance = useAppSelector(SelectBalance)
 
-    const totalAmount =  TotalUSDAmount(contributors, GetCoins);
+    const totalAmount =  TotalFiatAmount(contributors, GetCoins, defaultFiat);
 
     const ExecutePayroll = async () => {
         try {
@@ -40,52 +41,53 @@ export default function DynamicPayroll() {
           const members = [...selectedContributors];
           for (const member of members){
             const amount = member.amount;
-            const currency = member.currency;
             const address = member.address;
-            const coin = Object.values(GetCoins).find((coin) => coin.symbol === currency)!;
-
-            if(member.usdBase){
-                if (member.secondaryAmount) {
-                    const secondaryAmount = member.secondaryAmount;
-                    const secondaryCurrency = member.secondaryCurrency;
-                    const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency)!;
-                    inputs.push({
-                      amount: Number(secondaryAmount) / coin2.priceUSD,
-                      coin: coin2.symbol,
-                      recipient: address,
-                    });
-                  }
-                  
-                  inputs.push({
-                    amount: Number(amount) / coin.priceUSD,
-                    coin: coin.symbol,
-                    recipient: address,
-                  });
+            const coin = Object.values(GetCoins).find((coin) => coin.symbol === member.currency);
+    
+            if(member.fiat) {
+              const fiatPrice = GetFiatPrice(coin!, member.fiat)
+    
+              inputs.push({
+                amount: Number(amount) / (fiatPrice),
+                coin: coin?.symbol ?? "",
+                recipient: address,
+              });
             } else {
-                if (member.secondaryAmount) {
-                  const secondaryAmount = member.secondaryAmount;
-                  const secondaryCurrency = member.secondaryCurrency;
-                  const coin2Symbol = Object.values(GetCoins).find((coin) => coin.symbol === secondaryCurrency)!.symbol;
-                  inputs.push({
-                    amount: Number(secondaryAmount),
-                    coin: coin2Symbol,
-                    recipient: address,
-                  });
-                }
-                
+              inputs.push({
+                amount: Number(amount),
+                coin: coin?.symbol ?? "",
+                recipient: address,
+              });
+            }
+    
+            if(member.secondCurrency && member.secondAmount) {
+              const secondAmount = member.secondAmount;
+              const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === member.secondCurrency);
+    
+              if(member.fiatSecond) {
+                const fiatPrice = GetFiatPrice(coin2!, member.fiatSecond)
+    
                 inputs.push({
-                  amount: Number(amount),
-                  coin: coin.symbol,
+                  amount: Number(secondAmount) / (fiatPrice),
+                  coin: coin2?.symbol ?? "",
                   recipient: address,
                 });
-            }
+              } else {
+                inputs.push({
+                  amount: Number(secondAmount),
+                  coin: coin2?.symbol ?? "",
+                  recipient: address,
+                });
+              }
+            } 
           };
-    
+
           await SendTransaction(accountAndBudget.account!, inputs, {
             budget: accountAndBudget.budget,
           })
     
           inputs = [];
+          
           setSelectedContributors([]);
           setIsAviable(false)
           setRunmodal(false)
@@ -102,7 +104,7 @@ export default function DynamicPayroll() {
       let total = 0
       for(const contributor of contributors){
         const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.currency)
-        const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.secondaryCurrency)
+        const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === contributor.secondCurrency)
 
         const amount = contributor.amount
         total += +amount * (coin1?.priceUSD ?? 0)
@@ -111,8 +113,8 @@ export default function DynamicPayroll() {
         } else{
           res[coin1?.symbol ?? ""] = +amount
         }
-        if(contributor.secondaryAmount){
-          const secondaryAmount = contributor.secondaryAmount
+        if(contributor.secondAmount){
+          const secondaryAmount = contributor.secondAmount
           total += +secondaryAmount * (coin2?.priceUSD ?? 0)
           if(res[coin2?.symbol ?? ""]){
             res[coin2?.symbol ?? ""] += +secondaryAmount
@@ -151,7 +153,7 @@ export default function DynamicPayroll() {
                     <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r border-greylish dark:border-[#454545] border-opacity-10'>
                         <div className='text-lg text-greylish dark:text-opacity-90 font-semibold'>Total Monthly Payment</div>
                         <div className='text-3xl font-semibold !mt-1'>
-                            ${totalAmount.toLocaleString()}
+                            {fiatSymbol}{totalAmount.toLocaleString()}
                         </div>
                     </div>
                     <div className="flex flex-col space-y-5 pl-8 !mt-0">

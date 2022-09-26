@@ -26,7 +26,9 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { Image } from "firebaseConfig";
+import { FiatMoneyList, Image } from "firebaseConfig";
+import PriceInputField from "components/general/PriceInputField";
+import { IoMdRemoveCircle } from "react-icons/io";
 
 const EditMember = () => {
     const navigate = useRouter();
@@ -50,43 +52,40 @@ const EditMember = () => {
       { name: "Part Time" },
       { name: "Bounty" },
     ];
-    const paymentBase: DropDownItem[] = [
-      { name: "Pay with Token Amounts" },
-      { name: "Pay with USD-based Amounts" },
-    ];  
 
-    const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === member.currency);
-    const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === member.secondaryCurrency);
-  
-    // console.log(member)
+
+    const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === member.secondCurrency);
 
 
     //States
+
     const [url, setUrl] = useState<string>(member.image?.imageUrl ?? "");
     const [type, setType] = useState<"image" | "nft">(member.image?.type ?? "image") 
-    const [first, setFirst] = useState<string>(member.first);
-    const [last, setLast] = useState<string>(member.last);
+    const [fullname, setFullname] = useState<string>(member.fullname);
     const [selectedTeam, setSelectedTeam] = useState<DropDownItem>({
       name: team.name,
       id: team.id,
     });
     const [selectedSchedule, setSchedule] = useState<DropDownItem>(schedule.find((s) => s.name === member.compensation) ?? schedule[0]);
-    const [selectedPaymentBase, setSelectedPaymentBase] = useState(member.usdBase ? paymentBase[1] : paymentBase[0]);
     const [role, setRole] = useState<string>(member.role);
-    const [selectedCoin1, setSelectedCoin1] = useState<AltCoins>(coin1 ?? Object.values(GetCoins)[0]);
-    const [amount1, setAmount1] = useState<number>(Number(member.amount) ?? 0);
-    const [selectedCoin2, setSelectedCoin2] = useState<AltCoins>(coin2 ?? Object.values(GetCoins)[0]);
-    const [amount2, setAmount2] = useState<number>(Number(member.secondaryAmount) ?? 0);
+
+    const [amount, setAmount] = useState<number | null>(+member.amount)
+    const [coin, setCoin] = useState<AltCoins | undefined>(Object.values(GetCoins).find((coin) => coin.symbol === member.currency) ?? Object.values(GetCoins)[0])
+    const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>(member.fiat)
+
+    const [amountSecond, setAmountSecond] = useState<number | null | undefined>(member.secondAmount ? +member.secondAmount : null)
+    const [coinSecond, setCoinSecond] = useState<AltCoins | undefined>(Object.values(GetCoins).find((coin) => coin.symbol === member.secondCurrency) ?? Object.values(GetCoins)[1])
+    const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>(member.fiatSecond)
+        
     const [address, setAddress] = useState<string>(member.address);
     
-    const [secondActive, setSecondActive] = useState(member.secondaryAmount ? true : false);
+    const [secondActive, setSecondActive] = useState(member.secondAmount ? true : false);
     const [startDate, setStartDate] = useState<Date>(new Date(member.paymantDate)); 
     const [endDate, setEndDate] = useState<Date>(new Date(member.paymantEndDate));
     const [loading, setLoading] = useState<boolean>(false);
     
     
     //Variables
-    const paymentBaseIsToken = selectedPaymentBase.name !== "Pay with Token Amounts";
     
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     
@@ -101,15 +100,17 @@ const EditMember = () => {
     
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>(member.interval === DateInterval.monthly ? Frequency[0] : Frequency[1]);
 
-  const submit = async () => {
-    const Team = selectedTeam;
-    const Compensation = selectedSchedule.name;
-    const Photo : Image = {
-        imageUrl: url,
-        nftUrl: url.toString(),
-        type: type,
-        tokenId: null,
-        blockchain: blockchain.name
+    const submit = async () => {
+      const Team = selectedTeam;
+      const Compensation = selectedSchedule.name;
+      const Coin1 = coin
+      const Coin2 = coinSecond
+      const Photo : Image = {
+          imageUrl: url,
+          nftUrl: url.toString(),
+          type: type,
+          tokenId: null,
+          blockchain: blockchain.name
     }
 
     const dateNow = new Date().getTime()
@@ -117,31 +118,30 @@ const EditMember = () => {
     setLoading(true)
 
     try {
+
       let newMember: IMember = {
-        taskId: member.taskId,
         id: id,
-        image:  url ? Photo : null ,
-        first,
-        name: `${first} ${last}`,
-        last,
-        role,
-        address,
-        compensation: Compensation,
-        amount: amount1.toString(),
-        currency: selectedCoin1.symbol,
+        fullname: fullname.trim(),
         teamId:  Team.id?.toString() ?? "",
-        usdBase: paymentBaseIsToken,
+        compensation: Compensation,
+        role,
+        amount: (amount ?? 1).toString(),
+        currency: Coin1?.symbol ?? "",
+        fiat: fiatMoney ?? null,
+        secondAmount: amountSecond ? amountSecond.toString() : null,
+        secondCurrency: Coin2 ? (Coin2.symbol) : null,
+        fiatSecond: fiatMoneySecond ?? null,
+        address,
+        execution: selectedPaymentType.name === "Auto" ? ExecutionType.auto : ExecutionType.manual,
         interval: selectedFrequency.type as DateInterval,
-        execution:
-          selectedPaymentType.name === "Auto" ? ExecutionType.auto : ExecutionType.manual,
         paymantDate: new Date(startDate ?? dateNow).getTime(),
         paymantEndDate: new Date(endDate ?? dateNow).getTime(),
-        secondaryAmount: amount2 && secondActive ? amount2.toString() : null,
-        secondaryCurrency: selectedCoin2?.symbol ? selectedCoin2.symbol : null,
+        image:  url ? Photo : null ,
+        taskId: member.taskId,
       };
 
       console.log(newMember)
-      //   Task Id meselesi hell ele
+        // Task Id meselesi hell ele
       await editMember(teamId, id, newMember);
       dispatch(
         updateMemberFromContributor({
@@ -171,26 +171,24 @@ const EditMember = () => {
             <div>
                 <div
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
-                    <div className="text-2xl self-center pt-2 font-semibold ">Add Contributor</div>
+                    <div className="text-2xl self-center pt-2 font-semibold ">Edit Member</div>
                     <div className="flex flex-col space-y-4">
                         <div className="flex flex-col mb-4 space-y-1 w-full">
                             <EditableAvatar  avatarUrl={member.image ? url : null } name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  />
                         </div>
                         <div className="grid grid-cols-2 gap-x-10">
-                            <TextField label="Name" value={first} onChange={(e) =>  setFirst(e.target.value)} className="bg-white dark:bg-darkSecond" variant="outlined" />
-                            <TextField label="Surname" value={last} onChange={(e) => setLast(e.target.value)} defaultValue={member.last} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                            <TextField label="Full Name" value={fullname} onChange={(e) =>  setFullname(e.target.value)} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                            <Dropdown
+                                label="Workstream"
+                                setSelect={setSelectedTeam}
+                                selected={selectedTeam}
+                                list={teams}
+                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                            />
                         </div>  
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
-                        <Dropdown
-                            label="Workstream"
-                            setSelect={setSelectedTeam}
-                            selected={selectedTeam}
-                            list={teams}
-                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                        />
-
                         <Dropdown
                             label="Compensation Type"
                             className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
@@ -199,67 +197,46 @@ const EditMember = () => {
                             setSelect={setSchedule}
                             sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
                         />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-10">
-                        <Dropdown
-                            label="Amount Type"
-                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                            parentClass={' w-full rounded-md h-[3.15rem] '}
-                            selectClass={'!text-sm'}
-                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                            list={paymentBase}
-                            selected={selectedPaymentBase}
-                            setSelect={setSelectedPaymentBase}
-                        />
                         <TextField label="Role"  value={role} onChange={(e) => setRole(e.target.value)} className="bg-white dark:bg-darkSecond" variant="outlined" />
                     </div>
                     <div className="flex w-full gap-x-10">
-                        <div className="w-full h-full flex flex-col ">
-                            <Dropdown
-                                label="Token"
-                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                                selected={selectedCoin1}
-                                setSelect={val => {
-                                    setSelectedCoin1(val)
-                                }}
-                                list={Object.values(GetCoins)}
-                            />
-                        </div>
-                        <div className="w-full h-full flex flex-col relative">
-
-                        {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                            <TextField label="Amount"  value={amount1} onChange={(e) => setAmount1(Number(e.target.value))} type="number" inputProps={{step: "0.01"}}  className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
-                        </div>
+                        <PriceInputField 
+                          isMaxActive={true}
+                          coins={GetCoins} 
+                          defaultCoin={Object.values(GetCoins).find((coin) => coin.symbol === member.currency)}
+                          defaultValue={+member.amount}
+                          defaultFiat={member.fiat ?? undefined}
+                          onChange={(val, coin, fiatMoney) => {
+                            setAmount(val)
+                            setCoin('amount' in coin ? coin.coin : coin)
+                            setFiatMoney(fiatMoney ?? null)
+                          }}
+                        />
                     </div>
-                    {secondActive ?
-                        <div className="flex w-full gap-x-10">
-                            <div className="w-full h-full flex flex-col ">
-                                <Dropdown
-                                    label="Token"
-                                    className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                                    selected={selectedCoin2}
-                                    sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                                    setSelect={val => {
-                                        setSelectedCoin2(val)
-                                    }}
-                                    list={Object.values(GetCoins)}
-                                />
-                            </div>
-                            <div className="w-full h-full flex flex-col relative">
-                                <div className="flex items-center">
-                                    <div className="absolute -right-[2rem] top-[0.8rem]">
-                                        <DeleteOutlinedIcon className="hover:text-gray-600 cursor-pointer w-5 h-5" onClick={() => {
-                                            setSecondActive(false)
-                                        }} />
-                                    </div>
-                                </div>
-                                {selectedPaymentBase.name === "Pay with USD-based" && <span className="text-sm self-center pl-2 pt-1 opacity-70 dark:text-white absolute top-4 right-10 z-[999] ">USD as</span>}
-                                <TextField type={'number'} label="Amount" value={amount2} onChange={(e) => setAmount2(Number(e.target.value))} defaultValue={member.secondaryAmount} inputProps={{step: 0.02}} className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white " required variant="outlined" />
-                            </div>
-                        </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span> Add another token</div>}
+                    {secondActive ? 
+                        <div className="col-span-2 relative">
+                            <PriceInputField 
+                              isMaxActive={true}
+                              coins={GetCoins}
+                              defaultCoin={Object.values(GetCoins).find((coin) => coin.symbol === member.secondCurrency)}
+                              defaultValue={member.secondAmount ? +member.secondAmount : undefined}
+                              defaultFiat={member.fiatSecond ?? undefined}
+                              onChange={(val, coin, fiatMoney) => {
+                                setAmountSecond(val)
+                                setCoinSecond('amount' in coin ? coin.coin : coin)
+                                setFiatMoneySecond(fiatMoney ?? null)
+                              }}
+                            />
+                        <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
+                          setSecondActive(false),
+                          setCoinSecond(undefined),
+                          setAmountSecond(undefined)
+                        }}>
+                          <IoMdRemoveCircle color="red" />
+                        </div>
+                      </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span>Add</div>}
                     <div className="flex flex-col space-y-1">
-                        <TextField value={address} onChange={(e) => setAddress(e.target.value)} label="Wallet Address" defaultValue={member.address} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <TextField value={address} onChange={(e) => setAddress(e.target.value)} label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
                     </div>
                     <div className="flex gap-x-10">
                         <div className="flex flex-col space-y-1 w-full">

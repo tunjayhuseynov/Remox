@@ -124,11 +124,11 @@ export default () => {
 
             let member: IMember = {
                 id: uuidv4(),
-                fullname: `${data.fullname.trim()}`,
+                fullname: data.fullname.trim(),
                 teamId: Team.id!.toString(),
                 compensation: Compensation,
                 role: `${data.role}`,
-                amount: (amount ?? 0).toString() ,
+                amount: (amount ?? 1).toString() ,
                 currency: Coin1?.symbol ?? "",
                 fiat: fiatMoney ?? null,
                 secondAmount: amountSecond ? amountSecond.toString() : null,
