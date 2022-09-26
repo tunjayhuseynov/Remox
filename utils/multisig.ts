@@ -5,7 +5,7 @@ import { CeloInputReader, ERC20MethodIds, GenerateTransaction } from "hooks/useT
 import { MethodIds, MethodNames, ITransactionMultisig, IMultisigSafeTransaction } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
 import { AltCoins, Coins } from "types";
-import { Blockchains, BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction } from "types/GnosisSafe";
 import { DecimalConverter } from "./api";
 import erc20 from 'rpcHooks/ABI/erc20.json'
@@ -47,7 +47,7 @@ export const MultisigTxParser = async (
             parsedData: ParsedMultisigData | null, timestamp: number,
             contractAddress: string, contractOwnerAmount: number, contractThreshold: number,
             contractInternalThreshold: number, name: string, created_at: number,
-            budgets: IBudgetORM[], coins: Coins, contractOwners: string[], provider: string
+            budgets: IBudgetORM[], coins: Coins, contractOwners: string[], provider: MultisigProviders
         }
 ) => {
 

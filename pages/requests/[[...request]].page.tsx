@@ -1,16 +1,15 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Button from "components/button";
 import { useSelector } from "react-redux";
-import { AltCoins, Coins, CoinsName, DropDownItem } from "types";
+import { AltCoins } from "types";
 import Upload from "components/upload";
 import useRequest from "hooks/useRequest";
 import Modal from "components/general/modal";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { FormControl, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { GetTime } from "utils";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Dropdown from "components/general/dropdown";
 import useLoading from "hooks/useLoading";
 import { UploadImage } from "rpcHooks/useFirebase";
 import { storage } from "firebaseConfig/firebase";
@@ -29,6 +28,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import PriceInputField from "components/general/PriceInputField";
 import { IPrice } from "utils/api";
 import { FiatMoneyList } from 'firebaseConfig';
+import { IoMdRemoveCircle } from "react-icons/io";
 
 export interface IFormInput {
   fullname: string;
@@ -121,30 +121,28 @@ export default function RequestId() {
         setImageRef(ref(storage, url));
       }
 
-      // const result = {
-      //   id: nanoid(),
-      //   address: data.address,
-      //   fullname: data.fullname,
-      //   amount: data.amount.toString(),
-      //   currency: selectedCoin?.symbol ?? "",
-      //   requestType: data.requestType,
-      //   nameOfService: data.serviceName,
-      //   serviceDate: GetTime(ServDate!),
-      //   timestamp: GetTime(),
-      //   secondaryAmount: data.amount2 ? data.amount2.toString() : null,
-      //   secondaryCurrency: selectedCoin2?.symbol ?? "",
-      //   status: RequestStatus.pending,
-      //   attachLink: data.link ? data.link : null,
-      //   uploadedLink: Invoice ? url : null,
-      // };
-      
-      console.log(amount)
-      console.log(fiatMoney)
-      console.log(coin)
+      const result : IRequest = {
+        id: nanoid(),
+        fullname: data.fullname,
+        address: data.address,
+        amount: (amount ?? 0).toString() ,
+        currency: coin?.symbol ?? "",
+        fiat: fiatMoney ?? null,
+        secondAmount: (amountSecond ?? 0).toString(),
+        secondCurrency: coinSecond?.symbol ?? null,
+        fiatSecond: fiatMoneySecond ?? null,
+        requestType: data.requestType,
+        nameOfService: data.serviceName,
+        serviceDate: GetTime(ServDate!),
+        attachLink: data.link ? data.link : null,
+        uploadedLink: Invoice ? url : null,
+        timestamp: GetTime(),
+        status: RequestStatus.pending,
+      };
 
-      // setRequest(result);
-      // setFileName(Invoice?.name ?? "");
-      // setModal(true);
+      setRequest(result);
+      setFileName(Invoice?.name ?? "");
+      setModal(true);
     } catch (error) {
       console.error(error);
     }
@@ -228,39 +226,21 @@ export default function RequestId() {
                     />
                   </div>
                   {secondActive ? (
-                    <div className="flex gap-x-10">
-                      {/* <div className="w-full h-full">
-                        <Dropdown
-                          label="Token"
-                          className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                          selected={selectedCoin2}
-                          sx={{
-                            ".MuiSelect-select": {
-                              paddingTop: "6px",
-                              paddingBottom: "6px",
-                              maxHeight: "52px",
-                            },
-                          }}
-                          setSelect={(val) => {
-                            setSelectedCoin2(val);
-                          }}
-                          list={Object.values(GetCoins)}
-                        />
+                    <div className="col-span-2 relative">
+                      <PriceInputField 
+                        isMaxActive
+                        coins={GetCoins.reduce((a, v) => ({...a, [v.name] : v}), {})} 
+                        onChange={(val, coin, fiatMoney) => {
+                          setAmountSecond(val)
+                          setCoinSecond('amount' in coin ? coin.coin : coin)
+                          setFiatMoneySecond(fiatMoney ?? null)
+                        }}
+                      />
+                      <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
+                        setSecondActive(false)
+                      }}>
+                        <IoMdRemoveCircle color="red" />
                       </div>
-                      <div className="w-full h-full">
-                        <TextField
-                          type={"number"}
-                          label="Amount"
-                          {...register("amount2", {
-                            required: true,
-                            valueAsNumber: true,
-                          })}
-                          inputProps={{ step: 0.01 }}
-                          className="outline-none unvisibleArrow pl-2 bg-white dark:bg-darkSecond  dark:text-white w-full"
-                          required
-                          variant="outlined"
-                        />
-                      </div> */}
                     </div>
                   ) : (
                     <div
@@ -325,11 +305,10 @@ export default function RequestId() {
                   </div>
                   <div className="flex flex-col space-y-2 w-[82%] sm:w-full">
                     <span className="text-left  text-greylish pb-2 ml-2">
-                      Upload receipt or invoice{" "}
-                      <span className="text-black">(optional)</span>
+                      Upload receipt or invoice{" "}(optional)
                     </span>
                     <div className="grid grid-cols-1 bg-white">
-                      <Upload setFile={setFile} noProfilePhoto={false} />
+                      <Upload className="!border-greylish" setFile={setFile} noProfilePhoto={false} />
                     </div>
                   </div>
                 </div>

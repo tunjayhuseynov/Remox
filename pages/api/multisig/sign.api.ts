@@ -9,6 +9,7 @@ import Multisig from 'rpcHooks/ABI/CeloTerminal.json'
 import { Blockchains, BlockchainType } from "types/blockchains";
 import GnosisABI from 'rpcHooks/ABI/Gnosis.json'
 import { hexToNumberString } from "web3-utils";
+import axios from "axios";
 
 export interface IMultisigThreshold {
     sign: number;
@@ -21,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const { blockchain, address: multisigAddress, providerName } = req.query as { blockchain: BlockchainType["name"], address: string, providerName: string };
 
         const Blockchain = Blockchains.find((b) => b.name === blockchain);
+        if (!Blockchain) throw new Error("Blockchain not found")
 
         if (blockchain === 'solana') {
             const pb = new PublicKey(multisigAddress)
@@ -50,17 +52,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const sign = (await contract.required()).toNumber();
             const internalSign = (await contract.internalRequired()).toNumber();
             return res.status(200).json({ sign: sign, internalSign: internalSign })
-        } else if(providerName === "GnosisSafe"){
-            const provider = new ethers.providers.JsonRpcProvider(Blockchain?.rpcUrl);
+        } else if (providerName === "GnosisSafe") {
+            const { data } = await axios.get(Blockchain.multisigProviders.find(p => p.name === providerName)?.txServiceUrl + "/api/v1/safes/" + multisigAddress)
 
-            const contract = new Contract(multisigAddress, GnosisABI, provider)
-
-            const hex = await contract.getThreshold();
-
-            const threshold = hexToNumberString(hex);
-
-            return res.status(200).json({sign: +
-                threshold})
+            return res.status(200).json({
+                sign: +data.threshold,
+                internalSign: +data.threshold
+            })
         }
         throw new Error(`Invalid multiSignature`)
     } catch (e: any) {

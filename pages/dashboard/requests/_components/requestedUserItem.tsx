@@ -100,9 +100,9 @@ const RequestedUserItem = ({
       }
     ]
 
-    if(request.secondaryAmount && request.secondaryCurrency){
+    if(request.secondAmount && request.secondCurrency){
       inputs.push({
-        amount: Number(request.secondaryAmount),
+        amount: Number(request.secondAmount),
         coin: coin2?.symbol ?? "",
         recipient: request.address,
       })
@@ -207,14 +207,14 @@ const RequestedUserItem = ({
                   : "w-[1.563rem] h-[1.563rem] text-xs"
               } flex items-center justify-center rounded-full font-bold `}
             >
-              {request.image ? (
+              {request.uploadedLink ? (
                 <img
-                  src={`/icons/profilePhoto/${request.image}`}
+                  src={request.uploadedLink}
                   alt=""
                   className="  w-12 h-12 border items-center justify-center rounded-full"
                 />
               ) : (
-                <Avatar name={request.name} surname={request.surname} />
+                <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               )}
             </div>
           </div>
@@ -226,10 +226,7 @@ const RequestedUserItem = ({
             <div className="font-medium text-lg  ">
               {
                 <span>
-                  {" "}
-                  {request.name
-                    ? `${request.name} ${request.surname}`
-                    : "Unknown"}{" "}
+                    {request.fullname}
                 </span>
               }
             </div>

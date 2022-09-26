@@ -85,7 +85,15 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
 export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/remove_tx_from_budget", async ({ budget, tx, isExecuted }, api) => {
     const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({
-        ...budget,
+        amount: budget.amount,
+        created_at: budget.created_at,
+        id: budget.id,
+        name: budget.name,
+        parentId: budget.parentId,
+        secondAmount: budget.secondAmount,
+        secondToken: budget.secondToken,
+        subbudgets: budget.subbudgets,
+        token: budget.token,
         txs: budget.txs.filter(s => s.contractAddress.toLowerCase() !== tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== tx.hashOrIndex.toLowerCase())
     })
     const currency = currencies[tx.token];

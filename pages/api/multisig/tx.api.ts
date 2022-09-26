@@ -25,7 +25,7 @@ import { lamport } from "utils/ray";
 import { u64 } from "@saberhq/token-utils";
 import { GetTime } from "utils";
 import { SolanaSerumEndpoint } from "components/Wallet";
-import { Blockchains, BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import { ITag } from "../tags/index.api";
 import axios from "axios";
@@ -49,7 +49,6 @@ export default async function handler(
             blockchain,
             index,
             address: multisigAddress,
-            Skip,
             name,
             providerName
         } = req.query as {
@@ -57,11 +56,9 @@ export default async function handler(
             id: string;
             index: string;
             address: string;
-            Skip: string;
             name: string;
-            providerName: string;
+            providerName: MultisigProviders;
         };
-        const skip = +Skip;
 
         let tags = (
             await adminApp.firestore().collection("tags").doc(id).get()
@@ -71,10 +68,6 @@ export default async function handler(
             (blch: BlockchainType) => blch.name === blockchain
         );
         if (!Blockchain) throw new Error("Blockchain not found");
-
-        let transactionArray: ITransactionMultisig[] = [];
-
-        let safeTransactions: IMultisigSafeTransaction[] = [];
 
         const CoinsReq = await adminApp
             .firestore()
@@ -199,16 +192,10 @@ export default async function handler(
         //         }
         //     }
         // }
-        if (blockchain === "celo") {
+        if (providerName === "Celo Terminal") {
             const web3 = new Web3(Blockchain.rpcUrl);
 
             const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress);
-
-            let Total = await contract.methods.transactionCount().call();
-            let total = Total;
-            if (total > skip) {
-                total -= skip;
-            }
 
             const GetTx = async (index: number, budgets: IBudgetORM[], coins: Coins) => {
 
@@ -251,12 +238,9 @@ export default async function handler(
                 return acc;
             }, []);
 
-            const list = await Promise.all(
-                Array.from(Array(total).keys()).map((s) => GetTx(total - 1 - s, budgets, Coins))
-            );
-            transactionArray.push(...(list.filter(s => s.tx && s.tx.method)));
+            return await GetTx(+index, budgets, Coins)
         }
-        else if (blockchain.includes("evm") && name === "GnosisSafe") {
+        else if (providerName === "GnosisSafe") {
             const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/multisig-transactions/${index}`;
             const response = await axios.get(api);
             const transactionsData = response.data;
@@ -277,12 +261,9 @@ export default async function handler(
                 }
             })
 
-            const safeTxs = await Promise.all(transactionsData.results.map((tx: any) => parseSafeTransaction(tx, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])))
-            transactionArray.push(...safeTxs);
+            const safeTxs = await parseSafeTransaction(transactionsData, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])
+            return safeTxs
         }
-
-        return transactionArray;
-
     } catch (e: any) {
         console.error(e);
         throw new Error(e);

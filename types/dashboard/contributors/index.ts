@@ -1,4 +1,4 @@
-import { Image } from "firebaseConfig";
+import { FiatMoneyList, Image } from "firebaseConfig";
 import { CoinsName } from "types/coins";
 
 export enum DateInterval {
@@ -22,22 +22,23 @@ export enum ExecutionType {
 
 export interface IMember {
     id: string;
-    name: string,
+    fullname: string,
     first: string,
     last: string,
+    address: string,
+    amount: string,
+    currency: string,
+    fiat: FiatMoneyList | null,
+    secondAmount: string | null,
+    secondCurrency: string | null,
+    fiatSecond: FiatMoneyList | null
     role: string,
     image: Image | null,
-    address: string,
     compensation: string,
-    currency: string,
-    amount: string,
     teamId: string,
     execution: ExecutionType,
     paymantDate: number | string,
     paymantEndDate: number | string ,
     interval: DateInterval,
-    usdBase: boolean,
-    secondaryCurrency: string | null,
-    secondaryAmount: string | null,
     taskId: string | null,
 }

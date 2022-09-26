@@ -3,6 +3,7 @@ import { useFirestoreRead } from "./useFirebase";
 import { useSelector } from "react-redux";
 import useNextSelector from "hooks/useNextSelector";
 import { useAppSelector } from "redux/hooks";
+import { FiatMoneyList } from 'firebaseConfig';
 import { SelectProviderAddress } from "redux/slices/account/remoxData";
 
 export interface IRequest {
@@ -10,18 +11,16 @@ export interface IRequest {
     fullname: string;
     address: string;
     amount: string;
-    image?: string;
     currency: string;
-    secondaryAmount: string | null;
-    secondaryCurrency: string | null;
-
+    fiat: FiatMoneyList | null;
+    secondAmount: string | null;
+    secondCurrency: string | null;
+    fiatSecond: FiatMoneyList | null;
     requestType: string;
     nameOfService: string;
     serviceDate: number;
     attachLink: string | null;
     uploadedLink: string | null;
-
-    usdBase: boolean;
     timestamp: number;
     status: RequestStatus;
 }

@@ -50,7 +50,7 @@ export default function Upload({
   return (
     <>
       {noProfilePhoto ? (
-        <section className="border-solid border-2 border-black">
+        <section className="request-form-image">
           <div
             {...getRootProps({
               className: `${className}  w-32 h-32 border bg-white dark:bg-darkSecond  rounded-full flex justify-center mx-auto items-center relative`,
@@ -71,10 +71,10 @@ export default function Upload({
           </div>{" "}
         </section>
       ) : (
-        <section className="border-solid border-2 border-black">
+        <section className="request-form-image">
           <div
             {...getRootProps({
-              className: ` ${className} h-[11.375rem] border bg-white dark:bg-darkSecond border-dashed rounded-md flex justify-center items-center`,
+              className: ` ${className} h-[11.375rem] bg-white dark:bg-darkSecond rounded-md flex justify-center items-center request-form-image`,
             })}
           >
             <input type="file" {...getInputProps()} />
@@ -84,9 +84,11 @@ export default function Upload({
               </aside>
             ) : (
               <div>
-                <div className="text-center">
-                  Drag and drop files or{" "}
-                  <span className="text-primary">Browse your folder</span>
+                <div className="flex flex-col items-center
+                 space-y-5">
+                  <img src="/icons/RequestInputImage.png" alt="" />
+                  
+                  <p >Drag and drop files or <span className="text-primary">Browse your folder</span></p>
                 </div>
               </div>
             )}

@@ -19,7 +19,7 @@ import { AltCoins } from "types";
 
 interface IProps {
     addressBook: IAddressBook[],
-    onChange: (amount: number | null, address: string | null, coin: AltCoins, fiatMoney: FiatMoneyList | null, name: string | null, amountSecond: number | null, coinSecond: AltCoins, fiatMoneySecond: FiatMoneyList | null) => void,
+    onChange: (amount: number | null, address: string | null, coin: AltCoins | null, fiatMoney: FiatMoneyList | null, name: string | null, amountSecond: number | null, coinSecond: AltCoins | null, fiatMoneySecond: FiatMoneyList | null) => void,
     onDelete: () => void,
     onDeleteSecond: () => void,
     input: IPaymentInputs,
@@ -32,13 +32,13 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
 
     const [amount, setAmount] = useState<number | null>(input.amount)
     const [address, setAddress] = useState<string | null>(input.address)
-    const [coin, setCoin] = useState<AltCoins>(input.coin)
+    const [coin, setCoin] = useState<AltCoins | null>(input?.coin ?? null)
     const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>(input.fiatMoney)
     const [name, setName] = useState<string | null>(input.name ?? null)
 
 
     const [amountSecond, setAmountSecond] = useState<number | null>(input.amount)
-    const [coinSecond, setCoinSecond] = useState<AltCoins>(input.coin)
+    const [coinSecond, setCoinSecond] = useState<AltCoins | null>(input?.second?.coin ?? null)
     const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>(input.fiatMoney)
 
     const [isSecondOptionActive, setSecondOptionActive] = useState<boolean>(!!input.second)
@@ -75,10 +75,8 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                 />
             </div>
             <div className="col-span-2 relative">
-                <PriceInputField isMaxActive coins={coins} defaultValue={input.amount} defaultCoin={input.coin} onChange={(val, coin, fiatMoney) => {
+                <PriceInputField isMaxActive coins={coins} defaultValue={input.amount} defaultCoin={input.coin ?? undefined} onChange={(val, coin, fiatMoney) => {
                     setAmount(val)
-                    console.log(fiatMoney)
-                    console.log(coin)
                     setCoin('amount' in coin ? coin.coin : coin)
                     setFiatMoney(fiatMoney ?? null)
                 }} />
@@ -95,7 +93,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                 </div>
                 :
                 <div className="col-span-2 relative">
-                    <PriceInputField isMaxActive coins={coins} defaultValue={input.second?.amount ?? null} defaultCoin={input.second?.coin} onChange={(val, coin, fiatMoney) => {
+                    <PriceInputField isMaxActive coins={coins} defaultValue={input.second?.amount ?? null} defaultCoin={input.second?.coin ?? undefined} onChange={(val, coin, fiatMoney) => {
                         setAmountSecond(val)
                         setCoinSecond('amount' in coin ? coin.coin : coin)
                         setFiatMoneySecond(fiatMoney ?? null)

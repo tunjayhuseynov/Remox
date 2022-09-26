@@ -27,26 +27,16 @@ export default ({
   const { handleSubmit } = useForm();
 
   const currency = GetCoins.find((coin) => coin.symbol === request.currency);
-  const secondCurrency = GetCoins.find((coin) => coin.symbol === request.secondaryCurrency);
+  const secondCurrency = GetCoins.find((coin) => coin.symbol === request.secondCurrency);
   
   return (
     <div className="flex flex-col space-y-8 px-2">
-      <div className="font-semibold">Overview</div>
-      <div className="flex flex-col space-y-2">
-        <div className="flex justify-between border-b pb-8">
-          <div className="text-greylish">Status</div>
-          <div className="flex gap-x-2 items-center ">
-            <span className="w-2 h-2 rounded-full bg-primary"></span>  
-            {request?.status}
-          </div>
-        </div>
-      </div>
       <div className="font-semibold">Payee information</div>
       <div className="flex flex-col space-y-5">
-        {!!request?.name && (
+        {!!request?.fullname && (
           <div className="flex justify-between">
             <div className="text-greylish">Full Name</div>
-            <div>{`${request?.name} ${request?.surname}`}</div>
+            <div>{`${request?.fullname}`}</div>
           </div>
         )}
         <div className="flex justify-between">
@@ -67,7 +57,7 @@ export default ({
                 <div className="flex gap-x-2 items-center">
                   {!!request?.currency && (
                     <div className="flex items-center">
-                      {request.usdBase ? <span className="mr-2">USD as</span> : ""}
+                      {request.fiat ? <span className="mr-2">{request.fiat} as</span> : ""}
                       <img
                         src={currency!.logoURI}
                         className="rounded-xl w-[1.25rem] h-[1.25rem]"
@@ -78,17 +68,17 @@ export default ({
                 </div>
               </div>
             </div>
-            {!!request?.secondaryCurrency && !!request?.secondaryAmount && (
+            {!!request?.secondCurrency && !!request?.secondAmount && (
               <div>
                 <div className="flex gap-x-5 justify-between">
                   <div className="flex gap-x-2 items-center">
                     <span className="w-2 h-2 rounded-full bg-primary"></span>
-                    {request?.secondaryAmount}
+                    {request?.secondAmount}
                   </div>
                   <div className="flex gap-x-2 items-center">
                     {secondCurrency ? (
                       <div className="flex items-center">
-                      {request.usdBase ? <span className="mr-2">USD as</span> : ""}
+                      {request.fiatSecond ? <span className="mr-2">{request.fiat} as</span> : ""}
                       <img
                         src={secondCurrency!.logoURI}
                         className="rounded-xl w-[1.25rem] h-[1.25rem]"
@@ -104,14 +94,6 @@ export default ({
                 </div>
               </div>
             )}
-          </div>
-        </div>
-        <div className="flex justify-between border-b pb-8">
-          <div className="text-greylish">Total</div>
-          <div>
-            {!request.usdBase ? request?.secondaryAmount && secondCurrency ? ((+request?.secondaryAmount * secondCurrency?.priceUSD) + (+request?.amount * currency!.priceUSD)).toFixed(4) : (+ request?.amount * currency!.priceUSD).toFixed(4) : request?.secondaryAmount ? request.amount + request.secondaryAmount : request.amount}
-            {" "}
-            USD
           </div>
         </div>
       </div>
