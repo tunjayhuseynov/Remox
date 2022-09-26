@@ -6,6 +6,7 @@ import { SelectCurrencies, SelectTotalBalance } from "redux/slices/account/selec
 import { AltCoins, Coins } from "types";
 import { SetComma } from 'utils'
 import { useWalletKit } from "hooks";
+import { GetFiatPrice } from "utils/const";
 
 export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) => {
     return coinList.reduce((acc, curr) => {
@@ -13,20 +14,23 @@ export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) =
         if (coin) {
             const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
 
-            if (curr.usdBase) {
+            if (curr.fiat) {
                 acc + amount
             } else {
-                acc += ((coin?.priceUSD ?? 1) * amount)
+                const fiatPrice = GetFiatPrice(coin!, curr.fiat)
+                acc += ((fiatPrice ?? 1) * amount)
             }
 
-            if (curr.secondaryCurrency && curr.secondaryAmount) {
-                const secondaryCoin = Object.values(Coins).find((c) => c.symbol === curr.secondaryCurrency)
-                if (secondaryCoin) {
-                    const secondaryAmount = typeof curr.secondaryAmount === "string" ? parseFloat(curr.secondaryAmount) : curr.secondaryAmount
-                    if (curr.usdBase) {
+            if (curr.secondCurrency && curr.secondAmount) {
+                const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
+                if (secondCoin) {
+                    const secondaryAmount = typeof curr.secondAmount === "string" ? parseFloat(curr.secondAmount) : curr.secondAmount
+                    if (curr.fiatSecond) {
                         acc + secondaryAmount
                     } else {
-                        acc += ((secondaryCoin?.priceUSD ?? 1) * secondaryAmount)
+
+
+                        //  acc += ((seconCoin?.priceUSD ?? 1) * secondaryAmount)
                     }
                 }
             }

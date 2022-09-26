@@ -16,11 +16,11 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
 
     const cleanList: (IRequest | IMember)[] = []
     coinList.forEach(item => {
-        if (item.secondaryAmount && item.secondaryCurrency) {
+        if (item.secondAmount && item.secondCurrency) {
             cleanList.push({
                 ...item,
-                amount: item.secondaryAmount,
-                currency: item.secondaryCurrency,
+                amount: item.secondAmount,
+                currency: item.secondCurrency,
             })
         } else {
             cleanList.push(item)

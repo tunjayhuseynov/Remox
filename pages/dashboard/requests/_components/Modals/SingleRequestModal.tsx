@@ -45,12 +45,10 @@ const SingleRequestModal = ({
         )}
         <div className="font-semibold text-xl my-4">Payee information</div>
         <div className="flex flex-col space-y-2">
-          {!!request?.name && (
-            <div className="flex justify-between">
-              <div className="text-greylish">Full Name</div>
-              <div>{`${request?.name} ${request?.surname}`}</div>
-            </div>
-          )}
+          <div className="flex justify-between">
+            <div className="text-greylish">Full Name</div>
+            <div>{request.fullname}</div>
+          </div>
           <div className="flex justify-between">
             <div className="text-greylish">Wallet Adress</div>
             <div className="truncate">
@@ -58,74 +56,58 @@ const SingleRequestModal = ({
                 AddressReducer(request?.address)}
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className={`flex justify-between ${!(request.secondCurrency && request.secondAmount) ? "border-b pb-5" : ""}`}>
             <div className="text-greylish">Requesting Amount</div>
             <div className="flex flex-col space-y-3">
-              <div>
-                <div className="flex gap-x-5 justify-between">
+                <div className="flex gap-x-3 justify-between">
+                  <div className="flex gap-x-2 items-center">
+                    <span className="w-2 h-2 rounded-full bg-primary"></span>
+                      {request?.amount}
+                  </div>
                   <div className="flex gap-x-2 items-center">
                     {!!request?.currency && (
                       <div className="flex items-center">
-                        {request.usdBase ? (
-                          <span className="mr-2">USD as</span>
-                        ) : (
-                          ""
-                        )}
+                        {request.fiat ? <span className="mr-2">{request.fiat} as</span> : ""}
                         <img
                           src={coin1!.logoURI}
                           className="rounded-xl w-[1.25rem] h-[1.25rem]"
                         />
                       </div>
                     )}
-                  </div>
-                  <div className="flex gap-x-2 items-center">
-                    {request?.amount}
+                    {coin1 ? <span>{coin1!.name}</span> : "Token not provided"}
                   </div>
                 </div>
-              </div>
-              {!!request?.secondaryCurrency && !!request?.secondaryAmount && (
-                <div>
-                  <div className="flex gap-x-5 justify-between">
+            </div>
+          </div>
+            {!!request?.secondCurrency && !!request?.secondAmount && (
+              <div className="flex justify-between border-b pb-5">
+                <div className="text-greylish">Requesting Amount 2</div>
+                <div className="flex flex-col space-y-3">
+                  <div className="flex gap-x-3 justify-between">
+                    <div className="flex gap-x-2 items-center">
+                      <span className="w-2 h-2 rounded-full bg-primary"></span>
+                      {request?.secondAmount}
+                    </div>
                     <div className="flex gap-x-2 items-center">
                       {coin2 ? (
                         <div className="flex items-center">
-                          {request.usdBase ? (
-                            <span className="mr-2">USD as</span>
-                          ) : (
-                            ""
-                          )}
-                          <img
-                            src={coin2!.logoURI}
-                            className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                          />
-                        </div>
+                        {request.fiatSecond ? <span className="mr-2">{request.fiat} as</span> : ""}
+                        <img
+                          src={coin2!.logoURI}
+                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
+                        />
+                      </div>
                       ) : (
                         ""
                       )}
-                    </div>
-                    <div className="flex gap-x-2 items-center">
-                      {request?.secondaryAmount}
+                      {coin2
+                        ? <span>{coin2.name}</span> 
+                        : ""}
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-          <div className="flex justify-between border-b pb-8">
-            <div className="text-greylish">Total</div>
-            <div>
-             ${!request.usdBase
-                ? request?.secondaryAmount && coin2
-                  ? (
-                      +request?.secondaryAmount * coin2?.priceUSD +
-                      +request?.amount * coin1!.priceUSD
-                    ).toFixed(4)
-                  : (+request?.amount * coin1!.priceUSD).toFixed(4)
-                : request?.secondaryAmount
-                ? request.amount + request.secondaryAmount
-                : request.amount}{" "}
-            </div>
-          </div>
+              </div>
+            )}
         </div>
         <div className="font-semibold text-xl my-4">Details</div>
         <div className="flex flex-col space-y-2 ">
