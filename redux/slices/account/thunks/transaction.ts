@@ -16,7 +16,6 @@ export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | I
                 id: authId,
                 index: txHash,
                 address: account.address,
-                Skip: 0,
                 name: account.name,
                 providerName: account.provider
             }

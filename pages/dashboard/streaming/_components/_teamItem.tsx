@@ -43,8 +43,8 @@ const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IPro
         (s.address?.toLowerCase() !== task.address.toLowerCase() && s.hash?.toLowerCase() !== task.hash.toLowerCase())
 
     return <>
-        <div className={`pl-5 grid ${selectMode ? "grid-cols-[5%,12.5%,repeat(5,minmax(0,1fr))]" : "grid-cols-[12.5%,repeat(5,minmax(0,1fr))]"} py-10 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom`}>
-            {selectMode && <div className="flex space-x-3 items-center">
+        <tr className={`pl-5 grid ${selectMode ? "grid-cols-[5%,12.5%,repeat(5,minmax(0,1fr))]" : "grid-cols-[12.5%,repeat(5,minmax(0,1fr))]"} py-10 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom`}>
+            {selectMode && <td className="flex space-x-3 items-center">
                 <input type="checkbox" checked={reccuringState[0].some(someFn)} className="relative cursor-pointer max-w-[1.25rem] max-h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
                     const members = [...reccuringState[0]]
                     if (e.target.checked) {
@@ -63,8 +63,8 @@ const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IPro
                     }
                 }
                 } />
-            </div>}
-            <div className="hover:cursor-pointer flex items-center gap-2">
+            </td>}
+            <td className="hover:cursor-pointer flex items-center gap-2">
                 <Avatar src={member?.image?.imageUrl} />
                 <div className="flex flex-col gap-1">
                     <div className="font-semibold text-base">
@@ -72,24 +72,24 @@ const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IPro
                     </div>
                     {member && <div className="text-greylish text-sm">{AddressReducer(task.to)}</div>}
                 </div>
-            </div>
-            <div className="flex space-x-8 items-center">
+            </td>
+            <td className="flex space-x-8 items-center">
                 {task.startTime && <>
                     <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate text-base font-semibold">
                         {dateFormat(new Date(task.startTime * 1e3), `dd mmm yyyy`)}
                     </div>
                     {new Date().getTime() > new Date(task.startTime * 1e3).getTime()}
                 </>}
-            </div>
-            <div className="flex space-x-8 items-center">
+            </td>
+            <td className="flex space-x-8 items-center">
                 {task.endTime && <>
                     <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate text-base font-semibold">
                         {dateFormat(new Date(task.endTime * 1e3), `dd mmm yyyy`)}
                     </div>
                     {new Date().getTime() > new Date(task.endTime * 1e3).getTime()}
                 </>}
-            </div>
-            <div className={`flex space-y-4 `}>
+            </td>
+            <td className={`flex space-y-4 `}>
                 <div className={` flex gap-1 items-center justify-start`}>
                     <div>
                         <img src={task.coin.logoURI} width="15" height="15" alt="" className="rounded-full" />
@@ -101,15 +101,15 @@ const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IPro
                             {task.coin.symbol}
                         </div>}
                 </div>
-            </div>
-            <div className="pl-[2px] hidden sm:flex items-center text-base ">
+            </td>
+            <td className="pl-[2px] hidden sm:flex items-center text-base ">
                 {(member?.interval === DateInterval.monthly && "Monthly")}
                 {(member?.interval === DateInterval.weekly && "Weekly")}
-            </div>
-            <div className="pl-[2px] hidden sm:flex items-center text-base">
+            </td>
+            <td className="pl-[2px] hidden sm:flex items-center text-base">
                 {tx.tags.map(s => <div key={s.id}><div className="w-5 h-5 flex space-x-5" style={{ backgroundColor: s.color }} /> {s.name}</div>)}
-            </div>
-        </div>
+            </td>
+        </tr>
     </>
 }
 

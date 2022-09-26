@@ -56,19 +56,7 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
   const disableGuard = Component?.disableGuard ?? false
   return <ThemeProvider enableSystem={false} attribute="class">
     <Head>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin={"anonymous"} />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></link>
       <title>Remox - Simplified and Collaborative Treasury  Management for DAOs</title>
-      <meta name="description" content="Remox - Simplified and Collaborative Treasury  Management for DAOs" key="desc" />
-      <meta property="og:title" content="Remox - Simplified and Collaborative Treasury  Management for DAOs" />
-      <link rel="icon" href="/icons/companies/remox.png" />
-
-      <meta
-        property="og:image"
-        content="/icons/remox.png"
-      />
-
     </Head>
     <Provider store={store}>
       <ToastContainer />

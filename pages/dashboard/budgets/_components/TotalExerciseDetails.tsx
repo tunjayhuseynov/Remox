@@ -1,27 +1,36 @@
-import React, { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
 import { IBudgetExerciseORM } from 'pages/api/budget/index.api';
 import { SetComma } from 'utils';
 import { useWalletKit } from 'hooks';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import { GetFiatPrice } from 'utils/const';
+import { useAppSelector } from 'redux/hooks';
+import { SelectFiatPreference, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { AiFillRightCircle } from 'react-icons/ai';
 
-function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
+function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
     const [openNotify, setNotify] = useState(false)
     const { GetCoins } = useWalletKit()
+    const fiatPreference = useAppSelector(SelectFiatPreference)
+    const symbol = useAppSelector(SelectFiatSymbol)
 
-    useEffect(() => {
-        if (openNotify) {
-            document.querySelector('body')!.style.overflowY = "hidden"
-        } else {
-            document.querySelector('body')!.style.overflowY = ""
-        }
-    }, [openNotify])
+    const TotalBudget = useMemo(() => {
+        return total.budgets.reduce((a, b) => {
+            const fiatPrice = GetFiatPrice(GetCoins[b.token], fiatPreference)
+            return {
+                totalAmount: a.totalAmount + (fiatPrice * b.budgetCoins.totalAmount),
+                totalUsedAmount: a.totalUsedAmount + (fiatPrice * b.budgetCoins.totalUsedAmount),
+                totalPending: a.totalPending + (fiatPrice * b.budgetCoins.totalPending)
+            }
+        }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
+    }, [total.budgetCoins])
 
 
 
     return <>
         <div onClick={() => { setNotify(!openNotify) }}>
-            <span className="text-white pb-[3px] bg-primary transition-all rounded-full text-4xl flex items-center justify-center w-8 h-8 cursor-pointer hover:bg-[#ff5413] hover:transition-all">&#8250;</span>
+            <AiFillRightCircle size={34} className="cursor-pointer text-primary hover:text-secondary" />
         </div>
         <AnimatePresence>
             {openNotify &&
@@ -33,7 +42,9 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
                     <div className="flex flex-col min-h-[325px] bg-white dark:bg-darkSecond sm:min-h-[auto] py-10 justify-center sm:justify-between sm:items-stretch items-center">
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-medium tracking-wide">Spending Details</div>
                         <div className="flex flex-col gap-8 py-8 border-b px-10 ">
-                            <div className="flex justify-between px-2"><span className="font-medium text-lg text-gray-400">Total budget</span><span className="text-greylish dark:text-white text-lg">${SetComma(total.totalBudget)} </span></div>
+                            <div className="flex justify-between px-2">
+                                <span className="font-medium text-lg text-gray-400">Total budget</span>
+                                <span className="text-greylish dark:text-white text-lg">{symbol}{SetComma(TotalBudget.totalAmount)} </span></div>
                             <div className="flex justify-between px-2">
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
@@ -46,7 +57,9 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
                             </div>
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b px-10">
-                            <div className="flex justify-between px-2"><span className="font-medium text-lg text-gray-400">Total Used</span><span className="text-greylish dark:text-white text-lg">${SetComma(total.totalUsed)}</span></div>
+                            <div className="flex justify-between px-2">
+                                <span className="font-medium text-lg text-gray-400">Total Used</span>
+                                <span className="text-greylish dark:text-white text-lg">{symbol}{SetComma(TotalBudget.totalUsedAmount)}</span></div>
                             <div className="flex justify-between px-2">
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
@@ -59,26 +72,34 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
                             </div>
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b px-10">
-                            <div className="flex justify-between px-2"><span className="font-medium text-lg text-gray-400">Total Pending</span><span className="text-greylish dark:text-white text-lg">${SetComma(31000)}</span></div>
+                            <div className="flex justify-between px-2">
+                                <span className="font-medium text-lg text-gray-400">Total Pending</span>
+                                <span className="text-greylish dark:text-white text-lg">{symbol}{SetComma(TotalBudget.totalPending)}</span></div>
                             <div className="flex justify-between px-2">
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
                                         return <div className="flex items-center gap-1">
-                                            <span className="text-lg font-medium">{SetComma(coin.totalPending)}</span> <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" /> <span className="text-lg font-medium">{coin.coin}</span>
+                                            <span className="text-lg font-medium">{SetComma(coin.totalPending)}</span>
+                                            <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                            <span className="text-lg font-medium">{coin.coin}</span>
                                         </div>
                                     })}
                                 </div>
                             </div>
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b px-10">
-                            <div className="flex justify-between px-2"><span className="font-medium text-lg text-gray-400">Total Available</span><span className=" dark:text-white text-lg">${SetComma(60000)}</span></div>
+                            <div className="flex justify-between px-2">
+                                <span className="font-medium text-lg text-gray-400">Total Available</span>
+                                <span className=" dark:text-white text-lg">{symbol}{SetComma(TotalBudget.totalAmount - TotalBudget.totalPending - TotalBudget.totalUsedAmount)}</span></div>
                             <div className="flex justify-between px-2">
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
                                         return <div className="flex items-center gap-1">
-                                            <span className="text-lg font-medium">{SetComma((coin.totalAmount - coin.totalPending - coin.totalUsedAmount))}</span> <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" /> <span className="text-lg font-medium">{coin.coin}</span>
+                                            <span className="text-lg font-medium">{SetComma((coin.totalAmount - coin.totalPending - coin.totalUsedAmount))}</span>
+                                            <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" />
+                                            <span className="text-lg font-medium">{coin.coin}</span>
                                         </div>
                                     })}
                                 </div>
@@ -90,4 +111,4 @@ function TotalDetails({ total }: { total: IBudgetExerciseORM }) {
     </>
 }
 
-export default TotalDetails
+export default TotalExerciseDetails

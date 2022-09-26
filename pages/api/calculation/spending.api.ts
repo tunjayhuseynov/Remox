@@ -1,7 +1,6 @@
 import { BASE_URL, DecimalConverter, IPrice } from "utils/api";
 import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
 import { NextApiRequest, NextApiResponse } from "next";
-import date from 'date-and-time'
 import axios from "axios";
 import { FirestoreRead } from "rpcHooks/useFirebase";
 import { ITag } from "../tags/index.api";
@@ -24,9 +23,9 @@ export default async function handler(
         const coin = req.query["coin"] as string;
         const secondCoin = req.query["secondCoin"] as string;
 
-        // if (!parsedAddress) {
-        //     return res.status(200).json(TxNull());
-        // }
+        if (!parsedAddress) {
+            return res.status(200).json(TxNull());
+        }
 
         axiosRetry(axios, { retries: 10 });
 

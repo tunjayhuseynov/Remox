@@ -32,6 +32,9 @@ import Safe, {
     SafeFactory,
     SafeTransactionOptionalProps,
 } from "@gnosis.pm/safe-core-sdk";
+import {
+    getMultiSendCallOnlyDeployment,
+} from '@gnosis.pm/safe-deployments'
 import { SafeAccountConfig } from "@gnosis.pm/safe-core-sdk";
 import SafeServiceClient, {
     SafeMultisigTransactionResponse,
@@ -48,6 +51,9 @@ import { IBudgetORM } from "pages/api/budget/index.api";
 import { nanoid } from "@reduxjs/toolkit";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
 import { MultisigProviders } from "types/blockchains";
+import { ISendTx } from "pages/api/payments/send/index.api";
+import axios from "axios";
+import { toChecksumAddress } from "web3-utils";
 
 
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
@@ -825,23 +831,24 @@ export default function useMultisig() {
         }
     }, [])
 
-    const submitTransaction = async (account: IAccount, data: string | TransactionInstruction[] | MetaTransactionData[], destination: string | null, provider: MultisigProviders, optionals?: SafeTransactionOptionalProps,) => {
+    const submitTransaction = async (account: IAccount, input: ISendTx | ISendTx[], provider: MultisigProviders, optionals?: SafeTransactionOptionalProps,) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Account is not selected")
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
-                if (wallet.data) {
+                if (wallet.data && !Array.isArray(input)) {
                     const txs = new Transaction()
-                    txs.add(...(data as TransactionInstruction[]))
+                    txs.add(...(input.data as TransactionInstruction[]))
                     const pending = await wallet.newTransaction({ instructions: txs.instructions })
                     const reciept = await pending.tx.confirm()
                     return reciept.signature
                 }
                 throw new Error("Wallet has no data")
             } else if (provider === "Celo Terminal") {
-                if (!destination) throw new Error("Destination is not selected")
+                if (Array.isArray(input)) throw new Error("Celo Terminal just supports one transaction at a time")
+                if (!input.destination) throw new Error("Destination is not selected")
                 if (!address) throw new Error("Address is not selected")
                 const web3 = new Web3((window as any).celo);
 
@@ -849,8 +856,25 @@ export default function useMultisig() {
 
                 const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
-                const txHash = await contract.methods.submitTransaction(destination, "0", stringToSolidityBytes(data as string)).send({
+                const txHash = await contract.methods.submitTransaction(input.destination, "0", stringToSolidityBytes(input.data as string)).encodeABI()
+                // .send({
+                //     from: address,
+                //     gas: 250000,
+                //     gasPrice: "5000000000",
+                // }).on('confirmation', function (num: number, receipt: any) {
+                //     dispatch(Add_Tx_To_TxList_Thunk({
+                //         account: account,
+                //         authId: selectedId,
+                //         blockchain: blockchain,
+                //         txHash: receipt.transactionHash,
+                //     }))
+                // })
+
+                const tx = await web3.eth.sendTransaction({
                     from: address,
+                    to: input.destination,
+                    value: "0",
+                    data: txHash,
                     gas: 250000,
                     gasPrice: "5000000000",
                 }).on('confirmation', function (num: number, receipt: any) {
@@ -860,12 +884,12 @@ export default function useMultisig() {
                         blockchain: blockchain,
                         txHash: receipt.transactionHash,
                     }))
-                });
+                })
 
-                return txHash.transactionHash as string
+                return tx.transactionHash;
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;
+                const web3Provider = (window as any)?.celo;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
@@ -873,10 +897,26 @@ export default function useMultisig() {
                     signer: safeOwner,
                 });
 
+                const multiSendDeployment =
+                    getMultiSendCallOnlyDeployment({
+                        network: "42220",
+                    }) || getMultiSendCallOnlyDeployment()
+
+                const contractAddress = multiSendDeployment?.networkAddresses["42220"] ?? multiSendDeployment?.defaultAddress
+                const { data } = await axios.get(blockchain.multisigProviders.find(s => s.name === "GnosisSafe")?.txServiceUrl as string + `api/v1/safes/${account.address}/creation/`)
+                const network = {
+                    [4220]: {
+                        multiSendAddress: contractAddress ?? "",
+                        safeMasterCopyAddress: data.masterCopy,
+                        safeProxyFactoryAddress: data.factoryAddress,
+                    }
+                }
+
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress: account.address,
                     isL1SafeMasterCopy: false,
+                    contractNetworks: network,
                 });
 
                 const safeService = new SafeServiceClient({
@@ -885,82 +925,85 @@ export default function useMultisig() {
                 });
 
                 const senderAddress = await safeOwner.getAddress();
+                let safeHash = "";
+                if (!Array.isArray(input)) {
+                    const transaction: SafeTransactionDataPartial = {
+                        to: toChecksumAddress(input.destination ?? ""),
+                        data: input.data as string,
+                        value: input.value?.toString() ?? "0",
+                        safeTxGas: optionals?.safeTxGas,
+                        baseGas: optionals?.baseGas, // Optional
+                        gasPrice: optionals?.gasPrice, // Optional
+                        gasToken: optionals?.gasToken, // Optional
+                        refundReceiver: optionals?.refundReceiver, // Optional
+                        nonce: optionals?.nonce, // Optional
+                    };
 
-                if (data.length > 0) {
-                    if (data.length === 1) {
-                        const transaction: SafeTransactionDataPartial = {
-                            to: (data[0] as MetaTransactionData).to,
-                            data: (data[0] as MetaTransactionData).data,
-                            value: (data[0] as MetaTransactionData).value,
-                            operation: (data[0] as MetaTransactionData).operation,
-                            safeTxGas: optionals?.safeTxGas,
-                            baseGas: optionals?.baseGas, // Optional
-                            gasPrice: optionals?.gasPrice, // Optional
-                            gasToken: optionals?.gasToken, // Optional
-                            refundReceiver: optionals?.refundReceiver, // Optional
-                            nonce: optionals?.nonce, // Optional
+                    const safeTransaction = await safeSdk.createTransaction(transaction);
+
+                    const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+
+                    const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+
+                    await safeService.proposeTransaction({
+                        safeAddress: account.address,
+                        safeTransactionData: safeTransaction.data,
+                        safeTxHash,
+                        senderAddress,
+                        senderSignature: senderSignature.data,
+                    });
+                    safeHash = safeTxHash;
+
+                } else {
+                    const transactions: MetaTransactionData[] = input.map((tx) => {
+                        return {
+                            to: toChecksumAddress(tx.destination ?? ""),
+                            data: tx.data as string,
+                            value: tx.value?.toString() ?? "0",
                         };
+                    });
 
-                        const safeTransaction = await safeSdk.createTransaction(transaction);
+                    const options: SafeTransactionOptionalProps = {
+                        safeTxGas: optionals?.safeTxGas, // Optional
+                        baseGas: optionals?.baseGas, // Optional
+                        gasPrice: optionals?.gasPrice, // Optional
+                        gasToken: optionals?.gasToken, // Optional
+                        refundReceiver: optionals?.refundReceiver, // Optional
+                        nonce: optionals?.nonce, // Optional
+                    };
 
-                        const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                    const safeTransaction = await safeSdk.createTransaction(
+                        transactions,
+                        options
+                    );
 
-                        const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+                    const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
 
-                        await safeService.proposeTransaction({
-                            safeAddress: account.address,
-                            safeTransactionData: safeTransaction.data,
-                            safeTxHash,
-                            senderAddress,
-                            senderSignature: senderSignature.data,
-                        });
+                    const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
-                        return safeTxHash;
-                    } else {
-                        const transactions: MetaTransactionData[] = (data as MetaTransactionData[]).map((tx) => {
-                            return {
-                                to: tx.to,
-                                data: tx.data,
-                                value: tx.value,
-                                operation: tx.operation,
-                            };
-                        });
+                    await safeService.proposeTransaction({
+                        safeAddress: account.address,
+                        safeTransactionData: safeTransaction.data,
+                        safeTxHash,
+                        senderAddress,
+                        senderSignature: senderSignature.data,
+                        origin,
+                    });
+                    safeHash = safeTxHash;
 
-                        const options: SafeTransactionOptionalProps = {
-                            safeTxGas: optionals?.safeTxGas, // Optional
-                            baseGas: optionals?.baseGas, // Optional
-                            gasPrice: optionals?.gasPrice, // Optional
-                            gasToken: optionals?.gasToken, // Optional
-                            refundReceiver: optionals?.refundReceiver, // Optional
-                            nonce: optionals?.nonce, // Optional
-                        };
-
-                        const safeTransaction = await safeSdk.createTransaction(
-                            transactions,
-                            options
-                        );
-
-                        const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
-
-                        const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
-
-                        await safeService.proposeTransaction({
-                            safeAddress: account.address,
-                            safeTransactionData: safeTransaction.data,
-                            safeTxHash,
-                            senderAddress,
-                            senderSignature: senderSignature.data,
-                            origin,
-                        });
-
-                        return safeTxHash;
-                    }
                 }
-                throw new Error("No data to submit")
+                dispatch(Add_Tx_To_TxList_Thunk({
+                    account: account,
+                    authId: selectedId,
+                    blockchain: blockchain,
+                    txHash: safeHash,
+                }))
+
+                return safeHash;
             }
             throw new Error("Blockchain is not selected")
         } catch (e: any) {
-            throw new Error(e);
+            throw new Error(e.message);
         }
     }
 
@@ -1050,7 +1093,7 @@ export default function useMultisig() {
                 throw new Error("Wallet has no data")
             } else if (providerName === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
