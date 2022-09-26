@@ -29,6 +29,7 @@ import PriceInputField from "components/general/PriceInputField";
 import { IPrice } from "utils/api";
 import { FiatMoneyList } from 'firebaseConfig';
 import { IoMdRemoveCircle } from "react-icons/io";
+import { useAppSelector } from "redux/hooks";
 
 export interface IFormInput {
   fullname: string;
@@ -49,6 +50,7 @@ export default function RequestId() {
   };
 
   const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
+  const isDark = useAppSelector(SelectDarkMode)
 
   const [amount, setAmount] = useState<number | null>()
   const [coin, setCoin] = useState<AltCoins>();
@@ -237,7 +239,9 @@ export default function RequestId() {
                         }}
                       />
                       <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
-                        setSecondActive(false)
+                        setSecondActive(false),
+                        setCoinSecond(undefined),
+                        setAmountSecond(undefined)
                       }}>
                         <IoMdRemoveCircle color="red" />
                       </div>
@@ -305,10 +309,10 @@ export default function RequestId() {
                   </div>
                   <div className="flex flex-col space-y-2 w-[82%] sm:w-full">
                     <span className="text-left  text-greylish pb-2 ml-2">
-                      Upload receipt or invoice{" "}(optional)
+                      Upload receipt or invoice (optional)
                     </span>
                     <div className="grid grid-cols-1 bg-white">
-                      <Upload className="!border-greylish" setFile={setFile} noProfilePhoto={false} />
+                      <Upload className={`${isDark ? "!border-greylish" : "!border-dark"}  `} setFile={setFile} noProfilePhoto={false} />
                     </div>
                   </div>
                 </div>
@@ -338,7 +342,7 @@ export default function RequestId() {
               onDisable={setModal}
               animatedModal={false}
               disableX={true}
-              className="lg:min-w-[50%] !pt-5"
+              className="lg:min-w-[40%] !pt-5"
             >
               <Confirm
                 GetCoins={GetCoins}

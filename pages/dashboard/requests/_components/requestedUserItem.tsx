@@ -15,6 +15,7 @@ import {
   removeApprovedRequest,
   SelectDarkMode,
   addApprovedRequest,
+  SelectOwners,
 } from "redux/slices/account/remoxData";
 import { Checkbox } from "@mui/material";
 import Avatar from "components/avatar";
@@ -57,6 +58,9 @@ const RequestedUserItem = ({
   const { rejectRequest, approveRequest, removeRequest } = useRequest();
   const { GetCoins, SendTransaction } = useWalletKit();
   const userId = useAppSelector(SelectID);
+  const owners = useAppSelector(SelectOwners)
+
+  const owner = owners.find((owner) => owner.address === request.address)
 
   useEffect(() => {
     if (divRef.current && window.innerWidth / divRef.current.clientWidth > 3) {
@@ -230,12 +234,13 @@ const RequestedUserItem = ({
                   : "w-[1.563rem] h-[1.563rem] text-xs"
               } flex items-center justify-center rounded-full font-bold `}
             >
-              {request.uploadedLink ? (
+              {owner ? (
+                owner.image ? 
                 <img
-                  src={request.uploadedLink}
+                  src={owner!.image!.imageUrl}
                   alt=""
                   className="w-[2.5rem] h-[2.5rem] border items-center justify-center rounded-full"
-                />
+                /> : <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               ) : (
                 <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               )}

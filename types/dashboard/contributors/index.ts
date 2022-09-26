@@ -23,22 +23,20 @@ export enum ExecutionType {
 export interface IMember {
     id: string;
     fullname: string,
-    first: string,
-    last: string,
-    address: string,
+    teamId: string,
+    compensation: string,
+    role: string,
     amount: string,
     currency: string,
     fiat: FiatMoneyList | null,
     secondAmount: string | null,
     secondCurrency: string | null,
     fiatSecond: FiatMoneyList | null
-    role: string,
-    image: Image | null,
-    compensation: string,
-    teamId: string,
+    address: string,
     execution: ExecutionType,
+    interval: DateInterval,
     paymantDate: number | string,
     paymantEndDate: number | string ,
-    interval: DateInterval,
+    image: Image | null,
     taskId: string | null,
 }

@@ -1,38 +1,40 @@
 import { IRequest } from "rpcHooks/useRequest";
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
 import { IMember } from 'types/dashboard/contributors';
-import { SelectCurrencies, SelectTotalBalance } from "redux/slices/account/selector";
-import { AltCoins, Coins } from "types";
+import { SelectCurrencies, SelectFiatPreference, SelectFiatSymbol, SelectTotalBalance } from "redux/slices/account/selector";
+import { Coins } from "types";
 import { SetComma } from 'utils'
 import { useWalletKit } from "hooks";
 import { GetFiatPrice } from "utils/const";
+import { useAppSelector } from "redux/hooks";
+import { FiatMoneyList } from "firebaseConfig";
 
-export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) => {
+export const TotalFiatAmount = (coinList: (IRequest | IMember)[], Coins: Coins, fiat: FiatMoneyList) => {
     return coinList.reduce((acc, curr) => {
         const coin = Object.values(Coins).find((c) => c.symbol === curr.currency)
+        console.log(fiat)
+
         if (coin) {
+            const fiatPrice  = GetFiatPrice(coin, fiat)
             const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
-
             if (curr.fiat) {
-                acc + amount
+                const tokenFiatPrice = GetFiatPrice(coin!, curr.fiat)
+                const tokenAmount = amount / tokenFiatPrice
+                acc += (tokenAmount * fiatPrice )
             } else {
-                const fiatPrice = GetFiatPrice(coin!, curr.fiat)
-                acc += ((fiatPrice ?? 1) * amount)
-            }
-
-            if (curr.secondCurrency && curr.secondAmount) {
-                const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
-                if (secondCoin) {
-                    const secondaryAmount = typeof curr.secondAmount === "string" ? parseFloat(curr.secondAmount) : curr.secondAmount
-                    if (curr.fiatSecond) {
-                        acc + secondaryAmount
-                    } else {
-
-
-                        //  acc += ((seconCoin?.priceUSD ?? 1) * secondaryAmount)
-                    }
-                }
+                acc += (amount  * fiatPrice)
+            }    
+        }
+        if (curr.secondCurrency && curr.secondAmount) {
+            const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
+            const fiatPrice = GetFiatPrice(secondCoin!, fiat)
+            const amount = typeof curr.secondAmount === "string" ? parseFloat(curr.secondAmount) : curr.secondAmount
+            if (curr.fiatSecond) {
+                const tokenFiatPrice = GetFiatPrice(secondCoin!, curr.fiatSecond)
+                const tokenAmount = amount / tokenFiatPrice
+                acc += (tokenAmount * fiatPrice )
+            } else {
+                acc += (amount * fiatPrice)
             }
         }
         return acc
@@ -42,26 +44,28 @@ export const TotalUSDAmount = (coinList: (IRequest | IMember)[], Coins: Coins) =
 
 export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMember[] }) {
 
-    const totalBalance = useSelector(SelectTotalBalance)
-    const currency = useSelector(SelectCurrencies)
+    const totalBalance = useAppSelector(SelectTotalBalance)
+    const fiatCurrency = useAppSelector(SelectFiatSymbol)
+    const currency = useAppSelector(SelectCurrencies)
+    const fiat = useAppSelector(SelectFiatPreference)
     const { GetCoins } = useWalletKit();
-    const totalAmount = useMemo<number>(() => TotalUSDAmount(coinList, GetCoins ), [coinList, currency])
+    const totalAmount = useMemo<number>(() => TotalFiatAmount(coinList, GetCoins, fiat ), [coinList, currency])
 
     return <>
         <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r dark:border-[#D6D6D6]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
             <div className="w-full flex justify-start   items-center">
-                <div className={`font-semibold   text-xl`}>${SetComma(totalBalance)}</div>
+                <div className={`font-semibold   text-xl`}>{fiatCurrency}{SetComma(totalBalance)}</div>
             </div>
             {totalAmount.toFixed(2) !== "0.00" &&
                 <div className="w-full flex justify-start items-center text-lg font-semibold">
-                    <div>-${SetComma(totalAmount)}</div>
+                    <div>-{fiatCurrency}{SetComma(totalAmount)}</div>
                 </div>
             }
         </div>
         {totalAmount.toFixed(2) !== "0.00" &&  
             <div className="w-full pt-2  pr-10">
                 <div className="w-full flex justify-start items-center">
-                    <div className="font-semibold text-xl">${SetComma((totalBalance - totalAmount))}</div>
+                    <div className="font-semibold text-xl">{fiatCurrency}{SetComma((totalBalance - totalAmount))}</div>
                 </div>
             </div>
         }

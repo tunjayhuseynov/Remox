@@ -144,16 +144,11 @@ const SingleRequestModal = ({
           </div>
           <div className="flex justify-between">
             <div className="text-greylish">
-              Upload receipt or invoice{" "}
-              <span>(Optional)</span>
+              Upload receipt or invoice (Optional)
             </div>
             <div>
               {request?.uploadedLink ? (
-                <a
-                  href={request?.uploadedLink}
-                  rel="noreferrer"
-                  target="_blank"
-                ></a>
+                <a href={request.uploadedLink} rel="noreferrer" target="_blank">{request.uploadedLink.slice(123, 136)}...</a>
               ) : (
                 "No file uploaded"
               )}
