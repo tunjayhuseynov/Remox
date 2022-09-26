@@ -41,11 +41,6 @@ export default function useRequest() {
 
     const addRequest = async (documentId: string, request : IRequest) => {
         isLoading(true)
-        
-        if (request.secondaryAmount && request.secondaryCurrency) {
-            request.secondaryAmount = request.secondaryAmount
-            request.secondaryCurrency = request.secondaryCurrency
-        }
         if (request.attachLink) {
             request.attachLink = request.attachLink
         }
