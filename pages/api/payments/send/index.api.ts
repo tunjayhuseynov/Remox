@@ -4,9 +4,10 @@ import { BatchPay, GenerateCancelStreamingTx, GenerateStreamingTx, GenerateSwapD
 import { solanaInstructions } from "./_solana";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import { AltCoins, Coins } from "types";
-import { Blockchains, BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import { adminApp } from "firebaseConfig/admin";
 import { GenerateTxEvm, GenerateSwapDataEvm } from "./_evm";
+import { CreateTransactionGnosis } from "./_gnosis";
 
 export interface IPaymentInput {
     coin: string,
@@ -50,20 +51,23 @@ export interface IPaymentDataBody {
 
     cancelStreaming: boolean | null,
     streamId: string | null
+
+    providerName: MultisigProviders | null
 }
 
 export interface ISendTx {
     data: string | TransactionInstruction[],
-    destination: string | null
+    destination: string | null,
+    value: number | null
 }
 
 export default async function Send(
     req: NextApiRequest,
-    res: NextApiResponse<ISendTx>
+    res: NextApiResponse<ISendTx | ISendTx[]>
 ) {
     try {
         if (req.method !== 'POST') throw new Error('Only POST method is allowed')
-        const { blockchain, requests, executer, createStreaming: isStreaming, endTime, startTime, swap, walletAddress: accountId, cancelStreaming, streamId } = req.body as IPaymentDataBody
+        const { blockchain, requests, executer, createStreaming: isStreaming, endTime, startTime, swap, walletAddress: accountId, cancelStreaming, streamId, providerName } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
         console.log(cancelStreaming)
         if (requests.length === 0 && !swap && !isStreaming && !cancelStreaming) throw new Error("requests is required");
@@ -76,6 +80,7 @@ export default async function Send(
             a[(c.data() as AltCoins).symbol] = c.data() as AltCoins;
             return a;
         }, {})
+
 
         if (blockchain === "solana") {
             const instructions: TransactionInstruction[] = []
@@ -93,14 +98,16 @@ export default async function Send(
             instructionsRes.forEach(res => instructions.push(...res))
             return res.json({
                 data: instructions,
-                destination: null
+                destination: null,
+                value: 0
             });
         } else if (blockchain === "celo") {
             if (cancelStreaming && streamId) {
                 const data = await GenerateCancelStreamingTx(streamId)
                 return res.json({
                     data: data,
-                    destination: Blockchain.streamingProtocols[0].contractAddress
+                    destination: Blockchain.streamingProtocols[0].contractAddress,
+                    value: 0
                 })
             }
             if (isStreaming && startTime && endTime) {
@@ -111,37 +118,45 @@ export default async function Send(
                 }, startTime, endTime, coins)
                 return res.json({
                     data: data,
-                    destination: Blockchain.streamingProtocols[0].contractAddress
+                    destination: Blockchain.streamingProtocols[0].contractAddress,
+                    value: 0
                 })
             }
             if (swap) {
                 const data = await GenerateSwapData(swap)
                 return res.json({
                     data,
-                    destination: Blockchain.swapProtocols[0].contractAddress
+                    destination: Blockchain.swapProtocols[0].contractAddress,
+                    value: 0
                 })
+            }
+            if (providerName === "GnosisSafe") {
+                const data = await CreateTransactionGnosis(requests, executer, coins)
+                return res.json(data)
             }
             if (requests.length > 1) {
                 const data = await BatchPay(requests, executer, coins)
                 return res.json({
                     data: data,
-                    destination: Contracts.BatchRequest.address
+                    destination: Contracts.BatchRequest.address,
+                    value: 0
                 })
             } else {
                 const data = await GenerateTx(requests[0], executer, coins)
                 const coin = coins[requests[0].coin]
                 return res.json({
                     data: data,
-                    destination: coin.address
+                    destination: coin.address,
+                    value: 0
                 })
             }
         } else if (blockchain.includes("evm")) {
-
             if (swap) {
                 const data = await GenerateSwapDataEvm(swap, Blockchain.chainId!)
                 return res.json({
                     data: data,
-                    destination: "0x11111112542D85B3EF69AE05771c2dCCff4fAa26"
+                    destination: "0x11111112542D85B3EF69AE05771c2dCCff4fAa26",
+                    value: 0
                 })
             }
 
@@ -152,7 +167,8 @@ export default async function Send(
                 const coin = coins[requests[0].coin]
                 return res.json({
                     data: data,
-                    destination: coin.address
+                    destination: coin.address,
+                    value: 0
                 })
             }
 

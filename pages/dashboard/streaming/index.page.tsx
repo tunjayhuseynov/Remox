@@ -1,7 +1,7 @@
 import { Fragment, useState, useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
 import { IMember } from "types/dashboard/contributors";
-import AddStopModal from "pages/dashboard/automations/_components/_buttons/_addStop";
+import AddStopModal from "pages/dashboard/streaming/_components/_buttons/_addStop";
 import Modal from "components/general/modal";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
@@ -11,6 +11,7 @@ import {
   SelectBalance,
   SelectContributorMembers,
   SelectFiatPreference,
+  SelectFiatSymbol,
   SelectNonCanceledRecurringTasks,
   SelectPriceCalculationFn,
   SelectSelectedAccountAndBudget
@@ -27,6 +28,7 @@ const Automations = () => {
   const { GetCoins } = useWalletKit();
   const calculatePrice = useAppSelector(SelectPriceCalculationFn)
   const tasks = useAppSelector(SelectNonCanceledRecurringTasks)
+  const symbol = useAppSelector(SelectFiatSymbol)
 
   const members = useAppSelector(SelectContributorMembers)
   const balance = useAppSelector(SelectBalance);
@@ -58,17 +60,6 @@ const Automations = () => {
       <div className="flex justify-between items-center w-full pb-3">
         <div className="text-2xl font-bold">Recurring</div>
       </div>
-      <Modal
-        onDisable={setAddStopModal}
-        openNotify={addStopModal}
-        animatedModal={true}
-      >
-        <AddStopModal
-          onDisable={setAddStopModal}
-          reccuringState={reccuringState}
-          memberState={memberState}
-        />
-      </Modal>
       <>
         {tasks.length > 0 &&
           <div className="w-full relative">
@@ -112,9 +103,7 @@ const Automations = () => {
                             </div>
                           </div>
                           <div className="text-sm text-greylish opacity-75 text-left">
-                            {
-                              (calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coin: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)}{" "}
-                            USD
+                            {(calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coin: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)} {symbol}
                           </div>
                         </div>
                       );
@@ -160,6 +149,17 @@ const Automations = () => {
           </table>
         </div>
       </>
+      <Modal
+        onDisable={setAddStopModal}
+        openNotify={addStopModal}
+        animatedModal={true}
+      >
+        <AddStopModal
+          onDisable={setAddStopModal}
+          reccuringState={reccuringState}
+          memberState={memberState}
+        />
+      </Modal>
     </div>
   );
 };

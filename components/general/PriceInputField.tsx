@@ -15,21 +15,53 @@ interface IProps {
     onChange: (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatList["name"] | undefined) => void,
     defaultValue?: number | null,
     defaultCoin?: IPrice[0] | AltCoins,
+    defaultFiat?: FiatList["name"],
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
-const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin }: IProps) => {
+const fiatList: FiatList[] = [
+    {
+        name: "AUD",
+        logo: "https://cdn.countryflags.com/thumbs/australia/flag-400.png"
+    },
+    {
+        name: "CAD",
+        logo: "https://cdn.countryflags.com/thumbs/canada/flag-400.png"
+    },
+    {
+        name: "EUR",
+        logo: "https://cdn.countryflags.com/thumbs/europe/flag-400.png"
+    },
+    {
+        name: "GBP",
+        logo: "https://cdn.countryflags.com/thumbs/united-kingdom/flag-400.png"
+    },
+    {
+        name: "JPY",
+        logo: "https://cdn.countryflags.com/thumbs/japan/flag-400.png"
+    },
+    {
+        name: "USD",
+        logo: "https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png"
+    },
+    {
+        name: "TRY",
+        logo: "https://cdn.countryflags.com/thumbs/turkey/flag-400.png"
+    },
+]
+
+const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin, defaultFiat }: IProps) => {
     // const coins = useAppSelector(SelectBalance)
     const [dropdown, setDropdown] = useState<boolean>(false);
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
     const [value, setValue] = useState<string | null>(defaultValue?.toString() ?? null);
-    const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>();
+    const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>(fiatList?.find(f => f.name === defaultFiat));
 
-    const searching = (e:  React.ChangeEvent<HTMLInputElement>) => {
-        if(e.target.value.trim() === ""){
+    const searching = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value.trim() === "") {
             setCoinsList(Object.values(coins))
-        } else{
+        } else {
             const filteredCoins = Object.values(coins).filter((coin) => coin.name.toLowerCase().includes(e.target.value.toLowerCase()) || coin.symbol.toLowerCase().includes(e.target.value.toLowerCase()))
             setCoinsList(filteredCoins)
         }
@@ -48,37 +80,6 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
             }
         }
     }, [selectedFiat, selectedCoin])
-
-    const fiatList: FiatList[] = [
-        {
-            name: "AUD",
-            logo: "https://cdn.countryflags.com/thumbs/australia/flag-400.png"
-        },
-        {
-            name: "CAD",
-            logo: "https://cdn.countryflags.com/thumbs/canada/flag-400.png"
-        },
-        {
-            name: "EUR",
-            logo: "https://cdn.countryflags.com/thumbs/europe/flag-400.png"
-        },
-        {
-            name: "GBP",
-            logo: "https://cdn.countryflags.com/thumbs/united-kingdom/flag-400.png"
-        },
-        {
-            name: "JPY",
-            logo: "https://cdn.countryflags.com/thumbs/japan/flag-400.png"
-        },
-        {
-            name: "USD",
-            logo: "https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png"
-        },
-        {
-            name: "TRY",
-            logo: "https://cdn.countryflags.com/thumbs/turkey/flag-400.png"
-        },
-    ]
 
     return <>
         <FormControl fullWidth className='relative'>

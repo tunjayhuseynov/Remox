@@ -275,7 +275,8 @@ export default function useWalletKit() {
             createStreaming: createStreaming,
             swap: swap ?? null,
             cancelStreaming: cancelStreaming ?? null,
-            streamId: streamId
+            streamId: streamId,
+            providerName: account.provider
           })
         ).unwrap();
 
@@ -284,8 +285,9 @@ export default function useWalletKit() {
         }
 
         if (blockchain.name === "celo") {
-          const destination = txData.destination as string;
-          const data = txData.data as string;
+          const destination = Array.isArray(txData) ? "" : txData.destination as string;
+          const data = Array.isArray(txData) ? "" : txData.data as string;
+          const value = Array.isArray(txData) ? 0 : txData.value;
           const web3 = new Web3((window as any).celo);
 
 
@@ -307,7 +309,7 @@ export default function useWalletKit() {
             );
           }
 
-          if (inputArr.length > 1) {
+          if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
             const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
             for (let index = 0; index < approveArr.length; index++) {
               await allow(
@@ -319,7 +321,7 @@ export default function useWalletKit() {
             }
           }
 
-          if (account.signerType === "single") {
+          if (account.signerType === "single") { // SINGLE SIGNER
             const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
               console.log(receipt)
               dispatch(Add_Tx_To_TxList_Thunk({
@@ -332,12 +334,13 @@ export default function useWalletKit() {
             const hash = recipet.transactionHash;
             type = "single"
             txhash = hash;
-          } else {
+          }
+          else { // MULTISIGNER
+
             if (!account.provider) throw new Error("Provider not found")
             const txHash = await submitTransaction(
               account,
-              data,
-              destination,
+              txData,
               account.provider
             );
             txhash = txHash;
@@ -350,15 +353,14 @@ export default function useWalletKit() {
           signTransaction &&
           signAllTransactions
         ) {
-          const data = txData.data as TransactionInstruction[];
-          const destination = txData.destination;
+          const data = Array.isArray(txData) ? [] : txData.data as TransactionInstruction[];
+          const destination = Array.isArray(txData) ? "" : txData.destination;
 
           if (account.signerType === "multi") {
             if (!account.provider) throw new Error("Provider not found")
             const txHash = await submitTransaction(
               account,
-              data,
-              destination,
+              txData,
               account.provider
             );
             txhash = txHash;
@@ -453,7 +455,7 @@ export default function useWalletKit() {
         // await dispatch(Refresh_Data_Thunk()).unwrap();
         return txhash;
       } catch (error) {
-        throw Error((error as any).message);
+        throw Error(error as any);
       }
     },
     [blockchain, publicKey, address]

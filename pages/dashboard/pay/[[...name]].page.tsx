@@ -192,14 +192,14 @@ const Pay = () => {
                 const { amount, address, coin, fiatMoney, id, second, name } = input;
                 if (coin && amount && address) {
                     pays.push({
-                        coin: coin.name,
+                        coin: coin.symbol,
                         recipient: address,
                         amount: amount,
                     })
                 }
                 if (second && second.coin && second.amount && address) {
                     pays.push({
-                        coin: second.coin.name,
+                        coin: second.coin.symbol,
                         recipient: address,
                         amount: second.amount,
                     })
@@ -425,7 +425,7 @@ const Pay = () => {
                         <div className="flex justify-center pt-5">
                             <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
                                 <Button version="second" onClick={() => router.back()}>Close</Button>
-                                <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading}>Send</Button>
+                                <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading} onClick={() => submit()}>Send</Button>
                             </div>
                         </div>
                     </div>

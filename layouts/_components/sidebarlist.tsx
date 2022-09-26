@@ -68,7 +68,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
 
 
     return <>
-        <ul className={`w-full pt-[4.25rem]`}>
+        <ul className={`w-full pt-[1rem]`}>
             <NavLink to="/dashboard" end={true} className={({ isActive }) => `${isActive ? 'text-primary' : ''} `}>{({ isActive }) => <Li className={'hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all !mb-4 !mt-4'} text={"Dashboard"} showbar={showbar}><DashboardSVG active={isActive} darkMode={darkMode} />{showbar && 'Dashboard'}</Li>}</NavLink>
             <Accordion expanded={expanded2 === 'panel2'} onChange={handleChange2('panel2')} sx={{ borderRadius: '5px', marginBottom: '10px' }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}
@@ -83,7 +83,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                         <NavLink to="/dashboard/choose-budget?page=payroll" className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Payroll"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><PayrollSVG active={isActive} darkMode={darkMode} />{showbar && 'Payroll'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=requests" className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Request"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><RequestsSVG active={isActive} darkMode={darkMode} />{showbar && 'Requests'}</Li>}</NavLink>
                         <NavLink to="/dashboard/choose-budget?page=contributors" className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Contributors"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><TeamsSVG active={isActive} darkMode={darkMode} />{showbar && 'Contributors'}</Li>}</NavLink>
-                        <NavLink to="/dashboard/choose-budget?page=automations" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Recurring"} showbar={showbar}><AutomationsSVG active={isActive} darkMode={darkMode} />{showbar && 'Recurring'}</Li>}</NavLink>
+                        <NavLink to="/dashboard/streaming" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Recurring"} showbar={showbar}><AutomationsSVG active={isActive} darkMode={darkMode} />{showbar && 'Streaming'}</Li>}</NavLink>
                     </div>
                 </AccordionDetails>
             </Accordion>

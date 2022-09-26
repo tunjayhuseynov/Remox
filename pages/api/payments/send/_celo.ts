@@ -1,6 +1,6 @@
 import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransactionWallet"
 import { ethers } from "ethers"
-import { fromWei, toWei } from "utils/ray"
+// import { fromWei, toWei } from "utils/ray"
 import nomAbi from "rpcHooks/ABI/nom.json"
 import ERC20 from 'rpcHooks/ABI/erc20.json'
 import BatchRequestABI from 'rpcHooks/ABI/BatchRequest.json'
@@ -15,6 +15,8 @@ import { Coins } from "types"
 import { Blockchains, BlockchainType } from "types/blockchains"
 import { adminApp } from "firebaseConfig/admin"
 import { ITasking } from "redux/slices/account/remoxData"
+import BigNumber from "bignumber.js"
+import { DecimalConverter } from "utils/api"
 
 
 const web3 = new Web3(Blockchains.find(b => b.name === 'celo')!.rpcUrl)
@@ -53,18 +55,19 @@ export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string, 
 }
 
 export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPaymentInput, fromAddress: string, coins: Coins) => {
-    const amountWei = toWei(amount.toString());
-
     const Coin = coins[coin]
+    console.log(coin)
+    const amountWei = new BigNumber(amount).multipliedBy(10 ** coins[coin].decimals).toFixed(0);
+
     let token = new web3.eth.Contract(ERC20 as AbiItem[], Coin.address);
     let currentBalance = await token.methods.balanceOf(fromAddress).call();
-    let celoBalance = fromWei(currentBalance)
+    let celoBalance = DecimalConverter(currentBalance, Coin.decimals)
 
     if (recipient.slice(0, 2) != "0x") {
         recipient = await NomSpace(recipient)
     }
 
-    if (amount.toString() >= celoBalance)
+    if (amount >= celoBalance)
         throw new Error('Amount exceeds balance');
 
     return comment
@@ -78,7 +81,7 @@ export const GenerateStreamingTx = async (input: IPaymentInput, startTime: numbe
 
     const contract = new web3.eth.Contract(celo.streamingProtocols[0].abi as AbiItem[], celo.streamingProtocols[0].contractAddress)
 
-    return contract.methods.createStream(input.recipient, toWei(input.amount.toString()), coins[input.coin].address, startTime, endTime).encodeABI()
+    return contract.methods.createStream(input.recipient, new BigNumber(input.amount).multipliedBy(10 ** coins[input.coin].decimals).toFixed(0), coins[input.coin].address, startTime, endTime).encodeABI()
 }
 
 export const GenerateCancelStreamingTx = async (streamId: string) => {
@@ -154,7 +157,7 @@ export const GenerateSwapData = async (swap: ISwap) => {
 
     const pair = await Fetcher.fetchPairData(output, input, provider);
     const route = new Route([pair], input);
-    const amountIn = toWei(swap.amount)
+    const amountIn = new BigNumber(swap.amount).multipliedBy(10 ** swap.inputCoin.decimals).toFixed(0);
     // Trade.bestTradeExactIn(pair,new TokenAmount(input, amountIn.toString()),output)
     const trade = new Trade(route, new TokenAmount(input, amountIn), TradeType.EXACT_INPUT); //
 

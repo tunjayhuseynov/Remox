@@ -238,10 +238,10 @@ export default async function handler(
                 return acc;
             }, []);
 
-            return await GetTx(+index, budgets, Coins)
+            return res.json(await GetTx(+index, budgets, Coins))
         }
         else if (providerName === "GnosisSafe") {
-            const api = `${Blockchain?.multisigProviders[0].txServiceUrl}/api/v1/multisig-transactions/${index}`;
+            const api = `${Blockchain?.multisigProviders.find(s => s.name === "GnosisSafe")?.txServiceUrl}/api/v1/multisig-transactions/${index}`;
             const response = await axios.get(api);
             const transactionsData = response.data;
 
@@ -262,7 +262,7 @@ export default async function handler(
             })
 
             const safeTxs = await parseSafeTransaction(transactionsData, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])
-            return safeTxs
+            return res.json(safeTxs)
         }
     } catch (e: any) {
         console.error(e);
