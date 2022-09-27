@@ -22,16 +22,16 @@ const useRefetchData = () => {
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
 
 
-    useAsyncEffect(async () => {
-        if (selectedAccount) {
-            const response = await balanceFetch({ addresses: [selectedAccount], blockchain: blockchain.name }).unwrap();
-            const prices = response.AllPrices
-            const totalBalance = response.TotalBalance
-            dispatch(updateTotalBalance(totalBalance))
-            dispatch(updateUserBalance(prices))
-            setBalanceDone(true)
-        }
-    }, [selectedAccount])
+    // useAsyncEffect(async () => {
+    //     if (selectedAccount) {
+    //         const response = await balanceFetch({ addresses: [selectedAccount], blockchain: blockchain.name }).unwrap();
+    //         const prices = response.AllPrices
+    //         const totalBalance = response.TotalBalance
+    //         dispatch(updateTotalBalance(totalBalance))
+    //         dispatch(updateUserBalance(prices))
+    //         setBalanceDone(true)
+    //     }
+    // }, [selectedAccount])
 
     useEffect(() => { fetching() }, [fetchedCurrencies, selectedAccount])
 

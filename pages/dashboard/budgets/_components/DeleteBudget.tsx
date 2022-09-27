@@ -21,8 +21,8 @@ const DeletBudget = ({ onDisable, budget }: { budget: IBudgetORM, onDisable: Rea
     const [loading, submit] = useLoading(onSubmit)
 
     return <div className="flex flex-col space-y-6 items-center">
-        <div className="text-2xl text-primary">Are You Sure?</div>
-        <div className="flex items-center justify-center text-xl">
+        <div className="text-2xl text-primary font-semibold">Are You Sure?</div>
+        <div className="flex items-center justify-center text-lg">
             Your are about to delete this budget
         </div>
         <div className="flex justify-center items-center space-x-4">

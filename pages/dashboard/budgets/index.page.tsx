@@ -27,7 +27,6 @@ const Budgets = () => {
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
 
-    const [customRef, expectRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
     const link = BASE_URL + "/view/budget/"
 
     // if (!budget_exercises || !budget_exercises?.[0]) return <>No Data</>
@@ -75,7 +74,7 @@ const Budgets = () => {
             <div>
                 <div className="inline-block text-xl relative">
                     <div className="relative w-full">
-                        <div ref={customRef} onClick={() => setOpen(!isOpen)} className={`w-full font-normal py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec flex items-center gap-2`}>
+                        <div onClick={() => setOpen(!isOpen)} className={`w-full font-normal py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec flex items-center gap-2`}>
                             <span className="flex items-center justify-center text-2xl font-semibold">{selectedExercise?.name}</span>
                             <div>
                                 <IoIosArrowDown className='transition w-[0.7em] h-[0.7rem]' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />

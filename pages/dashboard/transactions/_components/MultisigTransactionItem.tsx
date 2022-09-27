@@ -18,8 +18,9 @@ import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
 import useLoading from 'hooks/useLoading';
-import { addConfirmation, changeToExecuted } from 'redux/slices/account/remoxData';
+import { addConfirmation, changeToExecuted, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Loader from 'components/Loader';
+import makeBlockie from 'ethereum-blockies-base64';
 
 
 interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
@@ -76,7 +77,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const changeThreshold = transaction.id === ERC20MethodIds.changeThreshold ? transaction as unknown as IChangeThreshold : null;
     const changeInternalThreshold = transaction.id === ERC20MethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
 
-    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, true);
+    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, true, account?.provider ?? undefined);
 
 
     const uniqTags = tags.filter(s => tx.tags?.findIndex(d => d.id === s.id) === -1)
@@ -119,13 +120,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 bg-gray-500 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
-                            {(account?.image?.imageUrl) || account?.image?.nftUrl ?
-                                <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} className="w-full h-full rounded-xl" /> :
-                                <div className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
-                                    {account?.name.slice(0, 2).toUpperCase()}
-                                </div>
-                            }
+                        <div className={`w-10 h-10 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
+                            <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="absolute left-0 top-0 w-10 h-10 rounded-full" />
                         </div>
                         <div className="text-sm truncate font-semibold pr-5">
                             {account?.name ?? "N/A"}
@@ -236,7 +232,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 <td className="text-left">
                     <div className="flex justify-between pr-5 items-center h-full">
                         <div>
-                            {tx.isExecuted ? <></> :
+                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.isExecuted ? <></> :
                                 !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
                                     <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                         <span className="tracking-wider" onClick={ConfirmFn}>
@@ -249,7 +245,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                                 {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
-                                        <></>
+                                        <></>)
+                                :
+                                <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
+                                    <span className="tracking-wider">
+                                        You're not an owner
+                                    </span>
+                                </div>
                             }
                         </div>
                         <div className="cursor-pointer" onClick={() => setOpenDetail(true)}>

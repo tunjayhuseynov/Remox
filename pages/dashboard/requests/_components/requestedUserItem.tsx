@@ -1,8 +1,8 @@
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { Dispatch, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { AltCoins } from "types";
-import { AddressReducer, SetComma } from "utils";
+import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
 import Modal from "components/general/modal";
 import Button from "components/button";
@@ -13,7 +13,6 @@ import {
   addRejectedRequest,
   removePendingRequest,
   removeApprovedRequest,
-  SelectDarkMode,
   addApprovedRequest,
   SelectOwners,
 } from "redux/slices/account/remoxData";
@@ -49,7 +48,7 @@ const RequestedUserItem = ({
   setSelectedApprovedRequests: Dispatch<IRequest[]>;
   payment?: boolean;
 }) => {
-  const isDark = useAppSelector(SelectDarkMode)
+
   const [modal, setModal] = useState(false);
   const [detect, setDetect] = useState(true);
   const divRef = useRef<HTMLTableRowElement>(null);
@@ -71,9 +70,9 @@ const RequestedUserItem = ({
   const Reject = async () => {
     try {
       await rejectRequest(request, userId?.toString() ?? "");
-      if(request.status === RequestStatus.pending){
+      if (request.status === RequestStatus.pending) {
         dispatch(removePendingRequest(request.id));
-      } else if(request.status === RequestStatus.approved){
+      } else if (request.status === RequestStatus.approved) {
         dispatch(removeApprovedRequest(request.id));
       }
       const newRequest = { ...request, status: RequestStatus.rejected };
@@ -85,12 +84,12 @@ const RequestedUserItem = ({
   };
 
   const Approve = async () => {
-    try{
+    try {
       await approveRequest(request, userId?.toString() ?? "");
       dispatch(removePendingRequest(request.id));
       const newRequest = { ...request, status: RequestStatus.approved };
-      dispatch( addApprovedRequest(newRequest));
-    } catch(error: any){
+      dispatch(addApprovedRequest(newRequest));
+    } catch (error: any) {
       console.error(error.message);
     }
     setModal(false)
@@ -99,7 +98,7 @@ const RequestedUserItem = ({
   const Execute = async () => {
     let inputs: IPaymentInput[] = [];
     const amount = request.amount
-    if(request.fiat) {
+    if (request.fiat) {
       const fiatPrice = GetFiatPrice(coin1!, request.fiat)
 
       inputs.push({
@@ -115,11 +114,11 @@ const RequestedUserItem = ({
       });
     }
 
-    if(request.secondCurrency && request.secondAmount) {
+    if (request.secondCurrency && request.secondAmount) {
       const secondAmount = request.secondAmount;
       const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
 
-      if(request.fiatSecond) {
+      if (request.fiatSecond) {
         const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
 
         inputs.push({
@@ -134,12 +133,12 @@ const RequestedUserItem = ({
           recipient: request.address,
         });
       }
-    } 
+    }
 
     await SendTransaction(accountAndBudget.account!, inputs, {
       budget: accountAndBudget.budget,
     })
-    
+
     dispatch(removeApprovedRequest(request.id));
     await removeRequest(request, userId ?? "")
 
@@ -153,11 +152,10 @@ const RequestedUserItem = ({
     <>
       <tr
         ref={divRef}
-        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed  ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : "" }  ${
-          detect
-            ? "grid-cols-[25%,20.5%,19.5%,21%,14%] sm:grid-cols-[25%,20.5%,19.5%,21%,14%]"
-            : "grid-cols-[27%,48%,25%]"
-        } `}
+        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : ""}  ${detect
+          ? "grid-cols-[25%,20.5%,19.5%,21%,14%] sm:grid-cols-[25%,20.5%,19.5%,21%,14%]"
+          : "grid-cols-[27%,48%,25%]"
+          } `}
       >
         <td className="flex overflow-hidden">
           <div className="flex items-center ml-2 mr-3">
@@ -213,48 +211,44 @@ const RequestedUserItem = ({
                     }
                   }}
                 />
-              ))) : <span className="bg-[#A60000] text-white rounded-sm"><AiOutlineClose/></span> : "" }
+              ))) : <span className="bg-[#A60000] text-white rounded-sm"><AiOutlineClose /></span> : ""}
             {!payment && request.status === RequestStatus.rejected && (
               <img src="/icons/request/close.png" className="mr-2" />
             )}
           </div>
           <div
-            className={`hidden sm:flex ${
-              detect ? "items-center" : "items-start"
-            } justify-center mr-2`}
+            className={`hidden sm:flex ${detect ? "items-center" : "items-start"
+              } justify-center mr-2`}
           >
             <div
-              className={` ${
-                request.status !== RequestStatus.rejected
-                  ? ""
-                  : "bg-red-300 text-black"
-              }  ${
-                detect
+              className={` ${request.status !== RequestStatus.rejected
+                ? ""
+                : "bg-red-300 text-black"
+                }  ${detect
                   ? "w-[2.813rem] h-[2.813rem] text-lg"
                   : "w-[1.563rem] h-[1.563rem] text-xs"
-              } flex items-center justify-center rounded-full font-bold `}
+                } flex items-center justify-center rounded-full font-bold `}
             >
               {owner ? (
-                owner.image ? 
-                <img
-                  src={owner!.image!.imageUrl}
-                  alt=""
-                  className="w-[2.5rem] h-[2.5rem] border items-center justify-center rounded-full"
-                /> : <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
+                owner.image ?
+                  <img
+                    src={owner!.image!.imageUrl}
+                    alt=""
+                    className="w-[2.5rem] h-[2.5rem] border items-center justify-center rounded-full"
+                  /> : <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               ) : (
                 <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               )}
             </div>
           </div>
           <div
-            className={`sm:flex flex-col ${
-              detect ? "justify-center" : "justify-start"
-            } items-start `}
+            className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"
+              } items-start `}
           >
             <div className="font-medium text-lg  ">
               {
                 <span>
-                    {request.fullname}
+                  {request.fullname}
                 </span>
               }
             </div>
@@ -276,18 +270,18 @@ const RequestedUserItem = ({
           <div className="flex items-center justify-start gap-1">
             {request.fiat ? <div className="flex items-center gap-1"> <span className="text-base">{request.amount}</span> {request.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
               <div className="flex items-center">
-                  <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                  <span className="text-base">{request.amount}</span>
+                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                <span className="text-base">{request.amount}</span>
               </div>
-            } 
+            }
           </div>
           {(request.secondCurrency && request.secondAmount) && <div className="flex items-center justify-start gap-1 mt-2">
-          {request.fiatSecond ? <div className="flex items-center gap-1"> <span className="text-base">{request.secondAmount}</span> {request.fiatSecond} as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" /></div> :
+            {request.fiatSecond ? <div className="flex items-center gap-1"> <span className="text-base">{request.secondAmount}</span> {request.fiatSecond} as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" /></div> :
               <div className="flex items-center">
-                  <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                  <span className="text-base">{request.secondAmount}</span>
+                <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                <span className="text-base">{request.secondAmount}</span>
               </div>
-            }      
+            }
           </div>}
         </td>
         <td className="items-center flex text-lg font-medium ">
@@ -299,38 +293,38 @@ const RequestedUserItem = ({
           )}
         </td>
       </tr>
-        <Modal onDisable={setModal} openNotify={modal}>
-          <div className="w-full z-[10] flex flex-col items-center gap-4  ">
-            <SingleRequestModal request={request} coin1={coin1} coin2={coin2}  />
-                {request.status === RequestStatus.pending  ? (
-                  <div className="flex justify-center w-[60%] pt-5 sm:pt-0">
-                    <Button
-                    version="reject"
-                    className={`w-[9.375rem] text-lg sm:w-full ${isAllowed? "mr-2" : ""} !py `}
-                    isLoading={isRejecting}
-                    onClick={() => setRejecting()}
-                  >
-                    Reject Request
-                  </Button>
-                  {isAllowed && 
-                    <Button
-                      className="w-[9.375rem] text-lg sm:w-full !py-2 ml-2"
-                        isLoading={isApproving}
-                        onClick={() => setApproving()}
-                    >
-                      Approve Request
-                    </Button>}
-                  </div>) : <div className="w-[60%] flex justify-end pt-5 sm:pt-0">
-                    <Button
-                      className=" text-lg !py-2 w-[40%]"
-                        isLoading={isExecuting}
-                        onClick={() => setExecuting()}
-                    >
-                      Confirm & Submit
-                    </Button>
-                  </div> } 
-          </div>
-        </Modal>
+      <Modal onDisable={setModal} openNotify={modal}>
+        <div className="w-full z-[10] flex flex-col items-center gap-4  ">
+          <SingleRequestModal request={request} coin1={coin1} coin2={coin2} />
+          {request.status === RequestStatus.pending ? (
+            <div className="flex justify-center w-[60%] pt-5 sm:pt-0">
+              <Button
+                version="reject"
+                className={`w-[9.375rem] text-lg sm:w-full ${isAllowed ? "mr-2" : ""} !py `}
+                isLoading={isRejecting}
+                onClick={() => setRejecting()}
+              >
+                Reject Request
+              </Button>
+              {isAllowed &&
+                <Button
+                  className="w-[9.375rem] text-lg sm:w-full !py-2 ml-2"
+                  isLoading={isApproving}
+                  onClick={() => setApproving()}
+                >
+                  Approve Request
+                </Button>}
+            </div>) : <div className="w-[60%] flex justify-end pt-5 sm:pt-0">
+            <Button
+              className=" text-lg !py-2 w-[40%]"
+              isLoading={isExecuting}
+              onClick={() => setExecuting()}
+            >
+              Confirm & Submit
+            </Button>
+          </div>}
+        </div>
+      </Modal>
     </>
   );
 };

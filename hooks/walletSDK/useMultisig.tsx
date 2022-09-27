@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { auth, IAccount, IBudget, Image, IMember } from 'firebaseConfig';
+import { auth, IAccount, Image, IMember } from 'firebaseConfig';
 import { stringToSolidityBytes } from "@celo/contractkit/lib/wrappers/BaseWrapper";
 import * as borsh from '@project-serum/borsh';
 import BN from 'bn.js'
@@ -36,17 +36,14 @@ import {
     getMultiSendCallOnlyDeployment,
 } from '@gnosis.pm/safe-deployments'
 import { SafeAccountConfig } from "@gnosis.pm/safe-core-sdk";
-import SafeServiceClient, {
-    SafeMultisigTransactionResponse,
-} from "@gnosis.pm/safe-service-client";
+import SafeServiceClient from "@gnosis.pm/safe-service-client";
 import {
     MetaTransactionData,
     SafeTransactionData,
     SafeTransactionDataPartial,
 } from "@gnosis.pm/safe-core-sdk-types";
 import { EthSignSignature } from "@gnosis.pm/safe-core-sdk";
-import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatchRequest, IFormattedTransaction, ISwap, ITransfer, ITransferComment, ITransferFrom } from "hooks/useTransactionProcess";
-import { Optional } from "@metaplex/js";
+import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatchRequest, ISwap, ITransfer, ITransferComment, ITransferFrom } from "hooks/useTransactionProcess";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { nanoid } from "@reduxjs/toolkit";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
@@ -187,7 +184,7 @@ export default function useMultisig() {
     const dispatch = useAppDispatch()
 
     //Celo
-    const { address } = useCelo()
+    // const { address } = useCelo()
 
     //solana
     const { connection } = useConnection();
@@ -304,7 +301,7 @@ export default function useMultisig() {
             provider = "GnosisSafe"
 
         } else {
-            if (!address) throw new Error("Address is not selected")
+            if (!selectedAddress) throw new Error("Address is not selected")
 
             const { abi: proxyABI, bytecode: proxyBytecode } = await multiProxy
             const { abi: multiSigABI, bytecode: multiSigBytecode } = await multisigContract
@@ -312,13 +309,13 @@ export default function useMultisig() {
             const web3 = new Web3((window as any).celo);
 
             const proxy = await new web3.eth.Contract(proxyABI as AbiItem[]).deploy({ data: proxyBytecode }).send({
-                from: address,
+                from: selectedAddress,
                 gas: 1000000,
                 gasPrice: "5000000000",
             })
 
             const multisig = await new web3.eth.Contract(multiSigABI as AbiItem[]).deploy({ data: multiSigBytecode }).send({
-                from: address,
+                from: selectedAddress,
                 gas: 1000000,
                 gasPrice: "5000000000",
             })
@@ -329,13 +326,13 @@ export default function useMultisig() {
             const initData = multisig.methods.initialize(owners.map(s => s.address), new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
 
             await proxy.methods._setAndInitializeImplementation(multisigAddress, initData).send({
-                from: address,
+                from: selectedAddress,
                 gas: 250000,
                 gasPrice: "5000000000",
             })
 
             await proxy.methods._transferOwnership(proxyAddress).send({
-                from: address,
+                from: selectedAddress,
                 gas: 25000,
                 gasPrice: "5000000000",
             })
@@ -494,7 +491,7 @@ export default function useMultisig() {
                 }
                 throw new Error("Wallet has no data")
             } else if (provider === "Celo Terminal") {
-                if (!address) throw new Error("Address is not selected")
+                if (!selectedAddress) throw new Error("Address is not selected")
 
                 const web3 = new Web3((window as any).celo);
 
@@ -503,7 +500,7 @@ export default function useMultisig() {
                 const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 await contract.methods.removeOwner(ownerAddress).send({
-                    from: address,
+                    from: selectedAddress,
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
@@ -584,7 +581,7 @@ export default function useMultisig() {
                 }
                 throw new Error("Wallet has no data")
             } else if (provider === "Celo Terminal") {
-                if (!address) throw new Error("Address is not selected")
+                if (!selectedAddress) throw new Error("Address is not selected")
 
                 const web3 = new Web3((window as any).celo);
 
@@ -603,7 +600,7 @@ export default function useMultisig() {
 
                 if (isSign) {
                     await contract.methods.changeRequirement(sign).send({
-                        from: address,
+                        from: selectedAddress,
                         gas: 25000,
                         gasPrice: "5000000000",
                     }).on('confirmation', function (num: number, receipt: any) {
@@ -618,7 +615,7 @@ export default function useMultisig() {
 
                 if (isInternal) {
                     await contract.methods.changeInternalRequirement(internalSign).send({
-                        from: address,
+                        from: selectedAddress,
                         gas: 25000,
                         gasPrice: "5000000000",
                     })
@@ -700,7 +697,7 @@ export default function useMultisig() {
                     const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                     await contract.methods.addOwner(newOwner).send({
-                        from: address,
+                        from: selectedAddress,
                         gas: 25000,
                         gasPrice: "5000000000",
                     }).on('confirmation', function (num: number, receipt: any) {
@@ -811,7 +808,7 @@ export default function useMultisig() {
                 const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 await contract.methods.replaceOwner(oldOwner.toLowerCase(), newOwner.toLowerCase()).send({
-                    from: address,
+                    from: selectedAddress,
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
@@ -849,7 +846,7 @@ export default function useMultisig() {
             } else if (provider === "Celo Terminal") {
                 if (Array.isArray(input)) throw new Error("Celo Terminal just supports one transaction at a time")
                 if (!input.destination) throw new Error("Destination is not selected")
-                if (!address) throw new Error("Address is not selected")
+                if (!selectedAddress) throw new Error("Address is not selected")
                 const web3 = new Web3((window as any).celo);
 
                 const Multisig = await multisigContract
@@ -871,7 +868,7 @@ export default function useMultisig() {
                 // })
 
                 const tx = await web3.eth.sendTransaction({
-                    from: address,
+                    from: selectedAddress,
                     to: input.destination,
                     value: "0",
                     data: txHash,
@@ -1035,7 +1032,7 @@ export default function useMultisig() {
                 const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 await contract.methods.revokeConfirmation(transactionId).send({
-                    from: address,
+                    from: selectedAddress,
                     gas: 25000,
                     gasPrice: "5000000000",
                 })
@@ -1173,7 +1170,7 @@ export default function useMultisig() {
                 let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
 
                 const tx = await contract.methods.executeTransaction(+transactionId).send({
-                    from: address,
+                    from: selectedAddress,
                     gas: 25000,
                     gasPrice: "5000000000",
                 })

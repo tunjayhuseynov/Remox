@@ -3,12 +3,10 @@ import useIndividual from './useIndividual'
 import useOrganization from './useOrganization'
 import { useAppSelector } from 'redux/hooks'
 import { SelectStorage } from 'redux/slices/account/remoxData'
-import { SelectProviderAddress } from 'redux/slices/account/remoxData'
 import { BlockchainType } from 'types/blockchains'
 
 export default function useRemoxAccount(address: string, blockchain: BlockchainType) {
     const storage = useAppSelector(SelectStorage)
-    const selectedAddress = useAppSelector(SelectProviderAddress)
 
     const remoxAccount = useMemo(() => {
         if (storage?.organization) {

@@ -24,7 +24,7 @@ function ChooseBudget() {
 
     const dispatch = useDispatch()
 
-    const currentWallet = useMemo(() => accounts.find(s => s.address === providerAddress), [providerAddress])
+    const currentWallet = useMemo(() => accounts.find(s => s.address.toLowerCase() === providerAddress?.toLowerCase()), [providerAddress])
 
     const [selectedAccount, setAccount] = useState(currentWallet);
     useEffect(() => setAccount(currentWallet), [currentWallet])

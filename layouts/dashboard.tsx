@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     </div>
     return <>
         <DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
-            <div id='main' className="flex flex-col min-h-screen ">
+            <div className="flex flex-col min-h-screen ">
                 <div className="fixed w-full bg-white   dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>
@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                     <div className='w-[20%] 2xl:w-[15%] 3xl:w-[15%]'>
                         <Sidebar />
                     </div>
-                    <main key={router.asPath} className={`relative pr-8 w-[82.5%] 2xl:w-[85%] 3xl:w-[85%] -screen transition-all  pt-36`}>
+                    <main key={router.asPath} id='main' className={`relative pr-8 w-[82.5%] 2xl:w-[85%] 3xl:w-[85%] -screen transition-all  pt-36`}>
                         {children}
                     </main>
 

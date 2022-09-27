@@ -105,7 +105,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         abi: CeloTerminal.abi as AbiItem[],
-        logoURL: "/icons/companies/celoterminal.png",
+        logoURL: "/icons/companies/gnosis_safe.png",
         txServiceUrl: "https://transaction-service.gnosis-safe-staging.celo-networks-dev.org/",
         displayName: "Celo Safe",
       },

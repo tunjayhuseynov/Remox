@@ -1,7 +1,7 @@
 import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { TransactionDirection, TransactionType } from "types";
-import { BlockchainType } from "types/blockchains";
+import { BlockchainType, MultisigProviders } from "types/blockchains";
 
 export const REMOX_LOGO = '/icons/companies/remox.png'
 
@@ -142,7 +142,7 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 	return directionType
 };
 
-export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainType, direction?: TransactionDirection, isMultisig?: boolean) => {
+export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainType, direction?: TransactionDirection, isMultisig?: boolean, providerName?: MultisigProviders) => {
 	let img: string;
 	let name: string;
 	let action: string;
@@ -154,8 +154,8 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			break;
 		case TransactionDirection.In:
 			if (isMultisig) {
-				img = blockchain.multisigProviders[0].logoURL;
-				name = blockchain.multisigProviders[0].displayName;
+				img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+				name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			} else {
 				img = REMOX_LOGO
 				name = 'Remox'
@@ -164,8 +164,8 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			break;
 		case TransactionDirection.Out:
 			if (isMultisig) {
-				img = blockchain.multisigProviders[0].logoURL;
-				name = blockchain.multisigProviders[0].displayName;
+				img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+				name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			} else {
 				img = REMOX_LOGO
 				name = 'Remox'
@@ -213,23 +213,23 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			action = "Stream Canceled"
 			break;
 		case TransactionDirection.AddOwner:
-			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].displayName;
+			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+			name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			action = "Add Owner"
 			break;
 		case TransactionDirection.RemoveOwner:
-			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].displayName;
+			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+			name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			action = "Remove Owner"
 			break;
 		case TransactionDirection.changeInternalRequirement:
-			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].displayName;
+			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+			name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			action = "Change Internal Threshold"
 			break;
 		case TransactionDirection.ChangeRequirement:
-			img = blockchain.multisigProviders[0].logoURL;
-			name = blockchain.multisigProviders[0].displayName;
+			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+			name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			action = "Change Threshold"
 			break;
 		default:

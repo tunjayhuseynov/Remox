@@ -1,11 +1,16 @@
 import CreateButton from "components/general/CreateButton"
+import Modal from "components/general/modal"
+import { useRouter } from "next/router"
 import { IBudgetExerciseORM } from "pages/api/budget/index.api"
 import BudgetCard from "pages/dashboard/budgets/_components/BudgetCard"
+import { useState } from "react"
+import NewBudget from "./NewBudget"
 
 interface IProps { exercise: IBudgetExerciseORM }
 
 const ExerciseBody = ({ exercise }: IProps) => {
-
+    const navigate = useRouter()
+    const [modalVisibility, setModalVisible] = useState(false)
     return <>
         <table className="w-full">
             <thead>
@@ -22,8 +27,11 @@ const ExerciseBody = ({ exercise }: IProps) => {
             </thead>
         </table>
         <div className="flex justify-center !mt-0">
-            <CreateButton />
+            <CreateButton onClick={() => setModalVisible(true)} />
         </div>
+        <Modal onDisable={setModalVisible} openNotify={modalVisibility}>
+            <NewBudget exerciseId={exercise.id} onBack={() => setModalVisible(false)} />
+        </Modal>
     </>
 }
 
