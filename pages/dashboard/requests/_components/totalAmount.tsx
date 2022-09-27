@@ -38,6 +38,7 @@ export const TotalFiatAmount = (coinList: (IRequest | IMember)[], Coins: Coins, 
             }
         }
         return acc
+        
     }, 0)
 }
 
