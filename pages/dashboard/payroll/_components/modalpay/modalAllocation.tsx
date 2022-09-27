@@ -30,7 +30,7 @@ const ModalAllocation = ({selectedList} : {selectedList: IMember[] | IRequest[]}
                   <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
                     Token Allocation
                   </div>
-                  <div className="pl-5">
+                  <div className="pl-5 flex">
                     <TokenBalance coinList={selectedList} />
                   </div>
                 </div>

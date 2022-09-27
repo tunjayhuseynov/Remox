@@ -26,7 +26,7 @@ export interface INFT {
     contractAddress: string;
     imageAddress: string;
     currency?: number;
-    value?: number;
+    value: string;
 }
 
 export interface INftData {
@@ -222,7 +222,9 @@ const Assets = () => {
                             </div>
                         </AccordionDetails>
                     </Accordion>
-                </div> : <NftContainer />}
+                </div> : 
+                    <NftContainer />
+                }
             </div>
         </div>
     </>
