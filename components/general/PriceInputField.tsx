@@ -10,8 +10,11 @@ import { useEffect } from 'react';
 import { AltCoins } from 'types';
 
 interface IProps {
-    coins: IPrice | { [coin: string]: AltCoins }
+    coins: IPrice | { [coin: string]: AltCoins },
+    customFiatList?: FiatList[],
+    disableFiatNoneSelection?: boolean,
     isMaxActive?: boolean;
+    setMaxAmount?: number;
     onChange: (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatList["name"] | undefined) => void,
     defaultValue?: number | null,
     defaultCoin?: IPrice[0] | AltCoins,
@@ -19,7 +22,7 @@ interface IProps {
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
-const fiatList: FiatList[] = [
+export const fiatList: FiatList[] = [
     {
         name: "AUD",
         logo: "https://cdn.countryflags.com/thumbs/australia/flag-400.png"
@@ -50,13 +53,13 @@ const fiatList: FiatList[] = [
     },
 ]
 
-const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin, defaultFiat }: IProps) => {
+const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin, defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount }: IProps) => {
     // const coins = useAppSelector(SelectBalance)
     const [dropdown, setDropdown] = useState<boolean>(false);
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
     const [value, setValue] = useState<string | null>(defaultValue?.toString() ?? null);
-    const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>(fiatList?.find(f => f.name === defaultFiat));
+    const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>(customFiatList ? customFiatList?.find(f => f.name === defaultFiat) : fiatList?.find(f => f.name === defaultFiat));
 
     const searching = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value.trim() === "") {
@@ -98,29 +101,30 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                         return
                     };
                     if ((val || val === "0") && !isNaN(+val)) {
-                        if (max && 'amount' in selectedCoin && +val > (selectedFiat ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER) : (selectedCoin?.amount ?? Number.MAX_SAFE_INTEGER))) return;
+                        if (max && (setMaxAmount || 'amount' in selectedCoin) && +val > (selectedFiat ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (setMaxAmount ?? (selectedCoin as IPrice[0])?.amount ?? Number.MAX_SAFE_INTEGER) : (setMaxAmount ?? (selectedCoin as IPrice[0])?.amount ?? Number.MAX_SAFE_INTEGER))) return;
                         onChange(+val, selectedCoin, selectedFiat?.name)
                         setValue(val)
                     }
                 }}
                 endAdornment={<>
                     <div className='w-full flex space-x-3 justify-end'>
-                        {'amount' in selectedCoin && <div className='self-center'>
-                            <div className='px-2 dark:bg-greylish bg-[#D9D9D9] text-xs cursor-pointer' onClick={() => {
-                                if (selectedCoin) {
-                                    if (selectedFiat) {
-                                        setValue((selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount).toString())
-                                        onChange(selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount, selectedCoin, selectedFiat?.name)
-                                    } else {
-                                        setValue(selectedCoin.amount.toString())
-                                        onChange(selectedCoin.amount, selectedCoin, undefined)
+                        {'amount' in selectedCoin &&
+                            <div className='self-center'>
+                                <div className='px-2 dark:bg-greylish bg-[#D9D9D9] text-xs cursor-pointer' onClick={() => {
+                                    if (selectedCoin) {
+                                        if (selectedFiat) {
+                                            setValue((selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount).toString())
+                                            onChange(selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount, selectedCoin, selectedFiat?.name)
+                                        } else {
+                                            setValue(selectedCoin.amount.toString())
+                                            onChange(selectedCoin.amount, selectedCoin, undefined)
+                                        }
                                     }
-                                }
-                            }}>
-                                MAX
-                            </div>
-                        </div>}
-                        <div className='w-[65%] border border-[#a7a7a7] dark:border-[#777777] px-2 py-1 rounded-md cursor-pointer select-none' onClick={() => setDropdown(!dropdown)}>
+                                }}>
+                                    MAX
+                                </div>
+                            </div>}
+                        <div className='w-full border border-[#a7a7a7] dark:border-[#777777] px-2 py-2 rounded-md cursor-pointer select-none' onClick={() => setDropdown(!dropdown)}>
                             {selectedCoin &&
                                 <div className='flex space-x-2 tracking-wide text-sm items-center justify-center'>
                                     <img src={selectedCoin?.logoURI} className="rounded-full w-6 h-6 mr-1" />
@@ -180,11 +184,11 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                             Fiat Currency
                                         </div>
                                         <div className='flex flex-col overflow-y-auto pb-2 h-[12rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
-                                            <div onClick={() => setSelectedFiat(undefined)} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${!selectedFiat && "bg-gray-400 bg-opacity-20"}`}>
+                                            {!disableFiatNoneSelection && <div onClick={() => { setSelectedFiat(undefined); onChange(value ? +value : null, selectedCoin, undefined) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${!selectedFiat && "bg-gray-400 bg-opacity-20"}`}>
                                                 {/* <div className='w-6 h-6 rounded-full'><img className='w-full h-full rounded-full' src={coin.logoURI} /></div> */}
                                                 <div className='text-sm font-semibold'>None</div>
-                                            </div>
-                                            {fiatList.map((fiat, index) => {
+                                            </div>}
+                                            {(customFiatList ?? fiatList).map((fiat, index) => {
                                                 return <div key={index} onClick={() => { setSelectedFiat(fiat); onChange(value ? +value : null, selectedCoin, fiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedFiat?.name === fiat.name && "bg-gray-400 bg-opacity-20"}`}>
                                                     <div className='w-6 h-6 rounded-full'><img className='w-full h-full rounded-full' src={fiat.logo} /></div>
                                                     <div className='text-sm font-semibold'>{fiat.name}</div>

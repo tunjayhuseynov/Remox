@@ -74,7 +74,6 @@ export default function RequestLayout() {
                                 setTooltip(false)
                             }, 300)
                         }}>
-
                             Copy
                         </Button>
                     </div>

@@ -37,9 +37,9 @@ export default async function handler(
 
         const authId = req.query.id as string;
 
-        let specificTxs;
+        let specificTxsReq;
         if (parsedtxs && parsedtxs.length > 0) {
-            specificTxs = await axios.get(BASE_URL + "/api/transactions", {
+            specificTxsReq = axios.get(BASE_URL + "/api/transactions", {
                 params: {
                     addresses: parsedAddress,
                     blockchain: blockchainName,
@@ -50,7 +50,7 @@ export default async function handler(
             if (isTxNecessery) {
                 return res.status(200).json(TxNull());
             }
-            specificTxs = await axios.get(BASE_URL + "/api/transactions", {
+            specificTxsReq = axios.get(BASE_URL + "/api/transactions", {
                 params: {
                     addresses: parsedAddress,
                     blockchain: blockchainName,
@@ -58,19 +58,19 @@ export default async function handler(
             })
         }
 
-        const prices = await axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
+        const pricesReq = axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
             params: {
                 addresses: parsedAddress,
                 blockchain: blockchainName
             }
         })
 
+        const [specificTxs, prices] = await Promise.all([specificTxsReq, pricesReq]);
+
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
         const allTxs = specificTxs.data
-
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
-
         const AccountReq = await AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
         // const AccountReqWeek = AccountInOut(allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
         // const AccountReqMonth = AccountInOut(allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -166,7 +166,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                     if (secondCoin && transfer.coin.symbol !== secondCoin) return
                     sum.push({
                         coin: transfer.coin.name,
-                        totalSpending: new BigNumber(transfer.amount).div(transfer.coin.decimals).toNumber(),
+                        totalSpending: DecimalConverter(new BigNumber(transfer.amount).div(transfer.coin.decimals).toNumber(), transfer.coin.decimals),
                     })
                 })
             }

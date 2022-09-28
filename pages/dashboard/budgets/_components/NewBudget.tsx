@@ -10,19 +10,17 @@ import { AltCoins } from 'types/coins';
 import { SubmitHandler } from "react-hook-form";
 import { GetTime } from 'utils';
 import useLoading from 'hooks/useLoading';
-import { Create_Budget_Thunk, Update_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
+import { Create_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import { Step, StepLabel, Stepper } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import PriceInputField, { fiatList } from 'components/general/PriceInputField';
 import { IoMdRemoveCircle } from 'react-icons/io';
-import { FiatMoneyList, IBudget, IBudgetTX } from 'firebaseConfig';
+import { FiatMoneyList } from 'firebaseConfig';
 import { ToastRun } from 'utils/toast';
 import { nanoid } from '@reduxjs/toolkit';
 import FormHelperText from '@mui/material/FormHelperText';
 import { BiTrash } from 'react-icons/bi';
-import { IBudgetCoin, IBudgetORM } from 'pages/api/budget/index.api';
-import { ITag } from 'pages/api/tags/index.api';
 
 export interface ISubInputs {
     id: string;
@@ -36,29 +34,29 @@ export interface ISubInputs {
 
 const steps = ['Budget', 'Budget Labels'];
 interface IProps {
-    budget: IBudgetORM;
+    exerciseId: string;
     onBack: () => void
 }
 
-function EditBudget({ onBack, budget }: IProps) {
+function NewBudget({ exerciseId, onBack }: IProps) {
 
     const [activeStep, setActiveStep] = useState(0);
     const coins = useAppSelector(SelectCurrencies)
     const dispatch = useAppDispatch()
 
-    const [anotherToken, setAnotherToken] = useState(!!budget.secondAmount)
-    const [budgetName, setBudgetName] = useState(budget.name)
-    const [budgetAmount, setBudgetAmount] = useState<number | null>(budget.amount)
-    const [budgetAmount2, setBudgetAmount2] = useState<number | null>(budget.secondAmount)
-    const [budgetCoin, setBudgetCoin] = useState(coins[budget.token])
-    const [budgetCoin2, setBudgetCoin2] = useState(budget.secondToken ? coins[budget.secondToken] : Object.values(coins)[0])
-    const [budgetFiat, setBudgetFiat] = useState<FiatMoneyList | undefined>(budget.fiatMoney ?? undefined)
-    const [budgetFiat2, setBudgetFiat2] = useState<FiatMoneyList | undefined>(budget.secondFiatMoney ?? undefined)
+    const [anotherToken, setAnotherToken] = useState(false)
+    const [budgetName, setBudgetName] = useState('')
+    const [budgetAmount, setBudgetAmount] = useState<number | null>(null)
+    const [budgetAmount2, setBudgetAmount2] = useState<number | null>(null)
+    const [budgetCoin, setBudgetCoin] = useState(Object.values(coins)[0])
+    const [budgetCoin2, setBudgetCoin2] = useState(Object.values(coins)[0])
+    const [budgetFiat, setBudgetFiat] = useState<FiatMoneyList>()
+    const [budgetFiat2, setBudgetFiat2] = useState<FiatMoneyList>()
 
-    const [selectedPriceOption, setSelectedPriceOption] = useState(budget.customPrice ? { name: "Custom Price" } : { name: "Current Price" })
-    const [selectedPriceOption2, setSelectedPriceOption2] = useState(budget.secondCustomPrice ? { name: "Custom Price" } : { name: "Current Price" })
-    const [customPrice, setCustomPrice] = useState<number | null>(budget.customPrice)
-    const [customPrice2, setCustomPrice2] = useState<number | null>(budget.secondCustomPrice)
+    const [selectedPriceOption, setSelectedPriceOption] = useState({ name: "Current Price" })
+    const [selectedPriceOption2, setSelectedPriceOption2] = useState({ name: "Current Price" })
+    const [customPrice, setCustomPrice] = useState<number | null>(null)
+    const [customPrice2, setCustomPrice2] = useState<number | null>(null)
 
     const onNext = () => {
         if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
@@ -66,33 +64,20 @@ function EditBudget({ onBack, budget }: IProps) {
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
 
         setActiveStep(1)
-        // setLabels([
-        //     {
-        //         id: nanoid(),
-        //         labelName: '',
-        //         labelAmount: null,
-        //         labelCoin: budgetCoin,
-        //         labelFiat: budgetFiat ?? null,
-        //         txs: [],
-        //         budgetCoins: {
-        //             coin: budgetCoin.symbol,
-        //             totalAmount: 0,
-        //             totalPending: 0,
-        //             totalUsedAmount: 0,
-        //             second: anotherToken ? {
-        //                 secondCoin: budgetCoin2.symbol,
-        //                 secondTotalAmount: 0,
-        //                 secondTotalPending: 0,
-        //                 secondTotalUsedAmount: 0,
-        //             } : null
-        //         },
-        //         second: anotherToken ? {
-        //             labelAmount: null,
-        //             labelCoin: budgetCoin2,
-        //             labelFiat: budgetFiat2 ?? null,
-        //         } : null
-        //     }
-        // ])
+        setLabels([
+            {
+                id: nanoid(),
+                labelName: '',
+                labelAmount: null,
+                labelCoin: budgetCoin,
+                labelFiat: budgetFiat ?? null,
+                second: anotherToken ? {
+                    labelAmount: null,
+                    labelCoin: budgetCoin2,
+                    labelFiat: budgetFiat2 ?? null,
+                } : null
+            }
+        ])
     }
 
     const onAddLabel = () => {
@@ -104,19 +89,6 @@ function EditBudget({ onBack, budget }: IProps) {
                 labelAmount: null,
                 labelCoin: budgetCoin,
                 labelFiat: budgetFiat ?? null,
-                txs: [],
-                budgetCoins: {
-                    coin: budgetCoin.symbol,
-                    totalAmount: 0,
-                    totalPending: 0,
-                    totalUsedAmount: 0,
-                    second: anotherToken ? {
-                        secondCoin: budgetCoin2.symbol,
-                        secondTotalAmount: 0,
-                        secondTotalPending: 0,
-                        secondTotalUsedAmount: 0,
-                    } : null
-                },
                 second: anotherToken ? {
                     labelAmount: null,
                     labelCoin: budgetCoin2,
@@ -132,31 +104,12 @@ function EditBudget({ onBack, budget }: IProps) {
         labelAmount: number | null,
         labelCoin: AltCoins,
         labelFiat: FiatMoneyList | null,
-        budgetCoins: IBudgetCoin,
-        txs: IBudgetTX[],
         second: {
             labelAmount: number | null,
             labelFiat: FiatMoneyList | null,
             labelCoin: AltCoins | null,
         } | null
-    }[]>(
-        budget.subbudgets.map(s => {
-            return {
-                id: s.id,
-                labelAmount: s.amount,
-                labelCoin: coins[s.token],
-                labelFiat: s.fiatMoney ?? null,
-                labelName: s.name,
-                txs: s.txs,
-                budgetCoins: s.budgetCoins,
-                second: s.secondToken ? {
-                    labelAmount: s.secondAmount,
-                    labelCoin: coins[s.secondToken],
-                    labelFiat: s.secondFiatMoney ?? null,
-                } : null
-            }
-        })
-    )
+    }[]>([])
 
     const onSubmit = async () => {
         if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
@@ -176,13 +129,15 @@ function EditBudget({ onBack, budget }: IProps) {
         if (allLabelAmount > (budgetAmount ?? 0)) return ToastRun(<>The total amount of the labels is greater than the budget amount</>, "error")
         if (anotherToken && allSecondLabelAmount > (budgetAmount2 ?? 0)) return ToastRun(<>The total amount of the labels is greater than the budget amount</>, "error")
 
-        let budgetObj: { budget: IBudgetORM } = {
+        let id = generate();
+
+        let budget = {
             budget: {
-                txs: budget.txs,
-                id: budget.id,
-                created_at: budget.created_at,
+                txs: [],
+                id: id,
+                created_at: GetTime(),
                 name: budgetName,
-                parentId: budget.parentId,
+                parentId: exerciseId,
 
                 token: budgetCoin.symbol,
                 customPrice,
@@ -193,19 +148,6 @@ function EditBudget({ onBack, budget }: IProps) {
                 secondAmount: budgetAmount2 ?? null,
                 secondCustomPrice: customPrice2,
                 secondFiatMoney: budgetFiat2 ?? null,
-                tags: budget.tags,
-                budgetCoins: {
-                    coin: budgetCoin.symbol,
-                    second: anotherToken ? {
-                        secondCoin: budgetCoin2.symbol,
-                        secondTotalAmount: budgetAmount2 ?? 0,
-                        secondTotalPending: budget.budgetCoins.second?.secondTotalPending ?? 0,
-                        secondTotalUsedAmount: budget.budgetCoins.second?.secondTotalUsedAmount ?? 0,
-                    } : null,
-                    totalAmount: budgetAmount,
-                    totalPending: budget.budgetCoins.totalPending,
-                    totalUsedAmount: budget.budgetCoins.totalUsedAmount,
-                },
 
                 subbudgets: labels.map(s => ({
                     id: s.id,
@@ -223,28 +165,13 @@ function EditBudget({ onBack, budget }: IProps) {
                     secondCustomPrice: customPrice2,
 
                     txs: [],
-                    parentId: budget.id,
+                    parentId: id,
                     created_at: GetTime(),
-
-
-
-                    budgetCoins: {
-                        coin: s.labelCoin.symbol,
-                        totalAmount: s.labelAmount ?? 0,
-                        totalPending: s.budgetCoins.totalPending,
-                        totalUsedAmount: s.budgetCoins.totalUsedAmount,
-                        second: s.budgetCoins.second ? {
-                            secondCoin: s.second?.labelCoin?.symbol ?? "",
-                            secondTotalAmount: s.second?.labelAmount ?? 0,
-                            secondTotalPending: s.budgetCoins.second?.secondTotalPending,
-                            secondTotalUsedAmount: s.budgetCoins.second?.secondTotalUsedAmount,
-                        } : null
-                    }
                 })),
             }
         }
 
-        await dispatch(Update_Budget_Thunk(budgetObj)).unwrap()
+        await dispatch(Create_Budget_Thunk(budget)).unwrap()
 
         onBack()
     }
@@ -252,7 +179,7 @@ function EditBudget({ onBack, budget }: IProps) {
 
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
-    return <div className="w-full relative pb-14">
+    return <div className="w-full relative">
         <div className="w-[50%] mx-auto flex flex-col space-y-[5rem]">
             <div className='w-full flex justify-center'>
                 <div className='w-full fixed bg-light dark:bg-dark z-[9999] py-1'>
@@ -286,9 +213,9 @@ function EditBudget({ onBack, budget }: IProps) {
             {
                 activeStep === 0 &&
                 <div className='flex flex-col space-y-5'>
-                    <TextField label="Name" placeholder='E.g. Remox Budget Q4 2023' value={budgetName} className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
+                    <TextField label="Name" placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
 
-                    <PriceInputField coins={coins} defaultCoin={budgetCoin} defaultFiat={budgetFiat} defaultValue={budgetAmount} onChange={(val, coin, fiatMoney) => {
+                    <PriceInputField coins={coins} onChange={(val, coin, fiatMoney) => {
                         setBudgetAmount(val)
                         setBudgetCoin(coin)
                         setBudgetFiat(fiatMoney)
@@ -302,12 +229,12 @@ function EditBudget({ onBack, budget }: IProps) {
                                 selected={selectedPriceOption}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption.name === "Current Price"} value={customPrice?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
+                            <TextField disabled={selectedPriceOption.name === "Current Price"} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
                         </div>
                     </div>}
 
                     {anotherToken ? <div className="relative">
-                        <PriceInputField defaultCoin={budgetCoin2} defaultFiat={budgetFiat2} defaultValue={budgetAmount2} isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
+                        <PriceInputField isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
                             setBudgetAmount2(val)
                             setBudgetCoin2(coin)
                             setBudgetFiat2(fiatMoney)
@@ -337,7 +264,7 @@ function EditBudget({ onBack, budget }: IProps) {
                                 selected={selectedPriceOption2}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption2.name === "Current Price"} value={customPrice2?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
+                            <TextField disabled={selectedPriceOption2.name === "Current Price"} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
                         </div>
                     </div>}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
@@ -358,7 +285,7 @@ function EditBudget({ onBack, budget }: IProps) {
                         return <div key={label.id} className='flex flex-col space-y-5'>
                             <div className='text-xl font-semibold text-center'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
-                                <TextField label="Label name" value={label.labelName} placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
+                                <TextField label="Label name" placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
                                     if (s.id === label.id) {
                                         return { ...s, labelName: e.target.value }
                                     }
@@ -372,42 +299,26 @@ function EditBudget({ onBack, budget }: IProps) {
                                     </div>}
                             </div>
 
-                            <PriceInputField coins={{ [budgetCoin.symbol]: budgetCoin }} defaultCoin={label.labelCoin} defaultFiat={label.labelFiat ?? undefined} defaultValue={label.labelAmount} disableFiatNoneSelection={true} customFiatList={budgetFiat ? [fiatList.find(s => s.name == budgetFiat)!] : []} onChange={(val, coin, fiatMoney) => {
+                            <PriceInputField coins={{ [budgetCoin.symbol]: budgetCoin }} disableFiatNoneSelection={true} defaultFiat={budgetFiat} customFiatList={budgetFiat ? [fiatList.find(s => s.name == budgetFiat)!] : []} onChange={(val, coin, fiatMoney) => {
                                 setLabels(labels.map(s => {
                                     if (s.id === label.id) {
-                                        return {
-                                            ...s, labelAmount: val, budgetCoins: {
-                                                ...s.budgetCoins,
-                                                coin: coin.symbol,
-                                                totalAmount: (val ?? 0),
-                                            }
-                                        }
+                                        return { ...s, labelAmount: val }
                                     }
                                     return s;
                                 }))
                             }} />
                             <FormHelperText className='!mt-1' error={max < 0}>Remains: {max} {budgetFiat ?? budgetCoin.symbol} {max < 0 ? "You exceed the max amount" : ""}</FormHelperText>
 
-                            {budgetAmount2 && budgetCoin2 && <PriceInputField coins={{ [budgetCoin2.symbol]: budgetCoin2 }} defaultCoin={label.second?.labelCoin ?? undefined} defaultFiat={label.second?.labelFiat ?? undefined} defaultValue={label.second?.labelAmount} disableFiatNoneSelection={true} customFiatList={budgetFiat2 ? [fiatList.find(s => s.name == budgetFiat2)!] : []} onChange={(val, coin, fiatMoney) => {
+                            {budgetAmount2 && budgetCoin2 && <PriceInputField coins={{ [budgetCoin2.symbol]: budgetCoin2 }} defaultFiat={budgetFiat2} disableFiatNoneSelection={true} customFiatList={budgetFiat2 ? [fiatList.find(s => s.name == budgetFiat2)!] : []} onChange={(val, coin, fiatMoney) => {
                                 setLabels(labels.map(s => {
                                     if (s.id === label.id) {
                                         return {
                                             ...s,
-                                            budgetCoins: {
-                                                ...s.budgetCoins,
-                                                second: {
-                                                    ...s.budgetCoins.second,
-                                                    secondCoin: coin.symbol,
-                                                    secondTotalAmount: (val ?? 0),
-                                                    secondTotalPending: s.budgetCoins.second?.secondTotalPending ?? 0,
-                                                    secondTotalUsedAmount: s.budgetCoins.second?.secondTotalUsedAmount ?? 0,
-                                                }
-                                            },
                                             second: {
                                                 ...s.second,
                                                 labelCoin: budgetCoin2,
                                                 labelAmount: val,
-                                                labelFiat: budgetFiat2 ?? null,
+                                                labelFiat: budgetFiat2 ?? null
                                             }
                                         }
                                     }
@@ -434,4 +345,4 @@ function EditBudget({ onBack, budget }: IProps) {
     </div >
 }
 
-export default EditBudget
+export default NewBudget

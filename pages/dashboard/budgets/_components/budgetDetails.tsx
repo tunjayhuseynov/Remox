@@ -40,7 +40,7 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibil
                             </button>
                             <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Budgets Details</div>
                             <div className="flex items-center justify-between w-full">
-                                <div className="text-xl font-bold ">{item.name}</div>
+                                <div className="text-xl font-bold">{item.name}</div>
                                 <div className="flex items-center gap-5">
                                     <div className="text-xl font-bold">{usedPercent.toLocaleString()}%</div>
                                 </div>
@@ -104,10 +104,10 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibil
                                 </>}
                             </div>
                             {item.subbudgets.length > 0 && <>
-                                <div className="text-2xl font-bold text-start pb-4">Subbudgets</div>
+                                <div className="text-xl font-bold text-start pb-3">Subbudgets</div>
                                 {item.subbudgets.map((item, id) => <div key={id}>
                                     <div className=" border-b py-4 w-full flex justify-between items-center">
-                                        <div className="text-greylish w-[15%]">{item.name}</div>
+                                        <div className="text-greylish w-[15%] font-semibold text-lg">{item.name}</div>
                                         <div className="text-greylish flex items-start gap-1 text-sm">
                                             <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
                                             <span className="text-red-600">{item.budgetCoins.totalAmount}</span>
@@ -118,10 +118,10 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibil
                                             <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
                                             <span className="text-greylish">{item.budgetCoins.totalPending}</span>
                                         </div>
-                                        <div className=" rounded-xl relative  h-[1rem] flex w-[20%] bg-greylish bg-opacity-40">
-                                            <div className=" h-full bg-primary rounded-l-xl" style={ProgressBarWidth(((item.budgetCoins.totalAmount ?? 0) + (item.budgetCoins.totalPending ?? 0)) * 100 / (item.budgetCoins.totalAmount ?? 1))}></div>
-                                            <div className="stripe-1 ml-2 object-cover h-full" ></div>
-                                            <div className=" h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
+                                        <div className="rounded-xl relative  h-[1rem] flex w-[20%] bg-greylish bg-opacity-40 overflow-hidden">
+                                            <div className="h-full bg-primary" style={ProgressBarWidth((((item.budgetCoins.totalUsedAmount ?? 0) + (item.budgetCoins.totalPending ?? 0)) * 100) / (item.budgetCoins.totalAmount ?? 1))}></div>
+                                            {/* <div className="stripe-1 ml-2 object-cover h-full" ></div> */}
+                                            {/* <div className=" h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
                                         </div >
                                     </div >
                                 </div>

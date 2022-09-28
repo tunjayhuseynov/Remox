@@ -1,10 +1,4 @@
-import { CoinsName } from "types";
-import { useFirestoreRead } from "./useFirebase";
-import { useSelector } from "react-redux";
-import useNextSelector from "hooks/useNextSelector";
-import { useAppSelector } from "redux/hooks";
 import { FiatMoneyList } from 'firebaseConfig';
-import { SelectProviderAddress } from "redux/slices/account/remoxData";
 
 export interface IRequest {
     id: string;
@@ -32,11 +26,3 @@ export enum RequestStatus {
     finished = "Finished"
 }
 
-export default function useRequest() {
-
-    const selectedAddress = useAppSelector(SelectProviderAddress)
-
-    let { data } = useFirestoreRead<{ requests: IRequest[] }>('requests', selectedAddress?.toLowerCase() ?? "0x");
-
-    return { data };
-}

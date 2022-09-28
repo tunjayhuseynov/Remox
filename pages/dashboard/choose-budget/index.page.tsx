@@ -24,7 +24,7 @@ function ChooseBudget() {
 
     const dispatch = useDispatch()
 
-    const currentWallet = useMemo(() => accounts.find(s => s.address === providerAddress), [providerAddress])
+    const currentWallet = useMemo(() => accounts.find(s => s.address.toLowerCase() === providerAddress?.toLowerCase()), [providerAddress])
 
     const [selectedAccount, setAccount] = useState(currentWallet);
     useEffect(() => setAccount(currentWallet), [currentWallet])
@@ -64,7 +64,7 @@ function ChooseBudget() {
     }
 
     return <>
-        <div className="bg-light dark:bg-dark h-full relative pr-1 w-[85%] overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
+        <div className="bg-light dark:bg-dark h-full relative pr-1 overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
             <div className="w-[25%] mx-auto py-8 flex flex-col gap-5 ">
                 <button onClick={() => router.back()} className="absolute right-full w-[4rem] top-0 translate-x-[175%] translate-y-[25%] tracking-wider font-bold transition-all hover:text-primary hover:transition-all text-xl flex items-center gap-2">
                     {/* <img src="/icons/cross_greylish.png" alt="" /> */}

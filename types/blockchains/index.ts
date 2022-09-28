@@ -90,7 +90,8 @@ export const Blockchains: BlockchainType[] = [
     name: "celo",
     displayName: "Celo",
     nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
-    rpcUrl: "https://rpc.ankr.com/celo/eb990af6ca75cdcc3d06ff7e9f6f8fdecdb08abc587142224199970e4dc46964",
+    // rpcUrl: "https://rpc.ankr.com/celo/eb990af6ca75cdcc3d06ff7e9f6f8fdecdb08abc587142224199970e4dc46964",
+    rpcUrl: "https://forno.celo.org",
     explorerUrl: "https://explorer.celo.org/api",
     currencyCollectionName: "celoCurrency",
     hpCollection: "hpCELO",
@@ -105,7 +106,7 @@ export const Blockchains: BlockchainType[] = [
       {
         name: "GnosisSafe",
         abi: CeloTerminal.abi as AbiItem[],
-        logoURL: "/icons/companies/celoterminal.png",
+        logoURL: "/icons/companies/gnosis_safe.png",
         txServiceUrl: "https://transaction-service.gnosis-safe-staging.celo-networks-dev.org/",
         displayName: "Celo Safe",
       },

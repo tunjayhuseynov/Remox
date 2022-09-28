@@ -15,6 +15,8 @@ const NftContainer = () => {
   const [nftsDataArray, setNftsDataArray] = useState<INFT[]>([]);
   const nfts = useAppSelector(SelectNfts);
 
+  console.log(nfts)
+
 
   useAsyncEffect(async () => {
     setLoading(true)
@@ -40,13 +42,14 @@ const NftContainer = () => {
       name: nft.rawData.tokenName,
       text: nft.rawData.tokenSymbol ?? "",
       contractAddress: nft.rawData.contractAddress,
-      imageAddress: link
+      imageAddress: link,
+      value: nft.rawData.value
     }
 
     return NFTData
   }
 
-  if(loading) return <div className='w-full flex  justify-center '><Loader/> </div>
+  if(loading) return <div className='w-full flex  justify-center '><Loader/> </div> 
 
 
   return (

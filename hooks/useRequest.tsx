@@ -33,7 +33,7 @@ export default function useRequest() {
     }
 
     const removeRequest = async (request: IRequest, userId: string) => {
-        isLoading(true)
+        isLoading(true) 
         await FirestoreWrite<{ requests: FieldValue }>().updateDoc('requests', userId, {
             requests: arrayRemove(request)
         })
@@ -41,6 +41,8 @@ export default function useRequest() {
 
     const addRequest = async (documentId: string, request : IRequest) => {
         isLoading(true)
+        
+
         if (request.attachLink) {
             request.attachLink = request.attachLink
         }

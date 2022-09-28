@@ -21,6 +21,7 @@ import GnosisSafe from "rpcHooks/ABI/Gnosis.json";
 import BigNumber from "bignumber.js";
 import Web3 from 'web3'
 import { IBudgetORM } from "pages/api/budget/index.api";
+import CyberBoxABI from 'rpcHooks/ABI/CyberBox.json'
 
 export const ERC20MethodIds = {
   transferFrom: "transferFrom",
@@ -189,8 +190,15 @@ export const
 
       if (transaction.tokenID) {
 
+        let decoder = new InputDataDecoder(CyberBoxABI)
+        let res = decoder.decodeData(input)
+
         return {
-          rawData: transaction,
+          // rawData: transaction,
+          rawData: {
+            ...transaction,
+            value: +(hexToNumberString(res.inputs[2])) / 10**18
+          },
           method: ERC20MethodIds.nftTokenERC721,
           hash: transaction.hash,
           id: ERC20MethodIds.nftTokenERC721,

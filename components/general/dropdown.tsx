@@ -101,7 +101,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                             {e.logoUrl && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.logoUrl}`} />}
                             {e.logoURI && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.logoURI}`} />}
                             {e.image && <img className="w-4 h-4 mr-2 rounded-full" src={`${typeof e.image === "string" ? e.image : e.image.imageUrl}`} />}
-                            {<span>{e.displayName ?? e.name}</span>}
+                            {<span className='text-sm'>{e.displayName ?? e.name}</span>}
                         </MenuItem>
                     })}
                 </Select>

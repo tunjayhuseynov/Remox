@@ -25,7 +25,7 @@ interface IBudgetAndTx extends IBaseOrmBudget {
 /*Budget */
 
 export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxData/create_budget", async ({ budget }, api) => {
-    const currencies = (api.getState() as RootState).remoxData.coins
+
     await Create_Budget(budget);
     const exercise = await Get_Budget_Exercise(budget.parentId);
     (exercise.budgets as IBudget[]) = [...exercise.budgets as IBudget[], budget];
@@ -89,6 +89,10 @@ export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>(
         created_at: budget.created_at,
         id: budget.id,
         name: budget.name,
+        customPrice: budget.customPrice,
+        secondCustomPrice: budget.secondCustomPrice,
+        secondFiatMoney: budget.secondFiatMoney,
+        fiatMoney: budget.fiatMoney,
         parentId: budget.parentId,
         secondAmount: budget.secondAmount,
         secondToken: budget.secondToken,

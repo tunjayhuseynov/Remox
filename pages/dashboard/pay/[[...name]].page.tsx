@@ -9,7 +9,7 @@ import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useAppSelector } from 'redux/hooks';
-import { SelectType, colourStyles } from "utils/const";
+import { SelectType, colourStyles, GetFiatPrice } from "utils/const";
 import { SelectSelectedAccountAndBudget, SelectTags } from "redux/slices/account/remoxData";
 import useLoading from "hooks/useLoading";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
@@ -190,18 +190,26 @@ const Pay = () => {
             const pays: IPaymentInput[] = []
             for (const input of inputs) {
                 const { amount, address, coin, fiatMoney, id, second, name } = input;
-                if (coin && amount && address) {
+                let parsedAmount = amount;
+                if (fiatMoney && coin && amount) {
+                    parsedAmount = amount / GetFiatPrice(coin, fiatMoney)
+                }
+                if (coin && parsedAmount && address) {
                     pays.push({
                         coin: coin.symbol,
                         recipient: address,
-                        amount: amount,
+                        amount: parsedAmount,
                     })
                 }
                 if (second && second.coin && second.amount && address) {
+                    let parsedAmount = second.amount;
+                    if (second.fiatMoney && second.coin && second.amount) {
+                        parsedAmount = second.amount / GetFiatPrice(second.coin, second.fiatMoney)
+                    }
                     pays.push({
                         coin: second.coin.symbol,
                         recipient: address,
-                        amount: second.amount,
+                        amount: parsedAmount,
                     })
                 }
             }

@@ -38,8 +38,7 @@ const Navbar = () => {
         </div>
         <div className="hidden md:flex items-center  justify-end">
             <div className="flex gap-x-4">
-                {storage && selectedAccount !== storage.lastSignedProviderAddress && !data?.some(s => (s as IAccount).address.toLowerCase() === selectedAccount?.toLowerCase()) && <Visitcard name={'Multisig'} address={selectedAccount ?? ""} />}
-                {storage ? <Visitcard address={address ?? ""} /> : <Loader />}
+                <Visitcard name={'Multisig'} address={selectedAccount ?? ""} />
                 <div className="relative items-center flex justify-center">
                     <NotificationCointainer />
                 </div>

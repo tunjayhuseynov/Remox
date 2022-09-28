@@ -11,9 +11,9 @@ import PayrollItem from './_components/PayrollItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { AltCoins, Coins } from 'types';
 import RunModal from './_components/modalpay/runModal';
-import useLoading from 'hooks/useLoading';
 import { GetFiatPrice } from 'utils/const';
-import contributors from 'redux/slices/account/reducers/contributors';
+import useAsyncEffect from 'hooks/useAsyncEffect';
+import { FiatMoneyList } from 'firebaseConfig';
 
 
 export default function DynamicPayroll() {
@@ -24,6 +24,7 @@ export default function DynamicPayroll() {
     const [selectedContributors, setSelectedContributors] = useState<IMember[]>([]);
     const defaultFiat = useAppSelector(SelectFiatPreference)
     const fiatSymbol = useAppSelector(SelectFiatSymbol)
+    const { GetCoins, SendTransaction } = useWalletKit()
 
 
     useEffect(() => {
@@ -32,7 +33,10 @@ export default function DynamicPayroll() {
         }
     }, [isAvaible])
 
-    const { GetCoins, SendTransaction } = useWalletKit()
+    useAsyncEffect(async() => {
+      const totalMonthlyPayment = await TotalMonthlyAmount(contributors, Object.values(GetCoins), defaultFiat)
+    }, [])
+
 
     const totalAmount =  TotalFiatAmount(contributors, GetCoins, defaultFiat);
 
@@ -194,10 +198,25 @@ export default function DynamicPayroll() {
 }
 
 
-const TotalMonthlyAmount = async (contributorsList: IMember[], Coins: AltCoins[] ) => {
+const TotalMonthlyAmount = async (contributorsList: IMember[], Coins: AltCoins[], Fiat: FiatMoneyList ) => {
+  const date = new Date()
+  const currentMonth = date.getMonth()
+  const currentYear = date.getFullYear()
+
+  console.log(currentMonth)
   return contributorsList.reduce((acc, curr) => {
+    const coin = Coins.find((c) => c.symbol === curr.currency)
+    const fiatPrice = GetFiatPrice(coin ?? Coins[0], Fiat)
+    const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
+    const fiatPrice2 = GetFiatPrice(coin2 ?? Coins[1], Fiat)
+
     if(curr.execution === "manual"){
-      
+      const contributorMonth = new Date(curr.paymantEndDate).getMonth()
+      if(currentMonth === contributorMonth) {
+        if(coin) {
+                
+        }
+      }
     }
     return acc 
   }, 0)
