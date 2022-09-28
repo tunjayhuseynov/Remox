@@ -75,11 +75,11 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
                 totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
                 totalPending: txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalFirstCoinPending : 0), 0),
                 totalUsedAmount: (coinParsed?.[budget.token] ?? 0) + txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalFirstCoinSpent : 0), 0),
-                second: budget.secondToken && budget.secondAmount && coinParsed?.[budget.secondToken] ? {
+                second: budget.secondToken && budget.secondAmount ? {
                     secondTotalAmount: budget.secondAmount,// - totalSecondCoinPending - coinParsed[budget.secondToken] - totalSecondCoinSpent,
                     secondCoin: budget.secondToken,
                     secondTotalPending: txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalSecondCoinPending : 0), 0),
-                    secondTotalUsedAmount: coinParsed[budget.secondToken] + txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalSecondCoinSpent : 0), 0)
+                    secondTotalUsedAmount: (coinParsed?.[budget.secondToken] ?? 0) + txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalSecondCoinSpent : 0), 0)
                 } : null
             }
         })
@@ -111,12 +111,12 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         coin: budget.token,
         totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
         totalPending: totalFirstCoinPending,
-        totalUsedAmount: (coinParsed[budget.token] ?? 0) + totalFirstCoinSpent,
-        second: budget.secondToken && budget.secondAmount && coinParsed[budget.secondToken] ? {
+        totalUsedAmount: (coinParsed?.[budget.token] ?? 0) + totalFirstCoinSpent,
+        second: budget.secondToken && budget.secondAmount ? {
             secondTotalAmount: budget.secondAmount,// - totalSecondCoinPending - coinParsed[budget.secondToken] - totalSecondCoinSpent,
             secondCoin: budget.secondToken,
             secondTotalPending: totalSecondCoinPending,
-            secondTotalUsedAmount: coinParsed[budget.secondToken] + totalSecondCoinSpent
+            secondTotalUsedAmount: (coinParsed?.[budget.secondToken] ?? 0) + totalSecondCoinSpent
         } : null
     }
 

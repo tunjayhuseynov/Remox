@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactDOM, { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from "framer-motion"
 import ClickAwayListener from '@mui/base/ClickAwayListener';
@@ -15,6 +15,7 @@ interface IProps {
 
 const Modal = ({ children, onDisable, title, className, disableX = false, animatedModal = true, openNotify }: IProps) => {
     const [mounted, setMounted] = useState(false)
+    const ref = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         setMounted(true)
@@ -22,15 +23,13 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
         return () => setMounted(false)
     }, [])
 
+
     useEffect(() => {
         if (openNotify) {
-
             document.querySelector('body')!.style.overflowY = "hidden"
         } else {
             document.querySelector('body')!.style.overflowY = ""
         }
-
-
     }, [openNotify])
 
     useEffect(() => {
@@ -48,16 +47,17 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
             <AnimatePresence>{
                 openNotify &&
                 <motion.div
+                    ref={ref}
                     initial={{ x: "-100%" }}
                     animate={{ x: 0 }}
                     exit={{ x: "-100%" }}
                     transition={{ type: "tween", duration: .33 }}
                     className="bg-light dark:bg-dark absolute h-full w-full overflow-x-hidden cursor-default top-[73px]  pt-10 flex flex-col  left-0 ">
 
-                    <button onClick={() => { onDisable(false); }} className="z-[9999] w-[4rem] tracking-wider font-bold transition-all hover:transition-all text-xl flex items-center gap-2">
+                    <button onClick={() => { onDisable(false); }} className="z-[9999] pl-[4.25rem] w-[4rem] tracking-wider font-bold transition-all hover:transition-all text-xl flex items-center gap-2">
                         <span className="text-4xl pb-1 ">&#171;</span> Back
                     </button>
-                    <div className="overflow-x-hidden hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin h-full">
+                    <div className="overflow-x-hidden hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin h-full pb-10">
                         {children}
                     </div>
                 </motion.div>}

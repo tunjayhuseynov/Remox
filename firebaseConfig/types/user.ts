@@ -56,6 +56,7 @@ export interface IBudget {
     secondToken: string | null;
     secondAmount: number | null;
     txs: IBudgetTX[];
+
     fiatMoney: FiatMoneyList | null
     customPrice: number | null;
 
@@ -74,6 +75,12 @@ export interface ISubBudget {
 
     token: string;
     amount: number;
+
+    fiatMoney: FiatMoneyList | null
+    customPrice: number | null;
+
+    secondFiatMoney: FiatMoneyList | null
+    secondCustomPrice: number | null;
 
     secondToken: string | null;
     secondAmount: number | null;

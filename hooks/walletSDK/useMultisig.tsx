@@ -274,7 +274,7 @@ export default function useMultisig() {
             provider = "Goki"
 
         } else if (provider === "GnosisSafe") {
-            const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+            const web3Provider = (window as any)?.celo;;
             const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
             const safeOwner = ethersProvider.getSigner();
             const ethAdapter = new EthersAdapter({
@@ -285,6 +285,7 @@ export default function useMultisig() {
             const safeFactory = await SafeFactory.create({
                 ethAdapter,
                 isL1SafeMasterCopy: false,
+                safeVersion: "1.3.0",
             });
 
             const safeAccountConfig: SafeAccountConfig = {

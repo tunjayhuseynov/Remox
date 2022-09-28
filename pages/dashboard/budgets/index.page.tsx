@@ -18,8 +18,8 @@ const Budgets = () => {
     const navigate = useRouter()
     const budget_exercises = useAppSelector(SelectBudgetExercises)
 
-    const [selectedExercise, setSelectedExercise] = useState(budget_exercises.length > 0 ? budget_exercises[0] : undefined)
-
+    const [selectedExerciseId, setSelectedExerciseId] = useState(budget_exercises.length > 0 ? budget_exercises[0].id : undefined)
+    const selectedExercise = budget_exercises.find(s => s.id === selectedExerciseId)
 
     const hasExercises = (budget_exercises?.length ?? 0) > 0
 
@@ -95,8 +95,8 @@ const Budgets = () => {
                                     <div className='flex flex-col'>
                                         <div className='grid grid-flow-row'>
                                             {budget_exercises.map((item) => {
-                                                return <div onClick={() => setSelectedExercise(item)} key={item.id} className="hover:bg-greylish hover:bg-opacity-5 p-2 hover:transition-all transition-all text-start justify-start cursor-pointer w-full border-b dark:border-greylish">
-                                                    <div className="flex items-center space-x-4 px-2">
+                                                return <div onClick={() => setSelectedExerciseId(item.id)} key={item.id} className="hover:bg-greylish hover:bg-opacity-5 p-2 hover:transition-all transition-all text-start justify-start cursor-pointer w-full border-b dark:border-greylish">
+                                                    <div className="grid grid-cols-2 px-2 w-[66%]">
                                                         <span className="font-semibold text-lg transition-all">{item.name}</span>
                                                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
                                                             {item.from > new Date().getTime() ? "Future" : "Active"}
@@ -121,9 +121,9 @@ const Budgets = () => {
             {hasExercises && selectedExercise && <>
                 <TotalExerciseData total={selectedExercise} />
                 <ExerciseBody exercise={selectedExercise} />
-                {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex flex-col  items-center justify-center gap-6">
-                    <img src="/icons/noData.png" alt="" className="w-[10rem] h-[10rem]" />
-                    <div className="text-greylish font-bold dark:text-white text-2xl">No Data</div>
+                {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex items-center justify-center gap-6">
+                    <img src="/icons/noData.png" alt="" className="w-[8rem] h-[8rem]" />
+                    <div className="text-greylish font-bold dark:text-white text-2xl">No budget</div>
                 </div>}
             </>}
         </div >

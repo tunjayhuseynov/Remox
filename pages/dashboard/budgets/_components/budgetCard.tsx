@@ -11,6 +11,7 @@ import DeleteBudget from './DeleteBudget';
 import { VscEdit } from 'react-icons/vsc';
 import { GiCancel } from 'react-icons/gi';
 import { AiFillRightCircle } from 'react-icons/ai';
+import EditBudget from './EditBudget';
 
 function BudgetCard({ item, }: { item: IBudgetORM }) {
     // const [openNotify, setNotify] = useState(false)
@@ -136,7 +137,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
             <td className='self-center'>
                 <div className='flex justify-end pr-10 space-x-5 items-center'>
                     <div>
-                        <VscEdit size={"1.25rem"} className="cursor-pointer hover:text-green-500" />
+                        <VscEdit size={"1.25rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} />
                     </div>
                     <div>
                         <GiCancel size={"1.25rem"} className="cursor-pointer hover:text-red-500" onClick={() => setDelBudget(true)} />
@@ -146,7 +147,9 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                     </div>
                 </div>
             </td>
-
+            <Modal onDisable={setEditBudget} openNotify={editBudget}>
+                <EditBudget budget={item} onBack={() => setEditBudget(false)} />
+            </Modal>
             {
                 delBudget &&
                 <Modal onDisable={setDelBudget} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>

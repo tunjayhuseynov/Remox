@@ -12,7 +12,7 @@ const ExerciseBody = ({ exercise }: IProps) => {
     const navigate = useRouter()
     const [modalVisibility, setModalVisible] = useState(false)
     return <>
-        <table className="w-full">
+        {exercise.budgets.length > 0 && <table className="w-full">
             <thead>
                 <tr className="pl-5 grid grid-cols-[repeat(7,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-200 dark:bg-darkSecond rounded-md">
                     <th className="py-3 self-center text-left">Budget name</th>
@@ -23,10 +23,10 @@ const ExerciseBody = ({ exercise }: IProps) => {
                     <th className="py-3 self-center text-left">Status</th>
                     <th></th>
                 </tr>
-                {exercise.budgets.map(s => <BudgetCard item={s} />)}
+                {exercise.budgets.map(s => <BudgetCard key={s.id} item={s} />)}
             </thead>
-        </table>
-        <div className="flex justify-center !mt-0">
+        </table>}
+        <div className="flex justify-center !mt-0 py-10">
             <CreateButton onClick={() => setModalVisible(true)} />
         </div>
         <Modal onDisable={setModalVisible} openNotify={modalVisibility}>

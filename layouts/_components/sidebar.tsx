@@ -64,7 +64,7 @@ const Sidebar = () => {
     }, [totalBalance])
 
     return <>
-        <div className={`hover:scrollbar-thumb-gray-200   dark:hover:scrollbar-thumb-greylish fixed w-[17.5%] 2xl:w-[15%] 3xl:w-[15%] scrollbar-thin h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none  overflow-y-auto pt-32 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
+        <div className={`hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin fixed w-[17.5%] 2xl:w-[15%] 3xl:w-[15%] h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none  overflow-y-auto pt-32 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
             <div className='flex flex-col px-9'>
                 <div className='flex items-center gap-3'>
                     <Dropdown

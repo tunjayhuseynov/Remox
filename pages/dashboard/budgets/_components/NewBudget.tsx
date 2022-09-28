@@ -1,33 +1,27 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState } from 'react'
 import Dropdown from "../../../../components/general/dropdown";
 import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { generate } from 'shortid'
-import { useRouter } from 'next/router';
-import { SelectBalance, SelectCurrencies, SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectCurrencies } from 'redux/slices/account/remoxData';
 
-import { AltCoins, Coins } from 'types/coins';
-import { useForm, SubmitHandler } from "react-hook-form";
+import { AltCoins } from 'types/coins';
+import { SubmitHandler } from "react-hook-form";
 import { GetTime } from 'utils';
 import useLoading from 'hooks/useLoading';
 import { Create_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { AiOutlinePlusCircle } from 'react-icons/ai'
-import { FormControlLabel, Radio, RadioGroup, Step, StepLabel, Stepper } from '@mui/material';
+import { Step, StepLabel, Stepper } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import PriceInputField, { fiatList } from 'components/general/PriceInputField';
-import { IoIosAddCircleOutline, IoMdRemoveCircle } from 'react-icons/io';
+import { IoMdRemoveCircle } from 'react-icons/io';
 import { FiatMoneyList } from 'firebaseConfig';
 import { ToastRun } from 'utils/toast';
 import { nanoid } from '@reduxjs/toolkit';
 import FormHelperText from '@mui/material/FormHelperText';
+import { BiTrash } from 'react-icons/bi';
 
-interface IFormInput {
-    name: string;
-    amount: number;
-    amount2?: number;
-    subName: string;
-}
 export interface ISubInputs {
     id: string;
     name: string;
@@ -39,14 +33,6 @@ export interface ISubInputs {
 }[]
 
 const steps = ['Budget', 'Budget Labels'];
-
-const radioColor = {
-    color: "#FF7348",
-    '&.Mui-checked': {
-        color: "#FF7348"
-    },
-}
-
 interface IProps {
     exerciseId: string;
     onBack: () => void
@@ -56,9 +42,6 @@ function NewBudget({ exerciseId, onBack }: IProps) {
 
     const [activeStep, setActiveStep] = useState(0);
     const coins = useAppSelector(SelectCurrencies)
-
-
-    const { GetCoins } = useWalletKit()
     const dispatch = useAppDispatch()
 
     const [anotherToken, setAnotherToken] = useState(false)
@@ -76,6 +59,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
     const [customPrice2, setCustomPrice2] = useState<number | null>(null)
 
     const onNext = () => {
+        if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
         if (!budgetAmount) return ToastRun(<>Please, input an amount</>, "error")
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
 
@@ -88,7 +72,25 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                 labelCoin: budgetCoin,
                 labelFiat: budgetFiat ?? null,
                 second: anotherToken ? {
-                    labelAmount: budgetAmount2,
+                    labelAmount: null,
+                    labelCoin: budgetCoin2,
+                    labelFiat: budgetFiat2 ?? null,
+                } : null
+            }
+        ])
+    }
+
+    const onAddLabel = () => {
+        setLabels([
+            ...labels,
+            {
+                id: nanoid(),
+                labelName: '',
+                labelAmount: null,
+                labelCoin: budgetCoin,
+                labelFiat: budgetFiat ?? null,
+                second: anotherToken ? {
+                    labelAmount: null,
                     labelCoin: budgetCoin2,
                     labelFiat: budgetFiat2 ?? null,
                 } : null
@@ -109,74 +111,103 @@ function NewBudget({ exerciseId, onBack }: IProps) {
         } | null
     }[]>([])
 
-    const onSubmit: SubmitHandler<IFormInput> = async data => {
-        // const coin = wallet
-        // const coin2 = wallet2
-        // const subbudgets = inputs
+    const onSubmit = async () => {
+        if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
+        if (!budgetAmount) return ToastRun(<>Please, input an amount</>, "error")
+        if (!budgetCoin) return ToastRun(<>Please, select a coin</>, "error")
+        if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
+        if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
-        // let secondCoin = null, secondAmount = null, id = generate();
+        if (labels.some(label => !label.labelAmount || !label.labelCoin || !label.labelName)
+            ||
+            (anotherToken && labels.some(label => !label.second?.labelAmount || !label.second?.labelCoin))
+        ) return ToastRun(<>Please, fill all the fields</>, "error")
 
-        // if (data.amount2 && data.amount2 > 0) {
-        //     secondCoin = coin2.symbol
-        //     secondAmount = data.amount2
-        // }
+        const allLabelAmount = labels.reduce((acc, curr) => acc + (curr.labelAmount ?? 0), 0)
+        const allSecondLabelAmount = labels.reduce((acc, curr) => acc + (curr.second?.labelAmount ?? 0), 0)
 
-        // await dispatch(Create_Budget_Thunk({
-        //     budget: {
-        //         txs: [],
-        //         id: id,
-        //         amount: data.amount,
-        //         created_at: GetTime(),
-        //         name: data.name,
-        //         parentId,
-        //         token: coin.symbol,
-        //         secondAmount,
-        //         secondToken: secondCoin,
-        //         subbudgets: subbudgets.map(s => ({
-        //             amount: s.amount,
-        //             created_at: GetTime(),
-        //             id: s.id,
-        //             name: s.name,
-        //             parentId: id,
-        //             secondAmount: s.amount2 ?? null,
-        //             secondToken: (s.amount2 && s.wallet2 && s.amount2 > 0) ? s.wallet2.symbol : null,
-        //             token: s.wallet.symbol,
-        //             txs: [],
-        //         })),
-        //     }
-        // })).unwrap()
+        if (allLabelAmount > (budgetAmount ?? 0)) return ToastRun(<>The total amount of the labels is greater than the budget amount</>, "error")
+        if (anotherToken && allSecondLabelAmount > (budgetAmount2 ?? 0)) return ToastRun(<>The total amount of the labels is greater than the budget amount</>, "error")
 
-        // onBack()
+        let id = generate();
+
+        let budget = {
+            budget: {
+                txs: [],
+                id: id,
+                created_at: GetTime(),
+                name: budgetName,
+                parentId: exerciseId,
+
+                token: budgetCoin.symbol,
+                customPrice,
+                fiatMoney: budgetFiat ?? null,
+                amount: budgetAmount,
+
+                secondToken: budgetCoin2.symbol,
+                secondAmount: budgetAmount2 ?? null,
+                secondCustomPrice: customPrice2,
+                secondFiatMoney: budgetFiat2 ?? null,
+
+                subbudgets: labels.map(s => ({
+                    id: s.id,
+                    name: s.labelName,
+                    amount: s.labelAmount ?? 0,
+                    token: s.labelCoin.symbol,
+
+                    secondAmount: s.second?.labelAmount ?? null,
+                    secondToken: (s.second?.labelCoin && (s.second?.labelAmount ?? 0) > 0) ? s.second.labelCoin.symbol : null,
+
+                    fiatMoney: budgetFiat ?? null,
+                    customPrice: customPrice,
+
+                    secondFiatMoney: budgetFiat2 ?? null,
+                    secondCustomPrice: customPrice2,
+
+                    txs: [],
+                    parentId: id,
+                    created_at: GetTime(),
+                })),
+            }
+        }
+
+        await dispatch(Create_Budget_Thunk(budget)).unwrap()
+
+        onBack()
     }
 
 
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
-    return <div className="w-full relative pb-10">
-        <div className="w-[50%] mx-auto flex flex-col space-y-[10rem]">
-            <div className='w-[18rem] mx-auto'>
-                <Stepper activeStep={activeStep}>
-                    {steps.map((label, index) => {
-                        const stepProps: { completed?: boolean } = {};
+    return <div className="w-full relative">
+        <div className="w-[50%] mx-auto flex flex-col space-y-[5rem]">
+            <div className='w-full flex justify-center'>
+                <div className='w-full fixed bg-light dark:bg-dark z-[9999] py-1'>
+                    <div className='w-[18rem] mx-auto '>
+                        <Stepper activeStep={activeStep}>
+                            {steps.map((label, index) => {
+                                const stepProps: { completed?: boolean } = {};
 
-                        if (index < activeStep) {
-                            stepProps.completed = true;
-                        }
+                                if (index < activeStep) {
+                                    stepProps.completed = true;
+                                }
 
-                        return (
-                            <Step key={label} {...stepProps} sx={{
-                                '& .MuiStepLabel-root .Mui-active': {
-                                    color: '#FF7348', // circle color (ACTIVE)
-                                },
-                                '& .MuiStepLabel-root .Mui-completed': {
-                                    color: '#FF7348', // circle color (COMPLETED)
-                                },
-                            }}>
-                                <StepLabel>{label}</StepLabel>
-                            </Step>
-                        );
-                    })}
-                </Stepper>
+                                return (
+                                    <Step key={label} {...stepProps} sx={{
+                                        '& .MuiStepLabel-root .Mui-active': {
+                                            color: '#FF7348', // circle color (ACTIVE)
+                                        },
+                                        '& .MuiStepLabel-root .Mui-completed': {
+                                            color: '#FF7348', // circle color (COMPLETED)
+                                        },
+                                    }}>
+                                        <StepLabel>{label}</StepLabel>
+                                    </Step>
+                                );
+                            })}
+                        </Stepper>
+                    </div>
+                </div>
             </div>
 
             {
@@ -247,17 +278,26 @@ function NewBudget({ exerciseId, onBack }: IProps) {
 
             {
                 activeStep === 1 &&
-                <div className='flex flex-col space-y-5'>
+                <div className='flex flex-col space-y-16'>
                     {labels.map((label, index) => {
-                        const max = labels.reduce((a, c) => (budgetAmount ?? 0) - (a + (c.labelAmount ?? 0)), 0)
-                        return <>
-                            <div className='text-lg font-semibold'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
-                            <TextField label="Label name" placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
-                                if (s.id === label.id) {
-                                    return { ...s, name: e.target.value }
-                                }
-                                return s;
-                            }))} />
+                        const max = (budgetAmount ?? 0) - labels.reduce((a, c) => a + (c.labelAmount ?? 0), 0)
+                        const max2 = (budgetAmount2 ?? 0) - labels.reduce((a, c) => a + (c?.second?.labelAmount ?? 0), 0)
+                        return <div key={label.id} className='flex flex-col space-y-5'>
+                            <div className='text-xl font-semibold text-center'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
+                            <div className='relative'>
+                                <TextField label="Label name" placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
+                                    if (s.id === label.id) {
+                                        return { ...s, labelName: e.target.value }
+                                    }
+                                    return s;
+                                }))} />
+                                {labels.length > 1 &&
+                                    <div className='absolute -right-8 top-1/2 -translate-y-1/2' onClick={() => {
+                                        setLabels(labels.filter(s => s.id !== label.id))
+                                    }}>
+                                        <BiTrash className='hover:text-red-500 cursor-pointer' />
+                                    </div>}
+                            </div>
 
                             <PriceInputField coins={{ [budgetCoin.symbol]: budgetCoin }} disableFiatNoneSelection={true} defaultFiat={budgetFiat} customFiatList={budgetFiat ? [fiatList.find(s => s.name == budgetFiat)!] : []} onChange={(val, coin, fiatMoney) => {
                                 setLabels(labels.map(s => {
@@ -267,7 +307,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                                     return s;
                                 }))
                             }} />
-                            <FormHelperText className={`${max < (budgetAmount ?? 0) ? "text-red-500" : ""}`}>Max: {max} {max < (budgetAmount ?? 0) ? "You exceed the max amount" : ""}</FormHelperText>
+                            <FormHelperText className='!mt-1' error={max < 0}>Remains: {max} {budgetFiat ?? budgetCoin.symbol} {max < 0 ? "You exceed the max amount" : ""}</FormHelperText>
 
                             {budgetAmount2 && budgetCoin2 && <PriceInputField coins={{ [budgetCoin2.symbol]: budgetCoin2 }} defaultFiat={budgetFiat2} disableFiatNoneSelection={true} customFiatList={budgetFiat2 ? [fiatList.find(s => s.name == budgetFiat2)!] : []} onChange={(val, coin, fiatMoney) => {
                                 setLabels(labels.map(s => {
@@ -285,13 +325,19 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                                     return s;
                                 }))
                             }} />}
-
-
-                        </>
+                            {budgetAmount2 && <FormHelperText className='!mt-1' error={max2 < 0}>Remains: {max2} {budgetFiat2 ?? budgetCoin2.symbol} {max2 < 0 ? "You exceed the max amount" : ""}</FormHelperText>}
+                        </div>
                     })}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
-                        <Button version="second" className="!rounded-xl" onClick={() => setActiveStep(0)}>Back</Button>
-                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading}>Create</Button>
+                        <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-semibold' onClick={onAddLabel}>
+                            + Add Budget Labels
+                        </div>
+                        <Button version="second" className="!rounded-xl" onClick={() => {
+                            setActiveStep(0)
+                            setBudgetFiat2(undefined)
+                            setBudgetFiat(undefined)
+                        }}>Back</Button>
+                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading} onClick={OnSubmit}>Create</Button>
                     </div>
                 </div>
             }

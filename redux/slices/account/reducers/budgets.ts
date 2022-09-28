@@ -34,7 +34,6 @@ export default {
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.id);
             if (budgetIndex !== -1) {
-                const oldBudget = state.budgetExercises[index].budgets[budgetIndex]
                 state.budgetExercises[index].budgets[budgetIndex] = payload;
             }
         }
