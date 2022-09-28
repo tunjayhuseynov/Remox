@@ -27,36 +27,36 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const remoxAccount = useAppSelector(SelectRemoxAccount)
     const blockchain = useAppSelector(SelectBlockchain)
 
-    // useEffect(() => {
-    //     (async () => {
-    //         if (!auth.currentUser) return router.push("/")
-    //         const individual = await Get_Individual(auth.currentUser.uid)
-    //         if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
-    //             dispatch(launchApp({
-    //                 accountType: accountType,
-    //                 addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
-    //                 blockchain: blockchain,
-    //                 id: remoxAccount.id,
-    //                 storage: {
-    //                     lastSignedProviderAddress: address,
-    //                     signType: accountType,
-    //                     uid: auth.currentUser.uid,
-    //                     individual: individual,
-    //                     organization: accountType === "organization" ? (remoxAccount as IOrganization) : null,
-    //                 }
-    //             }))
-    //         } else {
-    //             router.push("/")
-    //         }
-    //     })()
-    // }, [])
+    useEffect(() => {
+        (async () => {
+            if (!auth.currentUser) return router.push("/")
+            const individual = await Get_Individual(auth.currentUser.uid)
+            if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
+                dispatch(launchApp({
+                    accountType: accountType,
+                    addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
+                    blockchain: blockchain,
+                    id: remoxAccount.id,
+                    storage: {
+                        lastSignedProviderAddress: address,
+                        signType: accountType,
+                        uid: auth.currentUser.uid,
+                        individual: individual,
+                        organization: accountType === "organization" ? (remoxAccount as IOrganization) : null,
+                    }
+                }))
+            } else {
+                router.push("/")
+            }
+        })()
+    }, [])
 
     const { fetching, isAppLoaded } = useRefetchData()
 
 
-    // if (isFetching) return <div className="w-screen h-screen flex items-center justify-center">
-    //     <Loader />
-    // </div>
+    if (isFetching) return <div className="w-screen h-screen flex items-center justify-center">
+        <Loader />
+    </div>
     return <>
         <DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
             <div className="flex flex-col min-h-screen ">

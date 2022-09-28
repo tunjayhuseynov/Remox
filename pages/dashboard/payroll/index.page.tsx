@@ -9,10 +9,11 @@ import Modal from 'components/general/modal';
 import { SelectBalance, SelectContributorMembers, SelectFiatPreference, SelectFiatSymbol, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import PayrollItem from './_components/PayrollItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
-import { Coins } from 'types';
+import { AltCoins, Coins } from 'types';
 import RunModal from './_components/modalpay/runModal';
-import useLoading from 'hooks/useLoading';
 import { GetFiatPrice } from 'utils/const';
+import useAsyncEffect from 'hooks/useAsyncEffect';
+import { FiatMoneyList } from 'firebaseConfig';
 
 
 export default function DynamicPayroll() {
@@ -23,6 +24,7 @@ export default function DynamicPayroll() {
     const [selectedContributors, setSelectedContributors] = useState<IMember[]>([]);
     const defaultFiat = useAppSelector(SelectFiatPreference)
     const fiatSymbol = useAppSelector(SelectFiatSymbol)
+    const { GetCoins, SendTransaction } = useWalletKit()
 
 
     useEffect(() => {
@@ -31,7 +33,10 @@ export default function DynamicPayroll() {
         }
     }, [isAvaible])
 
-    const { GetCoins, SendTransaction } = useWalletKit()
+    useAsyncEffect(async() => {
+      const totalMonthlyPayment = await TotalMonthlyAmount(contributors, Object.values(GetCoins), defaultFiat)
+    }, [])
+
 
     const totalAmount =  TotalFiatAmount(contributors, GetCoins, defaultFiat);
 
@@ -96,9 +101,8 @@ export default function DynamicPayroll() {
           throw new Error(error as any);
         }
     }
-    
 
-
+  
     const totalPrice: [{ [name: string]: number }, number] = useMemo(() => {
       let res: {[name: string]: number} = {};
       let total = 0
@@ -148,8 +152,8 @@ export default function DynamicPayroll() {
                         </Button> }
                     </div>
             </div>
-            <div className=" pt-4  pb-5 pl-5 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond  rounded-md">
-                <div className='flex '>
+            <div className="pt-4 pb-5 pl-5 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md">
+                <div className='flex'>
                     <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r border-greylish dark:border-[#454545] border-opacity-10'>
                         <div className='text-lg text-greylish dark:text-opacity-90 font-semibold'>Total Monthly Payment</div>
                         <div className='text-3xl font-semibold !mt-1'>
@@ -191,5 +195,37 @@ export default function DynamicPayroll() {
             </table>
         </>
     </div>
-
 }
+
+
+const TotalMonthlyAmount = async (contributorsList: IMember[], Coins: AltCoins[], Fiat: FiatMoneyList ) => {
+  const date = new Date()
+  const currentMonth = date.getMonth()
+  const currentYear = date.getFullYear()
+
+  console.log(currentMonth)
+  return contributorsList.reduce((acc, curr) => {
+    const coin = Coins.find((c) => c.symbol === curr.currency)
+    const fiatPrice = GetFiatPrice(coin ?? Coins[0], Fiat)
+    const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
+    const fiatPrice2 = GetFiatPrice(coin2 ?? Coins[1], Fiat)
+
+    if(curr.execution === "manual"){
+      const contributorMonth = new Date(curr.paymantEndDate).getMonth()
+      if(currentMonth === contributorMonth) {
+        if(coin) {
+                
+        }
+      }
+    }
+    return acc 
+  }, 0)
+}
+
+function daysInMonth (month : number, year: number) {
+  return new Date(year, month, 0).getDate();
+}
+
+// Monthly Current Month
+// Monthly Next Month 
+ 
