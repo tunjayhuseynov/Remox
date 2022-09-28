@@ -384,7 +384,10 @@ export const
       }
       else if (result.method === "createStream") {
         const web3 = new Web3(blockchain.rpcUrl);
-        const streamId = hexToNumberString((await web3.eth.getTransactionReceipt(transaction.hash)).logs[1].topics[1])
+        const topic = (await web3.eth.getTransactionReceipt(transaction.hash))?.logs[1]?.topics[1]
+        console.log(topic)
+        if(!topic) return {}
+        const streamId = hexToNumberString(topic)
         const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase())
         if (!coin) return {};
         const res = {
