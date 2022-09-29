@@ -35,8 +35,8 @@ export interface IMember {
     address: string,
     execution: ExecutionType,
     interval: DateInterval,
-    paymantDate: number | string,
-    paymantEndDate: number | string ,
+    paymantDate: number ,
+    paymantEndDate: number ,
     image: Image | null,
     taskId: string | null,
 }
