@@ -8,7 +8,7 @@ import { AltCoins, Coins } from "types";
 import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import { GnosisConfirmation, GnosisDataDecoded, GnosisTransaction } from "types/GnosisSafe";
 import { DecimalConverter } from "./api";
-import erc20 from 'rpcHooks/ABI/erc20.json'
+import erc20 from 'rpcHooks/ABI/ERC.json'
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { GetTime } from "utils";
 

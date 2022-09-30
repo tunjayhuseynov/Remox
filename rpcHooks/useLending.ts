@@ -24,7 +24,7 @@ const MoolaProxy = import("./ABI/MoolaProxy.json")
 const Moola = import("./ABI/Moola.json")
 const MoolaData = import("./ABI/MoolaData.json")
 const MoolaPriceOracle = import("./ABI/MoolaPriceOracle.json")
-const ERC20 = import("./ABI/erc20.json")
+const ERC20 = import("./ABI/ERC.json")
 
 export enum InterestRateMode {
     Stable = "1",

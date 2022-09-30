@@ -6,7 +6,7 @@ import { ITag } from "pages/api/tags/index.api";
 import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
 import InputDataDecoder from "ethereum-input-data-decoder";
 import { ethers } from "ethers";
-import ERC20 from "rpcHooks/ABI/erc20.json";
+import ERC20 from "rpcHooks/ABI/ERC.json";
 import Ubeswap from "rpcHooks/ABI/Ubeswap.json";
 import Moola from "rpcHooks/ABI/Moola.json";
 import MoolaAirdrop from "rpcHooks/ABI/MoolaAirdrop.json";

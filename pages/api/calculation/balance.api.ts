@@ -10,7 +10,7 @@ import { Mainnet } from "@celo/react-celo";
 import BigNumber from "bignumber.js";
 import { adminApp } from "firebaseConfig/admin";
 import Web3 from 'web3'
-import erc20 from 'rpcHooks/ABI/erc20.json'
+import erc20 from 'rpcHooks/ABI/ERC.json'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import { BASE_URL, DecimalConverter } from "utils/api";
 import { toChecksumAddress } from "web3-utils";

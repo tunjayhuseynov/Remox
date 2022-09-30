@@ -17,7 +17,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { DecimalConverter } from "utils/api";
 import Web3 from 'web3'
 import InputDataDecoder from "ethereum-input-data-decoder";
-import ERC20 from "rpcHooks/ABI/erc20.json";
+import ERC20 from "rpcHooks/ABI/ERC.json";
 import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { IBudgetORM } from "./budget/index.api";

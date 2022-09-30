@@ -2,7 +2,7 @@ import { useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { toWei } from 'utils/ray'
 import Web3 from 'web3'
-import ERC20 from 'rpcHooks/ABI/erc20.json'
+import ERC20 from 'rpcHooks/ABI/ERC.json'
 import { AbiItem } from './ABI/AbiItem'
 import { AltCoins } from 'types'
 
