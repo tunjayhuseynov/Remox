@@ -190,4 +190,18 @@ export const SelectModerators = createDraftSafeSelector(
   }
 )
 
+export const SelectIsModerator = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (state: RootState) => state.remoxData.providerAddress,
+  (storage, address) => {
+    if (!address) return false;
+    const moderators = storage?.organization?.moderators ?? storage?.individual.moderators ?? []
+    return moderators.some(m => m.address.toString() === address.toString())
+  }
+)
 
+
+export const SelectAddressBooks = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.addressBook,
+  (addressBook) => addressBook
+);

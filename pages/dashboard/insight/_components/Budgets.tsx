@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
+import { IBudgets } from '../index.page';
 
-import { IBudgets, ISubbudgets } from '../../../pages/dashboard/insight/index.page'
 
 import BudgetItem from './BudgetItem';
 

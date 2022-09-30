@@ -37,7 +37,7 @@ import { IMultisigThreshold } from "./sign.api";
 import { IBudgetORM } from "../budget/index.api";
 import Web3 from 'web3'
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
-import { MultisigOwners } from "./owners.api";
+import { IMultisigOwners } from "./owners.api";
 
 export default async function handler(
     req: NextApiRequest,
@@ -196,6 +196,7 @@ export default async function handler(
             const web3 = new Web3(Blockchain.rpcUrl);
 
             const contract = new web3.eth.Contract(Multisig.abi as AbiItem[], multisigAddress);
+            const owners = await contract.methods.getOwners().call()
 
             const GetTx = async (index: number, budgets: IBudgetORM[], coins: Coins) => {
 
@@ -204,7 +205,6 @@ export default async function handler(
                 let confirmations: string[] = [];
 
                 confirmations = await contract.methods.getConfirmations(index).call();
-                const owners = (await contract.methods.getOwners()).call()
                 const obj = await MultisigTxParser({
                     parsedData: null,
                     txHashOrIndex: index.toString(),
@@ -253,7 +253,7 @@ export default async function handler(
                 }
             })
 
-            const { data: ownerData } = await axios.get<MultisigOwners>(BASE_URL + "/api/multisig/owners", {
+            const { data: ownerData } = await axios.get<IMultisigOwners>(BASE_URL + "/api/multisig/owners", {
                 params: {
                     blockchain,
                     address: multisigAddress,

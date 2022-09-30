@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
             if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
                 dispatch(launchApp({
                     accountType: accountType,
-                    addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
+                    addresses: (remoxAccount.accounts as IAccount[]),
                     blockchain: blockchain,
                     id: remoxAccount.id,
                     storage: {

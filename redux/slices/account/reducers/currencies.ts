@@ -28,12 +28,7 @@ export default {
       return a;
     }, {});
   },
-  updateTotalBalance: (
-    state: IRemoxData,
-    action: { payload: number }
-  ) => {
-    state.totalBalance = action.payload;
-  },
+
   updateUserBalance: (state: IRemoxData, action: any) => {
     if (!action.payload) return;
 

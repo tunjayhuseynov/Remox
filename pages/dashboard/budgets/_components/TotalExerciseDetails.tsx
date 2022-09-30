@@ -19,9 +19,9 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
         return total.budgets.reduce((a, b) => {
             const fiatPrice = GetFiatPrice(GetCoins[b.token], fiatPreference)
             return {
-                totalAmount: a.totalAmount + (fiatPrice * b.budgetCoins.totalAmount),
-                totalUsedAmount: a.totalUsedAmount + (fiatPrice * b.budgetCoins.totalUsedAmount),
-                totalPending: a.totalPending + (fiatPrice * b.budgetCoins.totalPending)
+                totalAmount: a.totalAmount + (fiatPrice * b.budgetCoins.totalAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalAmount ?? 0)),
+                totalUsedAmount: a.totalUsedAmount + (fiatPrice * b.budgetCoins.totalUsedAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalUsedAmount ?? 0)),
+                totalPending: a.totalPending + (fiatPrice * b.budgetCoins.totalPending) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalPending ?? 0))
             }
         }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
     }, [total.budgetCoins])
@@ -49,7 +49,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div className="flex items-center gap-1">
+                                        return <div key={index} className="flex items-center gap-1">
                                             <span className="text-lg font-medium">{SetComma(coin.totalAmount)}</span> <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" /> <span className="text-lg font-medium">{coin.coin}</span>
                                         </div>
                                     })}
@@ -64,7 +64,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div className="flex items-center gap-1">
+                                        return <div key={index} className="flex items-center gap-1">
                                             <span className="text-lg font-medium">{SetComma(coin.totalUsedAmount)}</span> <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" /> <span className="text-lg font-medium">{coin.coin}</span>
                                         </div>
                                     })}
@@ -79,7 +79,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div className="flex items-center gap-1">
+                                        return <div key={index} className="flex items-center gap-1">
                                             <span className="text-lg font-medium">{SetComma(coin.totalPending)}</span>
                                             <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
                                             <span className="text-lg font-medium">{coin.coin}</span>
@@ -96,7 +96,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div className="flex items-center gap-1">
+                                        return <div key={index} className="flex items-center gap-1">
                                             <span className="text-lg font-medium">{SetComma((coin.totalAmount - coin.totalPending - coin.totalUsedAmount))}</span>
                                             <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" />
                                             <span className="text-lg font-medium">{coin.coin}</span>

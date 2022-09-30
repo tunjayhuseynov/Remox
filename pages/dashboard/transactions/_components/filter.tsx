@@ -166,7 +166,7 @@ const Filter = ({
                     </>} />
                     <div className='flex flex-col mt-3'>
                         {tags.filter(s => s.name.toLowerCase().includes(searchLabel.toLowerCase())).map((tag, index) => {
-                            return <div className='flex space-x-2 items-center'>
+                            return <div key={tag.id} className='flex space-x-2 items-center'>
                                 <Checkbox classes={mainColor} checked={selectedTags.includes(tag.id)} onChange={() => {
                                     if (selectedTags.includes(tag.id)) {
                                         setSelectedTags(selectedTags.filter(s => s !== tag.id))
@@ -186,7 +186,7 @@ const Filter = ({
                 <AccordionDetails>
                     <div className='flex flex-col'>
                         {budgets.map((budget) => {
-                            return <div className='flex space-x-2 items-center'>
+                            return <div key={budget.id} className='flex space-x-2 items-center'>
                                 <Checkbox classes={mainColor} checked={selectedBudgets.includes(budget.id)} onChange={() => {
                                     if (selectedBudgets.includes(budget.id)) {
                                         setSelectedBudgets(selectedBudgets.filter(s => s !== budget.id))
@@ -255,7 +255,7 @@ const Filter = ({
                 <AccordionDetails>
                     <div className='flex flex-col'>
                         {accounts.map((account) => {
-                            return <div className='flex space-x-2 items-center'>
+                            return <div key={account.id} className='flex space-x-2 items-center'>
                                 <Checkbox classes={mainColor} checked={selectedAccounts.includes(account.address)} onChange={() => {
                                     if (selectedAccounts.includes(account.address)) {
                                         setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))

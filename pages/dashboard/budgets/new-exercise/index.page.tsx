@@ -47,7 +47,7 @@ function NewExercise() {
 
             await dispatch(Create_Budget_Exercise_Thunk({
                 budgetExercise: {
-                    blockchain,
+                    blockchain: blockchain.name,
                     budgets: [],
                     created_at: GetTime(),
                     from: GetTime(fromDate),

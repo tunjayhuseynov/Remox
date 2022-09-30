@@ -30,7 +30,7 @@ export const Refresh_Data_Thunk = createAsyncThunk<boolean>("remoxData/refresh_d
 
     await api.dispatch(launchApp({
         accountType: accountType,
-        addresses: accounts.map(a => a.address),
+        addresses: accounts,
         blockchain: blockchain,
         id: id,
         storage: {

@@ -170,7 +170,7 @@ const SingleTransactionItem = ({
         <td className="text-left flex flex-col">
           <div className="flex flex-col">
             {
-              transaction.tags?.map(tag => <div className="flex space-x-5">
+              transaction.tags?.map(tag => <div key={tag.id} className="flex space-x-5">
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></div>
                 <span className="text-xs">{tag.name}</span>
               </div>)

@@ -5,7 +5,7 @@ import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
 import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { IPriceResponse } from "../calculation/price.api";
-import { BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType } from "types/blockchains";
 import { CalculateBudget } from "./budgetCal";
 import { ITag } from "../tags/index.api";
 import axiosRetry from "axios-retry";
@@ -53,6 +53,10 @@ export default async function handler(
 
         if (!addresses) return res.status(200).json([]);
         if (!parentId || !blockchain || !parsedAddress) throw new Error("unavailable params")
+        if (!blockchain) throw new Error("blockchain not found")
+
+        const blockchainType = Blockchains.find(b => b.name === blockchain);
+        if (!blockchainType) throw new Error("blockchain not found")
 
         const tagDoc = (await adminApp.firestore().collection("tags").doc(parentId).get()).data() as { tags: ITag[] };
         const tags = tagDoc.tags;
@@ -75,7 +79,9 @@ export default async function handler(
         for (let budget_exercise of budget_exercises) {
             const orm: IBudgetORM[] = [];
             let totalBudgetCoin: IBudgetCoin[] = []
-            let blockchainType = budget_exercise.blockchain;
+            let bc = budget_exercise.blockchain;
+            const blockchainType = Blockchains.find(b => b.name === bc);
+            if (!blockchainType) throw new Error("blockchain not found")
 
             const budget_snapshots = await adminApp.firestore().collection("budgets").where("parentId", "==", budget_exercise.id).get();
             budget_exercise.budgets = budget_snapshots.docs.map(snapshot => snapshot.data() as IBudget);

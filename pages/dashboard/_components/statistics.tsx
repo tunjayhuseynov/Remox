@@ -8,7 +8,7 @@ import { SelectAccounts, SelectDailyBalance, SelectFiatSymbol, SelectStats, Sele
 import { useRouter } from "next/router";
 import { useAppSelector } from "redux/hooks";
 
-const Statistic = ({ transactions }: { transactions: IFormattedTransaction[] | undefined }) => {
+const Statistic = () => {
     const stats = useAppSelector(SelectStats)
     const route = useRouter()
     const { getName } = useStorage()

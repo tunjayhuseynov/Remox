@@ -11,12 +11,12 @@ import GnosisABI from 'rpcHooks/ABI/Gnosis.json'
 import { Blockchains, BlockchainType } from "types/blockchains";
 
 
-export interface MultisigOwners {
+export interface IMultisigOwners {
     owners: string[];
 }
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<MultisigOwners>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<IMultisigOwners>) {
 
     try {
         const { blockchain: blockchainName, address: multisigAddress, providerName } = req.query as { blockchain: BlockchainType["name"], address: string, providerName: string };

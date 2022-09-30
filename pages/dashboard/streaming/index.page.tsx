@@ -115,7 +115,7 @@ const Automations = () => {
         <div className="w-full pt-4 pb-6 h-full">
           <table className="w-full">
             <thead>
-              <tr className={`pl-5 grid ${selectable ? "grid-cols-[12.5%,repeat(6,minmax(0,1fr))]" : "grid-cols-[12.5%,repeat(5,minmax(0,1fr))]"} text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md`}>
+              <tr className={`pl-5 grid grid-cols-[15%,repeat(6,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md`}>
                 <th className="py-3 self-center text-left">Name</th>
                 <th className="py-3 self-center text-left">Start Date</th>
                 <th className="py-3 self-center text-left">End Date</th>

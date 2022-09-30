@@ -12,7 +12,7 @@ interface IProps {
     visibility: boolean
 }
 
-const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibility }, ref) => {
+const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({ item, close, visibility }, ref) {
 
     const { GetCoins } = useWalletKit()
 

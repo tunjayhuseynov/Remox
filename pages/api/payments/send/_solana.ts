@@ -1,5 +1,5 @@
 import { Connection, Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js"
-import { WITHDRAW_TOKEN_STRING, ZEBEC_PROGRAM_ID } from "@zebec-protocol/stream"
+import { WITHDRAW_TOKEN_STRING, ZEBEC_PROGRAM_ID } from "@zebec-protocol/stream/src/constants"
 import { SolanaSerumEndpoint } from "components/Wallet"
 import { token } from "easy-spl"
 import * as INSTRUCTIONS from "@zebec-protocol/stream/src/instructions";

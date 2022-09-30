@@ -24,6 +24,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addr
     const method = 'tx' in item ? item.tx.method : item.method
     const rawData = 'tx' in item ? null : item.rawData
     const address = 'tx' in item ? item.contractAddress : item.address
+    const isError = 'tx' in item ? item.tx.isError : item.isError
 
     let amount: string | undefined;
     let coin: AltCoins | undefined;
@@ -48,6 +49,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addr
         Object.entries(groupBatch).forEach(([key, value]) => {
             let tx: IBatchRequest = {
                 timestamp: item.timestamp,
+                isError: isError ?? false,
                 method: method,
                 id: method,
                 hash: hash,

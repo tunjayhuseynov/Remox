@@ -5,7 +5,7 @@ import useWalletKit from './walletSDK/useWalletKit'
 import { useLazyGetAccountBalancePriceQuery } from 'redux/api'
 import useAsyncEffect from './useAsyncEffect'
 import { useAppSelector } from 'redux/hooks'
-import { SelectProviderAddress, updateAllCurrencies, updateTotalBalance, updateUserBalance } from 'redux/slices/account/remoxData'
+import { SelectProviderAddress, updateAllCurrencies, updateUserBalance } from 'redux/slices/account/remoxData'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
@@ -13,7 +13,7 @@ const useRefetchData = () => {
     const selectedAccount = useAppSelector(SelectProviderAddress)
 
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
-    
+
     const { blockchain } = useWalletKit()
 
     const fetchedCurrencies = useCurrency(blockchain.currencyCollectionName)

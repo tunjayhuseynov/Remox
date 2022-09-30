@@ -16,6 +16,7 @@ import {
   SelectBlockchain,
   SelectCurrencies,
   SelectID,
+  SelectIsModerator,
   setBlockchain as SetBlockchain,
 } from "redux/slices/account/remoxData";
 import { FetchPaymentData } from "redux/slices/account/thunks/payment";
@@ -40,6 +41,9 @@ import { useCelo } from "@celo/react-celo";
 import { generate } from "shortid";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
 import { hexToNumberString } from "web3-utils";
+import { ToastRun } from "utils/toast";
+import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
+import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
 
 export enum CollectionName {
   Celo = "currencies",
@@ -56,6 +60,7 @@ export default function useWalletKit() {
   const blockchain = useAppSelector(SelectBlockchain) as BlockchainType;
   const dispatch = useAppDispatch();
   const coins = useAppSelector(SelectCurrencies);
+  const isModerator = useAppSelector(SelectIsModerator);
 
   const id = useAppSelector(SelectID)
 
@@ -246,11 +251,12 @@ export default function useWalletKit() {
       } = {}
     ) => {
       try {
+        if(isModerator) return ToastRun("Moderator cannot execute any transaction", "warning")
         let txhash;
         let type: "single" | "multi" = "single";
         let streamId: string | null = null;
 
-        const Address = account.address;
+        // const Address = account.address;
 
         if (!blockchain) throw new Error("blockchain not found");
         if (!id) throw new Error("Your session is not active")
@@ -268,7 +274,7 @@ export default function useWalletKit() {
           FetchPaymentData({
             walletAddress: account.address,
             blockchain: blockchain.name,
-            executer: Address,
+            executer: account.address,
             requests: inputArr,
             endTime: endTime ?? null,
             startTime: startTime ?? null,
@@ -294,7 +300,7 @@ export default function useWalletKit() {
           let option = {
             data,
             gas: "500000",
-            from: Address,
+            from: account.address,
             to: destination,
             gasPrice: "500000000",
             value: "0",
@@ -302,29 +308,33 @@ export default function useWalletKit() {
 
           if (swap) {
             await allow(
-              Address,
-              swap.inputCoin.address,
+              account.address,
+              swap.inputCoin,
               blockchain.swapProtocols[0].contractAddress,
-              swap.amount
+              swap.amount,
+              account.signerType === "single" ? account.address : (await Address)!
             );
           }
-          if(createStreaming){
+          if (createStreaming) {
             await allow(
-              Address,
-              coins[inputArr[0].coin].address,
+              account.address,
+              coins[inputArr[0].coin],
               blockchain.streamingProtocols[0].contractAddress,
-              inputArr[0].amount.toString()
+              inputArr[0].amount.toString(),
+              account.signerType === "single" ? account.address : (await Address)!
             )
           }
 
           if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
             const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
+            console.log(Contracts.BatchRequest.address);
             for (let index = 0; index < approveArr.length; index++) {
               await allow(
-                Address,
-                approveArr[index].coin.address,
+                account.address,
+                approveArr[index].coin,
                 Contracts.BatchRequest.address,
-                approveArr[index].amount.toString()
+                approveArr[index].amount.toString(),
+                account.signerType === "single" ? account.address : ((await Address)! as string)
               );
             }
           }
@@ -338,6 +348,8 @@ export default function useWalletKit() {
                 blockchain: blockchain,
                 txHash: receipt.transactionHash,
               }))
+
+              ToastRun("Transaction've been mined", "success")
             });
             const hash = recipet.transactionHash;
             type = "single"
@@ -460,6 +472,14 @@ export default function useWalletKit() {
             streamId: streamId,
           }))
         }
+
+        dispatch(Refresh_Balance_Thunk({
+          blockchain: blockchain,
+        }))
+
+        dispatch(Refresh_Accounts_Thunk({
+          id: account.id,
+        }))
         // await dispatch(Refresh_Data_Thunk()).unwrap();
         return txhash;
       } catch (error) {

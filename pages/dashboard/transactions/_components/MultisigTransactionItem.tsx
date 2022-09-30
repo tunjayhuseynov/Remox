@@ -18,7 +18,7 @@ import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
 import useLoading from 'hooks/useLoading';
-import { addConfirmation, changeToExecuted, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { addConfirmation, changeToExecuted, removeConfirmation, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Loader from 'components/Loader';
 import makeBlockie from 'ethereum-blockies-base64';
 
@@ -39,7 +39,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const dispatch = useAppDispatch();
 
 
-    const { executeTransaction, confirmTransaction } = useMultisig()
+    const { executeTransaction, confirmTransaction, revokeTransaction } = useMultisig()
 
     const confirmFn = async () => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
@@ -48,6 +48,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
             txid: tx.hashOrIndex,
+            provider: tx.provider
         }))
     }
 
@@ -58,11 +59,24 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
             txid: tx.hashOrIndex,
+            provider: tx.provider
+        }))
+    }
+
+    const revokeFn = async () => {
+        if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+        await revokeTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
+        dispatch(removeConfirmation({
+            contractAddress: tx.contractAddress,
+            ownerAddress: providerAddress,
+            txid: tx.hashOrIndex,
+            provider: tx.provider
         }))
     }
 
     const [executeFnLoading, ExecuteFn] = useLoading(executeFn)
     const [confirmFnLoading, ConfirmFn] = useLoading(confirmFn)
+    const [revokeFnLoading, RevokeFn] = useLoading(revokeFn)
 
 
     let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
@@ -234,18 +248,22 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         <div>
                             {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.isExecuted ? <></> :
                                 !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
-                                    <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                        <span className="tracking-wider" onClick={ConfirmFn}>
+                                    <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={ConfirmFn}>
+                                        <span className="tracking-wider" >
                                             {confirmFnLoading ? <Loader size={14} /> : "Sign"}
                                         </span>
                                     </div> :
                                     isApprovable ?
-                                        <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                            <span className="tracking-wider" onClick={ExecuteFn}>
+                                        <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={ExecuteFn}>
+                                            <span className="tracking-wider" >
                                                 {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
-                                        <></>)
+                                        <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={RevokeFn}>
+                                            <span className="tracking-wider" >
+                                                {executeFnLoading ? <Loader size={14} /> : "Revoke"}
+                                            </span>
+                                        </div>)
                                 :
                                 <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                     <span className="tracking-wider">

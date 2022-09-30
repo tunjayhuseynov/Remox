@@ -6,7 +6,7 @@ import { SelectDarkMode, SelectMultisig, SelectNonCanceledRecurringTasks, Select
 import { AiFillRightCircle } from 'react-icons/ai'
 
 
-function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
+function Payments() {
     const recurring = useAppSelector(SelectNonCanceledRecurringTasks)
     const requests = useAppSelector(SelectRequests)
 
@@ -41,7 +41,7 @@ function Payments({ transactions }: { transactions: IFormattedTransaction[] }) {
         }
 
     ]
-    
+
     return <>
         {data.map((item, index) => {
             return <div key={index} className="w-1/2 xl:w-[90%] 2xl:w-[85%] self-end cursor-pointer">

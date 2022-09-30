@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js"
 import InputDataDecoder, { InputData } from "ethereum-input-data-decoder";
 import { IBudget } from "firebaseConfig";
-import { CeloInputReader, ERC20MethodIds, GenerateTransaction } from "hooks/useTransactionProcess";
+import CeloInputReader, { ERC20MethodIds, GenerateTransaction } from "hooks/useTransactionProcess";
 import { MethodIds, MethodNames, ITransactionMultisig, IMultisigSafeTransaction } from "hooks/walletSDK/useMultisig"
 import { ITag } from "pages/api/tags/index.api";
 import { AltCoins, Coins } from "types";
@@ -75,7 +75,8 @@ export const MultisigTxParser = async (
     }
 
     if (!parsedData) {
-        const reader = await CeloInputReader(data, {
+        const reader = await CeloInputReader({
+            input: data,
             tags: tags,
             blockchain: blockchain,
             Coins: coins,
@@ -145,7 +146,8 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, Coins: Coins, 
         provider: "GnosisSafe",
         name: "GnosisSafe",
         tags: tags.filter(s => s.transactions.find(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),
-        tx: await CeloInputReader(tx.data ?? "", {
+        tx: await CeloInputReader({
+            input: tx.data ?? "",
             address: contractAddress,
             blockchain: blockchain,
             Coins: Coins,

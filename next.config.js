@@ -2,6 +2,9 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const nextConfig = {
+  env: {
+    ROOT: __dirname,
+  },
   async headers() {
     return [
       {

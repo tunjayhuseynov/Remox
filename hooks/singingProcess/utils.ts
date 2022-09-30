@@ -65,7 +65,7 @@ export const DownloadAndSetNFTorImageForUser = async (props: { image: Image | nu
         if (imageUrl && typeof imageUrl !== "string" && type === "image") {
             props.image.imageUrl = await UploadImage(props.name, imageUrl);
         } else if (nftUrl && type === "nft") {
-            if (blockchain.name === "celo") {
+            if (blockchain === "celo") {
                 if (!tokenId) throw new Error("Token ID is required for Celo NFTs")
                 const id = tokenId;
                 const nft = new ethers.Contract(nftUrl, [
@@ -84,7 +84,7 @@ export const DownloadAndSetNFTorImageForUser = async (props: { image: Image | nu
                 }
                 const res = await axios.get<{ image: string }>(uri)
                 props.image.imageUrl = res.data.image;
-            } else if (blockchain.name === "solana") {
+            } else if (blockchain === "solana") {
                 const connection = new Connection(SolanaEndpoint)
                 let mintPubkey = new PublicKey(nftUrl);
                 let tokenmetaPubkey = await Metadata.getPDA(mintPubkey);

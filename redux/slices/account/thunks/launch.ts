@@ -22,6 +22,7 @@ import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import { RootState } from "redux/store";
 import axiosRetry from 'axios-retry';
+import { IAccount } from "firebaseConfig";
 
 
 type LaunchResponse = {
@@ -51,7 +52,7 @@ type LaunchResponse = {
 };
 
 interface LaunchParams {
-  addresses: string[];
+  addresses: IAccount[];
   blockchain: BlockchainType;
   accountType: IAccountType;
   id: string;
@@ -68,7 +69,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         "/api/calculation/spending",
         {
           params: {
-            addresses: addresses,
+            addresses: addresses.map(s => s.address),
             blockchain: blockchain.name,
             id: id,
           },
@@ -77,7 +78,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const balances = axios.get<IPriceResponse>("/api/calculation/price", {
         params: {
-          addresses: addresses,
+          addresses: addresses.map(s => s.address),
           blockchain: blockchain.name,
         },
       });
@@ -86,7 +87,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         "/api/transactions",
         {
           params: {
-            addresses: addresses,
+            addresses: addresses.map(s => s.address),
             blockchain: blockchain.name,
             id: id,
           },
@@ -199,9 +200,9 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         return s;
       }
       const state = (api.getState() as RootState)
-      const singleAddresses = state.remoxData.accounts.filter(s => s.signerType === "single").map(s => s.address)
+      // const singleAddresses = state.remoxData.accounts.filter(s => s.signerType === "single").map(s => s.address)
       let allCumulativeTransactions = [
-        ...transactionsRes.data.filter(s => !s.rawData.tokenID && !singleAddresses.find(d => d.toLowerCase() === s.rawData.from.toLowerCase())).map(mapping),
+        ...transactionsRes.data.filter(s => !s.rawData.tokenID).map(mapping), //&& !singleAddresses.find(d => d.toLowerCase() === s.rawData.from.toLowerCase())
         ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
 

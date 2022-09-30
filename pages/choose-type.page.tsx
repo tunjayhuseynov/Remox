@@ -12,6 +12,7 @@ import Loader from "components/Loader";
 import { Get_Organizations_Thunk } from "redux/slices/account/thunks/organization";
 import { IOrganizationORM } from "types/orm";
 import Image from 'next/image'
+import makeBlockie from 'ethereum-blockies-base64';
 
 function ChooseType() {
   const navigate = useRouter()
@@ -81,7 +82,9 @@ function ChooseType() {
             <div className="bg-white dark:bg-darkSecond rounded-lg overflow-auto h-[13.1rem] w-full relative">
               {organizations.map((i, id) => {
                 return <div key={i.id} onClick={() => organizationLogin(i)} className={`cursor-pointer ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === organizations.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
-                  <div className="w-9 h-9 bg-greylish bg-opacity-30 rounded-full"></div>
+                  <div className="rounded-full">
+                      <img src={i.image?.imageUrl ?? makeBlockie(i.name || "random")} className="w-9 h-9 rounded-full" />
+                  </div>
                   <div className="flex flex-col">
                     <p className="text-base">{i.name}</p>
                     {/* <p className="text-sm text-greylish">{i.}</p> */}

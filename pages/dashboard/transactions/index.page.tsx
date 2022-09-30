@@ -255,11 +255,11 @@ const Transactions = () => {
                                     <th className="py-3 self-center text-left">Signatures</th>
                                     <th className="py-3 flex justify-start">
                                         <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                            <div>
+                                            {!refreshLoading && <div>
                                                 <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />
-                                            </div>
+                                            </div>}
                                             <span className="tracking-wider">
-                                                {refreshLoading ? <><Loader /> Refreshing</> : "Refresh"}
+                                                {refreshLoading ? <><Loader /></> : "Refresh"}
                                             </span>
                                         </div>
                                     </th>

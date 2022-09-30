@@ -32,6 +32,8 @@ export const Get_Organization = async (id: string) => {
 }
 
 export const Get_Organizations = async (address: string) => {
+
+
     const organization = await FirestoreReadMultiple<IOrganization>(organizationCollectionName, [
         {
             firstQuery: "members",
@@ -57,8 +59,8 @@ export const Create_Organization = async (organization: IOrganization) => {
 }
 
 
-export const Update_Organization = async (organization: IOrganization) => {
-
+export const Update_Organization = async (org: IOrganization) => {
+    let organization = Object.assign({}, org);
     let accountRefs: DocumentReference[] = []
     for (let account of organization.accounts) {
         if (!(await Get_Account(account.id))) {

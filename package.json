@@ -55,6 +55,7 @@
     "next": "12.2",
     "next-themes": "^0.1.1",
     "os-browserify": "^0.3.0",
+    "piscina": "^3.2.0",
     "querystring-es3": "^0.2.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
@@ -72,6 +73,7 @@
     "tweetnacl": "^1.0.3",
     "uniqid": "^5.4.0",
     "url": "^0.11.0",
+    "web3": "^1.8.0",
     "web3modal": "^1.9.8",
     "zebecprotocol-sdk": "https://github.com/tunjayhuseynov/zebec-sdk-multisig.git"
   },

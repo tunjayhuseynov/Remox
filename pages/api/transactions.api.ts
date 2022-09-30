@@ -1,9 +1,8 @@
 import axios from "axios";
-import {
+import CeloInputReader, {
   ERC20MethodIds,
   EvmInputReader,
   IFormattedTransaction,
-  CeloInputReader,
 } from "hooks/useTransactionProcess";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { AltCoins, Coins, CoinsName } from "types";
@@ -23,7 +22,13 @@ import { IBudget, IBudgetExercise } from "firebaseConfig";
 import { budgetExerciseCollectionName } from "crud/budget_exercise";
 import { IBudgetORM } from "./budget/index.api";
 import axiosRetry from "axios-retry";
+// import Piscina from 'piscina';
+// import path from "path";
 
+// const CeloInputReaderParallel = new Piscina({
+//   filename: path.resolve('./pages/api', "reader.mjs"),
+//   maxThreads: 20
+// });
 
 // GET /api/transactions  --params blockchain, address
 
@@ -44,6 +49,7 @@ export default async function handler(
     const authId = req.query.id as string;
     const parsedAddress =
       typeof addresses === "string" ? [addresses] : addresses;
+    if (!parsedAddress) return res.json([])
     const blockchaiName = req.query.blockchain as BlockchainType["name"];
     const blockchain = Blockchains.find((b) => b.name === blockchaiName);
     if (!blockchain) throw new Error("Blockchain not found");
@@ -201,7 +207,7 @@ const GetTxs = async (
 
       const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
 
-      const tokens = tokenReq.data.result//.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
+      const tokens = tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
       const nfts = tokenReq.data.result.filter(s => s.tokenID)
 
       const txs = exReq.data;
@@ -279,6 +285,7 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
 
   if (blockchain.name.includes("evm")) {
     const formatted = await EvmInputReader(input, blockchain.name, {
+      input,
       transaction,
       tags,
       Coins: coins,
@@ -298,7 +305,8 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
     }
 
   } else if (blockchain.name === "celo") {
-    const formatted = await CeloInputReader(input, { transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
+    // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
+    const formatted = await CeloInputReader({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
 
     if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0
       || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn)

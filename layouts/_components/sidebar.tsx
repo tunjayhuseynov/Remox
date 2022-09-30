@@ -49,6 +49,12 @@ const Sidebar = () => {
         onClick: () => void;
     }>()
 
+    useEffect(() => {   
+        if (currentOrganization) {
+            setItem(currentOrganization)
+        }
+    }, [currentOrganization])
+
     useEffect(() => {
         if (selectedAccountType === "individual") {
             setItem({

@@ -38,6 +38,10 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         budget_execrises: [],
         image: image,
         members: [address],
+        pendingMembers: [],
+        removableMembers: [],
+        pendingMembersObjects: [],
+        removableMembersObjects: [],
         fiatMoneyPreference: "USD",
         name: name,
         id,
@@ -80,8 +84,12 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
 
 
 export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], string>("remoxData/get_organizations", async (id, api) => {
-    const response = await Get_Organizations(id);
-
+    // const response = await Get_Organizations(id);
+    const { data: response } = await axios.get<IOrganization[]>("/api/organization/all", {
+        params: {
+            address: id
+        }
+    })
     // let organizations: IOrganization[] = [];
 
     // const accounts = await Promise.all(response.map(s => {
