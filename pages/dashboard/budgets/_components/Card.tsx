@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useAppSelector } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
-import BudgetDetails from './BudgetDetails';
+import BudgetDetails from './BudgetDetail';
 import { useWalletKit } from "hooks";
 import { IBudgetORM } from 'pages/api/budget/index.api';
 import { useRouter } from 'next/router';
