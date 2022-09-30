@@ -1,10 +1,6 @@
-import { useMemo } from "react";
-import { SelectParsedTransactions } from "../redux/slices/account/transactions";
-import { useSelector } from "react-redux";
 import { Transactions } from "../types/sdk";
 import { hexToNumberString, hexToUtf8 } from "web3-utils";
 import { AltCoins, Coins, CoinsName } from "types";
-import { selectTags } from "redux/slices/tags";
 import useWalletKit from "./walletSDK/useWalletKit";
 import { ITag } from "pages/api/tags/index.api";
 import { Blockchains, BlockchainType, MultisigProviders } from "types/blockchains";
