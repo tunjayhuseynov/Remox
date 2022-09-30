@@ -9,7 +9,6 @@ import NewBudget from "./NewBudget"
 interface IProps { exercise: IBudgetExerciseORM }
 
 const ExerciseBody = ({ exercise }: IProps) => {
-    const navigate = useRouter()
     const [modalVisibility, setModalVisible] = useState(false)
     return <>
         {exercise.budgets.length > 0 && <table className="w-full">
