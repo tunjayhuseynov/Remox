@@ -21,16 +21,6 @@ const Navbar = () => {
     const { Address } = useWalletKit()
     const { data } = useMultiWallet()
 
-    const [address, setAddress] = useState(storage?.lastSignedProviderAddress)
-
-    useAsyncEffect(async () => {
-        const address = await Address
-        if (address) {
-            setAddress(address)
-        }
-    }, [Address])
-
-
 
     return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr] gap-12 pl-4 pr-8">
         <div className="h-[73px] flex justify-center md:justify-start items-center  lg:pl-6">

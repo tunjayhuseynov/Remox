@@ -18,6 +18,7 @@ import { useWalletKit } from "hooks";
 import axios from "axios";
 import { BASE_URL } from "utils/api";
 import { IMultisigOwners } from 'pages/api/multisig/owners.api'
+import { toChecksumAddress } from "web3-utils";
 
 async function handler(
     req: NextApiRequest,
@@ -32,22 +33,22 @@ async function handler(
 
         const { signature, publicKey, token, id } = req.query;
 
+        const key = toChecksumAddress(publicKey as string);
 
-
-        if (!signature || !publicKey) {
+        if (!signature || !key) {
             res.status(400).send({
                 error: 'Bad request - missing query'
             });
             return;
         }
 
-        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
+        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(key).get()
         const inds = ss.data() as IRegisteredIndividual | undefined;
 
         if (!inds) throw new Error("Individual not found");
 
         let password;
-        let mail = `${publicKey}Remox@gmail.com`;
+        let mail = `${key}Remox@gmail.com`;
 
         if (inds.blockchain === "celo" || inds.blockchain.includes("evm")) {
             const msgBufferHex = bufferToHex(Buffer.from("Your nonce for signing is " + inds.nonce, 'utf8'));
@@ -57,7 +58,7 @@ async function handler(
             });
 
 
-            if (address.toLowerCase() !== (publicKey as string).toLowerCase()) {
+            if (address.toLowerCase() !== key.toLowerCase()) {
                 throw new Error("Invalid signature");
             }
 
@@ -65,21 +66,21 @@ async function handler(
         } else if (inds.blockchain === 'solana') {
             const msg = new TextEncoder().encode("Your nonce for signing is " + inds.nonce);
             const sg = new TextEncoder().encode(signature as string);
-            const isVerify = nachl.sign.detached.verify(msg, sg, new PublicKey(publicKey as string).toBuffer())
+            const isVerify = nachl.sign.detached.verify(msg, sg, new PublicKey(key).toBuffer())
             if (isVerify) password = inds.password
         }
 
         if (!password) throw new Error("Invalid password");
 
         const nonce = Math.round(Math.random() * 10000000);
-        await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).update({
+        await adminApp.firestore().collection(registeredIndividualCollectionName).doc(key).update({
             ...inds,
             nonce
         })
 
 
         // This algo is for finding the individual which belongs to this public key and get its real mail and password
-        const findWhichIndividual = await adminApp.firestore().collection(individualCollectionName).where("members", "array-contains", publicKey as string).get()
+        const findWhichIndividual = await adminApp.firestore().collection(individualCollectionName).where("members", "array-contains", key).get()
         if (!findWhichIndividual.empty) {
             const getIndividual = findWhichIndividual.docs[0].data() as IIndividual;
 

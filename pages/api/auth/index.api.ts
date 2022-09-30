@@ -5,6 +5,7 @@ import { process as Process } from 'uniqid'
 import { GetTime } from "utils";
 import { adminApp } from 'firebaseConfig/admin';
 import { BlockchainType } from "types/blockchains";
+import { toChecksumAddress } from "web3-utils";
 
 export default async function handler(
     req: NextApiRequest,
@@ -28,13 +29,15 @@ export default async function handler(
 
 
         // const inds = await FirestoreRead<IRegisteredIndividual>(registeredIndividualCollectionName, publicKey as string)
-
-        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
+        const key = publicKey as string;
+        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(key.startsWith("0x") ? toChecksumAddress(key) : key).get()
         const inds = ss.data() as IRegisteredIndividual | undefined;
+
         if (!inds) {
             const nonce = Math.round(Math.random() * 10000000);
             const password = Process(publicKey as string);
             let user;
+
             if (id) {
                 user = await adminApp.auth().updateUser(id as string, {
                     email: `${publicKey}Remox@gmail.com`,
@@ -47,7 +50,7 @@ export default async function handler(
                 })
             }
 
-            await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).set({
+            await adminApp.firestore().collection(registeredIndividualCollectionName).doc(key.startsWith("0x") ? toChecksumAddress(key) : key).set({
                 id: user.uid,
                 address: publicKey as string,
                 nonce,

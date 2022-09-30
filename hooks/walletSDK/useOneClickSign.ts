@@ -16,16 +16,16 @@ export default function useOneClickSign() {
 
     const processSigning = async (address: string, oldPassword?: string) => {
         const pubKey = await Address;
-        const isOld = await isOldUser(address);
-        const dbUser = await search<IUser>('users', [{ field: 'address', searching: (await Address)!, indicator: "array-contains" }])
+        // const isOld = await isOldUser(address);
+        // const dbUser = await search<IUser>('users', [{ field: 'address', searching: (await Address)!, indicator: "array-contains" }])
 
         const reqParams: { publicKey: string, blockchain: string, id?: string, token?: string } = {
             publicKey: pubKey!,
             blockchain: blockchain.name
         };
-        if (isOld && dbUser?.[0] && oldPassword) {
-            reqParams.id = dbUser[0].id
-        }
+        // if (isOld && dbUser?.[0] && oldPassword) {
+        //     reqParams.id = dbUser[0].id
+        // }
 
         const req = await axios.get<string>("/api/auth", {
             params: reqParams
@@ -37,15 +37,15 @@ export default function useOneClickSign() {
         let Token;
         let id;
 
-        if (isOld && oldPassword) {
-            const password = oldPassword;
-            if (dbUser) {
-                const token = await hashing((dbUser[0].address[0] ?? Address!), password)
-                const encryptedMessageToken = await hashing(password, token)
-                Token = encryptedMessageToken;
-                id = dbUser[0].id;
-            }
-        }
+        // if (isOld && oldPassword) {
+        //     const password = oldPassword;
+        //     if (dbUser) {
+        //         const token = await hashing((dbUser[0].address[0] ?? Address!), password)
+        //         const encryptedMessageToken = await hashing(password, token)
+        //         Token = encryptedMessageToken;
+        //         id = dbUser[0].id;
+        //     }
+        // }
 
         const parameters: { signature: string, publicKey: string, token?: string, id?: string } = {
             signature: sign.signature,

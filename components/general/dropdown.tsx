@@ -76,7 +76,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                                 {(!loading && !internalLaoding) &&
                                     <div className={`${textContainerClass} flex flex-col items-start`}>
                                         <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
-                                        {selected.secondValue && <span className="text-left text-sm text-gray-500">{selected.secondValue}</span>}
+                                        {selected.secondValue && <span className={`${textClass} text-left text-sm text-gray-500`}>{selected.secondValue}</span>}
                                     </div>
                                 }
                             </div>

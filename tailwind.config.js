@@ -19,8 +19,8 @@ module.exports = {
         'tiny': '.875rem',
         'base': '1rem',
         'lg': '1rem',
-        'xl': '1.42857rem',
-        '2xl': '1.714285rem',
+        'xl': '1.25rem',
+        '2xl': '1.66rem',
         '3xl': '2rem',
       },
       colors: {
