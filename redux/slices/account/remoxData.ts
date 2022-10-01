@@ -20,7 +20,7 @@ import RequestReducers from './reducers/requests'
 import AccountMembers from './reducers/accountMembers'
 import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail, Update_Account_Image } from "./thunks/account";
-import { IAccount, IAddressBook, IBudget, Image, IMember, ISubBudget } from "firebaseConfig";
+import { IAccount, IAddressBook, IBudget, Image, IMember, INotes, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
@@ -42,6 +42,7 @@ import accountMembers from "./reducers/accountMembers";
 import { DocumentData, DocumentReference } from "firebase/firestore";
 import { Refresh_Balance_Thunk } from "./thunks/refresh/balance";
 import { Add_Address_Book, Remove_Address_Book, Set_Address_Book } from "./thunks/addressbook";
+import { Add_Notes_Thunk } from "./thunks/notes";
 
 export interface ITasking {
     taskId: string,
@@ -418,6 +419,16 @@ const remoxDataSlice = createSlice({
         })
 
 
+        builder.addCase(Add_Notes_Thunk.fulfilled, (state, action) => {
+            if (state.storage?.organization) {
+                state.storage.organization.notes = [...state.storage.organization.notes, action.payload]
+            } else if (state.storage?.individual) {
+                state.storage.individual.notes = [...state.storage.individual.notes, action.payload]
+            }
+        })
+
+
+
         //*****************************************************************************************
         // REFRESH
 
@@ -474,7 +485,7 @@ const remoxDataSlice = createSlice({
             state.recurringTasks = action.payload.RecurringTasks;
             state.nfts = action.payload.NFTs;
             state.IsInit = true;
-
+            state.addressBook = action.payload.Storage?.individual?.addressBook ?? []
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
                 multisigTxs: action.payload.multisigAccounts.multisigTxs,

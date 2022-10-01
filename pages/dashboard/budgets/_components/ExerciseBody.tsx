@@ -28,7 +28,7 @@ const ExerciseBody = ({ exercise }: IProps) => {
         <div className="flex justify-center !mt-0 py-10">
             <CreateButton onClick={() => setModalVisible(true)} />
         </div>
-        <Modal onDisable={setModalVisible} openNotify={modalVisibility}>
+        <Modal onDisable={setModalVisible} disableX openNotify={modalVisibility}>
             <NewBudget exerciseId={exercise.id} onBack={() => setModalVisible(false)} />
         </Modal>
     </>

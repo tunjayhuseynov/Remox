@@ -5,6 +5,7 @@ import { DownloadAndSetNFTorImageForUser } from "hooks/singingProcess/utils";
 import { generate } from "shortid";
 import { BlockchainType } from "types/blockchains";
 import { GetTime } from "utils";
+import { toChecksumAddress } from "web3-utils";
 import { setAccountType, setProviderID, setStorage } from "../remoxData";
 import { CreateTag } from "./tags";
 
@@ -49,10 +50,11 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
         removableMembers: [],
         pendingMembersObjects: [],
         removableMembersObjects: [],
+        notes: [],
         accounts: [
             {
                 mail: null,
-                address: address,
+                address: toChecksumAddress(address),
                 blockchain: blockchain.name,
                 created_date: GetTime(),
                 createdBy: id,
@@ -75,7 +77,7 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
         moderators: [],
         budget_execrises: [],
         image: image?.image ?? null,
-        members: [address],
+        members: [toChecksumAddress(address)],
         name: data.name,
         fiatMoneyPreference: "USD",
         seenTime: GetTime(),

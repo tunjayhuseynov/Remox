@@ -9,6 +9,7 @@ import { IAccount, IIndividual, Image, IMember, IOrganization } from "firebaseCo
 import { IAccountORM } from "pages/api/account/index.api";
 import { RootState } from "redux/store";
 import { FirestoreWrite } from "rpcHooks/useFirebase";
+import { toChecksumAddress } from "web3-utils";
 import { Remove_Tx_From_Budget_Thunk } from "./budgetThunks/budget";
 import { RemoveTransactionFromTag } from "./tags";
 
@@ -169,7 +170,7 @@ export const Remove_Member_From_Account_Thunk = createAsyncThunk<IRemove, IRemov
     if (!the_account) throw new Error("Account not found")
     // await Remove_Member_From_Account(the_account, member)
     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
-        removableMembers: arrayUnion(memberAddress),
+        removableMembers: arrayUnion(toChecksumAddress(memberAddress)),
     })
 
     return {
@@ -194,7 +195,7 @@ export const Add_Member_To_Account_Thunk = createAsyncThunk<IAdd & { id: string 
     let id = nanoid();
     await Add_Member_To_Account(the_account,
         {
-            address: memberAddress,
+            address: toChecksumAddress(memberAddress),
             name,
             id,
             image,
@@ -208,7 +209,7 @@ export const Add_Member_To_Account_Thunk = createAsyncThunk<IAdd & { id: string 
         accountAddress,
         image,
         mail,
-        memberAddress,
+        memberAddress: toChecksumAddress(memberAddress),
         name,
         remoxAccount,
         id
@@ -226,19 +227,19 @@ export const Add_Member_To_Pending_List_Thunk = createAsyncThunk<IPendingMember,
     if (!remoxAccount) throw new Error("Account not found")
     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
         pendingMembersObjects: arrayUnion({
-            member: memberAddress,
+            member: toChecksumAddress(memberAddress),
             accountId: accountId,
             memberObject: memberObject
         })
     })
 
     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
-        pendingMembers: arrayUnion(memberAddress)
+        pendingMembers: arrayUnion(toChecksumAddress(memberAddress))
     })
 
     return {
         accountId,
-        memberAddress,
+        memberAddress: toChecksumAddress(memberAddress),
         memberObject
     }
 })
@@ -249,18 +250,18 @@ export const Add_Member_To_Removing_List_Thunk = createAsyncThunk<Omit<IPendingM
     if (!remoxAccount) throw new Error("Account not found")
     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
         removableMembersObjects: arrayUnion({
-            member: memberAddress,
+            member: toChecksumAddress(memberAddress),
             accountId: accountId,
         })
     })
 
     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
-        removableMembers: arrayUnion(memberAddress)
+        removableMembers: arrayUnion(toChecksumAddress(memberAddress))
     })
 
     return {
         accountId,
-        memberAddress
+        memberAddress: toChecksumAddress(memberAddress)
     }
 })
 interface IReplace {

@@ -246,7 +246,7 @@ const Transactions = () => {
                     <div className="mt-5">
                         <table className="w-full">
                             <thead>
-                                <tr className="pl-5 grid grid-cols-[12.5%,repeat(6,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
+                                <tr className="pl-5 grid grid-cols-[8.5%,20%,18%,repeat(4,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
                                     <th className="py-3 self-center text-left">Date</th>
                                     <th className="py-3 self-center text-left">Wallet</th>
                                     <th className="py-3 self-center text-left">Type</th>

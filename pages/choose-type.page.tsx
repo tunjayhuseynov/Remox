@@ -76,7 +76,7 @@ function ChooseType() {
     </header>
     <div className="h-full w-full  gap-10 flex flex-col justify-center items-center">
       <div className="text-2xl font-bold">Choose Account Type</div>
-      <div className="w-[40%] ">
+      <div className="w-1/2 2xl:w-[40%]">
         <div className="flex gap-8">
           <div className="h-full  border border-b-0 dark:border-greylish transition-all hover:transition-all hover:!border-primary rounded-lg w-full">
             <div className="bg-white dark:bg-darkSecond rounded-lg overflow-auto h-[13.1rem] w-full relative">

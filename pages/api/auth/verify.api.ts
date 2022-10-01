@@ -84,6 +84,13 @@ async function handler(
         if (!findWhichIndividual.empty) {
             const getIndividual = findWhichIndividual.docs[0].data() as IIndividual;
 
+            if (!getIndividual?.notes) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    notes: []
+                })
+                getIndividual["notes"] = [];
+            }
+
             if (!getIndividual?.pendingMembers) {
                 await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
                     pendingMembers: []

@@ -19,7 +19,7 @@ const nextConfig = {
       },
     ]
   },
-  reactStrictMode: true,
+  reactStrictMode: false,
   // webpack5: true,
   // swcMinify: true,
   pageExtensions: ['page.tsx', 'page.ts', 'api.tsx', 'api.ts'],

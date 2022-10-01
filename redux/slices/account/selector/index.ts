@@ -205,3 +205,15 @@ export const SelectAddressBooks = createDraftSafeSelector(
   (state: RootState) => state.remoxData.addressBook,
   (addressBook) => addressBook
 );
+
+export const SelectNotes = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (storage) => {
+    if (storage?.organization?.notes) {
+      return storage.organization.notes;
+    } else if (storage?.individual?.notes) {
+      return storage.individual.notes
+    }
+    return [];
+  }
+)

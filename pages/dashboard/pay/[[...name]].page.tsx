@@ -17,7 +17,7 @@ import { ITag } from "pages/api/tags/index.api";
 import { ToastRun } from "utils/toast";
 import { GetTime, SetComma } from "utils";
 import Input from "./_components/payinput";
-import { FiatMoneyList, IAddressBook } from "firebaseConfig";
+import { FiatMoneyList, IAddressBook, INotes } from "firebaseConfig";
 import { nanoid } from "@reduxjs/toolkit";
 import { AiOutlineDownload } from "react-icons/ai";
 import { Tooltip } from "@mui/material";
@@ -240,6 +240,17 @@ const Pay = () => {
                 throw new Error("Please select start and end date")
             }
 
+            let notes: INotes | undefined;
+
+            if (note || attachLink) {
+                notes = {
+                    address: "",
+                    attachLink: attachLink ?? null,
+                    hashOrIndex: "",
+                    notes: note ?? null
+                }
+            }
+
             await SendTransaction(Wallet, pays, {
                 budget: Budget ?? undefined,
                 subbudget: subBudget ?? undefined,
@@ -247,11 +258,12 @@ const Pay = () => {
                 endTime: index === 1 && endDate ? GetTime(endDate) : undefined,
                 startTime: index === 1 && startDate ? GetTime(startDate) : undefined,
                 tags: selectedTags,
+                notes
             })
 
             dispatch(Set_Address_Book([...books.filter(s => !newAddressBooks.find(w => w.name === s.name)), ...newAddressBooks]))
 
-            ToastRun(<>Successfully processed</>, "success")
+            ToastRun(<>Successfully processed. Wait for a confirmation</>, "success")
         } catch (error) {
             const message = (error as any).message || "Something went wrong"
             console.error(error)

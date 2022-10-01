@@ -107,11 +107,12 @@ const ProfileSetting = () => {
 
 
 
-    return <div className="py-5 grid grid-flow-row space-y-2">
+    return <div className="py-5 grid grid-flow-row grid-rows-6 space-y-2">
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
             <div className="text-lg font-semibold self-center">Fiat Currency</div>
-            <div className="flex">
+            <div className="flex w-2/3">
                 <Dropdown
+                    parentClass="w-full"
                     list={fiatList.map(s => ({ name: (s.name as FiatMoneyList), logoURI: s.logo }))}
                     selected={selectedFiatCurrency}
                     setSelect={SetSelectedFiatCurrency}
@@ -124,8 +125,9 @@ const ProfileSetting = () => {
         </div>
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
             <div className="text-lg font-semibold self-center">Token Price Calculation</div>
-            <div className="flex">
+            <div className="flex w-2/3">
                 <Dropdown
+                    parentClass="w-full"
                     list={[
                         { name: "current", displayName: "Current Price" },
                         { name: "5", displayName: "5 days average" },
@@ -170,6 +172,7 @@ const ProfileSetting = () => {
                 <EditableAvatar
                     avatarUrl={(typeof individual?.image?.imageUrl === "string" ? individual?.image?.imageUrl : null) ?? individual?.image?.nftUrl ?? null}
                     name={id ?? "random"}
+                    size={3}
                     blockchain={blockchain}
                     evm={blockchain.name !== "solana"}
                     userId={id ?? undefined}

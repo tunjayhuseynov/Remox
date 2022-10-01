@@ -45,118 +45,114 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
     }, [detailModal])
 
     return (
-        <tr className='pl-5 grid grid-cols-[repeat(7,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-white dark:bg-darkSecond rounded-md my-6 py-8 h-[7.5rem]'>
+        <>
             <BudgetDetails item={item} close={setDetailModal} visibility={detailModal} />
-            {/* {openNotify && createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)} */}
+            <tr className='pl-5 grid grid-cols-[repeat(7,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-white dark:bg-darkSecond rounded-md my-6 py-8 h-[7.5rem]'>
+                {/* {openNotify && createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)} */}
 
-            <td className='self-center'>
-                <span className='font-medium text-black dark:text-white text-lg'>{item.name}</span>
-            </td>
-            <td>
-                <div className='flex flex-col justify-center h-full'>
-                    <div className='flex items-center space-x-3 font-medium text-lg'>
-                        <div>
-                            <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
-                        </div>
-                        <div>{budgetCoins.totalAmount}</div>
-                    </div>
-                    {budgetCoins.second &&
+                <td className='self-center'>
+                    <span className='font-medium text-black dark:text-white text-lg'>{item.name}</span>
+                </td>
+                <td>
+                    <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
-                            <div>{budgetCoins.second.secondTotalAmount}</div>
-                        </div>}
-                </div>
-            </td>
-            <td>
-                <div className='flex flex-col justify-center h-full'>
-                    <div className='flex items-center space-x-3 font-medium text-lg'>
-                        <div>
-                            <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                            <div>{SetComma(budgetCoins.totalAmount)}</div>
                         </div>
-                        <div>{budgetCoins.totalUsedAmount}</div>
+                        {budgetCoins.second &&
+                            <div className='flex items-center space-x-3 font-medium text-lg'>
+                                <div>
+                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                </div>
+                                <div>{SetComma(budgetCoins.second.secondTotalAmount)}</div>
+                            </div>}
                     </div>
-                    {budgetCoins.second &&
+                </td>
+                <td>
+                    <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
-                            <div>{budgetCoins.second.secondTotalUsedAmount}</div>
-                        </div>}
-                </div>
-            </td>
-            <td>
-                <div className='flex flex-col justify-center h-full'>
-                    <div className='flex items-center space-x-3 font-medium text-lg'>
-                        <div>
-                            <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                            <div>{SetComma(budgetCoins.totalUsedAmount)}</div>
                         </div>
-                        <div>{budgetCoins.totalPending}</div>
+                        {budgetCoins.second &&
+                            <div className='flex items-center space-x-3 font-medium text-lg'>
+                                <div>
+                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                </div>
+                                <div>{SetComma(budgetCoins.second.secondTotalUsedAmount)}</div>
+                            </div>}
                     </div>
-                    {budgetCoins.second &&
+                </td>
+                <td>
+                    <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
-                            <div>{budgetCoins.second.secondTotalPending}</div>
-                        </div>}
-                </div>
-            </td>
-            <td>
-                <div className='flex flex-col justify-center h-full'>
-                    <div className='flex items-center space-x-3 font-medium text-lg'>
-                        <div>
-                            <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                            <div>{SetComma(budgetCoins.totalPending)}</div>
                         </div>
-                        <div>{budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount)}</div>
+                        {budgetCoins.second &&
+                            <div className='flex items-center space-x-3 font-medium text-lg'>
+                                <div>
+                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                </div>
+                                <div>{SetComma(budgetCoins.second.secondTotalPending)}</div>
+                            </div>}
                     </div>
-                    {budgetCoins.second &&
+                </td>
+                <td>
+                    <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
-                            <div>{budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount)}</div>
-                        </div>}
-                </div>
-            </td>
-            <td className='self-center relative'>
-                <div className="rounded-xl w-full h-[1.2rem] relative bg-greylish bg-opacity-40 overflow-hidden">
-                    <div className='absolute left-0 top-0 w-full h-full flex'>
-                        <div className="h-full bg-primary rounded-l-xl" style={usedPercentStyle}></div>
-                        <div className="stripe-1 object-cover h-full" style={pendingPercentStyle}></div>
-                        <div className='relative w-full'>
+                            <div>{SetComma(budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount))}</div>
                         </div>
+                        {budgetCoins.second &&
+                            <div className='flex items-center space-x-3 font-medium text-lg'>
+                                <div>
+                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                </div>
+                                <div>{SetComma(budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount))}</div>
+                            </div>}
                     </div>
-                    {/* <div className="w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
-                </div>
-                <div className='absolute right-0 bottom-0 translate-y-full font-semibold'>
-                    {usedPercent + pendingPercent}%
-                </div>
-            </td>
-            <td className='self-center'>
-                <div className='flex justify-end pr-10 space-x-5 items-center'>
-                    <div>
-                        <VscEdit size={"1.25rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} />
+                </td>
+                <td className='self-center relative'>
+                    <div className="rounded-xl w-full h-3 relative bg-greylish bg-opacity-40 overflow-hidden">
+                        <div className='absolute left-0 top-0 w-full h-full flex'>
+                            <div className="h-full bg-primary rounded-l-xl" style={usedPercentStyle}></div>
+                            <div className="stripe-1 object-cover h-full" style={pendingPercentStyle}></div>
+                            <div className='relative w-full'>
+                            </div>
+                        </div>
+                        {/* <div className="w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
                     </div>
-                    <div>
-                        <GiCancel size={"1.25rem"} className="cursor-pointer hover:text-red-500" onClick={() => setDelBudget(true)} />
+                    <div className='absolute right-0 -bottom-1 translate-y-full font-semibold text-xs'>
+                        {usedPercent + pendingPercent}%
                     </div>
-                    <div>
+                </td>
+                <td className='self-center'>
+                    <div className='flex justify-end pr-5 space-x-4 items-center'>
+                        <VscEdit size={"1rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} />
+                        <GiCancel size={"1rem"} className="cursor-pointer hover:text-red-500" onClick={() => setDelBudget(true)} />
                         <AiFillRightCircle size={"1.85rem"} className="cursor-pointer text-primary hover:text-secondary" onClick={() => setDetailModal(true)} />
                     </div>
-                </div>
-            </td>
-            <Modal onDisable={setEditBudget} openNotify={editBudget}>
-                <EditBudget budget={item} onBack={() => setEditBudget(false)} />
-            </Modal>
-            {
-                delBudget &&
-                <Modal onDisable={setDelBudget} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>
-                    <DeleteBudget onDisable={setDelBudget} budget={item}></DeleteBudget>
+                </td>
+                <Modal onDisable={setEditBudget} openNotify={editBudget}>
+                    <EditBudget budget={item} onBack={() => setEditBudget(false)} />
                 </Modal>
-            }
-        </tr>
+                {
+                    delBudget &&
+                    <Modal onDisable={setDelBudget} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>
+                        <DeleteBudget onDisable={setDelBudget} budget={item}></DeleteBudget>
+                    </Modal>
+                }
+            </tr>
+        </>
     );
 }
 

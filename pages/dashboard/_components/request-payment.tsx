@@ -44,14 +44,14 @@ function Payments() {
 
     return <>
         {data.map((item, index) => {
-            return <div key={index} className="w-1/2 xl:w-[90%] 2xl:w-[85%] self-end cursor-pointer">
+            return <div key={index} className="w-full self-end cursor-pointer">
                 <div className="w-full shadow-15 px-7 py-1 rounded-md bg-white transition-all dark:bg-darkSecond hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
                     <div className="flex items-center gap-7 ">
-                        <div className="hidden lg:block w-7 h-7"><img src={`/icons/dashboard_side/${item.icon}.png`} alt="" /></div>
-                        <div className="flex flex-col gap-1 justify-start items-start">
-                            <div className="text-lg w-full font-medium text-greylish">{item.header}</div>
-                            <div className="text-2xl font-semibold">{item.value}</div>
-                            <div className="text-primary hover:text-[#ff4513] flex items-center justify-center text-sm gap-2 cursor-pointer font-semibold" onClick={() => { router.push(`/${item.router}`) }} >View All <AiFillRightCircle /></div>
+                        <div className="hidden lg:block w-6 h-6"><img src={`/icons/dashboard_side/${item.icon}.png`} alt="" /></div>
+                        <div className="flex flex-col justify-start items-start py-1">
+                            <div className="w-full font-medium text-greylish text-sm">{item.header}</div>
+                            <div className="text-xl font-semibold">{item.value}</div>
+                            <div className="text-primary hover:text-[#ff4513] flex items-center justify-center text-xs gap-2 cursor-pointer font-semibold" onClick={() => { router.push(`/${item.router}`) }} >View All <AiFillRightCircle /></div>
                         </div>
                     </div>
                 </div>

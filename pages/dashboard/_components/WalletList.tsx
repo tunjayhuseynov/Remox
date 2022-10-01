@@ -16,7 +16,7 @@ import { IoTrashOutline } from "react-icons/io5";
 import { BiTransferAlt } from "react-icons/bi";
 import Deposit from "./Deposit";
 import MuiModal from "@mui/material/Modal";
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { useAppSelector } from "redux/hooks";
 
 
@@ -86,7 +86,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                             </div>
                             {/* <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div> */}
                             <div className="flex flex-col">
-                                <div className="font-semibold">{item.name}</div>
+                                <div className="font-semibold text-sm">{item.name}</div>
                                 <div className="text-[10px] text-greylish">{AddressReducer(item.address ?? "")}</div>
                             </div>
                         </div>
@@ -118,26 +118,30 @@ function WalletList({ item }: { item: IAccountORM }) {
                         </div>
                     </div>
                 </div>
-                <div className="flex">
-                    <div className="min-w-[24%] flex flex-col gap-3 py-5 px-3 items-start border-r dark:border-[#454545]">
-                        <div className="flex flex-col">
-                            <div className="text-greylish text-sm">Total Value</div>
-                            <div className="text-lg font-semibold">{symbol}{SetComma(totalValue)}</div>
+                <div className="grid grid-cols-[35%,1fr]">
+                    <div className="flex flex-col gap-5 py-2 px-3 items-start border-r dark:border-[#454545]">
+                        <div className="grid grid-flow-row">
+                            <div className="text-greylish text-xs">Total Value</div>
+                            <div className="text-lg font-semibold truncate">
+                                <Tooltip title={<>{symbol}{SetComma(totalValue)}</>}>
+                                    <>{symbol}{SetComma(totalValue)}</>
+                                </Tooltip>
+                            </div>
                         </div>
-                        <div className="flex flex-col mr-2 gap-1">
-                            <div className="text-greylish dark:text-white text-sm">Signers</div>
+                        <div className="flex flex-col mr-2">
+                            <div className="text-greylish text-xs">Signers</div>
                             <AvatarGroup max={3} className={`${item.members.length <= 3 ? "flex-row" : ""}`}>
                                 {
                                     item.members.map((member, index) =>
-                                        <Avatar key={member.id} sizes="15px" alt={member.name} src={member?.image?.imageUrl as string ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
+                                        <Avatar key={member.id} sizes="0.5rem" alt={member.name} src={member?.image?.imageUrl as string ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
                                 }
                             </AvatarGroup>
                         </div>
                     </div>
-                    <div className="w-[75%] rounded-xl">
-                        <div className="w-full pt-2 h-full" ref={customRef}>
-                            {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 4).map((item, index) => {
-                                return <div className="border-b dark:border-greylish w-full" key={item.coin.address} >
+                    <div className="rounded-xl">
+                        <div className="w-full h-full" ref={customRef}>
+                            {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 3).map((item, index) => {
+                                return <div className="w-full" key={item.coin.address} >
                                     <CoinItem
                                         key={item.coin.address + item.coin.name}
                                         setSelectcoin={setSelectcoin}

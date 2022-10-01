@@ -604,12 +604,14 @@ export default function useMultisig() {
                         gas: 25000,
                         gasPrice: "5000000000",
                     }).on('confirmation', function (num: number, receipt: any) {
-                        dispatch(Add_Tx_To_TxList_Thunk({
-                            account: account,
-                            authId: selectedId,
-                            blockchain: blockchain,
-                            txHash: receipt.transactionHash,
-                        }))
+                        if (num > 23) {
+                            dispatch(Add_Tx_To_TxList_Thunk({
+                                account: account,
+                                authId: selectedId,
+                                blockchain: blockchain,
+                                txHash: receipt.transactionHash,
+                            }))
+                        }
                     });
                 }
 
@@ -701,12 +703,14 @@ export default function useMultisig() {
                         gas: 25000,
                         gasPrice: "5000000000",
                     }).on('confirmation', function (num: number, receipt: any) {
-                        dispatch(Add_Tx_To_TxList_Thunk({
-                            account: account,
-                            authId: selectedId,
-                            blockchain: blockchain,
-                            txHash: receipt.transactionHash,
-                        }))
+                        if (num > 23) {
+                            dispatch(Add_Tx_To_TxList_Thunk({
+                                account: account,
+                                authId: selectedId,
+                                blockchain: blockchain,
+                                txHash: receipt.transactionHash,
+                            }))
+                        }
                     });
                 } else if (provider === "GnosisSafe") {
                     if (!txServiceUrl) throw new Error("Tx service is not selected")
@@ -852,7 +856,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                console.log(account, input)
+
                 const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                 const txHash = await contract.methods.submitTransaction(input.destination, "0", stringToSolidityBytes(input.data as string)).encodeABI()
@@ -876,15 +880,17 @@ export default function useMultisig() {
                     gas: 250000,
                     gasPrice: "5000000000",
                 }).on('confirmation', function (num: number, receipt: any) {
-                    dispatch(Add_Tx_To_TxList_Thunk({
-                        account: account,
-                        authId: selectedId,
-                        blockchain: blockchain,
-                        txHash: hexToNumberString(receipt.logs[0].topics[1]),
-                    }))
+                    if (num > 23) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain,
+                            txHash: receipt.transactionHash,
+                        }))
+                    }
                 })
-
-                return tx.transactionHash;
+                console.log(tx)
+                return hexToNumberString(tx.logs[0].topics[1]);
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any)?.celo;

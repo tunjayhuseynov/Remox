@@ -180,7 +180,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
     return <div className="w-full relative pb-16">
-        <div className="w-[50%] mx-auto flex flex-col space-y-[5rem]">
+        <div className="w-[40%] mx-auto flex flex-col space-y-[5rem]">
             <div className='w-full flex justify-center'>
                 <div className='w-full fixed bg-light dark:bg-dark z-[9999] py-1'>
                     <div className='w-[18rem] mx-auto '>
@@ -213,7 +213,8 @@ function NewBudget({ exerciseId, onBack }: IProps) {
             {
                 activeStep === 0 &&
                 <div className='flex flex-col space-y-5'>
-                    <TextField label="Name" placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
+                    <div className='text-xl text-center mb-3 font-semibold'>Budget</div>
+                    <TextField label="Name" placeholder='E.g. Marketing' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
 
                     <PriceInputField coins={coins} onChange={(val, coin, fiatMoney) => {
                         setBudgetAmount(val)
@@ -285,7 +286,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                         return <div key={label.id} className='flex flex-col space-y-5'>
                             <div className='text-xl font-semibold text-center'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
-                                <TextField label="Label name" placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
+                                <TextField label="Label name" placeholder='E.g. Payroll' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
                                     if (s.id === label.id) {
                                         return { ...s, labelName: e.target.value }
                                     }

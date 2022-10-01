@@ -101,6 +101,12 @@ export interface IModerator {
     mail: string | null
 }
 
+export interface INotes {
+    address: string;
+    hashOrIndex: string;
+    attachLink: string | null;
+    notes: string | null
+}
 interface ICommonUserTypes {
     id: string;
     name: string;
@@ -115,7 +121,9 @@ interface ICommonUserTypes {
     created_date: number;
     budget_execrises: DocumentReference[] | IBudgetExercise[];
     fiatMoneyPreference: FiatMoneyList;
-    priceCalculation: PriceCalculationList
+    priceCalculation: PriceCalculationList;
+
+    notes: INotes[]
 
 }
 export interface IOrganization extends ICommonUserTypes {

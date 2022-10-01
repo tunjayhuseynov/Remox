@@ -65,7 +65,7 @@ export default async function handler(
     let tags = (
       await adminApp.firestore().collection("tags").doc(id).get()
     ).data() as { tags: ITag[] };
-
+ 
     const Blockchain = Blockchains.find(
       (blch: BlockchainType) => blch.name === blockchain
     );

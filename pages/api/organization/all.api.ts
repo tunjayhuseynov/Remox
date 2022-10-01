@@ -4,6 +4,7 @@ import { IAccount, IOrganization } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BASE_URL } from "utils/api";
+import { toChecksumAddress } from "web3-utils";
 import { IMultisigOwners } from "../multisig/owners.api";
 
 
@@ -12,7 +13,7 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
     if (typeof address !== "string") throw new Error("Invalid address");
 
     const pendingListOrganization = await adminApp.firestore().collection(organizationCollectionName).where(
-        "pendingMembers", "array-contains", address as string
+        "pendingMembers", "array-contains", toChecksumAddress(address as string)
     ).get()
 
     if (pendingListOrganization.docs.length > 0) {
@@ -50,7 +51,7 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
     }
 
     const removableListOrganization = await adminApp.firestore().collection(organizationCollectionName).where(
-        "removableMembers", "array-contains", address as string
+        "removableMembers", "array-contains", toChecksumAddress(address as string)
     ).get()
 
     if (removableListOrganization.docs.length > 0) {
@@ -88,12 +89,18 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
     }
 
     const organizationDocs = await adminApp.firestore().collection(organizationCollectionName).where(
-        "members", "array-contains", address as string
+        "members", "array-contains", toChecksumAddress(address as string)
     ).get()
 
     const organizations = organizationDocs.docs.map(s => s.data()) as IOrganization[]
 
     for (const organization of organizations) {
+        if (!organization?.notes) {
+            await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                notes: []
+            })
+            organization["notes"] = [];
+        }
         organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
             const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
             const account = accountRef.data() as IAccount;

@@ -227,7 +227,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       const fiatPreference = storageState?.organization?.fiatMoneyPreference ?? storageState?.individual.fiatMoneyPreference ?? "USD"
 
       const hpList = await axios.post<IHpApiResponse>('/api/calculation/hp', {
-        coinList: Object.keys(state.remoxData.coins), //Array.from(new Set(allCoins.filter(s => s))),
+        coinList: Object.keys(balanceRes.data.AllPrices), //Array.from(new Set(allCoins.filter(s => s))),
         lastTxDate: allCumulativeTransactions.at(-1)?.timestamp,
         blockchain: blockchain.name,
         fiatMoney: fiatPreference

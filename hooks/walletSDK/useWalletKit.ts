@@ -27,7 +27,7 @@ import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useAllowance from "rpcHooks/useAllowance";
 import { DateInterval } from "types/dashboard/contributors";
 import { ITag } from "pages/api/tags/index.api";
-import { IAccount, IBudget, ISubBudget } from "firebaseConfig";
+import { IAccount, IBudget, INotes, ISubBudget } from "firebaseConfig";
 import useMultisig from "./useMultisig";
 import { AddTransactionToTag } from "redux/slices/account/thunks/tags";
 import { Add_Tx_To_Budget_Thunk } from "redux/slices/account/thunks/budgetThunks/budget";
@@ -44,6 +44,7 @@ import { hexToNumberString } from "web3-utils";
 import { ToastRun } from "utils/toast";
 import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
+import { Add_Notes_Thunk } from "redux/slices/account/thunks/notes";
 
 export enum CollectionName {
   Celo = "currencies",
@@ -236,7 +237,8 @@ export default function useWalletKit() {
         swap,
         cancelStreaming,
         streamingIdTxHash,
-        streamingIdDirect
+        streamingIdDirect,
+        notes
       }: {
         tags?: ITag[];
         createStreaming?: boolean;
@@ -247,11 +249,12 @@ export default function useWalletKit() {
         swap?: ISwap;
         cancelStreaming?: boolean;
         streamingIdTxHash?: string,
-        streamingIdDirect?: string
+        streamingIdDirect?: string,
+        notes?: INotes
       } = {}
     ) => {
       try {
-        if(isModerator) return ToastRun("Moderator cannot execute any transaction", "warning")
+        if (isModerator) return ToastRun("Moderator cannot execute any transaction", "warning")
         let txhash;
         let type: "single" | "multi" = "single";
         let streamId: string | null = null;
@@ -327,7 +330,7 @@ export default function useWalletKit() {
 
           if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
             const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
-            console.log(Contracts.BatchRequest.address);
+
             for (let index = 0; index < approveArr.length; index++) {
               await allow(
                 account.address,
@@ -341,19 +344,23 @@ export default function useWalletKit() {
 
           if (account.signerType === "single") { // SINGLE SIGNER
             const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
-              console.log(receipt)
-              dispatch(Add_Tx_To_TxList_Thunk({
-                account: account,
-                authId: id,
-                blockchain: blockchain,
-                txHash: receipt.transactionHash,
-              }))
+              if (num > 23) {
+           
+                dispatch(Add_Tx_To_TxList_Thunk({
+                  account: account,
+                  authId: id,
+                  blockchain: blockchain,
+                  txHash: receipt.transactionHash,
+                }))
 
-              ToastRun("Transaction've been mined", "success")
+                ToastRun("Transaction've been mined", "success")
+              }
+
             });
             const hash = recipet.transactionHash;
             type = "single"
             txhash = hash;
+
           }
           else { // MULTISIGNER
 
@@ -476,6 +483,17 @@ export default function useWalletKit() {
         dispatch(Refresh_Balance_Thunk({
           blockchain: blockchain,
         }))
+
+        if (notes && txhash) {
+          dispatch(Add_Notes_Thunk({
+            note: {
+              address: account.address,
+              attachLink: notes.attachLink,
+              hashOrIndex: txhash,
+              notes: notes.notes
+            }
+          }))
+        }
 
         dispatch(Refresh_Accounts_Thunk({
           id: account.id,

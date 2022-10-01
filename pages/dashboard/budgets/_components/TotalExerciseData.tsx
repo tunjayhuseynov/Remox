@@ -86,7 +86,7 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                     </div>
                 </>
             }
-            <div className="flex items-center justify-end pr-10">
+            <div className="flex items-center justify-end">
                 {total.budgets.length > 0 && <TotalExerciseDetails total={total} />}
             </div>
         </div>

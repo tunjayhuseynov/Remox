@@ -13,7 +13,22 @@ export const Get_Budget = async (id: string) => {
 }
 
 export const Create_Budget = async (budget: IBudget) => {
-    await FirestoreWrite<IBudget>().createDoc(budgetCollectionName, budget.id, budget);
+    await FirestoreWrite<IBudget>().createDoc(budgetCollectionName, budget.id, {
+        amount: budget.amount,
+        name: budget.name,
+        parentId: budget.parentId,
+        secondAmount: budget.secondAmount,
+        secondToken: budget.secondToken,
+        token: budget.token,
+        txs: budget.txs,
+        created_at: budget.created_at,
+        customPrice: budget.customPrice,
+        fiatMoney: budget.fiatMoney,
+        secondCustomPrice: budget.secondCustomPrice,
+        id: budget.id,
+        secondFiatMoney: budget.secondFiatMoney,
+        subbudgets: budget.subbudgets,
+    });
     return budget;
 }
 

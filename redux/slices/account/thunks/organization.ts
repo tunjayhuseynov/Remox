@@ -9,6 +9,7 @@ import { generate } from "shortid";
 import { BlockchainType } from "types/blockchains";
 import { IOrganizationORM } from "types/orm";
 import { GetTime } from "utils";
+import { toChecksumAddress } from "web3-utils";
 import { setAccountType, setProviderID, setStorage } from "../remoxData";
 import { CreateTag } from "./tags";
 
@@ -33,11 +34,12 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         accounts: [
             // account
         ],
+        notes: [],
         priceCalculation: "current",
         moderators: [],
         budget_execrises: [],
         image: image,
-        members: [address],
+        members: [toChecksumAddress(address)],
         pendingMembers: [],
         removableMembers: [],
         pendingMembersObjects: [],
