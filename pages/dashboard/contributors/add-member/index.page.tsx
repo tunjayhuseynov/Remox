@@ -91,63 +91,71 @@ export default () => {
             tokenId: null,
             blockchain: blockchain.name
         }
-        setIsLoading(true)
+        // setIsLoading(true)
+        
         const dateNow = new Date().getTime()
 
+        console.log(Team.id)
+
+        
+
         try {
-            let taskId: string | null = null
-            let inputs: IPaymentInput[] = []
-            if (isAutoPayment && startDate && endDate) {
-                inputs.push({
-                    amount: Amount ?? 1,
-                    coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol ,
-                    recipient: data.address,
-                })
-                if (Amount2 && Coin2) {
+            if(Team) {
+                let taskId: string | null = null
+                let inputs: IPaymentInput[] = []
+                if (isAutoPayment && startDate && endDate) {
                     inputs.push({
-                        amount: Amount2,
-                        coin: Coin2.symbol,
+                        amount: Amount ?? 1,
+                        coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol ,
                         recipient: data.address,
                     })
+                    if (Amount2 && Coin2) {
+                        inputs.push({
+                            amount: Amount2,
+                            coin: Coin2.symbol,
+                            recipient: data.address,
+                        })
+                    }
+    
+                    const id = await SendTransaction(accountAndBudget.account!, inputs, {
+                        createStreaming: true,
+                        startTime: startDate.getTime(),
+                        endTime: endDate.getTime(),
+                        budget: accountAndBudget.budget,
+                    })
+    
+                    taskId = id!
                 }
+    
+                let member: IMember = {
+                    id: uuidv4(),
+                    fullname: data.fullname.trim(),
+                    teamId: Team.id!.toString(),
+                    compensation: Compensation,
+                    role: `${data.role}`,
+                    amount: (amount ?? 1).toString() ,
+                    currency: Coin1?.symbol ?? "",
+                    fiat: fiatMoney ?? null,
+                    secondAmount: amountSecond ? amountSecond.toString() : null,
+                    secondCurrency: Coin2 ? (Coin2.symbol) : null,
+                    fiatSecond: fiatMoneySecond ?? null,
+                    address: data.address,
+                    execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
+                    interval: Frequency as DateInterval,
+                    paymantDate: new Date(startDate ?? dateNow).getTime(),
+                    paymantEndDate: new Date(endDate ?? dateNow).getTime(),
+                    image: url ? Photo : null,
+                    taskId: isAutoPayment ? taskId : null,
+                };
+    
+                console.log(member)
+                await addMember(Team.id!.toString(), member);
+                dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
+                setIsLoading(false);
+                navigate.back();
+            } else {
 
-                const id = await SendTransaction(accountAndBudget.account!, inputs, {
-                    createStreaming: true,
-                    startTime: startDate.getTime(),
-                    endTime: endDate.getTime(),
-                    budget: accountAndBudget.budget,
-                })
-
-                taskId = id!
             }
-
-
-            let member: IMember = {
-                id: uuidv4(),
-                fullname: data.fullname.trim(),
-                teamId: Team.id!.toString(),
-                compensation: Compensation,
-                role: `${data.role}`,
-                amount: (amount ?? 1).toString() ,
-                currency: Coin1?.symbol ?? "",
-                fiat: fiatMoney ?? null,
-                secondAmount: amountSecond ? amountSecond.toString() : null,
-                secondCurrency: Coin2 ? (Coin2.symbol) : null,
-                fiatSecond: fiatMoneySecond ?? null,
-                address: data.address,
-                execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
-                interval: Frequency as DateInterval,
-                paymantDate: new Date(startDate ?? dateNow).getTime(),
-                paymantEndDate: new Date(endDate ?? dateNow).getTime(),
-                image: url ? Photo : null,
-                taskId: isAutoPayment ? taskId : null,
-            };
-
-            console.log(member)
-            await addMember(Team.id!.toString(), member);
-            dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
-            setIsLoading(false);
-            navigate.back();
         } catch (error: any) {
             console.error(error);
         }
@@ -168,21 +176,19 @@ export default () => {
                 <form onSubmit={handleSubmit(submit)}
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Add Member</div>
-                    <div className="flex flex-col space-y-4">
-                        <div className="flex flex-col mb-4 space-y-1 w-full">
-                            <EditableAvatar avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""} evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-10">
-                            <TextField label="Full Name" {...register("fullname", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
-                            <Dropdown
-                                label="Workstream"
-                                setSelect={setSelectedTeam}
-                                selected={selectedTeam}
-                                list={teams}
-                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                            />
-                        </div>
+                    <div className="flex justify-center mb-4 w-full">
+                        <EditableAvatar avatarUrl={null} name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""} evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-10">
+                        <TextField label="Full Name" {...register("fullname", { required: true })} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <Dropdown
+                            label="Workstream"
+                            setSelect={setSelectedTeam}
+                            selected={selectedTeam}
+                            list={teams}
+                            className="border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                        />
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
                         <Dropdown

@@ -235,7 +235,7 @@ export default function DynamicRequest({
                 selectedpPendingRequests.length > 0 && (
                   <th>
                     <Button
-                      className="text-sm font-medium !py-1 w-[80%] !px-0 ml-4"
+                      className="text-sm font-medium !py-1 !px-2"
                       onClick={() => {
                         setNotify2(true);
                       }}
@@ -305,13 +305,13 @@ export default function DynamicRequest({
       </div>
       {page === RequestStatus.approved && (
         <Modal onDisable={setNotify} openNotify={openNotify}>
-          <div className="flex flex-col w-[92.5%]  mx-auto">
-            <div className="text-2xl font-semibold  mb-4">
+          <div className="h-fulll mx-[6rem] mt-12 !pb-7">
+            <div className="text-2xl font-semibold mb-4">
               Approved Requests
             </div>
             <table className="w-full pb-4">
               <thead>
-                <tr className="grid grid-cols-[25%,20%,20%,20%,15%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
+                <tr className="grid grid-cols-[25%,20%,30%,25%] font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
                   <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
                     Name
                   </th>
@@ -336,7 +336,7 @@ export default function DynamicRequest({
               </p>
               <ModalAllocation selectedList={selectedApprovedRequests} />
             </>
-            <div className="flex justify-end">
+            <div className="flex justify-end pb-2">
               <Button
                 isLoading={isExecuting}
                 onClick={() => setExecuting()}

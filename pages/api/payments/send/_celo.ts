@@ -81,7 +81,12 @@ export const GenerateStreamingTx = async (input: IPaymentInput, startTime: numbe
 
     const contract = new web3.eth.Contract(celo.streamingProtocols[0].abi as AbiItem[], celo.streamingProtocols[0].contractAddress)
 
-    return contract.methods.createStream(input.recipient, new BigNumber(input.amount).multipliedBy(10 ** coins[input.coin].decimals).toFixed(0), coins[input.coin].address, startTime, endTime).encodeABI()
+    const amountWei = new BigNumber(input.amount).multipliedBy(10 ** coins[input.coin].decimals);
+    const remainder = amountWei.mod(endTime - startTime);
+    const amount = amountWei.minus(remainder).minus(endTime - startTime).toFixed(0);
+
+
+    return contract.methods.createStream(input.recipient, amount, coins[input.coin].address, startTime, endTime).encodeABI()
 }
 
 export const GenerateCancelStreamingTx = async (streamId: string) => {

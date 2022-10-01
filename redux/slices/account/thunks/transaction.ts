@@ -1,10 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { IAccount } from "firebaseConfig";
-import { IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { BlockchainType } from "types/blockchains";
 import { addTxToList } from "../remoxData";
+import { addRecurringTask } from '../remoxData'
 
 interface IProps { account: IAccount, txHash: string, blockchain: BlockchainType, authId: string }
 export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | ITransactionMultisig, IProps>("remoxData/add_tx_to_txlist_thunk", async ({ account, txHash, blockchain, authId }, api) => {
@@ -26,12 +27,19 @@ export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | I
                 addresses: account.address,
                 txs: txHash,
                 id: authId,
+                blockchain: blockchain.name,
             }
         })
     }
 
+    const data = result.data;
+
+    if (('tx' in data && data.tx.method === ERC20MethodIds.automatedTransfer) || (!('tx' in data) && data.method === ERC20MethodIds.automatedTransfer)) {
+        api.dispatch(addRecurringTask(data))
+    }
+
     api.dispatch(addTxToList({
-        tx: result.data,
+        tx: data,
     }))
 
     return result.data;

@@ -267,22 +267,32 @@ const RequestedUserItem = ({
           )}
         </td>
         <td className="flex flex-col justify-center">
-          <div className="flex items-center justify-start gap-1">
-            {request.fiat ? <div className="flex items-center gap-1"> <span className="text-base">{request.amount}</span> {request.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
+          <div>
+           <div className="flex items-center ">
+            {request.fiat ? <div className=""> 
+                <span className="text-base">{request.amount} {request.fiat} as </span> 
+                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+              </div> :
               <div className="flex items-center">
                 <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
                 <span className="text-base">{request.amount}</span>
               </div>
             }
-          </div>
-          {(request.secondCurrency && request.secondAmount) && <div className="flex items-center justify-start gap-1 mt-2">
-            {request.fiatSecond ? <div className="flex items-center gap-1"> <span className="text-base">{request.secondAmount}</span> {request.fiatSecond} as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" /></div> :
+            </div>
+            {(request.secondCurrency && request.secondAmount) && <div className="flex items-center gap-1 mt-2">
+            {request.fiatSecond ? 
+            <div className="flex items-center justify-end gap-1"> 
+              <span className="text-base">{request.secondAmount} {request.fiatSecond} as </span> 
+              <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+            </div> :
               <div className="flex items-center">
                 <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
                 <span className="text-base">{request.secondAmount}</span>
               </div>
             }
-          </div>}
+            </div>}
+
+          </div>
         </td>
         <td className="items-center flex text-lg font-medium ">
           {request.requestType}
@@ -294,7 +304,7 @@ const RequestedUserItem = ({
         </td>
       </tr>
       <Modal onDisable={setModal} openNotify={modal}>
-        <div className="w-full z-[10] flex flex-col items-center gap-4  ">
+        <div className="w-full z-[10] flex flex-col items-center gap-4 pb-10">
           <SingleRequestModal request={request} coin1={coin1} coin2={coin2} />
           {request.status === RequestStatus.pending ? (
             <div className="flex justify-center w-[60%] pt-5 sm:pt-0">

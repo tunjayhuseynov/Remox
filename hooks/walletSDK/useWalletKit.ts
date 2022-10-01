@@ -304,9 +304,17 @@ export default function useWalletKit() {
             await allow(
               Address,
               swap.inputCoin.address,
-              "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
+              blockchain.swapProtocols[0].contractAddress,
               swap.amount
             );
+          }
+          if(createStreaming){
+            await allow(
+              Address,
+              coins[inputArr[0].coin].address,
+              blockchain.streamingProtocols[0].contractAddress,
+              inputArr[0].amount.toString()
+            )
           }
 
           if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
