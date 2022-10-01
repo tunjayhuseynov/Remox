@@ -4,7 +4,7 @@ import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { generate } from 'shortid'
-import { SelectCurrencies } from 'redux/slices/account/remoxData';
+import { SelectCurrencies, SelectPriceCalculation } from 'redux/slices/account/remoxData';
 
 import { AltCoins } from 'types/coins';
 import { SubmitHandler } from "react-hook-form";
@@ -43,6 +43,8 @@ function NewBudget({ exerciseId, onBack }: IProps) {
     const [activeStep, setActiveStep] = useState(0);
     const coins = useAppSelector(SelectCurrencies)
     const dispatch = useAppDispatch()
+    const priceCalculation = useAppSelector(SelectPriceCalculation)
+    const PC = priceCalculation == "current" ? "Current Price" : `${priceCalculation} days average price`
 
     const [anotherToken, setAnotherToken] = useState(false)
     const [budgetName, setBudgetName] = useState('')
@@ -53,8 +55,8 @@ function NewBudget({ exerciseId, onBack }: IProps) {
     const [budgetFiat, setBudgetFiat] = useState<FiatMoneyList>()
     const [budgetFiat2, setBudgetFiat2] = useState<FiatMoneyList>()
 
-    const [selectedPriceOption, setSelectedPriceOption] = useState({ name: "Current Price" })
-    const [selectedPriceOption2, setSelectedPriceOption2] = useState({ name: "Current Price" })
+    const [selectedPriceOption, setSelectedPriceOption] = useState({ name: PC })
+    const [selectedPriceOption2, setSelectedPriceOption2] = useState({ name: PC })
     const [customPrice, setCustomPrice] = useState<number | null>(null)
     const [customPrice2, setCustomPrice2] = useState<number | null>(null)
 
@@ -225,12 +227,12 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                     {(budgetFiat) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
-                                list={[{ name: "Current Price" }, { name: "Custom Price" }]}
+                                list={[{ name: PC }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption}
                                 selected={selectedPriceOption}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption.name === "Current Price"} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
+                            <TextField disabled={selectedPriceOption.name === (PC)} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
                         </div>
                     </div>}
 
@@ -260,12 +262,12 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                     {(budgetFiat2) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
-                                list={[{ name: "Current Price" }, { name: "Custom Price" }]}
+                                list={[{ name: (PC) }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption2}
                                 selected={selectedPriceOption2}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption2.name === "Current Price"} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
+                            <TextField disabled={selectedPriceOption2.name === (PC)} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
                         </div>
                     </div>}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">

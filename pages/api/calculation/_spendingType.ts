@@ -42,4 +42,7 @@ export interface ISpendingResponse {
     Account: IFlowDetail,
     AccountInTag: ITagFlow,
     AccountOutTag: ITagFlow,
+    Fee: {
+        [key: string]: { name: AltCoins, amount: string }[]
+    }
 }

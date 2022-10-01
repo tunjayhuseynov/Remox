@@ -31,7 +31,7 @@ import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
 import { Refresh_Data_Thunk } from "./thunks/refresh/refresh";
 import { BlockchainType } from "types/blockchains";
-import { Coins } from "types";
+import { AltCoins, Coins } from "types";
 import { IPrice } from "utils/api";
 
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
@@ -70,6 +70,9 @@ export interface IMultisigStats {
 
 // Bizim webapp'in merkezi datalari
 export interface IRemoxData {
+    fees: {
+        [key: string]: { name: AltCoins, amount: string }[]
+    },
     coins: Coins,
     darkMode: boolean,
     organizations: IOrganizationORM[],
@@ -112,6 +115,7 @@ export interface IRemoxData {
 const init = (): IRemoxData => {
     return {
         coins: {},
+        fees: {},
         IsInit: false,
         addressBook: [],
         credentials: {
@@ -475,6 +479,7 @@ const remoxDataSlice = createSlice({
                 approvedRequests: action.payload.Requests.filter(request => request.status === RequestStatus.approved),
                 rejectedRequests: action.payload.Requests.filter(request => request.status === RequestStatus.rejected),
             };
+            state.fees = action.payload.Spending.Fee;
             state.blockchain = action.payload.Blockchain;
             state.accounts = action.payload.RemoxAccount.accounts;
             state.storage = action.payload.Storage;

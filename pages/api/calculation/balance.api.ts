@@ -16,7 +16,6 @@ import { BASE_URL, DecimalConverter } from "utils/api";
 import { toChecksumAddress } from "web3-utils";
 import axios from "axios";
 
-const kit = newKit(Mainnet.rpcUrl)
 const connection = new solanaWeb3.Connection(SolanaEndpoint)
 
 export interface IBalanceAPI {
@@ -58,82 +57,73 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     const rpc = new Web3.providers.HttpProvider(blockchain.rpcUrl)
     const web3 = new Web3(rpc)
 
-    if (addresses.length > 1) {
-
-        const balanceArray = await Promise.all(addresses.map(async (addressItem) => {
-            let balances: { [name: string]: string } = {};
-
-            const balancesRes = await Promise.all(coinList.map(item => GetBalance(item, addressItem, blockchain, web3)))
-
-            balancesRes.forEach((v, index) => {
-                const item = v[1];
-                if (!balances[item.symbol]) {
-                    balances = Object.assign(balances, { [item.symbol]: v[0]?.toString() })
-                } else {
-                    balances[item.symbol] = `${Number(balances[item.symbol]) + Number(v[0])}`
+    for (const address of addresses) {
+        if (blockchain.name === "solana") {
+            const balanceRes = await Promise.allSettled(coinList.map(item => GetBalanceSolana(item, address, blockchain, web3)))
+            balanceRes.forEach((altcoinBalance, index) => {
+                if (altcoinBalance.status === "fulfilled") {
+                    const item = altcoinBalance.value[1]
+                    balances = Object.assign(balances, { [item.symbol]: balances[item.symbol] ? new BigNumber(altcoinBalance.value[0]).plus(balances[item.symbol]).toString() : altcoinBalance.value[0].toString() });
                 }
             })
+        } else {
+            const { data } = await axios.get<{ result: { balance: string, contractAddress?: string }[] }>("https://explorer.celo.org/api?module=account&action=tokenlist&address=" + toChecksumAddress(address));
+            const accountBalance = data.result;
+         
+            for (const coin of coinList) {
+                const balance = accountBalance.find(b => b.contractAddress?.toLowerCase() === coin.address.toLowerCase());
 
-            return balances;
-        }))
+                balances = Object.assign(balances, { [coin.symbol]: balances[coin.symbol] ? new BigNumber(balance?.balance ?? 0).plus(balances[coin.symbol]).toString() : (balance?.balance ?? 0).toString() });
 
-        const result = balanceArray.reduce<{ [name: string]: string; }>((a, c) => {
-            Object.keys(c).forEach((key) => {
-                if (!a[key]) {
-                    a[key] = c[key]
-                } else {
-                    a[key] = `${Number(a[key]) + Number(c[key])}`
-                }
-            })
-            return a;
-        }, {})
-
-        balances = result;
-
-        return { ...balances };
+            }
+        }
     }
 
-    const address = addresses[0];
 
 
 
-    const balanceRes = await Promise.allSettled(coinList.map(item => GetBalance(item, address, blockchain, web3)))
-    balanceRes.forEach((altcoinBalance, index) => {
-        if (altcoinBalance.status === "fulfilled") {
-            const item = altcoinBalance.value[1]
-            balances = Object.assign(balances, { [item.symbol]: altcoinBalance.value[0] });
-        }
-    })
+
+    // if (blockchain.name === "solana") {
+    //     const balanceRes = await Promise.allSettled(coinList.map(item => GetBalanceSolana(item, address, blockchain, web3)))
+    //     balanceRes.forEach((altcoinBalance, index) => {
+    //         if (altcoinBalance.status === "fulfilled") {
+    //             const item = altcoinBalance.value[1]
+    //             balances = Object.assign(balances, { [item.symbol]: altcoinBalance.value[0] });
+    //         }
+    //     })
+    // } else {
+    //     const { data } = await axios.get<{ result: { balance: string, contractAdress: string }[] }>("https://explorer.celo.org/api?module=account&action=tokenlist&address=" + toChecksumAddress(address));
+    //     const accountBalance = data.result;
+
+    //     for (const coin of coinList) {
+    //         const balance = accountBalance.find(b => b.contractAdress.toLowerCase() === coin.address.toLowerCase());
+    //         if (balance) {
+    //             balances = Object.assign(balances, { [coin.symbol]: balance.balance });
+    //         } else {
+    //             balances = Object.assign(balances, { [coin.symbol]: "0" });
+    //         }
+    //     }
+    // }
 
     return balances;
 }
 
-const GetBalance = async (item: AltCoins, addressParams: string, blockchain: BlockchainType, web3: Web3): Promise<[number, AltCoins]> => {
+const GetBalanceSolana = async (item: AltCoins, addressParams: string, blockchain: BlockchainType, web3: Web3): Promise<[number, AltCoins]> => {
     try {
-        if (blockchain.name === 'celo') {
-            const { data } = await axios.get<{ result: string }>(`https://explorer.celo.org/api?module=account&action=tokenbalance&contractaddress=${item.address}&address=${addressParams}`)
-            // const ethers = new web3.eth.Contract(erc20 as AbiItem[], toChecksumAddress(item.address));
-            // if (item.address === '0x0000000000000000000000000000000000000000') {
-            //     const balance = await web3.eth.getBalance(addressParams)
-            //     return [DecimalConverter(balance, item.decimals), item]
-            // }
-            // let balance = await ethers.methods.balanceOf(toChecksumAddress(addressParams)).call();
-            return [DecimalConverter(data.result.toString(), item.decimals), item]
-        } else if (blockchain.name === 'solana') {
-            let token;
-            if (item.type === TokenType.GoldToken) {
-                token = new BigNumber(await connection.getBalance(new PublicKey(addressParams))).div(item.decimals).toNumber()
-            } else {
-                const tok = new BigNumber(await spl.mint.getBalance(connection, new PublicKey(item.address), new PublicKey(addressParams))).div(item.decimals).toNumber()
-                // lamports = await connection.getTokenAccountsByOwner(publicKey, {programId: new PublicKey(item.contractAddress)})
-                token = tok ?? 0
-            }
-            return [token, item]
+        let token;
+        if (item.type === TokenType.GoldToken) {
+            token = new BigNumber(await connection.getBalance(new PublicKey(addressParams))).div(item.decimals).toNumber()
+        } else {
+            const tok = new BigNumber(await spl.mint.getBalance(connection, new PublicKey(item.address), new PublicKey(addressParams))).div(item.decimals).toNumber()
+            // lamports = await connection.getTokenAccountsByOwner(publicKey, {programId: new PublicKey(item.contractAddress)})
+            token = tok ?? 0
         }
-        return [0, item];
+        return [token, item]
     } catch (error: any) {
         console.error("Balance API: ", item?.name, error)
         // throw new Error("Balance API:", error)
         return [0, item];
     }
-} 
+}
+
+//https://explorer.celo.org/api?module=account&action=tokenlist&address=

@@ -116,7 +116,8 @@ export default async function handler(
                 quart: outATag90,
                 year: outATag365,
                 currentMonth: outATagCM
-            }
+            },
+            Fee: AccountReq.feeAll
         })
     } catch (error) {
         console.error("Spending Api", (error as any))
@@ -207,7 +208,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
             const sTime = stringTime(tTime)
             if (tDay <= selectedDay) {
                 let feeToken = currencies[t.rawData.tokenSymbol ?? ""];
-                feeAll[sTime] = [...(feeAll[sTime] ?? []), { name: feeToken, amount: ((+t.rawData.gasPrice) * (+t.rawData.gasUsed)).toString() }]
+                feeAll[sTime] = [...(feeAll?.[sTime] ?? []), { name: feeToken, amount: ((+t.rawData.gasPrice) * (+t.rawData.gasUsed)).toString() }]
 
                 if (!t.isError) {
 
@@ -318,4 +319,5 @@ const TxNull: () => ISpendingResponse = () => ({
         year: {}
     },
     TotalSpend: 0,
+    Fee: {}
 }) 

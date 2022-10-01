@@ -4,7 +4,7 @@ import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { generate } from 'shortid'
-import { SelectCurrencies } from 'redux/slices/account/remoxData';
+import { SelectCurrencies, SelectPriceCalculation } from 'redux/slices/account/remoxData';
 
 import { AltCoins } from 'types/coins';
 import { SubmitHandler } from "react-hook-form";
@@ -45,6 +45,8 @@ function EditBudget({ onBack, budget }: IProps) {
     const [activeStep, setActiveStep] = useState(0);
     const coins = useAppSelector(SelectCurrencies)
     const dispatch = useAppDispatch()
+    const priceCalculation = useAppSelector(SelectPriceCalculation)
+    const PC = priceCalculation == "current" ? "Current Price" : `${priceCalculation} days average price`
 
     const [anotherToken, setAnotherToken] = useState(!!budget.secondAmount)
     const [budgetName, setBudgetName] = useState(budget.name)
@@ -55,8 +57,8 @@ function EditBudget({ onBack, budget }: IProps) {
     const [budgetFiat, setBudgetFiat] = useState<FiatMoneyList | undefined>(budget.fiatMoney ?? undefined)
     const [budgetFiat2, setBudgetFiat2] = useState<FiatMoneyList | undefined>(budget.secondFiatMoney ?? undefined)
 
-    const [selectedPriceOption, setSelectedPriceOption] = useState(budget.customPrice ? { name: "Custom Price" } : { name: "Current Price" })
-    const [selectedPriceOption2, setSelectedPriceOption2] = useState(budget.secondCustomPrice ? { name: "Custom Price" } : { name: "Current Price" })
+    const [selectedPriceOption, setSelectedPriceOption] = useState(budget.customPrice ? { name: "Custom Price" } : { name: PC })
+    const [selectedPriceOption2, setSelectedPriceOption2] = useState(budget.secondCustomPrice ? { name: "Custom Price" } : { name: PC })
     const [customPrice, setCustomPrice] = useState<number | null>(budget.customPrice)
     const [customPrice2, setCustomPrice2] = useState<number | null>(budget.secondCustomPrice)
 
@@ -297,12 +299,12 @@ function EditBudget({ onBack, budget }: IProps) {
                     {(budgetFiat) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
-                                list={[{ name: "Current Price" }, { name: "Custom Price" }]}
+                                list={[{ name: PC }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption}
                                 selected={selectedPriceOption}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption.name === "Current Price"} value={customPrice?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
+                            <TextField disabled={selectedPriceOption.name === PC} value={customPrice?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
                         </div>
                     </div>}
 
@@ -332,12 +334,12 @@ function EditBudget({ onBack, budget }: IProps) {
                     {(budgetFiat2) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
-                                list={[{ name: "Current Price" }, { name: "Custom Price" }]}
+                                list={[{ name: PC }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption2}
                                 selected={selectedPriceOption2}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption2.name === "Current Price"} value={customPrice2?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
+                            <TextField disabled={selectedPriceOption2.name === PC} value={customPrice2?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
                         </div>
                     </div>}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
