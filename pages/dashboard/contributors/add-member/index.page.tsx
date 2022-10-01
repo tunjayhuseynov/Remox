@@ -28,7 +28,7 @@ export interface IFormInput {
     role: string;
 }
 
-export default () => {
+const AddMember = () => {
     const navigate = useRouter()
     const { register, handleSubmit } = useForm<IFormInput>();
     const [url, setUrl] = useState<string>("");
@@ -299,3 +299,6 @@ export default () => {
         </div>
     </>
 };
+
+
+export default AddMember;

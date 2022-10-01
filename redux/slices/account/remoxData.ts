@@ -20,7 +20,7 @@ import RequestReducers from './reducers/requests'
 import AccountMembers from './reducers/accountMembers'
 import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail, Update_Account_Image } from "./thunks/account";
-import { IAccount, IBudget, Image, IMember, ISubBudget } from "firebaseConfig";
+import { IAccount, IAddressBook, IBudget, Image, IMember, INotes, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
@@ -39,6 +39,10 @@ import { UpdateFiatCurrencyThunk, UpdatePriceCalculationThunk, UpdateProfileName
 import { Tx_Refresh_Data_Thunk } from "./thunks/refresh/txRefresh";
 import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import accountMembers from "./reducers/accountMembers";
+import { DocumentData, DocumentReference } from "firebase/firestore";
+import { Refresh_Balance_Thunk } from "./thunks/refresh/balance";
+import { Add_Address_Book, Remove_Address_Book, Set_Address_Book } from "./thunks/addressbook";
+import { Add_Notes_Thunk } from "./thunks/notes";
 
 export interface ITasking {
     taskId: string,
@@ -70,7 +74,9 @@ export interface IRemoxData {
     darkMode: boolean,
     organizations: IOrganizationORM[],
     isFetching: boolean;
+    IsInit: boolean;
     balances: IPrice;
+    addressBook: IAddressBook[];
     tags: ITag[],
     nfts: IFormattedTransaction[],
     stats: ISpendingResponse | null; // +
@@ -106,6 +112,8 @@ export interface IRemoxData {
 const init = (): IRemoxData => {
     return {
         coins: {},
+        IsInit: false,
+        addressBook: [],
         credentials: {
             address: "",
             password: "",
@@ -327,6 +335,9 @@ const remoxDataSlice = createSlice({
 
         builder.addCase(Create_Account_For_Organization.fulfilled, (state, action) => {
             state.accounts = [...state.accounts, action.payload];
+            if (state.storage?.organization) {
+                state.storage.organization.accounts = [...state.storage.organization.accounts, (action.payload as IAccount | DocumentReference)] as any;
+            }
         })
 
         builder.addCase(Remove_Account_From_Individual.fulfilled, (state, action) => {
@@ -387,6 +398,37 @@ const remoxDataSlice = createSlice({
         })
 
 
+        //******************************************* */
+
+        builder.addCase(Refresh_Balance_Thunk.fulfilled, (state, action) => {
+            state.balances = action.payload.AllPrices;
+        })
+
+
+        /************ */
+        builder.addCase(Add_Address_Book.fulfilled, (state, action) => {
+            state.addressBook = [...state.addressBook, action.payload];
+        })
+
+        builder.addCase(Remove_Address_Book.fulfilled, (state, action) => {
+            state.addressBook = state.addressBook.filter(s => s.id !== action.payload.id);
+        })
+
+        builder.addCase(Set_Address_Book.fulfilled, (state, action) => {
+            state.addressBook = action.payload
+        })
+
+
+        builder.addCase(Add_Notes_Thunk.fulfilled, (state, action) => {
+            if (state.storage?.organization) {
+                state.storage.organization.notes = [...state.storage.organization.notes, action.payload]
+            } else if (state.storage?.individual) {
+                state.storage.individual.notes = [...state.storage.individual.notes, action.payload]
+            }
+        })
+
+
+
         //*****************************************************************************************
         // REFRESH
 
@@ -416,7 +458,9 @@ const remoxDataSlice = createSlice({
         /* Launch */
 
         builder.addCase(launchApp.pending, (state, action) => {
-            state.isFetching = true;
+            if (!state.IsInit) {
+                state.isFetching = true;
+            }
         });
         builder.addCase(launchApp.fulfilled, (state, action) => {
             state.coins = action.payload.Coins.reduce<Coins>((acc, coin) => {
@@ -440,7 +484,8 @@ const remoxDataSlice = createSlice({
             state.balances = action.payload.Balance.AllPrices;
             state.recurringTasks = action.payload.RecurringTasks;
             state.nfts = action.payload.NFTs;
-
+            state.IsInit = true;
+            state.addressBook = action.payload.Storage?.individual?.addressBook ?? []
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
                 multisigTxs: action.payload.multisigAccounts.multisigTxs,
@@ -480,7 +525,7 @@ export const {
     setAccounts, removeStorage, setIndividual, setOrganization, setStorage,
     addMemberToContributor, removeMemberFromContributor, setProviderAddress, addTxToList, changeImage,
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget, setCredentials,
-    updateAllCurrencies, updateTotalBalance, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget,
+    updateAllCurrencies, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget, removeConfirmation,
     AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
     Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name,
 } = remoxDataSlice.actions;

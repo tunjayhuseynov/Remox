@@ -51,7 +51,7 @@ export default async function handler(
             const multisigReq = axios.get<IAccountMultisig>(BASE_URL + "/api/multisig", {
                 params: {
                     id,
-                    accountId: account.id,
+                    accountId: accountId,
                     blockchain: account.blockchain,
                     Skip: 0,
                     Take: 10

@@ -14,15 +14,15 @@ const config: ToastOptions = {
     className: "dark:bg-darkSecond",
 }
 
-export function ToastRun(textElement: JSX.Element, type: Type = "success") {
+export function ToastRun(textElement: JSX.Element | string, type: Type = "success") {
     if (type === "error") {
-        toast.error(textElement, config);
+        toast.error(typeof textElement === "string" ? <>{textElement}</> : textElement, config);
     } else if (type === "success") {
-        toast.success(textElement, config);
+        toast.success(typeof textElement === "string" ? <>{textElement}</> : textElement, config);
     } else if (type === "warning") {
-        toast.warning(textElement, config);
+        toast.warning(typeof textElement === "string" ? <>{textElement}</> : textElement, config);
     }
     else if (type === "info") {
-        toast.info(textElement, config);
+        toast.info(typeof textElement === "string" ? <>{textElement}</> : textElement, config);
     }
 }

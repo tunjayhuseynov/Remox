@@ -25,6 +25,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import SingleRequestModal from "./Modals/SingleRequestModal";
 import { GetFiatPrice } from "utils/const";
+import { fiatList } from "components/general/PriceInputField";
 
 
 const RequestedUserItem = ({
@@ -58,6 +59,8 @@ const RequestedUserItem = ({
   const { GetCoins, SendTransaction } = useWalletKit();
   const userId = useAppSelector(SelectID);
   const owners = useAppSelector(SelectOwners)
+  const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
+  const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
 
   const owner = owners.find((owner) => owner.address === request.address)
 
@@ -152,10 +155,7 @@ const RequestedUserItem = ({
     <>
       <tr
         ref={divRef}
-        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : ""}  ${detect
-          ? "grid-cols-[25%,20.5%,19.5%,21%,14%] sm:grid-cols-[25%,20.5%,19.5%,21%,14%]"
-          : "grid-cols-[27%,48%,25%]"
-          } `}
+        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : ""}  grid-cols-[25%,20.5%,25.5%,15%,14%]`}
       >
         <td className="flex overflow-hidden">
           <div className="flex items-center ml-2 mr-3">
@@ -245,7 +245,7 @@ const RequestedUserItem = ({
             className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"
               } items-start `}
           >
-            <div className="font-medium text-lg  ">
+            <div className="font-medium text-sm  ">
               {
                 <span>
                   {request.fullname}
@@ -261,40 +261,46 @@ const RequestedUserItem = ({
         </td>
         <td className="flex h-full items-center ">
           {request.serviceDate && (
-            <div className="flex text-greyish dark:text-white tracking-wide text-lg font-medium">
+            <div className="flex dark:text-white tracking-wide text-sm font-medium">
               {dateFormat(new Date(request!.serviceDate * 1000), `dd/mm/yyyy`)}
             </div>
           )}
         </td>
-        <td className="flex flex-col justify-center">
-          <div>
-           <div className="flex items-center ">
-            {request.fiat ? <div className=""> 
-                <span className="text-base">{request.amount} {request.fiat} as </span> 
-                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+        <td className="flex flex-col justify-center text-sm">
+           <div className="flex items-center">
+            {request.fiat ? <div className="flex items-center justify-between w-full pr-32"> 
+                <span className="">{request.amount} </span> 
+                <div className="flex items-center">
+                  <img src={fiatFirst?.logo} alt="" className="mr-2 w-5 h-3" />
+                  <span>{request.fiat} as</span>
+                  <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" />
+                </div>
               </div> :
               <div className="flex items-center">
                 <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                <span className="text-base">{request.amount}</span>
+                <span className="">{request.amount}</span>
               </div>
             }
             </div>
-            {(request.secondCurrency && request.secondAmount) && <div className="flex items-center gap-1 mt-2">
-            {request.fiatSecond ? 
-            <div className="flex items-center justify-end gap-1"> 
-              <span className="text-base">{request.secondAmount} {request.fiatSecond} as </span> 
-              <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-            </div> :
-              <div className="flex items-center">
-                <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                <span className="text-base">{request.secondAmount}</span>
-              </div>
-            }
-            </div>}
-
-          </div>
+            {(request.secondCurrency && request.secondAmount) && 
+              <div className="flex items-center gap-1 mt-3">
+                {request.fiatSecond ? 
+                  <div className="flex items-center justify-end"> 
+                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                    <div className="flex items-center space-x-2">
+                      <span>based on</span>
+                      <img src={fiatSecond?.logo} alt="" className="w-5 h-3" />
+                      <span className="">{request.fiatSecond} {request.secondAmount}</span> 
+                    </div>
+                  </div> :
+                  <div className="flex items-center">
+                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                    <span className="">{request.secondAmount}</span>
+                  </div>
+                }
+              </div>}
         </td>
-        <td className="items-center flex text-lg font-medium ">
+        <td className="items-center flex text-sm font-medium ">
           {request.requestType}
         </td>
         <td className="flex justify-end cursor-pointer items-center md:pr-0 ">

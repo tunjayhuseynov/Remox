@@ -1,14 +1,17 @@
-//TODO: 1. Edit Budget duzelmelidi, Subbudget ucun budget coinlere esasen limitler qoyulmalidi
++++++++++++++++++ 1. Edit Budget duzelmelidi, Subbudget ucun budget coinlere esasen limitler qoyulmalidi
++++++++++++++++++ 3. Tranasction Export All
++++++++++++++++++ 5. QR meselesini elave ele
++++++++++++++++++ 7. Task needs to be in backend not front end
+++++++++++++++++++6. Fiat Money preference
+++++++++++++++++++11. Fiat Price changable
+
 //TODO: 2. Tag (Expension Label) in Budget detail
-             ++++++++++ 3. Tranasction Export All
+
+
 4. Historical Price => Token Calculation
-             ++++++++++ 5. QR meselesini elave ele
-6. Fiat Money preference
-             ++++++++++ 7. Task needs to be in backend not front end
 8. Blockchain Type Firebase'e dusmemelidi
 //TODO: 9. Notification hissesini Elave ele
 10. Remove_Account_From_Individual => can be found more fastest way
-11. Fiat Price changable
 12. Usd base valuelar api'dan gelmemelidi, frontda cevrilmelidi
 //TODO: 13. Budgetda current month ve overall'u hell elemek lazimdir
 //TODO: 14. Budgetda Share Link meselesi hell olunmalidi
@@ -32,3 +35,5 @@
 //TODO: 33. Add owner, remove owner ucun pending owner listi yarat
 34. rpcHooks folderinde useRequst
 35. rename contributors to workstreams
+36. Add owner remove owner execute edende databazadan meseleni hell ele
+37. Chain Detection

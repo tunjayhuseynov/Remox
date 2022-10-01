@@ -91,7 +91,7 @@ const SingleTransactionItem = ({
 
   return (
     <>
-      <tr className="pl-5 grid grid-cols-[12.5%,repeat(6,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
+      <tr className="pl-5 grid grid-cols-[8.5%,20%,18%,repeat(4,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
         <td className="text-left">
           <div className="relative inline">
             <span className="font-semibold">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
@@ -126,7 +126,7 @@ const SingleTransactionItem = ({
               />
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-semibold text-left">
+              <span className="font-semibold text-left text-sm">
                 {action}
               </span>
               <span className="text-xs text-gray-200">
@@ -170,13 +170,13 @@ const SingleTransactionItem = ({
         <td className="text-left flex flex-col">
           <div className="flex flex-col">
             {
-              transaction.tags?.map(tag => <div className="flex space-x-5">
+              transaction.tags?.map(tag => <div key={tag.id} className="flex space-x-5">
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></div>
                 <span className="text-xs">{tag.name}</span>
               </div>)
             }
             {uniqTags.length > 0 && (!isLabelActive ? <div>
-              <span className="text-primary cursor-pointer" onClick={() => setLabelActive(true)}>
+              <span className="text-primary cursor-pointer text-sm" onClick={() => setLabelActive(true)}>
                 + Add Label
               </span>
             </div> :
@@ -192,9 +192,9 @@ const SingleTransactionItem = ({
             }
           </div>
         </td>
-        <td className="text-left w-[66%]">
+        <td className="text-left w-[85%]">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-3 mb-2">
               <div className="flex space-x-1 items-center font-semibold">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
                 <div className=" lg:text-xs 2xl:text-base">Approved</div>

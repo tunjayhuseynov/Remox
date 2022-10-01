@@ -193,8 +193,8 @@ export default function DynamicRequest({
         </Modal>
         <table className="w-full pt-4 pb-6 mt-5">
           <thead>
-            <tr className="grid grid-cols-[25%,20.5%,19.5%,21%,14%] mb-5 font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md  ">
-              <th className="flex items-center space-x-1 pl-2">
+            <tr className="overflow-hidden grid grid-cols-[25%,20.5%,25.5%,15%,14%] items-center mb-5 font-semibold tracking-wide bg-[#F2F2F2] shadow-15  dark:bg-darkSecond rounded-md  ">
+              <th className="flex py-3 items-center space-x-1 pl-2">
                 {page !== RequestStatus.rejected && (
                   <Checkbox
                     sx={{ "&.Mui-checked": { color: "#ff7348" } }}
@@ -218,45 +218,45 @@ export default function DynamicRequest({
                     }}
                   />
                 )}
-                <span className="text-lg  font-semibold text-greylish dark:text-[#aaaaaa] pl-2">
+                <span className="text-sm font-semibold text-greylish dark:text-[#aaaaaa] pl-2">
                   Name
                 </span>
               </th>
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className="text-sm py-3 text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Request date
               </th>
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className="text-sm py-3 text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Requested Amount
               </th>
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className="text-sm py-3 text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Requests Type
               </th>
+              <th>
               {page === RequestStatus.pending &&
                 selectedpPendingRequests.length > 0 && (
-                  <th>
                     <Button
-                      className="text-sm font-medium !py-1 !px-2"
+                      className="text-sm !py-1 border-none !my-0 !px-2"
                       onClick={() => {
                         setNotify2(true);
                       }}
                     >
                       Approve Selected
                     </Button>
-                  </th>
                 )}
-              {page === RequestStatus.approved &&
+                </th>
+              <th>
+                {page === RequestStatus.approved &&
                 selectedApprovedRequests.length > 0 && (
-                  <th>
                     <Button
-                      className="text-sm font-medium !py-1 w-[80%] !px-0 ml-4"
+                      className="text-sm !py-1 border-none !my-0 !px-2"
                       onClick={() => {
                         setNotify(true);
                       }}
                     >
                       Pay selected
                     </Button>
-                  </th>
                 )}
+              </th>
             </tr>
             {requestsList.map((request) => {
               const coin1 = Object.values(GetCoins).find(

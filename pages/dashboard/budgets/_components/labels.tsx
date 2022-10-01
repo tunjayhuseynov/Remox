@@ -1,7 +1,7 @@
 import React from 'react'
-import {ProgressBarWidth} from '../../../utils'
+import { ProgressBarWidth } from 'utils'
 
-function Labels({ item }: { item: {id: number,color: string,name: string,coinUrl:string,used: string,pending: string,progressbar: number,}}) {
+function Labels({ item }: { item: { id: number, color: string, name: string, coinUrl: string, used: string, pending: string, progressbar: number, } }) {
     return <>
         <div className=" border-b py-4 w-full flex justify-between items-center">
             <div className="text-greylish flex items-center gap-1 w-[15%]"><span className={` ${item.color}  p-2 bg-primary rounded-full`}></span>{item.name}</div>

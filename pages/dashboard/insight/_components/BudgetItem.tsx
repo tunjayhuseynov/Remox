@@ -8,7 +8,7 @@ function BudgetItem({ budget, box, id, setNotify2 }: { budget: IBudgets, box: bo
     const [openNotify, setNotify] = useState<boolean>(false)
 
     return <>
-      <Modal onDisable={setNotify} openNotify={openNotify} setNotify2={setNotify2} >
+        <Modal onDisable={setNotify} openNotify={openNotify} >
             <BudgetDetail budgets={budget} />
         </Modal>
         <div key={id} onClick={() => { !box && setNotify(!openNotify); !box && setNotify2(false) }} className={`w-full grid ${box ? 'px-5 grid-cols-[33%,33%,34%] py-2' : id === 4 && box ? 'hidden' : 'grid-cols-[15%,15%,10%,52.5%,7.5%] py-4'} cursor-pointer `}>

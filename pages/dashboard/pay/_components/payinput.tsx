@@ -59,6 +59,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     value={name ?? ""}
                     onInputChange={(e, v) => {
                         setName(v)
+                        setAddress(addressBook.find(s => s.name === v)?.address ?? address)
                     }}
                     renderInput={(params) => <TextField {...params} label="Receiver Name (Optional)" />}
                 />

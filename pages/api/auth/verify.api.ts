@@ -15,6 +15,10 @@ import { accountCollectionName, Get_Account_Ref } from "crud/account";
 import { DocumentReference } from "firebase/firestore";
 import { Blockchains } from "types/blockchains";
 import { useWalletKit } from "hooks";
+import axios from "axios";
+import { BASE_URL } from "utils/api";
+import { IMultisigOwners } from 'pages/api/multisig/owners.api'
+import { toChecksumAddress } from "web3-utils";
 
 async function handler(
     req: NextApiRequest,
@@ -29,23 +33,23 @@ async function handler(
 
         const { signature, publicKey, token, id } = req.query;
 
+        const key = toChecksumAddress(publicKey as string);
 
-
-        if (!signature || !publicKey) {
+        if (!signature || !key) {
             res.status(400).send({
                 error: 'Bad request - missing query'
             });
             return;
         }
 
-        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).get()
+        const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(key).get()
         const inds = ss.data() as IRegisteredIndividual | undefined;
 
         if (!inds) throw new Error("Individual not found");
 
         let password;
-        let mail = `${publicKey}Remox@gmail.com`;
-        
+        let mail = `${key}Remox@gmail.com`;
+
         if (inds.blockchain === "celo" || inds.blockchain.includes("evm")) {
             const msgBufferHex = bufferToHex(Buffer.from("Your nonce for signing is " + inds.nonce, 'utf8'));
             const address = recoverPersonalSignature({
@@ -54,7 +58,7 @@ async function handler(
             });
 
 
-            if (address.toLowerCase() !== (publicKey as string).toLowerCase()) {
+            if (address.toLowerCase() !== key.toLowerCase()) {
                 throw new Error("Invalid signature");
             }
 
@@ -62,108 +66,116 @@ async function handler(
         } else if (inds.blockchain === 'solana') {
             const msg = new TextEncoder().encode("Your nonce for signing is " + inds.nonce);
             const sg = new TextEncoder().encode(signature as string);
-            const isVerify = nachl.sign.detached.verify(msg, sg, new PublicKey(publicKey as string).toBuffer())
+            const isVerify = nachl.sign.detached.verify(msg, sg, new PublicKey(key).toBuffer())
             if (isVerify) password = inds.password
         }
 
         if (!password) throw new Error("Invalid password");
 
-        if (token && id) {
-
-            // const user = await FirestoreRead<IUser>("users", id as string)
-            const ss = await adminApp.firestore().collection("users").doc(id as string).get()
-            const user = ss.data() as IUser | undefined;
-            if (user) {
-                let name, surname, company, seenTime, created_date;
-                if (user.name) {
-                    name = decryptMessage(user.name, token as string);
-                }
-                if (user.surname) {
-                    surname = decryptMessage(user.surname, token as string);
-                }
-                if (user.companyName) {
-                    company = decryptMessage(user.companyName, token as string);
-                }
-                seenTime = user.seenTime;
-                created_date = user.timestamp;
-
-                const contributors = await adminApp.firestore().collection("contributors").where("userId", "==", id as string).get()
-                // const contributors = await FirestoreReadMultiple<IuseContributor>("contributors", [
-                //     {
-                //         condition: "==",
-                //         firstQuery: "userId",
-                //         secondQuery: id as string,
-                //     }
-                // ])
-
-                for (const doc of contributors.docs) {
-                    const con = doc.data() as IContributor;
-                    adminApp.firestore().collection("contributors").doc(con.id).update({
-                        ...con,
-                        members: con.members.map(m => ({
-                            ...m,
-                            address: decryptMessage(m.address, token as string),
-                            amount: decryptMessage(m.amount.toString(), token as string),
-                            name: decryptMessage(m.name, token as string),
-                            secondaryAmount: m.secondaryAmount ? decryptMessage(m.secondaryAmount.toString(), token as string) : null,
-                        }))
-                    });
-                }
-
-                let accounts: IAccount[] = user.address.map(s => ({
-                    id: s,
-                    image: null,
-                    signerType: "single",
-                    provider: null,
-                    blockchain: Blockchains.find(b => b.name === "celo")!.name,
-                    createdBy: id as string,
-                    address: s,
-                    name: "",
-                    mail: null,
-                    members: [],
-                    created_date: GetTime(),
-                }))
-
-                const accountRef: DocumentReference[] = [];
-                for (const account of accounts) {
-                    const res = await adminApp.firestore().collection(accountCollectionName).doc(account.id).set(account);
-                    accountRef.push(Get_Account_Ref(account.id));
-                }
-
-
-                let individual: IIndividual = {
-                    seenTime,
-                    accounts: accountRef,
-                    members: [
-                        ...user.address
-                    ],
-                    budget_execrises: [],
-                    created_date,
-                    id: user.id,
-                    fiatMoneyPreference: "USD",
-                    image: null,
-                    name: (name ?? `Remox User #${Math.round(Math.random() * 1000)}`),
-                }
-                for (let exercise of individual.budget_execrises) {
-                    exercise = Get_Budget_Exercise_Ref(exercise.id);
-                }
-
-                await adminApp.firestore().collection(individualCollectionName).doc(individual.id).set(individual);
-                await adminApp.firestore().collection("users").doc(id as string).delete();
-            }
-        }
-
         const nonce = Math.round(Math.random() * 10000000);
-        await adminApp.firestore().collection(registeredIndividualCollectionName).doc(publicKey as string).update({
+        await adminApp.firestore().collection(registeredIndividualCollectionName).doc(key).update({
             ...inds,
             nonce
         })
 
 
         // This algo is for finding the individual which belongs to this public key and get its real mail and password
-        const findWhichIndividual = await adminApp.firestore().collection(individualCollectionName).where("members", "array-contains", publicKey as string).get()
+        const findWhichIndividual = await adminApp.firestore().collection(individualCollectionName).where("members", "array-contains", key).get()
         if (!findWhichIndividual.empty) {
             const getIndividual = findWhichIndividual.docs[0].data() as IIndividual;
+
+            if (!getIndividual?.notes) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    notes: []
+                })
+                getIndividual["notes"] = [];
+            }
+
+            if (!getIndividual?.pendingMembers) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    pendingMembers: []
+                })
+                getIndividual["pendingMembers"] = [];
+            }
+
+            if (!getIndividual?.pendingMembersObjects) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    pendingMembersObjects: []
+                })
+                getIndividual["pendingMembersObjects"] = [];
+            }
+
+            if (!getIndividual?.removableMembers) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    removableMembers: []
+                })
+                getIndividual["removableMembers"] = [];
+            }
+
+            if (!getIndividual?.removableMembersObjects) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    removableMembersObjects: []
+                })
+                getIndividual["removableMembersObjects"] = [];
+            }
+
+            if (getIndividual.pendingMembersObjects.length > 0) {
+                for (const pendingMember of getIndividual.pendingMembersObjects) {
+                    const accountRef = await adminApp.firestore().collection("accounts").doc(pendingMember.accountId).get()
+                    const account = accountRef.data() as IAccount;
+                    const { data: owners } = await axios.get<IMultisigOwners>(BASE_URL + "/api/multisig/owners", {
+                        params: {
+                            blockchain: account.blockchain,
+                            address: account.address,
+                            providerName: account.provider,
+                        }
+                    })
+                    if (owners.owners.includes(pendingMember.member) && !account.members.find(s => s.address.toLowerCase() === pendingMember.member.toLowerCase())) {
+                        const newMembers = [...account.members, pendingMember.memberObject];
+                        await adminApp.firestore().collection("accounts").doc(pendingMember.accountId).update({
+                            members: newMembers
+                        })
+                        await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                            pendingMembersObjects: getIndividual.pendingMembersObjects.filter(s => s.member !== pendingMember.member && s.accountId !== pendingMember.accountId),
+                            pendingMember: getIndividual.pendingMembers.filter(s => s.toLowerCase() !== pendingMember.member.toLowerCase())
+                        })
+                    } else if (owners.owners.includes(pendingMember.member) && account.members.find(s => s.address.toLowerCase() === pendingMember.member.toLowerCase())) {
+                        await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                            pendingMembersObjects: getIndividual.pendingMembersObjects.filter(s => s.member !== pendingMember.member && s.accountId !== pendingMember.accountId),
+                            pendingMember: getIndividual.pendingMembers.filter(s => s.toLowerCase() !== pendingMember.member.toLowerCase())
+                        })
+                    }
+                }
+            }
+            if (getIndividual.removableMembersObjects.length > 0) {
+                for (const removableMember of getIndividual.removableMembersObjects) {
+                    const accountRef = await adminApp.firestore().collection("accounts").doc(removableMember.accountId).get()
+                    const account = accountRef.data() as IAccount;
+                    const { data: owners } = await axios.get<IMultisigOwners>(BASE_URL + "/api/multisig/owners", {
+                        params: {
+                            blockchain: account.blockchain,
+                            address: account.address,
+                            providerName: account.provider,
+                        }
+                    })
+                    if (!owners.owners.includes(removableMember.member) && account.members.find(s => s.address.toLowerCase() === removableMember.member.toLowerCase())) {
+                        const newMembers = account.members.filter(s => s.address.toLowerCase() !== removableMember.member.toLowerCase());
+                        await adminApp.firestore().collection("accounts").doc(removableMember.accountId).update({
+                            members: newMembers
+                        })
+                        await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                            removableMembersObjects: getIndividual.pendingMembersObjects.filter(s => s.member !== removableMember.member && s.accountId !== removableMember.accountId),
+                            removableMembers: getIndividual.pendingMembers.filter(s => s.toLowerCase() !== removableMember.member.toLowerCase()),
+                        })
+                    } else if (!owners.owners.includes(removableMember.member) && !account.members.find(s => s.address.toLowerCase() === removableMember.member.toLowerCase())) {
+                        await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                            removableMembersObjects: getIndividual.pendingMembersObjects.filter(s => s.member !== removableMember.member && s.accountId !== removableMember.accountId),
+                            removableMembers: getIndividual.pendingMembers.filter(s => s.toLowerCase() !== removableMember.member.toLowerCase()),
+                        })
+                    }
+                }
+            }
+
             if (getIndividual.members.length === 0) throw new Error("No member in individual");
             const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(getIndividual.members[0] as string).get()
             mail = `${getIndividual.members[0]}Remox@gmail.com`;

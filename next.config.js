@@ -2,6 +2,9 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const nextConfig = {
+  env: {
+    ROOT: __dirname,
+  },
   async headers() {
     return [
       {
@@ -16,7 +19,7 @@ const nextConfig = {
       },
     ]
   },
-  reactStrictMode: true,
+  reactStrictMode: false,
   // webpack5: true,
   // swcMinify: true,
   pageExtensions: ['page.tsx', 'page.ts', 'api.tsx', 'api.ts'],

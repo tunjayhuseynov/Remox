@@ -49,9 +49,9 @@ const Home = () => {
         await Connect()
       }
       else if (address) {
-        // Kohne userleri unlock sehfesine yonlendirmek ucundur
-        const user = await isOldUser(address)
-        if (user) return navigate.push("/unlock")
+        // // Kohne userleri unlock sehfesine yonlendirmek ucundur
+        // const user = await isOldUser(address)
+        // if (user) return navigate.push("/unlock")
         await processSigning(address);
         if (auth.currentUser === null) return;
         dispatch(setProviderAddress(address));
@@ -65,7 +65,6 @@ const Home = () => {
         else {
           navigate.push('/create-account')
         }
-
       }
     } catch (error) {
       console.error(error)

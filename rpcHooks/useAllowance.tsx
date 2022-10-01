@@ -2,23 +2,24 @@ import { useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { toWei } from 'utils/ray'
 import Web3 from 'web3'
-import ERC20 from 'rpcHooks/ABI/erc20.json'
+import ERC20 from 'rpcHooks/ABI/ERC.json'
 import { AbiItem } from './ABI/AbiItem'
+import { AltCoins } from 'types'
 
 export default function useAllowance() {
     // const { kit, address } = useContractKit()
     const [loading, setLoading] = useState(false)
 
-    const allow = async (address: string, contractAddress: string, spender: string, etherAmount: string) => {
+    const allow = async (address: string, coin: AltCoins, spender: string, etherAmount: string, payer: string) => {
         setLoading(true)
         try {
 
             const web3 = new Web3((window as any).celo)
 
-            const contract = new web3.eth.Contract(ERC20 as AbiItem[], contractAddress)
+            const contract = new web3.eth.Contract(ERC20 as AbiItem[], coin.address)
             const allowance = await contract.methods.allowance(address, spender).call()
-            const amount = new BigNumber(toWei(etherAmount))
-            const approve = await contract.methods.approve(spender, amount.plus(allowance).toString()).send({ from: address, gas: 300000, gasPrice: "500000000" })
+            const amount = new BigNumber(etherAmount).multipliedBy(new BigNumber(10).pow(coin.decimals))
+            const approve = await contract.methods.approve(spender, amount.plus(allowance).toString()).send({ from: payer, gas: 300000, gasPrice: "500000000" })
             // const tokenContract = await kit.contracts.getErc20(contractAddress)
 
 

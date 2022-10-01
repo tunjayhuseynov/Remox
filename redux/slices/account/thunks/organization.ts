@@ -9,6 +9,7 @@ import { generate } from "shortid";
 import { BlockchainType } from "types/blockchains";
 import { IOrganizationORM } from "types/orm";
 import { GetTime } from "utils";
+import { toChecksumAddress } from "web3-utils";
 import { setAccountType, setProviderID, setStorage } from "../remoxData";
 import { CreateTag } from "./tags";
 
@@ -33,11 +34,16 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         accounts: [
             // account
         ],
+        notes: [],
         priceCalculation: "current",
         moderators: [],
         budget_execrises: [],
         image: image,
-        members: [address],
+        members: [toChecksumAddress(address)],
+        pendingMembers: [],
+        removableMembers: [],
+        pendingMembersObjects: [],
+        removableMembersObjects: [],
         fiatMoneyPreference: "USD",
         name: name,
         id,
@@ -80,8 +86,12 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
 
 
 export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], string>("remoxData/get_organizations", async (id, api) => {
-    const response = await Get_Organizations(id);
-
+    // const response = await Get_Organizations(id);
+    const { data: response } = await axios.get<IOrganization[]>("/api/organization/all", {
+        params: {
+            address: id
+        }
+    })
     // let organizations: IOrganization[] = [];
 
     // const accounts = await Promise.all(response.map(s => {

@@ -69,14 +69,14 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                         <div className={`${selectClass} flex flex-col items-center `}>
                             <div className="flex items-center">
                                 {(loading || internalLaoding) && <span><Loader size={16} /></span>}
-                                {selected.coinUrl && (!loading && !internalLaoding) && <img className="w-6 h-6 mr-2" src={`${selected.coinUrl}`} />}
-                                {selected.logoUrl && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2" src={`${selected.logoUrl}`} />}
-                                {selected.logoURI && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2" src={`${selected.logoURI}`} />}
-                                {selected.image && (!loading && !internalLaoding) && <img className="w-10 h-10 mr-2 rounded-full" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
+                                {selected.coinUrl && (!loading && !internalLaoding) && <img className="w-6 h-6 mr-2 rounded-full object-cover" src={`${selected.coinUrl}`} />}
+                                {selected.logoUrl && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2 rounded-full object-cover" src={`${selected.logoUrl}`} />}
+                                {selected.logoURI && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2 rounded-full object-cover" src={`${selected.logoURI}`} />}
+                                {selected.image && (!loading && !internalLaoding) && <img className="w-10 h-10 mr-2 rounded-full object-cover" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
                                 {(!loading && !internalLaoding) &&
                                     <div className={`${textContainerClass} flex flex-col items-start`}>
                                         <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
-                                        {selected.secondValue && <span className="text-left text-sm text-gray-500">{selected.secondValue}</span>}
+                                        {selected.secondValue && <span className={`${textClass} text-left text-sm text-gray-500`}>{selected.secondValue}</span>}
                                     </div>
                                 }
                             </div>

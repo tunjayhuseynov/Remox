@@ -1,74 +1,97 @@
 import dateFormat from "dateformat";
-import { DateInterval, IMember } from "types/dashboard/contributors";
+import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
 import { AddressReducer } from "utils";
 import { IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { Avatar } from "@mui/material";
 import useAsyncEffect from "hooks/useAsyncEffect";
-import { Dispatch, useState } from 'react'
-import { useAppSelector } from "redux/hooks";
-import { SelectBlockchain } from "redux/slices/account/selector";
-import Web3 from "web3";
-import { hexToNumberString } from "web3-utils";
+import { useState } from 'react'
+import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { DecimalConverter } from "utils/api";
+import { useContributors, useWalletKit } from "hooks";
+import { ToastRun } from "utils/toast";
+import { SelectAccounts, SelectProviderAddress, updateMemberFromContributor } from "redux/slices/account/remoxData";
+import useLoading from "hooks/useLoading";
+import { BiTrash } from "react-icons/bi";
+import Button from "components/button";
+import Modal from "components/general/modal";
 
 interface IProps {
     tx: IFormattedTransaction | ITransactionMultisig,
     members: IMember[],
-    selectMode: boolean,
-    reccuringState: [(IProps['tx'])[], Dispatch<(IProps['tx'])[]>],
-    memberState: [IMember[], Dispatch<IMember[]>],
 }
 
-const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IProps) => {
+const TeamItem = ({ tx, members }: IProps) => {
 
     const task = tx as IAutomationCancel | IAutomationTransfer
-    const blockchain = useAppSelector(SelectBlockchain)
+    const providerAddress = useAppSelector(SelectProviderAddress)
+    const { editMember } = useContributors()
+    const { SendTransaction } = useWalletKit()
+    const dispatch = useAppDispatch()
+    const accounts = useAppSelector(SelectAccounts)
 
-    const [streamId, setStreamId] = useState<string | null>(null)
+    const [deleteModal, setDeleteModal] = useState(false)
     const [member, setMember] = useState<IMember | null>(null)
 
     useAsyncEffect(async () => {
         const member = members.find(s => s.taskId?.toLowerCase() === task.hash.toLowerCase())
-        if (blockchain.name !== "solana" && member?.taskId) {
-            const web3 = new Web3(blockchain.rpcUrl);
-            setStreamId(hexToNumberString((await web3.eth.getTransactionReceipt(member.taskId)).logs[1].topics[1]))
+        if (member?.taskId) {
             setMember(member)
         }
     }, [])
-    const someFn = (s: IProps['tx']) => 'tx' in s ? (s.tx.address?.toLowerCase() === task.address.toLowerCase() && s.tx.hash?.toLowerCase() === task.hash.toLowerCase()) :
-        (s.address?.toLowerCase() === task.address.toLowerCase() && s.hash?.toLowerCase() === task.hash.toLowerCase())
 
-    const filterFn = (s: IProps['tx']) => 'tx' in s ? (s.tx.address?.toLowerCase() !== task.address.toLowerCase() && s.tx.hash?.toLowerCase() !== task.hash.toLowerCase()) :
-        (s.address?.toLowerCase() !== task.address.toLowerCase() && s.hash?.toLowerCase() !== task.hash.toLowerCase())
+
+
+    const cancel = async () => {
+        try {
+            const account = accounts.find(s => s.address.toLowerCase() === (tx as IAutomationCancel).address.toLowerCase())
+            if (!account) return ToastRun(<>Account not found</>, "error")
+
+            if (account.signerType === "single" && account.address.toLowerCase() !== providerAddress?.toLowerCase()) return ToastRun(<>Please, choose the wallet {account.address}</>, "warning")
+            if (account.signerType === "multi" && !account.members.find(s => s.address.toLowerCase() === providerAddress?.toLowerCase())) return ToastRun(<>The wallet you've chosen is not an owner of the account {account.address}</>, "warning")
+
+            await SendTransaction(account, [], {
+                cancelStreaming: true,
+                streamingIdDirect: (tx as IAutomationTransfer).streamId,
+            })
+
+            if (member) {
+                await editMember(member.teamId, member.id, {
+                    ...member,
+                    taskId: null,
+                    execution: ExecutionType.manual
+                })
+
+                dispatch(
+                    updateMemberFromContributor({
+                        id: member.teamId,
+                        member: {
+                            ...member,
+                            taskId: null,
+                            execution: ExecutionType.manual
+                        },
+                    })
+                );
+            }
+
+            ToastRun(<>Automations has been successfully stopped</>)
+        } catch (error) {
+            console.error(error)
+            ToastRun(<>Failed to stop automations</>, "error")
+        }
+
+    }
+
+    const [isLoading, Cancel] = useLoading(cancel)
+
 
     return <>
-        <tr className={`pl-5 grid ${selectMode ? "grid-cols-[5%,12.5%,repeat(5,minmax(0,1fr))]" : "grid-cols-[12.5%,repeat(5,minmax(0,1fr))]"} py-10 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom`}>
-            {selectMode && <td className="flex space-x-3 items-center">
-                <input type="checkbox" checked={reccuringState[0].some(someFn)} className="relative cursor-pointer max-w-[1.25rem] max-h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
-                    const members = [...reccuringState[0]]
-                    if (e.target.checked) {
-                        if (!members.some(someFn)) {
-                            members.push(tx)
-                            if (member) {
-                                memberState[1]([...memberState[0], member])
-                            }
-                            reccuringState[1](members)
-                        }
-                    } else {
-                        reccuringState[1](members.filter(filterFn))
-                        if (member) {
-                            memberState[1](memberState[0].filter(s => s.id === member.id))
-                        }
-                    }
-                }
-                } />
-            </td>}
+        <tr className={`pl-5 grid grid-cols-[15%,repeat(6,minmax(0,1fr))] py-10 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom`}>
             <td className="hover:cursor-pointer flex items-center gap-2">
                 <Avatar src={member?.image?.imageUrl} />
                 <div className="flex flex-col gap-1">
                     <div className="font-semibold text-base">
-                        {member?.name ?? AddressReducer(task.to)}
+                        {member?.fullname ?? AddressReducer(task.to)}
                     </div>
                     {member && <div className="text-greylish text-sm">{AddressReducer(task.to)}</div>}
                 </div>
@@ -95,8 +118,8 @@ const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IPro
                         <img src={task.coin.logoURI} width="15" height="15" alt="" className="rounded-full" />
                     </div>
                     <div className="font-semibold text-base">{member?.amount ?? DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
-                    {member?.usdBase ?
-                        <div>USD as {member.amount}</div> :
+                    {member?.fiat ?
+                        <div>{member.fiat} as {member.currency}</div> :
                         <div className="text-base font-semibold">
                             {task.coin.symbol}
                         </div>}
@@ -109,7 +132,23 @@ const TeamItem = ({ tx, members, selectMode, reccuringState, memberState }: IPro
             <td className="pl-[2px] hidden sm:flex items-center text-base">
                 {tx.tags.map(s => <div key={s.id}><div className="w-5 h-5 flex space-x-5" style={{ backgroundColor: s.color }} /> {s.name}</div>)}
             </td>
+            <td className="flex justify-center">
+                <BiTrash className="cursor-pointer hover:text-red-500" onClick={() => setDeleteModal(true)} />
+            </td>
         </tr>
+        {deleteModal &&
+            <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-6'}>
+                <div className="flex flex-col space-y-8 items-center px-5">
+                    <div className="text-2xl text-primary">Are you sure?</div>
+                    <div className="flex items-center justify-center text-xl">
+                        Your are about to delete this streaming payment
+                    </div>
+                    <div className="flex justify-center items-center space-x-4">
+                        <Button version="second" className="border-2  w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={() => { setDeleteModal(false) }}>No</Button>
+                        <Button className="w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={Cancel} isLoading={isLoading}>Yes</Button>
+                    </div>
+                </div>
+            </Modal>}
     </>
 }
 

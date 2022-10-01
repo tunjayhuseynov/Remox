@@ -12,7 +12,7 @@ interface IProps {
     visibility: boolean
 }
 
-const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibility }, ref) => {
+const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({ item, close, visibility }, ref) {
 
     const { GetCoins } = useWalletKit()
 
@@ -81,7 +81,7 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibil
                                                 <img src={GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.second.secondTotalUsedAmount)}</span>impacted on<span className="text-lg flex items-center gap-1">
                                                 <img src={GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full" alt="" />{SetComma(coin.second.secondTotalAmount)}</span>
                                         </div>
-                                        <div className=" rounded-xl relative w-full h-[1.2rem] flex    bg-greylish bg-opacity-40">
+                                        <div className=" rounded-xl relative w-full h-[1.2rem] flex bg-greylish bg-opacity-40">
                                             <div className="h-full bg-primary rounded-l-xl" style={usedSecondPercentStyle}></div>
                                             <div className="stripe-1 ml-2 object-cover h-full"></div>
                                             <div className="h-full bg-greylish bg-opacity-10 rounded-r-xl"></div>
@@ -104,26 +104,45 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(({ item, close, visibil
                                 </>}
                             </div>
                             {item.subbudgets.length > 0 && <>
-                                <div className="text-xl font-bold text-start pb-3">Subbudgets</div>
+                                <div className="text-xl font-bold text-start pb-3">Budget Labels</div>
                                 {item.subbudgets.map((item, id) => <div key={id}>
-                                    <div className=" border-b py-4 w-full flex justify-between items-center">
-                                        <div className="text-greylish w-[15%] font-semibold text-lg">{item.name}</div>
-                                        <div className="text-greylish flex items-start gap-1 text-sm">
-                                            <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
-                                            <span className="text-red-600">{item.budgetCoins.totalAmount}</span>
-                                            <span>/</span>
-                                            <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
-                                            <span className="text-greylish">{item.budgetCoins.totalUsedAmount}</span>
-                                            <span>/</span>
-                                            <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
-                                            <span className="text-greylish">{item.budgetCoins.totalPending}</span>
+                                    <div className="border-b py-4 w-full grid grid-cols-3 items-center">
+                                        <div className="text-greylish w-full font-semibold text-lg">{item.name}</div>
+                                        <div className='flex flex-col space-y-2 w-full'>
+                                            <div className="text-greylish flex items-start gap-1 text-sm">
+                                                <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-red-600 font-semibold">{item.budgetCoins.totalAmount}</span>
+                                                <span>/</span>
+                                                <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-greylish font-semibold">{item.budgetCoins.totalUsedAmount}</span>
+                                                <span>/</span>
+                                                <img src={GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-greylish font-semibold">{item.budgetCoins.totalPending}</span>
+                                            </div>
+                                            {item.budgetCoins.second && <div className="text-greylish flex items-start gap-1 text-sm">
+                                                <img src={GetCoins[item.budgetCoins.second.secondCoin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-red-600 font-semibold">{item.budgetCoins.second.secondTotalAmount}</span>
+                                                <span>/</span>
+                                                <img src={GetCoins[item.budgetCoins.second.secondCoin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-greylish font-semibold">{item.budgetCoins.second.secondTotalUsedAmount}</span>
+                                                <span>/</span>
+                                                <img src={GetCoins[item.budgetCoins.second.secondCoin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-greylish font-semibold">{item.budgetCoins.second.secondTotalPending}</span>
+                                            </div>}
                                         </div>
-                                        <div className="rounded-xl relative  h-[1rem] flex w-[20%] bg-greylish bg-opacity-40 overflow-hidden">
-                                            <div className="h-full bg-primary" style={ProgressBarWidth((((item.budgetCoins.totalUsedAmount ?? 0) + (item.budgetCoins.totalPending ?? 0)) * 100) / (item.budgetCoins.totalAmount ?? 1))}></div>
-                                            {/* <div className="stripe-1 ml-2 object-cover h-full" ></div> */}
-                                            {/* <div className=" h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
-                                        </div >
-                                    </div >
+                                        <div className='flex flex-col space-y-2 w-full'>
+                                            <div className="rounded-xl relative h-[1rem] flex w-full bg-greylish bg-opacity-40 overflow-hidden">
+                                                <div className="h-full bg-primary" style={ProgressBarWidth((((item.budgetCoins.totalUsedAmount ?? 0) + (item.budgetCoins.totalPending ?? 0)) * 100) / (item.budgetCoins.totalAmount ?? 1))}></div>
+                                                {/* <div className="stripe-1 ml-2 object-cover h-full" ></div> */}
+                                                {/* <div className=" h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
+                                            </div >
+                                            {item.budgetCoins.second && <div className="rounded-xl relative  h-[1rem] flex w-full bg-greylish bg-opacity-40 overflow-hidden">
+                                                <div className="h-full bg-primary" style={ProgressBarWidth((((item.budgetCoins.second.secondTotalUsedAmount ?? 0) + (item.budgetCoins.second.secondTotalPending ?? 0)) * 100) / (item.budgetCoins.second.secondTotalAmount ?? 1))}></div>
+                                                {/* <div className="stripe-1 ml-2 object-cover h-full" ></div> */}
+                                                {/* <div className=" h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
+                                            </div >}
+                                        </div>
+                                    </div>
                                 </div>
                                 )}
                             </>}

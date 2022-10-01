@@ -9,7 +9,7 @@ import { GokiSDK, GOKI_ADDRESSES, GOKI_IDLS, Programs } from '@gokiprotocol/clie
 import useSolanaProvider from "./useSolanaProvider";
 import { GetTime } from "utils";
 import { process } from "uniqid"
-import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk } from "redux/slices/account/thunks/account";
+import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Add_Member_To_Removing_List_Thunk, Add_Member_To_Pending_List_Thunk } from "redux/slices/account/thunks/account";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectAccounts, SelectBlockchain, SelectID, SelectOrganization, SelectProviderAddress, SelectRemoxAccount } from "redux/slices/account/remoxData";
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
@@ -50,7 +50,7 @@ import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction"
 import { MultisigProviders } from "types/blockchains";
 import { ISendTx } from "pages/api/payments/send/index.api";
 import axios from "axios";
-import { toChecksumAddress } from "web3-utils";
+import { hexToNumberString, toChecksumAddress } from "web3-utils";
 
 
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
@@ -312,30 +312,30 @@ export default function useMultisig() {
             const proxy = await new web3.eth.Contract(proxyABI as AbiItem[]).deploy({ data: proxyBytecode }).send({
                 from: selectedAddress,
                 gas: 1000000,
-                gasPrice: "5000000000",
+                gasPrice: "500000000",
             })
 
             const multisig = await new web3.eth.Contract(multiSigABI as AbiItem[]).deploy({ data: multiSigBytecode }).send({
                 from: selectedAddress,
                 gas: 1000000,
-                gasPrice: "5000000000",
+                gasPrice: "500000000",
             })
 
             proxyAddress = proxy.options.address;
-            const multisigAddress = multisig.options.address;
+            let multisigAddress = multisig.options.address;
 
-            const initData = multisig.methods.initialize(owners.map(s => s.address), new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
+            let initData = multisig.methods.initialize(owners.map(s => s.address), new BigNumber(sign), new BigNumber(internalSign)).encodeABI()
 
             await proxy.methods._setAndInitializeImplementation(multisigAddress, initData).send({
                 from: selectedAddress,
                 gas: 250000,
-                gasPrice: "5000000000",
+                gasPrice: "500000000",
             })
 
             await proxy.methods._transferOwnership(proxyAddress).send({
                 from: selectedAddress,
                 gas: 25000,
-                gasPrice: "5000000000",
+                gasPrice: "500000000",
             })
         }
 
@@ -476,14 +476,14 @@ export default function useMultisig() {
     }
 
 
-    const removeOwner = useCallback(async (multisigAddress: string, ownerAddress: string, provider: MultisigProviders, newInternalSign?: number) => {
+    const removeOwner = useCallback(async (account: IAccount, ownerAddress: string, provider: MultisigProviders, newInternalSign?: number) => {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
 
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
                     const tx = wallet.setOwners(wallet.data.owners.filter(o => o.toBase58().toLowerCase() !== ownerAddress.toLowerCase()))
                     const pending = await wallet.newTransactionFromEnvelope({ tx })
@@ -498,7 +498,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                 await contract.methods.removeOwner(ownerAddress).send({
                     from: selectedAddress,
@@ -519,7 +519,7 @@ export default function useMultisig() {
 
                 const safeSdk = await Safe.create({
                     ethAdapter,
-                    safeAddress: multisigAddress,
+                    safeAddress: account.address,
                     isL1SafeMasterCopy: false,
                 });
 
@@ -544,7 +544,7 @@ export default function useMultisig() {
                 const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
                 await safeService.proposeTransaction({
-                    safeAddress: multisigAddress,
+                    safeAddress: account.address,
                     safeTransactionData: safeTransaction.data,
                     safeTxHash,
                     senderAddress: senderAddress,
@@ -553,10 +553,9 @@ export default function useMultisig() {
             }
 
 
-            dispatch(Remove_Member_From_Account_Thunk({
-                accountAddress: multisigAddress,
+            dispatch(Add_Member_To_Removing_List_Thunk({
+                accountId: account.id,
                 memberAddress: ownerAddress,
-                remoxAccount: remoxAccount
             }))
 
             return true
@@ -605,12 +604,14 @@ export default function useMultisig() {
                         gas: 25000,
                         gasPrice: "5000000000",
                     }).on('confirmation', function (num: number, receipt: any) {
-                        dispatch(Add_Tx_To_TxList_Thunk({
-                            account: account,
-                            authId: selectedId,
-                            blockchain: blockchain,
-                            txHash: receipt.transactionHash,
-                        }))
+                        if (num > 23) {
+                            dispatch(Add_Tx_To_TxList_Thunk({
+                                account: account,
+                                authId: selectedId,
+                                blockchain: blockchain,
+                                txHash: receipt.transactionHash,
+                            }))
+                        }
                     });
                 }
 
@@ -702,12 +703,14 @@ export default function useMultisig() {
                         gas: 25000,
                         gasPrice: "5000000000",
                     }).on('confirmation', function (num: number, receipt: any) {
-                        dispatch(Add_Tx_To_TxList_Thunk({
-                            account: account,
-                            authId: selectedId,
-                            blockchain: blockchain,
-                            txHash: receipt.transactionHash,
-                        }))
+                        if (num > 23) {
+                            dispatch(Add_Tx_To_TxList_Thunk({
+                                account: account,
+                                authId: selectedId,
+                                blockchain: blockchain,
+                                txHash: receipt.transactionHash,
+                            }))
+                        }
                     });
                 } else if (provider === "GnosisSafe") {
                     if (!txServiceUrl) throw new Error("Tx service is not selected")
@@ -758,16 +761,17 @@ export default function useMultisig() {
                 }
 
                 // await Add_Member(newOwner, name, image, mail)
-                dispatch(Add_Member_To_Account_Thunk(
-                    {
-                        accountAddress: account.address,
-                        memberAddress: newOwner,
+                dispatch(Add_Member_To_Pending_List_Thunk({
+                    accountId: account.id,
+                    memberAddress: newOwner,
+                    memberObject: {
+                        id: nanoid(),
+                        address: newOwner,
                         name,
                         image,
                         mail,
-                        remoxAccount: remoxAccount
                     }
-                ))
+                }))
 
                 return true
             } catch (error) {
@@ -852,6 +856,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
+
                 const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                 const txHash = await contract.methods.submitTransaction(input.destination, "0", stringToSolidityBytes(input.data as string)).encodeABI()
@@ -867,24 +872,25 @@ export default function useMultisig() {
                 //         txHash: receipt.transactionHash,
                 //     }))
                 // })
-
                 const tx = await web3.eth.sendTransaction({
                     from: selectedAddress,
-                    to: input.destination,
+                    to: account.address,
                     value: "0",
                     data: txHash,
                     gas: 250000,
                     gasPrice: "5000000000",
                 }).on('confirmation', function (num: number, receipt: any) {
-                    dispatch(Add_Tx_To_TxList_Thunk({
-                        account: account,
-                        authId: selectedId,
-                        blockchain: blockchain,
-                        txHash: receipt.transactionHash,
-                    }))
+                    if (num > 23) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain,
+                            txHash: receipt.transactionHash,
+                        }))
+                    }
                 })
-
-                return tx.transactionHash;
+                console.log(tx)
+                return hexToNumberString(tx.logs[0].topics[1]);
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
                 const web3Provider = (window as any)?.celo;
@@ -1034,8 +1040,8 @@ export default function useMultisig() {
 
                 await contract.methods.revokeConfirmation(transactionId).send({
                     from: selectedAddress,
-                    gas: 25000,
-                    gasPrice: "5000000000",
+                    gas: 500000,
+                    gasPrice: "500000000",
                 })
 
 
@@ -1075,7 +1081,7 @@ export default function useMultisig() {
         }
     }
 
-    const confirmTransaction = async (multisigAddress: string, transactionId: string, providerName: MultisigProviders) => {
+    const confirmTransaction = async (multisigAddress: string, transactionId: string, providerName: MultisigProviders, isExecutable?: boolean) => {
         try {
             if (!selectedAddress) throw new Error("No address selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
@@ -1139,9 +1145,10 @@ export default function useMultisig() {
                 let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
                 await contract.methods.confirmTransaction(+transactionId).send({
                     from: selectedAddress,
-                    gas: 25000,
-                    gasPrice: "5000000000",
+                    gas: 500000,
+                    gasPrice: "500000000",
                 })
+
 
                 return { message: "success" }
             }
@@ -1172,8 +1179,8 @@ export default function useMultisig() {
 
                 const tx = await contract.methods.executeTransaction(+transactionId).send({
                     from: selectedAddress,
-                    gas: 25000,
-                    gasPrice: "5000000000",
+                    gas: 500000,
+                    gasPrice: "500000000",
                 })
                 return tx.transactionHash as string
             } else if (provider === "GnosisSafe") {

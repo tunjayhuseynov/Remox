@@ -41,13 +41,13 @@ function NewExercise() {
         try {
             if (!remoxAccountType) return ToastRun(<>Please. sign in first</>, "warning")
             if (!remoxAccount) throw new Error("No remox account found")
-            if (selectedPayment.name === "Custom period" && (!data.from || data.to)) throw new Error("Custom period has not been selected")
+            if (selectedPayment.name === "Custom period" && (!data.from || !data.to)) throw new Error("Custom period has not been selected")
             const fromDate = data.from ? new Date(data.from) : new Date(From);
             const toDate = data.to ? new Date(data.to) : new Date(To);
 
             await dispatch(Create_Budget_Exercise_Thunk({
                 budgetExercise: {
-                    blockchain,
+                    blockchain: blockchain.name,
                     budgets: [],
                     created_at: GetTime(),
                     from: GetTime(fromDate),
@@ -75,7 +75,7 @@ function NewExercise() {
             <span className="text-4xl pb-1">&#171;</span> Back
         </button>
         <form onSubmit={handleSubmit(submit)} className="w-1/2 mx-auto pt-10">
-            <div className="text-2xl text-center font-medium py-6">Define  of your budgetary exercise</div>
+            <div className="text-xl text-center font-medium py-6">Define  of your budgetary exercise</div>
             <div className="px-12 flex flex-col space-y-12">
                 <TextField type="text" {...register("name", { required: true })} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
                 <div>

@@ -39,9 +39,6 @@ export const Create_Budget_Exercise_Thunk = createAsyncThunk<void, ICreateExerci
     api.dispatch(addBudgetExercise({
         ...budgetExercise,
         budgets: [],
-        totalBudget: 0,
-        totalUsed: 0,
-        totalAvailable: 0,
         budgetCoins: [],
     }));
 })

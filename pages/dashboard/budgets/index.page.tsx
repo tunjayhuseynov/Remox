@@ -71,7 +71,7 @@ const Budgets = () => {
                     <span className={`text-xl group-hover:text-primary`}>Create Budget Cycle</span>
                 </div>
             </div>}
-            <div>
+            {hasExercises && <div>
                 <div className="inline-block text-xl relative">
                     <div className="relative w-full">
                         <div onClick={() => setOpen(!isOpen)} className={`w-full font-normal py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec flex items-center gap-2`}>
@@ -117,7 +117,7 @@ const Budgets = () => {
                         }
                     </AnimatePresence>
                 </div>
-            </div>
+            </div>}
             {hasExercises && selectedExercise && <>
                 <TotalExerciseData total={selectedExercise} />
                 <ExerciseBody exercise={selectedExercise} />

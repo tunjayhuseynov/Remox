@@ -24,7 +24,7 @@ const MoolaProxy = import("./ABI/MoolaProxy.json")
 const Moola = import("./ABI/Moola.json")
 const MoolaData = import("./ABI/MoolaData.json")
 const MoolaPriceOracle = import("./ABI/MoolaPriceOracle.json")
-const ERC20 = import("./ABI/erc20.json")
+const ERC20 = import("./ABI/ERC.json")
 
 export enum InterestRateMode {
     Stable = "1",
@@ -134,7 +134,7 @@ export default function useLending(account: IAccount) {
 
             const weiAmount = toWei(amount)
             const deposit = await moola.methods.deposit(asset, weiAmount, (account.address), 0)
-            await allow(account.address, asset, contractRef.current!, amount.toString())
+            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
             const res = await deposit.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei('0.5', 'gwei') })
 
             setLaoding(false)
@@ -178,7 +178,7 @@ export default function useLending(account: IAccount) {
 
             const weiAmount = toWei(amount)
             const withdraw = await moola.methods.withdraw(asset, weiAmount, account.address)
-            await allow(account.address, asset, contractRef.current!, amount.toString())
+            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
             const res = await withdraw.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
 
@@ -202,7 +202,7 @@ export default function useLending(account: IAccount) {
 
             const weiAmount = toWei(amount)
             const borrow = await moola.methods.borrow(asset, weiAmount, interestRateMode, 0, account.address)
-            await allow(account.address, asset, contractRef.current!, amount.toString())
+            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
             const res = await borrow.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash
@@ -225,7 +225,7 @@ export default function useLending(account: IAccount) {
 
             const weiAmount = toWei(amount)
             const repay = await moola.methods.repay(asset, weiAmount, interestRateMode, account.address)
-            await allow(account.address, asset, contractRef.current!, amount.toString())
+            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
             const res = await repay.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash

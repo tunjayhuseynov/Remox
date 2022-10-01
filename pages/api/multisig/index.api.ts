@@ -6,7 +6,7 @@ import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BlockchainType } from "types/blockchains";
 import { BASE_URL } from "utils/api";
-import { MultisigOwners } from "./owners.api";
+import { IMultisigOwners } from "./owners.api";
 import { IMultisigThreshold } from "./sign.api";
 import axiosRetry from 'axios-retry';
 
@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         axiosRetry(axios, { retries: 10 });
 
-        const ownersPromise = axios.get<MultisigOwners>(BASE_URL + "/api/multisig/owners", {
+        const ownersPromise = axios.get<IMultisigOwners>(BASE_URL + "/api/multisig/owners", {
             params: {
                 blockchain,
                 address: account.address,

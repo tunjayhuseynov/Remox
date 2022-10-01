@@ -4,7 +4,7 @@ import { IPaymentInput, ISwap, ISwapParam1inch } from "./index.api";
 import { DecimalConverter } from "utils/api";
 import { ethers } from "ethers";
 import nomAbi from "rpcHooks/ABI/nom.json";
-import ERC20 from "rpcHooks/ABI/erc20.json";
+import ERC20 from "rpcHooks/ABI/ERC.json";
 import Web3 from "web3";
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
 import axios from "axios";

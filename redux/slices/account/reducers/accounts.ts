@@ -35,7 +35,6 @@ export default {
         const account = state.accounts.find(s => s.id === action.payload.accountId)
         if (account && account.multidata) {
             account.multidata.txs.push(action.payload.tx);
-            account.totalValue += action.payload.usdValue
         }
     }
 }

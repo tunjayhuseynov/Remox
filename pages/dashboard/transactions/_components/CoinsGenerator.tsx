@@ -15,7 +15,9 @@ export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
 
     const date = new Date(timestamp)
     const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
-    const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price ?? fiatPrice
+    const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
+
+    const price = hpCoinPrice ? DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice : fiatPrice
 
     return <div className="flex space-x-3">
         <div className="w-[1.5rem] h-[1.5rem]">
@@ -31,7 +33,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
                 {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
             </span>
             <span className="text-xs text-gray-200">
-                {`${symbol}${(DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice).toFixed(0).length > 18 ? 0 : (DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice).toLocaleString()}`}
+                {`${symbol}${price.toFixed(0).length > 18 ? 0 : price.toLocaleString()}`}
             </span>
         </div>
     </div>

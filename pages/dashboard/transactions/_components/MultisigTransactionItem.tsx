@@ -18,7 +18,7 @@ import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
 import useLoading from 'hooks/useLoading';
-import { addConfirmation, changeToExecuted, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { addConfirmation, changeToExecuted, removeConfirmation, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Loader from 'components/Loader';
 import makeBlockie from 'ethereum-blockies-base64';
 
@@ -39,7 +39,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const dispatch = useAppDispatch();
 
 
-    const { executeTransaction, confirmTransaction } = useMultisig()
+    const { executeTransaction, confirmTransaction, revokeTransaction } = useMultisig()
 
     const confirmFn = async () => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
@@ -48,6 +48,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
             txid: tx.hashOrIndex,
+            provider: tx.provider
         }))
     }
 
@@ -58,11 +59,24 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
             txid: tx.hashOrIndex,
+            provider: tx.provider
+        }))
+    }
+
+    const revokeFn = async () => {
+        if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+        await revokeTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
+        dispatch(removeConfirmation({
+            contractAddress: tx.contractAddress,
+            ownerAddress: providerAddress,
+            txid: tx.hashOrIndex,
+            provider: tx.provider
         }))
     }
 
     const [executeFnLoading, ExecuteFn] = useLoading(executeFn)
     const [confirmFnLoading, ConfirmFn] = useLoading(confirmFn)
+    const [revokeFnLoading, RevokeFn] = useLoading(revokeFn)
 
 
     let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
@@ -111,7 +125,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     return (
         <>
-            <tr className="pl-5 grid grid-cols-[12.5%,repeat(6,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
+            <tr className="pl-5 grid grid-cols-[8.5%,20%,18%,repeat(4,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
                 <td className="text-left">
                     <div className="relative inline">
                         <span className="font-semibold">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
@@ -141,7 +155,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             />
                         </div>
                         <div className="flex flex-col text-left">
-                            <span className="font-semibold text-left">
+                            <span className="font-semibold text-left text-sm">
                                 {action}
                             </span>
                             <span className="text-xs text-gray-200">
@@ -192,7 +206,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </div>)
                         }
                         {uniqTags.length > 0 && (!isLabelActive ? <div>
-                            <span className="text-primary cursor-pointer" onClick={() => setLabelActive(true)}>
+                            <span className="text-primary cursor-pointer text-sm" onClick={() => setLabelActive(true)}>
                                 + Add Label
                             </span>
                         </div> :
@@ -208,9 +222,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         }
                     </div>
                 </td>
-                <td className="text-left w-[66%]">
+                <td className="text-left w-[85%]">
                     <div>
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
                                 <div className='lg:text-xs 2xl:text-base'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
@@ -230,24 +244,28 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </div>
                 </td>
                 <td className="text-left">
-                    <div className="flex justify-between pr-5 items-center h-full">
+                    <div className="flex justify-end space-x-3 pr-5 items-center h-full text-xs">
                         <div>
                             {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.isExecuted ? <></> :
                                 !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
-                                    <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                        <span className="tracking-wider" onClick={ConfirmFn}>
+                                    <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={ConfirmFn}>
+                                        <span className="tracking-wider" >
                                             {confirmFnLoading ? <Loader size={14} /> : "Sign"}
                                         </span>
                                     </div> :
                                     isApprovable ?
-                                        <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                            <span className="tracking-wider" onClick={ExecuteFn}>
+                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={ExecuteFn}>
+                                            <span className="tracking-wider" >
                                                 {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
-                                        <></>)
+                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={RevokeFn}>
+                                            <span className="tracking-wider" >
+                                                {executeFnLoading ? <Loader size={14} /> : "Revoke"}
+                                            </span>
+                                        </div>)
                                 :
-                                <div className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
+                                <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                     <span className="tracking-wider">
                                         You're not an owner
                                     </span>

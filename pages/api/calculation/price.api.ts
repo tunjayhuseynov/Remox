@@ -47,6 +47,8 @@ export default async function handler(
         const addresses = req.query["addresses[]"];
         const parsedAddress = typeof addresses === "string" ? [addresses] : addresses;
 
+        if(!parsedAddress) return res.json({AllPrices: {}});
+
         const fetchCurrenicesReq = await adminApp.firestore().collection(blockchain.currencyCollectionName).get();
         const fetchCurrenices = fetchCurrenicesReq.docs.map(s => s.data() as AltCoins)
 

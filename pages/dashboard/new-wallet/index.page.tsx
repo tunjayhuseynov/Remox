@@ -8,7 +8,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { auth, IAccount, IIndividual, Image, IMember, IOrganization } from 'firebaseConfig';
 import { GetTime } from 'utils';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectBlockchain, SelectID, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectBlockchain, SelectID, SelectIndividual, SelectProviderAddress, SelectRemoxAccount } from 'redux/slices/account/selector';
 import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
 import { generate } from 'shortid';
 import axios from 'axios';
@@ -16,6 +16,7 @@ import { ToastRun } from 'utils/toast';
 import useLoading from 'hooks/useLoading';
 import EditableAvatar from 'components/general/EditableAvatar';
 import { nanoid } from '@reduxjs/toolkit';
+import { launchApp } from "redux/slices/account/thunks/launch";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -31,6 +32,8 @@ function NewWalletModal() {
     const accountType = useAppSelector(SelectAccountType)
     const account = useAppSelector(SelectRemoxAccount)
     const blockchain = useAppSelector(SelectBlockchain)
+    const providerAddress = useAppSelector(SelectProviderAddress)
+    const individual = useAppSelector(SelectIndividual)
 
     const dispatch = useAppDispatch()
 
@@ -95,7 +98,7 @@ function NewWalletModal() {
                     type: type ?? "image"
                 };
             }
-   
+
             const contract = (await axios.get<{ owners: string[] }>("/api/multisig/owners", {
                 params: {
                     blockchain: blockchain.name,
@@ -123,18 +126,33 @@ function NewWalletModal() {
                 provider: selectedWalletProvider.name,
                 signerType: "multi"
             }
-
+            let org = Object.assign({}, account)
             if (accountType === "organization") {
                 await dispatch(Create_Account_For_Organization({
                     account: myResponse,
-                    organization: (account as IOrganization)
+                    organization: org as IOrganization
                 })).unwrap()
             } else if (accountType === "individual") {
                 await dispatch(Create_Account_For_Individual({
                     account: myResponse,
-                    individual: (account as IIndividual)
+                    individual: org as IIndividual
                 })).unwrap()
             }
+
+            await dispatch(launchApp({
+                accountType: accountType === "organization" ? "organization" : "individual",
+                addresses: [...(account?.accounts as IAccount[]), myResponse],
+                blockchain: blockchain,
+                id: account?.id ?? "",
+                storage: {
+                    lastSignedProviderAddress: providerAddress ?? "",
+                    signType: accountType === "organization" ? "organization" : "individual",
+                    uid: auth.currentUser.uid,
+                    individual: individual!,
+                    organization: accountType === "organization" ? (account as IOrganization) : null,
+                }
+            })).unwrap()
+
             ToastRun(<>Account is added successfully</>, "success")
             navigate.back();
         } catch (error) {

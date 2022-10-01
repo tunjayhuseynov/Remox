@@ -97,13 +97,12 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     },
   };
 
-  return <div className="flex items-center justify-center h-[80%] w-[80%] box-border xl:h-full xl:w-full bg-white dark:bg-darkSecond rounded-full">
+  return <div className="h-full w-full">
     <ReactApexChart
       options={options}
       series={series}
+      height={315}
       type={'area'}
-      height={350}
-      className={'w-full h-full rounded-full'}
     />
   </div>
 }

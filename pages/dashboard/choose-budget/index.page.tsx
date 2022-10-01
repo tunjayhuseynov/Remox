@@ -46,7 +46,7 @@ function ChooseBudget() {
         if (!page) return ToastRun(<>Page not found</>, "error")
         if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
         if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
-            ToastRun(<>You are not connected to the wallet you've selected</>, "warning")
+            ToastRun(<>You are not connected to the wallet you&apos;ve selected</>, "warning")
             return
         }
         if (selectedAccount.signerType === "multi" && !selectedAccount.members.find(s => s.address.toLowerCase() === address?.toLowerCase())) {

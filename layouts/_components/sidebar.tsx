@@ -49,6 +49,12 @@ const Sidebar = () => {
         onClick: () => void;
     }>()
 
+    useEffect(() => {   
+        if (currentOrganization) {
+            setItem(currentOrganization)
+        }
+    }, [currentOrganization])
+
     useEffect(() => {
         if (selectedAccountType === "individual") {
             setItem({
@@ -72,7 +78,8 @@ const Sidebar = () => {
                         list={organizationList}
                         selected={selectedItem}
                         setSelect={setItem as any}
-                        textClass={'!h-6'}
+                        className="text-sm"
+                        textClass={'!h-5 text-xs'}
                         sx={{ '.MuiSelect-select ': { paddingTop: '5px !important', paddingBottom: '5px !important', paddingLeft: '7px', maxHeight: '50px' } }}
                     />
                 </div>

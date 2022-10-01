@@ -43,35 +43,19 @@ export const storageSlice = createSlice({
             if (state.user) {
                 state.user.organization = action.payload
                 state.user.signType = "organization"
-                const val = localStorage.getItem("remoxUser")
-                if (val) {
-                    const data: IStorage = JSON.parse(val)
-                    data.organization = action.payload
-                    data.signType = "organization"
-                    localStorage.setItem("remoxUser", JSON.stringify(data))
-                }
             }
         },
         setIndividual: (state: IStorageContainer, action: { payload: IIndividual }) => {
             if (state.user) {
                 state.user.individual = action.payload
                 state.user.signType = "individual"
-                const val = localStorage.getItem("remoxUser")
-                if (val) {
-                    const data: IStorage = JSON.parse(val)
-                    data.individual = action.payload
-                    data.signType = "individual"
-                    localStorage.setItem("remoxUser", JSON.stringify(data))
-                }
             }
         },
         setStorage: (state: IStorageContainer, action: { payload: IStorage }) => {
-            localStorage.setItem("remoxUser", JSON.stringify(action.payload))
             const data: IStorage = action.payload
             state.user = data
         },
         removeStorage: (state: IStorageContainer) => {
-            localStorage.removeItem("remoxUser")
             state.user = null;
         }
     }

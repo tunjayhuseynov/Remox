@@ -1,7 +1,6 @@
 import { Fragment, useState, useMemo } from "react";
 import { useAppSelector } from "redux/hooks";
 import { IMember } from "types/dashboard/contributors";
-import AddStopModal from "pages/dashboard/streaming/_components/_buttons/_addStop";
 import Modal from "components/general/modal";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
@@ -116,17 +115,7 @@ const Automations = () => {
         <div className="w-full pt-4 pb-6 h-full">
           <table className="w-full">
             <thead>
-              <tr className={`pl-5 grid ${selectable ? "grid-cols-[5%,12.5%,repeat(5,minmax(0,1fr))]" : "grid-cols-[12.5%,repeat(5,minmax(0,1fr))]"} text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md`}>
-                {selectable && <div className="flex space-x-3 items-center">
-                  <input type="checkbox" checked={reccuringState[0].length === tasks.length} className="relative cursor-pointer max-w-[1.25rem] max-h-[1.25rem] checked:before:absolute checked:before:w-full checked:before:h-full checked:before:bg-primary checked:before:block" onChange={(e) => {
-                    if (reccuringState[0].length !== tasks.length) {
-                      reccuringState[1](tasks)
-                    } else {
-                      reccuringState[1]([])
-                    }
-                  }
-                  } />
-                </div>}
+              <tr className={`pl-5 grid grid-cols-[15%,repeat(6,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md`}>
                 <th className="py-3 self-center text-left">Name</th>
                 <th className="py-3 self-center text-left">Start Date</th>
                 <th className="py-3 self-center text-left">End Date</th>
@@ -136,7 +125,7 @@ const Automations = () => {
               </tr>
               {tasks.map((w) => {
                 const hash = 'tx' in w ? w.tx.hash : w.hash;
-                return <Fragment key={hash}> <TeamItem tx={w} members={members} selectMode={selectable} reccuringState={reccuringState} memberState={memberState} /> </Fragment>
+                return <Fragment key={hash}> <TeamItem tx={w} members={members}  /> </Fragment>
               })}
               {
                 tasks.length === 0 && (
@@ -149,17 +138,6 @@ const Automations = () => {
           </table>
         </div>
       </>
-      <Modal
-        onDisable={setAddStopModal}
-        openNotify={addStopModal}
-        animatedModal={true}
-      >
-        <AddStopModal
-          onDisable={setAddStopModal}
-          reccuringState={reccuringState}
-          memberState={memberState}
-        />
-      </Modal>
     </div>
   );
 };

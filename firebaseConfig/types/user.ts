@@ -5,7 +5,7 @@ import { BlockchainType, MultisigProviders } from "types/blockchains";
 export interface IMultiwallet {
     name: string;
     address: string,
-    blockchain: BlockchainType
+    blockchain: BlockchainType["name"]
 }
 
 export interface IUser {
@@ -17,7 +17,7 @@ export interface IUser {
     companyName?: string;
     contractAddress?: string;
     seenTime: number;
-    blockchain: BlockchainType;
+    blockchain: BlockchainType["name"];
     timestamp: number;
 }
 
@@ -31,7 +31,7 @@ export interface IBudgetExercise {
     to: number;
     budgets: DocumentReference[] | IBudget[];
 
-    blockchain: BlockchainType;
+    blockchain: BlockchainType["name"];
 
     created_at: number;
 }
@@ -101,31 +101,44 @@ export interface IModerator {
     mail: string | null
 }
 
+export interface INotes {
+    address: string;
+    hashOrIndex: string;
+    attachLink: string | null;
+    notes: string | null
+}
 interface ICommonUserTypes {
     id: string;
     name: string;
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
+    pendingMembers: string[];
+    pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
+    removableMembers: string[];
+    removableMembersObjects: { accountId: string, member: string }[];
     moderators: IModerator[]
     created_date: number;
     budget_execrises: DocumentReference[] | IBudgetExercise[];
     fiatMoneyPreference: FiatMoneyList;
-    priceCalculation: PriceCalculationList
+    priceCalculation: PriceCalculationList;
+
+    notes: INotes[]
 
 }
 export interface IOrganization extends ICommonUserTypes {
     creator: DocumentReference | IIndividual;
 }
 
+export interface IIndividual extends ICommonUserTypes {
+    seenTime: number;
+    addressBook: IAddressBook[];
+}
+
 export interface IAddressBook {
     id: string;
     name: string;
     address: string;
-}
-export interface IIndividual extends ICommonUserTypes {
-    seenTime: number;
-    addressBook: IAddressBook[];
 }
 
 export interface IMember {

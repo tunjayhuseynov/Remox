@@ -16,9 +16,9 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
         return total.budgets.reduce((a, b) => {
             const fiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
             return {
-                totalAmount: a.totalAmount + (fiatPrice * b.budgetCoins.totalAmount),
-                totalUsedAmount: a.totalUsedAmount + (fiatPrice * b.budgetCoins.totalUsedAmount),
-                totalPending: a.totalPending + (fiatPrice * b.budgetCoins.totalPending)
+                totalAmount: a.totalAmount + ((b.customPrice ?? fiatPrice) * b.budgetCoins.totalAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalAmount ?? 0)),
+                totalUsedAmount: a.totalUsedAmount + ((b.customPrice ?? fiatPrice) * b.budgetCoins.totalUsedAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalUsedAmount ?? 0)),
+                totalPending: a.totalPending + ((b.customPrice ?? fiatPrice) * b.budgetCoins.totalPending) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalPending ?? 0))
             }
         }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
     }, [total.budgetCoins])
@@ -86,7 +86,7 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                     </div>
                 </>
             }
-            <div className="flex items-center justify-end pr-10">
+            <div className="flex items-center justify-end">
                 {total.budgets.length > 0 && <TotalExerciseDetails total={total} />}
             </div>
         </div>

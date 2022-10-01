@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
             if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
                 dispatch(launchApp({
                     accountType: accountType,
-                    addresses: (remoxAccount.accounts as IAccount[]).map(a => a.address),
+                    addresses: (remoxAccount.accounts as IAccount[]),
                     blockchain: blockchain,
                     id: remoxAccount.id,
                     storage: {
@@ -68,7 +68,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                         <Sidebar />
                     </div>
                     <main key={router.asPath} id='main' className={`relative w-[85%] 2xl:w-[85%] 3xl:w-[85%] transition-all pt-[4rem] overflow-y-hidden h-screen`}>
-                        <div className='w-full overflow-y-auto h-full hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin pr-8 pt-[4rem] pl-[4.25rem] pb-8'>
+                        <div className='w-full overflow-y-auto overflow-x-hidden h-full hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin pr-8 pt-[4rem] pl-[4.25rem] pb-8'>
                             {children}
                         </div>
                     </main>

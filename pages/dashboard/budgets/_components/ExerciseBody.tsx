@@ -2,14 +2,13 @@ import CreateButton from "components/general/CreateButton"
 import Modal from "components/general/modal"
 import { useRouter } from "next/router"
 import { IBudgetExerciseORM } from "pages/api/budget/index.api"
-import BudgetCard from "pages/dashboard/budgets/_components/BudgetCard"
+import Card from "pages/dashboard/budgets/_components/Card"
 import { useState } from "react"
 import NewBudget from "./NewBudget"
 
 interface IProps { exercise: IBudgetExerciseORM }
 
 const ExerciseBody = ({ exercise }: IProps) => {
-    const navigate = useRouter()
     const [modalVisibility, setModalVisible] = useState(false)
     return <>
         {exercise.budgets.length > 0 && <table className="w-full">
@@ -23,13 +22,13 @@ const ExerciseBody = ({ exercise }: IProps) => {
                     <th className="py-3 self-center text-left">Status</th>
                     <th></th>
                 </tr>
-                {exercise.budgets.map(s => <BudgetCard key={s.id} item={s} />)}
+                {exercise.budgets.map(s => <Card key={s.id} item={s} />)}
             </thead>
         </table>}
         <div className="flex justify-center !mt-0 py-10">
             <CreateButton onClick={() => setModalVisible(true)} />
         </div>
-        <Modal onDisable={setModalVisible} openNotify={modalVisibility}>
+        <Modal onDisable={setModalVisible} disableX openNotify={modalVisibility}>
             <NewBudget exerciseId={exercise.id} onBack={() => setModalVisible(false)} />
         </Modal>
     </>

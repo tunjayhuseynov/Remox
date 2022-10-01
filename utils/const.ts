@@ -128,3 +128,24 @@ export const generatePriceCalculation = (coin: IPrice[0], hp: IHpApiResponse, pc
             return coin.amount * GetFiatPrice(coin, fiat);
     }
 }
+
+export const GetFiatSymbol = (fiat: FiatMoneyList) => {
+    switch (fiat) {
+        case "USD":
+            return "$";
+        case "EUR":
+            return "€";
+        case "GBP":
+            return "£";
+        case "JPY":
+            return "¥";
+        case "TRY":
+            return "₺";
+        case "CAD":
+            return "C$";
+        case "AUD":
+            return "A$";
+        default:
+            return "$";
+    }
+}

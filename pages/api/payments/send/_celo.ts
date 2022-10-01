@@ -2,7 +2,7 @@ import { toTransactionBatch } from "@celo/contractkit/lib/wrappers/MetaTransacti
 import { ethers } from "ethers"
 // import { fromWei, toWei } from "utils/ray"
 import nomAbi from "rpcHooks/ABI/nom.json"
-import ERC20 from 'rpcHooks/ABI/erc20.json'
+import ERC20 from 'rpcHooks/ABI/ERC.json'
 import BatchRequestABI from 'rpcHooks/ABI/BatchRequest.json'
 import Web3 from 'web3'
 import { AbiItem } from "web3-utils"

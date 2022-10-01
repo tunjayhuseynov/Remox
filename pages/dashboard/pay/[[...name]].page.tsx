@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import CSV, { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "redux/hooks";
-import { SelectAccounts, SelectBalance, SelectDarkMode, SelectFiatSymbol, SelectPriceCalculationFn, SelectTotalBalance } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAddressBooks, SelectBalance, SelectDarkMode, SelectFiatSymbol, SelectPriceCalculationFn, SelectTotalBalance } from 'redux/slices/account/remoxData';
 import Button from "components/button";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
@@ -17,12 +17,13 @@ import { ITag } from "pages/api/tags/index.api";
 import { ToastRun } from "utils/toast";
 import { GetTime, SetComma } from "utils";
 import Input from "./_components/payinput";
-import { FiatMoneyList } from "firebaseConfig";
+import { FiatMoneyList, IAddressBook, INotes } from "firebaseConfig";
 import { nanoid } from "@reduxjs/toolkit";
 import { AiOutlineDownload } from "react-icons/ai";
 import { Tooltip } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import Select from 'react-select';
+import { Set_Address_Book } from "redux/slices/account/thunks/addressbook";
 
 export interface IPaymentInputs {
     id: string,
@@ -55,6 +56,10 @@ const Pay = () => {
     const accounts = useAppSelector(SelectAccounts)
     const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const priceCalculation = useAppSelector(SelectPriceCalculationFn)
+
+    const books = useAppSelector(SelectAddressBooks)
+
+    const dispatch = useAppDispatch()
 
     const [startDateState, setStartDate] = useState<string>()
     const [startTime, setStartTime] = useState<string>()
@@ -188,8 +193,17 @@ const Pay = () => {
             const subBudget = selectedAccountAndBudget.subbudget
 
             const pays: IPaymentInput[] = []
+            const newAddressBooks: IAddressBook[] = []
             for (const input of inputs) {
                 const { amount, address, coin, fiatMoney, id, second, name } = input;
+                if (name && address) {
+                    newAddressBooks.push({
+                        id: nanoid(),
+                        name,
+                        address,
+                    })
+                }
+
                 let parsedAmount = amount;
                 if (fiatMoney && coin && amount) {
                     parsedAmount = amount / GetFiatPrice(coin, fiatMoney)
@@ -213,6 +227,7 @@ const Pay = () => {
                     })
                 }
             }
+
             let startDate: Date | null = null;
             let endDate: Date | null = null;
             if (startDateState && startTime) {
@@ -225,6 +240,17 @@ const Pay = () => {
                 throw new Error("Please select start and end date")
             }
 
+            let notes: INotes | undefined;
+
+            if (note || attachLink) {
+                notes = {
+                    address: "",
+                    attachLink: attachLink ?? null,
+                    hashOrIndex: "",
+                    notes: note ?? null
+                }
+            }
+
             await SendTransaction(Wallet, pays, {
                 budget: Budget ?? undefined,
                 subbudget: subBudget ?? undefined,
@@ -232,9 +258,12 @@ const Pay = () => {
                 endTime: index === 1 && endDate ? GetTime(endDate) : undefined,
                 startTime: index === 1 && startDate ? GetTime(startDate) : undefined,
                 tags: selectedTags,
+                notes
             })
 
-            ToastRun(<>Successfully processed</>, "success")
+            dispatch(Set_Address_Book([...books.filter(s => !newAddressBooks.find(w => w.name === s.name)), ...newAddressBooks]))
+
+            ToastRun(<>Successfully processed. Wait for a confirmation</>, "success")
         } catch (error) {
             const message = (error as any).message || "Something went wrong"
             console.error(error)
@@ -320,7 +349,7 @@ const Pay = () => {
                                                 return input;
                                             }))
                                         }}
-                                        addressBook={[]}
+                                        addressBook={books}
                                     />
                                     )}
                                 </div>

@@ -1,4 +1,4 @@
-import { useEffect, Dispatch, Fragment, useState } from 'react'
+import { useEffect, Dispatch, Fragment, useState, useMemo } from 'react'
 import { createPortal } from "react-dom"
 import { useModalSideExit } from "hooks";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,10 +13,11 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectPriceCalculationFn } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
-import { IBudgetORM } from 'pages/api/budget/index.api';
+import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import { ToastRun } from 'utils/toast';
+import Tooltip from '@mui/material/Tooltip';
 
 interface IProps {
     // date: string;
@@ -54,6 +55,12 @@ const Detail = ({
     const [mounted, setMounted] = useState(false)
     const [budgetLoading, setBudgetLoading] = useState(false)
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(budget)
+    // const [selectedBudgetLabel, setSelectedBudgetLabel] = useState<ISubbudgetORM | undefined>(budget)
+    const notes = useAppSelector(SelectNotes)
+
+    const selectedNote = useMemo(() => {
+        return notes.find(s => s.address.toLowerCase() === transaction.address.toLowerCase() && s.hashOrIndex.toLowerCase() === transaction.hash.toLowerCase())
+    }, [])
 
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
 
@@ -256,9 +263,9 @@ const Detail = ({
                                         <div className={`flex gap-x-1 items-center text-sm font-medium`}>
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>{transfer.to.toLowerCase() === account?.address ? (account?.name ?? account?.address) : transfer.to}</div>}
-                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map(s => <div>{s.to}</div>)}</div>}
+                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map((s, index) => <div key={index}>{s.to}</div>)}</div>}
                                             {automation && <div>{automation.to}</div>}
-                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map(s => <div>{s.to}</div>)}</div>}
+                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map((s, index) => <div key={index}>{s.to}</div>)}</div>}
                                             {automationCanceled && <div>{automationCanceled.to}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
@@ -297,6 +304,18 @@ const Detail = ({
                                         />
                                     </div>
                                 </div>}
+                                {/* {selectedBudget && <div className="flex justify-between items-center w-full relative z-[9999959559]">
+                                    <div className="text-greylish">Budget Label</div>
+                                    <div className='w-[15rem]'>
+                                        <Dropdown
+                                            runFn={budgetChangeFn}
+                                            loading={budgetLoading}
+                                            selected={selectedBudget}
+                                            setSelect={setSelectedBudget}
+                                            list={budgets}
+                                        />
+                                    </div>
+                                </div>} */}
                                 <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Tags</div>
                                     <div className="flex">
@@ -308,10 +327,16 @@ const Detail = ({
                                         })}
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center w-full">
+                                {selectedNote && selectedNote.attachLink && <div className="flex justify-between items-center w-full">
+                                    <div className="text-greylish">Attach Link</div>
+                                    <Tooltip title={selectedNote.attachLink!}>
+                                        <div className='underline text-blue-500 cursor-pointer' onClick={() => window.open(selectedNote.attachLink!, "_blank")}>Go To The Link</div>
+                                    </Tooltip>
+                                </div>}
+                                {selectedNote && selectedNote.notes && <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Description</div>
-                                    <div>Hello paycheck</div>
-                                </div>
+                                    <div>{selectedNote.notes}</div>
+                                </div>}
                                 {/* <div className="flex justify-between items-center w-full"><div className="text-primary py-2 px-2 border curosr-pointer border-primary rounded-lg" >Split Transaction</div><div></div></div> */}
                             </div>
                         </div>

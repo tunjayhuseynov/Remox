@@ -1,5 +1,5 @@
 
-import { SelectBlockchain, SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectBlockchain, SelectDarkMode, SelectStorage } from 'redux/slices/account/remoxData';
 import Button from 'components/button';
 import { AddressReducer } from "utils";
 import { useRef, useState, useMemo } from "react";
@@ -14,7 +14,6 @@ import { DropDownItem } from "types";
 import { ToastRun } from 'utils/toast';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import useNextSelector from 'hooks/useNextSelector';
-import { selectStorage } from 'redux/slices/account/storage';
 import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
 import { IAccount, Image } from 'firebaseConfig';
 import useAsyncEffect from 'hooks/useAsyncEffect';
@@ -23,6 +22,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { TextField } from '@mui/material';
 import { Blockchains, MultisigProviders } from 'types/blockchains';
 import { BiTrash } from 'react-icons/bi';
+import useLoading from 'hooks/useLoading';
 
 interface IFormInput {
     name: string;
@@ -48,7 +48,7 @@ function CreateMultisig() {
     const { createMultisigAccount, importMultisigAccount } = useMultisig()
 
 
-    const storage = useNextSelector(selectStorage)
+    const storage = useAppSelector(SelectStorage)
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
@@ -160,6 +160,7 @@ function CreateMultisig() {
         return []
     }, [selectedBlockchain])
 
+    const [isLoading, OnSubmit] = useLoading(onSubmit)
 
 
     return <div className="h-screen w-full">
@@ -168,7 +169,7 @@ function CreateMultisig() {
                 <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
             </div>
         </header>
-        <form onSubmit={handleSubmit(onSubmit)} className="py-[10rem] sm:py-0 sm:h-full " >
+        <form onSubmit={handleSubmit(OnSubmit)} className="py-[10rem] sm:py-0 sm:h-full " >
             <section className="flex flex-col items-center h-full  gap-6 pt-36">
                 <div className="flex flex-col items-center justify-center gap-4">
                     <div className="text-xl sm:text-3xl  dark:text-white text-center font-semibold">Set Account Details</div>
@@ -221,7 +222,7 @@ function CreateMultisig() {
                             <TextField disabled className="cursor-pointer border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={address !== null ? `${AddressReducer(address)} (You)` : ""} />
                         </div>
                         {isCreate && owners.map((w, i) => {
-                            return <div className="relative grid grid-cols-[25%,5%,70%]">
+                            return <div key={w.id} className="relative grid grid-cols-[25%,5%,70%]">
                                 <TextField type="text" label="Name" className="cursor-pointer rounded-md  dark:bg-darkSecond" value={w.name} onChange={(e) => changeOwner(w.id, e.target.value, w.address)} />
                                 <div></div>
                                 <TextField type="text" label="Address" className="cursor-pointer ml-4 rounded-md  bg-greylish bg-opacity-20  dark:bg-darkSecond" onChange={(e) => changeOwner(w.id, w.name, e.target.value)} value={w.address !== null ? AddressReducer(w.address) : ""} />
@@ -244,7 +245,7 @@ function CreateMultisig() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 min-w-[26%] pb-10">
                     <Button version="second" onClick={() => navigate.push('/create-organization')}>Back</Button>
-                    {isCreate ? <Button type="submit">Create</Button> : <Button type="submit">Import</Button>}
+                    <Button type="submit" isLoading={isLoading}>{isCreate ? "Create" : "Import"}</Button>
                 </div>
             </section>
         </form>
