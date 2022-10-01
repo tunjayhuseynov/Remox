@@ -1,4 +1,4 @@
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, setOrganization } from 'redux/slices/account/remoxData';
 import Button from "components/button";
 import { useRouter } from 'next/router';
 import useNextSelector from 'hooks/useNextSelector';
@@ -41,6 +41,7 @@ function ChooseType() {
     if (address && auth.currentUser && blockchain && individual) {
       dispatch(setAccountType("individual"))
       dispatch(setProviderID(individual.id));
+      dispatch(setOrganization(null))
       dispatch(setStorage({
         individual: individual,
         organization: null,

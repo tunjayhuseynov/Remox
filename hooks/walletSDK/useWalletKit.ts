@@ -103,10 +103,8 @@ export default function useWalletKit() {
 
   const setBlockchainAuto = () => {
     if (address) {
-      localStorage.setItem("blockchain", "celo");
       dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "celo")!));
     } else if (publicKey) {
-      localStorage.setItem("blockchain", "solana");
       dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "solana")!));
     }
   };

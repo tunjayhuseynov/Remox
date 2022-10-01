@@ -8,13 +8,12 @@ import {
 } from '@celo/react-celo/lib/connectors/connectors'
 import { CeloContract } from '@celo/contractkit'
 import { useDispatch, useSelector } from 'react-redux';
-import { selectStorage, setStorage } from "../redux/slices/account/storage";
 import { isMobile, isAndroid } from 'react-device-detect';
 import { FirestoreRead, FirestoreWrite, useFirestoreRead } from 'rpcHooks/useFirebase';
 import { auth, IIndividual, IOrganization, IUser } from 'firebaseConfig';
 import useWalletKit from './walletSDK/useWalletKit';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccounts, SelectAccountType, SelectProviderAddress, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { SelectAccounts, SelectAccountType, SelectProviderAddress, SelectRemoxAccount, SelectStorage } from 'redux/slices/account/selector';
 import { Connector, Mainnet, WalletTypes } from '@celo/react-celo';
 import { useCeloInternal } from '@celo/react-celo/lib/use-celo';
 import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
@@ -39,7 +38,7 @@ export default function useMultiWallet() {
     const { Connect, blockchain, Wallet, Address } = useWalletKit()
     const { initConnector } = useCeloInternal()
     const dispatch = useAppDispatch()
-    const storage = useSelector(selectStorage)
+    const storage = useSelector(SelectStorage)
 
     const providerAddress = useAppSelector(SelectProviderAddress)
     const remoxAccount = useAppSelector(SelectRemoxAccount)

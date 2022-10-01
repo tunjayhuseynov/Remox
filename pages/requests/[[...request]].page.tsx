@@ -266,6 +266,7 @@ export default function RequestId() {
                       <div className="flex flex-col space-y-1">
                         <TextField
                           label="Request Type"
+                          placeholder="E.g. payroll"
                           {...register("requestType", { required: true })}
                           className="bg-white dark:bg-darkSecond"
                           variant="outlined"
@@ -274,6 +275,7 @@ export default function RequestId() {
                       <div className="flex flex-col space-y-1">
                         <TextField
                           label="Name of Service"
+                          placeholder="E.g. bug bounty"
                           {...register("serviceName", { required: true })}
                           className="bg-white dark:bg-darkSecond"
                           variant="outlined"

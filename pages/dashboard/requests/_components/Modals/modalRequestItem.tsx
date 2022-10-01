@@ -8,7 +8,6 @@ import { useAppSelector } from 'redux/hooks';
 import { SelectOwners } from 'redux/slices/account/remoxData';
 
 const ModalRequestItem = ({ request }: { request: IRequest }) => {
-    const [detect, setDetect] = useState(true);
     const divRef = useRef<HTMLTableRowElement>(null)
     const { GetCoins } = useWalletKit()
     const owners = useAppSelector(SelectOwners)
@@ -17,16 +16,9 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
     const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
     const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
 
-    useEffect(() => {
-        if (divRef.current && window.innerWidth / divRef.current.clientWidth > 3) {
-            setDetect(false)
-        }
-    }, [])
-
-
-    return <tr ref={divRef} className={`w-full py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all   grid ${detect ? 'grid-cols-[25%,45%,30%] sm:grid-cols-[25%,20%,20%,20%,15%]' : 'grid-cols-[27%,48%,25%]'}  `}>
+    return <tr ref={divRef} className={`w-full py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all grid grid-cols-[25%,20%,30%,25%]   `}>
         <td className="flex space-x-3 overflow-hidden pl-2">
-            <div className={`hidden sm:flex ${detect ? "items-center" : "items-start"} justify-center`}>
+          <div className={`hidden sm:flex items-center justify-center`}>
             {owner ? (
                 owner.image ? 
                 <img
@@ -38,7 +30,7 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
                 <Avatar name={request.fullname.split(" ")[0]} surname={request.fullname.split(" ")[1]} />
               )}
             </div>
-            <div className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"} items-start `}>
+            <div className={`sm:flex flex-col justify-center items-start `}>
                 <div className="text-lg font-medium">
                     {<span> {request.fullname ? `${request.fullname}` : "Unknown"} </span>}
                 </div>
@@ -56,18 +48,26 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
       </td>
       <td className="flex flex-col justify-center">
           <div className="flex items-center justify-start gap-1">
-            {request.fiat ? <div className="flex items-center gap-1"> <span className="text-base">{request.amount}</span> {request.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
+            {request.fiat ? 
+            <div className="flex items-center gap-1"> 
+              <span className="text-base">{SetComma(+request.amount)} {request.fiat} as</span> 
+              <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+            </div> :
               <div className="flex items-center">
                   <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                  <span className="text-base">{request.amount}</span>
+                  <span className="text-base">{SetComma(+request.amount)}</span>
               </div>
             } 
           </div>
           {(request.secondCurrency && request.secondAmount) && <div className="flex items-center justify-start gap-1 mt-2">
-          {request.fiatSecond ? <div className="flex items-center gap-1"> <span className="text-base">{request.secondAmount}</span> {request.fiatSecond} as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" /></div> :
+          {request.fiatSecond ? 
+          <div className="flex items-center gap-1"> 
+            <span className="text-base">{SetComma(+request.secondAmount)} {request.fiatSecond} as</span> 
+            <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full " />
+          </div> :
               <div className="flex items-center">
                   <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                  <span className="text-base">{request.secondAmount}</span>
+                  <span className="text-base">{SetComma(+request.secondAmount)}</span>
               </div>
             }      
           </div>}

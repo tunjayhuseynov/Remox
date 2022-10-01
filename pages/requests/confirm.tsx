@@ -120,7 +120,7 @@ export default ({
             <div>
               {request?.attachLink ? (
               <a href={request?.attachLink} rel="noreferrer" target="_blank">
-                {request?.attachLink}
+                {request?.attachLink.slice(0,50)}...
               </a>) : "No link provided"}
             </div>
           </div>
@@ -132,7 +132,7 @@ export default ({
           <div>
             {request?.uploadedLink ? (
               <a href={request?.uploadedLink} rel="noreferrer" target="_blank">
-                {filename}
+                {filename.slice(0,60)}...
               </a>
             ) : (
               "No file uploaded"

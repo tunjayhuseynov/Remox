@@ -7,7 +7,7 @@ import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { SetComma } from 'utils';
 import { styled } from '@mui/material/styles';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference } from 'redux/slices/account/remoxData';
 import useNextSelector from 'hooks/useNextSelector';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -19,6 +19,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AssetItem from './_components/assetItem';
 import { IPriceCoin } from 'pages/api/calculation/price.api';
 import NftContainer from './_components/nftContainer';
+import { FiatMoneyList } from 'firebaseConfig';
+import { IFormattedTransaction } from 'hooks/useTransactionProcess';
+import { IPrice } from 'utils/api';
+import { GetFiatPrice } from 'utils/const';
+import { useWalletKit } from 'hooks';
 
 export interface INFT {
     name: string;
@@ -80,6 +85,10 @@ const Assets = () => {
     const myYieldTokens = Object.values(yieldTokens ?? {}).filter((token) => token.amount > 0);
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
+    const nfts = useAppSelector(SelectNfts)
+    const fiat = useAppSelector(SelectFiatPreference)
+    const {GetCoins} = useWalletKit()
+    const nftTotalPrice =  getTotalNftPrice(nfts, fiat,  Object.values(GetCoins).find((c) => c.symbol === "CELO")!)
 
     let totalBalance = (spotTotalBalance + yieldTotalBalance).toFixed(2);
     const balanceRedux = useAppSelector(SelectBalance)
@@ -150,7 +159,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `${symbol}${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl"></div>}
+                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `${symbol}${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">{symbol}{nftTotalPrice.toLocaleString()}</div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -163,7 +172,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10 rounded-md">
                                 <div className="flex items-center justify-between  w-full ">
                                     <div className="text-lg font-medium  font-sans  pl-2">{TypeCoin[0].header}</div>
-                                    <div className={`text-lg font-medium  font-sans `}>${SetComma(+TypeCoin[0].balance)}</div>
+                                    <div className={`text-lg font-medium  font-sans `}>{symbol}{SetComma(+TypeCoin[0].balance)}</div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -171,12 +180,11 @@ const Assets = () => {
                             <div className='bg-light dark:bg-dark pt-6 flex flex-col gap-4'>
                                 <table id="header" >
                                     <thead>
-                                        <tr className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
-                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Asset</th>
-                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Balance</th>
-                                            <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">Price</th>
-                                            <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">24h</th>
-                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
+                                        <tr className="grid grid-cols-[25%,35%,15%,25%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg">Asset</th>
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg">Balance</th>
+                                            <th className="text-sm text-left hidden font-semibold text-greylish dark:text-[#aaaaaa] sm:block sm:text-lg">Price</th>
+                                            <th className="text-sm text-right font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -198,7 +206,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10">
                                 <div className="flex items-center justify-between  w-full">
                                     <div className="text-lg font-medium  font-sans pl-2 ">{TypeCoin[1].header}</div>
-                                    <div className=" text-lg font-medium  font-sans ">${SetComma(+TypeCoin[1].balance)}</div>
+                                    <div className=" text-lg font-medium  font-sans ">{symbol}{SetComma(+TypeCoin[1].balance)}</div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -207,11 +215,10 @@ const Assets = () => {
                             <div className='bg-light dark:bg-dark pt-6 flex flex-col gap-3'>
                                 <table id="header" >
                                     <thead>
-                                        <tr className="grid grid-cols-[35%,25%,20%,20%] md:grid-cols-[25%,20%,20%,30%,5%]  2xl:grid-cols-[25%,20%,20%,31%,4%]  bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
+                                        <tr className="grid grid-cols-[30%,25%,25%,20%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
                                             <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Asset</th>
                                             <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Balance</th>
                                             <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">Price</th>
-                                            <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">24h</th>
                                             <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
                                         </tr>
                                     </thead>
@@ -232,3 +239,15 @@ const Assets = () => {
 
 export default Assets;
 
+const getTotalNftPrice = (nfts : IFormattedTransaction[] , fiat : FiatMoneyList, coin: AltCoins) => {
+    return nfts.reduce((acc, curr) => {
+        const rawData = curr.rawData
+        const fiatPrice = GetFiatPrice(coin, fiat)
+
+        const amount = +rawData.value * fiatPrice
+        acc += amount
+
+        return acc
+    }, 0)
+}
+ 

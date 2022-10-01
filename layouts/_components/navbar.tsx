@@ -1,5 +1,4 @@
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { selectStorage } from 'redux/slices/account/storage';
 import { Squash as Hamburger } from 'hamburger-react'
 import Visitcard from 'components/visitcard';
 import useMultiWallet from "hooks/useMultiWallet";
@@ -15,7 +14,6 @@ import useAsyncEffect from 'hooks/useAsyncEffect';
 
 const Navbar = () => {
 
-    const storage = useAppSelector(selectStorage)
     const selectedAccount = useAppSelector(SelectProviderAddress)
     const dark = useNextSelector(SelectDarkMode)
     const { Address } = useWalletKit()

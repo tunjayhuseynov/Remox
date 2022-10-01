@@ -203,27 +203,68 @@ const TotalMonthlyAmount = async (contributorsList: IMember[], Coins: AltCoins[]
   const currentMonth = date.getMonth()
   const currentYear = date.getFullYear()
 
-  console.log(currentMonth)
   return contributorsList.reduce((acc, curr) => {
     const coin = Coins.find((c) => c.symbol === curr.currency)
     const fiatPrice = GetFiatPrice(coin ?? Coins[0], Fiat)
     const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
     const fiatPrice2 = GetFiatPrice(coin2 ?? Coins[1], Fiat)
+    const contributorStartMonth = new Date(curr.paymantDate).getMonth()
+    const contributorEndMonth = new Date(curr.paymantEndDate).getMonth()
+    const contributorYear = new Date(curr.paymantEndDate).getFullYear()
 
-    if(curr.execution === "manual"){
-      const contributorMonth = new Date(curr.paymantEndDate).getMonth()
-      if(currentMonth === contributorMonth) {
-        if(coin) {
-                
+    if(contributorYear === currentYear) {
+      if(curr.execution === "manual"){
+        if(curr.interval === "monthly") {
+          if(currentMonth === contributorEndMonth) {
+            if(coin) {
+              const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
+              if(curr.fiat){
+                const tokenFiatPrice = GetFiatPrice(coin!, curr.fiat)
+                const tokenAmount = amount / tokenFiatPrice
+                acc += (tokenAmount * fiatPrice )
+              } else {
+                acc += (amount  * fiatPrice)
+              }    
+            }
+    
+            if(curr.secondAmount && curr.secondCurrency && coin2 ) {
+              const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
+              const amount = typeof curr.secondAmount === "string" ? parseFloat(curr.secondAmount) : curr.secondAmount
+              if (curr.fiatSecond) {
+                  const tokenFiatPrice = GetFiatPrice(secondCoin!, curr.fiatSecond)
+                  const tokenAmount = amount / tokenFiatPrice
+                  acc += (tokenAmount * fiatPrice )
+              } else {
+                  acc += (amount * fiatPrice)
+              }
+            }
+          } else {
+            acc += 0
+          }
+        } else if(curr.interval === "weekly") {
+          const daysDiff = days(curr.paymantDate, curr.paymantEndDate)
+          if((contributorEndMonth && contributorStartMonth) === currentMonth){
+
+          }
+
         }
       }
+    } else {
+      acc += 0
     }
+
     return acc 
   }, 0)
 }
 
 function daysInMonth (month : number, year: number) {
   return new Date(year, month, 0).getDate();
+}
+
+const days = (date_1 : number, date_2: number) =>{
+  let difference = new Date(date_1).getTime() - new Date(date_2).getTime();
+  let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+  return TotalDays;
 }
 
 // Monthly Current Month

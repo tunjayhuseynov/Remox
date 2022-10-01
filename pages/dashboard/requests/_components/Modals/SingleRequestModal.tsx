@@ -135,7 +135,7 @@ const SingleRequestModal = ({
             <div>
               {request?.attachLink ? (
                 <a href={request?.attachLink} rel="noreferrer" target="_blank">
-                  {request?.attachLink}
+                 {request?.attachLink.slice(0,50)}...
                 </a>
               ) : (
                 "No link provided"

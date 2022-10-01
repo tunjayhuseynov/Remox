@@ -98,8 +98,4 @@ export const DownloadAndSetNFTorImageForUser = async (props: { image: Image | nu
     }
 }
 
-export const isUserAllowToSystem = () => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem("remoxUser")) return true;
-    return false;
-}
 

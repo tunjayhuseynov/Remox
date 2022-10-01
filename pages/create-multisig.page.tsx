@@ -1,5 +1,5 @@
 
-import { SelectBlockchain, SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectBlockchain, SelectDarkMode, SelectStorage } from 'redux/slices/account/remoxData';
 import Button from 'components/button';
 import { AddressReducer } from "utils";
 import { useRef, useState, useMemo } from "react";
@@ -14,7 +14,6 @@ import { DropDownItem } from "types";
 import { ToastRun } from 'utils/toast';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import useNextSelector from 'hooks/useNextSelector';
-import { selectStorage } from 'redux/slices/account/storage';
 import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
 import { IAccount, Image } from 'firebaseConfig';
 import useAsyncEffect from 'hooks/useAsyncEffect';
@@ -49,7 +48,7 @@ function CreateMultisig() {
     const { createMultisigAccount, importMultisigAccount } = useMultisig()
 
 
-    const storage = useNextSelector(selectStorage)
+    const storage = useAppSelector(SelectStorage)
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0

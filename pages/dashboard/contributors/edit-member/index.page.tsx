@@ -35,7 +35,7 @@ const EditMember = () => {
     const { id, teamId } = navigate.query as { id: string; teamId: string };
     const { GetCoins, blockchain } = useWalletKit();
     const dispatch = useAppDispatch();
-    const { editMember, isLoading } = useContributors();
+    const { editMember } = useContributors();
 
 
     //Selectors   
@@ -172,22 +172,20 @@ const EditMember = () => {
                 <div
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Edit Member</div>
-                    <div className="flex flex-col space-y-4">
-                        <div className="flex flex-col mb-4 space-y-1 w-full">
-                            <EditableAvatar  avatarUrl={member.image ? url : null } name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-10">
-                            <TextField label="Full Name" value={fullname} onChange={(e) =>  setFullname(e.target.value)} className="bg-white dark:bg-darkSecond" variant="outlined" />
-                            <Dropdown
-                                label="Workstream"
-                                setSelect={setSelectedTeam}
-                                selected={selectedTeam}
-                                list={teams}
-                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
-                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                            />
-                        </div>  
+                    <div className="flex justify-center items-center mb-4 w-full">
+                        <EditableAvatar  avatarUrl={member.image ? url : null } name={accountAndBudget.account?.address ?? ""} userId={userId ?? ""}  evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange}  />
                     </div>
+                    <div className="grid grid-cols-2 gap-x-10">
+                        <TextField label="Full Name" value={fullname} onChange={(e) =>  setFullname(e.target.value)} className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <Dropdown
+                            label="Workstream"
+                            setSelect={setSelectedTeam}
+                            selected={selectedTeam}
+                            list={teams}
+                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                        />
+                    </div>  
                     <div className="grid grid-cols-2 gap-x-10">
                         <Dropdown
                             label="Compensation Type"

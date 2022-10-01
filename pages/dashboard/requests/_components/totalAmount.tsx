@@ -12,7 +12,6 @@ import { FiatMoneyList } from "firebaseConfig";
 export const TotalFiatAmount = (coinList: (IRequest | IMember)[], Coins: Coins, fiat: FiatMoneyList) => {
     return coinList.reduce((acc, curr) => {
         const coin = Object.values(Coins).find((c) => c.symbol === curr.currency)
-        console.log(fiat)
 
         if (coin) {
             const fiatPrice  = GetFiatPrice(coin, fiat)

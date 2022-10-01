@@ -1,10 +1,11 @@
 import { auth } from "firebaseConfig";
 import useNextSelector from "hooks/useNextSelector";
 import { useMemo } from "react";
-import { selectStorage } from "redux/slices/account/storage";
+import { useAppSelector } from "redux/hooks";
+import { SelectStorage } from "redux/slices/account/selector";
 
 export default function useStorage() {
-    const storage = useNextSelector(selectStorage)
+    const storage = useAppSelector(SelectStorage)
     const isOrg = !(!storage?.organization)
 
     const getName = useMemo(() => isOrg ? storage.organization?.name : storage?.individual?.name, [storage]);
