@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
 import { arrayRemove, arrayUnion } from "firebase/firestore"
 import { ITag, ITxTag } from "pages/api/tags/index.api"
+import { RootState } from "redux/store"
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { generate } from "shortid"
 import { addTransactionHashToTag, removeTransactionHashFromTag } from "../remoxData"
@@ -49,11 +50,13 @@ export const DeleteTag = createAsyncThunk<ITag, { id: string, tag: ITag }>("remo
     return tag;
 })
 
-export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { id: string, tagId: string, transaction: ITxTag, txIndex?: number }>("remoxData/addTransactionToTag", async ({ id, tagId, transaction, txIndex }, api) => {
+export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transactionId: ITxTag }, { tagId: string, transaction: ITxTag, txIndex?: number }>("remoxData/addTransactionToTag", async ({ tagId, transaction, txIndex }, api) => {
+    const id = (api.getState() as RootState).remoxData.storage?.organization?.id ?? (api.getState() as RootState).remoxData.storage?.individual?.id
+    if (!id) throw new Error("No id found")
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     const tag = res?.tags.find(t => t.id === tagId)
 
-    if (tag && !tag.transactions.some(t => t.address === transaction.address && t.hash === transaction.hash)) {
+    if (tag && !tag.transactions.find(t => t.address.toLowerCase() === transaction.address.toLowerCase() && t.hash.toLowerCase() === transaction.hash.toLowerCase())) {
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
             tags: arrayRemove(tag)
         })
@@ -63,7 +66,7 @@ export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transaction
         })
     }
 
-    if (txIndex) {
+    if (txIndex !== undefined) {
         api.dispatch(addTransactionHashToTag({
             tagId,
             transactionTag: transaction,

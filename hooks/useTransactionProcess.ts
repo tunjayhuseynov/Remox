@@ -220,7 +220,7 @@ export default async (
 
     const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
 
-    if (!result.method) {
+    if (!input) {
       if (!coin) return { method: null }
       return {
         method: ERC20MethodIds.noInput,

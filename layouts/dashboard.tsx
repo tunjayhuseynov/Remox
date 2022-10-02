@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
 
     useEffect(() => {
         (async () => {
-            if (!auth.currentUser) return router.push("/")
+            if (!auth.currentUser) return await router.push("/")
             const individual = await Get_Individual(auth.currentUser.uid)
             if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
                 dispatch(launchApp({

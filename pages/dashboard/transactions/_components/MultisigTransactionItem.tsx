@@ -102,7 +102,6 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
         }
         setLabelLoading(true)
         await dispatch(AddTransactionToTag({
-            id,
             tagId: val.id,
             transaction: {
                 id: nanoid(),

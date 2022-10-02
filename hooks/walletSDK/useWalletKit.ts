@@ -349,6 +349,7 @@ export default function useWalletKit() {
                   authId: id,
                   blockchain: blockchain,
                   txHash: receipt.transactionHash,
+                  tags: tags,
                 }))
 
                 ToastRun("Transaction've been mined", "success")
@@ -366,7 +367,9 @@ export default function useWalletKit() {
             const txHash = await submitTransaction(
               account,
               txData,
-              account.provider
+              account.provider,
+              undefined,
+              tags
             );
             txhash = txHash;
             type = "multi"
@@ -406,32 +409,25 @@ export default function useWalletKit() {
             type = "single"
           }
         }
-        if (txhash) {
-          // dispatch(Add_Tx_To_TxList_Thunk({
-          //   account: account,
-          //   authId: id,
-          //   blockchain: blockchain,
-          //   txHash: txhash,
-          // }))
-
-          if (tags && tags.length > 0 && type) {
-            for (const tag of tags) {
-              await dispatch(
-                AddTransactionToTag({
-                  id: account.id,
-                  tagId: tag.id,
-                  transaction: {
-                    id: generate(),
-                    address: account.address,
-                    hash: txhash,
-                    contractType: type,
-                    provider: account.provider
-                  },
-                })
-              ).unwrap();
-            }
-          }
-        }
+        // if (txhash) {
+        //   if (tags && tags.length > 0 && type) {
+        //     for (const tag of tags) {
+        //       await dispatch(
+        //         AddTransactionToTag({
+        //           id: account.id,
+        //           tagId: tag.id,
+        //           transaction: {
+        //             id: generate(),
+        //             address: account.address,
+        //             hash: txhash,
+        //             contractType: type,
+        //             provider: account.provider
+        //           },
+        //         })
+        //       ).unwrap();
+        //     }
+        //   }
+        // }
 
 
         if (budget && txhash) {

@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { removeTransactions } from 'redux/slices/account/transactions'
 import { useAppSelector } from 'redux/hooks';
 import React from "react";
-import { changeDarkMode, SelectDarkMode, SelectIsModerator } from 'redux/slices/account/remoxData';
+import { changeDarkMode, SelectDarkMode, SelectIsModerator, setResetRemoxData } from 'redux/slices/account/remoxData';
 import { useCelo } from "@celo/react-celo";
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
@@ -127,8 +127,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <SettingSVG active={isActive} darkMode={darkMode} />}</NavLink>
                     {!darkMode ? <DarkModeOutlinedIcon onClick={darkModee} className=" hover:text-greylish self-center cursor-pointer" /> : <LightModeOutlinedIcon onClick={darkModee} className="hover:text-greylish  self-center cursor-pointer" />}
                     <span className="cursor-pointer text-red" onClick={() => {
-                        dispatch(removeTransactions())
-                        dispatch(removeStorage())
+                        dispatch(setResetRemoxData())
                         // destroy()
                         router.push('/')
                     }}><LogoutSVG darkMode={darkMode} />

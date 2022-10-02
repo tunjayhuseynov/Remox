@@ -317,7 +317,7 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
         timestamp: +transaction.timeStamp,
         rawData: transaction,
         hash: transaction.hash,
-        isError: transaction.isError ?? false,
+        isError: (transaction?.isError ?? "0") !== "0" ?? false,
         address,
         ...formatted,
       }

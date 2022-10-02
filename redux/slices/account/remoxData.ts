@@ -192,6 +192,10 @@ const remoxDataSlice = createSlice({
         ...Transactions,
         ...accountMembers,
         ...Moderators,
+        setResetRemoxData: (state: IRemoxData) => {
+            state.isFetching = false;
+            state.IsInit = false;
+        },
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
         },
@@ -285,14 +289,14 @@ const remoxDataSlice = createSlice({
                 return transaction;
             })
         })
-        builder.addCase(AddTransactionToTag.fulfilled, (state, action) => {
-            state.tags = [...state.tags.map(tag => {
-                if (tag.id === action.payload.tagId) {
-                    tag.transactions = [...tag.transactions, action.payload.transactionId];
-                }
-                return tag;
-            })];
-        })
+        // builder.addCase(AddTransactionToTag.fulfilled, (state, action) => {
+        //     state.tags = [...state.tags.map(tag => {
+        //         if (tag.id === action.payload.tagId) {
+        //             tag.transactions = [...tag.transactions, action.payload.transactionId];
+        //         }
+        //         return tag;
+        //     })];
+        // })
         builder.addCase(RemoveTransactionFromTag.fulfilled, (state, action) => {
             state.tags = [...state.tags.map(tag => {
                 if (tag.id === action.payload.tagId) {
@@ -532,7 +536,7 @@ export const {
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget, setCredentials,
     updateAllCurrencies, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget, removeConfirmation,
     AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
-    Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name,
+    Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name, setResetRemoxData
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

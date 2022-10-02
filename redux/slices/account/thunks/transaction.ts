@@ -1,14 +1,16 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
 import { IAccount } from "firebaseConfig";
 import { ERC20MethodIds, IAutomationCancel, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { ITag } from "pages/api/tags/index.api";
 import { BlockchainType } from "types/blockchains";
 import { addTxToList, removeRecurringTask } from "../remoxData";
 import { addRecurringTask } from '../remoxData'
+import { AddTransactionToTag } from "./tags";
 
-interface IProps { account: IAccount, txHash: string, blockchain: BlockchainType, authId: string }
-export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | ITransactionMultisig, IProps>("remoxData/add_tx_to_txlist_thunk", async ({ account, txHash, blockchain, authId }, api) => {
+interface IProps { account: IAccount, txHash: string, blockchain: BlockchainType, authId: string, tags?: ITag[] }
+export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | ITransactionMultisig, IProps>("remoxData/add_tx_to_txlist_thunk", async ({ account, txHash, blockchain, authId, tags }, api) => {
     let result;
     if (account.signerType === "multi") {
         result = await axios.get<ITransactionMultisig>("/api/multisig/tx", {
@@ -45,6 +47,24 @@ export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | I
     api.dispatch(addTxToList({
         tx: data,
     }))
+
+    if (tags && tags.length > 0) {
+        for (const tag of tags) {
+            await api.dispatch(
+                AddTransactionToTag({
+                    tagId: tag.id,
+                    txIndex: 0,
+                    transaction: {
+                        id: nanoid(),
+                        address: account.address,
+                        hash: txHash,
+                        contractType: account.signerType,
+                        provider: account.provider
+                    },
+                })
+            ).unwrap();
+        }
+    }
 
     return data;
 })

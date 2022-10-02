@@ -73,7 +73,6 @@ const SingleTransactionItem = ({
     }
     setLabelLoading(true)
     await dispatch(AddTransactionToTag({
-      id,
       tagId: val.id,
       transaction: {
         id: nanoid(),

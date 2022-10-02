@@ -97,7 +97,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       const budget = axios.get<IBudgetExerciseORM[]>("/api/budget", {
         params: {
           id: id,
-          addresses: addresses,
+          addresses: addresses.map(s => s.address),
           blockchain: blockchain.name,
         },
       });

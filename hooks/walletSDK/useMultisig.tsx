@@ -833,7 +833,7 @@ export default function useMultisig() {
         }
     }, [])
 
-    const submitTransaction = async (account: IAccount, input: ISendTx | ISendTx[], provider: MultisigProviders, optionals?: SafeTransactionOptionalProps,) => {
+    const submitTransaction = async (account: IAccount, input: ISendTx | ISendTx[], provider: MultisigProviders, optionals?: SafeTransactionOptionalProps, tags?: ITag[]) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Account is not selected")
@@ -886,6 +886,7 @@ export default function useMultisig() {
                             authId: selectedId,
                             blockchain: blockchain,
                             txHash: receipt.transactionHash,
+                            tags: tags
                         }))
                     }
                 })
@@ -1001,6 +1002,7 @@ export default function useMultisig() {
                     authId: selectedId,
                     blockchain: blockchain,
                     txHash: safeHash,
+                    tags: tags,
                 }))
 
                 return safeHash;

@@ -1,10 +1,10 @@
 import { BASE_URL, DecimalConverter, IPrice } from "utils/api";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess";
+import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { FirestoreRead } from "rpcHooks/useFirebase";
 import { ITag } from "../tags/index.api";
-import { ATag, CoinStats, ISpendingResponse } from "./_spendingType";
+import { ATag, CoinStats, IFlowDetailItem, ISpendingResponse } from "./_spendingType";
 import { Blockchains, BlockchainType } from "types/blockchains";
 import BigNumber from "bignumber.js";
 import axiosRetry from "axios-retry";
@@ -166,7 +166,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                     if (coin && transfer.coin.symbol !== coin) return
                     if (secondCoin && transfer.coin.symbol !== secondCoin) return
                     sum.push({
-                        coin: transfer.coin.name,
+                        coin: transfer.coin.symbol,
                         totalSpending: DecimalConverter(new BigNumber(transfer.amount).div(transfer.coin.decimals).toNumber(), transfer.coin.decimals),
                     })
                 })
@@ -177,11 +177,10 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
 }
 
 
-interface CalendarType { name: AltCoins, amount: string, type: "in" | "out" }
 const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccounts: string[], selectedDay: number, currencies: IPrice, blockchain: BlockchainType) => {
     try {
         let calendar: {
-            [key: string]: CalendarType[]
+            [key: string]: IFlowDetailItem[]
         } = {}
 
         const feeAll: {
@@ -189,48 +188,60 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
         } = {}
 
 
-        const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1}/${time.getDate()}`
+        const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1 > 9 ? time.getMonth() + 1 : `0${time.getMonth() + 1}`}/${time.getDate() > 9 ? time.getDate() : `0${time.getDate()}`}`
 
         let oldest: IFormattedTransaction | null = null
         let timeIndex = Math.ceil(new Date().getTime() / 1000);
 
         let newest: number = 0;
-        for (const t of transactions) {
-            if (t.timestamp > newest) newest = t.timestamp
-            if (Number(t.rawData.timeStamp) < timeIndex) {
-                timeIndex = Number(t.rawData.timeStamp);
-                oldest = t;
+        for (const txItem of transactions) {
+            if (txItem.timestamp > newest) newest = txItem.timestamp
+            if (Number(txItem.rawData.timeStamp) < timeIndex) {
+                timeIndex = Number(txItem.rawData.timeStamp);
+                oldest = txItem;
             }
-            const isOut = selectedAccounts.some(s => s.toLowerCase() === t.rawData.from.toLowerCase());
+            const isOut = !!selectedAccounts.find(s => s.toLowerCase() === txItem.rawData.from.toLowerCase());
 
-            const tTime = new Date(parseInt(t.rawData.timeStamp) * 1e3)
-            const tDay = Math.abs(date.subtract(new Date(), tTime).toDays());
+            const tTime = new Date(parseInt(txItem.rawData.timeStamp) * 1e3)
+            const tDay = Math.abs(date.subtract(new Date(Date.now()), tTime).toDays());
             const sTime = stringTime(tTime)
+
             if (tDay <= selectedDay) {
-                let feeToken = currencies[t.rawData.tokenSymbol ?? ""];
-                feeAll[sTime] = [...(feeAll?.[sTime] ?? []), { name: feeToken, amount: ((+t.rawData.gasPrice) * (+t.rawData.gasUsed)).toString() }]
+                let feeToken = currencies[txItem.rawData?.tokenSymbol?.toUpperCase() ?? txItem.rawData?.feeCurrency?.toUpperCase() ?? ""];
 
-                if (!t.isError) {
+                const txFee = { name: feeToken, amount: ((+txItem.rawData.gasPrice) * (+txItem.rawData.gasUsed)).toString() }
+                feeAll[sTime] = [...(feeAll?.[sTime] ?? []), txFee]
 
-                    if (t.id === ERC20MethodIds.transfer || t.id === ERC20MethodIds.transferFrom || t.id === ERC20MethodIds.transferWithComment || t.id === ERC20MethodIds.automatedTransfer || t.id === ERC20MethodIds.automatedCanceled) {
-                        const tx = t as ITransfer;
+                if (!txItem.isError) {
+                    if (txItem.id === ERC20MethodIds.transfer || txItem.id === ERC20MethodIds.transferFrom || txItem.id === ERC20MethodIds.transferWithComment || txItem.id === ERC20MethodIds.automatedTransfer || txItem.id === ERC20MethodIds.automatedCanceled) {
+                        const tx = txItem as ITransfer;
                         if (!tx.coin) continue;
-                        const current: CalendarType = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in" };
+                        const current: IFlowDetailItem = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in", fee: txFee };
                         calendar[sTime] = [...(calendar[sTime] ?? []), current];
                     }
-                    if (t.id === ERC20MethodIds.noInput) {
-                        const coin = (t as ITransfer).coin;
+                    if (txItem.id === ERC20MethodIds.noInput) {
+                        const coin = (txItem as ITransfer).coin;
                         if (coin) {
-                            const current: CalendarType = { name: coin, amount: t.rawData.value, type: isOut ? "out" : "in" };
+                            const current: IFlowDetailItem = { name: coin, amount: txItem.rawData.value, type: isOut ? "out" : "in", fee: txFee };
                             calendar[sTime] = [...(calendar[sTime] ?? []), current];
                         }
                     }
-                    if (t.id === ERC20MethodIds.batchRequest || t.id === ERC20MethodIds.automatedBatchRequest) {
-                        const tx = t as IBatchRequest;
+                    if (txItem.id === ERC20MethodIds.batchRequest || txItem.id === ERC20MethodIds.automatedBatchRequest) {
+                        const tx = txItem as IBatchRequest;
                         tx.payments.forEach(transfer => {
-                            const current: CalendarType = { name: transfer.coin, amount: transfer.amount, type: isOut ? "out" : "in" };
+                            const current: IFlowDetailItem = { name: transfer.coin, amount: transfer.amount, type: isOut ? "out" : "in", fee: txFee };
                             calendar[sTime] = [...(calendar[sTime] ?? []), current];
                         })
+                    }
+
+                    if (txItem.id === ERC20MethodIds.swap) {
+                        const tx = txItem as ISwap;
+
+                        const currentInput: IFlowDetailItem = { name: tx.coinIn, amount: tx.amountIn, type: "out", fee: { amount: "0", name: feeToken } };
+                        calendar[sTime] = [...(calendar[sTime] ?? []), currentInput];
+
+                        const currentOutput: IFlowDetailItem = { name: tx.coinOutMin, amount: tx.amountOutMin, type: "in", fee: txFee };
+                        calendar[sTime] = [...(calendar[sTime] ?? []), currentOutput];
                     }
                 }
             }

@@ -3,7 +3,7 @@ import { IFlowDetail, IFlowDetailItem } from "pages/api/calculation/_spendingTyp
 import { RootState } from "redux/store";
 import { DecimalConverter } from "utils/api";
 import date from 'date-and-time';
-import { generatePriceCalculation } from "utils/const";
+import { generatePriceCalculation, GetFiatPrice } from "utils/const";
 
 export const SelectStats = createDraftSafeSelector(
     (state: RootState) => state.remoxData.stats,
@@ -19,7 +19,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.coins,
     (stats, storage, balances, hp, accounts) => {
         if (stats) {
-            const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1}/${time.getDate()}`
+            const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1 > 9 ? time.getMonth() + 1 : `0${time.getMonth() + 1}`}/${time.getDate() > 9 ? time.getDate() : `0${time.getDate()}`}`
             const timeCoins: { [time: string]: { [symbol: string]: number } } = {}
             const preference = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
             let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
@@ -37,16 +37,18 @@ export const SelectDailyBalance = createDraftSafeSelector(
                         timeCoins[flowKey] = {};
                     }
                     if (balance[item.name.symbol]) {
-                        balance[item.name.symbol].amount += (item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals)
+                        balance[item.name.symbol].amount += ((item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals));
                     }
-
-                    if (!timeCoins[flowKey][item.name.symbol]) {
-                        timeCoins[flowKey][item.name.symbol] = balance[item.name.symbol].amount
+                    if (balance[item.fee.name.symbol]) {
+                        balance[item.fee.name.symbol].amount += DecimalConverter(item.fee.amount, item.fee.name.decimals);
                     }
+                    // if (!timeCoins[flowKey][item.name.symbol]) {
+                    timeCoins[flowKey][item.name.symbol] = balance[item.name.symbol].amount
+                    // }
                     // total += (item.type === "in" ? 1 : -1) * DecimalConverter(item.amount, item.name.decimals)
                 })
                 response[flowKey] = Object.entries(timeCoins[flowKey]).reduce((a, [key, val]) => {
-                    a += (hp[balance[key].symbol]?.[preference].find(s => key === s.date)?.price ?? generatePriceCalculation(balance[key], hp, pc, preference))
+                    a += ((hp[balance[key].symbol]?.[preference].find(s => new Date(flowKey).getTime() === new Date(s.date).getTime())?.price) ?? GetFiatPrice(balances[key], preference)) * val
                     return a;
                 }, 0);
             })

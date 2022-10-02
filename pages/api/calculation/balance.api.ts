@@ -63,17 +63,17 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
             balanceRes.forEach((altcoinBalance, index) => {
                 if (altcoinBalance.status === "fulfilled") {
                     const item = altcoinBalance.value[1]
-                    balances = Object.assign(balances, { [item.symbol]: balances[item.symbol] ? new BigNumber(altcoinBalance.value[0]).plus(balances[item.symbol]).toString() : altcoinBalance.value[0].toString() });
+                    balances = Object.assign(balances, { [item.symbol]: balances[item.symbol] ? new BigNumber(altcoinBalance.value[0]).div(10 ** item.decimals).plus(balances[item.symbol]).toString() : new BigNumber(altcoinBalance.value[0]).div(10 ** item.decimals).toString() });
                 }
             })
         } else {
             const { data } = await axios.get<{ result: { balance: string, contractAddress?: string }[] }>("https://explorer.celo.org/api?module=account&action=tokenlist&address=" + toChecksumAddress(address));
             const accountBalance = data.result;
-         
+
             for (const coin of coinList) {
                 const balance = accountBalance.find(b => b.contractAddress?.toLowerCase() === coin.address.toLowerCase());
 
-                balances = Object.assign(balances, { [coin.symbol]: balances[coin.symbol] ? new BigNumber(balance?.balance ?? 0).plus(balances[coin.symbol]).toString() : (balance?.balance ?? 0).toString() });
+                balances = Object.assign(balances, { [coin.symbol]: balances[coin.symbol] ? new BigNumber(balance?.balance ?? 0).div(10 ** coin.decimals).plus(balances[coin.symbol]).toString() : new BigNumber(balance?.balance ?? 0).div(10 ** coin.decimals).toString() });
 
             }
         }
