@@ -1,4 +1,3 @@
-import dateFormat from "dateformat";
 import { forwardRef, useEffect, useState, useTransition } from "react";
 import { TransactionStatus, CoinsName, AltCoins } from "types";
 import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
@@ -25,7 +24,8 @@ import { DecimalConverter } from "utils/api";
 import { Tx_Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh/txRefresh";
 import useLoading from "hooks/useLoading";
 import Loader from "components/Loader";
-
+import DateTime from 'date-and-time'
+import dateFormat from "dateformat";
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
@@ -50,7 +50,7 @@ const Transactions = () => {
 
     // const list = useAppSelector(SelectTransactions)
 
-    const [date, setDate] = useState<DateObject[] | null>(null);
+    const [datePicker, setDate] = useState<number[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [selectedBudgets, setSelectedBudgets] = useState<string[]>([]);
     const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
@@ -62,7 +62,7 @@ const Transactions = () => {
 
     useEffect(() => {
         setPagination(STABLE_INDEX)
-    }, [date, selectedTags, selectedBudgets, selectedAccounts, selectedDirection, specificAmount, minAmount, maxAmount])
+    }, [datePicker, selectedTags, selectedBudgets, selectedAccounts, selectedDirection, specificAmount, minAmount, maxAmount])
 
     const refreshFn = async () => {
         await dispatch(Tx_Refresh_Data_Thunk())
@@ -72,6 +72,8 @@ const Transactions = () => {
 
 
     const filterFn = (c: (IFormattedTransaction | ITransactionMultisig)) => {
+        const date = datePicker
+
         if ('tx' in c) {
             const tx = c.tx
 
@@ -82,23 +84,15 @@ const Transactions = () => {
 
             if (selectedTags.length > 0 && !c.tags.some(s => selectedTags.includes(s.id))) return false
 
-            if (selectedAccounts.length > 0 && !selectedAccounts.some(s => s.toLowerCase() === c.contractAddress.toLowerCase())) return false
+            if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.contractAddress.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
 
             if (specificAmount && (tx.amount ?? 0) !== specificAmount) return false
             if (minAmount && (tx.amount ?? tx.payments?.reduce((a, c) => a += +c.amount, 0) ?? Number.MAX_VALUE) < minAmount) return false
             if (maxAmount && (tx.amount ?? tx.payments?.reduce((a, c) => a += +c.amount, 0) ?? 0) > maxAmount) return false
-            if (date && date.length === 1) {
-                const crr = new Date(c.timestamp * 1e3)
-                if (`${crr.getFullYear()}${crr.getMonth() + 1}${crr.getDay()}` !== `${date[0].year}${date[0].month.number}${date[0].day}`) return false
-            } else if (date && date.length === 2) {
-                const crr = new Date(c.timestamp * 1e3)
-                if (`${crr.getFullYear()}${crr.getMonth() + 1}${crr.getDay()}` < `${date[0].year}${date[0].month.number}${date[0].day}`) return false
-                if (`${crr.getFullYear()}${crr.getMonth() + 1}${crr.getDay()}` > `${date[1].year}${date[1].month.number}${date[1].day}`) return false
-            }
-            return true
         } else {
+            // console.log(selectedAccounts, c.address)
             const tx = c as any
             if (selectedDirection !== "Any") {
                 if (selectedDirection === "In" && c.address.toLowerCase() === c.rawData.from.toLowerCase()) return false
@@ -107,24 +101,35 @@ const Transactions = () => {
 
             if (selectedTags.length > 0 && !c.tags.some(s => selectedTags.includes(s.id))) return false
 
-            if (selectedAccounts.length > 0 && !selectedAccounts.some(s => s.toLowerCase() === c.address.toLowerCase())) return false
+            if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
 
             if (specificAmount && (tx?.amount ?? 0) !== specificAmount) return false
             if (minAmount && (tx?.amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += +c.amount, 0) ?? Number.MAX_VALUE) < minAmount) return false
             if (maxAmount && (tx?.amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += +c.amount, 0) ?? 0) > maxAmount) return false
-            if (date && date.length === 1) {
-                const crr = new Date(c.timestamp * 1e3)
-                if (`${crr.getFullYear()}${(crr.getMonth() + 1).toString().padStart(2, "0")}${crr.getDay().toString().padStart(2, "0")}` !== `${date[0].year}${date[0].month.number.toString().padStart(2, "0")}${date[0].day.toString().padStart(2, "0")}`) return false
-            } else if (date && date.length === 2) {
-                const crr = new Date(c.timestamp * 1e3)
-
-                if (`${crr.getFullYear()}${(crr.getMonth() + 1).toString().padStart(2, "0")}${crr.getDay().toString().padStart(2, "0")}` < `${date[0].year}${date[0].month.number.toString().padStart(2, "0")}${date[0].day.toString().padStart(2, "0")}`) return false
-                if (`${crr.getFullYear()}${(crr.getMonth() + 1).toString().padStart(2, "0")}${crr.getDay().toString().padStart(2, "0")}` > `${date[1].year}${date[1].month.number.toString().padStart(2, "0")}${date[1].day.toString().padStart(2, "0")}`) return false
-            }
-            return true
         }
+
+        if (date && date.length === 1) {
+            const crr = new Date(c.timestamp * 1e3)
+            const dateOne = new Date(date[0])
+            const prev = new Date(dateOne.getFullYear(), dateOne.getMonth(), dateOne.getDate())
+            const next = new Date(DateTime.addDays(dateOne, -1).getFullYear(), DateTime.addDays(dateOne, -1).getMonth(), DateTime.addDays(dateOne, -1).getDay());
+
+            if (crr.getTime() < prev.getTime() || crr.getTime() > next.getTime()) return false
+        } else if (date && date.length === 2) {
+            const crr = new Date(c.timestamp * 1e3)
+            const dateOne = new Date(date[0])
+            const dateTwo = new Date(date[1])
+            const prev = new Date(dateOne.getFullYear(), dateOne.getMonth(), dateOne.getDate())
+            const next = new Date(DateTime.addDays(dateTwo, 1).getFullYear(), DateTime.addDays(dateTwo, 1).getMonth(), DateTime.addDays(dateTwo, 1).getDate())
+            console.log(crr.getTime(), prev.getTime(), next.getTime())
+            if (crr.getTime() < prev.getTime()) return false
+            if (crr.getTime() > next.getTime()) return false
+        }
+
+        return true
+
     }
     const txs = Txs?.filter(filterFn)
 
@@ -148,8 +153,8 @@ const Transactions = () => {
                         </div>
                     </div>
                     <div className="flex justify-between">
-                        <div className="flex space-x-5">
-                            <div className="py-1 relative" ref={exceptRef} onClick={() => setOpen(true)}>
+                        <div className="flex space-x-5 items-center">
+                            <div className="relative" ref={exceptRef} onClick={() => setOpen(true)}>
                                 <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold">
                                     + Add Filter
                                 </div>
@@ -158,7 +163,7 @@ const Transactions = () => {
                                         {isOpen &&
                                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .33 }}>
                                                 <Filter
-                                                    date={date}
+                                                    date={datePicker}
                                                     setDate={setDate}
                                                     selectedTags={selectedTags}
                                                     setSelectedTags={setSelectedTags}
@@ -179,7 +184,31 @@ const Transactions = () => {
                                     </AnimatePresence>
                                 </div>
                             </div>
-                            <div className="w-[1px] h-full dark:bg-gray-500 bg-gray-500"></div>
+                            <div>|</div>
+                            <div className="flex space-x-5">
+                                {datePicker.length > 0 &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-semibold">
+                                        <div>{dateFormat(datePicker[0], "mmm dd, yyyy")}</div>
+                                        {datePicker.length > 1 && <div>-</div>}
+                                        {datePicker.length > 1 && <div>
+                                            {dateFormat(datePicker[1], "mmm dd, yyyy")}
+                                        </div>}
+                                        <div className="pl-3 cursor-pointer" onClick={() => setDate([])}>X</div>
+                                    </div>
+                                }
+                                {selectedTags.length > 0 &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-semibold">
+                                        <div>Labels ({selectedTags.length})</div>
+                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedTags([])}>X</div>
+                                    </div>
+                                }
+                                {selectedBudgets.length > 0 &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-semibold">
+                                        <div>Budgets ({selectedBudgets.length})</div>
+                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedBudgets([])}>X</div>
+                                    </div>
+                                }
+                            </div>
                         </div>
                         {txs.length > 0 && <div className="py-1">
                             <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {

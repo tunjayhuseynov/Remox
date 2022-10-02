@@ -44,12 +44,13 @@ interface IProps {
         currency?: AltCoins
     },
     action: string,
-    budget?: IBudgetORM
+    budget?: IBudgetORM,
+    txIndex: number,
 }
 
 const Detail = ({
     openDetail, setOpenDetail, transaction, account, tags,
-    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, budget, direction
+    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, budget, direction, txIndex
 }: IProps) => {
 
     const [mounted, setMounted] = useState(false)
@@ -101,19 +102,20 @@ const Detail = ({
                 automationCanceled ? +automationCanceled.amount : transferBatch?.payments.reduce((acc, curr) => acc + +curr.amount, 0) ?? 0;
 
     const budgetChangeFn = (val: IBudgetORM) => async () => {
-        if (!account?.provider) return ToastRun(<>Cannot get the multisig provider</>, "error")
+        // if (!account?.provider) return ToastRun(<>Cannot get the multisig provider</>, "error")
         setBudgetLoading(true)
         if (budget) {
             await dispatch(Remove_Tx_From_Budget_Thunk({
                 budget: budget,
                 isExecuted: isExecuted,
+                txIndex: txIndex,
                 tx: {
                     amount: amount,
                     contractAddress: transaction.address,
                     contractType: isMultisig ? "multi" : "single",
                     hashOrIndex: transaction.hash,
                     timestamp: timestamp,
-                    protocol: account.provider,
+                    protocol: account?.provider ?? null,
                     token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
                     isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
                 }
@@ -122,13 +124,14 @@ const Detail = ({
 
         await dispatch(Add_Tx_To_Budget_Thunk({
             budget: val,
+            txIndex: txIndex,
             tx: {
                 amount: amount,
                 contractAddress: transaction.address,
                 contractType: isMultisig ? "multi" : "single",
                 hashOrIndex: transaction.hash,
                 timestamp: timestamp,
-                protocol: account.provider,
+                protocol: account?.provider ?? null,
                 token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
                 isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
             },

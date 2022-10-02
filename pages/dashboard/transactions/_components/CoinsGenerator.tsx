@@ -32,7 +32,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
             <span className="font-semibold text-left">
                 {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
             </span>
-            <span className="text-xs text-gray-200">
+            <span className="text-xs text-gray-500 dark:text-gray-200">
                 {`${symbol}${price.toFixed(0).length > 18 ? 0 : price.toLocaleString()}`}
             </span>
         </div>

@@ -291,6 +291,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     method: tx.tx.method ?? ERC20MethodIds.noInput,
                 }}
                 direction={direction}
+                txIndex={txPositionInRemoxData}
                 action={action}
                 isExecuted={tx.isExecuted}
                 isMultisig={true}

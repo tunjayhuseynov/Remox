@@ -224,6 +224,7 @@ const SingleTransactionItem = ({
       <Detail
         transaction={transaction}
         action={action}
+        txIndex={txPositionInRemoxData}
         isExecuted={true}
         isMultisig={false}
         isRejected={false}

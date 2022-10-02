@@ -44,27 +44,35 @@ export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | I
         api.dispatch(removeRecurringTask({ streamId: id }))
     }
 
-    api.dispatch(addTxToList({
-        tx: data,
-    }))
-
     if (tags && tags.length > 0) {
         for (const tag of tags) {
+            const obj = {
+                id: nanoid(),
+                address: account.address,
+                hash: txHash,
+                contractType: account.signerType,
+                provider: account.provider
+            }
+            data.tags.find(s => s.id === tag.id)?.transactions.push(obj) || data.tags.push({
+                color: tag.color,
+                id: tag.id,
+                isDefault: tag.isDefault,
+                name: tag.name,
+                transactions: [obj]
+            })
+
             await api.dispatch(
                 AddTransactionToTag({
                     tagId: tag.id,
-                    txIndex: 0,
-                    transaction: {
-                        id: nanoid(),
-                        address: account.address,
-                        hash: txHash,
-                        contractType: account.signerType,
-                        provider: account.provider
-                    },
+                    transaction: obj,
                 })
             ).unwrap();
         }
     }
+
+    api.dispatch(addTxToList({
+        tx: data,
+    }))
 
     return data;
 })

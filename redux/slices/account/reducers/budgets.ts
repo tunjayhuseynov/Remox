@@ -48,7 +48,7 @@ export default {
             }
         }
     },
-    addTxToBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean } }) => {
+    addTxToBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean, txIndexInCM?: number } }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
@@ -90,8 +90,17 @@ export default {
                 }
             }
         }
+
+        if (payload.txIndexInCM) {
+            if (state.cumulativeTransactions[payload.txIndexInCM].budget) {
+                state.cumulativeTransactions[payload.txIndexInCM].budget!.txs = [...state.cumulativeTransactions[payload.txIndexInCM].budget!.txs, payload.tx]
+            } else {
+                state.cumulativeTransactions[payload.txIndexInCM].budget = payload.budget;
+                state.cumulativeTransactions[payload.txIndexInCM].budget!.txs = [payload.tx]
+            }
+        }
     },
-    removeTxFromBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean } }) => {
+    removeTxFromBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean, txIndexInCM?: number } }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
@@ -132,6 +141,13 @@ export default {
                     }
                 }
             }
+        }
+
+        if (payload.txIndexInCM) {
+            if (state.cumulativeTransactions[payload.txIndexInCM].budget) {
+                state.cumulativeTransactions[payload.txIndexInCM].budget!.txs =
+                    state.cumulativeTransactions[payload.txIndexInCM].budget!.txs.filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());
+            } 
         }
     },
     addSubBudget: (state: IRemoxData, { payload }: { payload: ISubbudgetORM }) => {
@@ -197,7 +213,7 @@ export default {
             if (budgetIndex !== -1) {
                 const subBudgetIndex = (state.budgetExercises[index].budgets[budgetIndex] as IBudget).subbudgets.findIndex((subBudget) => subBudget.id === payload.subbudget.id);
                 if (subBudgetIndex !== -1) {
-                    
+
                     state.budgetExercises[index].budgets[budgetIndex].txs = state.budgetExercises[index].budgets[budgetIndex].txs
                         .filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());;
 

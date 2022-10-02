@@ -17,7 +17,8 @@ interface IBaseOrmBudget {
 
 interface IBudgetAndTx extends IBaseOrmBudget {
     tx: IBudgetTX,
-    isExecuted: boolean
+    isExecuted: boolean,
+    txIndex: number
 }
 
 /*Budget */
@@ -68,7 +69,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
     }))
 })
 
-export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted }, api) => {
+export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted, txIndex }, api) => {
     const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
@@ -77,12 +78,13 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
         budget,
         tx,
         currency,
-        isTxExecuted: isExecuted
+        isTxExecuted: isExecuted,
+        txIndexInCM: txIndex
     }))
 
 })
 
-export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/remove_tx_from_budget", async ({ budget, tx, isExecuted }, api) => {
+export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/remove_tx_from_budget", async ({ budget, tx, isExecuted, txIndex }, api) => {
     const currencies = (api.getState() as RootState).remoxData.coins
     await Update_Budget({
         amount: budget.amount,
@@ -106,7 +108,8 @@ export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>(
         budget,
         tx,
         currency,
-        isTxExecuted: isExecuted
+        isTxExecuted: isExecuted,
+        txIndexInCM: txIndex
     }))
 
 })

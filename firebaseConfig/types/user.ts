@@ -39,7 +39,7 @@ export interface IBudgetExercise {
 export interface IBudgetTX {
     contractAddress: string;
     contractType: 'single' | 'multi';
-    protocol: string;
+    protocol: string | null;
     hashOrIndex: string,
     timestamp: number,
     isSendingOut: boolean,

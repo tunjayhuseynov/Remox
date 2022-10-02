@@ -16,6 +16,7 @@ import { Checkbox, FormControlLabel, Input, Radio, RadioGroup } from '@mui/mater
 import { ITag } from 'pages/api/tags/index.api';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { IAccount, IBudget } from 'firebaseConfig';
+import dateTime from 'date-and-time'
 
 const Accordion = styled((props: AccordionProps) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -66,7 +67,7 @@ const mainCheckBox = {
 }
 
 export interface ITransactionFilter {
-    date: DateObject[] | null;
+    date: number[];
     setDate: Dispatch<ITransactionFilter["date"]>,
 
     selectedTags: string[];
@@ -149,7 +150,11 @@ const Filter = ({
                     <div className='text-sm pb-1 font-medium'>
                         Show transaction for
                     </div>
-                    <DatePicker plugins={[<DatePanel />]} value={date} onChange={setDate} range={true} maxDate={new Date()} className={`${dark ? "bg-dark" : ""}`} style={
+                    <DatePicker plugins={[<DatePanel sort="date" />]} value={date} onChange={(data) => {
+                        if (Array.isArray(data)) {
+                            setDate(data.map(s => s.toDate().getTime()))
+                        }
+                    }} range={true} className={`${dark ? "bg-dark" : ""}`} style={
                         {
                             height: "2rem",
                         }
