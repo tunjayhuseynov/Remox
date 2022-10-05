@@ -77,6 +77,7 @@ export default function DynamicRequest({
         const amount = request.amount;
         const address = request.address;
         const coin = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
+        console.log(coin)
 
         if(request.fiat) {
           const fiatPrice = GetFiatPrice(coin!, request.fiat)
@@ -97,6 +98,7 @@ export default function DynamicRequest({
         if(request.secondCurrency && request.secondAmount) {
           const secondAmount = request.secondAmount;
           const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+          console.log(coin2)
 
           if(request.fiatSecond) {
             const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
@@ -116,19 +118,21 @@ export default function DynamicRequest({
         } 
       };
 
-      await SendTransaction(accountAndBudget.account!, inputs, {
-        budget: accountAndBudget.budget,
-      })
+      console.log(inputs)
 
-      inputs = [];
+      // await SendTransaction(accountAndBudget.account!, inputs, {
+      //   budget: accountAndBudget.budget,
+      // })
 
-      for(const request of requests) {
-        await removeRequest(request, userId ?? "");
-        dispatch(removeApprovedRequest(request.id));
-      }
+      // inputs = [];
 
-      setSelectedApprovedRequests([])
-      setNotify(false);
+      // for(const request of requests) {
+      //   await removeRequest(request, userId ?? "");
+      //   dispatch(removeApprovedRequest(request.id));
+      // }
+
+      // setSelectedApprovedRequests([])
+      // setNotify(false);
     } catch (error) {
       console.log(error);
       throw new Error(error as any);
@@ -229,11 +233,11 @@ export default function DynamicRequest({
                 Requested Amount
               </th>
               <th className="text-sm py-3 text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                Requests Type
+                Request Type
               </th>
-              <th>
               {page === RequestStatus.pending &&
-                selectedpPendingRequests.length > 0 && (
+                <th>
+                  {selectedpPendingRequests.length > 0 && (
                     <Button
                       className="text-sm !py-1 border-none !my-0 !px-2"
                       onClick={() => {
@@ -241,22 +245,22 @@ export default function DynamicRequest({
                       }}
                     >
                       Approve Selected
-                    </Button>
-                )}
-                </th>
-              <th>
+                    </Button>)}
+                 </th>
+                }
                 {page === RequestStatus.approved &&
-                selectedApprovedRequests.length > 0 && (
+                  <th>
+                    {selectedApprovedRequests.length > 0 && (
                     <Button
-                      className="text-sm !py-1 border-none !my-0 !px-2"
+                      className="text-sm !py-1 border-none !my-0 !px-3"
                       onClick={() => {
                         setNotify(true);
                       }}
                     >
                       Pay selected
-                    </Button>
-                )}
-              </th>
+                    </Button>)}
+                  </th>
+                }
             </tr>
             {requestsList.map((request) => {
               const coin1 = Object.values(GetCoins).find(
@@ -311,18 +315,18 @@ export default function DynamicRequest({
             </div>
             <table className="w-full pb-4">
               <thead>
-                <tr className="grid grid-cols-[25%,20%,30%,25%] font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
+                <tr className="grid grid-cols-[25%,20%,30%,25%] font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15  dark:bg-darkSecond py-2 rounded-md ">
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
                     Name
                   </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                     Request date
                   </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                     Requested Amount
                   </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                    Requests Type
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                    Request Type
                   </th>
                 </tr>
                 {selectedApprovedRequests.map((s) => (
@@ -340,7 +344,7 @@ export default function DynamicRequest({
               <Button
                 isLoading={isExecuting}
                 onClick={() => setExecuting()}
-                className={"py-2 mt-10 mb-3 text-lg"}
+                className={"py-2 mt-10 mb-3 text-sm"}
               >
                 Confirm and Create Transaction
               </Button>

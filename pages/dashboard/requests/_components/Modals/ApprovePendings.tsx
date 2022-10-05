@@ -11,17 +11,17 @@ const ApprovePendings = ({selectedpPendingRequests , isApproving, setApproving} 
         </div>
         <table className="w-full pt-12 pb-4">
           <thead>
-            <tr className="grid grid-cols-[25%,20%,30%,25%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
+            <tr className="grid grid-cols-[25%,20%,30%,25%]  font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-darkSecond rounded-md ">
+              <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
                 Name
               </th>
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Request date
               </th>
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Requested Amount
               </th>
-              <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Requests Type
               </th>
             </tr>
@@ -34,7 +34,7 @@ const ApprovePendings = ({selectedpPendingRequests , isApproving, setApproving} 
           <Button
             isLoading={isApproving}
             onClick={() => setApproving()}
-            className={"py-2 px-16 mt-5 mb-3 text-base"}
+            className={"py-2 px-16 mt-5 mb-3 text-sm"}
           >
             Approve Requests
           </Button>

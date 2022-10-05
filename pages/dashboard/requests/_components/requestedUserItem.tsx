@@ -2,7 +2,7 @@ import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { Dispatch, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AltCoins } from "types";
-import { AddressReducer } from "utils";
+import { AddressReducer, SetComma } from "utils";
 import dateFormat from "dateformat";
 import Modal from "components/general/modal";
 import Button from "components/button";
@@ -268,17 +268,18 @@ const RequestedUserItem = ({
         </td>
         <td className="flex flex-col justify-center text-sm">
            <div className="flex items-center">
-            {request.fiat ? <div className="flex items-center justify-between w-full pr-32"> 
-                <span className="">{request.amount} </span> 
-                <div className="flex items-center">
-                  <img src={fiatFirst?.logo} alt="" className="mr-2 w-5 h-3" />
-                  <span>{request.fiat} as</span>
-                  <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" />
+           {request.fiat ? 
+              <div className="flex items-center  justify-end"> 
+                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2"  />
+                <div className="flex items-center space-x-2">
+                  <span>based on</span>
+                  <img src={fiatFirst?.logo} alt="" className="w-5 h-3"/>
+                  <span>{request.fiat} {SetComma(+request.amount)}</span>
                 </div>
               </div> :
               <div className="flex items-center">
-                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                <span className="">{request.amount}</span>
+                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2"  />
+                <span className="">{SetComma(+request.amount)}</span>
               </div>
             }
             </div>
@@ -290,12 +291,12 @@ const RequestedUserItem = ({
                     <div className="flex items-center space-x-2">
                       <span>based on</span>
                       <img src={fiatSecond?.logo} alt="" className="w-5 h-3" />
-                      <span className="">{request.fiatSecond} {request.secondAmount}</span> 
+                      <span className="">{request.fiatSecond} {SetComma(+request.secondAmount)}</span> 
                     </div>
                   </div> :
                   <div className="flex items-center">
                     <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                    <span className="">{request.secondAmount}</span>
+                    <span className="">{SetComma(+request.secondAmount)}</span>
                   </div>
                 }
               </div>}

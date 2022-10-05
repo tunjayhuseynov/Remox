@@ -2,6 +2,7 @@ import { FilledInput, FormControl, Input, InputAdornment } from "@mui/material"
 import Loader from "components/Loader";
 import { useState } from "react";
 import { AiFillCheckCircle } from "react-icons/ai";
+import { MdDone } from "react-icons/md";
 
 interface IProps {
     defaultValue: string;
@@ -37,7 +38,7 @@ export default ({ defaultValue, onSubmit, placeholder }: IProps) => {
                     <InputAdornment position="end">
                         {value !== savedDefaultValue &&
                             <div className="cursor-pointer" onClick={submit}>
-                                {isLoading ? <Loader size={14} /> : <AiFillCheckCircle color="#FF7348" />}
+                                {isLoading ? <Loader size={14} /> : <MdDone  className="cursor-pointer mb-1 rounded-full bg-primary h-4 w-4 p-[0.15rem] text-white" />}
                             </div>
                         }
                     </InputAdornment>}

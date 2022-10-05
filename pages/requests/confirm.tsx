@@ -1,10 +1,10 @@
 import Button from "components/button";
-
+import { fiatList } from "components/general/PriceInputField";
 import { IRequest } from "rpcHooks/useRequest";
 import { AltCoins, Coins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 interface IProps {
   request: IRequest | null | undefined;
@@ -28,6 +28,10 @@ export default ({
 
   const currency = GetCoins.find((coin) => coin.symbol === request.currency);
   const secondCurrency = GetCoins.find((coin) => coin.symbol === request.secondCurrency);
+
+  const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
+  const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
+
   
   return (
     <div className="flex flex-col space-y-8 px-2">
@@ -55,14 +59,14 @@ export default ({
                   <div className="flex gap-x-2 items-center">
                     {!!request?.currency && (
                       <div className="flex items-center">
-                        {request.fiat ? <span className="mr-2">{request.fiat} as</span> : ""}
+                        {request.fiat ? <div className="mr-2 flex items-center gap-2"> <img src={fiatFirst?.logo} className="w-5 h-3" alt="" />  <span>{request.fiat}</span> as</div> : ""}
                         <img
                           src={currency!.logoURI}
                           className="rounded-xl w-[1.25rem] h-[1.25rem]"
                         />
                       </div>
                     )}
-                    {currency ? <span>{currency!.name}</span> : "Token not provided"}
+                    {currency ? <span>{currency!.symbol}</span> : "Token not provided"}
                   </div>
                 </div>
             </div>
@@ -79,7 +83,7 @@ export default ({
                     <div className="flex gap-x-2 items-center">
                       {secondCurrency ? (
                         <div className="flex items-center">
-                        {request.fiatSecond ? <span className="mr-2">{request.fiat} as</span> : ""}
+                        {request.fiatSecond ? <div className=" flex items-center gap-2"> <img src={fiatSecond?.logo} className="w-5 h-3" alt="" /> <span className="mr-2">{request.fiat} as</span> </div> : ""}
                         <img
                           src={secondCurrency!.logoURI}
                           className="rounded-xl w-[1.25rem] h-[1.25rem]"
@@ -89,8 +93,8 @@ export default ({
                         ""
                       )}
                       {secondCurrency
-                        ? <span>{secondCurrency.name}</span> 
-                        : ""}
+                        ? <span>{secondCurrency.symbol}</span> 
+                        : "Token not provided"}
                     </div>
                   </div>
                 </div>

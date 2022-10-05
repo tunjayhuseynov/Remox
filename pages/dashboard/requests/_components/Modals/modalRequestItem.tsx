@@ -1,17 +1,21 @@
 import { IRequest, RequestStatus } from 'rpcHooks/useRequest';
-import {  useEffect, useRef, useState } from 'react';
+import {  useRef } from 'react';
 import { AddressReducer, SetComma } from 'utils';
 import { useWalletKit } from 'hooks';
 import Avatar from 'components/avatar';
 import dateFormat from 'dateformat';
 import { useAppSelector } from 'redux/hooks';
 import { SelectOwners } from 'redux/slices/account/remoxData';
+import { fiatList } from "components/general/PriceInputField";
+
 
 const ModalRequestItem = ({ request }: { request: IRequest }) => {
     const divRef = useRef<HTMLTableRowElement>(null)
     const { GetCoins } = useWalletKit()
     const owners = useAppSelector(SelectOwners)
     const owner = owners.find((owner) => owner.address == request.address)
+    const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
+    const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
 
     const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
     const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
@@ -31,7 +35,7 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
               )}
             </div>
             <div className={`sm:flex flex-col justify-center items-start `}>
-                <div className="text-lg font-medium">
+                <div className="text-sm font-medium">
                     {<span> {request.fullname ? `${request.fullname}` : "Unknown"} </span>}
                 </div>
                 {request.address && <div className="text-greylish font-medium text-[10px]">
@@ -41,38 +45,48 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
         </td>
         <td className="flex h-full items-center ">
           {request.serviceDate && (
-            <div className="flex text-greyish dark:text-white tracking-wide text-lg font-medium">
+            <div className="flex text-greyish dark:text-white tracking-wide text-sm font-medium">
               {dateFormat(new Date(request!.serviceDate * 1000), `dd/mm/yyyy`)}
             </div>
           )}
       </td>
-      <td className="flex flex-col justify-center">
-          <div className="flex items-center justify-start gap-1">
-            {request.fiat ? 
-            <div className="flex items-center gap-1"> 
-              <span className="text-base">{SetComma(+request.amount)} {request.fiat} as</span> 
-              <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-            </div> :
+      <td className="flex flex-col justify-center text-sm">
+           <div className="flex items-center">
+           {request.fiat ? 
+              <div className="flex items-center  justify-end"> 
+                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2"  />
+                <div className="flex items-center space-x-2">
+                  <span>based on</span>
+                  <img src={fiatFirst?.logo} alt="" className="w-5 h-3"/>
+                  <span>{request.fiat} {SetComma(+request.amount)}</span>
+                </div>
+              </div> :
               <div className="flex items-center">
-                  <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                  <span className="text-base">{SetComma(+request.amount)}</span>
+                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2"  />
+                <span className="">{SetComma(+request.amount)}</span>
               </div>
-            } 
-          </div>
-          {(request.secondCurrency && request.secondAmount) && <div className="flex items-center justify-start gap-1 mt-2">
-          {request.fiatSecond ? 
-          <div className="flex items-center gap-1"> 
-            <span className="text-base">{SetComma(+request.secondAmount)} {request.fiatSecond} as</span> 
-            <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full " />
-          </div> :
-              <div className="flex items-center">
-                  <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                  <span className="text-base">{SetComma(+request.secondAmount)}</span>
+            }
+            </div>
+            {(request.secondCurrency && request.secondAmount) && 
+              <div className="flex items-center gap-1 mt-3">
+                {request.fiatSecond ? 
+                  <div className="flex items-center justify-end"> 
+                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                    <div className="flex items-center space-x-2">
+                      <span>based on</span>
+                      <img src={fiatSecond?.logo} alt="" className="w-5 h-3" />
+                      <span className="">{request.fiatSecond} {SetComma(+request.secondAmount)}</span> 
+                    </div>
+                  </div> :
+                  <div className="flex items-center">
+                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
+                    <span className="">{SetComma(+request.secondAmount)}</span>
+                  </div>
+                }
               </div>
-            }      
-          </div>}
-        </td>
-      <td className="items-center flex text-lg font-medium ">
+            }
+      </td>
+      <td className="items-center flex text-sm font-medium ">
         {request.requestType}
       </td>
     </tr>
