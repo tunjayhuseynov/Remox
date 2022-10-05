@@ -8,6 +8,7 @@ import ContributorItem from 'pages/dashboard/contributors/_components/contributo
 import { TablePagination } from '@mui/material';
 import IconTextField from 'components/IconTextField';
 import AddTeam from './_components/addTeam';
+import CreateButton from 'components/general/CreateButton';
 
 
 const Contributors = () => {
@@ -64,7 +65,7 @@ const Contributors = () => {
     return <div>
         <div className="flex flex-col  pb-5 gap-10">
             <div className="flex justify-between items-center w-full">
-                <div className="text-4xl font-bold">
+                <div className="text-2xl font-bold">
                     Contributors
                 </div>
             </div>
@@ -109,8 +110,8 @@ const Contributors = () => {
                         rowsPerPage={STABLE_INDEX}            
                     />
                 </div>
-                <div className='w-full flex justify-center mt-5'>
-                    <span onClick={() => navigate.push('/dashboard/contributors/add-member')} className={`text-4xl round border-2 ${isDark ? "" : "border-[#CCCCCC] text-[#CCCCCC] " } px-14 py-2 cursor-pointer rounded-full`}>+</span>
+                <div className="flex justify-center !mt-0 py-10">
+                    <CreateButton onClick={() => navigate.push('/dashboard/contributors/add-member')} />
                 </div>
             </>
             }

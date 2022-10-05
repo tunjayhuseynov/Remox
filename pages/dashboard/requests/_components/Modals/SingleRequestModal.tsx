@@ -74,7 +74,7 @@ const SingleRequestModal = ({
                         />
                       </div>
                     )}
-                    {coin1 ? <span>{coin1!.name}</span> : "Token not provided"}
+                    {coin1 ? <span>{coin1!.symbol}</span> : "Token not provided"}
                   </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@ const SingleRequestModal = ({
                         ""
                       )}
                       {coin2
-                        ? <span>{coin2.name}</span> 
+                        ? <span>{coin2.symbol}</span> 
                         : ""}
                     </div>
                   </div>

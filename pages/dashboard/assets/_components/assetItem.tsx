@@ -32,8 +32,8 @@ const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
           </div>
           <div className="font-medium text-lg ">{asset.name}</div>
         </div>
-        <div className={`font-medium text-lg `}>{asset.amount.toLocaleString()}</div>
-        <div className="hidden sm:block font-medium text-lg ">{fiatSymbol}{fiatPrice.toLocaleString()}</div>
+        <div className={`font-medium text-lg `}>{asset.amount.toFixed(2)}</div>
+        <div className="hidden sm:block font-medium text-lg ">{fiatSymbol}{fiatPrice.toFixed(2)}</div>
         <div className="font-medium text-lg text-right">{fiatSymbol}{SetComma(calculatePrice(asset))}</div>
       </div>
       <div className="grid grid-cols-[94%,6%] gap-2  items-center pt-2 pb-8 pr-2">
@@ -44,7 +44,7 @@ const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
             transition={{ ease: "easeOut", duration: 2 }}
           ></motion.div>
         </div>
-        <div className="text-right font-semibold"> {percent.toLocaleString()}%</div>
+        <div className="text-right font-semibold"> {percent.toFixed(1)}%</div>
       </div>
     </div>
   );

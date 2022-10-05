@@ -1,10 +1,9 @@
 import { Checkbox } from "@mui/material";
-import Avatar from "components/avatar";
 import dateFormat from "dateformat";
 import makeBlockie from "ethereum-blockies-base64";
 import { useWalletKit } from "hooks";
 import { Dispatch, SetStateAction } from "react";
-import { useAppSelector } from "redux/hooks";
+
 import {
   DateInterval,
   ExecutionType,
@@ -26,7 +25,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
     const coin2 = Object.values(GetCoins).find((coin) => coin.symbol ===  member.secondCurrency)
 
   return (
-    <tr className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
+    <tr className="grid grid-cols-[18%,11%,14%,15%,14%,11%,17%] py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
       <th
         className={` ${
           member.execution !== ExecutionType.auto && isRuning
@@ -71,10 +70,10 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
               <img
                 src={member.image?.imageUrl ?? makeBlockie(member.address)}
                 alt=""
-                className="rounded-full border w-12 object-cover h-12"
+                className="rounded-full border w-10 object-cover h-10"
               />
-            <div className="flex flex-col text-left   ">
-              <div className=" h-6 font-medium text-lg">{member.fullname}</div>
+            <div className="flex flex-col text-left">
+              <div className=" h-6 font-medium text-sm">{member.fullname}</div>
               <div className="text-greylish font-medium text-[10px]">
                 {AddressReducer(member.address)}
               </div>
@@ -85,7 +84,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
       <th className="flex space-x-8 items-center">
         {member.paymantDate && (
           <>
-            <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm xl:text-lg font-medium">
+            <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm font-medium">
               {dateFormat(new Date(+member.paymantDate), `dd/mm/yyyy`)}
             </div>
           </>
@@ -94,7 +93,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
       <th className="flex space-x-8 items-center">
         {member.paymantEndDate && (
           <>
-            <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm xl:text-lg font-medium">
+            <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm font-medium">
               {dateFormat(new Date(+member.paymantEndDate), `dd/mm/yyyy`)}
             </div>
           </>
@@ -102,10 +101,10 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
       </th>
       <th className="flex flex-col items-start justify-center space-y-4">
         <div className="pl-[2px] flex items-center  gap-1">
-            {member.fiat ? <div className="flex items-center gap-1"> <span className="text-base">{member.amount}</span> {member.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
+            {member.fiat ? <div className="flex items-center gap-1"> <span className="text-sm">{member.amount}</span> {member.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
                 <div className="flex items-center">
                     <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-1" />
-                    <span className="text-base">{member.amount}</span>
+                    <span className="text-sm">{member.amount}</span>
                 </div>
             }
             
@@ -116,7 +115,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             <div className="flex items-center gap-1 mr-1">
                 <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
             </div>
-            <div className=" text-base">{member.secondAmount}</div>
+            <div className=" text-sm">{member.secondAmount}</div>
             <div>
             </div>
         </div>}
@@ -125,10 +124,10 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
         {member.interval === DateInterval.monthly && "Monthly"}
         {member.interval === DateInterval.weekly && "Weekly"}
       </th>
-      <th className="flex items-center justify-start text-lg font-medium">
+      <th className="flex items-center justify-start text-sm font-medium">
         {member.execution === "auto" ? "Stheaming" : "Manual"}
       </th>
-      <th className="flex items-center text-lg font-medium justify-start pr-8">
+      <th className="flex items-center text-sm font-medium justify-start pr-8">
         {member.compensation}
       </th>
     </tr>

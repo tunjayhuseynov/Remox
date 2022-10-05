@@ -18,7 +18,7 @@ interface IBaseOrmBudget {
 interface IBudgetAndTx extends IBaseOrmBudget {
     tx: IBudgetTX,
     isExecuted: boolean,
-    txIndex: number
+    txIndex?: number
 }
 
 /*Budget */

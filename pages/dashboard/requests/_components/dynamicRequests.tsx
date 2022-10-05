@@ -118,21 +118,19 @@ export default function DynamicRequest({
         } 
       };
 
-      console.log(inputs)
+      await SendTransaction(accountAndBudget.account!, inputs, {
+        budget: accountAndBudget.budget,
+      })
 
-      // await SendTransaction(accountAndBudget.account!, inputs, {
-      //   budget: accountAndBudget.budget,
-      // })
+      inputs = [];
 
-      // inputs = [];
+      for(const request of requests) {
+        await removeRequest(request, userId ?? "");
+        dispatch(removeApprovedRequest(request.id));
+      }
 
-      // for(const request of requests) {
-      //   await removeRequest(request, userId ?? "");
-      //   dispatch(removeApprovedRequest(request.id));
-      // }
-
-      // setSelectedApprovedRequests([])
-      // setNotify(false);
+      setSelectedApprovedRequests([])
+      setNotify(false);
     } catch (error) {
       console.log(error);
       throw new Error(error as any);
