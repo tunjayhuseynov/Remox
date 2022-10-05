@@ -74,32 +74,37 @@ const ContributorItem = ({ member }: PageProps) => {
             <td className="pl-[2px] flex items-start text-sm">
                 {member.role}
             </td>
-            <td className="flex flex-col items-start space-y-4">
-                <div className=" pl-[2px] flex items-center justify-start">
-                    {member.fiat ? 
-                        <div className="flex items-center gap-1"> 
-                            <span className="text-base">{member.amount}</span> 
-                            {member.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-                        </div> :
-                        <div className="flex items-center">
-                            <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-1 !ml-0" />
-                            <span className="text-base">{member.amount}</span>
+            <td className="flex flex-col justify-center text-sm space-y-4">
+                <div className="flex items-center">
+                  <div className="flex items-center mr-3">
+                    {
+                      member.fiat ? (
+                        <div className="relative">
+                          <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                          <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
                         </div>
-                    }              
-                <div>
-                    </div>
+                        ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
+                    }
+                  </div>
+                  <div className="flex items-center">
+                      {member?.amount}
+                  </div>
                 </div>
-                {(member.secondCurrency && member.secondAmount) &&
-                    member.fiatSecond ? 
-                     <div className="flex items-center gap-1"> 
-                        <span className="text-base">{member.secondAmount}</span> 
-                        {member.fiatSecond} as <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
-                    </div> :
-                    <div className="flex items-center">
-                        <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-1" />
-                        <span className="text-base">{member.secondAmount}</span>
-                    </div>
-                }
+                {(member.secondAmount && member.secondCurrency) && <div className="flex items-center">
+                  <div className="flex items-center mr-3">
+                    {
+                      member.fiatSecond ? (
+                        <div className="relative">
+                          <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                          <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
+                        </div>
+                        ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
+                    }
+                  </div>
+                  <div className="flex items-center">
+                      {member?.secondAmount}
+                  </div>
+                </div>}
             </td>
             <td className=" pt-3 sm:pt-0 flex items-start truncate text-sm">
                 {AddressReducer(member.address)}

@@ -286,11 +286,8 @@ const AddMember = () => {
                             </LocalizationProvider>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-10 justify-center">
-                        <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
-                            Close
-                        </Button>
-                        <Button className="px-8 py-3" type="submit" isLoading={loading} >
+                    <div className="justify-center">
+                        <Button className="px-8 py-3 w-full" type="submit" isLoading={loading} >
                             Add Contributor
                         </Button>
                     </div>

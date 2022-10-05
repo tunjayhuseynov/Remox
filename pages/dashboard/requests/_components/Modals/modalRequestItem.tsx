@@ -51,40 +51,36 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
           )}
       </td>
       <td className="flex flex-col justify-center text-sm">
-           <div className="flex items-center">
-           {request.fiat ? 
-              <div className="flex items-center  justify-end"> 
-                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2"  />
-                <div className="flex items-center space-x-2">
-                  <span>based on</span>
-                  <img src={fiatFirst?.logo} alt="" className="w-5 h-3"/>
-                  <span>{request.fiat} {SetComma(+request.amount)}</span>
+        <div className="flex items-center">
+          <div className="flex items-center mr-3">
+            {
+              request.fiat ? (
+                <div className="relative">
+                  <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                  <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
                 </div>
-              </div> :
-              <div className="flex items-center">
-                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2"  />
-                <span className="">{SetComma(+request.amount)}</span>
-              </div>
+                ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
             }
-            </div>
-            {(request.secondCurrency && request.secondAmount) && 
-              <div className="flex items-center gap-1 mt-3">
-                {request.fiatSecond ? 
-                  <div className="flex items-center justify-end"> 
-                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                    <div className="flex items-center space-x-2">
-                      <span>based on</span>
-                      <img src={fiatSecond?.logo} alt="" className="w-5 h-3" />
-                      <span className="">{request.fiatSecond} {SetComma(+request.secondAmount)}</span> 
-                    </div>
-                  </div> :
-                  <div className="flex items-center">
-                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                    <span className="">{SetComma(+request.secondAmount)}</span>
+          </div>
+          <div className="flex items-center">
+              {request?.amount}
+          </div>
+          </div>
+          {(request.secondAmount && request.secondCurrency) && <div className="flex items-center">
+            <div className="flex items-center mr-3">
+              {
+                request.fiat ? (
+                  <div className="relative">
+                    <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                    <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
                   </div>
-                }
-              </div>
-            }
+                  ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
+              }
+            </div>
+            <div className="flex items-center">
+                {request?.secondAmount}
+            </div>
+          </div>}
       </td>
       <td className="items-center flex text-sm font-medium ">
         {request.requestType}

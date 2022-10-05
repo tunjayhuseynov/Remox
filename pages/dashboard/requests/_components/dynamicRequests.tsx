@@ -22,6 +22,7 @@ import { IPaymentInput } from "pages/api/payments/send/index.api";
 import ModalAllocation from "pages/dashboard/payroll/_components/modalpay/modalAllocation";
 import ApprovePendings from "./Modals/ApprovePendings";
 import { GetFiatPrice } from "utils/const";
+import ChooseBudget from "components/general/chooseBudget";
 
 export default function DynamicRequest({
   type,
@@ -35,8 +36,10 @@ export default function DynamicRequest({
   const balance = useAppSelector(SelectBalance);
   const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget); 
   const { GetCoins, SendTransaction } = useWalletKit();
+
   const [openNotify, setNotify] = useState(false);
   const [openNotify2, setNotify2] = useState(false);
+  const [chooseBudget, setChooseBudget] = useState<boolean>(false)
 
   let page: RequestStatus;
   if (type === "pending") {
@@ -71,13 +74,13 @@ export default function DynamicRequest({
 
   const confirmRequest = async () => {
     try {
+      setNotify(false)
       let inputs: IPaymentInput[] = [];
       const requests = [...selectedApprovedRequests];
       for (const request of requests){
         const amount = request.amount;
         const address = request.address;
         const coin = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
-        console.log(coin)
 
         if(request.fiat) {
           const fiatPrice = GetFiatPrice(coin!, request.fiat)
@@ -130,7 +133,7 @@ export default function DynamicRequest({
       }
 
       setSelectedApprovedRequests([])
-      setNotify(false);
+      setChooseBudget(false)
     } catch (error) {
       console.log(error);
       throw new Error(error as any);
@@ -152,7 +155,6 @@ export default function DynamicRequest({
   };
 
   const [isApproving, setApproving] = useLoading(Approve);
-  const [isExecuting, setExecuting] = useLoading(confirmRequest);
 
   return (
     <>
@@ -234,10 +236,10 @@ export default function DynamicRequest({
                 Request Type
               </th>
               {page === RequestStatus.pending &&
-                <th>
+                <th className="flex justify-end pr-4">
                   {selectedpPendingRequests.length > 0 && (
                     <Button
-                      className="text-sm !py-1 border-none !my-0 !px-2"
+                      className="text-sm !py-1 border-none !my-0 !px-3"
                       onClick={() => {
                         setNotify2(true);
                       }}
@@ -247,7 +249,7 @@ export default function DynamicRequest({
                  </th>
                 }
                 {page === RequestStatus.approved &&
-                  <th>
+                  <th className="flex justify-end pr-4">
                     {selectedApprovedRequests.length > 0 && (
                     <Button
                       className="text-sm !py-1 border-none !my-0 !px-3"
@@ -340,8 +342,10 @@ export default function DynamicRequest({
             </>
             <div className="flex justify-end pb-2">
               <Button
-                isLoading={isExecuting}
-                onClick={() => setExecuting()}
+                onClick={() => {
+                  setChooseBudget(true)
+                  } 
+                }
                 className={"py-2 mt-10 mb-3 text-sm"}
               >
                 Confirm and Create Transaction
@@ -350,6 +354,9 @@ export default function DynamicRequest({
           </div>
         </Modal>
       )}
+      <Modal onDisable={setChooseBudget} openNotify={chooseBudget}>
+        <ChooseBudget submit={confirmRequest}/>
+      </Modal>
     </>
   );
 }

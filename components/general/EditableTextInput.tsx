@@ -1,8 +1,7 @@
-import { FilledInput, FormControl, Input, InputAdornment } from "@mui/material"
+import { FormControl, Input, InputAdornment } from "@mui/material"
 import Loader from "components/Loader";
 import { useState } from "react";
-import { AiFillCheckCircle } from "react-icons/ai";
-import { MdDone } from "react-icons/md";
+import  { MdDone } from "react-icons/md";
 
 interface IProps {
     defaultValue: string;

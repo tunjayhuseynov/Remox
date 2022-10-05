@@ -5,7 +5,7 @@ import { SelectDarkMode } from "redux/slices/account/remoxData";
 import { AltCoins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
-import Button from "components/button";
+import { fiatList } from "components/general/PriceInputField";
 
 const SingleRequestModal = ({
   request,
@@ -17,6 +17,11 @@ const SingleRequestModal = ({
   coin2?: AltCoins;
 }) => {
   const isDark = useAppSelector(SelectDarkMode);
+
+  const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
+  const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
+
+
   return (
       <div
         className={`w-[60%] shadow-15 transition-all hover:transition-all ${
@@ -59,55 +64,51 @@ const SingleRequestModal = ({
           <div className={`flex justify-between ${!(request.secondCurrency && request.secondAmount) ? "border-b pb-5" : ""}`}>
             <div className="text-greylish">Requesting Amount</div>
             <div className="flex flex-col space-y-3">
+              <div className="flex gap-x-3 justify-between">
+                <div className="flex gap-x-2 items-center">
+                  <span className="w-2 h-2 rounded-full bg-primary"></span>
+                  {request?.amount}
+                </div>
+                <div className="flex gap-x-2 items-center">
+                  <div className="flex items-center">
+                    {
+                      request.fiat ? (
+                        <div className="relative">
+                          <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                          <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-5.3px] bottom-[-1.1px]" />
+                        </div>
+                        ) : <img src={coin1?.logoURI} className="rounded-xl w-[1.25rem] h-[1.25rem]" alt="Currency Logo" />
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {!!request?.secondCurrency && !!request?.secondAmount && (
+            <div className="flex justify-between border-b pb-5">
+              <div className="text-greylish">Requesting Amount 2</div>
+              <div className="flex flex-col space-y-3">
                 <div className="flex gap-x-3 justify-between">
                   <div className="flex gap-x-2 items-center">
                     <span className="w-2 h-2 rounded-full bg-primary"></span>
-                      {request?.amount}
+                    {request?.secondAmount}
                   </div>
                   <div className="flex gap-x-2 items-center">
-                    {!!request?.currency && (
-                      <div className="flex items-center">
-                        {request.fiat ? <span className="mr-2">{request.fiat} as</span> : ""}
-                        <img
-                          src={coin1!.logoURI}
-                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                        />
-                      </div>
-                    )}
-                    {coin1 ? <span>{coin1!.symbol}</span> : "Token not provided"}
-                  </div>
-                </div>
-            </div>
-          </div>
-            {!!request?.secondCurrency && !!request?.secondAmount && (
-              <div className="flex justify-between border-b pb-5">
-                <div className="text-greylish">Requesting Amount 2</div>
-                <div className="flex flex-col space-y-3">
-                  <div className="flex gap-x-3 justify-between">
-                    <div className="flex gap-x-2 items-center">
-                      <span className="w-2 h-2 rounded-full bg-primary"></span>
-                      {request?.secondAmount}
-                    </div>
-                    <div className="flex gap-x-2 items-center">
-                      {coin2 ? (
-                        <div className="flex items-center">
-                        {request.fiatSecond ? <span className="mr-2">{request.fiat} as</span> : ""}
-                        <img
-                          src={coin2!.logoURI}
-                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                        />
-                      </div>
-                      ) : (
-                        ""
-                      )}
-                      {coin2
-                        ? <span>{coin2.symbol}</span> 
-                        : ""}
+                    <div className="flex items-center">
+                      {
+                        request.fiatSecond ? (
+                          <div className="relative">
+                            <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                            <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-5.3px] bottom-[-1.1px]" />
+                          </div>
+                        ) : <img src={coin2?.logoURI} className="rounded-xl w-[1.25rem] h-[1.25rem]" alt="Currency Logo" />
+                      }
                     </div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+          )}
         </div>
         <div className="font-semibold text-xl my-4">Details</div>
         <div className="flex flex-col space-y-2 ">

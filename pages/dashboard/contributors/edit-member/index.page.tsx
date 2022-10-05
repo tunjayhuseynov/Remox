@@ -286,11 +286,8 @@ const EditMember = () => {
                             </LocalizationProvider>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-10 justify-center">
-                        <Button version="second" className="px-8 py-3" onClick={() => navigate.back()}>
-                            Close
-                        </Button>
-                        <Button className="px-8 py-3" onClick={() => submit()} isLoading={loading} >
+                    <div className="justify-center">
+                        <Button className="px-8 py-3 w-full" onClick={() => submit()} isLoading={loading} >
                             Save
                         </Button>
                     </div>

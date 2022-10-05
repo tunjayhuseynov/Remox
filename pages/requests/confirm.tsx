@@ -51,56 +51,52 @@ export default ({
           <div className={`flex justify-between ${!(request.secondCurrency && request.secondAmount) ? "border-b pb-5" : ""}`}>
             <div className="text-greylish">Requesting Amount</div>
             <div className="flex flex-col space-y-3">
+              <div className="flex gap-x-3 justify-between">
+                <div className="flex gap-x-2 items-center">
+                  <span className="w-2 h-2 rounded-full bg-primary"></span>
+                  {request?.amount}
+                </div>
+                <div className="flex gap-x-2 items-center">
+                  <div className="flex items-center">
+                    {
+                      request.fiat ? (
+                        <div className="relative">
+                          <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                          <img src={currency?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-5.3px] bottom-[-1.1px]" />
+                        </div>
+                        ) : <img src={currency?.logoURI} className="rounded-xl w-[1.25rem] h-[1.25rem]" alt="Currency Logo" />
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {!!request?.secondCurrency && !!request?.secondAmount && (
+            <div className="flex justify-between border-b pb-5">
+              <div className="text-greylish">Requesting Amount 2</div>
+              <div className="flex flex-col space-y-3">
                 <div className="flex gap-x-3 justify-between">
                   <div className="flex gap-x-2 items-center">
                     <span className="w-2 h-2 rounded-full bg-primary"></span>
-                      {request?.amount}
+                    {request?.secondAmount}
                   </div>
                   <div className="flex gap-x-2 items-center">
-                    {!!request?.currency && (
-                      <div className="flex items-center">
-                        {request.fiat ? <div className="mr-2 flex items-center gap-2"> <img src={fiatFirst?.logo} className="w-5 h-3" alt="" />  <span>{request.fiat}</span> as</div> : ""}
-                        <img
-                          src={currency!.logoURI}
-                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                        />
-                      </div>
-                    )}
-                    {currency ? <span>{currency!.symbol}</span> : "Token not provided"}
-                  </div>
-                </div>
-            </div>
-          </div>
-            {!!request?.secondCurrency && !!request?.secondAmount && (
-              <div className="flex justify-between border-b pb-5">
-                <div className="text-greylish">Requesting Amount 2</div>
-                <div className="flex flex-col space-y-3">
-                  <div className="flex gap-x-3 justify-between">
-                    <div className="flex gap-x-2 items-center">
-                      <span className="w-2 h-2 rounded-full bg-primary"></span>
-                      {request?.secondAmount}
-                    </div>
-                    <div className="flex gap-x-2 items-center">
-                      {secondCurrency ? (
-                        <div className="flex items-center">
-                        {request.fiatSecond ? <div className=" flex items-center gap-2"> <img src={fiatSecond?.logo} className="w-5 h-3" alt="" /> <span className="mr-2">{request.fiat} as</span> </div> : ""}
-                        <img
-                          src={secondCurrency!.logoURI}
-                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                        />
-                      </div>
-                      ) : (
-                        ""
-                      )}
-                      {secondCurrency
-                        ? <span>{secondCurrency.symbol}</span> 
-                        : "Token not provided"}
+                    <div className="flex items-center">
+                      {
+                        request.fiatSecond ? (
+                          <div className="relative">
+                            <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                            <img src={secondCurrency?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-5.3px] bottom-[-1.1px]" />
+                          </div>
+                        ) : <img src={secondCurrency?.logoURI} className="rounded-xl w-[1.25rem] h-[1.25rem]" alt="Currency Logo" />
+                      }
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-        </div>
+            </div>
+          )}
+      </div>
       <div className="font-semibold">Details</div>
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between">
