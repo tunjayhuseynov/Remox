@@ -17,6 +17,8 @@ import useLoading from 'hooks/useLoading';
 import EditableAvatar from 'components/general/EditableAvatar';
 import { nanoid } from '@reduxjs/toolkit';
 import { launchApp } from "redux/slices/account/thunks/launch";
+import { TextField } from "@mui/material";
+import { toChecksumAddress } from "web3-utils";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -115,8 +117,8 @@ function NewWalletModal() {
                 createdBy: auth.currentUser.uid,
                 id: generate(),
                 members: contract.owners.map<IMember>(s => ({
-                    address: s,
-                    id: generate(),
+                    address: toChecksumAddress(s),
+                    id: nanoid(),
                     name: "",
                     image: null,
                     mail: "",
@@ -164,15 +166,11 @@ function NewWalletModal() {
     const [loading, submit] = useLoading(onSubmit)
 
     return <div className="w-full mx-auto relative">
-        <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
-            {/* <img src="/icons/cross_greylish.png" alt="" /> */}
-            <span className="text-4xl pb-1">&#171;</span> Back
-        </button>
         <div className=" w-1/2 mx-auto sm:flex flex-col items-center justify-center ">
             <div className=" text-center w-full pt-4">
                 <div className="text-2xl font-bold">Add New Wallet</div>
             </div>
-            <div className="flex justify-between w-[60%]  xl:w-[38%] py-7"><AnimatedTabBar data={data} index={index} /></div>
+            <div className="flex justify-between w-[60%] py-7"><AnimatedTabBar data={data} index={index} /></div>
 
             {index === 0 && <form onSubmit={handleSubmit(submit)} className="flex flex-col w-[62%] gap-7">
                 <div className={`flex justify-center flex-shrink-0 flex-grow-0`}>
@@ -199,11 +197,11 @@ function NewWalletModal() {
                 </div>
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Wallet Name</div>
-                    <input type="text" {...register("name", { required: true })} placeholder="Remox DAO" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
+                    <TextField type="text" {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="w-full" />
                 </div>
                 <div className="flex flex-col gap-1">
                     <div className="text-sm">Wallet Address</div>
-                    <input type="text" {...register("address", { required: true })} placeholder="Wallet Adress" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
+                    <TextField type="text" {...register("address", { required: true })} placeholder="E.g. 0xabcd..." className="w-full" />
                 </div>
                 <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
                     <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { navigate.back() }}>

@@ -12,6 +12,7 @@ import { VscEdit } from 'react-icons/vsc';
 import { GiCancel } from 'react-icons/gi';
 import { AiFillRightCircle } from 'react-icons/ai';
 import EditBudget from './EditBudget';
+import { fiatList } from 'components/general/PriceInputField';
 
 function BudgetCard({ item, }: { item: IBudgetORM }) {
     // const [openNotify, setNotify] = useState(false)
@@ -44,6 +45,9 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
 
     }, [detailModal])
 
+    const firstFiat = fiatList.find(f => f.name === item.fiatMoney)?.logo
+    const secondFiat = fiatList.find(f => f.name === item.secondFiatMoney)?.logo
+
     return (
         <>
             <BudgetDetails item={item} close={setDetailModal} visibility={detailModal} />
@@ -57,14 +61,14 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
                             <div>{SetComma(budgetCoins.totalAmount)}</div>
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
                                 <div>
-                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
                                 </div>
                                 <div>{SetComma(budgetCoins.second.secondTotalAmount)}</div>
                             </div>}
@@ -74,14 +78,14 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
                             <div>{SetComma(budgetCoins.totalUsedAmount)}</div>
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
                                 <div>
-                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
                                 </div>
                                 <div>{SetComma(budgetCoins.second.secondTotalUsedAmount)}</div>
                             </div>}
@@ -91,14 +95,14 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
                             <div>{SetComma(budgetCoins.totalPending)}</div>
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
                                 <div>
-                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
                                 </div>
                                 <div>{SetComma(budgetCoins.second.secondTotalPending)}</div>
                             </div>}
@@ -108,14 +112,14 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='flex items-center space-x-3 font-medium text-lg'>
                             <div>
-                                <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
+                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
                             </div>
                             <div>{SetComma(budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount))}</div>
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
                                 <div>
-                                    <img className="rounded-full w-5 h-5" src={GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
+                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
                                 </div>
                                 <div>{SetComma(budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount))}</div>
                             </div>}
@@ -142,7 +146,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                         <AiFillRightCircle size={"1.85rem"} className="cursor-pointer text-primary hover:text-secondary" onClick={() => setDetailModal(true)} />
                     </div>
                 </td>
-                <Modal onDisable={setEditBudget} openNotify={editBudget}>
+                <Modal onDisable={setEditBudget} openNotify={editBudget} disableX={true}>
                     <EditBudget budget={item} onBack={() => setEditBudget(false)} />
                 </Modal>
                 {

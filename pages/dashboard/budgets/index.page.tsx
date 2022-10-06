@@ -99,7 +99,7 @@ const Budgets = () => {
                                                     <div className="grid grid-cols-2 px-2 w-[66%]">
                                                         <span className="font-semibold text-lg transition-all">{item.name}</span>
                                                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
-                                                            {item.from > new Date().getTime() ? "Future" : "Active"}
+                                                            {item.from > new Date().getTime() ? "Future" : item.to < new Date().getTime() ? "Past" : "Current"}
                                                         </div>
                                                         {/* <span className="font-semibold text-[1.25rem]">${SetComma(item.totalBudget)}</span> */}
                                                     </div>

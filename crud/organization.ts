@@ -5,6 +5,7 @@ import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise"
 import { Get_Individual } from "./individual"
 import { arrayRemove, arrayUnion } from "firebase/firestore"
 import type { DocumentReference, FieldValue } from "firebase/firestore"
+import { log } from "console"
 
 export const organizationCollectionName = "organizations"
 
@@ -62,6 +63,7 @@ export const Create_Organization = async (organization: IOrganization) => {
 export const Update_Organization = async (org: IOrganization) => {
     let organization = Object.assign({}, org);
     let accountRefs: DocumentReference[] = []
+    console.log(organization)
     for (let account of organization.accounts) {
         if (!(await Get_Account(account.id))) {
             await Create_Account(account as IAccount);

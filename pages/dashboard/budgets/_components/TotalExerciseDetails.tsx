@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
 import { IBudgetExerciseORM } from 'pages/api/budget/index.api';
 import { SetComma } from 'utils';
@@ -8,6 +8,7 @@ import { GetFiatPrice } from 'utils/const';
 import { useAppSelector } from 'redux/hooks';
 import { SelectFiatPreference, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import { AiFillRightCircle } from 'react-icons/ai';
+import { fiatList } from 'components/general/PriceInputField';
 
 function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
     const [openNotify, setNotify] = useState(false)
@@ -19,9 +20,9 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
         return total.budgets.reduce((a, b) => {
             const fiatPrice = GetFiatPrice(GetCoins[b.token], fiatPreference)
             return {
-                totalAmount: a.totalAmount + (fiatPrice * b.budgetCoins.totalAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalAmount ?? 0)),
-                totalUsedAmount: a.totalUsedAmount + (fiatPrice * b.budgetCoins.totalUsedAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalUsedAmount ?? 0)),
-                totalPending: a.totalPending + (fiatPrice * b.budgetCoins.totalPending) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalPending ?? 0))
+                totalAmount: a.totalAmount + ((b.fiatMoney ? 1 : b.customPrice ?? fiatPrice) * b.budgetCoins.totalAmount) + ((b.secondFiatMoney ? 1 : b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalAmount ?? 0)),
+                totalUsedAmount: a.totalUsedAmount + ((b.fiatMoney ? 1 : b.customPrice ?? fiatPrice) * b.budgetCoins.totalUsedAmount) + ((b.secondFiatMoney ? 1 : b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalUsedAmount ?? 0)),
+                totalPending: a.totalPending + ((b.fiatMoney ? 1 : b.customPrice ?? fiatPrice) * b.budgetCoins.totalPending) + ((b.secondFiatMoney ? 1 : b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalPending ?? 0))
             }
         }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
     }, [total.budgetCoins])
@@ -49,9 +50,21 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div key={index} className="flex items-center gap-1">
-                                            <span className="text-lg font-medium">{SetComma(coin.totalAmount)}</span> <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" /> <span className="text-lg font-medium">{coin.coin}</span>
-                                        </div>
+                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
+                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+
+                                        return <Fragment key={index}>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma(coin.totalAmount)}</span>
+                                                <img src={firstFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-lg font-medium">{coin.fiat ?? coin.coin}</span>
+                                            </div>
+                                            {coin.second && <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma(coin.second.secondTotalAmount)}</span>
+                                                <img src={secondFiat ?? GetCoins[coin.second.secondCoin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-lg font-medium">{coin.second.fiat ?? coin.second.secondCoin}</span>
+                                            </div>}
+                                        </Fragment>
                                     })}
                                 </div>
                             </div>
@@ -64,9 +77,20 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div key={index} className="flex items-center gap-1">
-                                            <span className="text-lg font-medium">{SetComma(coin.totalUsedAmount)}</span> <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" /> <span className="text-lg font-medium">{coin.coin}</span>
-                                        </div>
+                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
+                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                        return <Fragment key={index}>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma(coin.totalUsedAmount)}</span>
+                                                <img src={firstFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-lg font-medium">{coin.fiat ?? coin.coin}</span>
+                                            </div>
+                                            {coin.second && <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma(coin.second.secondTotalUsedAmount)}</span>
+                                                <img src={secondFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-lg font-medium">{coin.second.fiat ?? coin.coin}</span>
+                                            </div>}
+                                        </Fragment>
                                     })}
                                 </div>
                             </div>
@@ -79,11 +103,20 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div key={index} className="flex items-center gap-1">
-                                            <span className="text-lg font-medium">{SetComma(coin.totalPending)}</span>
-                                            <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
-                                            <span className="text-lg font-medium">{coin.coin}</span>
-                                        </div>
+                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
+                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                        return <Fragment key={index}>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma(coin.totalPending)}</span>
+                                                <img src={firstFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-lg font-medium">{coin.fiat ?? coin.coin}</span>
+                                            </div>
+                                            {coin.second && <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma(coin.second.secondTotalPending)}</span>
+                                                <img src={secondFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" alt="" />
+                                                <span className="text-lg font-medium">{coin.second.fiat ?? coin.coin}</span>
+                                            </div>}
+                                        </Fragment>
                                     })}
                                 </div>
                             </div>
@@ -96,11 +129,20 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 <span className="text-lg font-medium text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        return <div key={index} className="flex items-center gap-1">
-                                            <span className="text-lg font-medium">{SetComma((coin.totalAmount - coin.totalPending - coin.totalUsedAmount))}</span>
-                                            <img src={GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" />
-                                            <span className="text-lg font-medium">{coin.coin}</span>
-                                        </div>
+                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
+                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                        return <Fragment key={index}>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma((coin.totalAmount - coin.totalPending - coin.totalUsedAmount))}</span>
+                                                <img src={firstFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" />
+                                                <span className="text-lg font-medium">{coin.fiat ?? coin.coin}</span>
+                                            </div>
+                                            {coin.second && <div className="flex items-center gap-1">
+                                                <span className="text-lg font-medium">{SetComma((coin.second.secondTotalAmount - coin.second.secondTotalPending - coin.second.secondTotalUsedAmount))}</span>
+                                                <img src={secondFiat ?? GetCoins[coin.coin].logoURI} className="w-5 h-5 rounded-full" />
+                                                <span className="text-lg font-medium">{coin.second.fiat ?? coin.second.secondCoin}</span>
+                                            </div>}
+                                        </Fragment>
                                     })}
                                 </div>
                             </div>

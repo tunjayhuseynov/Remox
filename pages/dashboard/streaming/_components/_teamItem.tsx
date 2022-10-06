@@ -141,7 +141,7 @@ const TeamItem = ({ tx, members }: IProps) => {
                 <div className="flex flex-col space-y-8 items-center px-5">
                     <div className="text-2xl text-primary">Are you sure?</div>
                     <div className="flex items-center justify-center text-xl">
-                        Your are about to delete this streaming payment
+                        You are about to delete this streaming payment
                     </div>
                     <div className="flex justify-center items-center space-x-4">
                         <Button version="second" className="border-2  w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={() => { setDeleteModal(false) }}>No</Button>

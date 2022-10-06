@@ -242,7 +242,19 @@ export default async (
         amount: (result.inputs[2] as BigNumber).toString(),
         tags: theTags,
       };
-    } else if (result.method === ERC20MethodIds.transfer) {
+    } else if (result.method === ERC20MethodIds.transferWithComment) {
+      if (!coin) return { method: null }
+      return {
+        method: ERC20MethodIds.transferFrom,
+        id: ERC20MethodIds.transferFrom,
+        coin: coin,
+        from: result.inputs[0],
+        to: result.inputs[1],
+        amount: (result.inputs[2] as BigNumber).toString(),
+        tags: theTags,
+      };
+    }
+    else if (result.method === ERC20MethodIds.transfer) {
       if (!coin) return { method: null }
       return {
         method: ERC20MethodIds.transfer,
@@ -367,11 +379,11 @@ export default async (
     else if (result.method === "createStream") {
       const web3 = new Web3(blockchain.rpcUrl);
       const topic = (await web3.eth.getTransactionReceipt(transaction.hash))?.logs[1]?.topics[1]
-    
+
       if (!topic) return {}
       const streamId = hexToNumberString(topic)
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase())
-    
+
       if (!coin) return {};
       const res = {
         method: ERC20MethodIds.automatedTransfer,

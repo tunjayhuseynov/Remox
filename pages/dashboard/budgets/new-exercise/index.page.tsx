@@ -11,8 +11,12 @@ import useLoading from 'hooks/useLoading';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { Create_Budget_Exercise_Thunk } from 'redux/slices/account/thunks/budgetThunks/budgetExercise';
-import { SelectAccountType, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectDarkMode, SelectRemoxAccount } from 'redux/slices/account/selector';
 import { TextField } from '@mui/material';
+import DatePicker from 'react-multi-date-picker';
+import DatePanel from 'react-multi-date-picker/plugins/date_panel';
+import dateFormat from 'dateformat'
+import datentime from 'date-and-time'
 
 interface IFormInput {
     name: string;
@@ -23,14 +27,18 @@ interface IFormInput {
 function NewExercise() {
 
     const { register, handleSubmit } = useForm<IFormInput>();
+
     const paymentType: DropDownItem[] = [{ name: "Current full year" }, { name: "Custom period" }]
     const [selectedPayment, setSelectedPayment] = useState(paymentType[0])
     const { blockchain } = useWalletKit()
+
+    const [date, setDate] = useState<number[]>([])
 
     const remoxAccount = useAppSelector(SelectRemoxAccount)
     const remoxAccountType = useAppSelector(SelectAccountType)
 
     const navigate = useRouter()
+    const dark = useAppSelector(SelectDarkMode)
     const dispatch = useAppDispatch()
     let today = new Date()
     let From = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate();
@@ -44,7 +52,7 @@ function NewExercise() {
             if (selectedPayment.name === "Custom period" && (!data.from || !data.to)) throw new Error("Custom period has not been selected")
             const fromDate = data.from ? new Date(data.from) : new Date(From);
             const toDate = data.to ? new Date(data.to) : new Date(To);
-
+            console.log(fromDate, toDate, remoxAccount)
             await dispatch(Create_Budget_Exercise_Thunk({
                 budgetExercise: {
                     blockchain: blockchain.name,
@@ -70,11 +78,7 @@ function NewExercise() {
     const [isLoading, submit] = useLoading(onSubmit)
 
     return <div className="w-full relative">
-        <button onClick={() => navigate.back()} className="absolute left-0 w-[4rem] top-0 tracking-wider font-bold transition-all hover:text-primary hover:transition-all flex items-center text-xl gap-2">
-            {/* <img src="/icons/cross_greylish.png" alt="" /> */}
-            <span className="text-4xl pb-1">&#171;</span> Back
-        </button>
-        <form onSubmit={handleSubmit(submit)} className="w-1/2 mx-auto pt-10">
+        <form onSubmit={handleSubmit(submit)} className="w-3/5 mx-auto pt-10">
             <div className="text-xl text-center font-medium py-6">Define  of your budgetary exercise</div>
             <div className="px-12 flex flex-col space-y-12">
                 <TextField type="text" {...register("name", { required: true })} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
@@ -86,45 +90,48 @@ function NewExercise() {
                         selected={selectedPayment}
                         setSelect={setSelectedPayment} />
                 </div>
-                <div className="flex">
+                <div>
                     {selectedPayment.name === "Current full year" ?
-                        <div className="flex w-full gap-4 items-center justify-center">
-                            <div className="flex flex-col gap-1 w-full">
-                                <div className="text-sm text-greylish ">From</div>
-                                <div className="border w-full py-2 px-1 rounded-lg bg-greylish dark:bg-darkSecond bg-opacity-20"  >
-                                    {From}
-                                </div>
-                            </div>
-                            <div className="flex  border-b w-[10%] pt-4"></div>
-                            <div className="flex flex-col gap-1 w-full">
-                                <div className="text-sm text-greylish">To</div>
-                                <div className="border w-full py-2 px-1 rounded-lg bg-greylish  dark:bg-darkSecond bg-opacity-20">
-                                    {To}
-                                </div>
-                            </div>
+                        <div className="flex gap-4 items-center justify-start w-full dark:bg-gray-600 bg-gray-200 py-4 pl-4 border border-gray-300 dark:border-gray-600 rounded-md">
+                            <div>From {dateFormat(new Date(), "dd/mm/yyyy")} to {dateFormat(datentime.addYears(new Date(), 1), "dd/mm/yyyy")}</div>
                         </div>
                         :
-                        <div className="flex w-full gap-4 items-center justify-center">
-                            <div className="flex flex-col gap-1 w-full">
-                                <div className="text-sm text-greylish black:text-white">From</div>
-                                <input type="date" {...register("to", { required: true })} className="border w-full py-2 px-1 rounded-lg  dark:bg-darkSecond bg-opacity-20" />
-                            </div>
-                            <div className="flex  border-b w-[10%] pt-4"></div>
-                            <div className="flex flex-col gap-1 w-full">
-                                <div className="text-sm text-greylish black:text-white ">To</div>
-                                <input type="date" {...register("from", { required: true })} className="border w-full py-2 px-1 rounded-lg  dark:bg-darkSecond bg-opacity-20" />
-                            </div>
-                        </div>}
+                        <DatePicker render={<CustomRangeInput />} plugins={[<DatePanel sort="date" />]} containerClassName="w-full dark:bg-darkSecond bg-white" value={date} onChange={(data) => {
+                            if (Array.isArray(data)) {
+                                setDate(data.map(s => s.toDate().getTime()))
+                            }
+                        }} range={true}  className={`w-full`} style={
+                            {
+                                height: "3.25rem",
+                                width: "100%",
+                            }
+                        } />
+                    }
                 </div>
 
                 <div className="flex flex-col-reverse sm:grid grid-cols-2 w-full justify-center gap-12 pt-6">
-                    <Button version="second" className="!rounded-xl" onClick={() => navigate.back()}>Cancel</Button>
-                    <Button isLoading={isLoading} type="submit" className="bg-primary text-sm xl:text-base !rounded-xl !px-0 py-2 text-white flex items-center justify-center" >Create</Button>
+                    <Button version="second" className="!rounded-xl !text-sm" onClick={() => navigate.back()}>Cancel</Button>
+                    <Button isLoading={isLoading} type="submit" className="bg-primary !text-sm !rounded-xl !px-0 py-2 text-white flex items-center justify-center" >Create new budgetary exercise</Button>
                 </div>
             </div>
 
         </form>
     </div>
+}
+function CustomRangeInput({ openCalendar, value }: any) {
+    let from = value[0] || ""
+    let to = value[1] || ""
+    console.log(value)
+    value = from && to ? "From " + from + " to " + to : from
+
+    return (
+        <input
+        className='dark:bg-darkSecond h-14 pl-3 border border-gray-300 dark:border-gray-600 w-full rounded-md'
+            onFocus={openCalendar}
+            value={value}
+            readOnly
+        />
+    )
 }
 
 export default NewExercise

@@ -1,4 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Get_Individual_Ref } from "crud/individual";
 import { Create_Organization, Get_Organizations } from "crud/organization";
@@ -28,7 +28,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
     const { image, blockchain, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
-    const id = `${generate()}-${generate()}`;
+    const id = `${nanoid()}-${nanoid()}`;
 
     const response = await Create_Organization({
         accounts: [
@@ -51,17 +51,17 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         created_date: GetTime(),
     })
 
-    api.dispatch(CreateTag({
+    await api.dispatch(CreateTag({
         id,
         color: "#0ffff7",
         name: "Gas Fee"
     }))
-    api.dispatch(CreateTag({
+    await api.dispatch(CreateTag({
         id,
         color: "#ff0ae6",
         name: "Swap"
     }))
-    api.dispatch(CreateTag({
+    await api.dispatch(CreateTag({
         id,
         color: "#23c4ff",
         name: "Payroll"

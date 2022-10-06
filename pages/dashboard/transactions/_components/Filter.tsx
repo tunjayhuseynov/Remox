@@ -135,8 +135,8 @@ const Filter = ({
 
     return <>
         <div className='w-[20rem]'>
-            <Accordion expanded={false}>
-                <AccordionSummary aria-controls="date-content" id="date-header" expandIcon={<></>} className="!ml-0" classes={{
+            <Accordion>
+                <AccordionSummary aria-controls="filter-content" id="filter-header" expandIcon={<></>} className="!ml-0" classes={{
                     content: "!ml-0"
                 }}>
                     <Typography>Filters</Typography>

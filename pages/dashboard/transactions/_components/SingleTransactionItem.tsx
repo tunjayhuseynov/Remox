@@ -24,6 +24,7 @@ import { ToastRun } from "utils/toast";
 import { AiFillRightCircle } from "react-icons/ai";
 import { CoinDesignGenerator } from "./CoinsGenerator";
 import Detail from "./Detail";
+import makeBlockie from "ethereum-blockies-base64";
 
 const SingleTransactionItem = ({
   transaction,
@@ -99,13 +100,8 @@ const SingleTransactionItem = ({
         </td>
         <td className="text-left">
           <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 bg-gray-500 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
-              {(account?.image?.imageUrl) || account?.image?.nftUrl ?
-                <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} className="w-full h-full rounded-xl" /> :
-                <div className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
-                  {account?.name.slice(0, 2).toUpperCase()}
-                </div>
-              }
+            <div className={`w-10 h-10 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
+              <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="absolute left-0 top-0 w-10 h-10 rounded-full" />
             </div>
             <div className="text-sm truncate font-semibold pr-5">
               {account?.name ?? "N/A"}

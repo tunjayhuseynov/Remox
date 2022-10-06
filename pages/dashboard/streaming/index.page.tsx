@@ -60,17 +60,6 @@ const Automations = () => {
         <div className="text-2xl font-bold">Recurring</div>
       </div>
       <>
-        {tasks.length > 0 &&
-          <div className="w-full relative">
-            <Button
-              className={"absolute right-0 -top-[3.75rem] text-lg  rounded-xl !px-3  py-2"}
-              onClick={() => reccuringState[0].length > 0 ? setAddStopModal(true) : setSelectable(!selectable)}
-            >
-              {reccuringState[0].length > 0 ?
-                `Confirm ${reccuringState[0].length} ${reccuringState[0].length > 1 ? "payments" : "payment"}`
-                : selectable ? "Cancel Payment" : "Choose Payments"}
-            </Button>
-          </div>}
         <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
           <div className="flex  space-y-3 gap-12">
             <div className="flex flex-col space-y-5 gap-12 lg:gap-4">

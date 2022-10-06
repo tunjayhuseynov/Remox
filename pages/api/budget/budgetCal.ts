@@ -72,10 +72,12 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
             tag: tag,
             budgetCoin: {
                 coin: budget.token,
+                fiat: budget.fiatMoney,
                 totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
                 totalPending: txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalFirstCoinPending : 0), 0),
                 totalUsedAmount: (coinParsed?.[budget.token] ?? 0) + txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalFirstCoinSpent : 0), 0),
                 second: budget.secondToken && budget.secondAmount ? {
+                    fiat: budget.secondFiatMoney,
                     secondTotalAmount: budget.secondAmount,// - totalSecondCoinPending - coinParsed[budget.secondToken] - totalSecondCoinSpent,
                     secondCoin: budget.secondToken,
                     secondTotalPending: txMultisigResponse.reduce((a, c) => a + (c.status === "fulfilled" ? c.value.totalSecondCoinPending : 0), 0),
@@ -109,12 +111,14 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
 
     let budgetCoin: IBudgetCoin = {
         coin: budget.token,
+        fiat: budget.fiatMoney,
         totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
         totalPending: totalFirstCoinPending,
         totalUsedAmount: (coinParsed?.[budget.token] ?? 0) + totalFirstCoinSpent,
         second: budget.secondToken && budget.secondAmount ? {
             secondTotalAmount: budget.secondAmount,// - totalSecondCoinPending - coinParsed[budget.secondToken] - totalSecondCoinSpent,
             secondCoin: budget.secondToken,
+            fiat: budget.secondFiatMoney,
             secondTotalPending: totalSecondCoinPending,
             secondTotalUsedAmount: (coinParsed?.[budget.secondToken] ?? 0) + totalSecondCoinSpent
         } : null
@@ -163,11 +167,13 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         let budgetCoin: IBudgetCoin = {
             coin: subbudget.token,
             totalAmount: subbudget.amount,
+            fiat: subbudget.fiatMoney,
             totalPending: totalSubFirstCoinPending,
             totalUsedAmount: (coinParsed?.[budget.token] ?? 0) + totalSubFirstCoinSpent,
             second: subbudget.secondToken && subbudget.secondAmount ? {
                 secondTotalAmount: subbudget.secondAmount,
                 secondCoin: subbudget.secondToken,
+                fiat: subbudget.secondFiatMoney,
                 secondTotalPending: totalSubSecondCoinPending,
                 secondTotalUsedAmount: (coinParsed?.[subbudget.secondToken] ?? 0) + totalSubSecondCoinSpent
             } : null

@@ -189,7 +189,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                                 <div className='text-sm font-semibold'>None</div>
                                             </div>}
                                             {(customFiatList ?? fiatList).map((fiat, index) => {
-                                                return <div key={index} onClick={() => { setSelectedFiat(fiat); onChange(value ? +value : null, selectedCoin, fiat?.name) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedFiat?.name === fiat.name && "bg-gray-400 bg-opacity-20"}`}>
+                                                return <div key={index} onClick={() => { setSelectedFiat(fiat); onChange(value ? +value : null, selectedCoin, fiat?.name); setDropdown(false) }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${selectedFiat?.name === fiat.name && "bg-gray-400 bg-opacity-20"}`}>
                                                     <div className='w-6 h-6 rounded-full'><img className='w-full h-full rounded-full' src={fiat.logo} /></div>
                                                     <div className='text-sm font-semibold'>{fiat.name}</div>
                                                 </div>

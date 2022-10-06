@@ -34,6 +34,7 @@ import Safe, {
 } from "@gnosis.pm/safe-core-sdk";
 import {
     getMultiSendCallOnlyDeployment,
+    getCreateCallDeployment
 } from '@gnosis.pm/safe-deployments'
 import { SafeAccountConfig } from "@gnosis.pm/safe-core-sdk";
 import SafeServiceClient from "@gnosis.pm/safe-service-client";
@@ -274,7 +275,7 @@ export default function useMultisig() {
             provider = "Goki"
 
         } else if (provider === "GnosisSafe") {
-            const web3Provider = (window as any)?.celo;;
+            const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum;
             const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
             const safeOwner = ethersProvider.getSigner();
             const ethAdapter = new EthersAdapter({
@@ -282,10 +283,32 @@ export default function useMultisig() {
                 signer: safeOwner,
             });
 
+            // const multiSendDeployment =
+            //     getMultiSendCallOnlyDeployment({
+            //         network: "42220",
+            //     }) || getMultiSendCallOnlyDeployment()
+
+
+
+            // const masterCopy = getCreateCallDeployment({
+            //     network: "42220",
+            // })
+
+            // const contractAddress = multiSendDeployment?.networkAddresses["42220"] ?? multiSendDeployment?.defaultAddress
+
+            // const network = {
+            //     [4220]: {
+            //         multiSendAddress: contractAddress ?? "",
+            //         safeMasterCopyAddress: masterCopy?.networkAddresses["42220"],
+            //         safeProxyFactoryAddress: "0xC22834581EbC8527d974F8a1c97E1bEA4EF910BC",
+            //     }
+            // }
+
             const safeFactory = await SafeFactory.create({
                 ethAdapter,
                 isL1SafeMasterCopy: false,
                 safeVersion: "1.3.0",
+                // contractNetworks: blockchain.name === "celo" ? network : undefined
             });
 
             const safeAccountConfig: SafeAccountConfig = {
@@ -337,6 +360,8 @@ export default function useMultisig() {
                 gas: 25000,
                 gasPrice: "500000000",
             })
+
+            provider = "Celo Terminal"
         }
 
         let myResponse: IAccount = {
@@ -347,7 +372,7 @@ export default function useMultisig() {
             address: proxyAddress,
             id: nanoid(),
             members: owners.map<IMember>(s => ({
-                address: s.address,
+                address: toChecksumAddress(s.address),
                 id: process(),
                 name: s.name,
                 image: null,
@@ -361,12 +386,12 @@ export default function useMultisig() {
 
 
         if (type === "organization") {
-            dispatch(Create_Account_For_Organization({
+            await dispatch(Create_Account_For_Organization({
                 account: myResponse,
                 organization: organization!
             }))
         } else if (type === "individual") {
-            dispatch(Create_Account_For_Individual({
+            await dispatch(Create_Account_For_Individual({
                 account: myResponse,
                 individual: individual!
             }))
@@ -408,7 +433,7 @@ export default function useMultisig() {
                 members = [...owners];
                 if (!isOwner) throw new Error("You are not an owner in this multisig address");
             } else if (provider === "GnosisSafe") {
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const ethersProvider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = ethersProvider.getSigner();
 
@@ -507,7 +532,7 @@ export default function useMultisig() {
                 })
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
@@ -625,7 +650,7 @@ export default function useMultisig() {
                 return true;
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
@@ -714,7 +739,7 @@ export default function useMultisig() {
                     });
                 } else if (provider === "GnosisSafe") {
                     if (!txServiceUrl) throw new Error("Tx service is not selected")
-                    const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+                    const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                     const provider = new ethers.providers.Web3Provider(web3Provider);
                     const safeOwner = provider.getSigner();
                     const ethAdapter = new EthersAdapter({
@@ -894,7 +919,7 @@ export default function useMultisig() {
                 return hexToNumberString(tx.logs[0].topics[1]);
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.celo;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
@@ -921,7 +946,7 @@ export default function useMultisig() {
                     ethAdapter,
                     safeAddress: account.address,
                     isL1SafeMasterCopy: false,
-                    contractNetworks: network,
+                    contractNetworks: blockchain.name === "celo" ? network : undefined,
                 });
 
                 const safeService = new SafeServiceClient({
@@ -1051,7 +1076,7 @@ export default function useMultisig() {
             }
             else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
@@ -1099,7 +1124,7 @@ export default function useMultisig() {
                 throw new Error("Wallet has no data")
             } else if (providerName === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({
@@ -1187,7 +1212,7 @@ export default function useMultisig() {
                 return tx.transactionHash as string
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
-                const web3Provider = (window as any)?.ethereum ?? (window as any)?.celo;
+                const web3Provider = (window as any)?.celo ?? (window as any)?.ethereum
                 const provider = new ethers.providers.Web3Provider(web3Provider);
                 const safeOwner = provider.getSigner();
                 const ethAdapter = new EthersAdapter({

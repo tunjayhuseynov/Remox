@@ -5,6 +5,7 @@ import { useAppSelector } from 'redux/hooks'
 import { SelectCurrencies, SelectFiatPreference, SelectFiatSymbol, SelectPriceCalculationFn } from 'redux/slices/account/remoxData'
 import { SetComma } from 'utils'
 import { GetFiatPrice } from 'utils/const'
+import { NG } from 'utils/jsxstyle'
 import TotalExerciseDetails from './TotalExerciseDetails'
 
 function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
@@ -14,14 +15,28 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
 
     const TotalBudget = useMemo(() => {
         return total.budgets.reduce((a, b) => {
-            const fiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+
+            const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+
+            const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
+            const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
+            const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
+            const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
+
+            const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
+
+            const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
+            const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
+            console.log(totalAmountSecond, totalAmount)
+            const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
+            const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending
             return {
-                totalAmount: a.totalAmount + ((b.customPrice ?? fiatPrice) * b.budgetCoins.totalAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalAmount ?? 0)),
-                totalUsedAmount: a.totalUsedAmount + ((b.customPrice ?? fiatPrice) * b.budgetCoins.totalUsedAmount) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalUsedAmount ?? 0)),
-                totalPending: a.totalPending + ((b.customPrice ?? fiatPrice) * b.budgetCoins.totalPending) + ((b.secondCustomPrice ?? fiatPrice) * (b.budgetCoins.second?.secondTotalPending ?? 0))
+                totalAmount: a.totalAmount + ((b.customPrice ?? MainFiatPrice) * totalAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalAmountSecond ?? 0)),
+                totalUsedAmount: a.totalUsedAmount + ((b.customPrice ?? MainFiatPrice) * totalUsedAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalUsedAmountSecond ?? 0)),
+                totalPending: a.totalPending + ((b.customPrice ?? MainFiatPrice) * totalPendingAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalPendingAmountSecond ?? 0))
             }
         }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
-    }, [total.budgetCoins])
+    }, [total])
 
     return <div className="px-5 py-8 rounded-md bg-white dark:bg-darkSecond dark:border-[#aaaaaa] hover:dark:shadow-customDark hover:shadow-custom">
         <div className='grid grid-cols-[25%,20%,20%,20%,15%]'>
@@ -29,32 +44,32 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                 <div className={`flex pr-16  border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4`}>
                         <div className='text-lg font-bold text-gray-500'>Total Budget</div>
-                        <div className={`text-4xl font-semibold flex flex-col gap-2`}>
-                            {symbol}{SetComma(TotalBudget.totalAmount)}
+                        <div className={`text-4xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalAmount} fontSize={2.25} />
                         </div>
                     </div>
                 </div>
                 <div className={`flex pl-8 border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4 `}>
                         <div className='text-lg font-bold text-gray-500'>Total Used</div>
-                        <div className={`text-2xl font-semibold flex flex-col gap-2`}>
-                            {symbol}{SetComma(TotalBudget.totalUsedAmount)}
+                        <div className={`text-2xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalUsedAmount} fontSize={1.5} />
                         </div>
                     </div>
                 </div>
                 <div className={`flex px-8 border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4 `}>
                         <div className='text-lg font-bold text-gray-500'>Total Pending</div>
-                        <div className={`text-2xl font-semibold flex flex-col gap-2`}>
-                            {symbol}{SetComma(TotalBudget.totalPending)}
+                        <div className={`text-2xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalPending} fontSize={1.5} />
                         </div>
                     </div>
                 </div>
                 <div className={`pl-8 !border-r-0 gap-8 !flex-row text-2xl min-w-[18rem] items-center justify-center dark:border-[#aaaaaa] !my-0`}>
                     <div className={`self-start flex flex-col gap-12 lg:gap-4`}>
                         <div className='text-lg font-bold text-gray-500'>Total Available</div>
-                        <div className={`text-2xl font-semibold flex flex-col gap-2`}>
-                            {symbol}{SetComma(TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending)}
+                        <div className={`text-2xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending} fontSize={1.5} />
                         </div>
                     </div>
                 </div>

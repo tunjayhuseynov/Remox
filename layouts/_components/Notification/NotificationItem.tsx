@@ -1,4 +1,4 @@
-import { ERC20MethodIds, GenerateTransaction, IBatchRequest, IFormattedTransaction, ITransfer } from "hooks/useTransactionProcess"
+import { ERC20MethodIds, GenerateTransaction, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess"
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig"
 import { BlockchainType } from "types/blockchains"
 import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils"
@@ -28,6 +28,23 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addr
 
     let amount: string | undefined;
     let coin: AltCoins | undefined;
+
+    let amountFrom: string | undefined;
+    let coinFrom: AltCoins | undefined;
+
+    let amountTo: string | undefined;
+    let coinTo: AltCoins | undefined;
+
+    if (method === ERC20MethodIds.swap) {
+        const data = 'tx' in item ? item.tx as ISwap : item as ISwap;
+
+        amountFrom = data.amountIn;
+        coinFrom = data.coinIn;
+
+        amountTo = data.amountOutMin;
+        coinTo = data.coinOutMin;
+    }
+
     if (
         method === ERC20MethodIds.transfer ||
         method === ERC20MethodIds.transferFrom ||
@@ -35,7 +52,8 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addr
         method === ERC20MethodIds.automatedTransfer ||
         method === ERC20MethodIds.borrow ||
         method === ERC20MethodIds.repay ||
-        method === ERC20MethodIds.withdraw
+        method === ERC20MethodIds.withdraw ||
+        method === ERC20MethodIds.deposit
     ) {
 
         amount = 'tx' in item ? item.tx.amount : (item as ITransfer).amount
@@ -75,7 +93,8 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addr
         <img src={image} alt="" className="w-10 h-10 rounded-full" />
         <div className="flex flex-col items-start">
             <div className="text-lg font-medium">
-                {action} {amount && coin ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin ? coin.symbol : ''}
+                {action} {amount && coin && method !== ERC20MethodIds.swap ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERC20MethodIds.swap !== method ? coin.symbol : ''}
+                {method === ERC20MethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18)} {coinTo?.symbol}</>)}
             </div>
             <div className="font-medium text-[10px] text-primary cursor-pointer" onClick={() => navigate.push('/dashboard/transactions')}>View Transaction</div>
         </div>

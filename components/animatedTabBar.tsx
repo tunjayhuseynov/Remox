@@ -17,7 +17,7 @@ export default function AnimatedTabBar({ data, index, className }: { data: { to:
                     return <div key={i}>
                         <Link href={`${item.to}`} replace={true}>
                             <span className="relative">
-                                <motion.div className={`${className} transition-all hover:!text-primary hover:transition-all gap-x-3  cursor-pointer pb-2 text-base font-bold  tracking-widertle relative  ${i === selected ? "selected text-primary" : "text-[#aaaaaa]   dark:text-[#aaaaaa] "}`} onClick={() => setSelected(i)} >
+                                <motion.div className={`${className} transition-all hover:!text-primary hover:transition-all gap-x-3  cursor-pointer pb-2 text-base font-semibold  tracking-widertle relative  ${i === selected ? "selected text-primary" : "text-[#aaaaaa]   dark:text-[#aaaaaa] "}`} onClick={() => setSelected(i)} >
                                     <span className="">{item.text}</span>
                                     {i === selected && (<motion.span className="absolute w-full h-[3px] left-0 bg-primary rounded-[2px] bottom-0" layoutId="underline" />)}
                                     {item.count && 

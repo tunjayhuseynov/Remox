@@ -1,7 +1,7 @@
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { budgetExerciseCollectionName } from 'crud/budget_exercise'
-import { IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
+import { FiatMoneyList, IBudget, IBudgetExercise, ISubBudget } from "firebaseConfig";
 import { BASE_URL } from "utils/api";
 import axios from "axios";
 import { IPriceResponse } from "../calculation/price.api";
@@ -12,10 +12,12 @@ import axiosRetry from "axios-retry";
 
 export interface IBudgetCoin {
     coin: string,
+    fiat: FiatMoneyList | null,
     totalAmount: number,
     totalPending: number,
     totalUsedAmount: number,
     second: {
+        fiat: FiatMoneyList | null,
         secondCoin: string,
         secondTotalPending: number,
         secondTotalAmount: number

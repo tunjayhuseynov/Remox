@@ -1,7 +1,7 @@
 import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Add_Member_To_Account, Create_Account, Remove_Member_From_Account, Update_Account, Update_Members_In_Account } from "crud/account";
-import { Add_New_Individual_Account, Remove_Individual_Account } from "crud/individual";
+import { Add_Member_To_Account, Create_Account, Get_Account_Ref, Remove_Member_From_Account, Update_Account, Update_Members_In_Account } from "crud/account";
+import { Add_New_Individual_Account, Get_Individual_Ref, Remove_Individual_Account } from "crud/individual";
 import { Add_New_Organization_Account, Remove_Organization_Account, Update_Organization } from "crud/organization";
 import { registeredIndividualCollectionName } from "crud/registeredIndividual";
 import { arrayUnion } from "firebase/firestore";
@@ -94,12 +94,15 @@ export const Remove_Account_From_Individual = createAsyncThunk<IAccount, { accou
 export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { account: IAccount, organization: IOrganization }>("remoxData/Add_Account_To_Organization", async ({ account, organization }, api) => {
     await Create_Account(Object.assign({}, account));
 
-    let org: IOrganization = organization;
-    org = Object.assign(org, organization)
-    const members = Array.from(new Set([...org.members, ...account.members.map(m => m.address)]));
+    let org: IOrganization = Object.assign({}, organization)
+    const members = Array.from(new Set([...org.members, ...account.members.map(m => toChecksumAddress(m.address))]));
     org.members = members;
+    if ('name' in org.creator) {
+        org.creator = Get_Individual_Ref(org.creator.id)
+    }
+    org.accounts = [...org.accounts, account] as IAccount[];
     await Update_Organization(org)
-    await Add_New_Organization_Account(Object.assign({}, organization), Object.assign({}, account))
+    // await Add_New_Organization_Account(Object.assign({}, organization), Object.assign({}, account))
 
     const accountReq = await axios.get<IAccountORM>("/api/account", {
         params: {

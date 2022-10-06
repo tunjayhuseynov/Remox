@@ -11,7 +11,7 @@ const CoinItem = ({ title, coin, usd, percent, img, setSelectcoin, selectcoin, o
                     <img width="15" height="15" src={img} alt="" className="rounded-full" /></div>
                 <div className="text-xs">{title}</div>
             </div>
-            <div className='text-xs text-right'>{`${SetComma(coin)}`}</div>
+            <div className='text-xs text-right'>{`${coin.toFixed(1)}`}</div>
             <div className="text-xs text-right">{percent}%</div>
         </div>
     </div>

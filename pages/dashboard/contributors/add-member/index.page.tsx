@@ -21,6 +21,7 @@ import EditableAvatar from "components/general/EditableAvatar";
 import PriceInputField from "components/general/PriceInputField";
 import { FiatMoneyList } from "firebaseConfig";
 import { IoMdRemoveCircle } from "react-icons/io";
+import { GetTime } from "utils";
 
 export interface IFormInput {
     fullname: string;
@@ -119,8 +120,8 @@ const AddMember = () => {
     
                     const id = await SendTransaction(accountAndBudget.account!, inputs, {
                         createStreaming: true,
-                        startTime: startDate.getTime(),
-                        endTime: endDate.getTime(),
+                        startTime: GetTime(startDate),
+                        endTime: GetTime(endDate),
                         budget: accountAndBudget.budget,
                     })
     

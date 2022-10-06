@@ -64,7 +64,7 @@ function WalletList({ item }: { item: IAccountORM }) {
     const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
     return <>
 
-        <Modal onDisable={setModalEditVisible} openNotify={modalEditVisible} animatedModal={true}>
+        <Modal onDisable={setModalEditVisible} openNotify={modalEditVisible} animatedModal={true} disableX={true}>
             <EditWallet account={item} onDisable={setModalEditVisible} />
         </Modal>
         {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className="!pt-4">
@@ -123,8 +123,8 @@ function WalletList({ item }: { item: IAccountORM }) {
                         <div className="grid grid-flow-row">
                             <div className="text-greylish text-xs">Total Value</div>
                             <div className="text-lg font-semibold truncate">
-                                <Tooltip title={<>{symbol}{SetComma(totalValue)}</>}>
-                                    <>{symbol}{SetComma(totalValue)}</>
+                                <Tooltip title={<>{symbol}{totalValue.toFixed(1)}</>}>
+                                    <>{symbol}{totalValue.toFixed(1)}</>
                                 </Tooltip>
                             </div>
                         </div>

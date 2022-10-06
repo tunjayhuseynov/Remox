@@ -260,6 +260,7 @@ const Transactions = () => {
                                     'Amount:': swapping ? `${swapping.amountIn} ${swapping.amountInCoin} => ${swapping.amountOut} ${swapping.amountOutCoin}` : amountCoins.map(w => `${w.amount} ${w.coin}`).join(',\n'),
                                     'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
                                     'Date': dateFormat(new Date(timestamp), "mediumDate"),
+                                    "Labels": w.tags.join(', '),
                                     "Gas": `${gas} ${gasCoin}`,
                                     "Block Number": blockNumber,
                                     "Transaction Hash": hash,

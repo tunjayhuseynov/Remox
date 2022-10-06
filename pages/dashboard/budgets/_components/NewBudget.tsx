@@ -120,9 +120,9 @@ function NewBudget({ exerciseId, onBack }: IProps) {
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
         if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
-        if (labels.some(label => !label.labelAmount || !label.labelCoin || !label.labelName)
+        if (labels.some(label => label.labelAmount === undefined || label.labelAmount === null || !label.labelCoin || !label.labelName)
             ||
-            (anotherToken && labels.some(label => !label.second?.labelAmount || !label.second?.labelCoin))
+            (anotherToken && labels.some(label => label.second?.labelAmount === null || label.second?.labelAmount === undefined || !label.second?.labelCoin))
         ) return ToastRun(<>Please, fill all the fields</>, "error")
 
         const allLabelAmount = labels.reduce((acc, curr) => acc + (curr.labelAmount ?? 0), 0)
@@ -172,6 +172,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                 })),
             }
         }
+        console.log(budget)
 
         await dispatch(Create_Budget_Thunk(budget)).unwrap()
 
@@ -286,7 +287,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                         const max = (budgetAmount ?? 0) - labels.reduce((a, c) => a + (c.labelAmount ?? 0), 0)
                         const max2 = (budgetAmount2 ?? 0) - labels.reduce((a, c) => a + (c?.second?.labelAmount ?? 0), 0)
                         return <div key={label.id} className='flex flex-col space-y-5'>
-                            <div className='text-xl font-semibold text-center'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
+                            <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
                                 <TextField label="Label name" placeholder='E.g. Payroll' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
                                     if (s.id === label.id) {

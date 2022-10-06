@@ -112,7 +112,7 @@ export interface IRemoxData {
     }
 }
 
-const init = (): IRemoxData => {
+export const init = (): IRemoxData => {
     return {
         coins: {},
         fees: {},
@@ -193,8 +193,62 @@ const remoxDataSlice = createSlice({
         ...accountMembers,
         ...Moderators,
         setResetRemoxData: (state: IRemoxData) => {
+            state.accountType = null;
+            state.contributors = [];
+            state.budgetExercises = [];
+            state.historyPriceList = {};
+            state.organizations = [];
+            state.darkMode = true;
+            state.coins = {}
+            state.fees = {}
+            state.nfts = [];
+            state.tags = [];
+            state.stats = null
+            state.providerAddress = null;
+            state.requests = {
+                pendingRequests: [],
+                approvedRequests: [],
+                rejectedRequests: [],
+            };
+            state.accounts = [];
+            state.providerID = null;
+            state.accounts = [];
+            state.storage = null;
+            state.transactions = [];
+            state.cumulativeTransactions = [];
+            state.multisigStats = null;
+            state.selectedAccountAndBudget = {
+                account: null,
+                budget: null,
+                subbudget: null,
+            };
+            state.recurringTasks = [];
+            state.credentials = {
+                address: "",
+                password: "",
+            }
+            state.tags = [];
             state.isFetching = false;
             state.IsInit = false;
+            state.balances = {};
+            state.addressBook = [];
+            state.blockchain = {
+                multisigProviders: [],
+                batchPaymentProtocols: [],
+                currencyCollectionName: "",
+                hpCollection: "",
+                explorerUrl: "",
+                displayName: "Solana",
+                nativeToken: "SOL",
+                lendingProtocols: [],
+                name: "solana",
+                logoUrl: "",
+                recurringPaymentProtocols: [],
+                rpcUrl: "",
+                streamingProtocols: [],
+                swapProtocols: [],
+            };
+
         },
         setProviderAddress: (state: IRemoxData, action: { payload: string }) => {
             state.providerAddress = action.payload;
