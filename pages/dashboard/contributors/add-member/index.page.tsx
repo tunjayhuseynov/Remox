@@ -15,12 +15,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Stack, TextField } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import EditableAvatar from "components/general/EditableAvatar";
 import PriceInputField from "components/general/PriceInputField";
 import { FiatMoneyList } from "firebaseConfig";
 import { IoMdRemoveCircle } from "react-icons/io";
+import { ToastRun } from "utils/toast";
+import ChooseBudget from "components/general/chooseBudget";
+import Modal from "components/general/modal";
+
 
 export interface IFormInput {
     fullname: string;
@@ -30,6 +33,7 @@ export interface IFormInput {
 
 const AddMember = () => {
     const navigate = useRouter()
+    const {compensationIndex } = useRouter().query as { compensationIndex:  string}
     const { register, handleSubmit } = useForm<IFormInput>();
     const [url, setUrl] = useState<string>("");
     const [type, setType] = useState<"image" | "nft">("image")
@@ -43,8 +47,8 @@ const AddMember = () => {
         { name: "Part Time" },
         { name: "Bounty" },
     ];
-    const [selectedSchedule, setSelectedSchedule] = useState(schedule[0]);
-
+    console.log(compensationIndex)
+    const [selectedSchedule, setSelectedSchedule] = useState(compensationIndex ?  +compensationIndex === 0 ? schedule[0] : schedule[+compensationIndex-1] : schedule[0]);
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);
     const isAutoPayment = selectedPaymentType.name === "Auto";
@@ -73,8 +77,8 @@ const AddMember = () => {
         name: "Monthly",
         type: DateInterval.monthly,
     });
-    
     const [loading, setIsLoading] = useState(false);
+    const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
 
     const submit: SubmitHandler<IFormInput> = async (data) => {
         const Team = selectedTeam;
@@ -91,19 +95,20 @@ const AddMember = () => {
             tokenId: null,
             blockchain: blockchain.name
         }
-        // setIsLoading(true)
         
         const dateNow = new Date().getTime()
-
-        console.log(Team.id)
-
         
-
+        console.log(Team.id)
+        
+        
+        
         try {
-            if(Team) {
+            if(Team.id) {
+                setIsLoading(true)
                 let taskId: string | null = null
                 let inputs: IPaymentInput[] = []
                 if (isAutoPayment && startDate && endDate) {
+                    setChoosingBudget(true)
                     inputs.push({
                         amount: Amount ?? 1,
                         coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol ,
@@ -125,6 +130,7 @@ const AddMember = () => {
                     })
     
                     taskId = id!
+                    setChoosingBudget(false)
                 }
     
                 let member: IMember = {
@@ -154,7 +160,8 @@ const AddMember = () => {
                 setIsLoading(false);
                 navigate.back();
             } else {
-
+                ToastRun(<>Please choose a team</>, "warning")
+                return
             }
         } catch (error: any) {
             console.error(error);
@@ -294,6 +301,9 @@ const AddMember = () => {
                 </form>
             </div>
         </div>
+        <Modal onDisable={setChoosingBudget} openNotify={choosingBudget}>
+            <ChooseBudget submit={submit}/>
+        </Modal>
     </>
 };
 
