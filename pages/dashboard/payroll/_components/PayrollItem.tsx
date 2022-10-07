@@ -125,7 +125,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
         {member.interval === DateInterval.weekly && "Weekly"}
       </th>
       <th className="flex items-center justify-start text-sm font-medium">
-        {member.execution === "auto" ? "Stheaming" : "Manual"}
+        {member.execution === "Auto" ? "Streaming" : "Manual"}
       </th>
       <th className="flex items-center text-sm font-medium justify-start pr-8">
         {member.compensation}
