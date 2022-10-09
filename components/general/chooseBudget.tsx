@@ -1,16 +1,20 @@
-import { useEffect, useState, useMemo, SyntheticEvent } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import Dropdown from 'components/general/dropdown';
 import Button from 'components/button';
-import { useRouter } from 'next/router';
 import { useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAllBudgets, SelectProviderAddress, setSelectedAccountAndBudget } from 'redux/slices/account/remoxData';
 import { ToastRun } from 'utils/toast';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import { useWalletKit } from 'hooks';
-import useLoading from 'hooks/useLoading';
+import { IAccountORM } from "pages/api/account/index.api";
 
-function ChooseBudget({submit} : {submit: (...type : any) => void}) {
+
+function ChooseBudget({submit} : {submit: ({ account, budget, subbudget }: {
+    account: IAccountORM | undefined;
+    budget?: IBudgetORM | undefined;
+    subbudget?: ISubbudgetORM | undefined;
+}) => Promise<void>}) {
 
     const budgets = useAppSelector(SelectAllBudgets);
     const providerAddress = useAppSelector(SelectProviderAddress);
@@ -56,7 +60,7 @@ function ChooseBudget({submit} : {submit: (...type : any) => void}) {
             subbudget: budget?.subbudgets.find(sb => sb.id === selectedSubbudget?.id) ?? null,
         }))
 
-        submit()
+        submit(selectedAccount)
 
         setLoading(false)
     }
@@ -101,7 +105,7 @@ function ChooseBudget({submit} : {submit: (...type : any) => void}) {
                               onClick={() => onSubmit()}
                               className={'flex w-full items-center justify-center !py-2 rounded-xl'} >
                                 Execute
-                              </Button>
+                            </Button>
                         </div>
                 </div>
             </div>

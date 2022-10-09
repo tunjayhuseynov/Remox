@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectMoolaData, updateData } from "redux/slices/lending";
 import { AltCoins, TokenType } from "types";
@@ -8,13 +8,12 @@ import { AbiItem } from "./ABI/AbiItem";
 import { Contracts } from "./Contracts/Contracts";
 import useAllowance from "./useAllowance";
 import { useWalletKit } from "hooks";
-import { VaultClient, VaultConfig } from '@castlefinance/vault-sdk'
+import { VaultClient } from '@castlefinance/vault-sdk'
 import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";
 import { PublicKey } from "@solana/web3.js";
 import { IAccount } from "firebaseConfig";
-import { useCelo } from "@celo/react-celo";
 import Web3 from "web3";
-import { SelectCurrencies, SelectFiatPreference, SelectPriceCalculationFn } from "redux/slices/account/selector";
+import { SelectAccounts, SelectCurrencies, SelectFiatPreference, SelectPriceCalculationFn, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
 import { useAppSelector } from "redux/hooks";
 import { DecimalConverter } from "utils/api";
 import { GetFiatPrice } from "utils/const";
@@ -35,8 +34,9 @@ export enum InterestRateMode {
 export const LendingType = (type: string) => type === "withdraw" ? "Withdrawn" : type === "borrow" ? "Borrowed" : type === "repay" ? "Repaid" : "Deposited"
 
 
-export default function useLending(account: IAccount) {
+export default function useLending() {
     const fiatPreference = useAppSelector(SelectFiatPreference)
+    const account = useAppSelector(SelectSelectedAccountAndBudget).account
 
     const contractRef = useRef<string>()
     const priceOracleRef = useRef<string>()
@@ -50,6 +50,12 @@ export default function useLending(account: IAccount) {
     const MoolaUserData = useSelector(selectMoolaData)
     const currencies = useAppSelector(SelectCurrencies)
 
+    const cUSD = Object.values(GetCoins).find((coin) => coin.symbol === "CUSD")
+    const cREAl = Object.values(GetCoins).find((coin) => coin.symbol === "CREAL")
+    const Celo = Object.values(GetCoins).find((coin) => coin.symbol === "CELO")
+    const cEURO = Object.values(GetCoins).find((coin) => coin.symbol === "CEUR")
+    const Moo = Object.values(GetCoins).find((coin) => coin.symbol === "MOO")
+    
     useEffect(() => {
         getContract().catch((error: any) => { console.error(error.message) })
     }, [])
@@ -83,7 +89,7 @@ export default function useLending(account: IAccount) {
 
             const web3 = new Web3((window as any).celo)
             const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
-            return (await moola.methods.getUserAccountData(account.address).call()).availableBorrowsETH
+            return (await moola.methods.getUserAccountData(account?.address ?? "").call()).availableBorrowsETH
         } catch (error: any) {
             console.error(error)
             throw new Error(error.message)
@@ -118,7 +124,7 @@ export default function useLending(account: IAccount) {
                     vault.vault_id,
                     vault.deploymentEnv
                 )
-                const reserve = await vaultClient.getUserReserveTokenAccount(new PublicKey(account.address));
+                const reserve = await vaultClient.getUserReserveTokenAccount(new PublicKey(account?.address ?? ""));
                 await vaultClient.deposit(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount, reserve)
 
                 return
@@ -133,9 +139,9 @@ export default function useLending(account: IAccount) {
             const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
-            const deposit = await moola.methods.deposit(asset, weiAmount, (account.address), 0)
-            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
-            const res = await deposit.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei('0.5', 'gwei') })
+            const deposit = await moola.methods.deposit(asset, weiAmount, (account?.address ?? ""), 0)
+            await allow(account?.address ?? "", Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account?.address ?? "")
+            const res = await deposit.send({ from: account?.address ?? "",  gas: 300000, gasPrice: web3.utils.toWei('0.5', 'gwei') })
 
             setLaoding(false)
 
@@ -177,9 +183,9 @@ export default function useLending(account: IAccount) {
             const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
-            const withdraw = await moola.methods.withdraw(asset, weiAmount, account.address)
-            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
-            const res = await withdraw.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
+            const withdraw = await moola.methods.withdraw(asset, weiAmount, account?.address ?? "")
+            await allow(account?.address ?? "", Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account?.address ?? "")
+            const res = await withdraw.send({ from: account?.address ?? "", gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
 
             return res.transactionHash
@@ -201,9 +207,9 @@ export default function useLending(account: IAccount) {
             const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
-            const borrow = await moola.methods.borrow(asset, weiAmount, interestRateMode, 0, account.address)
-            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
-            const res = await borrow.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
+            const borrow = await moola.methods.borrow(asset, weiAmount, interestRateMode, 0, account?.address ?? "")
+            await allow(account?.address ?? "", Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account?.address ?? "")
+            const res = await borrow.send({ from: account?.address ?? "", gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash
         } catch (error: any) {
@@ -224,9 +230,9 @@ export default function useLending(account: IAccount) {
             const moola = new web3.eth.Contract(abi.abi as AbiItem[], contractRef.current)
 
             const weiAmount = toWei(amount)
-            const repay = await moola.methods.repay(asset, weiAmount, interestRateMode, account.address)
-            await allow(account.address, Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account.address)
-            const res = await repay.send({ from: account.address, gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
+            const repay = await moola.methods.repay(asset, weiAmount, interestRateMode, account?.address ?? "")
+            await allow(account?.address ?? "", Object.values(GetCoins).find(s => s.address === asset)!, contractRef.current!, amount.toString(), account?.address ?? "")
+            const res = await repay.send({ from: account?.address ?? "", gas: 300000, gasPrice: web3.utils.toWei("0.5", 'Gwei') })
             setLaoding(false)
             return res.transactionHash
         } catch (error: any) {
@@ -235,6 +241,61 @@ export default function useLending(account: IAccount) {
             throw new Error(error.message)
         }
     }
+
+    const getReservesData = useCallback(async () : Promise<LendingReserveData[]> => {
+        try {
+            const abi = await MoolaData
+            const web3 = new Web3((window as any).celo)
+            const moola = new web3.eth.Contract(abi.abi as AbiItem[], Contracts.MoolaDataProxy.address)
+
+            const reservesData = await moola.methods.getAllReservesTokens().call()
+
+
+            const getReserveData = async (address: string) => {
+                const data = await moola.methods.getReserveData(address)
+                const ltv = await moola.methods.getReserveConfigurationData(address).call()
+                const reserveData = await data.call()
+                
+                return {
+                    availableLiquidity: print(reserveData.availableLiquidity),
+                    rawAvailableLiquidity: reserveData.availableLiquidity,
+                    totalStableDebt: print(reserveData.totalStableDebt),
+                    totalVariableDebt: print(reserveData.totalVariableDebt),
+                    liquidityRate: printRayRateRaw(reserveData.liquidityRate),
+                    rawLiquidityRate: reserveData.liquidityRate,
+                    variableBorrowRate: printRayRate(reserveData.variableBorrowRate),
+                    stableBorrowRate: printRayRate(reserveData.stableBorrowRate),
+                    averageStableBorrowRate: printRayRate(reserveData.averageStableBorrowRate),
+                    liquidityIndex: printRay(reserveData.liquidityIndex),
+                    variableBorrowIndex: printRay(reserveData.variableBorrowIndex),
+                    coinReserveConfig: {
+                        Decimals: BN(ltv.decimals).toNumber(),
+                        LoanToValue: `${BN(ltv.ltv).div(BN(100))}%`,
+                        LiquidationThreshold: `${BN(ltv.liquidationThreshold).div(BN(100))}%`,
+                        LiquidationBonus: `${BN(ltv.liquidationBonus).div(BN(100)).minus(BN(100))}%`,
+                        ReserveFactor: `${BN(ltv.reserveFactor).div(BN(100))}%`,
+                        CollateralEnabled: ltv.usageAsCollateralEnabled,
+                        BorrowingEnabled: ltv.borrowingEnabled,
+                        StableEnabled: ltv.stableBorrowRateEnabled,
+                        Active: ltv.isActive,
+                        Frozen: ltv.isFrozen,
+                    },
+                    lastUpdateTimestamp: new Date(
+                        BN(data.lastUpdateTimestamp).multipliedBy(1000).toNumber()
+                    ).toLocaleString(),
+                };
+            }
+
+            const reservesAssestsData: LendingReserveData[] = await Promise.all(
+                reservesData.map((reserve: [symbol: string, tokenAddress: string]) => getReserveData(reserve[1]) )
+            )
+
+            return reservesAssestsData
+        } catch (error: any) {
+            console.error(error)
+            throw new Error(error.message)
+        }
+    }, [])
 
     const getReserveData = async (asset: string): Promise<LendingReserveData> => {
         try {
@@ -248,6 +309,9 @@ export default function useLending(account: IAccount) {
             const data = await moola.methods.getReserveData(asset)
             const ltv = await moola.methods.getReserveConfigurationData(asset).call()
             const reserveData = await data.call()
+
+
+
 
             return {
                 availableLiquidity: print(reserveData.availableLiquidity),
@@ -289,7 +353,7 @@ export default function useLending(account: IAccount) {
             const MoolaDataAbi = await MoolaData
             const web3 = new Web3((window as any).celo)
             const moola = new web3.eth.Contract(MoolaDataAbi.abi as AbiItem[], Contracts.MoolaDataProxy.address)
-            const data = await moola.methods.getUserReserveData(asset, account.address) //(walletAddress ?? address!)
+            const data = await moola.methods.getUserReserveData(asset, account?.address) //(walletAddress ?? address!)
 
             const userData = await data.call()
 
@@ -328,7 +392,7 @@ export default function useLending(account: IAccount) {
                     averageStableBorrowRate: 0,
                     currency: currencies["USDC"],
                     currencyPrice: GetFiatPrice(currencies["USDC"], fiatPreference).toString(),
-                    lendingBalance: (await vaultClient.getUserValue(new PublicKey(account.address))).getAmount(),
+                    lendingBalance: (await vaultClient.getUserValue(new PublicKey(account?.address ?? ""))).getAmount(),
                     loanBalance: 0,
                     walletBalance: 0,
                     userData: {
@@ -381,7 +445,7 @@ export default function useLending(account: IAccount) {
             const erc20 = await ERC20
             const element = currency;
             const contract = new web3.eth.Contract(erc20 as AbiItem[], element.address)
-            const weiBalance = await contract.methods.balanceOf(account.address).call()
+            const weiBalance = await contract.methods.balanceOf(account?.address).call()
             const balance = DecimalConverter(weiBalance, element.decimals)
             const price = GetFiatPrice(currencies[element.name], fiatPreference)
             const celoPerToken = await getPrice(element.address)
@@ -504,7 +568,7 @@ export default function useLending(account: IAccount) {
         }
     }
 
-    return { getContract, deposit, getPrice, withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading, getSingleInitialUserData, getBorrowInfo };
+    return { getContract, deposit, getPrice, getReservesData , withdraw, borrow, repay, getReserveData, getUserAccountData, InitializeUser, refresh, loading, initLoading, getSingleInitialUserData, getBorrowInfo };
 }
 
 export interface LendingUserData {

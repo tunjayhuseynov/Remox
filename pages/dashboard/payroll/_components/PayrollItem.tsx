@@ -3,6 +3,7 @@ import dateFormat from "dateformat";
 import makeBlockie from "ethereum-blockies-base64";
 import { useWalletKit } from "hooks";
 import { Dispatch, SetStateAction } from "react";
+import { fiatList } from "components/general/PriceInputField";
 
 import {
   DateInterval,
@@ -23,10 +24,13 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
     const {GetCoins } = useWalletKit()
     const coin1 = Object.values(GetCoins).find((coin) => coin.symbol ===  member.currency)
     const coin2 = Object.values(GetCoins).find((coin) => coin.symbol ===  member.secondCurrency)
+    const fiatFirst = fiatList.find((fiat) => fiat.name === member.fiat)
+    const fiatSecond = fiatList.find((fiat) => fiat.name === member.fiatSecond)
+
 
   return (
     <tr className="grid grid-cols-[18%,11%,14%,15%,14%,11%,17%] py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
-      <th
+      <td
         className={` ${
           member.execution !== ExecutionType.auto && isRuning
             ? "pl-4"
@@ -80,8 +84,8 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             </div>
           </div>
         </div>
-      </th>
-      <th className="flex space-x-8 items-center">
+      </td>
+      <td className="flex space-x-8 items-center">
         {member.paymantDate && (
           <>
             <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm font-medium">
@@ -89,8 +93,8 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             </div>
           </>
         )}
-      </th>
-      <th className="flex space-x-8 items-center">
+      </td>
+      <td className="flex space-x-8 items-center">
         {member.paymantEndDate && (
           <>
             <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm font-medium">
@@ -98,38 +102,48 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             </div>
           </>
         )}
-      </th>
-      <th className="flex flex-col items-start justify-center space-y-4">
-        <div className="pl-[2px] flex items-center  gap-1">
-            {member.fiat ? <div className="flex items-center gap-1"> <span className="text-sm">{member.amount}</span> {member.fiat} as <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full" /></div> :
-                <div className="flex items-center">
-                    <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-1" />
-                    <span className="text-sm">{member.amount}</span>
+      </td>
+      <td className="flex flex-col justify-center text-sm space-y-4">
+        <div className="flex items-center">
+          <div className="flex items-center mr-3">
+            {
+              member.fiat ? (
+                <div className="relative">
+                  <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                  <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
                 </div>
+                ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
             }
-            
-            <div>
             </div>
-        </div>
-        {(member.secondCurrency && member.secondAmount) && <div className="pl-[2px] flex items-center justify-start gap-1">
-            <div className="flex items-center gap-1 mr-1">
-                <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full" />
+            <div className="flex items-center">
+              {member?.amount}
             </div>
-            <div className=" text-sm">{member.secondAmount}</div>
-            <div>
             </div>
+            {(member.secondAmount && member.secondCurrency) && <div className="flex items-center">
+              <div className="flex items-center mr-3">
+                {
+                  member.fiatSecond ? (
+                    <div className="relative">
+                      <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                      <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
+              </div> ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
+            }
+          </div>
+          <div className="flex items-center">
+            {member?.secondAmount}
+          </div>
         </div>}
-      </th>
-      <th className="pl-[2px] hidden sm:flex items-center justify-start text-lg font-medium">
+      </td>
+      <td className="pl-[2px] hidden sm:flex items-center justify-start text-sm font-medium">
         {member.interval === DateInterval.monthly && "Monthly"}
         {member.interval === DateInterval.weekly && "Weekly"}
-      </th>
-      <th className="flex items-center justify-start text-sm font-medium">
+      </td>
+      <td className="flex items-center justify-start text-sm font-medium">
         {member.execution === "Auto" ? "Streaming" : "Manual"}
-      </th>
-      <th className="flex items-center text-sm font-medium justify-start pr-8">
+      </td>
+      <td className="flex items-center text-sm font-medium justify-start pr-8">
         {member.compensation}
-      </th>
+      </td>
     </tr>
   );
 };
