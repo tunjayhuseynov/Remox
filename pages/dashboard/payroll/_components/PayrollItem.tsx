@@ -10,7 +10,8 @@ import {
   ExecutionType,
   IMember,
 } from "types/dashboard/contributors";
-import { AddressReducer, SetComma } from "utils";
+import { AddressReducer } from "utils";
+import { NG } from "utils/jsxstyle";
 
 interface IProps {
   member: IMember;
@@ -116,7 +117,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             }
             </div>
             <div className="flex items-center">
-              {member?.amount}
+              <NG number={+member?.amount}/>
             </div>
             </div>
             {(member.secondAmount && member.secondCurrency) && <div className="flex items-center">
@@ -130,7 +131,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             }
           </div>
           <div className="flex items-center">
-            {member?.secondAmount}
+            <NG number={+member?.secondAmount} />
           </div>
         </div>}
       </td>

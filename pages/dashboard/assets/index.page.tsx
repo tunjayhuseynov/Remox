@@ -1,11 +1,9 @@
 import * as React from 'react';
 import Loader from "components/Loader";
-import { motion } from 'framer-motion'
 import { useAppSelector } from '../../../redux/hooks';
 import { AltCoins, TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
-import { SetComma } from 'utils';
 import { styled } from '@mui/material/styles';
 import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference } from 'redux/slices/account/remoxData';
 import useNextSelector from 'hooks/useNextSelector';
@@ -16,14 +14,13 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AssetItem from './_components/assetItem';
-import { IPriceCoin } from 'pages/api/calculation/price.api';
 import NftContainer from './_components/nftContainer';
 import { FiatMoneyList } from 'firebaseConfig';
 import { IFormattedTransaction } from 'hooks/useTransactionProcess';
-import { IPrice } from 'utils/api';
 import { GetFiatPrice } from 'utils/const';
 import { useWalletKit } from 'hooks';
+import { NG } from 'utils/jsxstyle';
+import AssetItem from './_components/assetItem';
 
 export interface INFT {
     name: string;
@@ -155,11 +152,11 @@ const Assets = () => {
             <div className="font-bold text-4xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
-                    <AnimatedTabBar data={assetType} index={index} className={'text-2xl'} />
+                    <AnimatedTabBar data={assetType} index={index} className={'!text-2xl'} />
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? `${symbol}${totalBalance}` : <Loader />}</div> : <div className="font-bold text-2xl">{symbol}{nftTotalPrice.toLocaleString()}</div>}
+                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? <div className='text-2xl'>{symbol}<NG number={+totalBalance} fontSize={1.5} /></div>  : <Loader />}</div> : <div className="font-bold text-2xl">{symbol}<NG number={nftTotalPrice} fontSize={1.5}/></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -172,7 +169,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10 rounded-md">
                                 <div className="flex items-center justify-between  w-full ">
                                     <div className="text-lg font-medium  font-sans  pl-2">{TypeCoin[0].header}</div>
-                                    <div className={`text-lg font-medium  font-sans `}>{symbol}{SetComma(+TypeCoin[0].balance)}</div>
+                                    <div className={`text-xl font-medium  font-sans `}>{symbol}<NG number={+TypeCoin[0].balance} fontSize={1.25} /></div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -180,11 +177,11 @@ const Assets = () => {
                             <div className='bg-light dark:bg-dark pt-6 flex flex-col gap-4'>
                                 <table id="header" >
                                     <thead>
-                                        <tr className="grid grid-cols-[25%,35%,15%,25%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
-                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg">Asset</th>
-                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg">Balance</th>
-                                            <th className="text-sm text-left hidden font-semibold text-greylish dark:text-[#aaaaaa] sm:block sm:text-lg">Price</th>
-                                            <th className="text-sm text-right font-semibold text-greylish dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
+                                        <tr className="grid grid-cols-[25%,35%,15%,25%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-darkSecond rounded-md">
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">Asset</th>
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">Balance</th>
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">Price</th>
+                                            <th className="text-sm text-right font-semibold text-greylish dark:text-[#aaaaaa]">Value</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -206,7 +203,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10">
                                 <div className="flex items-center justify-between  w-full">
                                     <div className="text-lg font-medium  font-sans pl-2 ">{TypeCoin[1].header}</div>
-                                    <div className=" text-lg font-medium  font-sans ">{symbol}{SetComma(+TypeCoin[1].balance)}</div>
+                                    <div className="text-xl font-medium  font-sans ">{symbol}<NG number={+TypeCoin[1].balance} fontSize={1.25} /></div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -215,11 +212,11 @@ const Assets = () => {
                             <div className='bg-light dark:bg-dark pt-6 flex flex-col gap-3'>
                                 <table id="header" >
                                     <thead>
-                                        <tr className="grid grid-cols-[30%,25%,25%,20%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-[#2F2F2F] rounded-md">
-                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Asset</th>
-                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg">Balance</th>
-                                            <th className="hidden font-semibold text-greylish  text-left dark:text-[#aaaaaa] sm:block sm:text-lg">Price</th>
-                                            <th className="text-sm font-semibold text-greylish text-left dark:text-[#aaaaaa] sm:text-lg pl-2">Value</th>
+                                        <tr className="grid grid-cols-[25%,35%,15%,25%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-darkSecond rounded-md">
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">Asset</th>
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">Balance</th>
+                                            <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">Price</th>
+                                            <th className="text-sm text-right font-semibold text-greylish dark:text-[#aaaaaa]">Value</th>
                                         </tr>
                                     </thead>
                                 </table>

@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import makeBlockie from "ethereum-blockies-base64";
 import { fiatList } from "components/general/PriceInputField";
+import { NG } from "utils/jsxstyle";
 
 
 interface PageProps {
@@ -87,7 +88,7 @@ const ContributorItem = ({ member }: PageProps) => {
                     }
                   </div>
                   <div className="flex items-center">
-                      {member?.amount}
+                    <NG number={+member.amount} />
                   </div>
                 </div>
                 {(member.secondAmount && member.secondCurrency) && <div className="flex items-center">
@@ -102,7 +103,7 @@ const ContributorItem = ({ member }: PageProps) => {
                     }
                   </div>
                   <div className="flex items-center">
-                      {member?.secondAmount}
+                    <NG number={+member.secondAmount} />
                   </div>
                 </div>}
             </td>

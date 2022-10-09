@@ -1,15 +1,12 @@
 import { IRequest } from "rpcHooks/useRequest";
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
-import {  ICurrencyInternal } from "redux/slices/account/reducers/currencies";
 import { IMember } from 'types/dashboard/contributors';
-import { AltCoins, Coins } from "types";
 import _ from 'lodash'
-import { generate } from "shortid";
 import { useWalletKit } from "hooks";
-import { SelectBalance, SelectCurrencies } from "redux/slices/account/selector";
-import { SetComma } from "utils";
+import { SelectBalance } from "redux/slices/account/selector";
 import { GetFiatPrice } from "utils/const";
+import { NG } from "utils/jsxstyle";
  
 export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
     const balance = useSelector(SelectBalance)
@@ -80,7 +77,9 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className=" rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
-                            <div>{SetComma(coinBalance?.amount)}</div>
+                            <div>
+                                <NG number={coinBalance?.amount ?? 1}  />
+                            </div>
                         </div>
 
                     </div>
@@ -98,9 +97,10 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                             <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium" >
-                            <div>{SetComma(coinBalance!.amount - (+item!.amount))}</div>
+                            <div>
+                                <NG number={coinBalance!.amount - (+item!.amount)}/>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             </Fragment>

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, Fragment, useMemo } from "react";
-import { AddressReducer, SetComma } from "../../../utils";
+import { AddressReducer } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
 import Modal from 'components/general/modal'
 import DeleteWallet from "./deleteWallet";

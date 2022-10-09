@@ -2,7 +2,7 @@ import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { Dispatch, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AltCoins } from "types";
-import { AddressReducer, SetComma } from "utils";
+import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
 import Modal from "components/general/modal";
 import Button from "components/button";
@@ -27,6 +27,7 @@ import SingleRequestModal from "./Modals/SingleRequestModal";
 import { GetFiatPrice } from "utils/const";
 import { fiatList } from "components/general/PriceInputField";
 import ChooseBudget from "components/general/chooseBudget";
+import { NG } from "utils/jsxstyle";
 
 
 const RequestedUserItem = ({
@@ -278,7 +279,7 @@ const RequestedUserItem = ({
         </td>
         <td className="flex flex-col justify-center text-sm space-y-4">
             <div className="flex items-center">
-              <div className="flex items-center mr-3">
+              <div className="flex items-center mr-2">
                 {
                   request.fiat ? (
                     <div className="relative">
@@ -289,11 +290,11 @@ const RequestedUserItem = ({
                 }
               </div>
               <div className="flex items-center">
-                  {request?.amount}
+                  <NG number={+request.amount} />
               </div>
             </div>
             {(request.secondAmount && request.secondCurrency) && <div className="flex items-center">
-              <div className="flex items-center mr-3">
+              <div className="flex items-center mr-2">
                 {
                   request.fiatSecond ? (
                     <div className="relative">
@@ -304,7 +305,7 @@ const RequestedUserItem = ({
                 }
               </div>
               <div className="flex items-center">
-                  {request?.secondAmount}
+                <NG number={+request.secondAmount}/>
               </div>
             </div>}
         </td>

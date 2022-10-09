@@ -5,6 +5,7 @@ import { RiFileCopyLine } from "react-icons/ri";
 import { useAppSelector } from "redux/hooks";
 import { SelectFiatPreference, SelectFiatSymbol } from "redux/slices/account/remoxData";
 import { GetFiatPrice } from "utils/const";
+import { NG } from "utils/jsxstyle";
 import { INFT } from "../index.page";
 
 const nftItem = ({nft}: {nft: INFT}) => {
@@ -28,10 +29,10 @@ const nftItem = ({nft}: {nft: INFT}) => {
               <div className="font-semibold">{nft.text}</div>
               <div className="text-sm text-greylish">{nft.name}</div>
           </div>
-          <div className="text-base font-medium flex items-center gap-1">{nft.value} <img src={coin?.logoURI} className="rounded-[50%] h-3/5 w-5" alt="" /> </div>
+          <div className="text-base font-medium flex items-center"><NG number={+nft.value} /><img src={coin?.logoURI} className="rounded-[50%] h-3/5 w-5 ml-2" alt="" /> </div>
       </div>
       <div className="flex justify-between items-center  py-4 px-2">
-          <div className="text-base font-semibold">{fiatSymbol}{(+nft.value * fiatPrice).toFixed(3)}</div>
+          <div className="text-base font-semibold">{fiatSymbol}<NG number={+nft.value * fiatPrice} /></div>
           <div className="flex  items-center gap-3 justify-center">
               <div className="text-2xl font-semibold" ref={setDivRef}>
                 <RiFileCopyLine className="cursor-pointer" onClick={() => {

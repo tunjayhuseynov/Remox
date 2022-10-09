@@ -1,10 +1,10 @@
-import { SetComma } from "utils";
 import { motion } from "framer-motion";
 import { useAppSelector } from "redux/hooks";
 import { SelectTotalBalance, SelectPriceCalculationFn, SelectFiatSymbol, SelectFiatPreference } from "redux/slices/account/selector";
 import { IPrice } from "utils/api";
 import { useMemo } from "react";
 import { GetFiatPrice } from "utils/const";
+import { NG } from "utils/jsxstyle";
 
 const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
   const calculatePrice = useAppSelector(SelectPriceCalculationFn)
@@ -32,9 +32,9 @@ const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
           </div>
           <div className="font-medium text-lg ">{asset.name}</div>
         </div>
-        <div className={`font-medium text-lg `}>{asset.amount.toFixed(2)}</div>
-        <div className="hidden sm:block font-medium text-lg ">{fiatSymbol}{fiatPrice.toFixed(2)}</div>
-        <div className="font-medium text-lg text-right">{fiatSymbol}{SetComma(calculatePrice(asset))}</div>
+        <div className={`font-medium text-lg`}><NG number={asset.amount} fontSize={1}/></div>
+        <div className="hidden sm:block font-medium text-lg">{fiatSymbol}<NG number={fiatPrice}/></div>
+        <div className="font-medium text-lg text-right">{fiatSymbol}<NG number={calculatePrice(asset)} fontSize={1} /></div>
       </div>
       <div className="grid grid-cols-[94%,6%] gap-2  items-center pt-2 pb-8 pr-2">
         <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl  h-3 ">

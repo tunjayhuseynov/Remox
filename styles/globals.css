@@ -75,6 +75,15 @@ html{
   }
 }
 
+@media only screen and (min-width: 1568px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+
+
+
 .copiedDark::before, .copiedDark::after{
   border-color: transparent transparent #1C1C1C transparent!important;
 }
