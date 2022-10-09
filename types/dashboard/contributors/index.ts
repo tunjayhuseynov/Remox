@@ -16,8 +16,8 @@ export interface IContributor {
 }
 
 export enum ExecutionType {
-    auto = "auto",
-    manual = "manual",
+    auto = "Auto",
+    manual = "Manual",
 }
 
 export interface IMember {

@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import TeamItem from 'pages/dashboard/contributors/_components/teamItem';
 import ContributorItem from 'pages/dashboard/contributors/_components/contributorItem'
 import { TablePagination } from '@mui/material';
-import IconTextField from 'components/IconTextField';
 import AddTeam from './_components/addTeam';
 import CreateButton from 'components/general/CreateButton';
 
@@ -111,7 +110,7 @@ const Contributors = () => {
                     />
                 </div>
                 <div className="flex justify-center !mt-0 py-10">
-                    <CreateButton onClick={() => navigate.push('/dashboard/contributors/add-member')} />
+                    <CreateButton onClick={() => navigate.push(`/dashboard/contributors/add-member?compensationIndex=${index}`)} />
                 </div>
             </>
             }

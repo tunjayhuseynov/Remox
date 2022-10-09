@@ -213,7 +213,7 @@ const TotalMonthlyAmount = async (contributorsList: IMember[], Coins: AltCoins[]
     const contributorYear = new Date(curr.paymantEndDate).getFullYear()
 
     if(contributorYear === currentYear) {
-      if(curr.execution === "manual"){
+      if(curr.execution === "Manual"){
         if(curr.interval === "monthly") {
           if(currentMonth === contributorEndMonth) {
             if(coin) {
