@@ -19,6 +19,7 @@ import { ToastContainer } from 'react-toastify';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from 'firebaseConfig';
 import { useRouter } from 'next/dist/client/router';
+import { createTheme } from '@mui/material';
 
 
 const DashboardLayout = dynamic(() => import('layouts/dashboard'))
@@ -51,10 +52,22 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
     }
   }, [])
 
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#FF7348',
+      },
+      secondary: {
+        main: '#FF7348',
+        contrastText: '#ffcc00',
+      },
+    },
+  });
+
 
   const disableLayout = Component?.disableLayout ?? false
   const disableGuard = Component?.disableGuard ?? false
-  return <ThemeProvider enableSystem={false} attribute="class">
+  return <ThemeProvider enableSystem={false} attribute="class" theme={theme}>
     <Head>
       <title>Remox - Simplified and Collaborative Treasury  Management for DAOs</title>
     </Head>

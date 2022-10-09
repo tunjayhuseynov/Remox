@@ -49,7 +49,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
 
 
     return <>
-        <div className="grid grid-cols-2 gap-x-10 gap-y-5 pb-10">
+        <div className="grid grid-cols-2 gap-x-10 gap-y-5 pb-2">
             <div>
                 <Autocomplete
                     freeSolo
@@ -61,7 +61,11 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                         setName(v)
                         setAddress(addressBook.find(s => s.name === v)?.address ?? address)
                     }}
-                    renderInput={(params) => <TextField {...params} label="Receiver Name (Optional)" />}
+                    renderInput={(params) => <TextField
+                        {...params}
+                        InputProps={{ style: { fontSize: '0.75rem' } }}
+                        InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                        className="text-xs" label="Receiver Name (Optional)" />}
                 />
             </div>
             <div>
@@ -70,6 +74,8 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     className='dark:bg-darkSecond bg-white'
                     label="Receiver Wallet Address"
                     value={address}
+                    InputProps={{ style: { fontSize: '0.75rem' } }}
+                    InputLabelProps={{ style: { fontSize: '0.75rem' } }}
                     onChange={(e) => {
                         setAddress(e.target.value)
                     }}
@@ -90,7 +96,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     <div className="self-center">
                         <AiOutlinePlusCircle color={"#FF7348"} />
                     </div>
-                    <span className="text-primary font-medium">Add</span>
+                    <span className="text-primary font-medium text-xs">Add</span>
                 </div>
                 :
                 <div className="col-span-2 relative">

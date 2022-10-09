@@ -2,6 +2,7 @@ import { IBudget, IBudgetTX, ISubBudget } from "firebaseConfig";
 import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { AltCoins } from "types";
 import { DecimalConverter } from "utils/api";
+import { generatePriceCalculation } from "utils/const";
 import { IRemoxData } from "../remoxData";
 
 export default {
@@ -95,8 +96,10 @@ export default {
             if (state.cumulativeTransactions[payload.txIndexInCM].budget) {
                 state.cumulativeTransactions[payload.txIndexInCM].budget!.txs = [...state.cumulativeTransactions[payload.txIndexInCM].budget!.txs, payload.tx]
             } else {
-                state.cumulativeTransactions[payload.txIndexInCM].budget = payload.budget;
-                state.cumulativeTransactions[payload.txIndexInCM].budget!.txs = [payload.tx]
+                state.cumulativeTransactions[payload.txIndexInCM].budget = {
+                    ...payload.budget,
+                    txs: [payload.tx]
+                }
             }
         }
     },
@@ -105,6 +108,7 @@ export default {
         if (index !== -1) {
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
             if (budgetIndex !== -1) {
+                const budgetCoins = state.budgetExercises[index].budgets[budgetIndex].budgetCoins;
                 state.budgetExercises[index].budgets[budgetIndex].txs = state.budgetExercises[index].budgets[budgetIndex].txs
                     .filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());
 
@@ -143,11 +147,11 @@ export default {
             }
         }
 
-        if (payload.txIndexInCM) {
+        if (payload.txIndexInCM != undefined) {
             if (state.cumulativeTransactions[payload.txIndexInCM].budget) {
                 state.cumulativeTransactions[payload.txIndexInCM].budget!.txs =
                     state.cumulativeTransactions[payload.txIndexInCM].budget!.txs.filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());
-            } 
+            }
         }
     },
     addSubBudget: (state: IRemoxData, { payload }: { payload: ISubbudgetORM }) => {

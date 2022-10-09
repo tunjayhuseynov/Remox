@@ -99,7 +99,7 @@ const Budgets = () => {
                                                     <div className="grid grid-cols-2 px-2 w-[66%]">
                                                         <span className="font-semibold text-lg transition-all">{item.name}</span>
                                                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
-                                                            {item.from > new Date().getTime() ? "Future" : "Active"}
+                                                            {item.from > new Date().getTime() ? "Future" : item.to < new Date().getTime() ? "Past" : "Current"}
                                                         </div>
                                                         {/* <span className="font-semibold text-[1.25rem]">${SetComma(item.totalBudget)}</span> */}
                                                     </div>
@@ -121,10 +121,10 @@ const Budgets = () => {
             {hasExercises && selectedExercise && <>
                 <TotalExerciseData total={selectedExercise} />
                 <ExerciseBody exercise={selectedExercise} />
-                {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex items-center justify-center gap-6">
+                {/* {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex items-center justify-center gap-6">
                     <img src="/icons/noData.png" alt="" className="w-[8rem] h-[8rem]" />
                     <div className="text-greylish font-bold dark:text-white text-2xl">No budget</div>
-                </div>}
+                </div>} */}
             </>}
         </div >
     </div >

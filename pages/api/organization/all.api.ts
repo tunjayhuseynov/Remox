@@ -1,6 +1,6 @@
 import axios from "axios";
 import { organizationCollectionName } from "crud/organization";
-import { IAccount, IOrganization } from "firebaseConfig";
+import { IAccount, IIndividual, IOrganization } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BASE_URL } from "utils/api";
@@ -106,6 +106,10 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
             const account = accountRef.data() as IAccount;
             return account;
         }))
+
+        // const creator = await adminApp.firestore().collection("individuals").doc(organization.creator.id).get()
+       
+        // organization.creator = creator.data() as IIndividual;
     }
 
     return res.json(organizations);

@@ -13,11 +13,15 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
-import { ToastRun } from 'utils/toast';
 import Tooltip from '@mui/material/Tooltip';
+import { NG } from 'utils/jsxstyle';
+import { FiRepeat } from 'react-icons/fi'
+import useLoading from 'hooks/useLoading';
+import Loader from 'components/Loader';
+import { ToastRun } from 'utils/toast';
 
 interface IProps {
     // date: string;
@@ -69,6 +73,8 @@ const Detail = ({
     const symbol = useAppSelector(SelectFiatSymbol)
     const hp = useAppSelector(SelectHistoricalPrices)
     const budgets = useAppSelector(SelectAllBudgets)
+    const streamings = useAppSelector(SelectAlldRecurringTasks)
+
     const dispatch = useAppDispatch()
 
     const date = new Date(timestamp)
@@ -85,7 +91,7 @@ const Detail = ({
     const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
     const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
     const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
-    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? transaction as unknown as IAutomationCancel : null;
+    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
     const swap = transaction.id === ERC20MethodIds.swap ? transaction as unknown as ISwap : null;
 
     const addOwner = transaction.id === ERC20MethodIds.addOwner ? transaction as unknown as IAddOwner : null;
@@ -144,6 +150,27 @@ const Detail = ({
         setOpenDetail(false);
     };
 
+    const RemoveBudget = async () => {
+        if (!selectedBudget) return ToastRun(<>Cannot get the budget</>, "error")
+        await dispatch(Remove_Tx_From_Budget_Thunk({
+            budget: selectedBudget,
+            txIndex: txIndex,
+            isExecuted: isExecuted,
+            tx: {
+                amount: amount,
+                contractAddress: transaction.address,
+                contractType: isMultisig ? "multi" : "single",
+                hashOrIndex: transaction.hash,
+                timestamp: timestamp,
+                protocol: account?.provider ?? null,
+                token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
+                isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+            }
+        })).unwrap()
+        setSelectedBudget(undefined)
+    }
+
+    const [isRemovingBudget, removeBudget] = useLoading(RemoveBudget)
 
     return mounted ? createPortal(
         <AnimatePresence>
@@ -152,23 +179,23 @@ const Detail = ({
                     <ClickAwayListener onClickAway={handleClickAway} mouseEvent={'onMouseUp'}>
                         <div>
                             <div className="w-full h-full backdrop-blur-[2px]" onClick={() => setOpenDetail(false)}></div>
-                            <div className="flex flex-col space-y-10 min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center bg-white dark:bg-darkSecond ">
+                            <div className="flex flex-col space-y-10 min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center bg-white dark:bg-darkSecond">
                                 <button onClick={() => setOpenDetail(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                                     <img src="/icons/cross_greylish.png" alt="" />
                                 </button>
                                 <div className='flex flex-col space-y-3'>
                                     <div className="flex flex-col sm:flex-row justify-center sm:items-center text-xl font-semibold pt-2">Transaction Details</div>
                                     <div className='flex flex-col'>
-                                        <div className="flex flex-col sm:flex-row justify-center sm:items-center text-xl font-semibold pt-4">
+                                        <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-4">
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>
                                                 {direction === TransactionDirection.In ? "+" : "-"}
-                                                {symbol}{DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? calculatePrice({ ...transfer.coin, coin: transfer.coin, amount: DecimalConverter(+transfer.amount, transfer.coin.decimals) }))}
+                                                {symbol}<NG fontSize={1.5} number={DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? calculatePrice({ ...transfer.coin, coin: transfer.coin, amount: DecimalConverter(+transfer.amount, transfer.coin.decimals) }))} />
                                             </div>}
-                                            {transferBatch && <div>-{symbol}{transferBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coin: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)}</div>}
-                                            {automation && <div>-{symbol}{DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? calculatePrice({ ...automation.coin, coin: automation.coin, amount: DecimalConverter(automation.amount, automation.coin.decimals) }))}</div>}
-                                            {automationBatch && <div>-{symbol}{automationBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coin: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)}</div>}
-                                            {automationCanceled && <div>-{symbol}{DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? calculatePrice({ ...automationCanceled.coin, coin: automationCanceled.coin, amount: DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) }))}</div>}
+                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coin: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)} /></div>}
+                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? calculatePrice({ ...automation.coin, coin: automation.coin, amount: DecimalConverter(automation.amount, automation.coin.decimals) }))} /></div>}
+                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + (DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? calculatePrice({ ...c.coin, coin: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) }))), 0)} /></div>}
+                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? calculatePrice({ ...automationCanceled.coin, coin: automationCanceled.coin, amount: DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) }))} /></div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}
@@ -201,9 +228,9 @@ const Detail = ({
                                                 <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
                                             )}
                                             {swap && (
-                                                <div className="flex flex-col space-y-5">
+                                                <div className="flex space-x-5 items-center">
                                                     <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
-                                                    <img src="/icons/swap.png" className="w-5 h-5" />
+                                                    <FiRepeat />
                                                     <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
                                                 </div>
                                             )}
@@ -211,7 +238,7 @@ const Detail = ({
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center w-full">
-                                    <div className="text-greylish">Status</div>
+                                    <div className="text-greylish text-sm">Status</div>
                                     <div className="flex space-x-1 items-center font-semibold">
                                         <div className={`w-2 h-2 ${isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
                                         <div>{isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
@@ -219,9 +246,9 @@ const Detail = ({
                                 </div>
                                 {/* <div className="flex justify-start items-center w-full"><div className="text-sm text-greylish">Created by Orkhan Aslanov</div></div> */}
                                 <div className="flex justify-between items-center w-full">
-                                    <div className="text-greylish">Signatures</div>
+                                    <div className="text-greylish text-sm">Signatures</div>
                                     <div className="flex items-center space-x-2">
-                                        <div className="text-gray-300 flex">
+                                        <div className="text-gray-300 flex text-sm">
                                             {isExecuted ? threshold : signers.length} <span className="font-thin">/</span> {threshold}
                                         </div>
                                         <div className="h-4 w-28 rounded-lg bg-gray-300 relative" >
@@ -231,45 +258,61 @@ const Detail = ({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex justify-between  w-full"><div className="text-greylish">Signers</div>
+                                <div className="flex justify-between  w-full">
+                                    <div className="text-greylish text-sm">Signers</div>
                                     <div>
                                         <div className="flex flex-col items-center justify-center gap-2">
-                                            {signers.map(s => <span key={s} className='text-sm'>{s}</span>)}{signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
+                                            {signers.map(s => <span key={s} className='text-sm'>{AddressReducer(s)}</span>)}
+                                            {signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center w-full">
+                                <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Created</div>
                                     <div>{dateFormat(new Date(timestamp * 1e3), "mmm dd")}</div>
                                 </div>
                                 {/* <div className="flex justify-between items-center w-full"><div className="text-greylish">Closed On</div><div>{time}, 14:51:52</div></div> */}
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="text-greylish">Send From</div>
+                                <div className="flex justify-between items-center w-full text-sm">
+                                    <div className="text-greylish">{swap ? "Swap from" : "Send from"}</div>
                                     <div className="flex gap-1">
-                                        {((account?.image?.imageUrl as string) ?? account?.image?.nftUrl) && <div className={`hidden sm:flex items-center justify-center`}>
+                                        {(((account?.image?.imageUrl as string) ?? account?.image?.nftUrl) && !swap) && <div className={`hidden sm:flex items-center justify-center`}>
                                             <div className={`bg-greylish bg-opacity-10 w-8 h-8 flex items-center justify-center rounded-full font-medium `}>
                                                 <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl} alt="" className="w-full h-full rounded-full border-greylish" />
                                             </div>
                                         </div>}
-                                        <div className={`sm:flex flex-col justify-center items-start `}>
+                                        <div className={`sm:flex flex-col justify-center items-start`}>
                                             {!isMultisig && <div className="text-lg dark:text-white">
-                                                {swap && <div>Swap</div>}
-                                                {transfer && <div>{transfer.to.toLowerCase() === account?.address.toLowerCase() ? transfer.rawData.from : (account?.name || account?.address || transaction.address)}</div>}
-                                                {!transfer && <div>{account?.name || account?.address || transaction.address}</div>}
+                                                {swap &&
+                                                    <div className="flex space-x-2">
+                                                        <img src={swap.coinIn.logoURI} className="w-5 h-5 rounded-full" />
+                                                        <span>{swap.coinIn.symbol}</span>
+                                                    </div>
+                                                }
+                                                {transfer &&
+                                                    <div className="text-sm">
+                                                        {transfer.to.toLowerCase() === account?.address.toLowerCase() ? AddressReducer(transfer.rawData.from) : (account?.name || AddressReducer(account?.address || transaction.address))}
+                                                    </div>
+                                                }
+                                                {!transfer && !swap && <div>{account?.name || AddressReducer(account?.address || transaction.address)}</div>}
                                             </div>}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-between w-full">
-                                    <div className="text-greylish">Send To</div>
+                                    <div className="text-greylish text-sm">Send To</div>
                                     <div>
                                         <div className={`flex gap-x-1 items-center text-sm font-medium`}>
-                                            {swap && <div>Swap</div>}
-                                            {transfer && <div>{transfer.to.toLowerCase() === account?.address ? (account?.name ?? account?.address) : transfer.to}</div>}
-                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map((s, index) => <div key={index}>{s.to}</div>)}</div>}
-                                            {automation && <div>{automation.to}</div>}
-                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map((s, index) => <div key={index}>{s.to}</div>)}</div>}
-                                            {automationCanceled && <div>{automationCanceled.to}</div>}
+                                            {swap &&
+                                                <div className="flex space-x-2">
+                                                    <img src={swap.coinOutMin.logoURI} className="w-5 h-5 rounded-full" />
+                                                    <span>{swap.coinOutMin.symbol}</span>
+                                                </div>
+                                            }
+                                            {transfer && <div>{transfer.to.toLowerCase() === account?.address ? (account?.name ?? AddressReducer(account?.address)) : AddressReducer(transfer.to)}</div>}
+                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map((s, index) => <div key={index}>{AddressReducer(s.to)}</div>)}</div>}
+                                            {automation && <div>{AddressReducer(automation.to)}</div>}
+                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map((s, index) => <div key={index}>{AddressReducer(s.to)}</div>)}</div>}
+                                            {automationCanceled && <div>{AddressReducer(automationCanceled.to)}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}
@@ -277,34 +320,55 @@ const Detail = ({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center w-full"><div className="text-greylish">Gas fee</div>
+                                <div className="flex justify-between items-center w-full text-sm">
+                                    <div className="text-greylish">Gas fee</div>
                                     {gasFee &&
                                         <div className="flex gap-1 items-center text-sm space-x-2">
-                                            {DecimalConverter(gasFee.amount, gasFee.currency?.decimals ?? 18)} {gasFee.currency && (<img src={gasFee.currency.logoURI} className=" w-[1.5rem] h-[1.5rem] rounded-full" alt="" />)} {gasFee.currency?.symbol}
+                                            {DecimalConverter(gasFee.amount, gasFee.currency?.decimals ?? 18).toFixed(4)} {gasFee.currency && (<img src={gasFee.currency.logoURI} className=" w-[1.5rem] h-[1.5rem] rounded-full" alt="" />)} {gasFee.currency?.symbol}
                                         </div>
                                     }
                                 </div>
 
-                                <div className="flex justify-between items-center w-full">
+                                <div className="flex justify-between items-center w-ful text-sm">
                                     <div className="text-greylish">Type</div>
                                     <div>
                                         {action}
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center w-full">
+                                <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Tx Hash</div>
-                                    <div>{AddressReducer(transaction.hash)}</div>
+                                    <div className="cursor-pointer" onClick={async () => {
+                                        if (transaction.hash) {
+                                            await navigator.clipboard.writeText(transaction.hash)
+                                            ToastRun("Copied to clipboard", "success")
+                                        }
+                                    }}>{AddressReducer(transaction.hash)}</div>
                                 </div>
-                                {!swap && <div className="flex justify-between items-center w-full relative z-[9999959559]">
+                                {!swap && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
                                     <div className="text-greylish">Budget</div>
-                                    <div className='w-[15rem]'>
-                                        <Dropdown
+                                    <div className='w-[10rem]'>
+                                        {budgets.length > 0 && !selectedBudget && <Dropdown
                                             runFn={budgetChangeFn}
+                                            sx={{
+                                                height: '2.5rem',
+                                            }}
                                             loading={budgetLoading}
                                             selected={selectedBudget}
                                             setSelect={setSelectedBudget}
                                             list={budgets}
-                                        />
+                                        />}
+                                        {selectedBudget && !isRemovingBudget && <div className="justify-end flex space-x-2">
+                                            <div>
+                                                {selectedBudget.name}
+                                            </div>
+                                            <div className="hover:text-red-500 cursor-pointer" onClick={removeBudget}>
+                                                X
+                                            </div>
+                                        </div>}
+                                        {isRemovingBudget && <div className="text-right">
+                                            <Loader />
+                                        </div>}
+                                        {budgets.length === 0 && !selectedBudget && <div className="text-sm text-right">No created budget</div>}
                                     </div>
                                 </div>}
                                 {/* {selectedBudget && <div className="flex justify-between items-center w-full relative z-[9999959559]">
@@ -319,7 +383,7 @@ const Detail = ({
                                         />
                                     </div>
                                 </div>} */}
-                                <div className="flex justify-between items-center w-full">
+                                {tags.length > 0 && <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Tags</div>
                                     <div className="flex">
                                         {tags.map((tag, index) => {
@@ -329,7 +393,7 @@ const Detail = ({
                                             </div>
                                         })}
                                     </div>
-                                </div>
+                                </div>}
                                 {selectedNote && selectedNote.attachLink && <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Attach Link</div>
                                     <Tooltip title={selectedNote.attachLink!}>

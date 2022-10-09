@@ -13,7 +13,7 @@ import Dropdown from "components/general/dropdown";
 import { TransactionDirection } from "types";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { TransactionDirectionImageNameDeclaration } from "utils";
-import { SelectCurrencies, SelectID } from "redux/slices/account/selector";
+import { SelectAlldRecurringTasks, SelectCurrencies, SelectID, SelectNonCanceledRecurringTasks } from "redux/slices/account/selector";
 import { IAccount, IBudget } from "firebaseConfig";
 import { BlockchainType } from "types/blockchains";
 import Image from "next/image";
@@ -24,6 +24,8 @@ import { ToastRun } from "utils/toast";
 import { AiFillRightCircle } from "react-icons/ai";
 import { CoinDesignGenerator } from "./CoinsGenerator";
 import Detail from "./Detail";
+import makeBlockie from "ethereum-blockies-base64";
+import { FiRepeat } from "react-icons/fi";
 
 const SingleTransactionItem = ({
   transaction,
@@ -33,6 +35,7 @@ const SingleTransactionItem = ({
   tags,
   account,
   txPositionInRemoxData,
+  isDetailOpen
 }: {
   date: string;
   blockchain: BlockchainType,
@@ -42,14 +45,16 @@ const SingleTransactionItem = ({
   status: string;
   account?: IAccount,
   tags: ITag[],
-  txPositionInRemoxData: number
+  txPositionInRemoxData: number,
+  isDetailOpen?: boolean
 }) => {
   const [isLabelActive, setLabelActive] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<ITag>();
   const [labelLoading, setLabelLoading] = useState(false)
-  const [openDetail, setOpenDetail] = useState(false)
+  const [openDetail, setOpenDetail] = useState(isDetailOpen ?? false)
 
   const coins = useAppSelector(SelectCurrencies)
+  const streamings = useAppSelector(SelectAlldRecurringTasks)
 
   const timestamp = transaction.timestamp;
 
@@ -57,7 +62,7 @@ const SingleTransactionItem = ({
   const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as IBatchRequest : null;
   const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as IAutomationTransfer : null;
   const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as IBatchRequest : null;
-  const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? transaction as IAutomationCancel : null;
+  const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
   const swap = transaction.id === ERC20MethodIds.swap ? transaction as ISwap : null;
 
   const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, false);
@@ -99,13 +104,8 @@ const SingleTransactionItem = ({
         </td>
         <td className="text-left">
           <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 bg-gray-500 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
-              {(account?.image?.imageUrl) || account?.image?.nftUrl ?
-                <img src={(account?.image?.imageUrl as string) ?? account.image.nftUrl} className="w-full h-full rounded-xl" /> :
-                <div className="text-xs absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 font-semibold">
-                  {account?.name.slice(0, 2).toUpperCase()}
-                </div>
-              }
+            <div className={`w-10 h-10 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
+              <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="absolute left-0 top-0 w-10 h-10 rounded-full" />
             </div>
             <div className="text-sm truncate font-semibold pr-5">
               {account?.name ?? "N/A"}
@@ -128,7 +128,7 @@ const SingleTransactionItem = ({
               <span className="font-semibold text-left text-sm">
                 {action}
               </span>
-              <span className="text-xs text-gray-200">
+              <span className="text-xs text-gray-500 dark:text-gray-200">
                 {name}
               </span>
             </div>
@@ -161,7 +161,7 @@ const SingleTransactionItem = ({
           {swap && (
             <div className="flex flex-col space-y-5">
               <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
-              <img src="/icons/swap.png" className="w-5 h-5" />
+              <FiRepeat />
               <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
             </div>
           )}
@@ -191,17 +191,17 @@ const SingleTransactionItem = ({
             }
           </div>
         </td>
-        <td className="text-left w-[85%]">
+        <td className="text-left w-[95%]">
           <div>
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex space-x-1 items-center font-semibold">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <div className=" lg:text-xs 2xl:text-base">Approved</div>
+                <div className="lg:text-sm 2xl:text-base">Approved</div>
               </div>
-              <div className="text-gray-300 lg:text-xs 2xl:text-base">
+              <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
                 |
               </div>
-              <div className="text-gray-300 lg:text-xs 2xl:text-base">
+              <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
                 1 <span className="font-thin">/</span> 1
               </div>
             </div>

@@ -16,9 +16,10 @@ import {
   SelectSelectedAccountAndBudget
 } from "redux/slices/account/selector";
 import TeamItem from "./_components/_teamItem";
-import { IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { DecimalConverter } from "utils/api";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
+import { NG } from "utils/jsxstyle";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
@@ -41,7 +42,7 @@ const Automations = () => {
     let res: { [name: string]: number } = {};
     let total = 0;
     for (const task of tasks) {
-      const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer | IAutomationCancel;
+      const tx = ('tx' in task ? task.tx : task) as IAutomationTransfer;
       const amount = DecimalConverter(tx.amount, tx.coin.decimals)
       total += calculatePrice({ ...tx.coin, amount, coin: tx.coin });
       if (res[tx.coin.symbol]) {
@@ -57,30 +58,19 @@ const Automations = () => {
   return (
     <div className="w-full h-full flex flex-col space-y-3">
       <div className="flex justify-between items-center w-full pb-3">
-        <div className="text-2xl font-bold">Recurring</div>
+        <div className="text-2xl font-bold">Streaming</div>
       </div>
       <>
-        {tasks.length > 0 &&
-          <div className="w-full relative">
-            <Button
-              className={"absolute right-0 -top-[3.75rem] text-lg  rounded-xl !px-3  py-2"}
-              onClick={() => reccuringState[0].length > 0 ? setAddStopModal(true) : setSelectable(!selectable)}
-            >
-              {reccuringState[0].length > 0 ?
-                `Confirm ${reccuringState[0].length} ${reccuringState[0].length > 1 ? "payments" : "payment"}`
-                : selectable ? "Cancel Payment" : "Choose Payments"}
-            </Button>
-          </div>}
         <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
           <div className="flex  space-y-3 gap-12">
             <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
-              <div className="text-base font-semibold text-gray-500">Total Recurring Payment</div>
-              <div className="text-3xl font-bold !mt-0">
-                $ {totalPrice[1].toFixed(2)}
+              <div className="text-base font-medium text-gray-500">Total Streaming Payment</div>
+              <div className="text-3xl font-semibold !mt-0">
+                {symbol} <NG number={totalPrice[1]} fontSize={1.75}/>
               </div>
             </div>
             <div className="flex flex-col space-y-5 !mt-0">
-              <div className="text-base font-semibold text-gray-500">Token Allocation</div>
+              <div className="text-sm font-medium text-gray-500">Token Allocation</div>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12">
                 {
                   Object.entries(totalPrice[0])
@@ -89,10 +79,10 @@ const Automations = () => {
                       return (
                         <div key={currency} className="flex flex-col space-y-2 relative h-fit">
                           <div className="flex space-x-2">
-                            <div className="font-bold text-xl">
+                            <div className="font-semibold text-3xl">
                               {amount.toFixed(2)}
                             </div>
-                            <div className="font-bold text-xl flex gap-1 items-center">
+                            <div className="font-semibold text-3xl flex gap-1 items-center">
                               <img
                                 src={GetCoins[currency as keyof Coins].logoURI}
                                 className="w-[1.563rem] h-[1.563rem] rounded-full"
@@ -101,7 +91,7 @@ const Automations = () => {
                               {GetCoins[currency as keyof Coins].name}
                             </div>
                           </div>
-                          <div className="text-sm text-greylish opacity-75 text-left">
+                          <div className="text-xs text-greylish opacity-75 text-left">
                             {(calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coin: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)} {symbol}
                           </div>
                         </div>
@@ -115,7 +105,7 @@ const Automations = () => {
         <div className="w-full pt-4 pb-6 h-full">
           <table className="w-full">
             <thead>
-              <tr className={`pl-5 grid grid-cols-[15%,repeat(6,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md`}>
+              <tr className={`pl-5 grid grid-cols-[15%,repeat(6,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal font-semibold bg-gray-100 dark:bg-darkSecond rounded-md`}>
                 <th className="py-3 self-center text-left">Name</th>
                 <th className="py-3 self-center text-left">Start Date</th>
                 <th className="py-3 self-center text-left">End Date</th>
@@ -125,7 +115,7 @@ const Automations = () => {
               </tr>
               {tasks.map((w) => {
                 const hash = 'tx' in w ? w.tx.hash : w.hash;
-                return <Fragment key={hash}> <TeamItem tx={w} members={members}  /> </Fragment>
+                return <Fragment key={hash}> <TeamItem tx={w} members={members} /> </Fragment>
               })}
               {
                 tasks.length === 0 && (

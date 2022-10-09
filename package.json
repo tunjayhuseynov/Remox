@@ -51,6 +51,7 @@
     "https-browserify": "^1.0.0",
     "jsbi": "^4.3.0",
     "json2csv": "^5.0.7",
+    "moment": "^2.29.4",
     "next": "12.2",
     "next-themes": "^0.1.1",
     "os-browserify": "^0.3.0",

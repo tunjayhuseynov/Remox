@@ -41,8 +41,6 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
         }
     }
 
-
-
     let individualState: IIndividual = {
         priceCalculation: "current",
         addressBook: [],

@@ -18,7 +18,7 @@ const ExerciseBody = ({ exercise }: IProps) => {
                     <th className="py-3 self-center text-left">Total budget</th>
                     <th className="py-3 self-center text-left">Used</th>
                     <th className="py-3 self-center text-left">Pending</th>
-                    <th className="py-3 self-center text-left">Availabel</th>
+                    <th className="py-3 self-center text-left">Available</th>
                     <th className="py-3 self-center text-left">Status</th>
                     <th></th>
                 </tr>

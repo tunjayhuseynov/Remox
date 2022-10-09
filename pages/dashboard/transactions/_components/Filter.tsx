@@ -135,16 +135,16 @@ const Filter = ({
 
     return <>
         <div className='w-[20rem]'>
-            <Accordion expanded={false}>
-                <AccordionSummary aria-controls="date-content" id="date-header" expandIcon={<></>} className="!ml-0" classes={{
+            <Accordion>
+                <AccordionSummary aria-controls="filter-content" id="filter-header" expandIcon={<></>} className="!ml-0" classes={{
                     content: "!ml-0"
                 }}>
-                    <Typography>Filters</Typography>
+                    <span className="text-sm font-medium">Filters</span>
                 </AccordionSummary>
             </Accordion>
             <Accordion expanded={expanded === 'date'} onChange={handleChange('date')}>
                 <AccordionSummary aria-controls="date-content" id="date-header">
-                    <Typography>Date</Typography>
+                    <span className="text-sm font-medium">Date</span>
                 </AccordionSummary>
                 <AccordionDetails>
                     <div className='text-sm pb-1 font-medium'>
@@ -163,7 +163,7 @@ const Filter = ({
             </Accordion>
             <Accordion expanded={expanded === 'labels'} onChange={handleChange('labels')}>
                 <AccordionSummary aria-controls="labels-content" id="labels-header">
-                    <Typography>Labels</Typography>
+                    <span className="text-sm font-medium">Labels</span>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Input inputProps={ariaLabel} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
@@ -186,7 +186,7 @@ const Filter = ({
             </Accordion>
             <Accordion expanded={expanded === 'budget'} onChange={handleChange('budget')}>
                 <AccordionSummary aria-controls="budget-content" id="budget-header">
-                    <Typography>Budget</Typography>
+                    <span className="text-sm font-medium">Budget</span>
                 </AccordionSummary>
                 <AccordionDetails>
                     <div className='flex flex-col'>
@@ -209,7 +209,7 @@ const Filter = ({
             </Accordion>
             <Accordion expanded={expanded === 'amount'} onChange={handleChange('amount')}>
                 <AccordionSummary aria-controls="amount-content" id="amount-header">
-                    <Typography>Amount</Typography>
+                    <span className="text-sm font-medium">Amount</span>
                 </AccordionSummary>
                 <AccordionDetails>
                     <div className='flex flex-col space-y-1'>
@@ -255,7 +255,7 @@ const Filter = ({
             </Accordion>
             <Accordion expanded={expanded === 'wallets'} onChange={handleChange('wallets')}>
                 <AccordionSummary aria-controls="wallets-content" id="wallets-header">
-                    <Typography>Wallets</Typography>
+                    <span className="text-sm font-medium">Wallets</span>
                 </AccordionSummary>
                 <AccordionDetails>
                     <div className='flex flex-col'>

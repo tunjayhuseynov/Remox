@@ -1,4 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit"
+import { createAsyncThunk, nanoid } from "@reduxjs/toolkit"
 import { arrayRemove, arrayUnion } from "firebase/firestore"
 import { ITag, ITxTag } from "pages/api/tags/index.api"
 import { RootState } from "redux/store"
@@ -11,7 +11,7 @@ import { addTransactionHashToTag, removeTransactionHashFromTag } from "../remoxD
 export const CreateTag = createAsyncThunk<ITag, { id: string, color: string, name: string }>("remoxData/createTag", async ({ id, color, name }) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     let tag: ITag = {
-        id: generate(),
+        id: nanoid(),
         color: color,
         name: name,
         transactions: [],

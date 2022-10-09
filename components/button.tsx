@@ -24,7 +24,7 @@ export default forwardRef<HTMLButtonElement, IProps>(function Button({ children,
             ${version === "transparent" && 'bg-transparent text-primary tracking-wide font-medium border-primary hover:bg-[#f0f0f0] dark:hover:bg-[#2e2e2e] hover:text-primary'}
             ${version === "half" && 'bg-primary text-primary tracking-wide font-medium bg-opacity-30 border-primary hover:bg-[#f0f0f0] dark:hover:bg-[#2e2e2e] hover:text-primary'}
              
-            transition-colors dark:duration-500 border-2 !shadow-none px-8 py-3 !rounded-[5px]
+            transition-colors dark:duration-500 border-2 !shadow-none px-8 py-3 !rounded-[5px] !text-sm
             `}
             disabled={isLoading}
         >

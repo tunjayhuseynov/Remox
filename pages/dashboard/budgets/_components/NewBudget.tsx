@@ -120,9 +120,13 @@ function NewBudget({ exerciseId, onBack }: IProps) {
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
         if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
-        if (labels.some(label => !label.labelAmount || !label.labelCoin || !label.labelName)
+        if (labels.length === 1 && (labels[0].labelName && !labels[0].labelAmount)) return ToastRun(<>Please, input an amount for the label</>, "error")
+        if (labels.length === 1 && (labels[0].labelAmount && !labels[0].labelName)) return ToastRun(<>Please, input a name for the label</>, "error")
+        if (labels.length === 1 && (labels[0].second && (!labels[0].second.labelAmount || !labels[0].second.labelCoin))) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
+
+        if (labels.length > 1 && labels.some(label => label.labelAmount === undefined || label.labelAmount === null || !label.labelCoin || !label.labelName)
             ||
-            (anotherToken && labels.some(label => !label.second?.labelAmount || !label.second?.labelCoin))
+            (anotherToken && labels.some(label => label.second?.labelAmount === null || label.second?.labelAmount === undefined || !label.second?.labelCoin))
         ) return ToastRun(<>Please, fill all the fields</>, "error")
 
         const allLabelAmount = labels.reduce((acc, curr) => acc + (curr.labelAmount ?? 0), 0)
@@ -132,6 +136,29 @@ function NewBudget({ exerciseId, onBack }: IProps) {
         if (anotherToken && allSecondLabelAmount > (budgetAmount2 ?? 0)) return ToastRun(<>The total amount of the labels is greater than the budget amount</>, "error")
 
         let id = generate();
+
+        let subbudgets = labels.map(s => ({
+            id: s.id,
+            name: s.labelName,
+            amount: s.labelAmount ?? 0,
+            token: s.labelCoin.symbol,
+
+            secondAmount: s.second?.labelAmount ?? null,
+            secondToken: (s.second?.labelCoin && (s.second?.labelAmount ?? 0) > 0) ? s.second.labelCoin.symbol : null,
+
+            fiatMoney: budgetFiat ?? null,
+            customPrice: customPrice,
+
+            secondFiatMoney: budgetFiat2 ?? null,
+            secondCustomPrice: customPrice2,
+
+            txs: [],
+            parentId: id,
+            created_at: GetTime(),
+        }));
+
+        if (labels.length === 1 && (!labels[0].labelName || !labels[0].labelAmount)) subbudgets = []
+
 
         let budget = {
             budget: {
@@ -151,27 +178,10 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                 secondCustomPrice: customPrice2,
                 secondFiatMoney: budgetFiat2 ?? null,
 
-                subbudgets: labels.map(s => ({
-                    id: s.id,
-                    name: s.labelName,
-                    amount: s.labelAmount ?? 0,
-                    token: s.labelCoin.symbol,
-
-                    secondAmount: s.second?.labelAmount ?? null,
-                    secondToken: (s.second?.labelCoin && (s.second?.labelAmount ?? 0) > 0) ? s.second.labelCoin.symbol : null,
-
-                    fiatMoney: budgetFiat ?? null,
-                    customPrice: customPrice,
-
-                    secondFiatMoney: budgetFiat2 ?? null,
-                    secondCustomPrice: customPrice2,
-
-                    txs: [],
-                    parentId: id,
-                    created_at: GetTime(),
-                })),
+                subbudgets: subbudgets
             }
         }
+        console.log(budget)
 
         await dispatch(Create_Budget_Thunk(budget)).unwrap()
 
@@ -216,7 +226,10 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                 activeStep === 0 &&
                 <div className='flex flex-col space-y-5'>
                     <div className='text-xl text-center mb-3 font-semibold'>Budget</div>
-                    <TextField label="Name" placeholder='E.g. Marketing' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
+                    <TextField
+                        InputProps={{ style: { fontSize: '0.75rem' } }}
+                        InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                        label="Name" placeholder='E.g. Marketing' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
 
                     <PriceInputField coins={coins} onChange={(val, coin, fiatMoney) => {
                         setBudgetAmount(val)
@@ -286,14 +299,17 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                         const max = (budgetAmount ?? 0) - labels.reduce((a, c) => a + (c.labelAmount ?? 0), 0)
                         const max2 = (budgetAmount2 ?? 0) - labels.reduce((a, c) => a + (c?.second?.labelAmount ?? 0), 0)
                         return <div key={label.id} className='flex flex-col space-y-5'>
-                            <div className='text-xl font-semibold text-center'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
+                            <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
-                                <TextField label="Label name" placeholder='E.g. Payroll' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
-                                    if (s.id === label.id) {
-                                        return { ...s, labelName: e.target.value }
-                                    }
-                                    return s;
-                                }))} />
+                                <TextField
+                                    InputProps={{ style: { fontSize: '0.75rem' } }}
+                                    InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                                    label="Label name" placeholder='E.g. Payroll' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
+                                        if (s.id === label.id) {
+                                            return { ...s, labelName: e.target.value }
+                                        }
+                                        return s;
+                                    }))} />
                                 {labels.length > 1 &&
                                     <div className='absolute -right-8 top-1/2 -translate-y-1/2' onClick={() => {
                                         setLabels(labels.filter(s => s.id !== label.id))
@@ -335,7 +351,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                         <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-semibold' onClick={onAddLabel}>
                             + Add Budget Labels
                         </div>
-                        <Button version="second" className="!rounded-xl" onClick={() => {
+                        <Button version="second" className="!rounded-xl"  onClick={() => {
                             setActiveStep(0)
                             setBudgetFiat2(undefined)
                             setBudgetFiat(undefined)

@@ -1,14 +1,14 @@
-import { forwardRef, useEffect, useState, useTransition } from "react";
-import { TransactionStatus, CoinsName, AltCoins } from "types";
-import { ERC20MethodIds, IAutomationBatchRequest, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
+import { forwardRef, useEffect, useState } from "react";
+import { TransactionStatus } from "types";
+import { ERC20MethodIds, IAutomationBatchRequest, IAutomationCancel, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
-import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration, TransactionTypeDeclare } from "utils";
+import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils";
 import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectAlldRecurringTasks, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
@@ -18,7 +18,6 @@ import { IAccountORM } from "pages/api/account/index.api";
 import { BlockchainType } from "types/blockchains";
 import { ITag } from "pages/api/tags/index.api";
 import Filter from "./_components/Filter";
-import { DateObject } from "react-multi-date-picker";
 import { AnimatePresence, motion } from "framer-motion";
 import { DecimalConverter } from "utils/api";
 import { Tx_Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh/txRefresh";
@@ -26,6 +25,7 @@ import useLoading from "hooks/useLoading";
 import Loader from "components/Loader";
 import DateTime from 'date-and-time'
 import dateFormat from "dateformat";
+import { IAutomationTransfer } from 'hooks/useTransactionProcess'
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
@@ -33,6 +33,10 @@ const Transactions = () => {
     const tags = useAppSelector(SelectTags)
     const accounts = accountsRaw.map((a) => a.address)
     const Txs = useAppSelector(SelectCumulativeTxs)
+    const streamings = useAppSelector(SelectAlldRecurringTasks)
+    const navigate = useRouter()
+
+    const index = navigate.query?.index as string | undefined;
 
     const dispatch = useAppDispatch()
     const { Address, blockchain } = useWalletKit()
@@ -61,10 +65,18 @@ const Transactions = () => {
     const [maxAmount, setMaxAmount] = useState<number>();
 
     useEffect(() => {
-        setPagination(STABLE_INDEX)
+        setPagination(index ? +index + (STABLE_INDEX - (+index % STABLE_INDEX)) : STABLE_INDEX)
     }, [datePicker, selectedTags, selectedBudgets, selectedAccounts, selectedDirection, specificAmount, minAmount, maxAmount])
 
     const refreshFn = async () => {
+        setDate([])
+        setSelectedTags([])
+        setSelectedBudgets([])
+        setSelectedAccounts([])
+        setSelectedDirection("Any")
+        setSpecificAmount(undefined)
+        setMinAmount(undefined)
+        setMaxAmount(undefined)
         await dispatch(Tx_Refresh_Data_Thunk())
     }
 
@@ -139,7 +151,7 @@ const Transactions = () => {
             <div className="flex flex-col space-y-5 gap-14" >
                 <div>
                     <div className="flex justify-between">
-                        <div className="text-3xl font-bold">Transactions</div>
+                        <div className="text-2xl font-semibold">Transactions</div>
                         <div>
                             <TablePagination
                                 component="div"
@@ -155,7 +167,7 @@ const Transactions = () => {
                     <div className="flex justify-between">
                         <div className="flex space-x-5 items-center">
                             <div className="relative" ref={exceptRef} onClick={() => setOpen(true)}>
-                                <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold">
+                                <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-4 py-2 font-semibold text-sm">
                                     + Add Filter
                                 </div>
                                 <div ref={filterRef} className="absolute bottom-0 translate-y-full z-[900]">
@@ -187,7 +199,7 @@ const Transactions = () => {
                             <div>|</div>
                             <div className="flex space-x-5">
                                 {datePicker.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-semibold">
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
                                         <div>{dateFormat(datePicker[0], "mmm dd, yyyy")}</div>
                                         {datePicker.length > 1 && <div>-</div>}
                                         {datePicker.length > 1 && <div>
@@ -197,15 +209,45 @@ const Transactions = () => {
                                     </div>
                                 }
                                 {selectedTags.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-semibold">
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
                                         <div>Labels ({selectedTags.length})</div>
                                         <div className="pl-3 cursor-pointer" onClick={() => setSelectedTags([])}>X</div>
                                     </div>
                                 }
                                 {selectedBudgets.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-semibold">
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
                                         <div>Budgets ({selectedBudgets.length})</div>
                                         <div className="pl-3 cursor-pointer" onClick={() => setSelectedBudgets([])}>X</div>
+                                    </div>
+                                }
+                                {selectedAccounts.length > 0 &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
+                                        <div>Accounts ({selectedAccounts.length})</div>
+                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedAccounts([])}>X</div>
+                                    </div>
+                                }
+                                {specificAmount &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
+                                        <div>Amount: {specificAmount}</div>
+                                        <div className="pl-3 cursor-pointer" onClick={() => setSpecificAmount(undefined)}>X</div>
+                                    </div>
+                                }
+                                {selectedDirection !== "Any" &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
+                                        <div>Direction: {selectedDirection}</div>
+                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedDirection("Any")}>X</div>
+                                    </div>
+                                }
+                                {
+                                    (minAmount || maxAmount) &&
+                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
+                                        {minAmount && <div>Min: {minAmount}</div>}
+                                        {(minAmount && maxAmount) && <div>-</div>}
+                                        {maxAmount && <div>Max: {maxAmount}</div>}
+                                        <div className="pl-3 cursor-pointer" onClick={() => {
+                                            setMinAmount(undefined)
+                                            setMaxAmount(undefined)
+                                        }}>X</div>
                                     </div>
                                 }
                             </div>
@@ -227,7 +269,12 @@ const Transactions = () => {
                                     amountOutCoin: string,
                                 } | null = null
 
-                                if (method === ERC20MethodIds.transfer || method === ERC20MethodIds.transferFrom || method === ERC20MethodIds.transferWithComment) {
+                                let startDate: string | null = null
+                                let endDate: string | null = null
+
+                                if (method === ERC20MethodIds.transfer || method === ERC20MethodIds.transferFrom || method === ERC20MethodIds.transferWithComment
+                                    || method === ERC20MethodIds.deposit || method === ERC20MethodIds.withdraw || method === ERC20MethodIds.borrow || method === ERC20MethodIds.repay
+                                ) {
                                     const coinData = 'tx' in w ? (w.tx as ITransfer).coin : (w as ITransfer).coin;
                                     amountCoins = [{ amount: DecimalConverter('tx' in w ? (w.tx as ITransfer).amount : (w as ITransfer).amount, coinData.decimals), coin: coinData.symbol }];
                                 } else if (method === ERC20MethodIds.batchRequest || method === ERC20MethodIds.automatedBatchRequest) {
@@ -240,6 +287,19 @@ const Transactions = () => {
                                         amountOut: DecimalConverter(swap.amountOutMin, swap.coinOutMin.decimals),
                                         amountInCoin: swap.coinIn.symbol,
                                         amountOutCoin: swap.coinOutMin.symbol,
+                                    }
+                                } else if (method === ERC20MethodIds.automatedTransfer) {
+                                    const transfer = 'tx' in w ? (w.tx as unknown as IAutomationTransfer) : (w as IAutomationTransfer);
+                                    amountCoins = [{ amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coin: transfer.coin.symbol }];
+                                    startDate = dateFormat(transfer.startTime * 1e3, "mmm dd, yyyy HH:MM:ss");
+                                    endDate = dateFormat(transfer.endTime * 1e3, "mmm dd, yyyy HH:MM:ss");
+                                } else if (method === ERC20MethodIds.automatedCanceled) {
+                                    const { streamId } = 'tx' in w ? (w.tx as unknown as IAutomationCancel) : (w as IAutomationCancel);
+                                    const transfer = streamings.find(s => (s as IAutomationTransfer).streamId === streamId) as IAutomationTransfer;
+                                    if (transfer) {
+                                        amountCoins = [{ amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coin: transfer.coin.symbol }];
+                                        startDate = dateFormat(transfer.startTime * 1e3, "mmm dd, yyyy HH:MM:ss");
+                                        endDate = dateFormat(transfer.endTime * 1e3, "mmm dd, yyyy HH:MM:ss");
                                     }
                                 }
 
@@ -255,11 +315,12 @@ const Transactions = () => {
                                 return {
                                     'Method': action,
                                     "Provider": name,
-                                    'Status': 'tx' in w ? w.isExecuted ? "Success" : w.confirmations.length === 0 ? "Rejected" : "Pending" : "Success",
+                                    'Status': 'tx' in w ? w.tx.isError ? "Error" : w.isExecuted ? "Success" : w.confirmations.length === 0 ? "Rejected" : "Pending" : w.isError ? "Error" : "Success",
                                     'Sent From:': from,
                                     'Amount:': swapping ? `${swapping.amountIn} ${swapping.amountInCoin} => ${swapping.amountOut} ${swapping.amountOutCoin}` : amountCoins.map(w => `${w.amount} ${w.coin}`).join(',\n'),
                                     'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
-                                    'Date': dateFormat(new Date(timestamp), "mediumDate"),
+                                    'Date': method === ERC20MethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
+                                    "Labels": w.tags.join(', '),
                                     "Gas": `${gas} ${gasCoin}`,
                                     "Block Number": blockNumber,
                                     "Transaction Hash": hash,
@@ -298,13 +359,13 @@ const Transactions = () => {
                                         const address = (tx as IFormattedTransaction).address;
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
                                         const txData = (tx as IFormattedTransaction)
-                                        return <SingleTxContainer txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
+                                        return <SingleTxContainer isDetailOpen={!!index} txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
                                     } else {
                                         const txData = (tx as ITransactionMultisig)
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
                                         const isSafe = "safeTxHash" in txData
                                         let directionType = TransactionDirectionDeclare(txData, accounts);
-                                        return <MultisigTx txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
+                                        return <MultisigTx isDetailOpen={!!index} txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
                                     }
                                 })}
                             </thead>
@@ -332,9 +393,9 @@ const Transactions = () => {
 
 export default Transactions;
 
-interface IProps { transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, tags: ITag[], blockchain: BlockchainType, txIndexInRemoxData: number }
+interface IProps { isDetailOpen?: boolean, transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, tags: ITag[], blockchain: BlockchainType, txIndexInRemoxData: number }
 
-export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transaction, accounts, selectedAccount, blockchain, tags, txIndexInRemoxData }, ref) => {
+export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transaction, accounts, selectedAccount, blockchain, tags, txIndexInRemoxData, isDetailOpen }, ref) => {
     const isBatch = transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
@@ -380,8 +441,8 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
     let directionType = TransactionDirectionDeclare(transaction, accounts);
 
     return <>
-        {isBatch && TXs.map((s, i) => <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
-        {!isBatch && <SingleTransactionItem txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
+        {isBatch && TXs.map((s, i) => <SingleTransactionItem isDetailOpen={isDetailOpen} txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
+        {!isBatch && <SingleTransactionItem isDetailOpen={isDetailOpen} txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
     </>
 })
 

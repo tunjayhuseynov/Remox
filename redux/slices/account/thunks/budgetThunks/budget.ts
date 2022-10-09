@@ -4,6 +4,7 @@ import { Get_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercis
 import { IBudget, IBudgetTX } from "firebaseConfig";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
+import { generatePriceCalculation } from "utils/const";
 import { addBudget, addTxToBudget, deleteBudget, removeTxFromBudget, updateBudget } from "../../remoxData";
 
 
@@ -44,8 +45,10 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
                     totalAmount: sub.amount,
                     totalUsedAmount: 0,
                     totalPending: 0,
+                    fiat: sub.fiatMoney,
                     second: sub.secondToken && sub.secondAmount ? {
                         secondCoin: sub.secondToken,
+                        fiat: sub.secondFiatMoney,
                         secondTotalPending: 0,
                         secondAmount: sub.secondAmount,
                         secondTotalAmount: sub.secondAmount,
@@ -59,8 +62,10 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
             totalAmount: budget.amount,
             totalPending: 0,
             totalUsedAmount: 0,
+            fiat: budget.fiatMoney,
             second: budget.secondToken && budget.secondAmount ? {
                 secondCoin: budget.secondToken,
+                fiat: budget.secondFiatMoney,
                 secondTotalPending: 0,
                 secondTotalAmount: budget.secondAmount,
                 secondTotalUsedAmount: 0,
@@ -70,13 +75,26 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
 })
 
 export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted, txIndex }, api) => {
-    const currencies = (api.getState() as RootState).remoxData.coins
+    const state = api.getState() as RootState
+    const currencies = state.remoxData.coins
+    const preference = state.remoxData.storage?.organization?.fiatMoneyPreference ?? state.remoxData.storage?.individual.fiatMoneyPreference ?? "USD"
+
     await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
 
+    let amount = tx.amount;
+    if ((budget.budgetCoins.coin === tx.token && budget.fiatMoney)) {
+        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.fiatMoney)
+    } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
+        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
+    }
+
     api.dispatch(addTxToBudget({
         budget,
-        tx,
+        tx: {
+            ...tx,
+            amount,
+        },
         currency,
         isTxExecuted: isExecuted,
         txIndexInCM: txIndex
@@ -85,7 +103,9 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
 })
 
 export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/remove_tx_from_budget", async ({ budget, tx, isExecuted, txIndex }, api) => {
-    const currencies = (api.getState() as RootState).remoxData.coins
+    const state = api.getState() as RootState
+    const currencies = state.remoxData.coins
+    const preference = state.remoxData.storage?.organization?.fiatMoneyPreference ?? state.remoxData.storage?.individual.fiatMoneyPreference ?? "USD"
     await Update_Budget({
         amount: budget.amount,
         created_at: budget.created_at,
@@ -104,9 +124,19 @@ export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>(
     })
     const currency = currencies[tx.token];
 
+    let amount = tx.amount;
+    if ((budget.budgetCoins.coin === tx.token && budget.fiatMoney)) {
+        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.fiatMoney)
+    } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
+        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
+    }
+
     api.dispatch(removeTxFromBudget({
         budget,
-        tx,
+        tx: {
+            ...tx,
+            amount
+        },
         currency,
         isTxExecuted: isExecuted,
         txIndexInCM: txIndex
@@ -120,9 +150,9 @@ export const Update_Budget_Thunk = createAsyncThunk<void, IBaseOrmBudget>("remox
 })
 
 export const Delete_Budget_Thunk = createAsyncThunk<void, IBaseOrmBudget>("remoxData/delete_budget", async ({ budget }, api) => {
-    await Delete_Budget(budget);
     const exercise = await Get_Budget_Exercise(budget.parentId);
     exercise.budgets = (exercise.budgets as IBudget[]).filter(b => b.id !== budget.id)
     await Update_Budget_Exercise(exercise)
+    await Delete_Budget(budget);
     api.dispatch(deleteBudget(budget))
 })

@@ -15,15 +15,16 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Stack, TextField } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import EditableAvatar from "components/general/EditableAvatar";
 import PriceInputField from "components/general/PriceInputField";
 import { FiatMoneyList } from "firebaseConfig";
 import { IoMdRemoveCircle } from "react-icons/io";
+import { GetTime } from "utils";
 import { ToastRun } from "utils/toast";
-import ChooseBudget from "components/general/chooseBudget";
 import Modal from "components/general/modal";
-
+import ChooseBudget from "components/general/chooseBudget";
 
 export interface IFormInput {
     fullname: string;
@@ -124,8 +125,8 @@ const AddMember = () => {
     
                     const id = await SendTransaction(accountAndBudget.account!, inputs, {
                         createStreaming: true,
-                        startTime: startDate.getTime(),
-                        endTime: endDate.getTime(),
+                        startTime: GetTime(startDate),
+                        endTime: GetTime(endDate),
                         budget: accountAndBudget.budget,
                     })
     

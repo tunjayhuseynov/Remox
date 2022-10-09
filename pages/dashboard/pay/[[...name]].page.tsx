@@ -24,6 +24,10 @@ import { Tooltip } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import Select from 'react-select';
 import { Set_Address_Book } from "redux/slices/account/thunks/addressbook";
+import { NG } from "utils/jsxstyle";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import moment from "moment";
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 export interface IPaymentInputs {
     id: string,
@@ -61,11 +65,9 @@ const Pay = () => {
 
     const dispatch = useAppDispatch()
 
-    const [startDateState, setStartDate] = useState<string>()
-    const [startTime, setStartTime] = useState<string>()
+    const [startDateState, setStartDate] = useState<number>()
 
-    const [endDateState, setEndDate] = useState<string>()
-    const [endTime, setEndTime] = useState<string>()
+    const [endDateState, setEndDate] = useState<number>()
 
     const [note, setNote] = useState<string>()
     const [attachLink, setAttachLink] = useState<string>()
@@ -230,11 +232,11 @@ const Pay = () => {
 
             let startDate: Date | null = null;
             let endDate: Date | null = null;
-            if (startDateState && startTime) {
-                startDate = new Date(`${startDateState} ${startTime}`)
+            if (startDateState) {
+                startDate = new Date(startDateState)
             }
-            if (endDateState && endTime) {
-                endDate = new Date(`${endDateState} ${endTime}`)
+            if (endDateState) {
+                endDate = new Date(endDateState)
             }
             if (index === 1 && (!startDate || !endDate)) {
                 throw new Error("Please select start and end date")
@@ -287,27 +289,27 @@ const Pay = () => {
                             <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
                         </div>
                     </div>
-                    <div className="w-full flex flex-col p-5 bg-white dark:bg-darkSecond shadow-custom">
+                    <div className="w-full px-3 py-3 bg-white dark:bg-darkSecond shadow-custom">
                         <div className={`grid grid-cols-[30%,30%,40%]`}>
                             <div className="flex flex-col gap-2 mb-4 border-r">
-                                <div className="font-medium text-greylish dark:text-white ">Total Treasury</div>
-                                <div className="text-3xl font-bold">{`${symbol}${SetComma(totalBalance)}`}</div>
+                                <div className="font-medium text-greylish dark:text-white text-xs">Total Treasury</div>
+                                <div className="text-xl font-medium">{`${symbol}`}<NG number={totalBalance} fontSize={1.25} /></div>
                             </div>
                             <div className="flex flex-col gap-2 mb-4 border-r pl-5">
-                                <div className="font-medium text-greylish dark:text-white ">Wallet Balance</div>
-                                <div className="text-xl font-bold">{`${symbol}${SetComma(walletBalance)}`}</div>
+                                <div className="font-medium text-greylish dark:text-white text-xs">Wallet Balance</div>
+                                <div className="text-sm font-medium">{`${symbol}`}<NG number={walletBalance} fontSize={0.875} /></div>
 
                             </div>
                             <div className="flex flex-col gap-2 mb-4 pl-5">
-                                <div className="font-medium  text-greylish dark:text-white ">Token Allocation</div>
+                                <div className="font-medium  text-greylish dark:text-white text-xs">Token Allocation</div>
                                 <div className="flex flex-col space-y-4">{tokenAllocation.map((s, i) => {
                                     return <div key={i} className="grid grid-cols-[8.5%,1fr] gap-x-2">
-                                        <div className="self-center">
+                                        <div className="self-start">
                                             <img className="rounded-full w-full aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
                                         <div className="flex flex-col">
-                                            <div>{s.amount}</div>
-                                            <div className="text-xs text-gray-400">{symbol}{s.fiatAmount.toLocaleString()}</div>
+                                            <div className="text-sm">{s.amount}</div>
+                                            <div className="text-xs text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.75} /></div>
                                         </div>
                                     </div>
                                 })}
@@ -315,11 +317,11 @@ const Pay = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="sm:flex flex-col gap-3 py-5 xl:py-10">
-                        <div className="sm:flex flex-col gap-y-10">
+                    <div className="sm:flex flex-col gap-3 py-5">
+                        <div className="sm:flex flex-col gap-y-6">
                             <div className="flex flex-col">
-                                <div className="text-xl font-semibold tracking-wide mb-5">General</div>
-                                <div>
+                                <div className="font-semibold tracking-wide my-5">General</div>
+                                <div className="flex flex-col space-y-10">
                                     {inputs.map((e, i) => <Input key={e.id} input={e} allowSecond={index === 0} length={inputs.length}
                                         onDelete={() => {
                                             if (inputs.length > 1) {
@@ -356,7 +358,7 @@ const Pay = () => {
                             </div>
                             {index === 0 && <div className="py-5 sm:py-0 w-full gap-16">
                                 <div className="w-[50%] flex gap-4 items-center">
-                                    <Button version="second" className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none" onClick={() => {
+                                    <Button version="second" className="min-w-[8rem] bg-white !px-3 font-semibold tracking-wide shadow-none text-xs text-center" onClick={() => {
                                         setInputs([...inputs, {
                                             id: nanoid(),
                                             amount: null,
@@ -371,7 +373,7 @@ const Pay = () => {
                                     </Button>
                                     <Button version="second" onClick={() => {
                                         fileInput.current?.click()
-                                    }} className="min-w-[11rem] bg-white text-left !px-6 font-semibold tracking-wide shadow-none">
+                                    }} className="min-w-[8rem] bg-white text-left !px-3 font-semibold tracking-wide shadow-none text-xs">
                                         Import CSV file
                                     </Button>
                                     <input ref={fileInput} type={'file'} className="hidden" onChange={async (e) => {
@@ -397,30 +399,44 @@ const Pay = () => {
                             {index === 1 &&
                                 <div className="w-full grid grid-cols-2 gap-8">
                                     <div className="w-full flex flex-col">
-                                        <span className="text-left text-sm pb-1 ml-1 font-semibold">Start time</span>
-                                        <div className="w-full grid grid-cols-[60%,35%] gap-5">
-                                            <input type="date" onChange={(e) => {
-                                                setStartDate(e.target.value)
-                                            }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg " />
-                                            <input type="time" onChange={(e) => {
-                                                setStartTime(e.target.value)
-                                            }} className="w-full bg-white dark:bg-darkSecond border dark:border-darkSecond p-2 rounded-lg" />
-                                        </div>
+                                        <span className="text-left text-xs pb-1 ml-1 font-medium">Start time</span>
+                                        <LocalizationProvider dateAdapter={AdapterMoment}>
+                                            <DateTimePicker
+                                                value={startDateState}
+                                                className="bg-white dark:bg-darkSecond"
+                                                InputProps={{
+                                                    style: {
+                                                        fontSize: "0.75rem",
+                                                    }
+                                                }}
+                                                onChange={(newValue) => setStartDate(moment(newValue).unix() * 1e3)}
+                                                renderInput={(params) => (
+                                                    <TextField {...params} />
+                                                )}
+                                            />
+                                        </LocalizationProvider>
                                     </div>
                                     <div className="w-full flex flex-col">
-                                        <span className="text-left text-sm pb-1 ml-1 font-semibold">Completion time</span>
-                                        <div className="w-full grid grid-cols-[60%,35%] gap-5 ">
-                                            <input type="date" onChange={(e) => {
-                                                setEndDate(e.target.value)
-                                            }} className=" w-full border dark:border-darkSecond p-2 rounded-lg mr-5 dark:bg-darkSecond" />
-                                            <input type="time" onChange={(e) => {
-                                                setEndTime(e.target.value)
-                                            }} className="w-full border dark:border-darkSecond p-2 rounded-lg mr-5 dark:bg-darkSecond" />
-                                        </div>
+                                        <span className="text-left text-xs pb-1 ml-1 font-medium">Completion time</span>
+                                        <LocalizationProvider dateAdapter={AdapterMoment}>
+                                            <DateTimePicker
+                                                value={endDateState}
+                                                className="bg-white dark:bg-darkSecond"
+                                                InputProps={{
+                                                    style: {
+                                                        fontSize: "0.75rem",
+                                                    }
+                                                }}
+                                                onChange={(newValue) => setEndDate(moment(newValue).unix() * 1e3)}
+                                                renderInput={(params) => (
+                                                    <TextField {...params} />
+                                                )}
+                                            />
+                                        </LocalizationProvider>
                                     </div>
                                 </div>}
                             <div>
-                                <div className="text-xl font-semibold">Details</div>
+                                <div className="font-semibold pb-5 pt-7">Details</div>
                                 <div className="grid grid-cols-2 gap-x-10">
                                     <div>
                                         {labels && labels.length > 0 &&
@@ -448,20 +464,23 @@ const Pay = () => {
                                             />}
                                     </div>
                                     <div>
-                                        <TextField className="w-full bg-white dark:bg-darkSecond" label="Attach Link (Optional)" variant="outlined" onChange={(e) => setAttachLink(e.target.value)} />
+                                        <TextField
+                                            InputProps={{ style: { fontSize: '0.75rem' } }}
+                                            InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                                            className="w-full bg-white dark:bg-darkSecond" label="Attach Link (Optional)" variant="outlined" onChange={(e) => setAttachLink(e.target.value)} />
                                     </div>
                                 </div>
                             </div>
                             <div className="flex flex-col space-y-3">
-                                <span className="text-left">Note <span className="text-greylish">(Optional)</span></span>
+                                <span className="text-left text-xs">Note <span className="text-greylish text-xs">(Optional)</span></span>
                                 <div className="grid grid-cols-1">
-                                    <textarea placeholder="Paid 50 CELO to Ermak....." onChange={(e) => setNote(e.target.value)} className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond" name="description" id="" cols={28} rows={5}></textarea>
+                                    <textarea placeholder="Paid 50 CELO to Ermak....." onChange={(e) => setNote(e.target.value)} className="border-2 dark:border-darkSecond rounded-xl p-3 outline-none dark:bg-darkSecond text-xs" name="description" id="" cols={28} rows={5}></textarea>
                                 </div>
                             </div>
                         </div>
                         <div className="flex justify-center pt-5">
-                            <div className="flex flex-col-reverse sm:grid grid-cols-2 w-[12.5rem] sm:w-full justify-center gap-8">
-                                <Button version="second" onClick={() => router.back()}>Close</Button>
+                            <div className="flex flex-col-reverse w-[12.5rem] sm:w-full justify-center gap-8">
+                                {/* <Button version="second" onClick={() => router.back()}>Close</Button> */}
                                 <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading} onClick={() => submit()}>Send</Button>
                             </div>
                         </div>

@@ -4,7 +4,7 @@ import Button from 'components/button';
 import { AddressReducer } from "utils";
 import { useRef, useState, useMemo } from "react";
 import { useRouter } from "next/router";
-import { useAppSelector } from "redux/hooks";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { useWalletKit } from "hooks";
 import AnimatedTabBar from 'components/animatedTabBar';
 import Upload from "components/upload";
@@ -15,7 +15,7 @@ import { ToastRun } from 'utils/toast';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import useNextSelector from 'hooks/useNextSelector';
 import { DownloadAndSetNFTorImageForUser } from 'hooks/singingProcess/utils';
-import { IAccount, Image } from 'firebaseConfig';
+import { IAccount, Image, IOrganization } from 'firebaseConfig';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import EditableAvatar from 'components/general/EditableAvatar';
 import { nanoid } from '@reduxjs/toolkit';
@@ -23,6 +23,8 @@ import { TextField } from '@mui/material';
 import { Blockchains, MultisigProviders } from 'types/blockchains';
 import { BiTrash } from 'react-icons/bi';
 import useLoading from 'hooks/useLoading';
+import { useDispatch } from 'react-redux';
+import { Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
 
 interface IFormInput {
     name: string;
@@ -34,6 +36,8 @@ interface IFormInput {
 function CreateMultisig() {
 
     const { register, handleSubmit } = useForm<IFormInput>();
+
+    const dispatch = useAppDispatch()
 
     const { Address, blockchain } = useWalletKit();
 
@@ -89,7 +93,7 @@ function CreateMultisig() {
                         data.threshold ?? 1,
                         data.threshold ?? 1,
                         image,
-                        storage?.organization ? "organization" : "individual",
+                        "organization",
                         selectedProvider.name
                     )
             } else {
@@ -100,7 +104,7 @@ function CreateMultisig() {
                         data.multisigAddress,
                         data.name,
                         image,
-                        storage?.organization ? "organization" : "individual",
+                        "organization",
                         selectedProvider.name
                     )
             }
@@ -232,7 +236,7 @@ function CreateMultisig() {
                             </div>
                         })}
                         {isCreate && <div className="flex flex-col items-start mb-4  w-full ">
-                            <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => addOwner()}>+ Add to Owner</div>
+                            <div className="cursor-pointer text-center text-primary opacity-80 px-3  dark:opacity-100" onClick={() => addOwner()}>+ Add owner</div>
                         </div>}
                     </div>
                     {isCreate && <div className="flex flex-col mb-4 space-y-5 w-full">

@@ -2,6 +2,7 @@ import { ITransfer } from "hooks/useTransactionProcess"
 import { useAppSelector } from "redux/hooks"
 import { SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectPriceCalculationFn } from "redux/slices/account/selector"
 import { DecimalConverter } from "utils/api"
+import { NG } from "utils/jsxstyle"
 
 
 interface IProps { transfer: Pick<ITransfer, "coin" | "amount">, timestamp: number }
@@ -33,7 +34,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp }: IProps) => {
                 {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-200">
-                {`${symbol}${price.toFixed(0).length > 18 ? 0 : price.toLocaleString()}`}
+                {`${symbol}`} <NG fontSize={0.75} number={price.toFixed(0).length > 18 ? 0 : price} />
             </span>
         </div>
     </div>

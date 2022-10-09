@@ -112,7 +112,9 @@ function EditBudget({ onBack, budget }: IProps) {
                     totalAmount: 0,
                     totalPending: 0,
                     totalUsedAmount: 0,
+                    fiat: budgetFiat ?? null,
                     second: anotherToken ? {
+                        fiat: budgetFiat2 ?? null,
                         secondCoin: budgetCoin2.symbol,
                         secondTotalAmount: 0,
                         secondTotalPending: 0,
@@ -167,9 +169,9 @@ function EditBudget({ onBack, budget }: IProps) {
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
         if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
-        if (labels.some(label => !label.labelAmount || !label.labelCoin || !label.labelName)
+        if (labels.some(label => label.labelAmount === null || label.labelAmount === undefined || !label.labelCoin || !label.labelName)
             ||
-            (anotherToken && labels.some(label => !label.second?.labelAmount || !label.second?.labelCoin))
+            (anotherToken && labels.some(label => label.second?.labelAmount === null || label.second?.labelAmount === undefined || !label.second?.labelCoin))
         ) return ToastRun(<>Please, fill all the fields</>, "error")
 
         const allLabelAmount = labels.reduce((acc, curr) => acc + (curr.labelAmount ?? 0), 0)
@@ -197,8 +199,10 @@ function EditBudget({ onBack, budget }: IProps) {
                 secondFiatMoney: budgetFiat2 ?? null,
                 tags: budget.tags,
                 budgetCoins: {
+                    fiat: budgetFiat ?? null,
                     coin: budgetCoin.symbol,
                     second: anotherToken ? {
+                        fiat: budgetFiat2 ?? null,
                         secondCoin: budgetCoin2.symbol,
                         secondTotalAmount: budgetAmount2 ?? 0,
                         secondTotalPending: budget.budgetCoins.second?.secondTotalPending ?? 0,
@@ -232,10 +236,12 @@ function EditBudget({ onBack, budget }: IProps) {
 
                     budgetCoins: {
                         coin: s.labelCoin.symbol,
+                        fiat: s.labelFiat ?? null,
                         totalAmount: s.labelAmount ?? 0,
                         totalPending: s.budgetCoins.totalPending,
                         totalUsedAmount: s.budgetCoins.totalUsedAmount,
                         second: s.budgetCoins.second ? {
+                            fiat: s.budgetCoins.second.fiat ?? null,
                             secondCoin: s.second?.labelCoin?.symbol ?? "",
                             secondTotalAmount: s.second?.labelAmount ?? 0,
                             secondTotalPending: s.budgetCoins.second?.secondTotalPending,
@@ -358,7 +364,7 @@ function EditBudget({ onBack, budget }: IProps) {
                         const max = (budgetAmount ?? 0) - labels.reduce((a, c) => a + (c.labelAmount ?? 0), 0)
                         const max2 = (budgetAmount2 ?? 0) - labels.reduce((a, c) => a + (c?.second?.labelAmount ?? 0), 0)
                         return <div key={label.id} className='flex flex-col space-y-5'>
-                            <div className='text-xl font-semibold text-center'>Budget Labels {index > 0 ? `${index + 1}` : ""}</div>
+                            <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
                                 <TextField label="Label name" value={label.labelName} placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
                                     if (s.id === label.id) {
@@ -400,6 +406,7 @@ function EditBudget({ onBack, budget }: IProps) {
                                                 second: {
                                                     ...s.budgetCoins.second,
                                                     secondCoin: coin.symbol,
+                                                    fiat: fiatMoney ?? null,
                                                     secondTotalAmount: (val ?? 0),
                                                     secondTotalPending: s.budgetCoins.second?.secondTotalPending ?? 0,
                                                     secondTotalUsedAmount: s.budgetCoins.second?.secondTotalUsedAmount ?? 0,
@@ -421,7 +428,7 @@ function EditBudget({ onBack, budget }: IProps) {
                     })}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
                         <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-semibold' onClick={onAddLabel}>
-                            + Add Budget Labels
+                            + Add Budget Label
                         </div>
                         <Button version="second" className="!rounded-xl" onClick={() => {
                             setActiveStep(0)

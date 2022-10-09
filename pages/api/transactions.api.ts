@@ -308,9 +308,10 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
     // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
     const formatted = await CeloInputReader({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
 
-    if (formatted && formatted.method && (formatted.coin || (formatted.payments?.length ?? 0) > 0
-      || (formatted.method === ERC20MethodIds.swap && formatted?.coinIn)
+    if (formatted && formatted.method && ((formatted.method === ERC20MethodIds.automatedCanceled && (formatted as any)?.streamId) || ((formatted as any)?.payments?.length ?? 0) > 0
+      || (formatted.method === ERC20MethodIds.swap && (formatted as any)?.coinIn)
       || (formatted.method === ERC20MethodIds.nftTokenERC721)
+      || (formatted as any)?.coin
     )) {
 
       return {

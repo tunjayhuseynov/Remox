@@ -1,4 +1,4 @@
-import { SelectDarkMode, setOrganization } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, setOrganization, setResetRemoxData } from 'redux/slices/account/remoxData';
 import Button from "components/button";
 import { useRouter } from 'next/router';
 import useNextSelector from 'hooks/useNextSelector';
@@ -6,7 +6,6 @@ import useAsyncEffect from 'hooks/useAsyncEffect';
 import { auth } from "firebaseConfig";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectAllOrganizations, SelectBlockchain, SelectIndividual, SelectProviderAddress, setAccountType, setOrganizations, setProviderID, setStorage } from "redux/slices/account/remoxData";
-import useIndividual from "hooks/accounts/useIndividual";
 import { useState } from "react";
 import Loader from "components/Loader";
 import { Get_Organizations_Thunk } from "redux/slices/account/thunks/organization";
@@ -84,7 +83,7 @@ function ChooseType() {
               {organizations.map((i, id) => {
                 return <div key={i.id} onClick={() => organizationLogin(i)} className={`cursor-pointer ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === organizations.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
                   <div className="rounded-full">
-                      <img src={i.image?.imageUrl ?? makeBlockie(i.name || "random")} className="w-9 h-9 rounded-full" />
+                    <img src={i.image?.imageUrl ?? makeBlockie(i.name || "random")} className="w-9 h-9 rounded-full" />
                   </div>
                   <div className="flex flex-col">
                     <p className="text-base">{i.name}</p>
@@ -99,7 +98,7 @@ function ChooseType() {
           </div>
           <div onClick={individualLogin} className={`cursor-pointer bg-white group border hover:!border-primary dark:border-greylish  hover:text-primary transition-all dark:bg-darkSecond hover:transition-all h-full rounded-lg w-full`}>
             <div className={`bg-white dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[8rem] group-hover:min-h-[10rem] relative`}>
-              <div className={`group-hover:text-primary  font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>Continue as an Individual</div>
+              <div className={`group-hover:text-primary  font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>Continue as an individual</div>
             </div>
             <Button className="group-hover:visible invisible transition-all bg-primary text-white  text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>
           </div>

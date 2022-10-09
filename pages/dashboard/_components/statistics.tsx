@@ -26,14 +26,14 @@ const Statistic = () => {
         </Modal> */}
         <div className="flex flex-col space-y-3">
             <div className="text-3xl font-semibold text-left">Welcome, {getName}</div>
-            <div className="shadow-15 grid grid-cols-[66.6%,33.3%] gap-x-12 ">
-                <div className="bg-white dark:bg-darkSecond py-5 px-3 rounded-md">
+            <div className="grid grid-cols-[66.6%,33.3%] gap-x-12 ">
+                <div className="bg-white dark:bg-darkSecond py-5 px-3 rounded-md shadow-15 ">
                     <div className="w-full flex justify-between">
                         <div className="flex flex-col gap-1">
                             <div className="font-semibold text-greylish tracking-wide">Total Treasury Value</div>
                             <div className="text-3xl font-semibold">{symbol}{Math.floor(totalBalance)}<sup className="text-sm">{`.${totalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup></div>
                         </div>
-                        <div className="flex gap-3 pr-2">
+                        <div className="flex gap-3 pr-2 ">
                             <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-greylish text-sm font-semibold tracking-wide`} onClick={() => setChartDate("week")}>1W</span>
                             <span className={`${chartDate === "month" && '!text-primary text-opacity-100'}  hover:!text-primary cursor-pointer text-greylish dark:text-greylish  text-sm font-semibold tracking-wide`} onClick={() => setChartDate("month")}>1M</span>
                             <span className={`${chartDate === "quart" && '!text-primary text-opacity-100'} text-greylish hover:!text-primary cursor-pointer dark:text-greylish text-sm font-semibold tracking-wide`} onClick={() => setChartDate("quart")}>3M</span>
