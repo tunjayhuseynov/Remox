@@ -150,9 +150,9 @@ export const Update_Budget_Thunk = createAsyncThunk<void, IBaseOrmBudget>("remox
 })
 
 export const Delete_Budget_Thunk = createAsyncThunk<void, IBaseOrmBudget>("remoxData/delete_budget", async ({ budget }, api) => {
-    await Delete_Budget(budget);
     const exercise = await Get_Budget_Exercise(budget.parentId);
     exercise.budgets = (exercise.budgets as IBudget[]).filter(b => b.id !== budget.id)
     await Update_Budget_Exercise(exercise)
+    await Delete_Budget(budget);
     api.dispatch(deleteBudget(budget))
 })

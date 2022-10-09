@@ -147,7 +147,7 @@ export default {
             }
         }
 
-        if (payload.txIndexInCM) {
+        if (payload.txIndexInCM != undefined) {
             if (state.cumulativeTransactions[payload.txIndexInCM].budget) {
                 state.cumulativeTransactions[payload.txIndexInCM].budget!.txs =
                     state.cumulativeTransactions[payload.txIndexInCM].budget!.txs.filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase());

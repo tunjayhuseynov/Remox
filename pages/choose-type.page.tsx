@@ -98,7 +98,7 @@ function ChooseType() {
           </div>
           <div onClick={individualLogin} className={`cursor-pointer bg-white group border hover:!border-primary dark:border-greylish  hover:text-primary transition-all dark:bg-darkSecond hover:transition-all h-full rounded-lg w-full`}>
             <div className={`bg-white dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[8rem] group-hover:min-h-[10rem] relative`}>
-              <div className={`group-hover:text-primary  font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>Continue as an Individual</div>
+              <div className={`group-hover:text-primary  font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>Continue as an individual</div>
             </div>
             <Button className="group-hover:visible invisible transition-all bg-primary text-white  text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>
           </div>

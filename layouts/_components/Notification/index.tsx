@@ -65,7 +65,7 @@ const NotificationCointainer = () => {
                             if (index === limit - 1) {
                                 params.ref = ref
                             }
-                            return <NotificationItem item={item} index={index} addresses={addresses} blockchain={blockchain} lastSeenTime={lastSeenTime} {...params} />
+                            return <NotificationItem setNotify={setNotify} item={item} index={index} addresses={addresses} blockchain={blockchain} lastSeenTime={lastSeenTime} {...params} />
                         })}
                     </div>
                     <div

@@ -107,9 +107,9 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
             return account;
         }))
 
-        const creator = await adminApp.firestore().collection("individuals").doc(organization.creator.id).get()
+        // const creator = await adminApp.firestore().collection("individuals").doc(organization.creator.id).get()
        
-        organization.creator = creator.data() as IIndividual;
+        // organization.creator = creator.data() as IIndividual;
     }
 
     return res.json(organizations);

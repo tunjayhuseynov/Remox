@@ -22,6 +22,7 @@ import { IPaymentInput } from "pages/api/payments/send/index.api";
 import ModalAllocation from "pages/dashboard/payroll/_components/modalpay/modalAllocation";
 import ApprovePendings from "./Modals/ApprovePendings";
 import { GetFiatPrice } from "utils/const";
+import ChooseBudget from "components/general/chooseBudget";
 
 export default function DynamicRequest({
   type,
@@ -35,8 +36,10 @@ export default function DynamicRequest({
   const balance = useAppSelector(SelectBalance);
   const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget); 
   const { GetCoins, SendTransaction } = useWalletKit();
+
   const [openNotify, setNotify] = useState(false);
   const [openNotify2, setNotify2] = useState(false);
+  const [chooseBudget, setChooseBudget] = useState<boolean>(false)
 
   let page: RequestStatus;
   if (type === "pending") {
@@ -71,6 +74,7 @@ export default function DynamicRequest({
 
   const confirmRequest = async () => {
     try {
+      setNotify(false)
       let inputs: IPaymentInput[] = [];
       const requests = [...selectedApprovedRequests];
       for (const request of requests){
@@ -97,6 +101,7 @@ export default function DynamicRequest({
         if(request.secondCurrency && request.secondAmount) {
           const secondAmount = request.secondAmount;
           const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+          console.log(coin2)
 
           if(request.fiatSecond) {
             const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
@@ -128,7 +133,7 @@ export default function DynamicRequest({
       }
 
       setSelectedApprovedRequests([])
-      setNotify(false);
+      setChooseBudget(false)
     } catch (error) {
       console.log(error);
       throw new Error(error as any);
@@ -150,7 +155,6 @@ export default function DynamicRequest({
   };
 
   const [isApproving, setApproving] = useLoading(Approve);
-  const [isExecuting, setExecuting] = useLoading(confirmRequest);
 
   return (
     <>
@@ -229,34 +233,34 @@ export default function DynamicRequest({
                 Requested Amount
               </th>
               <th className="text-sm py-3 text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                Requests Type
+                Request Type
               </th>
-              <th>
               {page === RequestStatus.pending &&
-                selectedpPendingRequests.length > 0 && (
+                <th className="flex justify-end pr-4">
+                  {selectedpPendingRequests.length > 0 && (
                     <Button
-                      className="text-sm !py-1 border-none !my-0 !px-2"
+                      className="text-sm !py-1 border-none !my-0 !px-3"
                       onClick={() => {
                         setNotify2(true);
                       }}
                     >
                       Approve Selected
-                    </Button>
-                )}
-                </th>
-              <th>
+                    </Button>)}
+                 </th>
+                }
                 {page === RequestStatus.approved &&
-                selectedApprovedRequests.length > 0 && (
+                  <th className="flex justify-end pr-4">
+                    {selectedApprovedRequests.length > 0 && (
                     <Button
-                      className="text-sm !py-1 border-none !my-0 !px-2"
+                      className="text-sm !py-1 border-none !my-0 !px-3"
                       onClick={() => {
                         setNotify(true);
                       }}
                     >
                       Pay selected
-                    </Button>
-                )}
-              </th>
+                    </Button>)}
+                  </th>
+                }
             </tr>
             {requestsList.map((request) => {
               const coin1 = Object.values(GetCoins).find(
@@ -311,18 +315,18 @@ export default function DynamicRequest({
             </div>
             <table className="w-full pb-4">
               <thead>
-                <tr className="grid grid-cols-[25%,20%,30%,25%] font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md ">
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
+                <tr className="grid grid-cols-[25%,20%,30%,25%] font-semibold tracking-wide items-center bg-[#F2F2F2] shadow-15  dark:bg-darkSecond py-2 rounded-md ">
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-3">
                     Name
                   </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                     Request date
                   </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                     Requested Amount
                   </th>
-                  <th className="text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                    Requests Type
+                  <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
+                    Request Type
                   </th>
                 </tr>
                 {selectedApprovedRequests.map((s) => (
@@ -338,9 +342,11 @@ export default function DynamicRequest({
             </>
             <div className="flex justify-end pb-2">
               <Button
-                isLoading={isExecuting}
-                onClick={() => setExecuting()}
-                className={"py-2 mt-10 mb-3 text-lg"}
+                onClick={() => {
+                  setChooseBudget(true)
+                  } 
+                }
+                className={"py-2 mt-10 mb-3 text-sm"}
               >
                 Confirm and Create Transaction
               </Button>
@@ -348,6 +354,9 @@ export default function DynamicRequest({
           </div>
         </Modal>
       )}
+      <Modal onDisable={setChooseBudget} openNotify={chooseBudget}>
+        <ChooseBudget submit={confirmRequest}/>
+      </Modal>
     </>
   );
 }

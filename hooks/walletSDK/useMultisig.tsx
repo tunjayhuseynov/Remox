@@ -421,7 +421,7 @@ export default function useMultisig() {
                 provider = "Goki"
 
             } else if (provider === "Celo Terminal") {
-                const web3 = new Web3((window as any).celo);
+                const web3 = new Web3((window as any)?.celo ?? (window as any)?.ethereum);
 
                 const Multisig = await multisigContract
 

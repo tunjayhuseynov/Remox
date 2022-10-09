@@ -121,10 +121,10 @@ const Budgets = () => {
             {hasExercises && selectedExercise && <>
                 <TotalExerciseData total={selectedExercise} />
                 <ExerciseBody exercise={selectedExercise} />
-                {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex items-center justify-center gap-6">
+                {/* {selectedExercise.budgets.length === 0 && <div className="w-full h-[40%] flex items-center justify-center gap-6">
                     <img src="/icons/noData.png" alt="" className="w-[8rem] h-[8rem]" />
                     <div className="text-greylish font-bold dark:text-white text-2xl">No budget</div>
-                </div>}
+                </div>} */}
             </>}
         </div >
     </div >

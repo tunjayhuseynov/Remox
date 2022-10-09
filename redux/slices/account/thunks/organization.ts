@@ -47,7 +47,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
         fiatMoneyPreference: "USD",
         name: name,
         id,
-        creator: Get_Individual_Ref(individual.id),
+        // creator: Get_Individual_Ref(individual.id),
         created_date: GetTime(),
     })
 

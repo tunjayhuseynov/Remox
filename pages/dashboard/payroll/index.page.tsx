@@ -140,7 +140,7 @@ export default function DynamicPayroll() {
         
         <>
             <div className="flex justify-between items-center w-full space-y-3">
-                    <div className="text-4xl font-bold">
+                    <div className="text-2xl font-bold">
                         Payroll
                     </div>
                     <div>
@@ -179,14 +179,14 @@ export default function DynamicPayroll() {
             </div>
             <table className="w-full pt-1 pb-4 ">
                 <thead>
-                    <tr id="header" className={`hidden sm:grid grid-cols-[30%,30%,1fr]  lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-[#2F2F2F] rounded-md`} >
-                        <th className={`text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ${isAvaible ? "pl-4" : "pl-2" }`}>Contributor</th>
-                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</th>
-                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</th>
-                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Salary</th>
-                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Frequency</th>
-                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Status</th>
-                        <th className=" text-lg text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Compensation Type</th>
+                    <tr id="header" className={`grid lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-darkSecond rounded-md`} >
+                        <th className={`text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ${isAvaible ? "pl-4" : "pl-2" }`}>Contributor</th>
+                        <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</th>
+                        <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</th>
+                        <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Salary</th>
+                        <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Frequency</th>
+                        <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Status</th>
+                        <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Compensation Type</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -8,7 +8,7 @@ import { CoinDesignGenerator } from './CoinsGenerator';
 import { ERC20MethodIds, GenerateTransaction, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IRemoveOwner, ISwap, ITransfer } from 'hooks/useTransactionProcess';
 import { ITag } from 'pages/api/tags/index.api';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectID, SelectProviderAddress } from 'redux/slices/account/selector';
+import { SelectID, SelectProviderAddress, SelectAlldRecurringTasks } from 'redux/slices/account/selector';
 import { BlockchainType } from 'types/blockchains';
 import { ToastRun } from 'utils/toast';
 import { AddTransactionToTag } from 'redux/slices/account/thunks/tags';
@@ -21,19 +21,22 @@ import useLoading from 'hooks/useLoading';
 import { addConfirmation, changeToExecuted, removeConfirmation, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Loader from 'components/Loader';
 import makeBlockie from 'ethereum-blockies-base64';
+import { FiRepeat } from 'react-icons/fi';
 
 
-interface IProps { address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
-const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account }, ref) => {
+interface IProps { isDetailOpen?: boolean, address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
+const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account, isDetailOpen }, ref) => {
     const transaction = tx.tx;
     const timestamp = tx.timestamp;
     const [isLabelActive, setLabelActive] = useState(false);
     const [selectedLabel, setSelectedLabel] = useState<ITag>();
     const [labelLoading, setLabelLoading] = useState(false)
-    const [openDetail, setOpenDetail] = useState(false)
+    const [openDetail, setOpenDetail] = useState(isDetailOpen ?? false)
 
     const providerAddress = useAppSelector(SelectProviderAddress)
     const id = useAppSelector(SelectID)
+    const streamings = useAppSelector(SelectAlldRecurringTasks)
+
 
 
     const dispatch = useAppDispatch();
@@ -83,7 +86,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
     const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
     const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
-    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? transaction as unknown as IAutomationCancel : null;
+    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
     const swap = transaction.id === ERC20MethodIds.swap ? transaction as unknown as ISwap : null;
 
     const addOwner = transaction.id === ERC20MethodIds.addOwner ? transaction as unknown as IAddOwner : null;
@@ -157,7 +160,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             <span className="font-semibold text-left text-sm">
                                 {action}
                             </span>
-                            <span className="text-xs text-gray-200">
+                            <span className="text-xs text-gray-500 dark:text-gray-200">
                                 {name}
                             </span>
                         </div>
@@ -190,7 +193,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     {swap && (
                         <div className="flex flex-col space-y-5">
                             <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
-                            <img src="/icons/swap.png" className="w-5 h-5" />
+                            <FiRepeat />
                             <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
                         </div>
                     )}
@@ -221,17 +224,17 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         }
                     </div>
                 </td>
-                <td className="text-left w-[85%]">
+                <td className="text-left w-[95%]">
                     <div>
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
                                 <div className='lg:text-xs 2xl:text-base'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
                             </div>
-                            <div className="text-gray-300 lg:text-xs 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-xs 2xl:text-base">
                                 |
                             </div>
-                            <div className="text-gray-300 lg:text-xs 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-xs 2xl:text-base">
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>

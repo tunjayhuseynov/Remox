@@ -90,11 +90,11 @@ export interface IAutomationTransfer extends IFormattedTransaction {
 }
 
 export interface IAutomationCancel extends IFormattedTransaction {
-  coin: AltCoins;
-  to: string;
-  amount: string;
-  endTime: number;
-  startTime: number;
+  // coin: AltCoins;
+  // to: string;
+  // amount: string;
+  // endTime: number;
+  // startTime: number;
   streamId: string;
 }
 
@@ -338,7 +338,7 @@ export default async (
         );
 
         let decoder = new InputDataDecoder(ERC20);
-        let erc = decoder.decodeData(splitData.length > 1 ? `0x23b872dd${splitData[i]}` : result.inputs[2]);
+        let erc = decoder.decodeData(splitData.length > 1 ? `0x23b872dd${splitData[i+1]}` : result.inputs[2]);
         if (coin && (erc.method === ERC20MethodIds.transferFrom || erc.method === ERC20MethodIds.transfer)) {
           txList.push({
             coin: coin,
@@ -357,21 +357,28 @@ export default async (
 
     }
     else if (result.method === "cancelStream") {
-      const web3 = new Web3(blockchain.rpcUrl);
-      const contract = new web3.eth.Contract(blockchain.recurringPaymentProtocols[0].abi, blockchain.recurringPaymentProtocols[0].contractAddress)
-      const details = await contract.methods.getStream((result.inputs[0] as string).startsWith("0x") ? result.inputs[0] : "0x" + result.inputs[0]).call()
-      const coin = Object.values(Coins).find(s => s.address.toLowerCase() === details["tokenAddress"].toLowerCase());
-      if (!coin) return {};
+      // console.log(result)
+      // const web3 = new Web3(blockchain.rpcUrl);
+      // const contract = await web3.eth.getTransactionReceipt(transaction.hash);
+      // contract.logs[2].
+      // let details: any;
+      // try {
+      //   details = await contract.methods.getStream((result.inputs[0]).toString()).call()
+      // } catch (error) {
+
+      // }
+      // const coin = Object.values(Coins).find(s => s.address.toLowerCase() === details["tokenAddress"].toLowerCase());
+      // if (!coin) return {};
 
       const res = {
-        coin: coin,
-        to: details["recipient"],
-        amount: details["deposit"],
-        endTime: details["stopTime"],
-        startTime: details["startTime"],
+        // coin: coin,
+        // to: details["recipient"],
+        // amount: details["deposit"],
+        // endTime: details["stopTime"],
+        // startTime: details["startTime"],
         method: ERC20MethodIds.automatedCanceled,
         id: ERC20MethodIds.automatedCanceled,
-        streamId: (result.inputs[0] as string).startsWith("0x") ? result.inputs[0] : "0x" + result.inputs[0],
+        streamId: (result.inputs[0]).toNumber(),
         tags: theTags,
       }
       return res;

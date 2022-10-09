@@ -37,7 +37,7 @@ function Payments() {
             header: "Recurring payments",
             icon: "subscription-model_1",
             value: recurring.length,
-            router: "/dashboard/automations",
+            router: "/dashboard/streaming",
         }
 
     ]
@@ -51,7 +51,7 @@ function Payments() {
                         <div className="flex flex-col justify-start items-start py-1">
                             <div className="w-full font-medium text-greylish text-sm">{item.header}</div>
                             <div className="text-xl font-semibold">{item.value}</div>
-                            <div className="text-primary hover:text-[#ff4513] flex items-center justify-center text-xs gap-2 cursor-pointer font-semibold" onClick={() => { router.push(`/${item.router}`) }} >View All <AiFillRightCircle /></div>
+                            <div className="text-primary hover:text-[#ff4513] flex items-center justify-center text-xs gap-2 cursor-pointer font-semibold" onClick={() => { router.push(`${item.router}`) }} >View All <AiFillRightCircle /></div>
                         </div>
                     </div>
                 </div>

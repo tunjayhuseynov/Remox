@@ -15,6 +15,7 @@ import useLoading from "hooks/useLoading";
 import { BiTrash } from "react-icons/bi";
 import Button from "components/button";
 import Modal from "components/general/modal";
+import { MdCancel } from "react-icons/md";
 
 interface IProps {
     tx: IFormattedTransaction | ITransactionMultisig,
@@ -23,7 +24,7 @@ interface IProps {
 
 const TeamItem = ({ tx, members }: IProps) => {
 
-    const task = tx as IAutomationCancel | IAutomationTransfer
+    const task = tx as IAutomationTransfer
     const providerAddress = useAppSelector(SelectProviderAddress)
     const { editMember } = useContributors()
     const { SendTransaction } = useWalletKit()
@@ -90,15 +91,15 @@ const TeamItem = ({ tx, members }: IProps) => {
             <td className="hover:cursor-pointer flex items-center gap-2">
                 <Avatar src={member?.image?.imageUrl} />
                 <div className="flex flex-col gap-1">
-                    <div className="font-semibold text-base">
+                    <div className="font-medium text-sm">
                         {member?.fullname ?? AddressReducer(task.to)}
                     </div>
-                    {member && <div className="text-greylish text-sm">{AddressReducer(task.to)}</div>}
+                    {member && <div className="text-greylish text-xs">{AddressReducer(task.to)}</div>}
                 </div>
             </td>
             <td className="flex space-x-8 items-center">
                 {task.startTime && <>
-                    <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate text-base font-semibold">
+                    <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate text-sm font-medium">
                         {dateFormat(new Date(task.startTime * 1e3), `dd mmm yyyy`)}
                     </div>
                     {new Date().getTime() > new Date(task.startTime * 1e3).getTime()}
@@ -106,34 +107,38 @@ const TeamItem = ({ tx, members }: IProps) => {
             </td>
             <td className="flex space-x-8 items-center">
                 {task.endTime && <>
-                    <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate text-base font-semibold">
+                    <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] truncate text-sm font-medium">
                         {dateFormat(new Date(task.endTime * 1e3), `dd mmm yyyy`)}
                     </div>
                     {new Date().getTime() > new Date(task.endTime * 1e3).getTime()}
                 </>}
             </td>
-            <td className={`flex space-y-4 `}>
-                <div className={` flex gap-1 items-center justify-start`}>
+            <td className={`flex space-y-4`}>
+                <div className={`flex gap-1 items-center justify-start`}>
                     <div>
                         <img src={task.coin.logoURI} width="15" height="15" alt="" className="rounded-full" />
                     </div>
-                    <div className="font-semibold text-base">{member?.amount ?? DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
+                    <div className="font-medium text-sm">{member?.amount ?? DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
                     {member?.fiat ?
                         <div>{member.fiat} as {member.currency}</div> :
-                        <div className="text-base font-semibold">
+                        <div className="text-sm font-medium">
                             {task.coin.symbol}
                         </div>}
                 </div>
             </td>
-            <td className="pl-[2px] hidden sm:flex items-center text-base ">
+            <td className="pl-[2px] hidden sm:flex items-center font-medium text-sm">
                 {(member?.interval === DateInterval.monthly && "Monthly")}
                 {(member?.interval === DateInterval.weekly && "Weekly")}
             </td>
-            <td className="pl-[2px] hidden sm:flex items-center text-base">
-                {tx.tags.map(s => <div key={s.id}><div className="w-5 h-5 flex space-x-5" style={{ backgroundColor: s.color }} /> {s.name}</div>)}
+            <td className="pl-[2px] hidden sm:flex items-center text-sm font-medium">
+                {tx.tags.map(s =>
+                    <div key={s.id}>
+                        <div className="w-5 h-5 flex space-x-5" style={{ backgroundColor: s.color }} /> {s.name}
+                    </div>
+                )}
             </td>
             <td className="flex justify-center">
-                <BiTrash className="cursor-pointer hover:text-red-500" onClick={() => setDeleteModal(true)} />
+                <MdCancel className="cursor-pointer hover:text-red-500" size={"1.25rem"} onClick={() => setDeleteModal(true)} />
             </td>
         </tr>
         {deleteModal &&

@@ -1,7 +1,7 @@
 import useModalSideExit from 'hooks/useModalSideExit'
 import React, { useState } from 'react'
 import { IContributor } from 'types/dashboard/contributors'
-import { SelectAccounts, SelectBlockchain, SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectBlockchain, SelectDarkMode, updateContributor } from 'redux/slices/account/remoxData';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import useContributors from "hooks/useContributors";
 import { useRouter } from 'next/router';
@@ -14,23 +14,20 @@ import { useWalletKit } from 'hooks';
 import makeBlockie from "ethereum-blockies-base64";
 import { generate } from 'shortid';
 import zIndex from '@mui/material/styles/zIndex';
+import { RiDeleteBin6Line } from 'react-icons/ri';
+import EditableTextInput from 'components/general/EditableTextInput';
 
 
 const teamItem = ({ props }: { props: IContributor }) => {
-    const navigate = useRouter()
     const { removeTeam } = useContributors()
     const { SendTransaction, blockchain } = useWalletKit()
     const accounts = useAppSelector(SelectAccounts)
     const dispatch = useAppDispatch()
-    const [details, setDetails] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
-    const dark = useAppSelector(SelectDarkMode)
-    const [divRef, exceptRef] = useModalSideExit(details, setDetails, false)
-    const [loading, setLoading] = useState(false)
+    const { editTeam } = useContributors();
 
     const DeleteTeam = async () => {
         try {
-            setLoading(true)
             for (let index = 0; index < props.members.length; index++) {
                 const element = props.members[index];
                 if (element.taskId) {
@@ -44,42 +41,42 @@ const teamItem = ({ props }: { props: IContributor }) => {
             }
             await removeTeam(props.id)
             dispatch(removeContributor(props.id));
-            setLoading(false)
             setDeleteModal(false)
         } catch (error) {
             console.error(error)
         }
     }
 
+    const onWorkstreamNameChange = async (name:string) => {
+        try {
+           await editTeam(props.id, name.trim());
+           dispatch(updateContributor({ name: name.trim(), id: props.id }));
+        } catch (error) {
+           console.error(error);
+        }
+    }
+    
+
 
     return (
         <>
-            <div className=" rounded-xl bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-w-[23.5rem] min-h-[12rem] items-start justify-between pl-5">
+            <div className="rounded-md cursor-pointer bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4 min-h-[12rem] items-start justify-between pl-5">
                 <div className="flex flex-col justify-between w-full h-full">
-                    <div className="flex items-start justify-between w-full">
-                        <div className="font-semibold text-[1.5rem] overflow-hidden whitespace-nowrap">
-                            <div className="font-bold">{props.name}</div>
+                    <div className="grid grid-cols-2 items-center w-full">
+                        <div>
+                            <EditableTextInput defaultValue={props?.name ?? ""} onSubmit={onWorkstreamNameChange} placeholder="Individual account name" />
                         </div>
-                        <div className="flex items-end justify-end">
-                            <span ref={exceptRef} onClick={() => { setDetails(!details) }} className=" text-3xl flex items-center relative cursor-pointer  font-bold"><span className="rotate-90 text-primary">...</span>
-                                {details && <div ref={divRef} className="flex flex-col items- justify-start bg-white dark:bg-dark  absolute right-6 -top-16  translate-y-full rounded-lg shadow-xl z-50 ">
-                                    <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm border-b border-greylish border-opacity-20 flex items-center min-w-[8rem] px-2 pr-6 py-2 gap-2" onClick={() => navigate.push(`/dashboard/contributors/edit-team?id=${props.id}&name=${props.name}`)}>
-                                        <img src={`/icons/${dark ? 'edit_white' : 'edit'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Edit</span>
-                                    </div>
-                                    <div className="cursor-pointer hover:bg-greylish hover:bg-opacity-5 hover:transition-all text-sm flex items-center  px-2 pr-6 w-full py-2 gap-2" onClick={() => setDeleteModal(true)}>
-                                        <img src={`/icons/${dark ? 'trashicon_white' : 'trashicon'}.png`} className="dark:invert dark:brightness-0 w-5 h-5" alt="" /> <span>Delete</span>
-                                    </div>
-                                </div>}
-                            </span>
+                        <div className="flex items-center justify-end curs">
+                            <RiDeleteBin6Line className='h-6' onClick={() => setDeleteModal(true)} />
                         </div>
                     </div>
                     <div className="pl-3 w-full relative">
                         {props.members.slice(0,9).map((member, index) => {
-                            return <img src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`absolute bottom-0 border  w-8 h-8 rounded-full`} style={{
+                            return <img key={index} src={member.image ? member.image?.imageUrl : makeBlockie(member.address) } className={`absolute bottom-0 border  w-8 h-8 rounded-full`} style={{
                                 left: `${index === 0 ? 0.5 : index+0.5}rem`,
                                 zIndex: `${index}`
                             }} alt="" /> 
-                        }) }
+                        })}
                     </div>
                 </div>
             </div>

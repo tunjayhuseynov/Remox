@@ -1,10 +1,10 @@
 import Button from "components/button";
-
+import { fiatList } from "components/general/PriceInputField";
 import { IRequest } from "rpcHooks/useRequest";
 import { AltCoins, Coins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 interface IProps {
   request: IRequest | null | undefined;
@@ -28,6 +28,10 @@ export default ({
 
   const currency = GetCoins.find((coin) => coin.symbol === request.currency);
   const secondCurrency = GetCoins.find((coin) => coin.symbol === request.secondCurrency);
+
+  const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
+  const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
+
   
   return (
     <div className="flex flex-col space-y-8 px-2">
@@ -47,56 +51,52 @@ export default ({
           <div className={`flex justify-between ${!(request.secondCurrency && request.secondAmount) ? "border-b pb-5" : ""}`}>
             <div className="text-greylish">Requesting Amount</div>
             <div className="flex flex-col space-y-3">
+              <div className="flex gap-x-3 justify-between">
+                <div className="flex gap-x-2 items-center">
+                  <span className="w-2 h-2 rounded-full bg-primary"></span>
+                  {request?.amount}
+                </div>
+                <div className="flex gap-x-2 items-center">
+                  <div className="flex items-center">
+                    {
+                      request.fiat ? (
+                        <div className="relative">
+                          <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                          <img src={currency?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-5.3px] bottom-[-1.1px]" />
+                        </div>
+                        ) : <img src={currency?.logoURI} className="rounded-xl w-[1.25rem] h-[1.25rem]" alt="Currency Logo" />
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {!!request?.secondCurrency && !!request?.secondAmount && (
+            <div className="flex justify-between border-b pb-5">
+              <div className="text-greylish">Requesting Amount 2</div>
+              <div className="flex flex-col space-y-3">
                 <div className="flex gap-x-3 justify-between">
                   <div className="flex gap-x-2 items-center">
                     <span className="w-2 h-2 rounded-full bg-primary"></span>
-                      {request?.amount}
+                    {request?.secondAmount}
                   </div>
                   <div className="flex gap-x-2 items-center">
-                    {!!request?.currency && (
-                      <div className="flex items-center">
-                        {request.fiat ? <span className="mr-2">{request.fiat} as</span> : ""}
-                        <img
-                          src={currency!.logoURI}
-                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                        />
-                      </div>
-                    )}
-                    {currency ? <span>{currency!.name}</span> : "Token not provided"}
-                  </div>
-                </div>
-            </div>
-          </div>
-            {!!request?.secondCurrency && !!request?.secondAmount && (
-              <div className="flex justify-between border-b pb-5">
-                <div className="text-greylish">Requesting Amount 2</div>
-                <div className="flex flex-col space-y-3">
-                  <div className="flex gap-x-3 justify-between">
-                    <div className="flex gap-x-2 items-center">
-                      <span className="w-2 h-2 rounded-full bg-primary"></span>
-                      {request?.secondAmount}
-                    </div>
-                    <div className="flex gap-x-2 items-center">
-                      {secondCurrency ? (
-                        <div className="flex items-center">
-                        {request.fiatSecond ? <span className="mr-2">{request.fiat} as</span> : ""}
-                        <img
-                          src={secondCurrency!.logoURI}
-                          className="rounded-xl w-[1.25rem] h-[1.25rem]"
-                        />
-                      </div>
-                      ) : (
-                        ""
-                      )}
-                      {secondCurrency
-                        ? <span>{secondCurrency.name}</span> 
-                        : ""}
+                    <div className="flex items-center">
+                      {
+                        request.fiatSecond ? (
+                          <div className="relative">
+                            <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                            <img src={secondCurrency?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-5.3px] bottom-[-1.1px]" />
+                          </div>
+                        ) : <img src={secondCurrency?.logoURI} className="rounded-xl w-[1.25rem] h-[1.25rem]" alt="Currency Logo" />
+                      }
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-        </div>
+            </div>
+          )}
+      </div>
       <div className="font-semibold">Details</div>
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between">

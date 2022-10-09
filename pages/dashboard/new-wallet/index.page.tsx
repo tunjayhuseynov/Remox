@@ -190,18 +190,32 @@ function NewWalletModal() {
                         className={'w-full'}
                         selectClass={'py-2'}
                         list={providers}
+                        sx={{
+                            fontSize: "0.75rem",
+                            height: "3.33rem",
+                        }}
                         label="Choose Wallet Provider"
                         selected={selectedWalletProvider}
                         setSelect={setSelectedWalletProvider}
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <div className="text-sm">Wallet Name</div>
-                    <TextField type="text" {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="w-full" />
+                    <TextField
+                        inputProps={{
+                            style: {
+                                fontSize: "0.75rem"
+                            }
+                        }}
+                        type="text" {...register("name", { required: true })} label="Wallet Name" placeholder="E.g. Remox DAO" className="w-full" />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <div className="text-sm">Wallet Address</div>
-                    <TextField type="text" {...register("address", { required: true })} placeholder="E.g. 0xabcd..." className="w-full" />
+                    <TextField
+                        inputProps={{
+                            style: {
+                                fontSize: "0.75rem"
+                            }
+                        }}
+                        type="text" {...register("address", { required: true })} label="Wallet Address" placeholder="E.g. 0xabcd..." className="w-full" />
                 </div>
                 <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
                     <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { navigate.back() }}>

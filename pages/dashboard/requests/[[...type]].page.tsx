@@ -43,10 +43,8 @@ export default function RequestLayout() {
     return (
         <div className="flex flex-col space-y-5 h-full">
         <div className="flex justify-between pb-8 ">
-            <div className="text-3xl font-semibold tracking-wider">Requests</div>
-            <div>
-                <Button className="mt-1 !py-[.5rem] !font-medium !text-lg !px-3 min-w-[9.1rem]  flex items-center" onClick={() => setModalVisible(true)}> Share Request Link    </Button>
-            </div>
+            <div className="text-2xl font-semibold tracking-wider">Requests</div>
+            <Button className="!font-medium !text-lg flex items-center justify-center py-2 cursor-pointer" onClick={() => setModalVisible(true)}>Share Link </Button>
         </div>
         <div className="flex  w-[70%] justify-between !mt-1">
             <AnimatedTabBar data={data} index={index} className={'!text-lg'} />

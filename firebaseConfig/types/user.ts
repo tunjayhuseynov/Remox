@@ -127,7 +127,7 @@ interface ICommonUserTypes {
 
 }
 export interface IOrganization extends ICommonUserTypes {
-    creator: DocumentReference | IIndividual;
+    // creator: DocumentReference | IIndividual;
 }
 
 export interface IIndividual extends ICommonUserTypes {

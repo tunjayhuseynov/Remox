@@ -2,7 +2,7 @@ import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { Dispatch, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AltCoins } from "types";
-import { AddressReducer } from "utils";
+import { AddressReducer, SetComma } from "utils";
 import dateFormat from "dateformat";
 import Modal from "components/general/modal";
 import Button from "components/button";
@@ -26,6 +26,7 @@ import { IPaymentInput } from "pages/api/payments/send/index.api";
 import SingleRequestModal from "./Modals/SingleRequestModal";
 import { GetFiatPrice } from "utils/const";
 import { fiatList } from "components/general/PriceInputField";
+import ChooseBudget from "components/general/chooseBudget";
 
 
 const RequestedUserItem = ({
@@ -52,17 +53,24 @@ const RequestedUserItem = ({
 
   const [modal, setModal] = useState(false);
   const [detect, setDetect] = useState(true);
+  const [chooseBudget, setChooseBudget] = useState<boolean>(false)
+
+
   const divRef = useRef<HTMLTableRowElement>(null);
   const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget);
+  
   const dispatch = useDispatch();
   const { rejectRequest, approveRequest, removeRequest } = useRequest();
   const { GetCoins, SendTransaction } = useWalletKit();
   const userId = useAppSelector(SelectID);
   const owners = useAppSelector(SelectOwners)
+
   const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
   const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
 
   const owner = owners.find((owner) => owner.address === request.address)
+
+
 
   useEffect(() => {
     if (divRef.current && window.innerWidth / divRef.current.clientWidth > 3) {
@@ -145,6 +153,8 @@ const RequestedUserItem = ({
     dispatch(removeApprovedRequest(request.id));
     await removeRequest(request, userId ?? "")
 
+
+    setChooseBudget(false)
   }
 
   const [isRejecting, setRejecting] = useLoading(Reject);
@@ -266,39 +276,37 @@ const RequestedUserItem = ({
             </div>
           )}
         </td>
-        <td className="flex flex-col justify-center text-sm">
-           <div className="flex items-center">
-            {request.fiat ? <div className="flex items-center justify-between w-full pr-32"> 
-                <span className="">{request.amount} </span> 
-                <div className="flex items-center">
-                  <img src={fiatFirst?.logo} alt="" className="mr-2 w-5 h-3" />
-                  <span>{request.fiat} as</span>
-                  <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full ml-2" />
-                </div>
-              </div> :
-              <div className="flex items-center">
-                <img src={coin1?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                <span className="">{request.amount}</span>
-              </div>
-            }
-            </div>
-            {(request.secondCurrency && request.secondAmount) && 
-              <div className="flex items-center gap-1 mt-3">
-                {request.fiatSecond ? 
-                  <div className="flex items-center justify-end"> 
-                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                    <div className="flex items-center space-x-2">
-                      <span>based on</span>
-                      <img src={fiatSecond?.logo} alt="" className="w-5 h-3" />
-                      <span className="">{request.fiatSecond} {request.secondAmount}</span> 
+        <td className="flex flex-col justify-center text-sm space-y-4">
+            <div className="flex items-center">
+              <div className="flex items-center mr-3">
+                {
+                  request.fiat ? (
+                    <div className="relative">
+                      <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                      <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
                     </div>
-                  </div> :
-                  <div className="flex items-center">
-                    <img src={coin2?.logoURI} width="20" height="20" alt="" className="rounded-full mr-2" />
-                    <span className="">{request.secondAmount}</span>
-                  </div>
+                    ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
                 }
-              </div>}
+              </div>
+              <div className="flex items-center">
+                  {request?.amount}
+              </div>
+            </div>
+            {(request.secondAmount && request.secondCurrency) && <div className="flex items-center">
+              <div className="flex items-center mr-3">
+                {
+                  request.fiatSecond ? (
+                    <div className="relative">
+                      <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
+                      <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
+                    </div>
+                    ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
+                }
+              </div>
+              <div className="flex items-center">
+                  {request?.secondAmount}
+              </div>
+            </div>}
         </td>
         <td className="items-center flex text-sm font-medium ">
           {request.requestType}
@@ -334,12 +342,15 @@ const RequestedUserItem = ({
             <Button
               className=" text-lg !py-2 w-[40%]"
               isLoading={isExecuting}
-              onClick={() => setExecuting()}
+              onClick={() => setChooseBudget(true)}
             >
               Confirm & Submit
             </Button>
           </div>}
         </div>
+      </Modal>
+      <Modal onDisable={setChooseBudget} openNotify={chooseBudget}>
+        <ChooseBudget submit={Execute}  />
       </Modal>
     </>
   );

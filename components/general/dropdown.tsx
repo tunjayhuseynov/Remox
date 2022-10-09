@@ -7,15 +7,7 @@ import Loader from 'components/Loader';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            zIndex: 99999999999,
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
+
 
 interface IProp<T> {
     parentClass?: string,
@@ -63,11 +55,26 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                     id={id}
                     labelId={labelId + "-label"}
                     value={selected ?? ""}
-                    MenuProps={MenuProps}
+                    displayEmpty
+                    MenuProps={{
+                        PaperProps: {
+                            style: {
+                                zIndex: 99999999999,
+                                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                                width: 250,
+                                fontSize: '0.75rem'
+                            },
+                        },
+                    }}
+                    SelectDisplayProps={{
+                        style: {
+                            fontSize: '0.75rem'
+                        }
+                    }}
                     // {...props}
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center `}>
-                            <div className="flex items-center">
+                            <div className="flex items-center text-sm">
                                 {(loading || internalLaoding) && <span><Loader size={16} /></span>}
                                 {selected.coinUrl && (!loading && !internalLaoding) && <img className="w-6 h-6 mr-2 rounded-full object-cover" src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2 rounded-full object-cover" src={`${selected.logoUrl}`} />}
@@ -75,7 +82,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                                 {selected.image && (!loading && !internalLaoding) && <img className="w-10 h-10 mr-2 rounded-full object-cover" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
                                 {(!loading && !internalLaoding) &&
                                     <div className={`${textContainerClass} flex flex-col items-start`}>
-                                        <span className={`${textClass} text-lg font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
+                                        <span className={`${textClass} text-sm font-sans font-semibold`}>{displaySelector ? selected[displaySelector] : (selected.displayName ?? selected.name)}</span>
                                         {selected.secondValue && <span className={`${textClass} text-left text-sm text-gray-500`}>{selected.secondValue}</span>}
                                     </div>
                                 }

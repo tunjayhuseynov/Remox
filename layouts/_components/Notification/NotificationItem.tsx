@@ -5,7 +5,7 @@ import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration }
 import dateFormat from "dateformat";
 import { useRouter } from "next/dist/client/router";
 import _ from "lodash";
-import { forwardRef } from 'react'
+import { Dispatch, forwardRef } from 'react'
 import { AltCoins } from "types";
 import { DecimalConverter } from "utils/api";
 
@@ -14,10 +14,11 @@ interface IProps {
     index: number,
     addresses: string[],
     blockchain: BlockchainType,
-    lastSeenTime: number
+    lastSeenTime: number,
+    setNotify: Dispatch<boolean>
 }
 
-const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addresses, blockchain, lastSeenTime }, ref) => {
+const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, index, addresses, blockchain, lastSeenTime }, ref) => {
     const navigate = useRouter()
 
     const hash = 'tx' in item ? `${item.contractAddress}${item.hashOrIndex}${index}` : `${item.hash}${index}`
@@ -87,18 +88,23 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ item, index, addr
     let direction = TransactionDirectionDeclare(item, addresses);
     const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, 'tx' in item);
 
+    const goToTx = () => {
+        navigate.push(`/dashboard/transactions?index=${index}`)
+        setNotify(false)
+    }
 
-    return <div ref={ref} key={hash} className="py-2 grid grid-cols-[5%,1fr,58%,25%] items-center hover:bg-light dark:hover:bg-dark rounded-md">
-        {item.timestamp > lastSeenTime ? <div className="rounded-full w-3 h-3 bg-primary ml-2"></div> : <span></span>}
-        <img src={image} alt="" className="w-10 h-10 rounded-full" />
+    return <div ref={ref} key={hash} onClick={goToTx} className="py-2 grid grid-cols-[5%,1fr,60%,25%] items-center hover:bg-light dark:hover:bg-dark rounded-md cursor-pointer">
+        {item.timestamp > lastSeenTime ? <div className="rounded-full w-[10px] h-[10px] bg-primary ml-2"></div> : <span></span>}
+        <img src={image} alt="" className="w-8 h-8 rounded-full" />
         <div className="flex flex-col items-start">
-            <div className="text-lg font-medium">
-                {action} {amount && coin && method !== ERC20MethodIds.swap ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERC20MethodIds.swap !== method ? coin.symbol : ''}
-                {method === ERC20MethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18)} {coinTo?.symbol}</>)}
+            <div className="text-sm font-medium">
+                {action} {amount && coin && method !== ERC20MethodIds.swap && method !== ERC20MethodIds.batchRequest ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERC20MethodIds.swap !== method ? coin.symbol : ''}
+                {method === ERC20MethodIds.batchRequest ? `${TXs.reduce((a, c) => a + ((c as any)?.["payments"] as any[]).length, 0)} batch requests` : ''}
+                {method === ERC20MethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18).toFixed(2)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18).toFixed(2)} {coinTo?.symbol}</>)}
             </div>
             <div className="font-medium text-[10px] text-primary cursor-pointer" onClick={() => navigate.push('/dashboard/transactions')}>View Transaction</div>
         </div>
-        <div className="text-greylish font-light text-[10px] flex justify-end items-center gap-2 pr-3">{dateFormat(new Date(item.timestamp * 1e3))} <span className="text-greylish text-2xl pb-1">&#8250;</span> </div>
+        <div className="text-greylish font-light text-[10px] flex justify-end items-center gap-2 pr-3">{dateFormat(new Date(item.timestamp * 1e3), "mmm dd")} at {dateFormat(new Date(item.timestamp * 1e3), "hh:mm")}<span className="text-greylish text-2xl pb-1">&#8250;</span> </div>
     </div>
 })
 
