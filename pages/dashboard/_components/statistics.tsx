@@ -25,7 +25,7 @@ const Statistic = () => {
             <NewWalletModal onDisable={setNotify} />
         </Modal> */}
         <div className="flex flex-col space-y-3">
-            <div className="text-3xl font-semibold text-left">Welcome, {getName}</div>
+            <div className="text-6xl font-semibold text-left">Welcome, {getName}</div>
             <div className="grid grid-cols-[66.6%,33.3%] gap-x-12 ">
                 <div className="bg-white dark:bg-darkSecond py-5 px-3 rounded-md shadow-15 ">
                     <div className="w-full flex justify-between">

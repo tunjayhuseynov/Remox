@@ -3,7 +3,7 @@ import { AddressReducer } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
 import Modal from 'components/general/modal'
 import DeleteWallet from "./deleteWallet";
-import { SelectDarkMode, SelectFiatPreference, SelectFiatSymbol, SelectPriceCalculationFn } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, SelectFiatPreference, SelectFiatSymbol, SelectIndividual, SelectPriceCalculationFn, SelectProviderAddress } from 'redux/slices/account/remoxData';
 import CoinItem from './coinitem';
 import useModalSideExit from 'hooks/useModalSideExit';
 import { useRouter } from "next/router";
@@ -34,6 +34,10 @@ const style = {
 
 
 function WalletList({ item }: { item: IAccountORM }) {
+    const individual = useAppSelector(SelectIndividual)
+    const providerID = useAppSelector(SelectProviderAddress)
+
+
     const [details, setDetails] = useState<boolean>(false)
     const [modalEditVisible, setModalEditVisible] = useState<boolean>(false)
     const [deleteModal, setDeleteModal] = useState<boolean>(false)
@@ -81,8 +85,8 @@ function WalletList({ item }: { item: IAccountORM }) {
                 <div className="pb-2 border-b dark:border-[#454545]">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3 px-3">
-                            <div className="w-9 h-9">
-                                <img className="rounded-full" src={item.image?.nftUrl ?? item.image?.imageUrl as string ?? makeBlockie(item.address ?? "")} />
+                            <div>
+                                <img className="rounded-full w-9 aspect-square object-cover" src={item.image?.nftUrl ?? item.image?.imageUrl as string ?? makeBlockie(item.address ?? "")} />
                             </div>
                             {/* <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div> */}
                             <div className="flex flex-col">
@@ -122,7 +126,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     <div className="flex flex-col gap-5 py-2 px-3 items-start border-r dark:border-[#454545]">
                         <div className="grid grid-flow-row">
                             <div className="text-greylish text-xs">Total Value</div>
-                            <div className="text-lg font-semibold truncate">
+                            <div className="text-sm font-semibold truncate">
                                 <Tooltip title={<>{symbol}{totalValue.toFixed(1)}</>}>
                                     <>{symbol}{totalValue.toFixed(1)}</>
                                 </Tooltip>
@@ -133,7 +137,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                             <AvatarGroup max={3} className={`${item.members.length <= 3 ? "flex-row" : ""}`}>
                                 {
                                     item.members.map((member, index) =>
-                                        <Avatar key={member.id} sizes="0.5rem" alt={member.name} src={member?.image?.imageUrl as string ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
+                                        <Avatar key={member.id} sx={{ width: "1.25rem!important", height: "1.25rem!important" }} alt={member.name} src={member.address.toLowerCase() === providerID?.toLowerCase() ? individual?.image?.imageUrl ?? makeBlockie(member.address) : member?.image?.imageUrl ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
                                 }
                             </AvatarGroup>
                         </div>
@@ -141,7 +145,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     <div className="rounded-xl">
                         <div className="w-full h-full" ref={customRef}>
                             {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 3).map((item, index) => {
-                                return <div className={`w-[95%] mx-auto ${index !==  2 && "dark:border-[#454545] border-b"}`} key={item.coin.address} >
+                                return <div className={`w-[95%] mx-auto ${index !== 2 && "dark:border-[#454545] border-b"}`} key={item.coin.address} >
                                     <CoinItem
                                         key={item.coin.address + item.coin.name}
                                         setSelectcoin={setSelectcoin}

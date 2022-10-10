@@ -11,7 +11,7 @@ export const Update_Account_Member_Image_Thunk = createAsyncThunk<void, { accoun
     const account = state.remoxData.accounts.find(s => s.id === accountId)
     if (!account) throw new Error("No Account Found")
 
-    const currentMember = account.members.find(s => s.id === memberId)
+    const currentMember = Object.assign({}, account.members.find(s => s.id === memberId))
     if (!currentMember) throw new Error("No Member Found")
     currentMember.image = image
 

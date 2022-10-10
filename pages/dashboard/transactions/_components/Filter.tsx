@@ -60,11 +60,7 @@ const ariaLabel = { 'aria-label': 'description' };
 
 const mainColor = { colorPrimary: "!text-primary", root: "" }
 
-const mainCheckBox = {
-    '&.Mui-checked': {
-        color: "#FF7348!important",
-    }
-}
+
 
 export interface ITransactionFilter {
     date: number[];
@@ -95,6 +91,16 @@ export interface ITransactionFilter {
 const Filter = ({
     date, selectedAccounts, selectedBudgets, selectedDirection, selectedTags, maxAmount, minAmount, specificAmount,
     setDate, setSelectedAccounts, setSelectedBudgets, setSelectedDirection, setSelectedTags, setMaxAmount, setMinAmount, setSpecificAmount }: ITransactionFilter) => {
+    const mainCheckBox = {
+        '&.Mui-checked': {
+            color: "#FF7348!important",
+        },
+        "& .MuiSvgIcon-root": {
+            height: '0.75rem',
+            width: '0.75rem',
+        }
+    }
+
     const [expanded, setExpanded] = useState<string | false>('');
 
     const dark = useAppSelector(SelectDarkMode)
@@ -139,7 +145,7 @@ const Filter = ({
                 <AccordionSummary aria-controls="filter-content" id="filter-header" expandIcon={<></>} className="!ml-0" classes={{
                     content: "!ml-0"
                 }}>
-                    <span className="text-sm font-medium">Filters</span>
+                    <span className="text-sm font-semibold">Filters</span>
                 </AccordionSummary>
             </Accordion>
             <Accordion expanded={expanded === 'date'} onChange={handleChange('date')}>
@@ -147,7 +153,7 @@ const Filter = ({
                     <span className="text-sm font-medium">Date</span>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <div className='text-sm pb-1 font-medium'>
+                    <div className='text-xs pb-1 font-medium'>
                         Show transaction for
                     </div>
                     <DatePicker plugins={[<DatePanel sort="date" />]} value={date} onChange={(data) => {
@@ -156,7 +162,7 @@ const Filter = ({
                         }
                     }} range={true} className={`${dark ? "bg-dark" : ""}`} style={
                         {
-                            height: "2rem",
+                            height: "1.9rem",
                         }
                     } />
                 </AccordionDetails>
@@ -166,19 +172,26 @@ const Filter = ({
                     <span className="text-sm font-medium">Labels</span>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Input inputProps={ariaLabel} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
+                    <Input inputProps={ariaLabel} fullWidth sx={{
+                        fontSize: "0.75rem",
+                    }} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
                         <AiOutlineSearch />
                     </>} />
                     <div className='flex flex-col mt-3'>
                         {tags.filter(s => s.name.toLowerCase().includes(searchLabel.toLowerCase())).map((tag, index) => {
-                            return <div key={tag.id} className='flex space-x-2 items-center'>
-                                <Checkbox classes={mainColor} checked={selectedTags.includes(tag.id)} onChange={() => {
-                                    if (selectedTags.includes(tag.id)) {
-                                        setSelectedTags(selectedTags.filter(s => s !== tag.id))
-                                    } else {
-                                        setSelectedTags([...selectedTags, tag.id])
-                                    }
-                                }} /> {tag.name}
+                            return <div key={tag.id} className='flex space-x-1 items-center'>
+                                <Checkbox
+                                    style={{
+                                        transform: "scale(0.75)",
+                                        padding: 0
+                                    }}
+                                    classes={mainColor} checked={selectedTags.includes(tag.id)} onChange={() => {
+                                        if (selectedTags.includes(tag.id)) {
+                                            setSelectedTags(selectedTags.filter(s => s !== tag.id))
+                                        } else {
+                                            setSelectedTags([...selectedTags, tag.id])
+                                        }
+                                    }} /> <span className="text-xs">{tag.name}</span>
                             </div>
                         })}
                     </div>
@@ -191,14 +204,19 @@ const Filter = ({
                 <AccordionDetails>
                     <div className='flex flex-col'>
                         {budgets.map((budget) => {
-                            return <div key={budget.id} className='flex space-x-2 items-center'>
-                                <Checkbox classes={mainColor} checked={selectedBudgets.includes(budget.id)} onChange={() => {
-                                    if (selectedBudgets.includes(budget.id)) {
-                                        setSelectedBudgets(selectedBudgets.filter(s => s !== budget.id))
-                                    } else {
-                                        setSelectedBudgets([...selectedBudgets, budget.id])
-                                    }
-                                }} /> {budget.name}
+                            return <div key={budget.id} className='flex space-x-1 items-center'>
+                                <Checkbox
+                                    style={{
+                                        transform: "scale(0.75)",
+                                        padding: 0
+                                    }}
+                                    classes={mainColor} checked={selectedBudgets.includes(budget.id)} onChange={() => {
+                                        if (selectedBudgets.includes(budget.id)) {
+                                            setSelectedBudgets(selectedBudgets.filter(s => s !== budget.id))
+                                        } else {
+                                            setSelectedBudgets([...selectedBudgets, budget.id])
+                                        }
+                                    }} /> <span className="text-xs">{budget.name}</span>
                             </div>
                         })}
                         {budgets.length === 0 && <div className='text-sm text-gray-400'>
@@ -216,39 +234,46 @@ const Filter = ({
                         <div className='text-sm text-gray-400'>
                             Direction
                         </div>
-                        <RadioGroup
-                            row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
-                            value={selectedDirection}
-                            onChange={(val) => setSelectedDirection(val.target.value)}
-                        >
-                            <FormControlLabel value="Any" control={<Radio sx={mainCheckBox} />} label="Any" />
-                            <FormControlLabel value="In" control={<Radio sx={mainCheckBox} />} label="In" />
-                            <FormControlLabel value="Out" control={<Radio sx={mainCheckBox} />} label="Out" />
-                        </RadioGroup>
+                        <div className=''>
+                            <RadioGroup
+                                className='flex !flex-row'
+                                name="row-radio-buttons-group"
+                                value={selectedDirection}
+                                onChange={(val) => setSelectedDirection(val.target.value)}
+                            >
+                                <FormControlLabel
+                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
+                                    value="Any" className="0.75rem" control={<Radio sx={mainCheckBox} />} label="Any" />
+                                <FormControlLabel
+                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
+                                    value="In" className="0.75rem" control={<Radio sx={mainCheckBox} />} label="In" />
+                                <FormControlLabel
+                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
+                                    value="Out" className="0.75rem" control={<Radio sx={mainCheckBox} />} label="Out" />
+                            </RadioGroup>
+                        </div>
                     </div>
                     <div className='flex flex-col space-y-1 mt-5'>
-                        <div className='text-sm text-gray-400'>
+                        <div className='text-xs text-gray-400'>
                             Specific Amount
                         </div>
-                        <input className='border p-1 rounded-md' value={specificAmount} onChange={(val) => changeSpecificAmount(val.target.value)} type="number" step={0.1} />
+                        <input className='border p-1 rounded-md h-7' value={specificAmount} onChange={(val) => changeSpecificAmount(val.target.value)} type="number" step={0.1} />
                     </div>
                     <div className='grid grid-cols-[40%,20%,40%] mt-5 w-full'>
                         <div className='flex flex-col'>
-                            <div className='text-sm text-gray-400'>
+                            <div className='text-xs text-gray-400'>
                                 Min
                             </div>
-                            <input className='border p-1 rounded-md' value={minAmount} onChange={(val) => changeMinAmount(val.target.value)} type="number" step={0.1} />
+                            <input className='border p-1 rounded-md h-7' value={minAmount} onChange={(val) => changeMinAmount(val.target.value)} type="number" step={0.1} />
                         </div>
                         <div className='flex items-center translate-y-3 justify-center'>
                             <div className='w-[80%] h-[1px] bg-gray-400' />
                         </div>
                         <div className='flex flex-col'>
-                            <div className='text-sm text-gray-400'>
+                            <div className='text-xs text-gray-400'>
                                 Max
                             </div>
-                            <input className='border p-1 rounded-md' value={maxAmount} onChange={(val) => changeMaxAmount(val.target.value)} type="number" step={0.1} />
+                            <input className='border p-1 rounded-md h-7' value={maxAmount} onChange={(val) => changeMaxAmount(val.target.value)} type="number" step={0.1} />
                         </div>
                     </div>
                 </AccordionDetails>
@@ -260,14 +285,19 @@ const Filter = ({
                 <AccordionDetails>
                     <div className='flex flex-col'>
                         {accounts.map((account) => {
-                            return <div key={account.id} className='flex space-x-2 items-center'>
-                                <Checkbox classes={mainColor} checked={selectedAccounts.includes(account.address)} onChange={() => {
-                                    if (selectedAccounts.includes(account.address)) {
-                                        setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))
-                                    } else {
-                                        setSelectedAccounts([...selectedAccounts, account.address])
-                                    }
-                                }} /> {account.name}
+                            return <div key={account.id} className='flex space-x-1 items-center'>
+                                <Checkbox
+                                    style={{
+                                        transform: "scale(0.75)",
+                                        padding: 0
+                                    }}
+                                    classes={mainColor} checked={selectedAccounts.includes(account.address)} onChange={() => {
+                                        if (selectedAccounts.includes(account.address)) {
+                                            setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))
+                                        } else {
+                                            setSelectedAccounts([...selectedAccounts, account.address])
+                                        }
+                                    }} /> <span className="text-xs font-medium">{account.name}</span>
                             </div>
                         })}
                         {accounts.length === 0 && <div className='text-sm text-gray-400'>

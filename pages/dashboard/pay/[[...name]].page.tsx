@@ -357,7 +357,7 @@ const Pay = () => {
                                 </div>
                             </div>
                             {index === 0 && <div className="py-5 sm:py-0 w-full gap-16">
-                                <div className="w-[50%] flex gap-4 items-center">
+                                <div className="flex gap-4 items-center">
                                     <Button version="second" className="min-w-[8rem] bg-white !px-3 font-semibold tracking-wide shadow-none text-xs text-center" onClick={() => {
                                         setInputs([...inputs, {
                                             id: nanoid(),

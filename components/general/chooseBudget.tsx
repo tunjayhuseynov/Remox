@@ -70,7 +70,7 @@ function ChooseBudget({submit} : IProps) {
 
 
     return <>
-        <div className="bg-light dark:bg-dark h-full relative pr-1 overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
+        <div className="bg-light dark:bg-dark h-full relative pr-1 overflow-y-auto overflow-x-hidden bottom-0 right-0 cursor-default">
             <div className="w-[25%] mx-auto py-8 flex flex-col gap-5 ">
                 <div className="text-xl font-semibold py-6 text-center">
                     Choose account and budget
@@ -85,7 +85,8 @@ function ChooseBudget({submit} : IProps) {
                                 setSelect={setAccount as any} />
                         </div>
                     </div>
-                    {budgets.length > 0 && <div className="flex flex-col gap-2 w-full">                        <Dropdown
+                    {budgets.length > 0 && <div className="flex flex-col gap-2 w-full">
+                        <Dropdown
                             selectClass={'py-2'}
                             label="Choose Budget"
                             list={budgets}
@@ -101,15 +102,15 @@ function ChooseBudget({submit} : IProps) {
                             setSelect={setSubbudget}
                         />
                     </div>}
-                        <div className="w-full pt-4">
-                            <Button 
-                              type="submit" 
-                              isLoading={loading}
-                              onClick={() => onSubmit()}
-                              className={'flex w-full items-center justify-center !py-2 rounded-xl'} >
-                                Execute
-                            </Button>
-                        </div>
+                    <div className="w-full pt-4">
+                        <Button
+                            type="submit"
+                            isLoading={loading}
+                            onClick={() => onSubmit()}
+                            className={'flex w-full items-center justify-center !py-2 rounded-xl'} >
+                            Execute
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

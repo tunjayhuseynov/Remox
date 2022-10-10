@@ -109,7 +109,7 @@ const ProfileSetting = () => {
 
     return <div className="py-5 grid grid-flow-row grid-rows-6 space-y-2">
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <div className="text-lg font-semibold self-center">Fiat Currency</div>
+            <div className="text-lg font-medium self-center">Fiat Currency</div>
             <div className="flex w-2/3">
                 <Dropdown
                     parentClass="w-full"
@@ -124,7 +124,7 @@ const ProfileSetting = () => {
             <div></div>
         </div>
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <div className="text-lg font-semibold self-center">Token Price Calculation</div>
+            <div className="text-lg font-medium self-center">Token Price Calculation</div>
             <div className="flex w-2/3">
                 <Dropdown
                     parentClass="w-full"
@@ -147,11 +147,12 @@ const ProfileSetting = () => {
         </div>
         {isOrganization &&
             <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-                <div className="text-lg font-semibold self-center">Organisation Photo</div>
+                <div className="text-lg font-medium self-center">Organisation Photo</div>
                 <div className="flex">
                     <EditableAvatar
                         avatarUrl={(typeof organization?.image?.imageUrl === "string" ? organization?.image?.imageUrl : null) ?? organization?.image?.nftUrl ?? null}
                         name={id ?? "random"}
+                        size={3}
                         blockchain={blockchain}
                         evm={blockchain.name !== "solana"}
                         userId={id ?? undefined}
@@ -162,12 +163,12 @@ const ProfileSetting = () => {
             </div>}
         {isOrganization &&
             <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-                <div className="text-lg font-semibold self-center">Organisation Name</div>
+                <div className="text-lg font-medium self-center">Organisation Name</div>
                 <EditableTextInput defaultValue={organization?.name ?? ""} onSubmit={onOrganizationNameChange} placeholder="Name" />
             </div>
         }
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <span className="text-lg font-semibold self-center">Your Photo</span>
+            <span className="text-lg font-medium self-center">Your Photo</span>
             <div className="flex">
                 <EditableAvatar
                     avatarUrl={(typeof individual?.image?.imageUrl === "string" ? individual?.image?.imageUrl : null) ?? individual?.image?.nftUrl ?? null}
@@ -182,7 +183,7 @@ const ProfileSetting = () => {
             <div></div>
         </div>
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <div className="text-lg font-semibold self-center">Your Name</div>
+            <div className="text-lg font-medium self-center">Your Name</div>
             <EditableTextInput defaultValue={individual?.name ?? ""} onSubmit={onIndividualNameChange} placeholder="Individual account name" />
             <div></div>
         </div>

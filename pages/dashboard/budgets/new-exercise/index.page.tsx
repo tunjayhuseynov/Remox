@@ -81,9 +81,27 @@ function NewExercise() {
         <form onSubmit={handleSubmit(submit)} className="w-3/5 mx-auto pt-10">
             <div className="text-xl text-center font-medium py-6">Define  of your budgetary exercise</div>
             <div className="px-12 flex flex-col space-y-12">
-                <TextField type="text" {...register("name", { required: true })} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
+                <TextField 
+                InputProps={{
+                    style: {
+                        fontSize: '0.75rem'
+                    }
+                }}
+                InputLabelProps={{
+                    style: {
+                        fontSize: '0.75rem'
+                    }
+                }}
+                type="text" {...register("name", { required: true })} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
                 <div>
                     <Dropdown
+                        labelSX={{
+                            fontSize: '0.75rem'
+                        }}
+                        sx={{
+                            fontSize: '0.75rem'
+                        }}
+                        textClass="text-xs"
                         parentClass={'bg-white dark:bg-darkSecond w-full rounded-lg h-full'}
                         label="Dates  of the budgetary exercise"
                         list={paymentType}
@@ -126,7 +144,7 @@ function CustomRangeInput({ openCalendar, value }: any) {
 
     return (
         <input
-        className='dark:bg-darkSecond h-14 pl-3 border border-gray-300 dark:border-gray-600 w-full rounded-md'
+        className='dark:bg-darkSecond h-14 pl-3 text-xs border border-gray-300 dark:border-gray-600 w-full rounded-md'
             onFocus={openCalendar}
             value={value}
             readOnly

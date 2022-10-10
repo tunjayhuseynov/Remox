@@ -40,7 +40,7 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                             <button onClick={() => close(false)} className="absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                                 <img src="/icons/cross_greylish.png" alt="" />
                             </button>
-                            <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Budgets Details</div>
+                            <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Budget Details</div>
                             <div className="flex items-center justify-between w-full">
                                 <div className="text-xl font-bold">{item.name}</div>
                                 <div className="flex items-center gap-5">

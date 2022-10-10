@@ -88,6 +88,11 @@ const Transactions = () => {
 
         if ('tx' in c) {
             const tx = c.tx
+            let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
+            if (tx.method === ERC20MethodIds.swap) {
+                const swap = tx as ISwap
+                amount = swap?.amountIn && swap?.coinIn ? DecimalConverter(swap.amountIn, swap.coinIn.decimals) : undefined
+            }
 
             if (selectedDirection !== "Any") {
                 if (selectedDirection === "In") return false
@@ -100,12 +105,18 @@ const Transactions = () => {
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
 
-            if (specificAmount && (tx.amount ?? 0) !== specificAmount) return false
-            if (minAmount && (tx.amount ?? tx.payments?.reduce((a, c) => a += +c.amount, 0) ?? Number.MAX_VALUE) < minAmount) return false
-            if (maxAmount && (tx.amount ?? tx.payments?.reduce((a, c) => a += +c.amount, 0) ?? 0) > maxAmount) return false
+            if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
+            if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
+            if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
         } else {
             // console.log(selectedAccounts, c.address)
             const tx = c as any
+            let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
+            if (tx.method === ERC20MethodIds.swap) {
+                const swap = tx as ISwap
+                amount = swap?.amountIn && swap?.coinIn ? DecimalConverter(swap.amountIn, swap.coinIn.decimals) : undefined
+            }
+
             if (selectedDirection !== "Any") {
                 if (selectedDirection === "In" && c.address.toLowerCase() === c.rawData.from.toLowerCase()) return false
                 if (selectedDirection === "Out" && c.address.toLowerCase() !== c.rawData.from.toLowerCase()) return false
@@ -116,10 +127,10 @@ const Transactions = () => {
             if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
-
-            if (specificAmount && (tx?.amount ?? 0) !== specificAmount) return false
-            if (minAmount && (tx?.amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += +c.amount, 0) ?? Number.MAX_VALUE) < minAmount) return false
-            if (maxAmount && (tx?.amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += +c.amount, 0) ?? 0) > maxAmount) return false
+            if (tx.method === ERC20MethodIds.repay) console.log(tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0))
+            if (specificAmount && (amount ?? 0) !== specificAmount) return false
+            if (minAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0) < minAmount) return false
+            if (maxAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE) > maxAmount) return false
         }
 
         if (date && date.length === 1) {
@@ -241,9 +252,9 @@ const Transactions = () => {
                                 {
                                     (minAmount || maxAmount) &&
                                     <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        {minAmount && <div>Min: {minAmount}</div>}
-                                        {(minAmount && maxAmount) && <div>-</div>}
-                                        {maxAmount && <div>Max: {maxAmount}</div>}
+                                        {!!minAmount && <div>Min: {minAmount}</div>}
+                                        {(!!minAmount && !!maxAmount) && <div>-</div>}
+                                        {!!maxAmount && <div>Max: {maxAmount}</div>}
                                         <div className="pl-3 cursor-pointer" onClick={() => {
                                             setMinAmount(undefined)
                                             setMaxAmount(undefined)
