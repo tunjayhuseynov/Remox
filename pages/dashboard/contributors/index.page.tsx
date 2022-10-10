@@ -127,7 +127,6 @@ const Contributors = () => {
             </div>
         </div>
         }
-
     </div >
 }
 

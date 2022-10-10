@@ -28,6 +28,8 @@ import { GetFiatPrice } from "utils/const";
 import { fiatList } from "components/general/PriceInputField";
 import ChooseBudget from "components/general/chooseBudget";
 import { NG } from "utils/jsxstyle";
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
+import { IAccountORM } from "pages/api/account/index.api";
 
 
 const RequestedUserItem = ({
@@ -56,9 +58,7 @@ const RequestedUserItem = ({
   const [detect, setDetect] = useState(true);
   const [chooseBudget, setChooseBudget] = useState<boolean>(false)
 
-
   const divRef = useRef<HTMLTableRowElement>(null);
-  const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget);
   
   const dispatch = useDispatch();
   const { rejectRequest, approveRequest, removeRequest } = useRequest();
@@ -107,7 +107,7 @@ const RequestedUserItem = ({
     setModal(false)
   }
 
-  const Execute = async () => {
+  const Execute = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
     let inputs: IPaymentInput[] = [];
     const amount = request.amount
     if (request.fiat) {
@@ -147,8 +147,9 @@ const RequestedUserItem = ({
       }
     }
 
-    await SendTransaction(accountAndBudget.account!, inputs, {
-      budget: accountAndBudget.budget,
+    await SendTransaction(account!, inputs, {
+      budget: budget,
+      subbudget: subbudget
     })
 
     dispatch(removeApprovedRequest(request.id));

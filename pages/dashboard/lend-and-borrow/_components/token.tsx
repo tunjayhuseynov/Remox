@@ -20,7 +20,7 @@ const TokenItem = ({asset}: {asset: LendingReserveData}) => {
                 <div className="text-lg font-medium h-6">{coin?.symbol}</div>
             </div>
             <div className="text-lg font-medium w-16 text-right">
-                {asset.coinReserveConfig.LoanToValue}%
+                {asset.coinReserveConfig.LoanToValue}
             </div>
 
             <div className="flex flex-col ">

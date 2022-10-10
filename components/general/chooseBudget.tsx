@@ -10,11 +10,13 @@ import { useWalletKit } from 'hooks';
 import { IAccountORM } from "pages/api/account/index.api";
 
 
-function ChooseBudget({submit} : {submit: ({ account, budget, subbudget }: {
-    account: IAccountORM | undefined;
-    budget?: IBudgetORM | undefined;
-    subbudget?: ISubbudgetORM | undefined;
-}) => Promise<void>}) {
+interface IProps { 
+    submit: (account: IAccountORM | undefined, 
+        budget?: IBudgetORM | null, 
+        subbudget?: ISubbudgetORM | null) => Promise<void>
+}
+
+function ChooseBudget({submit} : IProps) {
 
     const budgets = useAppSelector(SelectAllBudgets);
     const providerAddress = useAppSelector(SelectProviderAddress);
@@ -29,6 +31,7 @@ function ChooseBudget({submit} : {submit: ({ account, budget, subbudget }: {
     const currentWallet = useMemo(() => accounts.find(s => s.address.toLowerCase() === providerAddress?.toLowerCase()), [providerAddress])
 
     const [selectedAccount, setAccount] = useState(currentWallet);
+    
     useEffect(() => setAccount(currentWallet), [currentWallet])
 
     const [selectedBudget, setBudget] = useState<IBudgetORM>();
@@ -59,10 +62,10 @@ function ChooseBudget({submit} : {submit: ({ account, budget, subbudget }: {
             budget: budget ?? null,
             subbudget: budget?.subbudgets.find(sb => sb.id === selectedSubbudget?.id) ?? null,
         }))
-
-        submit(selectedAccount)
-
+        
+        submit(selectedAccount, selectedBudget, selectedSubbudget)
         setLoading(false)
+
     }
 
 
