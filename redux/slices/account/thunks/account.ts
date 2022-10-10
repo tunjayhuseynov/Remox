@@ -15,21 +15,20 @@ import { RemoveTransactionFromTag } from "./tags";
 
 export const Update_Account_Name = createAsyncThunk<IAccount, { account: IAccount, name: string }>("remoxData/Update_Account_Name", async ({ account, name }) => {
     await Update_Account({ ...account, name });
-    return account;
+    return { ...account, name };
 })
 
 export const Update_Account_Mail = createAsyncThunk<IAccount, { account: IAccount, mail: string }>("remoxData/Update_Account_Mail", async ({ account, mail }) => {
-    account.mail = mail;
-    await Update_Account(account);
+    await Update_Account({ ...account, mail });
 
-    return account;
+    return { ...account, mail };
 })
 
 export const Update_Account_Image = createAsyncThunk<IAccount, { account: IAccount, image: Image }>("remoxData/Update_Account_Image", async ({ account, image }) => {
     const updatedAccount = { ...account, image }
     await Update_Account(updatedAccount);
 
-    return updatedAccount;
+    return { ...updatedAccount, image };
 })
 
 

@@ -143,6 +143,7 @@ export const init = (): IRemoxData => {
             rejectedRequests: [],
         },
         blockchain: {
+            explorerUrlAddress: "",
             multisigProviders: [],
             batchPaymentProtocols: [],
             currencyCollectionName: "",
@@ -233,6 +234,7 @@ const remoxDataSlice = createSlice({
             state.balances = {};
             state.addressBook = [];
             state.blockchain = {
+                explorerUrlAddress: "",
                 multisigProviders: [],
                 batchPaymentProtocols: [],
                 currencyCollectionName: "",
@@ -365,12 +367,12 @@ const remoxDataSlice = createSlice({
         /* Account */
 
         builder.addCase(Update_Account_Name.fulfilled, (state, action) => {
-            state.accounts = [...state.accounts.map(account => {
+            state.accounts = state.accounts.map(account => {
                 if (account.id === action.payload.id) {
                     account.name = action.payload.name;
                 }
                 return account;
-            })]
+            })
         })
 
         builder.addCase(Update_Account_Mail.fulfilled, (state, action) => {
@@ -383,12 +385,12 @@ const remoxDataSlice = createSlice({
         })
 
         builder.addCase(Update_Account_Image.fulfilled, (state, action) => {
-            state.accounts = [...state.accounts.map(account => {
+            state.accounts = state.accounts.map(account => {
                 if (account.id === action.payload.id) {
                     account.image = action.payload.image;
                 }
                 return account;
-            })]
+            })
         })
 
         builder.addCase(Create_Account_For_Individual.fulfilled, (state, action) => {
