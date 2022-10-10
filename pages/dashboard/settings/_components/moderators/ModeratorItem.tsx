@@ -42,7 +42,7 @@ const ModeratorItem = ({ item }: IProps) => {
     const [deleteLoading, DeleteModerator] = useLoading(deleteModerator)
 
 
-    return <div className="grid grid-cols-[25%,15%,20%,1fr] px-5 shadow-custom py-4 dark:bg-darkSecond bg-white">
+    return <div className="grid grid-cols-[20%,15%,20%,1fr] px-5 shadow-custom py-4 dark:bg-darkSecond bg-white">
         <div className="flex items-center justify-start gap-2" >
             <EditableAvatar
                 avatarUrl={(typeof item.image?.imageUrl === "string" ? item.image?.imageUrl : null) ?? item.image?.nftUrl ?? null}
@@ -50,20 +50,20 @@ const ModeratorItem = ({ item }: IProps) => {
                 noNFT={true}
                 userId={item.address}
                 onChange={updateImage}
-                size={4.5}
+                size={3}
             />
-            <div className="flex flex-col">
+            <div className="flex flex-col w-full">
                 <div className="">
                     <EditableTextInput defaultValue={item.name} onSubmit={updateName} placeholder="Name" />
                 </div>
-                <div className="text-greylish dark:text-white text-sm mx-2">{AddressReducer(item.address)}</div>
+                <div className="text-greylish dark:text-white text-xs mx-2">{AddressReducer(item.address)}</div>
             </div>
         </div>
         <div className="flex items-center justify-center">
-            {item.address === providerAddress && <div className="flex items-center justify-center px-8 py-2 bg-primary bg-opacity-40 text-primary font-semibold border border-primary">You</div>}
+            {item.address === providerAddress && <div className="flex items-center justify-center px-8 py-2 bg-primary bg-opacity-40 text-primary font-semibold border border-primary text-xs">You</div>}
         </div>
-        <div className="flex items-center justify-center">
-            {item.mail}
+        <div className="flex items-center justify-center text-sm">
+            <EditableTextInput defaultValue={item.mail ?? ""} onSubmit={updateName} placeholder="Mail" />
         </div>
         <div className="flex space-x-3 justify-end items-center">
             <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>

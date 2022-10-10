@@ -23,11 +23,17 @@ export default ({ defaultValue, onSubmit, placeholder }: IProps) => {
     }
 
     return <>
-        <FormControl sx={{ m: 1, width: '25ch' }} variant="filled">
+        <FormControl sx={{ m: 1 }} variant="filled">
             <Input
                 value={value}
                 placeholder={placeholder ?? ""}
+                fullWidth
                 onChange={(e) => setValue(e.target.value)}
+                inputProps={{
+                    style: { 
+                        fontSize: "0.75rem",
+                    }
+                }}
                 onKeyDownCapture={(e) => {
                     if (e.key === "Enter") {
                         submit()

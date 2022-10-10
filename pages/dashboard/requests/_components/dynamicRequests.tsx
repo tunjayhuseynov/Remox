@@ -23,6 +23,8 @@ import ModalAllocation from "pages/dashboard/payroll/_components/modalpay/modalA
 import ApprovePendings from "./Modals/ApprovePendings";
 import { GetFiatPrice } from "utils/const";
 import ChooseBudget from "components/general/chooseBudget";
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
+import { IAccountORM } from "pages/api/account/index.api";
 
 export default function DynamicRequest({
   type,
@@ -72,7 +74,7 @@ export default function DynamicRequest({
     }
   }, [openNotify]);
 
-  const confirmRequest = async () => {
+  const confirmRequest = async ({account, budget, subbudget  }: {account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null}) => {
     try {
       setNotify(false)
       let inputs: IPaymentInput[] = [];

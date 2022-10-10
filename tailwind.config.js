@@ -23,6 +23,9 @@ module.exports = {
         'xl': '1.25rem',
         '2xl': '1.5rem',
         '3xl': '1.75rem',
+        '4xl': '1.875rem',
+        '5xl': '2rem',
+        '6xl': '2.125rem',
       },
       colors: {
         primary: "#FF7348",
@@ -33,8 +36,8 @@ module.exports = {
         light: '#f9f9f9'
       },
       boxShadow: {
-        custom: "0px 2px 7px 0px #dad8d8",
-        customDark: "0px 2px 7px 0px #1C1C1C"
+        custom: "0px 0px 4px 0px #dad8d8",
+        customDark: "0px 0px 4px 0px #1C1C1C"
       },
       screens: {
         '3xl': '1920px',

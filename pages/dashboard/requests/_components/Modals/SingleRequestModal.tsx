@@ -6,6 +6,7 @@ import { AltCoins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
 import { fiatList } from "components/general/PriceInputField";
+import { NG } from "utils/jsxstyle";
 
 const SingleRequestModal = ({
   request,
@@ -65,9 +66,9 @@ const SingleRequestModal = ({
             <div className="text-greylish">Requesting Amount</div>
             <div className="flex flex-col space-y-3">
               <div className="flex gap-x-3 justify-between">
-                <div className="flex gap-x-2 items-center">
-                  <span className="w-2 h-2 rounded-full bg-primary"></span>
-                  {request?.amount}
+                <div className="flex items-center">
+                  <span className="w-2 h-2 rounded-full mr-2 bg-primary"></span>
+                  <NG number={+request.amount}/>
                 </div>
                 <div className="flex gap-x-2 items-center">
                   <div className="flex items-center">
@@ -89,9 +90,9 @@ const SingleRequestModal = ({
               <div className="text-greylish">Requesting Amount 2</div>
               <div className="flex flex-col space-y-3">
                 <div className="flex gap-x-3 justify-between">
-                  <div className="flex gap-x-2 items-center">
-                    <span className="w-2 h-2 rounded-full bg-primary"></span>
-                    {request?.secondAmount}
+                  <div className="flex items-center">
+                    <span className="w-2 h-2 rounded-full mr-2 bg-primary"></span>
+                    <NG number={+request.secondAmount}/>
                   </div>
                   <div className="flex gap-x-2 items-center">
                     <div className="flex items-center">

@@ -20,9 +20,11 @@ interface IProp<T> {
     list: Array<T>,
     setSelect?: Dispatch<T>,
     runFn?: (val: T) => () => Promise<any>,
-    sx?: SxProps<Theme>
+    sx?: SxProps<Theme>,
+    labelSX?: SxProps<Theme>,
     textClass?: string,
     textContainerClass?: string,
+    inputProps?: any,
 }
 
 interface IGenericExtendedProp {
@@ -37,7 +39,7 @@ interface IGenericExtendedProp {
 }
 
 const Dropdown = <T extends IGenericExtendedProp,>(
-    { loading, selected, label, setSelect, list, className, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
+    { loading, selected, label, setSelect, list, className, labelSX = {}, inputProps = {}, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
     const [internalLaoding, setInternalLoading] = useState(false)
@@ -50,12 +52,13 @@ const Dropdown = <T extends IGenericExtendedProp,>(
     return (
         <div className={`relative ${parentClass}`}>
             <FormControl className={`${className} w-full`}>
-                {label && <InputLabel id={labelId + "-label"}>{label}</InputLabel>}
+                {label && <InputLabel sx={labelSX} id={labelId + "-label"}>{label}</InputLabel>}
                 <Select
                     id={id}
                     labelId={labelId + "-label"}
                     value={selected ?? ""}
                     displayEmpty
+                    inputProps={inputProps}
                     MenuProps={{
                         PaperProps: {
                             style: {

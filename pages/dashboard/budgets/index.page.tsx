@@ -3,7 +3,6 @@ import TotalExerciseData from 'pages/dashboard/budgets/_components/TotalExercise
 import { IoIosArrowDown } from 'react-icons/io';
 import { useAppSelector } from 'redux/hooks';
 import { SelectBudgetExercises } from 'redux/slices/account/remoxData';
-import useModalSideExit from '../../../hooks/useModalSideExit'
 import { useRouter } from 'next/router';
 import { AnimatePresence, motion } from 'framer-motion'
 import { AiOutlinePlusCircle } from 'react-icons/ai';

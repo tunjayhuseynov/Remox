@@ -65,8 +65,9 @@ const NotificationCointainer = () => {
                             if (index === limit - 1) {
                                 params.ref = ref
                             }
-                            return <NotificationItem setNotify={setNotify} item={item} index={index} addresses={addresses} blockchain={blockchain} lastSeenTime={lastSeenTime} {...params} />
+                            return <NotificationItem key={index} setNotify={setNotify} item={item} index={index} addresses={addresses} blockchain={blockchain} lastSeenTime={lastSeenTime} {...params} />
                         })}
+                        {list.length === 0 && <div className="text-center py-1">No notification yet</div>}
                     </div>
                     <div
                         className="border-t dark:border-greylish flex space-x-2 items-center justify-center py-5 text-lg font-semibold cursor-pointer text-primary hover:bg-light dark:hover:bg-dark"

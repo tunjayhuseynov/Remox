@@ -3,7 +3,7 @@ import { IAccountORM } from 'pages/api/account/index.api';
 import { Dispatch, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useAppSelector } from 'redux/hooks';
-import { SelectDarkMode } from 'redux/slices/account/selector';
+import { SelectBlockchain, SelectDarkMode } from 'redux/slices/account/selector';
 import { AddressReducer } from 'utils';
 import { RiFileCopyLine } from 'react-icons/ri'
 import { BiLinkExternal } from 'react-icons/bi';
@@ -16,6 +16,7 @@ interface IProps {
 
 const Deposit = ({ account, onDisable }: IProps) => {
     const dark = useAppSelector(SelectDarkMode)
+    const blockchain = useAppSelector(SelectBlockchain)
 
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
@@ -52,7 +53,7 @@ const Deposit = ({ account, onDisable }: IProps) => {
                             <RiFileCopyLine />
                             <Copied tooltip={tooltip} triggerRef={divRef} />
                         </div>
-                        <div>
+                        <div className="cursor-pointer" onClick={() => window.open(blockchain.explorerUrlAddress + account.address.trim())}>
                             <BiLinkExternal />
                         </div>
                     </div>

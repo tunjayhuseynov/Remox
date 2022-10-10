@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, Fragment, useMemo } from "react";
-import { AddressReducer, SetComma } from "../../../utils";
+import { AddressReducer } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
 import Modal from 'components/general/modal'
 import DeleteWallet from "./deleteWallet";
@@ -126,7 +126,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     <div className="flex flex-col gap-5 py-2 px-3 items-start border-r dark:border-[#454545]">
                         <div className="grid grid-flow-row">
                             <div className="text-greylish text-xs">Total Value</div>
-                            <div className="text-lg font-semibold truncate">
+                            <div className="text-sm font-semibold truncate">
                                 <Tooltip title={<>{symbol}{totalValue.toFixed(1)}</>}>
                                     <>{symbol}{totalValue.toFixed(1)}</>
                                 </Tooltip>
@@ -137,7 +137,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                             <AvatarGroup max={3} className={`${item.members.length <= 3 ? "flex-row" : ""}`}>
                                 {
                                     item.members.map((member, index) =>
-                                        <Avatar key={member.id} sizes="0.5rem" alt={member.name} src={member.address.toLowerCase() === providerID?.toLowerCase() ? individual?.image?.imageUrl ?? makeBlockie(member.address) : member?.image?.imageUrl ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
+                                        <Avatar key={member.id} sx={{ width: "1.25rem!important", height: "1.25rem!important" }} alt={member.name} src={member.address.toLowerCase() === providerID?.toLowerCase() ? individual?.image?.imageUrl ?? makeBlockie(member.address) : member?.image?.imageUrl ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
                                 }
                             </AvatarGroup>
                         </div>

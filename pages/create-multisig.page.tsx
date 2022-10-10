@@ -83,6 +83,7 @@ function CreateMultisig() {
             let multisig: IAccount;
             if (isCreate) {
                 if (owners.length === 0) throw new Error("No owners added")
+                if ((data.threshold ?? 0) > owners.length) throw new Error("Threshold is greater than number of owners")
                 if (!address) throw new Error("No address")
                 const Owners = [...owners, { name: data.ownerName, address }]
 
@@ -176,8 +177,8 @@ function CreateMultisig() {
         <form onSubmit={handleSubmit(OnSubmit)} className="py-[10rem] sm:py-0 sm:h-full " >
             <section className="flex flex-col items-center h-full  gap-6 pt-36">
                 <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="text-xl sm:text-3xl  dark:text-white text-center font-semibold">Set Account Details</div>
-                    <div className="flex  pt-2 w-full justify-between">
+                    <div className="text-6xl dark:text-white text-center font-semibold">Set Account Details</div>
+                    <div className="flex px-10 pt-2 w-full justify-between">
                         <AnimatedTabBar data={pages} index={index} className={'!text-lg'} />
                     </div>
                 </div>
@@ -201,6 +202,12 @@ function CreateMultisig() {
                     </div> */}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <Dropdown
+                            inputProps={{ style: { fontSize: '0.75rem' } }}
+                            labelSX={{
+                                fontSize: '0.75rem',
+                                top: 2
+                            }}
+                            className='bg-light dark:bg-darkSecond'
                             list={multisigProviders}
                             selected={selectedProvider}
                             setSelect={setSelectedProvider}
@@ -209,27 +216,93 @@ function CreateMultisig() {
                     </div>
                     {!isCreate && <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className={`flex items-center gap-3 w-full rounded-lg`}>
-                            <TextField label="Multisig Address" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder='E.g. 0xabcd...' />
+                            <TextField
+                                InputLabelProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                InputProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                label="Multisig Address" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder='E.g. 0xabcd...' />
                         </div>
                     </div>}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <div className={` flex items-center gap-3 w-full rounded-lg`}>
-                            <TextField label="Name"  {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />
+                            <TextField
+                                InputLabelProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                InputProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                label="Name"  {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />
                         </div>
                     </div>
 
-                    <div className='flex flex-col space-y-5'>
-                        {isCreate && <div className="text-greylish opacity-35 w-full">{isCreate ? "Owners" : "You"}</div>}
+                    <div className='flex flex-col space-y-5 w-full'>
+                        {isCreate && <div className="text-greylish opacity-35 w-full text-xs">{isCreate ? "Owners" : "You"}</div>}
                         <div className="grid grid-cols-[25%,5%,70%]">
-                            <TextField {...register("ownerName")} className="cursor-pointer border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" label="Name" />
+                            <TextField
+                                InputLabelProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                InputProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                {...register("ownerName")} className="cursor-pointer border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" label="Name" />
                             <div></div>
-                            <TextField disabled className="cursor-pointer border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={address !== null ? `${AddressReducer(address)} (You)` : ""} />
+                            <TextField
+                                InputLabelProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                InputProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                disabled className="cursor-pointer border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={address !== null ? `${AddressReducer(address)} (You)` : ""} />
                         </div>
                         {isCreate && owners.map((w, i) => {
                             return <div key={w.id} className="relative grid grid-cols-[25%,5%,70%]">
-                                <TextField type="text" label="Name" className="cursor-pointer rounded-md  dark:bg-darkSecond" value={w.name} onChange={(e) => changeOwner(w.id, e.target.value, w.address)} />
+                                <TextField
+                                    InputLabelProps={{
+                                        style: {
+                                            fontSize: "0.75rem"
+                                        }
+                                    }}
+                                    InputProps={{
+                                        style: {
+                                            fontSize: "0.75rem"
+                                        }
+                                    }}
+                                    type="text" label="Name" className="cursor-pointer rounded-md  dark:bg-darkSecond" value={w.name} onChange={(e) => changeOwner(w.id, e.target.value, w.address)} />
                                 <div></div>
-                                <TextField type="text" label="Address" className="cursor-pointer ml-4 rounded-md  bg-greylish bg-opacity-20  dark:bg-darkSecond" onChange={(e) => changeOwner(w.id, w.name, e.target.value)} value={w.address !== null ? AddressReducer(w.address) : ""} />
+                                <TextField
+                                    InputLabelProps={{
+                                        style: {
+                                            fontSize: "0.75rem"
+                                        }
+                                    }}
+                                    InputProps={{
+                                        style: {
+                                            fontSize: "0.75rem"
+                                        }
+                                    }}
+                                    type="text" label="Address" className="cursor-pointer ml-4 rounded-md  bg-greylish bg-opacity-20  dark:bg-darkSecond" onChange={(e) => changeOwner(w.id, w.name, e.target.value)} value={w.address !== null ? AddressReducer(w.address) : ""} />
                                 <div className="absolute right-0 top-1/2 translate-x-[150%] -translate-y-1/2 cursor-pointer" onClick={() => removeOwner(w.id)}>
                                     <BiTrash />
                                 </div>
@@ -240,16 +313,27 @@ function CreateMultisig() {
                         </div>}
                     </div>
                     {isCreate && <div className="flex flex-col mb-4 space-y-5 w-full">
-                        <span className="text-greylish opacity-35 ">Minimum confirmations required for any transactions</span>
+                        <span className="text-greylish opacity-35 text-xs">Minimum confirmations required for any transactions</span>
                         <div className="space-x-5 flex justify-start items-center">
-                            <TextField type="number" {...register("threshold", { required: true, valueAsNumber: true, max: (owners.length + 1) })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value) && +e.target.value <= owners.length + 1) { setSign(+e.target.value || undefined) } }} />
-                            <p className="text-greylish w-[30%]">out of {owners.length + 1} owners</p>
+                            <TextField
+                                InputLabelProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                InputProps={{
+                                    style: {
+                                        fontSize: "0.75rem"
+                                    }
+                                }}
+                                type="number" {...register("threshold", { required: true, valueAsNumber: true, max: (owners.length + 1) })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value) && +e.target.value <= owners.length + 1) { setSign(+e.target.value || undefined) } }} />
+                            <p className="text-greylish text-xs">out of {owners.length + 1} owners</p>
                         </div>
                     </div>}
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 min-w-[26%] pb-10">
-                    <Button version="second" onClick={() => navigate.push('/create-organization')}>Back</Button>
-                    <Button type="submit" isLoading={isLoading}>{isCreate ? "Create" : "Import"}</Button>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 w-full pb-10">
+                        <Button version="second" onClick={() => navigate.push('/create-organization')}>Back</Button>
+                        <Button type="submit" isLoading={isLoading}>{isCreate ? "Create" : "Import"}</Button>
+                    </div>
                 </div>
             </section>
         </form>

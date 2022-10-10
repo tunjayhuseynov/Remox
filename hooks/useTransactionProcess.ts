@@ -248,9 +248,8 @@ export default async (
         method: ERC20MethodIds.transferFrom,
         id: ERC20MethodIds.transferFrom,
         coin: coin,
-        from: result.inputs[0],
-        to: result.inputs[1],
-        amount: (result.inputs[2] as BigNumber).toString(),
+        to: result.inputs[0],
+        amount: (result.inputs[1] as BigNumber).toString(),
         tags: theTags,
       };
     }
@@ -338,7 +337,7 @@ export default async (
         );
 
         let decoder = new InputDataDecoder(ERC20);
-        let erc = decoder.decodeData(splitData.length > 1 ? `0x23b872dd${splitData[i+1]}` : result.inputs[2]);
+        let erc = decoder.decodeData(splitData.length > 1 ? `0x23b872dd${splitData[i + 1]}` : result.inputs[2]);
         if (coin && (erc.method === ERC20MethodIds.transferFrom || erc.method === ERC20MethodIds.transfer)) {
           txList.push({
             coin: coin,

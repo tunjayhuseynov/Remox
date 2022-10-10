@@ -206,7 +206,7 @@ function NewWalletModal() {
                                 fontSize: "0.75rem"
                             }
                         }}
-                        type="text" {...register("name", { required: true })} label="Wallet Name" placeholder="E.g. Remox DAO" className="w-full" />
+                        type="text" {...register("name", { required: true })} label="Wallet Name" className="w-full" />
                 </div>
                 <div className="flex flex-col gap-1">
                     <TextField
@@ -215,7 +215,7 @@ function NewWalletModal() {
                                 fontSize: "0.75rem"
                             }
                         }}
-                        type="text" {...register("address", { required: true })} label="Wallet Address" placeholder="E.g. 0xabcd..." className="w-full" />
+                        type="text" {...register("address", { required: true })} label="Wallet Address" className="w-full" />
                 </div>
                 <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
                     <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { navigate.back() }}>

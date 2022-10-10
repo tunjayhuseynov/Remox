@@ -99,7 +99,7 @@ const SingleTransactionItem = ({
         <td className="text-left">
           <div className="relative inline">
             <span className="font-medium text-sm">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
-            <span className="text-xxs text-gray-400 absolute translate-y-[120%] left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
+            <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
           </div>
         </td>
         <td className="text-left">
@@ -204,7 +204,7 @@ const SingleTransactionItem = ({
               </div>
             </div>
             <div className="h-3 w-full rounded-lg bg-gray-300 relative" >
-              <div className="absolute left-0 top-0 h-3 bg-green-500 rounded-lg" style={{
+              <div className="absolute left-0 top-0 h-2 bg-green-500 rounded-lg" style={{
                 width: 100 + "%"
               }} />
             </div>

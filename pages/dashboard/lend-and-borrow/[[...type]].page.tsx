@@ -1,13 +1,25 @@
 import AnimatedTabBar from 'components/animatedTabBar';
 import Button from 'components/button';
+import useAsyncEffect from 'hooks/useAsyncEffect';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import DynamicLendBorrow from './_components/dynamicLendBorrow';
+import useLending, { LendingReserveData } from 'rpcHooks/useLending';
+import TokenItem from './_components/token';
 
 const Lendborrow = () => {
     const router = useRouter()
     const { type } = router.query as { type: string[] | undefined }
     const [tokenData, setTokenData] = useState('Variable')
+    const {getReservesData} = useLending()
+    const [reservesData, setReservesData] = useState<LendingReserveData[]>([]);
+
+    useAsyncEffect(async () => {
+        const reserveDatas = await getReservesData()
+        setReservesData(reserveDatas)
+        console.log(reserveDatas)
+
+    }, [])
+
     const [apy, setApy] = useState(false)
 
     const data = [
@@ -138,26 +150,19 @@ const Lendborrow = () => {
             </div>
         </div>
     </div>
-    <div className="w-full pt-4 pb-6">
-        <div id="header" className="grid grid-cols-[20%,15%,15%,15%,15%,20%] bg-[#F2F2F2] shadow-15 py-2 items-center  dark:bg-[#2F2F2F] rounded-md mb-6     ">
-            <div className="font-semibold text-greylish  dark:text-[#aaaaaa] pl-3">Asset Name</div>
-            <div className="font-semibold text-greylish  dark:text-[#aaaaaa]  w-16 text-right">LTV</div>
-            <div className="font-semibold text-greylish  dark:text-[#aaaaaa] w-28 text-right">Total Supply</div>
-            <div className="font-semibold text-greylish  dark:text-[#aaaaaa] w-28 text-right">Supply {!apy ? 'APY' : 'APR'}</div>
-            <div className="font-semibold text-greylish  dark:text-[#aaaaaa] w-28 text-right">Total Borrow</div>
-            <div className="font-semibold text-greylish dark:text-[#aaaaaa] w-28 text-right">Borrow {!apy ? 'APY' : 'APR'}</div>
-        </div>
-        <div>
-
-        </div>
-
-    </div>
-    {/* <div className="flex  pt-8 w-[30%] justify-between">
-        <AnimatedTabBar data={data} index={index} className={'!text-2xl'} />
-    </div> */}
-    {/* <div className="pt-3 pb-10">
-        <DynamicLendBorrow type={!type || type[0].toLowerCase() === "lend" ? "lend" : "borrow"} />
-    </div> */}
+    <table className="w-full pt-4 pb-6">
+        <thead>
+            <tr id="header" className="grid grid-cols-[20%,15%,15%,15%,15%,20%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
+                <th className="font-semibold text-sm text-left text-greylish  dark:text-[#aaaaaa] pl-3">Asset Name</th>
+                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]  w-16 text-right">LTV</th>
+                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Total Supply</th>
+                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Supply {!apy ? 'APY' : 'APR'}</th>
+                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Total Borrow</th>
+                <th className="font-semibold text-sm text-greylish dark:text-[#aaaaaa]">Borrow {!apy ? 'APY' : 'APR'}</th>
+            </tr>
+            {reservesData.map((token,index) =>  <TokenItem key={index} asset={token} />)}
+        </thead>
+    </table>
 </div>
 }
 

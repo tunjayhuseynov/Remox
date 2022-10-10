@@ -81,7 +81,7 @@ const CreateOrganization = () => {
     <div className="py-[6.25rem] sm:py-0 sm:h-full" >
       <section className="flex flex-col items-center justify-center space-y-2 h-full gap-6 pt-20">
         <div className="flex flex-col gap-4">
-          <div className="text-xl sm:text-3xl  dark:text-white text-center font-bold">Set Account Details</div>
+          <div className="text-xl sm:text-4xl dark:text-white text-center font-bold">Set Account Details</div>
         </div>
         <div className="flex flex-col space-y-8 px-3 gap-1 items-center justify-center min-w-[25%]">
           <EditableAvatar
@@ -96,6 +96,16 @@ const CreateOrganization = () => {
             <TextField
               label="Organization Name"
               variant="outlined"
+              InputLabelProps={{
+                style: {
+                  fontSize: "1rem"
+                }
+              }}
+              InputProps={{
+                style: {
+                  fontSize: "1rem"
+                }
+              }}
               className="w-full"
               onChange={(e) => setName(e.target.value)}
               inputProps={{ required: true, name: "name", placeholder: "E.g: Remox DAO" }}

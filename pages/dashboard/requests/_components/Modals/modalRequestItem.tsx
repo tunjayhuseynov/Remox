@@ -7,6 +7,7 @@ import dateFormat from 'dateformat';
 import { useAppSelector } from 'redux/hooks';
 import { SelectOwners } from 'redux/slices/account/remoxData';
 import { fiatList } from "components/general/PriceInputField";
+import { NG } from 'utils/jsxstyle';
 
 
 const ModalRequestItem = ({ request }: { request: IRequest }) => {
@@ -52,7 +53,7 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
       </td>
       <td className="flex flex-col justify-center text-sm">
         <div className="flex items-center">
-          <div className="flex items-center mr-3">
+          <div className="flex items-center mr-2">
             {
               request.fiat ? (
                 <div className="relative">
@@ -63,11 +64,11 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
             }
           </div>
           <div className="flex items-center">
-              {request?.amount}
+              <NG number={+request.amount}/>
           </div>
           </div>
           {(request.secondAmount && request.secondCurrency) && <div className="flex items-center">
-            <div className="flex items-center mr-3">
+            <div className="flex items-center mr-2">
               {
                 request.fiat ? (
                   <div className="relative">
@@ -78,7 +79,7 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
               }
             </div>
             <div className="flex items-center">
-                {request?.secondAmount}
+                <NG number={+request.secondAmount}/>
             </div>
           </div>}
       </td>
