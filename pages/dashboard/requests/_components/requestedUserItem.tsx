@@ -18,7 +18,7 @@ import {
 } from "redux/slices/account/remoxData";
 import { Checkbox } from "@mui/material";
 import Avatar from "components/avatar";
-import { SelectID, SelectSelectedAccountAndBudget } from "redux/slices/account/remoxData";
+import { SelectID } from "redux/slices/account/remoxData";
 import { useAppSelector } from "redux/hooks";
 import useLoading from "hooks/useLoading";
 import { AiOutlineClose } from "react-icons/ai";
@@ -30,6 +30,7 @@ import ChooseBudget from "components/general/chooseBudget";
 import { NG } from "utils/jsxstyle";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IAccountORM } from "pages/api/account/index.api";
+import CurrencyElement from "components/general/CurrencyElement";
 
 
 const RequestedUserItem = ({
@@ -279,36 +280,10 @@ const RequestedUserItem = ({
           )}
         </td>
         <td className="flex flex-col justify-center text-sm space-y-4">
-            <div className="flex items-center">
-              <div className="flex items-center mr-2">
-                {
-                  request.fiat ? (
-                    <div className="relative">
-                      <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
-                      <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
-                    </div>
-                    ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
-                }
-              </div>
-              <div className="flex items-center">
-                  <NG number={+request.amount} />
-              </div>
-            </div>
-            {(request.secondAmount && request.secondCurrency) && <div className="flex items-center">
-              <div className="flex items-center mr-2">
-                {
-                  request.fiatSecond ? (
-                    <div className="relative">
-                      <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
-                      <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
-                    </div>
-                    ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
-                }
-              </div>
-              <div className="flex items-center">
-                <NG number={+request.secondAmount}/>
-              </div>
-            </div>}
+            <CurrencyElement fiat={request.fiat} coin={coin1} amount={request.amount} />
+            {(request.secondAmount && request.secondCurrency) && 
+              <CurrencyElement fiat={request.fiatSecond} coin={coin2!} amount={request.secondAmount} />
+            }
         </td>
         <td className="items-center flex text-sm font-medium ">
           {request.requestType}
