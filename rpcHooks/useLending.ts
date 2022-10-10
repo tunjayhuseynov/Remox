@@ -269,6 +269,7 @@ export default function useLending() {
                     liquidityIndex: printRay(reserveData.liquidityIndex),
                     variableBorrowIndex: printRay(reserveData.variableBorrowIndex),
                     coinReserveConfig: {
+                        Address: address,
                         Decimals: BN(ltv.decimals).toNumber(),
                         LoanToValue: `${BN(ltv.ltv).div(BN(100))}%`,
                         LiquidationThreshold: `${BN(ltv.liquidationThreshold).div(BN(100))}%`,
@@ -310,9 +311,6 @@ export default function useLending() {
             const ltv = await moola.methods.getReserveConfigurationData(asset).call()
             const reserveData = await data.call()
 
-
-
-
             return {
                 availableLiquidity: print(reserveData.availableLiquidity),
                 rawAvailableLiquidity: reserveData.availableLiquidity,
@@ -326,6 +324,7 @@ export default function useLending() {
                 liquidityIndex: printRay(reserveData.liquidityIndex),
                 variableBorrowIndex: printRay(reserveData.variableBorrowIndex),
                 coinReserveConfig: {
+                    Address: asset,
                     Decimals: BN(ltv.decimals).toNumber(),
                     LoanToValue: `${BN(ltv.ltv).div(BN(100))}%`,
                     LiquidationThreshold: `${BN(ltv.liquidationThreshold).div(BN(100))}%`,
@@ -420,6 +419,7 @@ export default function useLending() {
                         variableBorrowIndex: "0",
                         lastUpdateTimestamp: "0",
                         coinReserveConfig: {
+                            Address: "",
                             Decimals: 0,
                             LoanToValue: "0",
                             LiquidationThreshold: "0",
@@ -584,6 +584,7 @@ export interface LendingUserData {
 }
 
 export interface LendingReserveConfig {
+    Address: string,
     Decimals: number,
     LoanToValue: string,
     LiquidationThreshold: string,

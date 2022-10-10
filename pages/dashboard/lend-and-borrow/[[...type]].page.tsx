@@ -4,6 +4,7 @@ import useAsyncEffect from 'hooks/useAsyncEffect';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import useLending, { LendingReserveData } from 'rpcHooks/useLending';
+import TokenItem from './_components/token';
 
 const Lendborrow = () => {
     const router = useRouter()
@@ -159,9 +160,7 @@ const Lendborrow = () => {
                 <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Total Borrow</th>
                 <th className="font-semibold text-sm text-greylish dark:text-[#aaaaaa]">Borrow {!apy ? 'APY' : 'APR'}</th>
             </tr>
-            {/* {reservesData.map((token) => 
-                // return <
-            )} */}
+            {reservesData.map((token,index) =>  <TokenItem key={index} asset={token} />)}
         </thead>
     </table>
 </div>
