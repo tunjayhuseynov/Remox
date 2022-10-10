@@ -6,7 +6,7 @@ import useContributors from "hooks/useContributors";
 import { useWalletKit } from "hooks";
 import { AddressReducer } from "../../../../utils";
 import { useAppSelector } from 'redux/hooks';
-import { removeMemberFromContributor, SelectContributors } from "redux/slices/account/remoxData";
+import { removeMemberFromContributor, SelectContributors, SelectAccounts } from "redux/slices/account/remoxData";
 import { useModalSideExit } from "hooks";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
@@ -25,14 +25,14 @@ const ContributorItem = ({ member }: PageProps) => {
     const { removeMember } = useContributors()
     const navigate = useRouter()
     const contirbutors = useAppSelector(SelectContributors)
-
+    const accounts = useAppSelector(SelectAccounts)
     const teamName = contirbutors.find((team) => team.id === member.teamId)?.name
 
 
     const [deleteModal, setDeleteModal] = useState(false)
     const [details, setDetails] = useState(false)
 
-    const { GetCoins } = useWalletKit()
+    const { GetCoins, Address, SendTransaction } = useWalletKit()
     const dark = useAppSelector(SelectDarkMode)
     const dispatch = useDispatch();
 
@@ -44,6 +44,14 @@ const ContributorItem = ({ member }: PageProps) => {
 
     const onDelete = async () => {
         try {
+            const address = await Address
+            const account = accounts.find((acc) => acc.address === address);
+            if(member.execution === "Auto" && member.taskId){
+                await SendTransaction(account!, [], {
+                    cancelStreaming: true,
+                    streamingIdDirect: member.taskId ?? undefined,
+                  });
+            }
             await removeMember(member.teamId, member.id)
             dispatch(removeMemberFromContributor({ id: member.teamId, member: member }))
         } catch (error) {

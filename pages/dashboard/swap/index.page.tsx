@@ -1,27 +1,33 @@
 import Dropdown from "components/general/dropdown";
-import { AltCoins, Coins } from 'types'
+import { AltCoins } from 'types'
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useModalSideExit, useWalletKit } from 'hooks';
 import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from 'framer-motion';
 import Loader from "components/Loader";
 import { useAppSelector } from "redux/hooks";
 import { SelectBalance, SelectDarkMode, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
-import { ToastRun } from "utils/toast";
-import useLoading from "hooks/useLoading";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
+import { BiSearch } from "react-icons/bi";
+
 
 const Swap = () => {
     const { SendTransaction, GetCoins, blockchain } = useWalletKit()
     const { MinmumAmountOut, isLoading } = useSwap()
     const isDark = useAppSelector(SelectDarkMode)
     const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)
+    const account = selectedBudgetAndAccount.account
     const balances = useAppSelector(SelectBalance)
     const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
     const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1])
 
+
+    const [dropdown, setDropdown] = useState<boolean>(false)
+    const [dropdown2, setDropdown2] = useState<boolean>(false)
+    const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(GetCoins))
 
     const token1Input = useRef<HTMLInputElement>(null)
 
@@ -40,7 +46,15 @@ const Swap = () => {
 
     const [deadline, setDeadline] = useState<number>(1.5)
 
-    const account = selectedBudgetAndAccount.account
+    const searching = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value.trim() === "") {
+            setCoinsList(Object.values(GetCoins))
+        } else {
+            const filteredCoins = Object.values(GetCoins).filter((coin) => coin.name.toLowerCase().includes(e.target.value.toLowerCase()) || coin.symbol.toLowerCase().includes(e.target.value.toLowerCase()))
+            setCoinsList(filteredCoins)
+        }
+    }
+
 
     const [settingRef, exceptRef] = useModalSideExit<boolean>(isSetting, setSetting, false)
 
@@ -119,6 +133,7 @@ const Swap = () => {
     }
 
     if (!token1 || !token2) return <></>
+
     return <>
         <div className="flex justify-start">
             <div className="text-2xl font-semibold ">Swap</div>
@@ -189,20 +204,74 @@ const Swap = () => {
                     </div>
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem] items-center flex justify-between rounded-xl py-3 px-4`}>
                         <div className="flex flex-col space-y-2 w-[9rem]">
-                            <div>
-                                <Dropdown
-                                    runFn={val => async () => {
-                                        if (val.name === token2.name) {
-                                            setToken2(token1)
-                                        }
-                                    }}
-                                    sx={{ '.MuiSelect-select': { paddingTop: '5px', paddingBottom: '5px', maxHeight: '32px' }, '.MuiOutlinedInput-notchedOutline': { border: 0 } }}
-                                    className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50 " :  "bg-[#F9F9F9]"}   text-sm !rounded-xl !border-none w-52`}
-                                    setSelect={setToken1 as any}
-                                    selected={token1 as any}
-                                    displaySelector={"symbol"}
-                                    list={Object.values(GetCoins)}
-                                />
+                            <div className="relative">
+                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" :  "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-52 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown(!dropdown)}>
+                                    {token1 &&
+                                        <div className='flex space-x-2 tracking-wide text-xs items-center justify-start'>
+                                            <img src={token1?.logoURI} className="rounded-full w-5 h-5 mr-2" />
+                                            {token1?.symbol} 
+                                        </div>
+                                    }
+                                    <motion.div
+                                        animate={{rotate: dropdown ? 180 : 0}}
+                                    >
+                                        <ExpandMoreIcon />
+                                    </motion.div>
+                                </div>
+                                <AnimatePresence>
+                                    {dropdown &&
+                                        <ClickAwayListener onClickAway={() => setDropdown(false)}>
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className='cursor-default absolute w-[20rem] h-[15rem] bg-white dark:bg-darkSecond z-[9999] bottom-0 translate-y-full rounded-md border border-[#a7a7a7] dark:border-[#777777]'>
+                                                    <div className='pt-2 px-3 border-r border-[#a7a7a7] dark:border-[#777777]'>
+                                                        <div className='w-full'>
+                                                            <FormControl fullWidth>
+                                                                <TextField
+                                                                    placeholder='Search token'
+                                                                    inputProps={{ style: { width: '100%' } }}
+                                                                    onChange={searching}
+                                                                    InputProps={{
+                                                                        style: {
+                                                                            fontSize: '0.75rem',
+                                                                            width: '100%',
+                                                                            height: '35px'
+                                                                        },
+                                                                        startAdornment: (
+                                                                            <InputAdornment position="start">
+                                                                                <BiSearch />
+                                                                            </InputAdornment>
+                                                                        ),
+                                                                    }}
+                                                                    variant="outlined"
+                                                                />
+                                                            </FormControl>
+                                                        </div>
+                                                        <div className='text-greylish mt-3 mb-2 font-medium text-xs tracking-wide'>Select Token</div>
+                                                        <div className='flex flex-col overflow-y-auto pb-2 h-[10rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
+                                                            {coinsList.map((coin, index) => {
+                                                                return <div key={index} onClick={() => {
+                                                                    if(token2 == coin) {
+                                                                        setToken2(token1)
+                                                                    }
+                                                                    setToken1(coin)
+                                                                    setDropdown(false)
+                                                                    }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${token1?.symbol === coin.symbol && "bg-gray-400 bg-opacity-20"}`}>
+                                                                    <div className='w-6 h-6 rounded-full'>
+                                                                        <img className='w-full h-full rounded-full' src={coin.logoURI} />
+                                                                    </div>
+                                                                    <div className='text-xs font-medium'>{coin.symbol}</div>
+                                                                </div>
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                            </motion.div>
+                                        </ClickAwayListener>
+                                    }
+                                </AnimatePresence>
                             </div>
                             <div>
                                 <input ref={token1Input} onChange={async (e) => { 
@@ -251,19 +320,74 @@ const Swap = () => {
                     </div>
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem]  flex justify-between rounded-xl py-3 px-4`}>
                         <div className="flex flex-col space-y-2 w-[9rem]">
-                            <div>
-                                <Dropdown
-                                    runFn={val => async () => {
-                                        if (val.name === token1.name) {
-                                            setToken1(token2)
-                                        }
-                                    }}
-                                    setSelect={setToken2 as any}
-                                    sx={{ '.MuiSelect-select': { paddingTop: '5px', paddingBottom: '5px', maxHeight: '32px' }, '.MuiOutlinedInput-notchedOutline': { border: 0 } }}
-                                    className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" :  "bg-[#F9F9F9]"}  text-sm !rounded-xl !border-none w-52`}
-                                    selected={token2 as any}
-                                    list={Object.values(GetCoins)}
-                                />
+                            <div className="relative">
+                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" :  "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-52 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown2(!dropdown)}>
+                                    {token2 &&
+                                        <div className='flex space-x-2 tracking-wide text-xs items-center justify-start'>
+                                            <img src={token2?.logoURI} className="rounded-full w-5 h-5 mr-2" />
+                                            {token2?.symbol} 
+                                        </div>
+                                    }
+                                    <motion.div
+                                        animate={{rotate: dropdown2 ? 180 : 0}}
+                                    >
+                                        <ExpandMoreIcon />
+                                    </motion.div>
+                                </div>
+                                <AnimatePresence>
+                                    {dropdown2 &&
+                                        <ClickAwayListener onClickAway={() => setDropdown2(false)}>
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className='cursor-default absolute w-[20rem] h-[15rem] bg-white dark:bg-darkSecond z-[9999] bottom-0 translate-y-full rounded-md border border-[#a7a7a7] dark:border-[#777777]'>
+                                                    <div className='pt-2 px-3 border-r border-[#a7a7a7] dark:border-[#777777]'>
+                                                        <div className='w-full'>
+                                                            <FormControl fullWidth>
+                                                                <TextField
+                                                                    placeholder='Search token'
+                                                                    inputProps={{ style: { width: '100%' } }}
+                                                                    onChange={searching}
+                                                                    InputProps={{
+                                                                        style: {
+                                                                            fontSize: '0.75rem',
+                                                                            width: '100%',
+                                                                            height: '35px'
+                                                                        },
+                                                                        startAdornment: (
+                                                                            <InputAdornment position="start">
+                                                                                <BiSearch />
+                                                                            </InputAdornment>
+                                                                        ),
+                                                                    }}
+                                                                    variant="outlined"
+                                                                />
+                                                            </FormControl>
+                                                        </div>
+                                                        <div className='text-greylish mt-3 mb-2 font-medium text-xs tracking-wide'>Select Token</div>
+                                                        <div className='flex flex-col overflow-y-auto pb-2 h-[10rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
+                                                            {coinsList.map((coin, index) => {
+                                                                return <div key={index} onClick={() => {
+                                                                    if(token1 == coin){
+                                                                        setToken1(token2)
+                                                                    }
+                                                                    setToken2(coin)
+                                                                    setDropdown2(false)
+                                                                }} className={`flex items-center space-x-2 py-2 hover:bg-gray-400 hover:bg-opacity-20 cursor-pointer px-2 ${token2?.symbol === coin.symbol && "bg-gray-400 bg-opacity-20"}`}>
+                                                                    <div className='w-6 h-6 rounded-full'>
+                                                                        <img className='w-full h-full rounded-full' src={coin.logoURI} />
+                                                                    </div>
+                                                                    <div className='text-xs font-medium'>{coin.symbol}</div>
+                                                                </div>
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                            </motion.div>
+                                        </ClickAwayListener>
+                                    }
+                                </AnimatePresence>
                             </div>
                             <div>
                                 {!(!token1Amount) && (!isLoading ?

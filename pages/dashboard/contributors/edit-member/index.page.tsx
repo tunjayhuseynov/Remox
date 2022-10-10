@@ -54,10 +54,6 @@ const EditMember = () => {
     { name: "Bounty" },
   ];
 
-  const coin2 = Object.values(GetCoins).find(
-    (coin) => coin.symbol === member.secondCurrency
-  );
-
   //States
 
   const [url, setUrl] = useState<string>(member.image?.imageUrl ?? "");
