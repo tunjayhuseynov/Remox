@@ -58,12 +58,12 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
                 createdBy: id,
                 name: newAccountName,
                 id: nanoid(),
-                image: null,
+                image: image?.image ?? null,
                 members: [
                     {
                         address,
                         id: generate(),
-                        image: null,
+                        image: image?.image ?? null,
                         mail: null,
                         name: name,
                     }

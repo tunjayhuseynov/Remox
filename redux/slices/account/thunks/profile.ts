@@ -5,6 +5,8 @@ import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import { RootState } from "redux/store";
 import { FirestoreWrite } from "rpcHooks/useFirebase";
 import { changeImage } from "../remoxData";
+import { Update_Account_Image } from 'redux/slices/account/thunks/account'
+import { Update_Account_Member_Image_Thunk } from 'redux/slices/account/thunks/accountMembers'
 
 interface IProps { accountType: "individual" | "organization", name: string, userId: string }
 export const UpdateProfileNameThunk = createAsyncThunk<IProps, IProps>("remoxData/updateProfileName", async ({ accountType: type, userId, name }, api) => {
@@ -28,6 +30,7 @@ interface IImageProps { url: string, type: "image" | "nft", accountType: "indivi
 export const UpdateProfileImageThunk = createAsyncThunk<IImageProps, IImageProps>("remoxData/updateProfileImage", async ({ url, type, accountType, userId }, api) => {
 
     if (!userId) throw new Error('Account is not defined')
+    const state = api.getState() as RootState;
     await FirestoreWrite<{
         image: Image,
     }>().updateDoc(accountType === "individual" ? "individuals" : "organizations", userId, {
@@ -39,6 +42,37 @@ export const UpdateProfileImageThunk = createAsyncThunk<IImageProps, IImageProps
             type: type
         },
     })
+
+    for (const account of state.remoxData.accounts) {
+        if (account.address.toLowerCase() === state.remoxData.providerAddress?.toLowerCase()) {
+            await api.dispatch(Update_Account_Image({
+                account: account,
+                image: {
+                    blockchain: (api.getState() as RootState).remoxData.blockchain.name,
+                    imageUrl: url,
+                    nftUrl: url,
+                    tokenId: null,
+                    type: type
+                },
+            }))
+
+            for (const member of account.members) {
+                if (member.address.toLowerCase() === state.remoxData.providerAddress?.toLowerCase()) {
+                    await api.dispatch(Update_Account_Member_Image_Thunk({
+                        accountId: account.id,
+                        memberId: member.id,
+                        image: {
+                            blockchain: (api.getState() as RootState).remoxData.blockchain.name,
+                            imageUrl: url,
+                            nftUrl: url,
+                            tokenId: null,
+                            type: type
+                        },
+                    }))
+                }
+            }
+        }
+    }
 
     api.dispatch(changeImage({
         image: {

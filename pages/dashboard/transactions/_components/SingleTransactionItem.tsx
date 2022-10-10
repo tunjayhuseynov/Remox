@@ -98,15 +98,13 @@ const SingleTransactionItem = ({
       <tr className="pl-5 grid grid-cols-[8.5%,20%,18%,repeat(4,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
         <td className="text-left">
           <div className="relative inline">
-            <span className="font-semibold">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
-            <span className="text-xs text-gray-400 absolute translate-y-[120%] left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
+            <span className="font-medium text-sm">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
+            <span className="text-xxs text-gray-400 absolute translate-y-[120%] left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
           </div>
         </td>
         <td className="text-left">
           <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 rounded-full border-2 self-center relative ${!account?.image ? "p-3" : ""}`}>
-              <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="absolute left-0 top-0 w-10 h-10 rounded-full" />
-            </div>
+            <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-8 h-8 aspect-square rounded-full" />
             <div className="text-sm truncate font-semibold pr-5">
               {account?.name ?? "N/A"}
             </div>
