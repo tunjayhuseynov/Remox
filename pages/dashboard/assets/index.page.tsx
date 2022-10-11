@@ -76,10 +76,18 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 const Assets = () => {
     const dark = useNextSelector(SelectDarkMode)
+
     const spotTokens = useAppSelector(SelectSpotBalance);
+    console.log(spotTokens)
     const yieldTokens = useAppSelector(SelectYieldBalance);
+    console.log(yieldTokens)
+
+
+
     const mySpotTokens = Object.values(spotTokens ?? {}).filter((token) => token.amount > 0);
     const myYieldTokens = Object.values(yieldTokens ?? {}).filter((token) => token.amount > 0);
+
+
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
     const nfts = useAppSelector(SelectNfts)
@@ -149,14 +157,14 @@ const Assets = () => {
 
     return <>
         <div>
-            <div className="font-bold text-4xl">Assets</div>
+            <div className="font-bold text-2xl">Assets</div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
                     <AnimatedTabBar data={assetType} index={index} className={'!text-2xl'} />
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
-                    <div className="font-bold text-2xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-bold text-2xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? <div className='text-2xl'>{symbol}<NG number={+totalBalance} fontSize={1.5} /></div>  : <Loader />}</div> : <div className="font-bold text-2xl">{symbol}<NG number={nftTotalPrice} fontSize={1.5}/></div>}
+                    <div className="font-medium text-xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
+                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? <div className='text-xl'>{symbol}<NG number={+totalBalance} fontSize={1.25} decimalSize={100} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} decimalSize={100}/></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -164,12 +172,12 @@ const Assets = () => {
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1d-content" id="panel1d-header"
                             className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
-                            sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
+                            sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '3px', paddingBottom: '3px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
                         >
                             <div className="w-full flex items-center h-10 rounded-md">
                                 <div className="flex items-center justify-between  w-full ">
-                                    <div className="text-lg font-medium  font-sans  pl-2">{TypeCoin[0].header}</div>
-                                    <div className={`text-xl font-medium  font-sans `}>{symbol}<NG number={+TypeCoin[0].balance} fontSize={1.25} /></div>
+                                    <div className="text-sm font-semibold pl-1">{TypeCoin[0].header}</div>
+                                    <div className={`text-base font-semibold`}>{symbol}<NG number={+TypeCoin[0].balance} fontSize={1} decimalSize={100}  /></div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -192,18 +200,17 @@ const Assets = () => {
                         </AccordionDetails>
                     </Accordion>
 
-
                     <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '10px' }}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel2d-content" id="panel2d-header"
                             className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
-                            sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
+                            sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '3px', paddingBottom: '3px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
                         >
                             <div className="w-full flex items-center h-10">
-                                <div className="flex items-center justify-between  w-full">
-                                    <div className="text-lg font-medium  font-sans pl-2 ">{TypeCoin[1].header}</div>
-                                    <div className="text-xl font-medium  font-sans ">{symbol}<NG number={+TypeCoin[1].balance} fontSize={1.25} /></div>
+                                <div className="flex items-center justify-between w-full">
+                                    <div className="text-sm font-medium pl-2 ">{TypeCoin[1].header}</div>
+                                    <div className="text-sm font-medium">{symbol}<NG number={+TypeCoin[1].balance} fontSize={0.875} decimalSize={100} /></div>
                                 </div>
                             </div>
                         </AccordionSummary>

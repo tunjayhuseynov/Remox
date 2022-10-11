@@ -64,12 +64,12 @@ const teamItem = ({ props }: { props: IContributor }) => {
         <>
             <div className="rounded-md cursor-pointer bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4 min-h-[12rem] items-start justify-between pl-5">
                 <div className="flex flex-col justify-between w-full h-full">
-                    <div className="grid grid-cols-2 items-center w-full">
-                        <div>
-                            <EditableTextInput defaultValue={props?.name ?? ""} onSubmit={onWorkstreamNameChange} placeholder="Individual account name" />
+                    <div className="grid grid-cols-[70%,30%] items-center w-full">
+                        <div className=''>
+                            <EditableTextInput fontSize={1.4} defaultValue={props?.name ?? ""} onSubmit={onWorkstreamNameChange} placeholder="Individual account name" />
                         </div>
                         <div className="flex items-center justify-end curs">
-                            <RiDeleteBin6Line className='h-6' onClick={() => setDeleteModal(true)} />
+                            <RiDeleteBin6Line className='h-8' onClick={() => setDeleteModal(true)} />
                         </div>
                     </div>
                     <div className="pl-3 w-full relative">

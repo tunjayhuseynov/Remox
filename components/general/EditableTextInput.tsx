@@ -7,9 +7,10 @@ interface IProps {
     defaultValue: string;
     onSubmit: (value: string) => Promise<void>;
     placeholder?: string;
+    fontSize?: number
 }
 
-export default ({ defaultValue, onSubmit, placeholder }: IProps) => {
+export default ({ defaultValue, onSubmit, placeholder, fontSize }: IProps) => {
     const [value, setValue] = useState(defaultValue)
     const [savedDefaultValue, setSavedDefaultValue] = useState(defaultValue)
 
@@ -31,7 +32,7 @@ export default ({ defaultValue, onSubmit, placeholder }: IProps) => {
                 onChange={(e) => setValue(e.target.value)}
                 inputProps={{
                     style: { 
-                        fontSize: "0.75rem",
+                        fontSize: `${fontSize ? fontSize : 0.75}rem`,
                     }
                 }}
                 onKeyDownCapture={(e) => {

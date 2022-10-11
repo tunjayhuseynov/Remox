@@ -78,27 +78,27 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
                             <div>
-                                <NG number={coinBalance?.amount ?? 1}  />
+                                <NG number={coinBalance?.amount ?? 1} fontSize={1.125}  />
                             </div>
                         </div>
 
                     </div>
-                    <div className="flex  w-full items-center space-x-1 justify-start">
+                    <div className="flex  w-full items-center space-x-1 justify-start mt-1">
                         <div className="flex justify-between items-center ">
                             <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
-                            <div>-{coin &&   (+(item.amount))}</div>
+                            <div>-{coin && <NG number={+item?.amount ?? 1} fontSize={1.125} />}</div>
                         </div>
 
                     </div>
-                    <div className="w-full flex items-center justify-start space-x-1 pt-5">
+                    <div className="w-full flex items-center justify-start space-x-1 mt-8">
                         <div className="flex justify-between items-center  ">
                             <img src={coin?.logoURI} alt="" width={20} height={20} className="rounded-full" />
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium" >
                             <div>
-                                <NG number={coinBalance!.amount - (+item!.amount)}/>
+                                <NG number={coinBalance!.amount - (+item!.amount)} fontSize={1.125}/>
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,8 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      'sans': ['Inter', 'system-ui']
+      'sans': ['Inter', 'system-ui'],
+      'nunito': ['Nunito', 'sans-serif']
 
     },
     extend: {
@@ -19,7 +20,7 @@ module.exports = {
         'sm': '.875rem',
         'tiny': '.875rem',
         'base': '1rem',
-        'lg': '1rem',
+        'lg': '1.125rem',
         'xl': '1.25rem',
         '2xl': '1.5rem',
         '3xl': '1.75rem',

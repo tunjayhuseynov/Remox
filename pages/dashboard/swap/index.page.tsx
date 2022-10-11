@@ -74,7 +74,6 @@ const Swap = () => {
             } catch (error) {
                 console.error(error)
             }
-
         }
     }, [token1, token2, token1Amount, slippageArr, deadline])
 
