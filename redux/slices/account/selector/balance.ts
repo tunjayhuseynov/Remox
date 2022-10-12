@@ -37,7 +37,7 @@ export const SelectYieldBalance = createDraftSafeSelector(
         if (balances) {
             return Object.entries(balances).reduce<IPrice>(
                 (a, c) => {
-                    if (c[1].coin.type === TokenType.YieldToken) {
+                    if (c[1].coin.type === "Yield") {
                         a[c[0]] = c[1];
                     }
                     return a;
@@ -56,7 +56,7 @@ export const SelectSpotBalance = createDraftSafeSelector(
         if (balances) {
             return Object.entries(balances).reduce<IPrice>(
                 (a, c) => {
-                    if (c[1].coin.type !== TokenType.YieldToken) {
+                    if (c[1].coin.type === "Spot") {
                         a[c[0]] = c[1];
                     }
                     return a;

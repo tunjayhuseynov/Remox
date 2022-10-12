@@ -21,12 +21,12 @@ const ModalAllocation = ({selectedList} : {selectedList: IMember[] | IRequest[]}
                   <TotalAmount coinList={selectedList} />
                 </div>
                 {selectedList.length > 0 && (
-                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-10 "></div>
+                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-12 "></div>
                 )}
               </div>
               {selectedList.length > 0 && (
                 <div className=" w-full relative">
-                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-10 "></div>
+                  <div className="h-[1px] border-b dark:border-[#D6D6D6] absolute w-full bottom-12 "></div>
                   <div className="font-semibold text-lg text-greylish dark:text-white pl-5 h-9">
                     Token Allocation
                   </div>

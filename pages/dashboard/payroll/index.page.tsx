@@ -139,7 +139,7 @@ export default function DynamicPayroll() {
             </Modal>}
             <div className='space-y-5'>
               <div className="flex justify-between items-center w-full space-y-3">
-                      <div className="text-2xl font-bold">
+                      <div className="text-2xl font-semibold">
                           Payroll
                       </div>
                       <div>

@@ -258,7 +258,7 @@ const RequestedUserItem = ({
             className={`sm:flex flex-col ${detect ? "justify-center" : "justify-start"
               } items-start `}
           >
-            <div className="font-medium text-sm  ">
+            <div className="font-medium text-sm ">
               {
                 <span>
                   {request.fullname}
@@ -266,7 +266,7 @@ const RequestedUserItem = ({
               }
             </div>
             {request.address && (
-              <div className="text-greylish font-medium text-[10px]">
+              <div className="text-greylish font-semibold text-[10px]">
                 {AddressReducer(request.address)}
               </div>
             )}
@@ -274,12 +274,12 @@ const RequestedUserItem = ({
         </td>
         <td className="flex h-full items-center ">
           {request.serviceDate && (
-            <div className="flex dark:text-white tracking-wide text-sm font-medium">
+            <div className="flex dark:text-white tracking-wide text-sm font-medium ">
               {dateFormat(new Date(request!.serviceDate * 1000), `dd/mm/yyyy`)}
             </div>
           )}
         </td>
-        <td className="flex flex-col justify-center text-sm space-y-4">
+        <td className="flex flex-col justify-center text-sm space-y-4 font-medium ">
             <CurrencyElement fiat={request.fiat} coin={coin1} amount={request.amount} />
             {(request.secondAmount && request.secondCurrency) && 
               <CurrencyElement fiat={request.fiatSecond} coin={coin2!} amount={request.secondAmount} />
@@ -288,7 +288,7 @@ const RequestedUserItem = ({
         <td className="items-center flex text-sm font-medium ">
           {request.requestType}
         </td>
-        <td className="flex justify-end cursor-pointer items-center md:pr-0 ">
+        <td className="flex justify-end cursor-pointer font-medium items-center md:pr-0 ">
           {request.status !== RequestStatus.rejected && !payment && (
             <FaChevronCircleRight onClick={() => setModal(true)} className="mr-5  text-primary text-xl" />
           )}

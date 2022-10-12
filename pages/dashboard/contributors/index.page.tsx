@@ -69,7 +69,7 @@ const Contributors = () => {
                 </div>
             </div>
             <div className="flex justify-between items-center w-[90%] mb-5 ">
-                <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
+                <AnimatedTabBar data={data} index={index} />
             </div>
         </div>
 

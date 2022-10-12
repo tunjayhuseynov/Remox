@@ -9,7 +9,7 @@ const CurrencyElement = ({fiat, coin, amount, size} : {fiat: FiatMoneyList | nul
 
   return (
     <div className="flex items-center">
-        <div className="flex items-center mr-2">
+        <div className="flex items-center mr-3">
           {
             fiat ? (
               <div className="relative">
@@ -19,8 +19,8 @@ const CurrencyElement = ({fiat, coin, amount, size} : {fiat: FiatMoneyList | nul
               ) : <img src={coin.logoURI} className="rounded-full w-5 h-5 object-cover" alt="Currency Logo" />
           }
         </div>
-        <div className="flex items-center">
-            <NG number={+amount} fontSize={size ?? 0.875} />
+        <div className='font-medium text-sm'>
+            <NG number={+amount} decimalSize={70} fontSize={size ?? 0.875} />
         </div>
     </div>
   )

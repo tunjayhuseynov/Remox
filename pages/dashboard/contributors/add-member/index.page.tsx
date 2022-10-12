@@ -287,7 +287,7 @@ const AddMember = () => {
                     </div>
                     <div className="justify-center">
                         <Button className="px-8 py-3 w-full" onClick={() => {
-                            isAutoPayment ? setChoosingBudget(true) : submit
+                            isAutoPayment ? setChoosingBudget(true) : submit()
                         }} isLoading={loading} >
                             Add Contributor
                         </Button>
@@ -295,7 +295,7 @@ const AddMember = () => {
                 </div>
             </div>
         </div>
-        <Modal onDisable={setChoosingBudget} openNotify={choosingBudget}>
+        <Modal onDisable={setChoosingBudget} openNotify={choosingBudget} className="opacity-100">
             <ChooseBudget submit={submit}/>
         </Modal>
     </>

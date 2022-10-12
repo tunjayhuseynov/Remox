@@ -14,6 +14,7 @@ import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import makeBlockie from "ethereum-blockies-base64";
 import { fiatList } from "components/general/PriceInputField";
 import { NG } from "utils/jsxstyle";
+import CurrencyElement from "components/general/CurrencyElement";
 
 
 interface PageProps {
@@ -72,53 +73,27 @@ const ContributorItem = ({ member }: PageProps) => {
             <td className="pl-3 items-start">
                 <div className="flex !items-center space-x-1" >
                     <img src={member.image ? member.image.imageUrl : makeBlockie(member.address)} alt="" className="rounded-full border w-10 object-cover h-10 mr-2" />
-                    <div className="text-sm">
+                    <div className="text-sm font-medium">
                         {member.fullname}
                     </div>
                 </div>
             </td>
-            <td className="pl-[2px] flex items-start  text-sm">
+            <td className="pl-[2px] flex items-start font-medium text-sm">
                 {teamName}
             </td>
-            <td className="pl-[2px] flex items-start text-sm">
+            <td className="pl-[2px] flex items-start font-medium text-sm">
                 {member.role}
             </td>
-            <td className="flex flex-col justify-center text-sm space-y-4">
-                <div className="flex items-center">
-                  <div className="flex items-center mr-3">
-                    {
-                      member.fiat ? (
-                        <div className="relative">
-                          <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
-                          <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
-                        </div>
-                        ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
-                    }
-                  </div>
-                  <div className="flex items-center">
-                    <NG number={+member.amount} />
-                  </div>
-                </div>
-                {(member.secondAmount && member.secondCurrency) && <div className="flex items-center">
-                  <div className="flex items-center mr-3">
-                    {
-                      member.fiatSecond ? (
-                        <div className="relative">
-                          <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
-                          <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
-                        </div>
-                        ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
-                    }
-                  </div>
-                  <div className="flex items-center">
-                    <NG number={+member.secondAmount} />
-                  </div>
-                </div>}
+            <td className="flex flex-col justify-center text-sm font-medium space-y-4">
+                <CurrencyElement amount={member.amount} coin={coin1!} fiat={member.fiat} />
+                {(member.secondAmount && member.secondCurrency) && 
+                    <CurrencyElement amount={member.secondAmount} coin={coin2!} fiat={member.fiatSecond} />
+                }
             </td>
-            <td className=" pt-3 sm:pt-0 flex items-start truncate text-sm">
+            <td className="flex items-start truncate fon text-sm font-medium">
                 {AddressReducer(member.address)}
             </td>
-            <td className="flex items-center truncate">
+            <td className="flex items-center truncate text-sm font-medium">
                 <span className="w-12 text-sm">{member.compensation}</span>
             </td>
             <td>

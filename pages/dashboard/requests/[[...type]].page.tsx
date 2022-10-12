@@ -44,28 +44,28 @@ export default function RequestLayout() {
         <div className="flex flex-col space-y-5 h-full">
         <div className="flex justify-between pb-8 ">
             <div className="text-2xl font-semibold tracking-wider">Requests</div>
-            <Button className="!font-medium !text-lg flex items-center justify-center py-2 cursor-pointer" onClick={() => setModalVisible(true)}>Share Link </Button>
+            <Button className="!font-semibold !text-sm flex items-center justify-center py-2 cursor-pointer" onClick={() => setModalVisible(true)}>Share Link </Button>
         </div>
         <div className="flex  w-[70%] justify-between !mt-1">
-            <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
+            <AnimatedTabBar data={data} index={index} />
         </div>
         <div className=" pb-5 h-full">
             <DynamicRequest type={type?.[0] === "approved" ? "approved" : type?.[0] === "rejected" ? "rejected" : "pending"} />
         </div>
-        {modalVisibility && <Modal onDisable={setModalVisible} animatedModal={false} className={'!py-4 !pt-3 !px-2 !w-[35%]'}>
+        {modalVisibility && <Modal onDisable={setModalVisible} animatedModal={false} className={'!py-4 !pt-3 !px-2 !w-[37%]'}>
             <div className="flex flex-col space-y-5 items-center">
                 <div className="text-xl font-bold  pt-8 py-1">
                     Invite Link
                 </div>
-                <div className="tracking-wide text-greylish">
+                <div className="tracking-wide font-semibold text-sm text-greylish font-nunito">
                     Share this link with your community contributors
                 </div>
                 <div className="bg-greylish bg-opacity-10 flex justify-between items-center   w-[60%] rounded-xl">
-                    <div className="truncate w-full font-semibold py-2 px-2">
+                    <div className="truncate w-full font-semibold py-2 px-2 font-nunito">
                         {link}
                     </div>
-                    <div ref={setDivRef}>
-                        <Button className="!py-1 px-2   tracking-wider flex items-center" onClick={() => {
+                    <div ref={setDivRef} className="pr-1">
+                        <Button className="!py-[0.2rem] px-2 !rounded-xl font-semibold text-xs flex items-center bg-[#FF7348]" onClick={() => {
                             navigator.clipboard.writeText(link)
                             setTooltip(true)
                             setTimeout(() => {

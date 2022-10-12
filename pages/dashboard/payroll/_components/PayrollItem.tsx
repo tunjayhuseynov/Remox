@@ -12,6 +12,7 @@ import {
 } from "types/dashboard/contributors";
 import { AddressReducer } from "utils";
 import { NG } from "utils/jsxstyle";
+import CurrencyElement from "components/general/CurrencyElement";
 
 interface IProps {
   member: IMember;
@@ -86,63 +87,34 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
           </div>
         </div>
       </td>
-      <td className="flex space-x-8 items-center">
+      <td className="flex items-center">
         {member.paymantDate && (
-          <>
-            <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm font-medium">
+            <div className="text-sm font-medium">
               {dateFormat(new Date(+member.paymantDate), `dd/mm/yyyy`)}
             </div>
-          </>
         )}
       </td>
-      <td className="flex space-x-8 items-center">
+      <td className="flex items-center">
         {member.paymantEndDate && (
-          <>
-            <div className="col-span-2 sm:col-span-1 pt-3 sm:pt-0 pl-[2px] thuncate text-sm font-medium">
+            <div className="text-sm font-medium">
               {dateFormat(new Date(+member.paymantEndDate), `dd/mm/yyyy`)}
             </div>
-          </>
         )}
       </td>
       <td className="flex flex-col justify-center text-sm space-y-4">
-        <div className="flex items-center">
-          <div className="flex items-center mr-3">
-            {
-              member.fiat ? (
-                <div className="relative">
-                  <img src={fiatFirst?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
-                  <img src={coin1?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
-                </div>
-                ) : <img src={coin1?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
-            }
-            </div>
-            <div className="flex items-center">
-              <NG number={+member?.amount}/>
-            </div>
-            </div>
-            {(member.secondAmount && member.secondCurrency) && <div className="flex items-center">
-              <div className="flex items-center mr-3">
-                {
-                  member.fiatSecond ? (
-                    <div className="relative">
-                      <img src={fiatSecond?.logo} alt="" className="rounded-xl w-6 h-6 relative" />
-                      <img src={coin2?.logoURI} alt="" className="rounded-xl w-4 h-4 absolute right-[-6.3px] bottom-[-4.5px]" />
-              </div> ) : <img src={coin2?.logoURI} className="rounded-xl w-6 h-6" alt="Currency Logo" />
-            }
-          </div>
-          <div className="flex items-center">
-            <NG number={+member?.secondAmount} />
-          </div>
-        </div>}
+        <CurrencyElement amount={member?.amount} fiat={member.fiat} coin={coin1!}/>
+        {member.secondAmount && member.secondCurrency && coin2 && 
+          <CurrencyElement amount={member.secondAmount} coin={coin2} fiat={member.fiatSecond} />
+        }
       </td>
-      <td className="pl-[2px] hidden sm:flex items-center justify-start text-sm font-medium">
+      <td className="flex items-center justify-start text-sm font-medium">
         {member.interval === DateInterval.monthly && "Monthly"}
         {member.interval === DateInterval.weekly && "Weekly"}
       </td>
       <td className="flex items-center justify-start text-sm font-medium">
         {member.execution === "Auto" ? "Streaming" : "Manual"}
       </td>
-      <td className="flex items-center text-sm font-medium justify-start pr-8">
+      <td className="flex items-center text-sm font-medium justify-start">
         {member.compensation}
       </td>
     </tr>

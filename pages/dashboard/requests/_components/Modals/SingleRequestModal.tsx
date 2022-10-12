@@ -34,8 +34,8 @@ const SingleRequestModal = ({
             <div className="font-semibold text-xl">Overview</div>
             <div className="flex flex-col space-y-2 mt-5">
               <div className="flex justify-between border-b pb-5">
-                <div className="text-greylish">Status</div>
-                <div className="flex gap-x-2 items-center ">
+                <div className="text-greylish text-sm font-medium">Status</div>
+                <div className="flex gap-x-2 items-center text-sm font-medium ">
                   <span
                     className={`w-2 h-2 rounded-full ${
                       request.status === RequestStatus.pending
@@ -52,23 +52,25 @@ const SingleRequestModal = ({
         <div className="font-semibold text-xl my-4">Payee information</div>
         <div className="flex flex-col space-y-2">
           <div className="flex justify-between">
-            <div className="text-greylish">Full Name</div>
-            <div>{request.fullname}</div>
+            <div className="text-greylish text-sm font-medium">Full Name</div>
+            <div className="text-sm font-medium">{request.fullname}</div>
           </div>
           <div className="flex justify-between">
-            <div className="text-greylish">Wallet Adress</div>
-            <div className="truncate">
+            <div className="text-greylish text-sm font-medium">Wallet Adress</div>
+            <div className="truncate text-sm font-medium">
               {request?.address !== undefined &&
                 AddressReducer(request?.address)}
             </div>
           </div>
           <div className={`flex justify-between ${!(request.secondCurrency && request.secondAmount) ? "border-b pb-5" : ""}`}>
-            <div className="text-greylish">Requesting Amount</div>
+            <div className="text-greylish text-sm font-medium">Requesting Amount</div>
             <div className="flex flex-col space-y-3">
               <div className="flex gap-x-3 justify-between">
-                <div className="flex items-center">
+                <div className="flex items-center text-sm font-medium">
                   <span className="w-2 h-2 rounded-full mr-2 bg-primary"></span>
-                  <NG number={+request.amount}/>
+                  <div>
+                    <NG number={+request.amount} fontSize={0.875} decimalSize={100}/>
+                  </div>
                 </div>
                 <div className="flex gap-x-2 items-center">
                   <div className="flex items-center">
@@ -87,12 +89,14 @@ const SingleRequestModal = ({
           </div>
           {!!request?.secondCurrency && !!request?.secondAmount && (
             <div className="flex justify-between border-b pb-5">
-              <div className="text-greylish">Requesting Amount 2</div>
+              <div className="text-greylish text-sm font-medium">Requesting Amount 2</div>
               <div className="flex flex-col space-y-3">
                 <div className="flex gap-x-3 justify-between">
                   <div className="flex items-center">
                     <span className="w-2 h-2 rounded-full mr-2 bg-primary"></span>
-                    <NG number={+request.secondAmount}/>
+                    <div>
+                      <NG number={+request.secondAmount} fontSize={0.875} decimalSize={100}/>
+                    </div>
                   </div>
                   <div className="flex gap-x-2 items-center">
                     <div className="flex items-center">
@@ -114,16 +118,16 @@ const SingleRequestModal = ({
         <div className="font-semibold text-xl my-4">Details</div>
         <div className="flex flex-col space-y-2 ">
           <div className="flex justify-between">
-            <div className="text-greylish">Request Type</div>
-            <div>{request?.requestType}</div>
+            <div className="text-greylish text-sm font-medium">Request Type</div>
+            <div className="text-sm font-medium">{request?.requestType}</div>
           </div>
           <div className="flex justify-between">
-            <div className="text-greylish">Name of service</div>
-            <div>{request?.nameOfService}</div>
+            <div className="text-greylish text-sm font-medium">Name of service</div>
+            <div className="text-sm font-medium">{request?.nameOfService}</div>
           </div>
           <div className="flex justify-between">
-            <div className="text-greylish">Date of service</div>
-            <div>
+            <div className="text-greylish text-sm font-medium">Date of service</div>
+            <div className="text-sm font-medium">
               {dateFormat(
                 new Date(request!.serviceDate * 1000),
                 `mmm dd, yyyy`
@@ -131,10 +135,10 @@ const SingleRequestModal = ({
             </div>
           </div>
           <div className="flex justify-between">
-            <div className="text-greylish">
+            <div className="text-greylish text-sm font-medium">
               Attach links <span className="">(Optional)</span>
             </div>
-            <div>
+            <div className="text-sm font-medium">
               {request?.attachLink ? (
                 <a href={request?.attachLink} rel="noreferrer" target="_blank">
                  {request?.attachLink.slice(0,50)}...
@@ -145,10 +149,10 @@ const SingleRequestModal = ({
             </div>
           </div>
           <div className="flex justify-between">
-            <div className="text-greylish">
+            <div className="text-greylish text-sm font-medium">
               Upload receipt or invoice (Optional)
             </div>
-            <div>
+            <div className="text-sm font-medium">
               {request?.uploadedLink ? (
                 <a href={request.uploadedLink} rel="noreferrer" target="_blank">{request.uploadedLink.slice(123, 136)}...</a>
               ) : (
