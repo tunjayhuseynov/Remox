@@ -11,15 +11,18 @@ import { SelectBalance, SelectDarkMode, SelectSelectedAccountAndBudget } from "r
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
-import useAsyncEffect from "hooks/useAsyncEffect";
+import { ToastRun } from "utils/toast";
+import useLoading from "hooks/useLoading";
+import Modal from "components/general/modal";
+import ChooseBudget from "components/general/chooseBudget";
+import { IAccountORM } from "pages/api/account/index.api";
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 
 
 const Swap = () => {
     const { SendTransaction, GetCoins, blockchain } = useWalletKit()
     const { MinmumAmountOut, isLoading } = useSwap()
     const isDark = useAppSelector(SelectDarkMode)
-    const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)
-    const account = selectedBudgetAndAccount.account
     const balances = useAppSelector(SelectBalance)
     const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
@@ -37,6 +40,7 @@ const Swap = () => {
     const [oneCoinPrice, setOneCoinPrice] = useState<string>("")
     const [isSetting, setSetting] = useState<boolean>(false)
 
+    const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
 
     const [slippageArr, setSlippageArr] = useState([
         { value: 1, label: '0,1%', selected: false },
@@ -83,38 +87,36 @@ const Swap = () => {
         }
     }
 
-    // const startSwap = async () => {
-    //     if (token1!.name && token2!.name && token1Amount && token1Amount > 0 && account) {
-    //         try {
-    //             const data = await SendTransaction(account, [], {
-    //                 swap: {
-    //                     account: account.address,
-    //                     inputCoin: GetCoins[token1!.name as keyof Coins],
-    //                     outputCoin: GetCoins[token2!.name as keyof Coins],
-    //                     amount: token1Amount.toString(),
-    //                     slippage: slippageArr.find(item => item.selected)!.value.toString(),
-    //                     deadline: Math.floor(deadline * 60)
-    //                 }
-    //             })
+    const startSwap = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+        if (token1!.symbol && token2!.symbol && token1Amount && token1Amount > 0 && account) {
+            try {
+                const data = await SendTransaction(account, [], {
+                    swap: {
+                        account: account.address,
+                        inputCoin: GetCoins[token1!.symbol],
+                        outputCoin: GetCoins[token2!.symbol],
+                        amount: token1Amount.toString(),
+                        slippage: slippageArr.find(item => item.selected)!.value.toString(),
+                        deadline: Math.floor(deadline * 60)
+                    }
+                })
 
-    //             ToastRun(
-    //                 <div className="flex flex-col items-center space-y-1">
-    //                     <div className="font-semobold text-xl">Successfully Swapped</div>
-    //                     {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
-    //                 </div>
-    //             )
+                ToastRun(
+                    <div className="flex flex-col items-center space-y-1">
+                        <div className="font-semobold text-xl">Successfully Swapped</div>
+                        {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
+                    </div>
+                )
 
-    //             setOpen(false)
-    //         } catch (error) {
-    //             const message = (error as any).message || "Something went wrong"
-    //             console.error(message)
-    //             // dispatch(changeError({ activate: true }))
-    //             ToastRun(<div>{message}</div>)
-    //         }
-    //     }
-    // }
+            } catch (error) {
+                const message = (error as any).message || "Something went wrong"
+                console.error(message)
+                ToastRun(<div>Something went wrong</div>, "error")
+            }
+        }
+    }
 
-    // const [isSwappingLoading, swapping] = useLoading(startSwap)
+    const [isSwappingLoading, swapping] = useLoading(startSwap)
 
     useEffect(() => {
         if (token1 && token2) {
@@ -423,7 +425,8 @@ const Swap = () => {
                     {parseFloat(oneCoinPrice) ?
                         balances[token1.symbol].amount > (token1Amount ?? 0) ?
                             <Button className="w-[97%] text-[20px] !rounded-2xl"
-                            // isLoading={isLoading || isSwappingLoading}
+                            onClick={() => setChoosingBudget(true)}
+                            isLoading={isLoading || isSwappingLoading}
                             >
                                 Swap
                             </Button> :
@@ -450,6 +453,9 @@ const Swap = () => {
                 </div>
             </div>
         </div>
+        <Modal openNotify={choosingBudget} onDisable={setChoosingBudget}>
+           <ChooseBudget submit={startSwap}/> 
+        </Modal>
     </>
 }
 

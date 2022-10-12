@@ -136,9 +136,8 @@ export default function DynamicRequest({
 
       setSelectedApprovedRequests([])
       setChooseBudget(false)
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      throw new Error(error as any);
     }
   };
 

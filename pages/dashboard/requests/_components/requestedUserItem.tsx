@@ -109,55 +109,60 @@ const RequestedUserItem = ({
   }
 
   const Execute = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
-    let inputs: IPaymentInput[] = [];
-    const amount = request.amount
-    if (request.fiat) {
-      const fiatPrice = GetFiatPrice(coin1!, request.fiat)
-
-      inputs.push({
-        amount: Number(amount) / (fiatPrice),
-        coin: coin1?.symbol ?? "",
-        recipient: request.address,
-      });
-    } else {
-      inputs.push({
-        amount: Number(amount),
-        coin: coin1?.symbol ?? "",
-        recipient: request.address,
-      });
-    }
-
-    if (request.secondCurrency && request.secondAmount) {
-      const secondAmount = request.secondAmount;
-      const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
-
-      if (request.fiatSecond) {
-        const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
-
+    try{
+      let inputs: IPaymentInput[] = [];
+      const amount = request.amount
+      if (request.fiat) {
+        const fiatPrice = GetFiatPrice(coin1!, request.fiat)
+  
         inputs.push({
-          amount: Number(secondAmount) / (fiatPrice),
-          coin: coin2?.symbol ?? "",
+          amount: Number(amount) / (fiatPrice),
+          coin: coin1?.symbol ?? "",
           recipient: request.address,
         });
       } else {
         inputs.push({
-          amount: Number(secondAmount),
-          coin: coin2?.symbol ?? "",
+          amount: Number(amount),
+          coin: coin1?.symbol ?? "",
           recipient: request.address,
         });
       }
+  
+      if (request.secondCurrency && request.secondAmount) {
+        const secondAmount = request.secondAmount;
+        const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+  
+        if (request.fiatSecond) {
+          const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
+  
+          inputs.push({
+            amount: Number(secondAmount) / (fiatPrice),
+            coin: coin2?.symbol ?? "",
+            recipient: request.address,
+          });
+        } else {
+          inputs.push({
+            amount: Number(secondAmount),
+            coin: coin2?.symbol ?? "",
+            recipient: request.address,
+          });
+        }
+      }
+  
+      await SendTransaction(account!, inputs, {
+        budget: budget,
+        subbudget: subbudget
+      })
+  
+      dispatch(removeApprovedRequest(request.id));
+      await removeRequest(request, userId ?? "")
+  
+  
+      setChooseBudget(false)
+    } catch (error: any) {
+      console.log(error)
     }
-
-    await SendTransaction(account!, inputs, {
-      budget: budget,
-      subbudget: subbudget
-    })
-
-    dispatch(removeApprovedRequest(request.id));
-    await removeRequest(request, userId ?? "")
-
-
-    setChooseBudget(false)
+   
   }
 
   const [isRejecting, setRejecting] = useLoading(Reject);

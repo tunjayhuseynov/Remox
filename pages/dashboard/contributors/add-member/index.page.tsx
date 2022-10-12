@@ -77,7 +77,7 @@ const AddMember = () => {
     const [loading, setIsLoading] = useState(false);
     const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
 
-    const submit = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+    const submit = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
         const Team = selectedTeam;
         const Compensation = selectedSchedule.name;
         const Amount = amount
@@ -97,7 +97,6 @@ const AddMember = () => {
         
         try {
             if(Team.id) {
-                setIsLoading(true)
                 let taskId: string | null = null
                 let inputs: IPaymentInput[] = []
                 if (isAutoPayment && startDate && endDate) {
@@ -124,6 +123,7 @@ const AddMember = () => {
     
                     taskId = id!
                 }
+                setIsLoading(true)
     
                 let member: IMember = {
                     id: uuidv4(),
@@ -156,6 +156,7 @@ const AddMember = () => {
                 return
             }
         } catch (error: any) {
+            setIsLoading(false)
             console.error(error);
         }
     };
@@ -179,28 +180,28 @@ const AddMember = () => {
                         <EditableAvatar avatarUrl={null} name={"snsabf021"} userId={userId ?? ""} evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange} />
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
-                        <TextField label="Full Name" value={fullname} onChange={(e) => setFullname(e.target.value)} required className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <TextField label="Full Name" value={fullname} onChange={(e) => setFullname(e.target.value)} required className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                         <Dropdown
                             label="Workstream"
                             setSelect={setSelectedTeam}
                             selected={selectedTeam}
                             list={teams}
-                            className="border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                            className="border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]"
                             sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
                         <Dropdown
                             label="Compensation Type"
-                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                            className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]"
                             list={schedule}
                             selected={selectedSchedule}
                             setSelect={setSelectedSchedule}
                             sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
                         />
-                        <TextField label="Role" value={role} onChange={(e) => setRole(e.target.value)} required  className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <TextField label="Role" value={role} onChange={(e) => setRole(e.target.value)} required  className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                     </div>
-                    <div className="flex w-full gap-x-10">
+                    <div className={`flex w-full gap-x-10 ${choosingBudget ? "z-[0]" : ""}`}>
                         <PriceInputField 
                           isMaxActive={true}
                           coins={GetCoins} 
@@ -212,7 +213,7 @@ const AddMember = () => {
                         />
                     </div>
                     {secondActive ? 
-                        <div className="col-span-2 relative">
+                        <div className={`col-span-2 relative ${choosingBudget ? "z-[0]" : ""}`}>
                             <PriceInputField 
                               isMaxActive={true}
                               coins={GetCoins} 
@@ -231,13 +232,13 @@ const AddMember = () => {
                         </div>
                       </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span>Add</div>}
                     <div className="flex flex-col space-y-1">
-                        <TextField value={address} onChange={(e) => setAddress(e.target.value)} required label="Wallet Address" className="bg-white dark:bg-darkSecond" variant="outlined" />
+                        <TextField value={address} onChange={(e) => setAddress(e.target.value)} required label="Wallet Address" className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                     </div>
                     <div className="flex gap-x-10">
                         <div className="flex flex-col space-y-1 w-full">
                             <Dropdown
                                 label="Payment Type"
-                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]"
                                 list={paymentType}
                                 selected={selectedPaymentType}
                                 sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
@@ -250,13 +251,13 @@ const AddMember = () => {
                                 selected={selectedFrequency}
                                 list={Frequency}
                                 sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
-                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md" />
+                                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]" />
                         </div>
                     </div>
                     <div className="flex gap-x-10">
                         <div className="flex flex-col space-y-1 w-full">
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md`}>
+                                <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]`}>
                                     <DesktopDatePicker
                                         label="Payment Start Date"
 
@@ -271,7 +272,7 @@ const AddMember = () => {
                         </div>
                         <div className="flex flex-col space-y-1 w-full">
                             <LocalizationProvider dateAdapter={AdapterDateFns} >
-                                <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md`}>
+                                <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]`}>
                                     <DesktopDatePicker
                                         label="Payment End Date"
 
@@ -295,7 +296,7 @@ const AddMember = () => {
                 </div>
             </div>
         </div>
-        <Modal onDisable={setChoosingBudget} openNotify={choosingBudget} className="opacity-100">
+        <Modal onDisable={setChoosingBudget} openNotify={choosingBudget} >
             <ChooseBudget submit={submit}/>
         </Modal>
     </>
