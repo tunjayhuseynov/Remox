@@ -144,7 +144,7 @@ const Swap = () => {
             <div className="text-2xl font-semibold ">Swap</div>
         </div>
         <div className="flex flex-col items-center justify-center pt-12">
-            <div className="flex flex-col w-[50%]">
+            <div className="flex flex-col w-[45%]">
                 <div className="shadow-custom rounded-xl bg-white dark:bg-darkSecond pt-3 pb-10 px-3 flex flex-col space-y-1">
                     <div className="flex justify-end    ">
                         <div className="relative py-3">
@@ -210,9 +210,9 @@ const Swap = () => {
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem] items-center flex justify-between rounded-xl py-3 px-4`}>
                         <div className="flex flex-col space-y-2 w-[9rem]">
                             <div className="relative">
-                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-52 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown(!dropdown)}>
+                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-40 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown(!dropdown)}>
                                     {token1 &&
-                                        <div className='flex space-x-2 tracking-wide text-xs items-center justify-start'>
+                                        <div className='flex space-x-2 tracking-wide text-base items-center justify-start'>
                                             <img src={token1?.logoURI} className="rounded-full w-5 h-5 mr-2" />
                                             {token1?.symbol}
                                         </div>
@@ -289,7 +289,7 @@ const Swap = () => {
                             </div>
                         </div>
                         <div className="flex flex-col space-y-7 items-end ">
-                            <div className="text-lg">
+                            <div className="text-sm">
                                 Balance: {token1 && token1.name && balances[token1.symbol] ? (balances[token1.symbol]?.amount.toFixed(2) ?? 0) : 0}
                             </div>
                             <div className="flex space-x-2">
@@ -317,18 +317,16 @@ const Swap = () => {
                         </div>
                     </div>
                     <div className="flex items-center justify-center">
-                        <div className={` ${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F9F9F9]"}  my-2 py-1 px-1 rounded-lg cursor-pointer `} onClick={changeSwap}>
-                            <div className={` ${isDark ? "" : "bg-[#f5F5F5]"} py-1 px-3`}>
+                        <div className={` ${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5] border-[#F9F9F9] border-[5px]"}  my-2 py-1 px-2 rounded-lg cursor-pointer w-[15%] flex justify-center `} onClick={changeSwap}>
                                 <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
-                            </div>
                         </div>
                     </div>
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem]  flex justify-between rounded-xl py-3 px-4`}>
                         <div className="flex flex-col space-y-2 w-[9rem]">
                             <div className="relative">
-                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-52 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown2(!dropdown)}>
+                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-40 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown2(!dropdown)}>
                                     {token2 &&
-                                        <div className='flex space-x-2 tracking-wide text-xs items-center justify-start'>
+                                        <div className='flex space-x-2 tracking-wide text-base items-center justify-start'>
                                             <img src={token2?.logoURI} className="rounded-full w-5 h-5 mr-2" />
                                             {token2?.symbol}
                                         </div>
@@ -405,7 +403,7 @@ const Swap = () => {
                             </div>
                         </div>
                         <div className="flex justify-end h-full">
-                            <div className="text-right text-lg outline-none unvisibleArrow">
+                            <div className="text-right text-sm outline-none unvisibleArrow">
                                 Balance: {token2 && token2.name && balances[token2.symbol] ? (balances[token2.symbol]?.amount.toFixed(2) ?? 0) : 0}
                             </div>
                         </div>
@@ -429,11 +427,11 @@ const Swap = () => {
                             >
                                 Swap
                             </Button> :
-                            <div className="w-full bg-greylish py-4 rounded-md text-sm">
+                            <div className="w-full bg-greylish py-4 text-white rounded-md text-sm">
                                 Insufficient {token1.symbol} balance
                             </div>
                         :
-                        <div className="w-full bg-greylish py-4 rounded-md text-sm">
+                        <div className="w-full bg-greylish py-4 text-white rounded-md text-sm">
                             Insufficient liquidity for this trade
                         </div>
                     }
