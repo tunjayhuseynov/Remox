@@ -13,12 +13,13 @@ import RunModal from './_components/modalpay/runModal';
 import { GetFiatPrice } from 'utils/const';
 import { FiatMoneyList } from 'firebaseConfig';
 import ChooseBudget from 'components/general/chooseBudget';
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
+import { IAccountORM } from "pages/api/account/index.api";
 
 
 export default function DynamicPayroll() {
     const [isAvaible, setIsAviable] = useState<boolean>(false)
     const [runmodal, setRunmodal] = useState<boolean>(false)
-    const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const contributors = useAppSelector(SelectContributorMembers)
     const [selectedContributors, setSelectedContributors] = useState<IMember[]>([]);
     const defaultFiat = useAppSelector(SelectFiatPreference)
@@ -37,7 +38,7 @@ export default function DynamicPayroll() {
     const totalMonthlyPayment = TotalMonthlyAmount(contributors, Object.values(GetCoins), defaultFiat)
 
 
-    const ExecutePayroll = async () => {
+    const ExecutePayroll = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
         try {
           let inputs: IPaymentInput[] = [];
           const members = [...selectedContributors];
@@ -84,8 +85,9 @@ export default function DynamicPayroll() {
             } 
           };
 
-          await SendTransaction(accountAndBudget.account!, inputs, {
-            budget: accountAndBudget.budget,
+          await SendTransaction(account!, inputs, {
+            budget: budget,
+            subbudget: subbudget
           })
     
           inputs = [];

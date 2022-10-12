@@ -5,7 +5,7 @@ import ClickAwayListener from '@mui/base/ClickAwayListener';
 
 interface IProps {
     children?: JSX.Element | JSX.Element[],
-    onDisable: React.Dispatch<React.SetStateAction<boolean>>,
+    onDisable: React.Dispatch<boolean>,
     title?: string,
     className?: string,
     disableX?: boolean,

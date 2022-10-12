@@ -144,7 +144,7 @@ function EditBudget({ onBack, budget }: IProps) {
             labelCoin: AltCoins | null,
         } | null
     }[]>(
-        budget.subbudgets.map(s => {
+        budget.subbudgets.length > 0 ? budget.subbudgets.map(s => {
             return {
                 id: s.id,
                 labelAmount: s.amount,
@@ -159,7 +159,33 @@ function EditBudget({ onBack, budget }: IProps) {
                     labelFiat: s.secondFiatMoney ?? null,
                 } : null
             }
-        })
+        }) : [{
+            id: nanoid(),
+            labelName: '',
+            labelAmount: null,
+            labelCoin: budgetCoin,
+            labelFiat: budgetFiat ?? null,
+            txs: [],
+            budgetCoins: {
+                coin: "",
+                totalAmount: 0,
+                totalPending: 0,
+                totalUsedAmount: 0,
+                fiat: budgetFiat ?? null,
+                second: anotherToken ? {
+                    fiat: budgetFiat2 ?? null,
+                    secondCoin: "",
+                    secondTotalAmount: 0,
+                    secondTotalPending: 0,
+                    secondTotalUsedAmount: 0,
+                } : null
+            },
+            second: anotherToken ? {
+                labelAmount: null,
+                labelCoin: budgetCoin2,
+                labelFiat: budgetFiat2 ?? null,
+            } : null
+        }]
     )
 
     const onSubmit = async () => {
@@ -169,7 +195,11 @@ function EditBudget({ onBack, budget }: IProps) {
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
         if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
-        if (labels.some(label => label.labelAmount === null || label.labelAmount === undefined || !label.labelCoin || !label.labelName)
+        if (labels.length === 1 && (labels[0].labelName && !labels[0].labelAmount)) return ToastRun(<>Please, input an amount for the label</>, "error")
+        if (labels.length === 1 && (labels[0].labelAmount && !labels[0].labelName)) return ToastRun(<>Please, input a name for the label</>, "error")
+        if (labels.length === 1 && (labels[0].second && (!labels[0].second.labelAmount || !labels[0].second.labelCoin))) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
+
+        if (labels.length > 1 && labels.some(label => label.labelAmount === undefined || label.labelAmount === null || !label.labelCoin || !label.labelName)
             ||
             (anotherToken && labels.some(label => label.second?.labelAmount === null || label.second?.labelAmount === undefined || !label.second?.labelCoin))
         ) return ToastRun(<>Please, fill all the fields</>, "error")
@@ -213,7 +243,7 @@ function EditBudget({ onBack, budget }: IProps) {
                     totalUsedAmount: budget.budgetCoins.totalUsedAmount,
                 },
 
-                subbudgets: labels.map(s => ({
+                subbudgets: labels[0].labelName && labels[0].labelAmount ? labels.map(s => ({
                     id: s.id,
                     name: s.labelName,
                     amount: s.labelAmount ?? 0,
@@ -248,7 +278,7 @@ function EditBudget({ onBack, budget }: IProps) {
                             secondTotalUsedAmount: s.budgetCoins.second?.secondTotalUsedAmount,
                         } : null
                     }
-                })),
+                })) : [],
             }
         }
 
@@ -294,7 +324,12 @@ function EditBudget({ onBack, budget }: IProps) {
             {
                 activeStep === 0 &&
                 <div className='flex flex-col space-y-5'>
-                    <TextField label="Name" placeholder='E.g. Remox Budget Q4 2023' value={budgetName} className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
+                    <div className='text-xl text-center mb-3 font-semibold'>Budget</div>
+
+                    <TextField
+                        InputProps={{ style: { fontSize: '0.875rem' } }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                        label="Name" placeholder='E.g. Remox Budget Q4 2023' value={budgetName} className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
 
                     <PriceInputField coins={coins} defaultCoin={budgetCoin} defaultFiat={budgetFiat} defaultValue={budgetAmount} onChange={(val, coin, fiatMoney) => {
                         setBudgetAmount(val)
@@ -305,12 +340,21 @@ function EditBudget({ onBack, budget }: IProps) {
                     {(budgetFiat) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
+                                sx={{
+                                    fontSize: "0.875rem"
+                                }}
+                                labelSX={{
+                                    fontSize: "0.875rem"
+                                }}
                                 list={[{ name: PC }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption}
                                 selected={selectedPriceOption}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption.name === PC} value={customPrice?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
+                            <TextField
+                                InputProps={{ style: { fontSize: '0.875rem' } }}
+                                InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                                disabled={selectedPriceOption.name === PC} value={customPrice?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
                         </div>
                     </div>}
 
@@ -340,22 +384,29 @@ function EditBudget({ onBack, budget }: IProps) {
                     {(budgetFiat2) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
+                                sx={{
+                                    fontSize: "0.875rem"
+                                }}
+                                labelSX={{
+                                    fontSize: "0.875rem"
+                                }}
                                 list={[{ name: PC }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption2}
                                 selected={selectedPriceOption2}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption2.name === PC} value={customPrice2?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
+                            <TextField
+                                InputProps={{ style: { fontSize: '0.875rem' } }}
+                                InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                                disabled={selectedPriceOption2.name === PC} value={customPrice2?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
                         </div>
                     </div>}
-                    <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
+                    <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8 text-sm pt-6">
                         <Button version="second" className="!rounded-xl" onClick={onBack}>Cancel</Button>
-                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" onClick={onNext}>Next</Button>
+                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center text-sm" onClick={onNext}>Next</Button>
                     </div>
                 </div>
             }
-
-
 
             {
                 activeStep === 1 &&
@@ -366,12 +417,15 @@ function EditBudget({ onBack, budget }: IProps) {
                         return <div key={label.id} className='flex flex-col space-y-5'>
                             <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
-                                <TextField label="Label name" value={label.labelName} placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
-                                    if (s.id === label.id) {
-                                        return { ...s, labelName: e.target.value }
-                                    }
-                                    return s;
-                                }))} />
+                                <TextField
+                                    InputProps={{ style: { fontSize: '0.875rem' } }}
+                                    InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                                    label="Label name" value={label.labelName} placeholder='E.g. Remox Budget Q4 2023' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
+                                        if (s.id === label.id) {
+                                            return { ...s, labelName: e.target.value }
+                                        }
+                                        return s;
+                                    }))} />
                                 {labels.length > 1 &&
                                     <div className='absolute -right-8 top-1/2 -translate-y-1/2' onClick={() => {
                                         setLabels(labels.filter(s => s.id !== label.id))
@@ -427,7 +481,7 @@ function EditBudget({ onBack, budget }: IProps) {
                         </div>
                     })}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
-                        <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-semibold' onClick={onAddLabel}>
+                        <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-medium text-sm' onClick={onAddLabel}>
                             + Add Budget Label
                         </div>
                         <Button version="second" className="!rounded-xl" onClick={() => {
@@ -435,7 +489,7 @@ function EditBudget({ onBack, budget }: IProps) {
                             setBudgetFiat2(undefined)
                             setBudgetFiat(undefined)
                         }}>Back</Button>
-                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading} onClick={OnSubmit}>Create</Button>
+                        <Button type="submit" className="!rounded-xl bg-primary px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading} onClick={OnSubmit}>Edit</Button>
                     </div>
                 </div>
             }

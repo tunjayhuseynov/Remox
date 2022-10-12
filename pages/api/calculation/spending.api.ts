@@ -136,7 +136,6 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
             if (transaction.id === ERC20MethodIds.transfer ||
                 transaction.id === ERC20MethodIds.transferFrom ||
                 transaction.id === ERC20MethodIds.transferWithComment ||
-                transaction.id === ERC20MethodIds.automatedCanceled ||
                 transaction.id === ERC20MethodIds.automatedTransfer ||
                 transaction.id === ERC20MethodIds.repay ||
                 transaction.id === ERC20MethodIds.deposit

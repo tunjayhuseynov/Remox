@@ -22,6 +22,8 @@ import { addConfirmation, changeToExecuted, removeConfirmation, SelectFiatSymbol
 import Loader from 'components/Loader';
 import makeBlockie from 'ethereum-blockies-base64';
 import { FiRepeat } from 'react-icons/fi';
+import AddLabel from './tx/AddLabel';
+import { ClickAwayListener } from '@mui/material';
 
 
 interface IProps { isDetailOpen?: boolean, address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
@@ -32,6 +34,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const [selectedLabel, setSelectedLabel] = useState<ITag>();
     const [labelLoading, setLabelLoading] = useState(false)
     const [openDetail, setOpenDetail] = useState(isDetailOpen ?? false)
+    const [addLabelModal, setAddLabelModal] = useState(false);
+
 
     const providerAddress = useAppSelector(SelectProviderAddress)
     const id = useAppSelector(SelectID)
@@ -100,24 +104,27 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const uniqTags = tags.filter(s => tx.tags?.findIndex(d => d.id === s.id) === -1)
 
     const labelChangeFn = (val: ITag) => async () => {
-        if (!id) {
-            return ToastRun(<>You do not have any id, please sign in again</>, "success");
+        try {
+            if (!id) {
+                return ToastRun(<>You do not have any id, please sign in again</>, "error");
+            }
+            setLabelLoading(true)
+            await dispatch(AddTransactionToTag({
+                tagId: val.id,
+                transaction: {
+                    id: nanoid(),
+                    address: tx.contractAddress,
+                    hash: tx.hashOrIndex,
+                    contractType: "multi",
+                    provider: account?.provider ?? null
+                },
+                txIndex: txPositionInRemoxData
+            })).unwrap()
+            setLabelLoading(false)
+            setLabelActive(false)
+        } catch (error) {
+            ToastRun(<>{(error as any).message}</>, "error");
         }
-        setLabelLoading(true)
-        await dispatch(AddTransactionToTag({
-            tagId: val.id,
-            transaction: {
-                id: nanoid(),
-                address: tx.contractAddress,
-                hash: tx.hashOrIndex,
-                contractType: "multi",
-                provider: account?.provider ?? null,
-            },
-            txIndex: txPositionInRemoxData
-        })).unwrap()
-
-        setLabelLoading(false)
-        setLabelActive(false)
     }
 
     const isApprovable = tx.confirmations.length >= tx.contractThresholdAmount
@@ -204,28 +211,35 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
                 </td>
                 <td className="text-left flex flex-col">
-                    <div className="flex flex-col">
+                    <div className="flex flex-col relative">
                         {
-                            tx.tags?.map(tag => <div className="flex space-x-5" key={tag.id}>
-                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></div>
-                                <span className="text-xs">{tag.name}</span>
+                            tx.tags?.map(tag => <div key={tag.id} className="flex space-x-2">
+                                <div className="w-1 h-5" style={{ backgroundColor: tag.color }}></div>
+                                <span className="text-sm font-medium">{tag.name}</span>
                             </div>)
                         }
-                        {uniqTags.length > 0 && (!isLabelActive ? <div>
-                            <span className="text-primary cursor-pointer text-sm" onClick={() => setLabelActive(true)}>
+                        {tx.tags.length === 0 && <div>
+                            {labelLoading ? <Loader /> : <span className="text-primary cursor-pointer text-sm font-medium" onClick={() => setLabelActive(!isLabelActive)}>
                                 + Add Label
-                            </span>
-                        </div> :
-                            <div className="w-1/2 h-5">
-                                <Dropdown
-                                    runFn={labelChangeFn}
-                                    loading={labelLoading}
-                                    selected={selectedLabel}
-                                    setSelect={setSelectedLabel}
-                                    list={uniqTags}
-                                />
-                            </div>)
-                        }
+                            </span>}
+                        </div>}
+                        {isLabelActive && (
+                            <ClickAwayListener onClickAway={() => {
+                                setLabelActive(false)
+                            }}>
+                                <div className="absolute z-[9999] -bottom-1 w-full bg-white dark:bg-darkSecond translate-y-full rounded-md border border-gray-500">
+                                    <div className="flex flex-col items-center">
+                                        <div onClick={() => { setAddLabelModal(true); setLabelActive(false); }} className="text-xs text-primary py-2 hover:bg-gray-100 rounded-t-md hover:dark:bg-gray-800 cursor-pointer w-full text-left border-b border-greylish pl-2 font-medium">+ New Label</div>
+                                        {uniqTags.map((e, i) => {
+                                            return <div key={e.id} onClick={() => { labelChangeFn(e)(); setLabelActive(false) }} className={`flex space-x-2 text-primary py-2 hover:bg-gray-100 hover:dark:bg-gray-800 cursor-pointer w-full text-left pl-2 ${i !== uniqTags.length - 1 ? "border-b border-greylish" : " rounded-b-md"}`}>
+                                                <div className="w-1 h-4" style={{ backgroundColor: e.color }}></div>
+                                                <span className="text-xs font-medium">{e.name}</span>
+                                            </div>
+                                        })}
+                                    </div>
+                                </div>
+                            </ClickAwayListener>
+                        )}
                     </div>
                 </td>
                 <td className="text-left w-[95%]">
@@ -242,7 +256,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
-                        <div className="h-3 w-full rounded-lg bg-gray-300 relative" >
+                        <div className="h-2 w-full rounded-lg bg-gray-300 relative" >
                             <div className={`absolute left-0 top-0 h-2 ${tx.isExecuted ? "bg-green-500" : tx.confirmations.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.isExecuted ? "100%" : Math.min(((tx.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />
@@ -307,11 +321,18 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 tags={tx.tags}
                 threshold={tx.contractThresholdAmount}
                 timestamp={tx.timestamp}
-                budget={tx.budget ?? undefined}
                 account={account}
                 openDetail={openDetail}
                 setOpenDetail={setOpenDetail}
             />
+            {
+                addLabelModal && <AddLabel
+                    onSubmit={async (tag) => {
+                        await labelChangeFn(tag)()
+                    }}
+                    setAddLabelModal={setAddLabelModal}
+                />
+            }
         </>
     );
 })

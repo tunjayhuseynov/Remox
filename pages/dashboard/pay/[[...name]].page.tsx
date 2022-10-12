@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import CSV, { csvFormat } from 'utils/CSV'
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "redux/hooks";
-import { SelectAccounts, SelectAddressBooks, SelectBalance, SelectDarkMode, SelectFiatSymbol, SelectPriceCalculationFn, SelectTotalBalance } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAddressBooks, SelectBalance, SelectDarkMode, SelectFiatPreference, SelectFiatSymbol, SelectPriceCalculationFn, SelectTotalBalance } from 'redux/slices/account/remoxData';
 import Button from "components/button";
 import { AltCoins, Coins } from "types";
 import { useWalletKit } from "hooks";
@@ -60,6 +60,7 @@ const Pay = () => {
     const accounts = useAppSelector(SelectAccounts)
     const selectedAccountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const priceCalculation = useAppSelector(SelectPriceCalculationFn)
+    const fiatPreference = useAppSelector(SelectFiatPreference)
 
     const books = useAppSelector(SelectAddressBooks)
 
@@ -277,6 +278,57 @@ const Pay = () => {
     const [isLoading, submit] = useLoading(onSubmit)
 
     const isSingle = selectedAccountAndBudget.account?.signerType === "single"
+
+
+    const TotalBudget = useMemo(() => {
+        const b = selectedAccountAndBudget.budget;
+        if (!b) return null;
+        const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+
+        const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
+        const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
+        const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
+        const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
+
+        const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
+
+        const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
+        const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
+
+        const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
+        const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending
+        return {
+            totalAmount: ((b.customPrice ?? MainFiatPrice) * totalAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalAmountSecond ?? 0)),
+            totalUsedAmount: ((b.customPrice ?? MainFiatPrice) * totalUsedAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalUsedAmountSecond ?? 0)),
+            totalPending: ((b.customPrice ?? MainFiatPrice) * totalPendingAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalPendingAmountSecond ?? 0))
+        }
+    }, [])
+
+
+    const TotalBudgetLabel = useMemo(() => {
+        const b = selectedAccountAndBudget.subbudget;
+        if (!b) return null;
+        const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+
+        const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
+        const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
+        const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
+        const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
+
+        const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
+
+        const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
+        const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
+
+        const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
+        const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending
+        return {
+            totalAmount: ((b.customPrice ?? MainFiatPrice) * totalAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalAmountSecond ?? 0)),
+            totalUsedAmount: ((b.customPrice ?? MainFiatPrice) * totalUsedAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalUsedAmountSecond ?? 0)),
+            totalPending: ((b.customPrice ?? MainFiatPrice) * totalPendingAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalPendingAmountSecond ?? 0))
+        }
+    }, [])
+
     return <>
         <div >
             <div className="relative bg-light dark:bg-dark">
@@ -317,6 +369,21 @@ const Pay = () => {
                             </div>
                         </div>
                     </div>
+                    {selectedAccountAndBudget.budget && <div className="flex justify-center">
+                        <div className={`mt-[1px] shadow-custom px-5 bg-white dark:bg-darkSecond py-2`}>
+                            <div className="grid grid-cols-2">
+                                <div className="flex flex-col gap-2 mb-4 border-r">
+                                    <div className="font-medium text-greylish dark:text-white text-xs">Budget Balance</div>
+                                    <div className="text-sm font-medium">{`${symbol}`}<NG number={(TotalBudget?.totalPending ?? 0) + (TotalBudget?.totalUsedAmount ?? 0)} fontSize={0.875} /></div>
+                                </div>
+                                <div className="flex flex-col gap-2 mb-4 pl-5">
+                                    <div className="font-medium text-greylish dark:text-white text-xs">Budget-label Balance</div>
+                                    <div className="text-sm font-medium">{`${symbol}`}<NG number={(TotalBudgetLabel?.totalPending ?? 0) + (TotalBudgetLabel?.totalUsedAmount ?? 0)} fontSize={0.875} /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
                     <div className="sm:flex flex-col gap-3 py-5">
                         <div className="sm:flex flex-col gap-y-6">
                             <div className="flex flex-col">
@@ -406,7 +473,7 @@ const Pay = () => {
                                                 className="bg-white dark:bg-darkSecond"
                                                 InputProps={{
                                                     style: {
-                                                        fontSize: "0.75rem",
+                                                        fontSize: "0.875rem",
                                                     }
                                                 }}
                                                 onChange={(newValue) => setStartDate(moment(newValue).unix() * 1e3)}
@@ -424,7 +491,7 @@ const Pay = () => {
                                                 className="bg-white dark:bg-darkSecond"
                                                 InputProps={{
                                                     style: {
-                                                        fontSize: "0.75rem",
+                                                        fontSize: "0.875rem",
                                                     }
                                                 }}
                                                 onChange={(newValue) => setEndDate(moment(newValue).unix() * 1e3)}
@@ -465,8 +532,8 @@ const Pay = () => {
                                     </div>
                                     <div>
                                         <TextField
-                                            InputProps={{ style: { fontSize: '0.75rem' } }}
-                                            InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                                            InputProps={{ style: { fontSize: '0.875rem' } }}
+                                            InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                                             className="w-full bg-white dark:bg-darkSecond" label="Attach Link (Optional)" variant="outlined" onChange={(e) => setAttachLink(e.target.value)} />
                                     </div>
                                 </div>

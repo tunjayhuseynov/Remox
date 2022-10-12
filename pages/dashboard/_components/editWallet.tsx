@@ -71,12 +71,12 @@ function EditWallet({ account, onDisable }: { account: IAccountORM, onDisable: D
                     <TextField
                         InputLabelProps={{
                             style: {
-                                fontSize: "0.75rem",
+                                fontSize: "0.875rem",
                             }
                         }}
                         InputProps={{
                             style: {
-                                fontSize: "0.75rem",
+                                fontSize: "0.875rem",
                             }
                         }}
                         label="Wallet Name" {...register("name", { required: true, value: account.name })} placeholder="E.g. Remox DAO" className="bg-white dark:bg-darkSecond" />
@@ -86,12 +86,12 @@ function EditWallet({ account, onDisable }: { account: IAccountORM, onDisable: D
                     <TextField
                         InputLabelProps={{
                             style: {
-                                fontSize: "0.75rem",
+                                fontSize: "0.875rem",
                             }
                         }}
                         InputProps={{
                             style: {
-                                fontSize: "0.75rem",
+                                fontSize: "0.875rem",
                             }
                         }}
                         label="Wallet Address" disabled value={AddressReducer(account.address)} />

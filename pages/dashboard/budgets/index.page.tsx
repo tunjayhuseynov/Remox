@@ -2,13 +2,21 @@ import React, { useState } from 'react'
 import TotalExerciseData from 'pages/dashboard/budgets/_components/TotalExerciseData'
 import { IoIosArrowDown } from 'react-icons/io';
 import { useAppSelector } from 'redux/hooks';
-import { SelectBudgetExercises } from 'redux/slices/account/remoxData';
+import { SelectBudgetExercises, SelectCurrencies, SelectFiatPreference, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import { useRouter } from 'next/router';
 import { AnimatePresence, motion } from 'framer-motion'
 import { AiOutlinePlusCircle } from 'react-icons/ai';
 import { BASE_URL } from 'utils/api';
 import ExerciseBody from './_components/ExerciseBody';
 import { ClickAwayListener } from '@mui/material';
+import { NG } from 'utils/jsxstyle';
+import { GetFiatPrice } from 'utils/const';
+import { VscEdit } from 'react-icons/vsc';
+import { GiCancel } from 'react-icons/gi';
+import Modal from 'components/general/modal';
+import EditExercise from './_components/EditExercise';
+import DeleteExercise from './_components/DeleteExercise';
+import { IBudgetExerciseORM } from 'pages/api/budget/index.api';
 
 const Budgets = () => {
 
@@ -22,9 +30,18 @@ const Budgets = () => {
 
     const hasExercises = (budget_exercises?.length ?? 0) > 0
 
+    const fiatPreference = useAppSelector(SelectFiatPreference)
+    const fiatSymbol = useAppSelector(SelectFiatSymbol)
+    const coins = useAppSelector(SelectCurrencies)
+
     const [modalVisibility, setModalVisible] = useState(false)
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
+
+    const [deleteModal, setDeleteModal] = useState(false)
+    const [editModal, setEditModal] = useState(false)
+    const [selectedEditExercise, setSelectedEditExercise] = useState<IBudgetExerciseORM | null>(null)
+    const [selectedDeleteExercise, setSelectedDeleteExercise] = useState<IBudgetExerciseORM | null>(null)
 
     const link = BASE_URL + "/view/budget/"
 
@@ -81,26 +98,53 @@ const Budgets = () => {
                         </div>
 
                     </div>
-                    {selectedExercise?.created_at && <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
-                        {new Date(selectedExercise.created_at * 1e3).toLocaleDateString('en-us', { year: "numeric", month: "short" })}
+                    {selectedExercise?.from && <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
+                        {new Date(selectedExercise.from * 1e3).toLocaleDateString('en-us', { year: "numeric", month: "short" })}
                     </div>}
                     <AnimatePresence>
                         {isOpen &&
                             <ClickAwayListener onClickAway={() => setOpen(false)}>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-                                    className="min-w-[20rem] absolute rounded-lg right-0 bottom-0 translate-x-full translate-y-1/2 bg-light dark:bg-darkSecond z-50 border dark:border-gray-500 border-gray-200"
+                                    className="min-w-[24.75rem] absolute rounded-lg right-0 bottom-0 translate-x-full translate-y-1/2 bg-light dark:bg-darkSecond z-50 border dark:border-gray-500 border-gray-200"
                                     onClick={() => setOpen(false)}
                                 >
                                     <div className='flex flex-col'>
                                         <div className='grid grid-flow-row'>
                                             {budget_exercises.map((item) => {
+                                                const TotalBudget = item.budgets.reduce((a, b) => {
+
+                                                    const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+
+                                                    const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
+                                                    const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
+                                                    // const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
+                                                    // const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
+
+                                                    const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
+
+                                                    const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
+                                                    const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
+
+                                                    // const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
+                                                    // const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending
+                                                    return {
+                                                        totalAmount: a.totalAmount + ((b.customPrice ?? MainFiatPrice) * totalAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalAmountSecond ?? 0))
+                                                        // totalUsedAmount: a.totalUsedAmount + ((b.customPrice ?? MainFiatPrice) * totalUsedAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalUsedAmountSecond ?? 0)),
+                                                        // totalPending: a.totalPending + ((b.customPrice ?? MainFiatPrice) * totalPendingAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalPendingAmountSecond ?? 0))
+                                                    }
+                                                }, { totalAmount: 0 })
+
                                                 return <div onClick={() => setSelectedExerciseId(item.id)} key={item.id} className="hover:bg-greylish hover:bg-opacity-5 p-2 hover:transition-all transition-all text-start justify-start cursor-pointer w-full border-b dark:border-greylish">
-                                                    <div className="grid grid-cols-2 px-2 w-[66%]">
-                                                        <span className="font-semibold text-lg transition-all">{item.name}</span>
+                                                    <div className="grid grid-cols-[1fr,1fr,33%,1fr] gap-x-5 px-2 ">
+                                                        <span className="font-medium text-sm transition-all self-center">{item.name}</span>
                                                         <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
-                                                            {item.from > new Date().getTime() ? "Future" : item.to < new Date().getTime() ? "Past" : "Current"}
+                                                            {item.from * 1e3 > new Date().getTime() ? "Future" : item.to * 1e3 < new Date().getTime() ? "Past" : "Current"}
                                                         </div>
-                                                        {/* <span className="font-semibold text-[1.25rem]">${SetComma(item.totalBudget)}</span> */}
+                                                        <span className="font-medium text-sm self-center pl-1">{fiatSymbol}<NG number={TotalBudget.totalAmount} fontSize={0.875} /></span>
+                                                        <div className="flex space-x-3 self-center justify-end w-full">
+                                                            <VscEdit size={"1.125rem"} className="cursor-pointer hover:text-green-500" onClick={() => { setEditModal(true); setSelectedEditExercise(item) }} />
+                                                            <GiCancel size={"1.125rem"} className="cursor-pointer hover:text-red-500" onClick={() => { setDeleteModal(true); setSelectedDeleteExercise(item) }} />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             })}
@@ -117,6 +161,20 @@ const Budgets = () => {
                     </AnimatePresence>
                 </div>
             </div>}
+            {selectedEditExercise && <Modal onDisable={setEditModal} openNotify={editModal} disableX={true}>
+                <EditExercise exercise={selectedEditExercise} onBack={() => {
+                    // setSelectedEditExercise(null)
+                    setEditModal(false)
+                }} />
+            </Modal>}
+            {
+                deleteModal && selectedDeleteExercise &&
+                <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!w-[30%] !pt-4'}>
+                    <DeleteExercise onDisable={setDeleteModal} onDelete={() => {
+                        setSelectedExerciseId(budget_exercises.length > 0 ? budget_exercises[0].id : undefined)
+                    }} budget={selectedDeleteExercise}></DeleteExercise>
+                </Modal>
+            }
             {hasExercises && selectedExercise && <>
                 <TotalExerciseData total={selectedExercise} />
                 <ExerciseBody exercise={selectedExercise} />
@@ -126,6 +184,7 @@ const Budgets = () => {
                 </div>} */}
             </>}
         </div >
+
     </div >
 
 }

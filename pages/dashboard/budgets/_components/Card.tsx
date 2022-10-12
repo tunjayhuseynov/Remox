@@ -13,6 +13,7 @@ import { GiCancel } from 'react-icons/gi';
 import { AiFillRightCircle } from 'react-icons/ai';
 import EditBudget from './EditBudget';
 import { fiatList } from 'components/general/PriceInputField';
+import CurrencyElement from 'components/general/CurrencyElement';
 
 function BudgetCard({ item, }: { item: IBudgetORM }) {
     // const [openNotify, setNotify] = useState(false)
@@ -59,70 +60,47 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
-                        <div className='flex items-center space-x-3 font-medium text-lg'>
-                            <div>
-                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
-                            </div>
-                            <div>{SetComma(budgetCoins.totalAmount)}</div>
+                        <div className='space-x-3 font-medium text-lg'>
+                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalAmount} />
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <div>
-                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
-                                </div>
-                                <div>{SetComma(budgetCoins.second.secondTotalAmount)}</div>
+                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount} />
                             </div>}
                     </div>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
-                        <div className='flex items-center space-x-3 font-medium text-lg'>
-                            <div>
-                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
-                            </div>
-                            <div>{SetComma(budgetCoins.totalUsedAmount)}</div>
+                        <div className='space-x-3 font-medium text-lg'>
+                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalUsedAmount} />
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <div>
-                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
-                                </div>
-                                <div>{SetComma(budgetCoins.second.secondTotalUsedAmount)}</div>
+                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalUsedAmount} />
                             </div>}
                     </div>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
-                        <div className='flex items-center space-x-3 font-medium text-lg'>
-                            <div>
-                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
-                            </div>
-                            <div>{SetComma(budgetCoins.totalPending)}</div>
+                        <div className='space-x-3 font-medium text-lg'>
+                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalPending} />
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <div>
-                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
-                                </div>
-                                <div>{SetComma(budgetCoins.second.secondTotalPending)}</div>
+                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalPending} />
                             </div>}
                     </div>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
-                        <div className='flex items-center space-x-3 font-medium text-lg'>
-                            <div>
-                                <img className="rounded-full w-5 h-5 object-cover" src={firstFiat ?? GetCoins[budgetCoins.coin].logoURI} alt={budgetCoins.coin} />
-                            </div>
-                            <div>{SetComma(budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount))}</div>
+                        <div className='space-x-3 font-medium text-lg'>
+                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount)} />
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <div>
-                                    <img className="rounded-full w-5 h-5 object-cover" src={secondFiat ?? GetCoins[budgetCoins.second.secondCoin].logoURI} alt={budgetCoins.second.secondCoin} />
-                                </div>
-                                <div>{SetComma(budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount))}</div>
-                            </div>}
+                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount)} />
+                            </div>
+                            }
                     </div>
                 </td>
                 <td className='self-center relative'>

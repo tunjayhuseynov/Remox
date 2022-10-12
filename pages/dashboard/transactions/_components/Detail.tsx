@@ -4,7 +4,7 @@ import { useModalSideExit } from "hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { ERC20MethodIds, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IFormattedTransaction, IRemoveOwner, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { AltCoins, TransactionDirection } from "types";
-import { IAccount, IBudget } from "firebaseConfig";
+import { IAccount, IBudget, IMember } from "firebaseConfig";
 import { ITag } from "pages/api/tags/index.api";
 import { CoinDesignGenerator } from './CoinsGenerator';
 import dateFormat from "dateformat";
@@ -48,18 +48,17 @@ interface IProps {
         currency?: AltCoins
     },
     action: string,
-    budget?: IBudgetORM,
     txIndex: number,
 }
 
 const Detail = ({
     openDetail, setOpenDetail, transaction, account, tags,
-    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, budget, direction, txIndex
+    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex
 }: IProps) => {
 
     const [mounted, setMounted] = useState(false)
     const [budgetLoading, setBudgetLoading] = useState(false)
-    const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(budget)
+    const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(transaction.budget)
     // const [selectedBudgetLabel, setSelectedBudgetLabel] = useState<ISubbudgetORM | undefined>(budget)
     const notes = useAppSelector(SelectNotes)
 
@@ -110,9 +109,9 @@ const Detail = ({
     const budgetChangeFn = (val: IBudgetORM) => async () => {
         // if (!account?.provider) return ToastRun(<>Cannot get the multisig provider</>, "error")
         setBudgetLoading(true)
-        if (budget) {
+        if (transaction.budget) {
             await dispatch(Remove_Tx_From_Budget_Thunk({
-                budget: budget,
+                budget: transaction.budget,
                 isExecuted: isExecuted,
                 txIndex: txIndex,
                 tx: {
@@ -143,6 +142,7 @@ const Detail = ({
             },
             isExecuted: isExecuted,
         })).unwrap()
+
         setBudgetLoading(false)
     }
 
@@ -262,7 +262,7 @@ const Detail = ({
                                     <div className="text-greylish text-sm">Signers</div>
                                     <div>
                                         <div className="flex flex-col items-center justify-center gap-2">
-                                            {signers.map(s => <span key={s} className='text-sm'>{AddressReducer(s)}</span>)}
+                                            {signers.map(s => <span key={s} className='text-sm'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name ?? AddressReducer(s)}</span>)}
                                             {signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
                                         </div>
                                     </div>

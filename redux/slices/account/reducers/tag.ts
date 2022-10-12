@@ -23,8 +23,13 @@ export default {
         const tagIndex = state.tags.findIndex(tag => tag.id === action.payload.tagId);
         if (tagIndex !== -1) {
             state.tags[tagIndex].transactions = [...state.tags[tagIndex].transactions, action.payload.transactionTag];
-            if (action.payload.txIndex) {
-                state.cumulativeTransactions[action.payload.txIndex].tags = [...state.cumulativeTransactions[action.payload.txIndex].tags, state.tags[tagIndex]];
+            if (action.payload.txIndex !== undefined) {
+                const tagId = state.cumulativeTransactions[action.payload.txIndex].tags.findIndex(s => s.id === action.payload.tagId)
+                if (tagId !== -1) {
+                    state.cumulativeTransactions[action.payload.txIndex].tags[tagId].transactions = [...state.cumulativeTransactions[action.payload.txIndex].tags[tagId].transactions, action.payload.transactionTag]
+                } else {
+                    state.cumulativeTransactions[action.payload.txIndex].tags = [...state.cumulativeTransactions[action.payload.txIndex].tags, { ...state.tags[tagIndex], transactions: [action.payload.transactionTag] }]
+                }
             }
         }
     },

@@ -202,9 +202,9 @@ function CreateMultisig() {
                     </div> */}
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <Dropdown
-                            inputProps={{ style: { fontSize: '0.75rem' } }}
+                            inputProps={{ style: { fontSize: '0.875rem' } }}
                             labelSX={{
-                                fontSize: '0.75rem',
+                                fontSize: '0.875rem',
                                 top: 2
                             }}
                             className='bg-light dark:bg-darkSecond'
@@ -219,12 +219,12 @@ function CreateMultisig() {
                             <TextField
                                 InputLabelProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 InputProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 label="Multisig Address" {...register("multisigAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg w-full px-1" placeholder='E.g. 0xabcd...' />
@@ -235,12 +235,12 @@ function CreateMultisig() {
                             <TextField
                                 InputLabelProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 InputProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 label="Name"  {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />
@@ -253,12 +253,12 @@ function CreateMultisig() {
                             <TextField
                                 InputLabelProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 InputProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 {...register("ownerName")} className="cursor-pointer border p-3 rounded-md  outline-none w-full dark:bg-darkSecond" label="Name" />
@@ -266,12 +266,12 @@ function CreateMultisig() {
                             <TextField
                                 InputLabelProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 InputProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 disabled className="cursor-pointer border p-3 rounded-md w-full bg-greylish bg-opacity-20  outline-none  dark:bg-darkSecond" value={address !== null ? `${AddressReducer(address)} (You)` : ""} />
@@ -281,12 +281,12 @@ function CreateMultisig() {
                                 <TextField
                                     InputLabelProps={{
                                         style: {
-                                            fontSize: "0.75rem"
+                                            fontSize: "0.875rem"
                                         }
                                     }}
                                     InputProps={{
                                         style: {
-                                            fontSize: "0.75rem"
+                                            fontSize: "0.875rem"
                                         }
                                     }}
                                     type="text" label="Name" className="cursor-pointer rounded-md  dark:bg-darkSecond" value={w.name} onChange={(e) => changeOwner(w.id, e.target.value, w.address)} />
@@ -294,12 +294,12 @@ function CreateMultisig() {
                                 <TextField
                                     InputLabelProps={{
                                         style: {
-                                            fontSize: "0.75rem"
+                                            fontSize: "0.875rem"
                                         }
                                     }}
                                     InputProps={{
                                         style: {
-                                            fontSize: "0.75rem"
+                                            fontSize: "0.875rem"
                                         }
                                     }}
                                     type="text" label="Address" className="cursor-pointer ml-4 rounded-md  bg-greylish bg-opacity-20  dark:bg-darkSecond" onChange={(e) => changeOwner(w.id, w.name, e.target.value)} value={w.address !== null ? AddressReducer(w.address) : ""} />
@@ -318,12 +318,12 @@ function CreateMultisig() {
                             <TextField
                                 InputLabelProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 InputProps={{
                                     style: {
-                                        fontSize: "0.75rem"
+                                        fontSize: "0.875rem"
                                     }
                                 }}
                                 type="number" {...register("threshold", { required: true, valueAsNumber: true, max: (owners.length + 1) })} className="unvisibleArrow border p-3 mr-4 rounded-md outline-none w-[25%] dark:bg-darkSecond" value={sign} onChange={(e) => { if (!isNaN(+e.target.value) && +e.target.value <= owners.length + 1) { setSign(+e.target.value || undefined) } }} />

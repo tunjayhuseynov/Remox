@@ -20,7 +20,7 @@ import EditableTextInput from 'components/general/EditableTextInput';
 
 const teamItem = ({ props }: { props: IContributor }) => {
     const { removeTeam } = useContributors()
-    const { SendTransaction, blockchain } = useWalletKit()
+    const { SendTransaction, blockchain, Address } = useWalletKit()
     const accounts = useAppSelector(SelectAccounts)
     const dispatch = useAppDispatch()
     const [deleteModal, setDeleteModal] = useState(false)
@@ -28,12 +28,14 @@ const teamItem = ({ props }: { props: IContributor }) => {
 
     const DeleteTeam = async () => {
         try {
+            const address = await Address
+            const account = accounts.find((account) => account.address == address)
             for (let index = 0; index < props.members.length; index++) {
                 const element = props.members[index];
                 if (element.taskId) {
                     const web3 = new Web3(blockchain.rpcUrl);
                     const streamId = hexToNumberString((await web3.eth.getTransactionReceipt(element.taskId)).logs[1].topics[1])
-                    await SendTransaction(accounts[0], [], {
+                    await SendTransaction(account!, [], {
                         cancelStreaming: true,
                         streamingIdTxHash: streamId
                     })

@@ -31,12 +31,13 @@ export const Create_Budget_Exercise = async (budget_exercise: IBudgetExercise) =
 
 export const Update_Budget_Exercise = async (budget_exercise: IBudgetExercise) => {
     let refs = []
-    for (let budget of budget_exercise.budgets) {
+    const exercise = Object.assign({}, budget_exercise);
+    for (let budget of exercise.budgets) {
         refs.push(Get_Budget_Ref(budget.id))
     }
-    budget_exercise.budgets = refs;
-    await FirestoreWrite<IBudgetExercise>().updateDoc(budgetExerciseCollectionName, budget_exercise.id, budget_exercise);
-    return budget_exercise;
+    exercise.budgets = refs;
+    await FirestoreWrite<IBudgetExercise>().updateDoc(budgetExerciseCollectionName, exercise.id, exercise);
+    return exercise;
 }
 
 export const Delete_Budget_Exercise = async (budget_exercise: IBudgetExercise) => {

@@ -6,6 +6,7 @@ import { IBudgetORM } from 'pages/api/budget/index.api';
 import { useWalletKit } from 'hooks';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { fiatList } from 'components/general/PriceInputField';
+import CurrencyElement from 'components/general/CurrencyElement';
 
 interface IProps {
     item: IBudgetORM,
@@ -40,7 +41,7 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                             <button onClick={() => close(false)} className="absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                                 <img src="/icons/cross_greylish.png" alt="" />
                             </button>
-                            <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-semibold pt-2">Budget Details</div>
+                            <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-bold pt-2">Budget Details</div>
                             <div className="flex items-center justify-between w-full">
                                 <div className="text-xl font-bold">{item.name}</div>
                                 <div className="flex items-center gap-5">
@@ -50,9 +51,13 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                             <div className='flex flex-col space-y-5'>
                                 <div>
                                     <div className="flex items-center gap-2 text-greylish py-2">
-                                        <span className="text-2xl font-bold flex items-center gap-1">
-                                            <img src={firstFiat ?? GetCoins[coin.coin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.totalUsedAmount)}</span>impacted on<span className="text-lg flex items-center gap-1">
-                                            <img src={firstFiat ?? GetCoins[coin.coin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.totalAmount)}</span>
+                                        <span className="text-xl font-bold flex items-center gap-1">
+                                            <CurrencyElement coin={GetCoins[coin.coin]} fiat={coin.fiat} amount={coin.totalUsedAmount + coin.totalPending} size={1.25} />
+                                        </span>
+                                        <span className="text-sm">impacted on</span>
+                                        <span className="text-sm font-bold flex items-center gap-1">
+                                            <CurrencyElement coin={GetCoins[coin.coin]} fiat={coin.fiat} amount={coin.totalAmount} size={0.875} />
+                                        </span>
                                     </div>
                                     <div className="rounded-xl w-full h-[1.2rem] relative bg-greylish bg-opacity-40 overflow-hidden">
                                         <div className='absolute left-0 top-0 w-full h-full flex'>
@@ -63,16 +68,22 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                     </div>
                                     <div className="grid grid-cols-4 px-3 justify-between items-center py-4">
                                         <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-primary p-2 font-bold`}></span>Used</div>
-                                            <div className="flex items-center gap-1 font-bold"><img src={firstFiat ?? GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.totalUsedAmount)}</div>
+                                            <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-primary p-2 font-bold text-xs`}></span>Used</div>
+                                            <div className="flex items-center gap-1 font-bold text-xs">
+                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} fiat={item.budgetCoins.fiat} amount={coin.totalUsedAmount} size={0.75} />
+                                            </div>
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-1 font-bold"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold`}></span>Pending</div>
-                                            <div className="flex items-center gap-1 font-bold"><img src={firstFiat ?? GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.totalPending)}</div>
+                                            <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold text-xs`}></span>Pending</div>
+                                            <div className="flex items-center gap-1 font-bold text-xs">
+                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} fiat={item.budgetCoins.fiat} amount={coin.totalPending} size={0.75} />
+                                            </div>
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-gray-500 p-2 font-bold`}></span>Available</div>
-                                            <div className="flex items-center gap-1 font-bold"><img src={firstFiat ?? GetCoins[item.budgetCoins.coin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.totalAmount - coin.totalUsedAmount)}</div>
+                                            <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-gray-500 p-2 font-bold text-xs`}></span>Available</div>
+                                            <div className="flex items-center gap-1 font-bold text-xs">
+                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} fiat={item.budgetCoins.fiat} amount={coin.totalAmount - coin.totalUsedAmount - coin.totalPending} size={0.75} />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -80,8 +91,12 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                     <div>
                                         <div className="flex items-center gap-2 text-greylish py-2">
                                             <span className="text-2xl font-bold flex items-center gap-1">
-                                                <img src={secondFiat ?? GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.second.secondTotalUsedAmount)}</span>impacted on<span className="text-lg flex items-center gap-1">
-                                                <img src={secondFiat ?? GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.second.secondTotalAmount)}</span>
+                                                <CurrencyElement coin={GetCoins[coin.second.secondCoin]} fiat={coin.second.fiat} amount={coin.second.secondTotalUsedAmount + coin.second.secondTotalPending} size={1.25} />
+                                            </span>
+                                            <span>impacted on</span>
+                                            <span className="text-lg flex items-center gap-1">
+                                                <CurrencyElement coin={GetCoins[coin.second.secondCoin]} fiat={coin.second.fiat} amount={coin.second.secondTotalAmount} size={0.875} />
+                                            </span>
                                         </div>
                                         <div className=" rounded-xl relative w-full h-[1.2rem] flex bg-greylish bg-opacity-40">
                                             <div className="h-full bg-primary rounded-l-xl" style={usedSecondPercentStyle}></div>
@@ -90,16 +105,22 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                         </div>
                                         <div className="grid grid-cols-4 px-3 justify-between items-center py-4">
                                             <div className="flex flex-col gap-2">
-                                                <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-primary p-2 font-bold`}></span>Used</div>
-                                                <div className="flex items-center gap-1 font-bold"><img src={secondFiat ?? GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.second.secondTotalUsedAmount)}</div>
+                                                <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-primary p-2 font-bold text-xs`}></span>Used</div>
+                                                <div className="flex items-center gap-1 font-bold text-xs">
+                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} fiat={coin.second.fiat} amount={coin.second.secondTotalUsedAmount} size={0.75} />
+                                                </div>
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <div className="flex items-center gap-1 font-bold"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold`}></span>Pending</div>
-                                                <div className="flex items-center gap-1 font-bold"><img src={secondFiat ?? GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.second.secondTotalPending)}</div>
+                                                <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold text-xs`}></span>Pending</div>
+                                                <div className="flex items-center gap-1 font-bold text-xs">
+                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} fiat={coin.second.fiat} amount={coin.totalPending} size={0.75} />
+                                                </div>
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <div className="flex items-center gap-1 font-bold"><span className={`rounded-full bg-gray-500 p-2 font-bold`}></span>Available</div>
-                                                <div className="flex items-center gap-1 font-bold"><img src={secondFiat ?? GetCoins[coin.second.secondCoin].logoURI} className="w-4 h-4 rounded-full object-cover" alt="" />{SetComma(coin.second.secondTotalAmount - coin.totalUsedAmount)}</div>
+                                                <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-gray-500 p-2 font-bold text-xs`}></span>Available</div>
+                                                <div className="flex items-center gap-1 font-bold text-xs">
+                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} fiat={coin.second.fiat} amount={coin.second.secondTotalAmount - coin.second.secondTotalUsedAmount - coin.second.secondTotalPending} size={0.75} />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -108,32 +129,23 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                             {item.subbudgets.length > 0 && <>
                                 <div className="text-xl font-bold text-start pb-3">Budget Labels</div>
                                 {item.subbudgets.map((item, id) => {
-                                    const firstFiat = fiatList.find(f => f.name === item.fiatMoney)?.logo
-                                    const secondFiat = fiatList.find(f => f.name === item.secondFiatMoney)?.logo
-
                                     return <div key={id}>
                                         <div className="border-b py-4 w-full grid grid-cols-3 items-center">
-                                            <div className="text-greylish w-full font-semibold text-lg">{item.name}</div>
+                                            <div className="text-greylish w-full font-bold text-xs">{item.name}</div>
                                             <div className='flex flex-col space-y-2 w-full'>
-                                                <div className="text-greylish flex items-start gap-1 text-sm">
-                                                    <img src={firstFiat ?? GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full object-cover" alt="" />
-                                                    <span className="text-red-600 font-semibold">{item.budgetCoins.totalAmount}</span>
+                                                <div className="text-greylish flex items-start space-x-2 text-sm">
+                                                    <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} fiat={item.fiatMoney} amount={item.budgetCoins.totalAmount} />
                                                     <span>/</span>
-                                                    <img src={firstFiat ?? GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full object-cover" alt="" />
-                                                    <span className="text-greylish font-semibold">{item.budgetCoins.totalUsedAmount}</span>
+                                                    <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} fiat={item.budgetCoins.fiat} amount={item.budgetCoins.totalUsedAmount} />
                                                     <span>/</span>
-                                                    <img src={firstFiat ?? GetCoins[item.budgetCoins.coin].logoURI} className="w-5 h-5 rounded-full object-cover" alt="" />
-                                                    <span className="text-greylish font-semibold">{item.budgetCoins.totalPending}</span>
+                                                    <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} fiat={item.fiatMoney} amount={item.budgetCoins.totalPending} />
                                                 </div>
                                                 {item.budgetCoins.second && <div className="text-greylish flex items-start gap-1 text-sm">
-                                                    <img src={secondFiat ?? GetCoins[item.budgetCoins.second.secondCoin].logoURI} className="w-5 h-5 rounded-full object-cover" alt="" />
-                                                    <span className="text-red-600 font-semibold">{item.budgetCoins.second.secondTotalAmount}</span>
+                                                    <CurrencyElement coin={GetCoins[item.budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={item.budgetCoins.second.secondTotalAmount} />
                                                     <span>/</span>
-                                                    <img src={secondFiat ?? GetCoins[item.budgetCoins.second.secondCoin].logoURI} className="w-5 h-5 rounded-full object-cover" alt="" />
-                                                    <span className="text-greylish font-semibold">{item.budgetCoins.second.secondTotalUsedAmount}</span>
+                                                    <CurrencyElement coin={GetCoins[item.budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={item.budgetCoins.second.secondTotalUsedAmount} />
                                                     <span>/</span>
-                                                    <img src={secondFiat ?? GetCoins[item.budgetCoins.second.secondCoin].logoURI} className="w-5 h-5 rounded-full object-cover" alt="" />
-                                                    <span className="text-greylish font-semibold">{item.budgetCoins.second.secondTotalPending}</span>
+                                                    <CurrencyElement coin={GetCoins[item.budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={item.budgetCoins.second.secondTotalPending} />
                                                 </div>}
                                             </div>
                                             <div className='flex flex-col space-y-2 w-full'>

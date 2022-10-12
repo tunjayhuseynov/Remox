@@ -13,7 +13,7 @@ import useSolanaProvider from "hooks/walletSDK/useSolanaProvider";
 import { PublicKey } from "@solana/web3.js";
 import { IAccount } from "firebaseConfig";
 import Web3 from "web3";
-import { SelectAccounts, SelectCurrencies, SelectFiatPreference, SelectPriceCalculationFn, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
+import { SelectCurrencies, SelectFiatPreference, SelectPriceCalculationFn, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
 import { useAppSelector } from "redux/hooks";
 import { DecimalConverter } from "utils/api";
 import { GetFiatPrice } from "utils/const";
@@ -50,12 +50,6 @@ export default function useLending() {
     const MoolaUserData = useSelector(selectMoolaData)
     const currencies = useAppSelector(SelectCurrencies)
 
-    const cUSD = Object.values(GetCoins).find((coin) => coin.symbol === "CUSD")
-    const cREAl = Object.values(GetCoins).find((coin) => coin.symbol === "CREAL")
-    const Celo = Object.values(GetCoins).find((coin) => coin.symbol === "CELO")
-    const cEURO = Object.values(GetCoins).find((coin) => coin.symbol === "CEUR")
-    const Moo = Object.values(GetCoins).find((coin) => coin.symbol === "MOO")
-    
     useEffect(() => {
         getContract().catch((error: any) => { console.error(error.message) })
     }, [])
@@ -255,7 +249,9 @@ export default function useLending() {
                 const data = await moola.methods.getReserveData(address)
                 const ltv = await moola.methods.getReserveConfigurationData(address).call()
                 const reserveData = await data.call()
-                
+
+                console.log(reserveData)
+
                 return {
                     availableLiquidity: print(reserveData.availableLiquidity),
                     rawAvailableLiquidity: reserveData.availableLiquidity,

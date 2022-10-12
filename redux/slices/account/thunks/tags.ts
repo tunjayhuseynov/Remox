@@ -18,7 +18,7 @@ export const CreateTag = createAsyncThunk<ITag, { id: string, color: string, nam
         isDefault: false
     }
 
-    if (!res) {
+    if (res?.tags.length === 0) {
         await FirestoreWrite<{ tags: ITag[] }>().createDoc('tags', id, {
             tags: [tag]
         })
@@ -54,15 +54,20 @@ export const AddTransactionToTag = createAsyncThunk<{ tagId: string, transaction
     const id = (api.getState() as RootState).remoxData.storage?.organization?.id ?? (api.getState() as RootState).remoxData.storage?.individual?.id
     if (!id) throw new Error("No id found")
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
+    if (!res) throw new Error("No tags found")
     const tag = res?.tags.find(t => t.id === tagId)
 
     if (tag && !tag.transactions.find(t => t.address.toLowerCase() === transaction.address.toLowerCase() && t.hash.toLowerCase() === transaction.hash.toLowerCase())) {
         await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
-            tags: arrayRemove(tag)
-        })
-        tag.transactions.push(transaction)
-        await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
-            tags: arrayUnion(tag)
+            tags: res?.tags.map((t, i) => {
+                if (t.id === tagId) {
+                    return {
+                        ...t,
+                        transactions: [...t.transactions, transaction]
+                    }
+                }
+                return t
+            })
         })
     }
 

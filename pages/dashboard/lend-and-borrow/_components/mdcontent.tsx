@@ -42,7 +42,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         refresh,
         getBorrowInfo,
         loading
-    } = useLending(SelectedAccountAndBudget.account!)
+    } = useLending()
 
     useEffect(() => {
         (async () => {

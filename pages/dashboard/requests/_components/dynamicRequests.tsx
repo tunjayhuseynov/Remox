@@ -36,7 +36,6 @@ export default function DynamicRequest({
   const { approveRequest, removeRequest } = useRequest();
   const userId = useAppSelector(SelectID);
   const balance = useAppSelector(SelectBalance);
-  const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget); 
   const { GetCoins, SendTransaction } = useWalletKit();
 
   const [openNotify, setNotify] = useState(false);
@@ -74,7 +73,7 @@ export default function DynamicRequest({
     }
   }, [openNotify]);
 
-  const confirmRequest = async ({account, budget, subbudget  }: {account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null}) => {
+  const confirmRequest = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
     try {
       setNotify(false)
       let inputs: IPaymentInput[] = [];
@@ -123,8 +122,9 @@ export default function DynamicRequest({
         } 
       };
 
-      await SendTransaction(accountAndBudget.account!, inputs, {
-        budget: accountAndBudget.budget,
+      await SendTransaction(account!, inputs, {
+        budget: budget,
+        subbudget: subbudget
       })
 
       inputs = [];

@@ -132,15 +132,15 @@ function WalletList({ item }: { item: IAccountORM }) {
                                 </Tooltip>
                             </div>
                         </div>
-                        <div className="flex flex-col mr-2">
+                        {<div className="flex flex-col mr-2">
                             <div className="text-greylish text-xs">Signers</div>
-                            <AvatarGroup max={3} className={`${item.members.length <= 3 ? "flex-row" : ""}`}>
+                            <AvatarGroup max={3} className={`${item.members.length <= 3 && item.members.length > 1 ? "!flex-row" : ""} ${item.members.length === 1 ? "!block" : ""}`}>
                                 {
                                     item.members.map((member, index) =>
                                         <Avatar key={member.id} sx={{ width: "1.25rem!important", height: "1.25rem!important" }} alt={member.name} src={member.address.toLowerCase() === providerID?.toLowerCase() ? individual?.image?.imageUrl ?? makeBlockie(member.address) : member?.image?.imageUrl ?? member?.image?.nftUrl ?? makeBlockie(member.address)} />)
                                 }
                             </AvatarGroup>
-                        </div>
+                        </div>}
                     </div>
                     <div className="rounded-xl">
                         <div className="w-full h-full" ref={customRef}>

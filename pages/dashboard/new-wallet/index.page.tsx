@@ -191,7 +191,7 @@ function NewWalletModal() {
                         selectClass={'py-2'}
                         list={providers}
                         sx={{
-                            fontSize: "0.75rem",
+                            fontSize: "0.875rem",
                             height: "3.33rem",
                         }}
                         label="Choose Wallet Provider"
@@ -203,7 +203,7 @@ function NewWalletModal() {
                     <TextField
                         inputProps={{
                             style: {
-                                fontSize: "0.75rem"
+                                fontSize: "0.875rem"
                             }
                         }}
                         type="text" {...register("name", { required: true })} label="Wallet Name" className="w-full" />
@@ -212,7 +212,7 @@ function NewWalletModal() {
                     <TextField
                         inputProps={{
                             style: {
-                                fontSize: "0.75rem"
+                                fontSize: "0.875rem"
                             }
                         }}
                         type="text" {...register("address", { required: true })} label="Wallet Address" className="w-full" />

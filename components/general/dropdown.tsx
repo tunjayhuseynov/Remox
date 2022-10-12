@@ -25,6 +25,7 @@ interface IProp<T> {
     textClass?: string,
     textContainerClass?: string,
     inputProps?: any,
+    nonrounded?: boolean
 }
 
 interface IGenericExtendedProp {
@@ -39,7 +40,7 @@ interface IGenericExtendedProp {
 }
 
 const Dropdown = <T extends IGenericExtendedProp,>(
-    { loading, selected, label, setSelect, list, className, labelSX = {}, inputProps = {}, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
+    { loading, nonrounded, selected, label, setSelect, list, className, labelSX = {}, inputProps = {}, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
     const [internalLaoding, setInternalLoading] = useState(false)
@@ -65,13 +66,13 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                                 zIndex: 99999999999,
                                 maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
                                 width: 250,
-                                fontSize: '0.75rem'
+                                fontSize: '0.875rem'
                             },
                         },
                     }}
                     SelectDisplayProps={{
                         style: {
-                            fontSize: '0.75rem'
+                            fontSize: '0.875rem'
                         }
                     }}
                     // {...props}
@@ -79,9 +80,9 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                         <div className={`${selectClass} flex flex-col items-center `}>
                             <div className="flex items-center text-sm">
                                 {(loading || internalLaoding) && <span><Loader size={16} /></span>}
-                                {selected.coinUrl && (!loading && !internalLaoding) && <img className="w-6 h-6 mr-2 rounded-full object-cover" src={`${selected.coinUrl}`} />}
-                                {selected.logoUrl && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2 rounded-full object-cover" src={`${selected.logoUrl}`} />}
-                                {selected.logoURI && (!loading && !internalLaoding) && <img className="w-4 h-4 mr-2 rounded-full object-cover" src={`${selected.logoURI}`} />}
+                                {selected.coinUrl && (!loading && !internalLaoding) && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"} object-cover`} src={`${selected.coinUrl}`} />}
+                                {selected.logoUrl && (!loading && !internalLaoding) && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"} object-cover`} src={`${selected.logoUrl}`} />}
+                                {selected.logoURI && (!loading && !internalLaoding) && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"} object-cover`} src={`${selected.logoURI}`} />}
                                 {selected.image && (!loading && !internalLaoding) && <img className="w-10 h-10 mr-2 rounded-full object-cover" src={`${typeof selected.image === "string" ? selected.image : selected.image.imageUrl}`} />}
                                 {(!loading && !internalLaoding) &&
                                     <div className={`${textContainerClass} flex flex-col items-start`}>
@@ -107,10 +108,10 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                 >
                     {list.map(e => {
                         return <MenuItem key={e.name} value={e as any} className="flex items-center z-[100000]">
-                            {e.coinUrl && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.coinUrl}`} />}
-                            {e.logoUrl && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.logoUrl}`} />}
-                            {e.logoURI && <img className="w-4 h-4 mr-2 rounded-full" src={`${e.logoURI}`} />}
-                            {e.image && <img className="w-4 h-4 mr-2 rounded-full" src={`${typeof e.image === "string" ? e.image : e.image.imageUrl}`} />}
+                            {e.coinUrl && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"}`} src={`${e.coinUrl}`} />}
+                            {e.logoUrl && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"}`} src={`${e.logoUrl}`} />}
+                            {e.logoURI && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"}`} src={`${e.logoURI}`} />}
+                            {e.image && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"}`} src={`${typeof e.image === "string" ? e.image : e.image.imageUrl}`} />}
                             {<span className='text-sm'>{e.displayName ?? e.name}</span>}
                         </MenuItem>
                     })}

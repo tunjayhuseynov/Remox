@@ -137,7 +137,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
 
         let id = generate();
 
-        let subbudgets = labels.map(s => ({
+        let subbudgets = labels[0].labelName && labels[0].labelAmount ? labels.map(s => ({
             id: s.id,
             name: s.labelName,
             amount: s.labelAmount ?? 0,
@@ -155,7 +155,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
             txs: [],
             parentId: id,
             created_at: GetTime(),
-        }));
+        })) : [];
 
         if (labels.length === 1 && (!labels[0].labelName || !labels[0].labelAmount)) subbudgets = []
 
@@ -227,8 +227,8 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                 <div className='flex flex-col space-y-5'>
                     <div className='text-xl text-center mb-3 font-semibold'>Budget</div>
                     <TextField
-                        InputProps={{ style: { fontSize: '0.75rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                        InputProps={{ style: { fontSize: '0.875rem' } }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                         label="Name" placeholder='E.g. Marketing' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
 
                     <PriceInputField coins={coins} onChange={(val, coin, fiatMoney) => {
@@ -240,12 +240,21 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                     {(budgetFiat) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
+                                sx={{
+                                    fontSize: "0.875rem"
+                                }}
+                                labelSX={{
+                                    fontSize: "0.875rem"
+                                }}
                                 list={[{ name: PC }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption}
                                 selected={selectedPriceOption}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption.name === (PC)} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
+                            <TextField
+                                InputProps={{ style: { fontSize: '0.875rem' } }}
+                                InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                                disabled={selectedPriceOption.name === (PC)} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
                         </div>
                     </div>}
 
@@ -271,21 +280,29 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                             <span className="text-primary font-medium">Add</span>
                         </div>
                     }
-
                     {(budgetFiat2) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
+                                sx={{
+                                    fontSize: "0.875rem"
+                                }}
+                                labelSX={{
+                                    fontSize: "0.875rem"
+                                }}
                                 list={[{ name: (PC) }, { name: "Custom Price" }]}
                                 setSelect={setSelectedPriceOption2}
                                 selected={selectedPriceOption2}
                                 className="bg-white dark:bg-darkSecond"
                             />
-                            <TextField disabled={selectedPriceOption2.name === (PC)} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
+                            <TextField
+                                InputProps={{ style: { fontSize: '0.875rem' } }}
+                                InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                                disabled={selectedPriceOption2.name === (PC)} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
                         </div>
                     </div>}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
-                        <Button version="second" className="!rounded-xl" onClick={onBack}>Cancel</Button>
-                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" onClick={onNext}>Next</Button>
+                        <Button version="second" className="!rounded-xl !py-2 !text-sm" onClick={onBack}>Cancel</Button>
+                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center !text-sm" onClick={onNext}>Next</Button>
                     </div>
                 </div>
             }
@@ -302,8 +319,8 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                             <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
                                 <TextField
-                                    InputProps={{ style: { fontSize: '0.75rem' } }}
-                                    InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                                    InputProps={{ style: { fontSize: '0.875rem' } }}
+                                    InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                                     label="Label name" placeholder='E.g. Payroll' className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setLabels(labels.map(s => {
                                         if (s.id === label.id) {
                                             return { ...s, labelName: e.target.value }
@@ -347,16 +364,16 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                             {budgetAmount2 && <FormHelperText className='!mt-1' error={max2 < 0}>Remains: {max2} {budgetFiat2 ?? budgetCoin2.symbol} {max2 < 0 ? "You exceed the max amount" : ""}</FormHelperText>}
                         </div>
                     })}
-                    <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">
-                        <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-semibold' onClick={onAddLabel}>
+                    <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8 pt-6">
+                        <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-medium text-sm' onClick={onAddLabel}>
                             + Add Budget Labels
                         </div>
-                        <Button version="second" className="!rounded-xl"  onClick={() => {
+                        <Button version="second" className="!rounded-xl !py-2 !text-sm" onClick={() => {
                             setActiveStep(0)
                             setBudgetFiat2(undefined)
                             setBudgetFiat(undefined)
                         }}>Back</Button>
-                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading} onClick={OnSubmit}>Create</Button>
+                        <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center !text-sm" isLoading={isLoading} onClick={OnSubmit}>Create</Button>
                     </div>
                 </div>
             }

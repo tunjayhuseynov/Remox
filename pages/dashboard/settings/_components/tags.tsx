@@ -12,6 +12,7 @@ import useLoading from 'hooks/useLoading'
 import { useAppDispatch, useAppSelector } from 'redux/hooks'
 import { CreateTag } from 'redux/slices/account/thunks/tags'
 import { SelectID, SelectTags } from 'redux/slices/account/remoxData'
+import { ClickAwayListener } from '@mui/material'
 
 export interface IFormInput {
     name: string;
@@ -80,24 +81,22 @@ export default function TagsSetting() {
                                 <label className="text-greylish bg-opacity-50">Tag name</label>
                                 <input type="text" {...register("name", { required: true })} className="rounded-xl border border-greylish dark:bg-darkSecond px-5 py-2" placeholder="E.g: Marketing" />
                             </div>
-                            <div className="flex flex-col space-y-3 ">
-                                <label className="text-greylish bg-opacity-50"></label>
-                                <div className="flex space-x-3 border border-greylish rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
-                                    <div className="py-2 pl-3">
-                                        <div className="w-[18px] h-[18px] rounded-full" style={{
-                                            backgroundColor: color,
-                                        }}>
-                                        </div>
-                                    </div>
-                                    <div className="border-l border-greylish px-2 py-2 " ref={exceptRef}>
-                                        <AiOutlineDown />
-                                    </div>
-                                    {colorPicker &&
-                                        <div className="absolute -bottom-3 left-0 translate-y-full z-50" ref={ref}>
+                            <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
+                                <div className="py-1 pl-3">
+                                    <div className="w-1 h-4" style={{
+                                        backgroundColor: color,
+                                    }} />
+                                </div>
+                                <div className="border-l px-2 py-1">
+                                    <AiOutlineDown size={"0.5rem"} />
+                                </div>
+                                {colorPicker &&
+                                    <ClickAwayListener onClickAway={() => { setColorPicker(false) }}>
+                                        <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
                                             <TwitterPicker onChange={colorHandler} />
                                         </div>
-                                    }
-                                </div>
+                                    </ClickAwayListener>
+                                }
                             </div>
                         </div>
                         <div className="flex justify-center gap-16">

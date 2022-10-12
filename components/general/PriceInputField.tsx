@@ -87,7 +87,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
     return <>
         <FormControl fullWidth className='relative'>
             <InputLabel htmlFor='display-amount' sx={{
-                fontSize: '0.75rem',
+                fontSize: '0.875rem',
                 top: 2
             }}>Amount</InputLabel>
             <OutlinedInput
@@ -95,7 +95,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                 fullWidth
                 type="number"
                 className='dark:bg-darkSecond bg-white '
-                inputProps={{ step: 0.01, value: value?.toString() ?? "", inputMode: "numeric", style: { fontSize: '0.75rem' } }}
+                inputProps={{ step: 0.01, value: value?.toString() ?? "", inputMode: "numeric", style: { fontSize: '0.875rem' } }}
                 onChange={(e) => {
                     const val = e.target.value;
                     if (!val && val !== "0") {
@@ -162,7 +162,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                                                 onChange={searching}
                                                 InputProps={{
                                                     style: {
-                                                        fontSize: '0.75rem',
+                                                        fontSize: '0.875rem',
                                                         width: '100%',
                                                         height: '35px'
                                                     },

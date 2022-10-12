@@ -31,6 +31,8 @@ import { IoMdRemoveCircle } from "react-icons/io";
 import { IPaymentInput } from "pages/api/payments/send/index.api";
 import Modal from "components/general/modal";
 import ChooseBudget from "components/general/chooseBudget";
+import { IAccountORM } from "pages/api/account/index.api";
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 
 const EditMember = () => {
   const navigate = useRouter();
@@ -41,7 +43,6 @@ const EditMember = () => {
 
   //Selectors
   const teams = useAppSelector(SelectContributors);
-  const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget);
   const userId = useAppSelector(SelectID);
 
   //RenderVariables
@@ -52,10 +53,6 @@ const EditMember = () => {
     { name: "Part Time" },
     { name: "Bounty" },
   ];
-
-  const coin2 = Object.values(GetCoins).find(
-    (coin) => coin.symbol === member.secondCurrency
-  );
 
   //States
 
@@ -122,7 +119,7 @@ const EditMember = () => {
     member.interval === DateInterval.monthly ? Frequency[0] : Frequency[1]
   );
 
-  const submit = async () => {
+  const submit = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
     const Team = selectedTeam;
     const Compensation = selectedSchedule.name;
     const Coin1 = coin;
@@ -147,10 +144,11 @@ const EditMember = () => {
             new Date(startDate ?? dateNow).getTime() !== member.paymantDate ||
             new Date(endDate ?? dateNow).getTime() !== member.paymantEndDate
           ) {
-            setChoosingBudget(true);
-            await SendTransaction(accountAndBudget.account!, [], {
+            await SendTransaction(account!, [], {
               cancelStreaming: true,
               streamingIdDirect: member.taskId ?? undefined,
+              budget: budget,
+              subbudget: subbudget
             });
 
             inputs.push({
@@ -165,13 +163,14 @@ const EditMember = () => {
                 recipient: address,
               });
               const id = await SendTransaction(
-                accountAndBudget.account!,
+                account!,
                 inputs,
                 {
                   createStreaming: true,
                   startTime: startDate.getTime(),
                   endTime: endDate.getTime(),
-                  budget: accountAndBudget.budget,
+                  budget: budget,
+                  subbudget: subbudget
                 }
               );
 
@@ -182,8 +181,7 @@ const EditMember = () => {
           member.execution === "Auto" &&
           selectedPaymentType.name == "Manual"
         ) {
-          setChoosingBudget(true);
-          await SendTransaction(accountAndBudget.account!, [], {
+          await SendTransaction(account!, [], {
             cancelStreaming: true,
             streamingIdDirect: member.taskId ?? undefined,
           });
@@ -191,7 +189,6 @@ const EditMember = () => {
           member.execution === "Manual" &&
           selectedPaymentType.name === "Auto"
         ) {
-          setChoosingBudget(true);
           inputs.push({
             amount: amount ?? 1,
             coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol,
@@ -204,13 +201,14 @@ const EditMember = () => {
               recipient: address,
             });
             const id = await SendTransaction(
-              accountAndBudget.account!,
+              account!,
               inputs,
               {
                 createStreaming: true,
                 startTime: startDate.getTime(),
                 endTime: endDate.getTime(),
-                budget: accountAndBudget.budget,
+                budget: budget,
+                subbudget: subbudget
               }
             );
 
@@ -283,7 +281,7 @@ const EditMember = () => {
             <div className="flex justify-center items-center mb-4 w-full">
               <EditableAvatar
                 avatarUrl={member.image ? url : null}
-                name={accountAndBudget.account?.address ?? ""}
+                name={member.address ?? ""}
                 userId={userId ?? ""}
                 evm={blockchain.name !== "solana"}
                 blockchain={blockchain}
@@ -473,7 +471,13 @@ const EditMember = () => {
             <div className="justify-center">
               <Button
                 className="px-8 py-3 w-full"
-                onClick={() => submit()}
+                onClick={() => {
+                  if(!(member.execution === selectedPaymentType.name)){
+                    setChoosingBudget(true)
+                  } else {
+                    submit
+                  }
+                }}
                 isLoading={loading}
               >
                 Save

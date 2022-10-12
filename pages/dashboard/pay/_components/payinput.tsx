@@ -63,8 +63,8 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     }}
                     renderInput={(params) => <TextField
                         {...params}
-                        InputProps={{ style: { fontSize: '0.75rem' } }}
-                        InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                        InputProps={{ style: { fontSize: '0.875rem' } }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                         className="text-xs" label="Receiver Name (Optional)" />}
                 />
             </div>
@@ -74,8 +74,8 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     className='dark:bg-darkSecond bg-white'
                     label="Receiver Wallet Address"
                     value={address}
-                    InputProps={{ style: { fontSize: '0.75rem' } }}
-                    InputLabelProps={{ style: { fontSize: '0.75rem' } }}
+                    InputProps={{ style: { fontSize: '0.875rem' } }}
+                    InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                     onChange={(e) => {
                         setAddress(e.target.value)
                     }}

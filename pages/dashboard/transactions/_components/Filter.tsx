@@ -96,8 +96,8 @@ const Filter = ({
             color: "#FF7348!important",
         },
         "& .MuiSvgIcon-root": {
-            height: '0.75rem',
-            width: '0.75rem',
+            height: '0.875rem',
+            width: '0.875rem',
         }
     }
 
@@ -173,7 +173,7 @@ const Filter = ({
                 </AccordionSummary>
                 <AccordionDetails>
                     <Input inputProps={ariaLabel} fullWidth sx={{
-                        fontSize: "0.75rem",
+                        fontSize: "0.875rem",
                     }} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
                         <AiOutlineSearch />
                     </>} />
@@ -182,7 +182,7 @@ const Filter = ({
                             return <div key={tag.id} className='flex space-x-1 items-center'>
                                 <Checkbox
                                     style={{
-                                        transform: "scale(0.75)",
+                                        transform: "scale(0.875)",
                                         padding: 0
                                     }}
                                     classes={mainColor} checked={selectedTags.includes(tag.id)} onChange={() => {
@@ -207,7 +207,7 @@ const Filter = ({
                             return <div key={budget.id} className='flex space-x-1 items-center'>
                                 <Checkbox
                                     style={{
-                                        transform: "scale(0.75)",
+                                        transform: "scale(0.875)",
                                         padding: 0
                                     }}
                                     classes={mainColor} checked={selectedBudgets.includes(budget.id)} onChange={() => {
@@ -242,14 +242,14 @@ const Filter = ({
                                 onChange={(val) => setSelectedDirection(val.target.value)}
                             >
                                 <FormControlLabel
-                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
-                                    value="Any" className="0.75rem" control={<Radio sx={mainCheckBox} />} label="Any" />
+                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                                    value="Any" className="0.875rem" control={<Radio sx={mainCheckBox} />} label="Any" />
                                 <FormControlLabel
-                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
-                                    value="In" className="0.75rem" control={<Radio sx={mainCheckBox} />} label="In" />
+                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                                    value="In" className="0.875rem" control={<Radio sx={mainCheckBox} />} label="In" />
                                 <FormControlLabel
-                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
-                                    value="Out" className="0.75rem" control={<Radio sx={mainCheckBox} />} label="Out" />
+                                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                                    value="Out" className="0.875rem" control={<Radio sx={mainCheckBox} />} label="Out" />
                             </RadioGroup>
                         </div>
                     </div>
@@ -288,7 +288,7 @@ const Filter = ({
                             return <div key={account.id} className='flex space-x-1 items-center'>
                                 <Checkbox
                                     style={{
-                                        transform: "scale(0.75)",
+                                        transform: "scale(0.875)",
                                         padding: 0
                                     }}
                                     classes={mainColor} checked={selectedAccounts.includes(account.address)} onChange={() => {

@@ -406,7 +406,7 @@ export default Transactions;
 
 interface IProps { isDetailOpen?: boolean, transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, tags: ITag[], blockchain: BlockchainType, txIndexInRemoxData: number }
 
-export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transaction, accounts, selectedAccount, blockchain, tags, txIndexInRemoxData, isDetailOpen }, ref) => {
+export const SingleTxContainer = ({ transaction, accounts, selectedAccount, blockchain, tags, txIndexInRemoxData, isDetailOpen }: IProps) => {
     const isBatch = transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
@@ -455,5 +455,5 @@ export const SingleTxContainer = forwardRef<HTMLDivElement, IProps>(({ transacti
         {isBatch && TXs.map((s, i) => <SingleTransactionItem isDetailOpen={isDetailOpen} txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}${i}`} date={transaction.rawData.timeStamp} transaction={s} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />)}
         {!isBatch && <SingleTransactionItem isDetailOpen={isDetailOpen} txPositionInRemoxData={txIndexInRemoxData} tags={tags} blockchain={blockchain} account={selectedAccount} key={`${transaction.address}${transaction.hash}`} date={transaction.rawData.timeStamp} transaction={transaction} direction={directionType} status={TransactionStatus.Completed} isMultiple={isBatch} />}
     </>
-})
+}
 

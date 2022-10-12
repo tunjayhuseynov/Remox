@@ -112,6 +112,7 @@ const ProfileSetting = () => {
             <div className="text-lg font-medium self-center">Fiat Currency</div>
             <div className="flex w-2/3">
                 <Dropdown
+                    nonrounded
                     parentClass="w-full"
                     list={fiatList.map(s => ({ name: (s.name as FiatMoneyList), logoURI: s.logo }))}
                     selected={selectedFiatCurrency}

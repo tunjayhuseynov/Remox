@@ -31,7 +31,7 @@ export default ({ defaultValue, onSubmit, placeholder }: IProps) => {
                 onChange={(e) => setValue(e.target.value)}
                 inputProps={{
                     style: { 
-                        fontSize: "0.75rem",
+                        fontSize: "0.875rem",
                     }
                 }}
                 onKeyDownCapture={(e) => {
