@@ -152,13 +152,13 @@ const Lendborrow = () => {
     </div>
     <table className="w-full pt-4 pb-6">
         <thead>
-            <tr id="header" className="grid grid-cols-[20%,15%,15%,15%,15%,20%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
-                <th className="font-semibold text-sm text-left text-greylish  dark:text-[#aaaaaa] pl-3">Asset Name</th>
-                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]  w-16 text-right">LTV</th>
-                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Total Supply</th>
-                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Supply {!apy ? 'APY' : 'APR'}</th>
-                <th className="font-semibold text-sm text-greylish  dark:text-[#aaaaaa]">Total Borrow</th>
-                <th className="font-semibold text-sm text-greylish dark:text-[#aaaaaa]">Borrow {!apy ? 'APY' : 'APR'}</th>
+            <tr id="header" className="grid grid-cols-[16.66%,16.66%,16.66%,16.66%,16.66%,16.66%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
+                <th className="font-semibold text-left text-sm text-greylish  dark:text-[#aaaaaa] pl-3">Asset Name</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">LTV</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Total Supply</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Supply {!apy ? 'APY' : 'APR'}</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Total Borrow</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Borrow {!apy ? 'APY' : 'APR'}</th>
             </tr>
             {reservesData.map((token,index) =>  <TokenItem key={index} asset={token} />)}
         </thead>

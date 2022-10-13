@@ -45,32 +45,36 @@ function ChooseBudget({submit} : IProps) {
     }, [selectedBudget])
 
     const onSubmit = async () => {
-        setLoading(true)
-        const address = await Address
-        if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
-        if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
-            ToastRun(<>You are not connected to the wallet you&apos;ve selected</>, "warning")
-            return
+        try{
+            setLoading(true)
+            const address = await Address
+            if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
+            if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
+                ToastRun(<>You are not connected to the wallet you&apos;ve selected</>, "warning")
+                return
+            }
+            if (selectedAccount.signerType === "multi" && !selectedAccount.members.find(s => s.address.toLowerCase() === address?.toLowerCase())) {
+                ToastRun(<>Your wallet has no access to this multisig account. Please, switch to a permitted wallet</>, "warning")
+                return
+            }
+            const budget = budgets.find(b => b.id === selectedBudget?.id);
+            dispatch(setSelectedAccountAndBudget({
+                account: selectedAccount ?? null,
+                budget: budget ?? null,
+                subbudget: budget?.subbudgets.find(sb => sb.id === selectedSubbudget?.id) ?? null,
+            }))
+            
+            submit(selectedAccount, selectedBudget, selectedSubbudget)
+
+        } catch (error: any) {
+            throw new Error(error)
         }
-        if (selectedAccount.signerType === "multi" && !selectedAccount.members.find(s => s.address.toLowerCase() === address?.toLowerCase())) {
-            ToastRun(<>Your wallet has no access to this multisig account. Please, switch to a permitted wallet</>, "warning")
-            return
-        }
-        const budget = budgets.find(b => b.id === selectedBudget?.id);
-        dispatch(setSelectedAccountAndBudget({
-            account: selectedAccount ?? null,
-            budget: budget ?? null,
-            subbudget: budget?.subbudgets.find(sb => sb.id === selectedSubbudget?.id) ?? null,
-        }))
-        
-        submit(selectedAccount, selectedBudget, selectedSubbudget)
-        setLoading(false)
 
     }
 
 
     return <>
-        <div className="bg-light dark:bg-dark h-full relative pr-1 overflow-y-auto overflow-x-hidden bottom-0 right-0 cursor-default">
+        <div className="bg-light dark:bg-dark h-full relative pr-1 overflow-y-auto overflow-x-hidden bottom-0 right-0 cursor-default opacity-100 z-[9999999999999]">
             <div className="w-[25%] mx-auto py-8 flex flex-col gap-5 ">
                 <div className="text-xl font-semibold py-6 text-center">
                     Choose account and budget

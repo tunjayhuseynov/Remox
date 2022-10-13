@@ -69,7 +69,7 @@ const teamItem = ({ props }: { props: IContributor }) => {
                             <EditableTextInput fontSize={1.4} defaultValue={props?.name ?? ""} onSubmit={onWorkstreamNameChange} placeholder="Individual account name" />
                         </div>
                         <div className="flex items-center justify-end curs">
-                            <RiDeleteBin6Line className='h-8' onClick={() => setDeleteModal(true)} />
+                            <RiDeleteBin6Line className='h-8 hover:text-primary transition-all ' onClick={() => setDeleteModal(true)} />
                         </div>
                     </div>
                     <div className="pl-3 w-full relative">

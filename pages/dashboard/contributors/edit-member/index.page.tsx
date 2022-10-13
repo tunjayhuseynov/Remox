@@ -119,7 +119,7 @@ const EditMember = () => {
     member.interval === DateInterval.monthly ? Frequency[0] : Frequency[1]
   );
 
-  const submit = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+  const submit = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
     const Team = selectedTeam;
     const Compensation = selectedSchedule.name;
     const Coin1 = coin;
@@ -255,6 +255,7 @@ const EditMember = () => {
       navigate.back();
     } catch (error: any) {
       console.log(error);
+      setLoading(false)
       throw error;
     }
   };
@@ -293,7 +294,7 @@ const EditMember = () => {
                 label="Full Name"
                 value={fullname}
                 onChange={(e) => setFullname(e.target.value)}
-                className="bg-white dark:bg-darkSecond"
+                className="bg-white dark:bg-darkSecond z-[0]"
                 variant="outlined"
               />
               <Dropdown
@@ -301,7 +302,7 @@ const EditMember = () => {
                 setSelect={setSelectedTeam}
                 selected={selectedTeam}
                 list={teams}
-                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                className="z-[0] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                 sx={{
                   ".MuiSelect-select": {
                     paddingTop: "6px",
@@ -314,7 +315,7 @@ const EditMember = () => {
             <div className="grid grid-cols-2 gap-x-10">
               <Dropdown
                 label="Compensation Type"
-                className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                className="z-[0] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                 list={schedule}
                 selected={selectedSchedule}
                 setSelect={setSchedule}
@@ -330,11 +331,11 @@ const EditMember = () => {
                 label="Role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="bg-white dark:bg-darkSecond"
+                className="bg-white dark:bg-darkSecond z-[0]"
                 variant="outlined"
               />
             </div>
-            <div className="flex w-full gap-x-10">
+            <div className={`flex w-full gap-x-10 ${choosingBudget ? 'z-[0]' : ''}`}>
               <PriceInputField
                 isMaxActive={true}
                 coins={GetCoins}
@@ -351,7 +352,7 @@ const EditMember = () => {
               />
             </div>
             {secondActive ? (
-              <div className="col-span-2 relative">
+              <div className={`col-span-2 relative ${choosingBudget ? 'z-[0]' : ''}`}>
                 <PriceInputField
                   isMaxActive={true}
                   coins={GetCoins}
@@ -396,7 +397,7 @@ const EditMember = () => {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 label="Wallet Address"
-                className="bg-white dark:bg-darkSecond"
+                className="bg-white dark:bg-darkSecond z-[0]"
                 variant="outlined"
               />
             </div>
@@ -404,7 +405,7 @@ const EditMember = () => {
               <div className="flex flex-col space-y-1 w-full">
                 <Dropdown
                   label="Payment Type"
-                  className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                  className="z-[0] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                   list={paymentType}
                   selected={selectedPaymentType}
                   sx={{
@@ -430,12 +431,12 @@ const EditMember = () => {
                       maxHeight: "52px",
                     },
                   }}
-                  className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
+                  className="z-[0] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                 />
               </div>
             </div>
             <div className="flex gap-x-10">
-              <div className="flex flex-col space-y-1 w-full">
+              <div className="flex flex-col space-y-1 w-full z-[0]">
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <Stack
                     spacing={3}
@@ -451,7 +452,7 @@ const EditMember = () => {
                   </Stack>
                 </LocalizationProvider>
               </div>
-              <div className="flex flex-col space-y-1 w-full">
+              <div className="flex flex-col space-y-1 w-full z-[0]">
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <Stack
                     spacing={3}
@@ -473,9 +474,13 @@ const EditMember = () => {
                 className="px-8 py-3 w-full"
                 onClick={() => {
                   if(!(member.execution === selectedPaymentType.name)){
-                    setChoosingBudget(true)
+                    if(selectedPaymentType.name === "Auto" && (new Date(startDate).getTime() !== member.paymantDate || new Date(endDate).getTime() !== member.paymantEndDate)) {
+                      setChoosingBudget(true)
+                    } else if((member.execution === "Auto" && selectedPaymentType.name == "Manual") || (member.execution === "Manual" && selectedPaymentType.name === "Auto") ) {
+                      setChoosingBudget(true)
+                    }
                   } else {
-                    submit
+                    submit()
                   }
                 }}
                 isLoading={loading}

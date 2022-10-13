@@ -11,15 +11,18 @@ import { SelectBalance, SelectDarkMode, SelectSelectedAccountAndBudget } from "r
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
-import useAsyncEffect from "hooks/useAsyncEffect";
+import { ToastRun } from "utils/toast";
+import useLoading from "hooks/useLoading";
+import Modal from "components/general/modal";
+import ChooseBudget from "components/general/chooseBudget";
+import { IAccountORM } from "pages/api/account/index.api";
+import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 
 
 const Swap = () => {
     const { SendTransaction, GetCoins, blockchain } = useWalletKit()
     const { MinmumAmountOut, isLoading } = useSwap()
     const isDark = useAppSelector(SelectDarkMode)
-    const selectedBudgetAndAccount = useAppSelector(SelectSelectedAccountAndBudget)
-    const account = selectedBudgetAndAccount.account
     const balances = useAppSelector(SelectBalance)
     const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
@@ -37,6 +40,7 @@ const Swap = () => {
     const [oneCoinPrice, setOneCoinPrice] = useState<string>("")
     const [isSetting, setSetting] = useState<boolean>(false)
 
+    const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
 
     const [slippageArr, setSlippageArr] = useState([
         { value: 1, label: '0,1%', selected: false },
@@ -83,38 +87,36 @@ const Swap = () => {
         }
     }
 
-    // const startSwap = async () => {
-    //     if (token1!.name && token2!.name && token1Amount && token1Amount > 0 && account) {
-    //         try {
-    //             const data = await SendTransaction(account, [], {
-    //                 swap: {
-    //                     account: account.address,
-    //                     inputCoin: GetCoins[token1!.name as keyof Coins],
-    //                     outputCoin: GetCoins[token2!.name as keyof Coins],
-    //                     amount: token1Amount.toString(),
-    //                     slippage: slippageArr.find(item => item.selected)!.value.toString(),
-    //                     deadline: Math.floor(deadline * 60)
-    //                 }
-    //             })
+    const startSwap = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+        if (token1!.symbol && token2!.symbol && token1Amount && token1Amount > 0 && account) {
+            try {
+                const data = await SendTransaction(account, [], {
+                    swap: {
+                        account: account.address,
+                        inputCoin: GetCoins[token1!.symbol],
+                        outputCoin: GetCoins[token2!.symbol],
+                        amount: token1Amount.toString(),
+                        slippage: slippageArr.find(item => item.selected)!.value.toString(),
+                        deadline: Math.floor(deadline * 60)
+                    }
+                })
 
-    //             ToastRun(
-    //                 <div className="flex flex-col items-center space-y-1">
-    //                     <div className="font-semobold text-xl">Successfully Swapped</div>
-    //                     {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
-    //                 </div>
-    //             )
+                ToastRun(
+                    <div className="flex flex-col items-center space-y-1">
+                        <div className="font-semobold text-xl">Successfully Swapped</div>
+                        {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
+                    </div>
+                )
 
-    //             setOpen(false)
-    //         } catch (error) {
-    //             const message = (error as any).message || "Something went wrong"
-    //             console.error(message)
-    //             // dispatch(changeError({ activate: true }))
-    //             ToastRun(<div>{message}</div>)
-    //         }
-    //     }
-    // }
+            } catch (error) {
+                const message = (error as any).message || "Something went wrong"
+                console.error(message)
+                ToastRun(<div>Something went wrong</div>, "error")
+            }
+        }
+    }
 
-    // const [isSwappingLoading, swapping] = useLoading(startSwap)
+    const [isSwappingLoading, swapping] = useLoading(startSwap)
 
     useEffect(() => {
         if (token1 && token2) {
@@ -144,7 +146,7 @@ const Swap = () => {
             <div className="text-2xl font-semibold ">Swap</div>
         </div>
         <div className="flex flex-col items-center justify-center pt-12">
-            <div className="flex flex-col w-[50%]">
+            <div className="flex flex-col w-[45%]">
                 <div className="shadow-custom rounded-xl bg-white dark:bg-darkSecond pt-3 pb-10 px-3 flex flex-col space-y-1">
                     <div className="flex justify-end    ">
                         <div className="relative py-3">
@@ -210,9 +212,9 @@ const Swap = () => {
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem] items-center flex justify-between rounded-xl py-3 px-4`}>
                         <div className="flex flex-col space-y-2 w-[9rem]">
                             <div className="relative">
-                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-52 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown(!dropdown)}>
+                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-40 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown(!dropdown)}>
                                     {token1 &&
-                                        <div className='flex space-x-2 tracking-wide text-xs items-center justify-start'>
+                                        <div className='flex space-x-2 tracking-wide text-base items-center justify-start'>
                                             <img src={token1?.logoURI} className="rounded-full w-5 h-5 mr-2" />
                                             {token1?.symbol}
                                         </div>
@@ -289,7 +291,7 @@ const Swap = () => {
                             </div>
                         </div>
                         <div className="flex flex-col space-y-7 items-end ">
-                            <div className="text-lg">
+                            <div className="text-sm">
                                 Balance: {token1 && token1.name && balances[token1.symbol] ? (balances[token1.symbol]?.amount.toFixed(2) ?? 0) : 0}
                             </div>
                             <div className="flex space-x-2">
@@ -317,18 +319,16 @@ const Swap = () => {
                         </div>
                     </div>
                     <div className="flex items-center justify-center">
-                        <div className={` ${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F9F9F9]"}  my-2 py-1 px-1 rounded-lg cursor-pointer `} onClick={changeSwap}>
-                            <div className={` ${isDark ? "" : "bg-[#f5F5F5]"} py-1 px-3`}>
+                        <div className={` ${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5] border-[#F9F9F9] border-[5px]"}  my-2 py-1 px-2 rounded-lg cursor-pointer w-[15%] flex justify-center `} onClick={changeSwap}>
                                 <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
-                            </div>
                         </div>
                     </div>
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem]  flex justify-between rounded-xl py-3 px-4`}>
                         <div className="flex flex-col space-y-2 w-[9rem]">
                             <div className="relative">
-                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-52 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown2(!dropdown)}>
+                                <div className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} flex justify-between items-center px-3 cursor-pointer text-sm !rounded-xl !border-none w-40 pt-[5px] pb-[5px] min-h-[2.3rem] `} onClick={() => setDropdown2(!dropdown)}>
                                     {token2 &&
-                                        <div className='flex space-x-2 tracking-wide text-xs items-center justify-start'>
+                                        <div className='flex space-x-2 tracking-wide text-base items-center justify-start'>
                                             <img src={token2?.logoURI} className="rounded-full w-5 h-5 mr-2" />
                                             {token2?.symbol}
                                         </div>
@@ -405,7 +405,7 @@ const Swap = () => {
                             </div>
                         </div>
                         <div className="flex justify-end h-full">
-                            <div className="text-right text-lg outline-none unvisibleArrow">
+                            <div className="text-right text-sm outline-none unvisibleArrow">
                                 Balance: {token2 && token2.name && balances[token2.symbol] ? (balances[token2.symbol]?.amount.toFixed(2) ?? 0) : 0}
                             </div>
                         </div>
@@ -425,15 +425,16 @@ const Swap = () => {
                     {parseFloat(oneCoinPrice) ?
                         balances[token1.symbol].amount > (token1Amount ?? 0) ?
                             <Button className="w-[97%] text-[20px] !rounded-2xl"
-                            // isLoading={isLoading || isSwappingLoading}
+                            onClick={() => setChoosingBudget(true)}
+                            isLoading={isLoading || isSwappingLoading}
                             >
                                 Swap
                             </Button> :
-                            <div className="w-full bg-greylish py-4 rounded-md text-sm">
+                            <div className="w-full bg-greylish py-4 text-white rounded-md text-sm">
                                 Insufficient {token1.symbol} balance
                             </div>
                         :
-                        <div className="w-full bg-greylish py-4 rounded-md text-sm">
+                        <div className="w-full bg-greylish py-4 text-white rounded-md text-sm">
                             Insufficient liquidity for this trade
                         </div>
                     }
@@ -452,6 +453,9 @@ const Swap = () => {
                 </div>
             </div>
         </div>
+        <Modal openNotify={choosingBudget} onDisable={setChoosingBudget}>
+           <ChooseBudget submit={startSwap}/> 
+        </Modal>
     </>
 }
 
