@@ -13,11 +13,19 @@ const TokenItem = ({asset}: {asset: LendingReserveData}) => {
     const fiatSymbol = useAppSelector(SelectFiatSymbol)
     const coin = Object.values(GetCoins).find((coin) => coin.address.toLowerCase() === asset.coinReserveConfig.Address.toLowerCase());
 
+    const totalSupply = Math.round(+asset.totalStableDebt + +asset.totalVariableDebt + +asset.rawAvailableLiquidity)
+
     const totalBorrow = Math.round(+asset.totalStableDebt + +asset.totalVariableDebt)
     const totalBorrowPrice = GetFiatPrice(coin ?? Object.values(GetCoins)[0] , fiat) * totalBorrow
-    console.log(totalBorrow) 
+
+    const stableBorrowAPY = Math.pow(1+(+asset.stableBorrowRate/12),12) - 1
+    const variableBorrowAPY = Math.pow(1+(+asset.variableBorrowRate/12),12) - 1
+
+    console.log("totalSupply: " + totalSupply)
+    console.log("stableBorrowAPY: " + stableBorrowAPY)
+    console.log("variableBorrowAPY: " + variableBorrowAPY)
     console.log(coin?.symbol)
-    // console.log(asset.availableLiquidity)
+    console.log(asset)
     
 
     return (
@@ -42,15 +50,13 @@ const TokenItem = ({asset}: {asset: LendingReserveData}) => {
             <div className="text-lg font-medium text-right">
                 {/* {item.supplyApy}% */}
             </div>
-            <div className="flex flex-col justify-center ">
-                <div className="text-sm font-medium flex flex-col items-start">
-                    <div>
-                        <NG number={totalBorrow} fontSize={0.875} decimalSize={80} /> {coin?.symbol}
-                    </div>
-                    <span className='text-xs text-greylish font-medium flex justify-end items-end '>
-                        {fiatSymbol}<NG number={totalBorrowPrice} fontSize={0.75} decimalSize={80} />
-                    </span>
-                </div>
+            <div className="flex flex-col justify-center items-start">
+                <span>
+                    <NG number={totalBorrow} fontSize={0.875} decimalSize={80} /> {coin?.symbol}
+                </span>
+                <span className='text-xs text-greylish font-medium flex justify-end items-end '>
+                    {fiatSymbol}<NG number={totalBorrowPrice} fontSize={0.75} decimalSize={80} />
+                </span>
             </div>
             <div className="text-lg font-medium text-right">
                 {/* {item.borrowApy}% */}

@@ -107,13 +107,14 @@ const ProfileSetting = () => {
 
 
 
-    return <div className="py-5 grid grid-flow-row grid-rows-6 space-y-2">
-        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <div className="text-lg font-medium self-center">Fiat Currency</div>
-            <div className="flex w-2/3">
+    return <div className="py-5 grid grid-flow-row grid-rows-6 space-y-3">
+        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,25%,50%] items-center py-3">
+            <div className="text-base font-medium">Fiat Currency</div>
+            <div className="flex">
                 <Dropdown
                     nonrounded
-                    parentClass="w-full"
+                    parentClass="w-[10rem]"
+                    className=""
                     list={fiatList.map(s => ({ name: (s.name as FiatMoneyList), logoURI: s.logo }))}
                     selected={selectedFiatCurrency}
                     setSelect={SetSelectedFiatCurrency}
@@ -124,11 +125,11 @@ const ProfileSetting = () => {
             </div>
             <div></div>
         </div>
-        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <div className="text-lg font-medium self-center">Token Price Calculation</div>
-            <div className="flex w-2/3">
+        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,25%,50%] items-center py-3">
+            <div className="text-base font-medium">Token Price Calculation</div>
+            <div className="flex ">
                 <Dropdown
-                    parentClass="w-full"
+                    parentClass="w-[10rem]"
                     list={[
                         { name: "current", displayName: "Current Price" },
                         { name: "5", displayName: "5 days average" },
@@ -147,13 +148,13 @@ const ProfileSetting = () => {
             <div></div>
         </div>
         {isOrganization &&
-            <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-                <div className="text-lg font-medium self-center">Organisation Photo</div>
+            <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,25%,50%] items-center !py-1">
+                <div className="text-base font-medium self-center">Organisation Photo</div>
                 <div className="flex">
                     <EditableAvatar
                         avatarUrl={(typeof organization?.image?.imageUrl === "string" ? organization?.image?.imageUrl : null) ?? organization?.image?.nftUrl ?? null}
                         name={id ?? "random"}
-                        size={3}
+                        size={3.8}
                         blockchain={blockchain}
                         evm={blockchain.name !== "solana"}
                         userId={id ?? undefined}
@@ -163,18 +164,18 @@ const ProfileSetting = () => {
                 <div></div>
             </div>}
         {isOrganization &&
-            <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-                <div className="text-lg font-medium self-center">Organisation Name</div>
+            <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,20%,55%] items-center py-3">
+                <div className="text-base font-medium self-center">Organisation Name</div>
                 <EditableTextInput defaultValue={organization?.name ?? ""} onSubmit={onOrganizationNameChange} placeholder="Name" />
             </div>
         }
-        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <span className="text-lg font-medium self-center">Your Photo</span>
+        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,25%,50%] items-center py-3">
+            <span className="text-base font-medium self-center">Your Photo</span>
             <div className="flex">
                 <EditableAvatar
                     avatarUrl={(typeof individual?.image?.imageUrl === "string" ? individual?.image?.imageUrl : null) ?? individual?.image?.nftUrl ?? null}
                     name={id ?? "random"}
-                    size={3}
+                    size={3.7}
                     blockchain={blockchain}
                     evm={blockchain.name !== "solana"}
                     userId={id ?? undefined}
@@ -183,8 +184,8 @@ const ProfileSetting = () => {
             </div>
             <div></div>
         </div>
-        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-10 grid grid-cols-[25%,25%,50%] items-center py-6">
-            <div className="text-lg font-medium self-center">Your Name</div>
+        <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,20%,55%] items-center py-3">
+            <div className="text-base font-medium self-center">Your Name</div>
             <EditableTextInput defaultValue={individual?.name ?? ""} onSubmit={onIndividualNameChange} placeholder="Individual account name" />
             <div></div>
         </div>

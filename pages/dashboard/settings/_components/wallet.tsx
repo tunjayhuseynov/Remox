@@ -1,8 +1,9 @@
 import { useAppSelector } from 'redux/hooks';
 import WalletItem from './wallet/walletItem'
 import { SetComma } from 'utils'
-import { SelectAccounts, SelectTotalBalance } from 'redux/slices/account/selector'
+import { SelectAccounts, SelectFiatSymbol, SelectTotalBalance } from 'redux/slices/account/selector'
 import { IAccountORM } from 'pages/api/account/index.api'
+import { NG } from 'utils/jsxstyle';
 
 export interface IWallets {
     id: number;
@@ -29,6 +30,7 @@ export interface IFormInput {
 const WalletSetting = () => {
     const accounts = useAppSelector(SelectAccounts)
     const totalBalance = useAppSelector(SelectTotalBalance)
+    const fiatSymbol = useAppSelector(SelectFiatSymbol)
 
     const walletData: IWalletData = {
         total: totalBalance,
@@ -38,7 +40,7 @@ const WalletSetting = () => {
     return <div className="flex flex-col space-y-7 ">
         <div className="w-full py-6">
             <div className="text-greylish font-semibold">Total Balance</div>
-            <div className="text-3xl font-semibold">${SetComma(walletData.total)}</div>
+            <div className="text-2xl font-medium mt-2">{fiatSymbol}<NG number={totalBalance} fontSize={1.5} decimalSize={80}/></div>
         </div>
         <div className='flex flex-col space-y-5 pb-10'>
             {walletData.wallets.map((item, index) => {

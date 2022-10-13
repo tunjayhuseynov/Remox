@@ -6,9 +6,11 @@ import { BlockchainType, MultisigProviders } from "types/blockchains";
 export const REMOX_LOGO = '/icons/companies/remox.png'
 
 export const AddressReducer = (address: string) => {
+
 	return address.split('').reduce((a, c, i, arr) => {
 		return i < 6 || arr.length - i < 5 ? a + c : a.split('.').length - 1 < 4 ? a + '.' : a;
 	}, '');
+
 };
 
 export const ProgressBarWidth = (num: number) => ({ width: num + "%" })

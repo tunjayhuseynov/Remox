@@ -104,7 +104,6 @@ const Swap = () => {
                 ToastRun(
                     <div className="flex flex-col items-center space-y-1">
                         <div className="font-semobold text-xl">Successfully Swapped</div>
-                        {/* <div className="text-primary text-sm font-semibold cursor-pointer" onClick={() => window.open(`https://explorer.celo.org/tx/${data.hash}/token-transfers`, '_blank')} > View on Celo Explorer</div> */}
                     </div>
                 )
 

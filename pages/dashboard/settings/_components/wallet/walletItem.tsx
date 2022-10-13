@@ -11,10 +11,11 @@ import { useForm } from 'react-hook-form';
 import { IoPersonAddSharp, IoTrashOutline } from 'react-icons/io5';
 import { MdKeyboardArrowRight, MdPublishedWithChanges } from 'react-icons/md';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectID, SelectIndividual, SelectOrganization, SelectPriceCalculationFn } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectFiatSymbol, SelectID, SelectIndividual, SelectOrganization, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Remove_Account_From_Individual, Remove_Account_From_Organization, Update_Account_Image, Update_Account_Name } from 'redux/slices/account/thunks/account';
 import { Blockchains } from 'types/blockchains';
-import { AddressReducer, SetComma } from 'utils';
+import { AddressReducer } from 'utils';
+import { NG } from 'utils/jsxstyle';
 import { ToastRun } from 'utils/toast';
 import OwnerItem from './OwnerItem';
 
@@ -23,6 +24,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
     const { handleSubmit: handleAddOwnerSubmit, register: registerAddOwner } = useForm()
     const { handleSubmit: handleThresholdSubmit, register: registerThreshold } = useForm()
 
+    const fiatSymbol = useAppSelector(SelectFiatSymbol)
     const [deleteModal, setDeleteModal] = useState(false)
     const [addOwnerModal, setAddOwnerModal] = useState(false)
     const [changeThresholdModal, setChangeThresholdModal] = useState(false)
@@ -162,18 +164,19 @@ function WalletItem({ item }: { item: IAccountORM }) {
                         evm={item.blockchain !== "solana"}
                         userId={item.address}
                         onChange={updateImage}
-                        size={4.5}
+                        size={3}
                     />
                     <div className="flex flex-col">
                         <div className="">
                             <EditableTextInput defaultValue={item.name} onSubmit={updateAccountName} placeholder="Name" />
                         </div>
-                        <div className="text-greylish dark:text-white text-sm mx-2">{AddressReducer(item.address)}</div>
+                        <span className="text-greylish dark:text-white text-xs mx-2">{AddressReducer(item.address)}</span>
                     </div>
                 </div>
                 <div className="flex items-center justify-center">
-                    <div className="flex items-center justify-center text-lg font-semibold">
-                        ${SetComma(totalValue)}
+                    <div className="text-base font-semibold">
+                        {fiatSymbol}
+                        <NG number={totalValue} decimalSize={80}/>
                     </div>
                 </div>
                 <div className={`flex items-center justify-center`}>
