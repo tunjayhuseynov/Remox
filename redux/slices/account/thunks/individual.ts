@@ -20,7 +20,7 @@ interface ICreateIndividual {
     address: string;
 }
 
-export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndividual>("remoxData/create_individual", async (data, api) => {
+export const  Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndividual>("remoxData/create_individual", async (data, api) => {
     const { imageUrl, nftAddress, nftTokenId, blockchain, address, name, uploadType, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
@@ -83,17 +83,17 @@ export const Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateIndi
         created_date: GetTime(),
     }
 
-    api.dispatch(CreateTag({
+    await api.dispatch(CreateTag({
         id,
         color: "#0ffff7",
         name: "Gas Fee"
     }))
-    api.dispatch(CreateTag({
+    await api.dispatch(CreateTag({
         id,
         color: "#ff0ae6",
         name: "Swap"
     }))
-    api.dispatch(CreateTag({
+    await api.dispatch(CreateTag({
         id,
         color: "#23c4ff",
         name: "Payroll"

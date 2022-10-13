@@ -14,8 +14,9 @@ import { BiTrash } from "react-icons/bi";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { useAppSelector } from "redux/hooks";
-import { SelectBalance } from "redux/slices/account/selector";
+import { SelectAccounts, SelectBalance } from "redux/slices/account/selector";
 import { AltCoins } from "types";
+import { IAccountORM } from "pages/api/account/index.api";
 
 interface IProps {
     addressBook: IAddressBook[],
@@ -25,10 +26,14 @@ interface IProps {
     input: IPaymentInputs,
     length: number,
     allowSecond: boolean,
+    account: IAccountORM
 }
 
-const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length, allowSecond }: IProps) => {
-    const coins = useAppSelector(SelectBalance)
+const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length, allowSecond, account }: IProps) => {
+    const coins = account.coins.reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
+        acc[cur.coin.symbol] = cur
+        return acc
+    }, {})
 
     const [amount, setAmount] = useState<number | null>(input.amount)
     const [address, setAddress] = useState<string | null>(input.address)
@@ -54,6 +59,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                 <Autocomplete
                     freeSolo
                     fullWidth
+                    disableClearable
                     className='dark:bg-darkSecond bg-white'
                     options={addressBook.map(s => s.name)}
                     value={name ?? ""}
@@ -63,9 +69,10 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                     }}
                     renderInput={(params) => <TextField
                         {...params}
-                        InputProps={{ style: { fontSize: '0.875rem' } }}
+                        // InputProps={{ style: { fontSize: '0.875rem' } }}
                         InputLabelProps={{ style: { fontSize: '0.875rem' } }}
-                        className="text-xs" label="Receiver Name (Optional)" />}
+                        className="text-xs" label="Receiver Name (Optional)" />
+                    }
                 />
             </div>
             <div>

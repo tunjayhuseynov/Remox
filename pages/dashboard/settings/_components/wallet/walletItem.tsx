@@ -3,6 +3,7 @@ import Button from 'components/button';
 import EditableAvatar from 'components/general/EditableAvatar';
 import EditableTextInput from 'components/general/EditableTextInput';
 import Modal from 'components/general/modal';
+import makeBlockie from 'ethereum-blockies-base64';
 import useLoading from 'hooks/useLoading';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { IAccountORM } from 'pages/api/account/index.api';
@@ -11,10 +12,11 @@ import { useForm } from 'react-hook-form';
 import { IoPersonAddSharp, IoTrashOutline } from 'react-icons/io5';
 import { MdKeyboardArrowRight, MdPublishedWithChanges } from 'react-icons/md';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectID, SelectIndividual, SelectOrganization, SelectPriceCalculationFn } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectBlockchain, SelectCurrencies, SelectFiatPreference, SelectFiatSymbol, SelectID, SelectIndividual, SelectOrganization, SelectPriceCalculationFn } from 'redux/slices/account/selector';
 import { Remove_Account_From_Individual, Remove_Account_From_Organization, Update_Account_Image, Update_Account_Name } from 'redux/slices/account/thunks/account';
 import { Blockchains } from 'types/blockchains';
 import { AddressReducer, SetComma } from 'utils';
+import { NG } from 'utils/jsxstyle';
 import { ToastRun } from 'utils/toast';
 import OwnerItem from './OwnerItem';
 
@@ -39,12 +41,13 @@ function WalletItem({ item }: { item: IAccountORM }) {
     const id = useAppSelector(SelectID)
     const preference = useAppSelector(SelectFiatPreference)
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    const symbol = useAppSelector(SelectFiatSymbol)
 
 
 
     const totalValue = useMemo(() => {
         return item.coins.reduce((a, b) => {
-            return a + calculatePrice(b)    
+            return a + calculatePrice(b)
         }, 0)
     }, [item, coins, preference])
 
@@ -173,7 +176,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 </div>
                 <div className="flex items-center justify-center">
                     <div className="flex items-center justify-center text-lg font-semibold">
-                        ${SetComma(totalValue)}
+                        {symbol}<NG number={totalValue} />
                     </div>
                 </div>
                 <div className={`flex items-center justify-center`}>
@@ -182,7 +185,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 <div className="flex items-center justify-center">
                     <div className="flex pl-3">
                         <AvatarGroup max={3}>
-                            {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={member.image?.imageUrl ?? member.image?.nftUrl ?? ""} />)}
+                            {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={individual?.accounts?.[0].id === member.address ? individual.image?.imageUrl ?? makeBlockie(individual?.name || "random") : member.image?.imageUrl ?? member.image?.nftUrl ?? makeBlockie(member?.name || "random")} />)}
                         </AvatarGroup>
                     </div>
                 </div>

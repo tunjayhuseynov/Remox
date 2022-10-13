@@ -101,7 +101,7 @@ export interface IRemoxData {
     transactions: IFormattedTransaction[],
     cumulativeTransactions: (IFormattedTransaction | ITransactionMultisig)[],
     selectedAccountAndBudget: {
-        account: IAccount | null,
+        account: IAccountORM | null,
         budget: IBudgetORM | null,
         subbudget: ISubbudgetORM | null,
     },
@@ -267,7 +267,7 @@ const remoxDataSlice = createSlice({
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
         },
-        setSelectedAccountAndBudget: (state: IRemoxData, action: { payload: { account: IAccount | null, budget: IBudgetORM | null, subbudget: ISubbudgetORM | null } }) => {
+        setSelectedAccountAndBudget: (state: IRemoxData, action: { payload: { account: IAccountORM | null, budget: IBudgetORM | null, subbudget: ISubbudgetORM | null } }) => {
             state.selectedAccountAndBudget = action.payload;
         },
         deleteSelectedAccountAndBudget: (state: IRemoxData) => {
@@ -528,9 +528,9 @@ const remoxDataSlice = createSlice({
         /* Launch */
 
         builder.addCase(launchApp.pending, (state, action) => {
-            if (!state.IsInit) {
+            // if (!state.IsInit) {
                 state.isFetching = true;
-            }
+            // }
         });
         builder.addCase(launchApp.fulfilled, (state, action) => {
             state.coins = action.payload.Coins.reduce<Coins>((acc, coin) => {

@@ -65,7 +65,7 @@ export default async function handler(
     let tags = (
       await adminApp.firestore().collection("tags").doc(id).get()
     ).data() as { tags: ITag[] };
- 
+
     const Blockchain = Blockchains.find(
       (blch: BlockchainType) => blch.name === blockchain
     );
@@ -276,9 +276,9 @@ export default async function handler(
           providerName: providerName
         }
       })
-
-      const safeTxs = await Promise.all(transactionsData.results.map((tx: any) => parseSafeTransaction(tx, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])))
-      transactionArray.push(...safeTxs);
+      const txs = transactionsData.results;
+      const safeTxs = await Promise.all(txs.map((tx: any) => parseSafeTransaction(tx, txs, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])))
+      transactionArray.push(...safeTxs.filter(s => s.tx.method));
     }
 
     res.status(200).json(transactionArray);

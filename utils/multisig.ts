@@ -126,9 +126,21 @@ export const MultisigTxParser = async (
     return obj;
 }
 
-export const parseSafeTransaction = async (tx: GnosisTransaction, Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, owners: string[], tags: ITag[],) => {
+export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTransaction[], Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, owners: string[], tags: ITag[],) => {
     const blockchain = Blockchains.find((b) => b.name === blockchainName);
     if (!blockchain) throw new Error("Blockchain not found");
+    let all = txs.filter(s => tx.nonce === s.nonce)
+
+    let rejection: GnosisTransaction | null = null
+
+    if (all.length > 1) {
+        const rejectIndex = all.findIndex(s => s.safe === s.to)
+        if (rejectIndex !== -1) {
+            txs = txs.filter(s => s.nonce !== tx.nonce && s.safe === s.to)
+            rejection = all[rejectIndex]
+        }
+    }
+
     const transaction: ITransactionMultisig = {
         budget: null,
         confirmations: tx.confirmations.map(s => s.owner),
@@ -143,6 +155,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, Coins: Coins, 
         isExecuted: tx.isExecuted,
         timestamp: tx.submissionDate ? GetTime(new Date(tx.submissionDate)) : GetTime(),
         executedAt: tx.executionDate ? GetTime(new Date(tx.executionDate)) : undefined,
+        rejection: rejection,
         provider: "GnosisSafe",
         name: "GnosisSafe",
         tags: tags.filter(s => s.transactions.find(s => s.address.toLowerCase() === contractAddress.toLowerCase() && s.hash.toLowerCase() === tx.safeTxHash.toLowerCase())),

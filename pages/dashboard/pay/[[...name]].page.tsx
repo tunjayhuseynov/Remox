@@ -389,7 +389,7 @@ const Pay = () => {
                             <div className="flex flex-col">
                                 <div className="font-semibold tracking-wide my-5">General</div>
                                 <div className="flex flex-col space-y-10">
-                                    {inputs.map((e, i) => <Input key={e.id} input={e} allowSecond={index === 0} length={inputs.length}
+                                    {inputs.map((e, i) => <Input account={selectedAccountAndBudget.account!} key={e.id} input={e} allowSecond={index === 0} length={inputs.length}
                                         onDelete={() => {
                                             if (inputs.length > 1) {
                                                 setInputs(inputs.filter((r, index) => r.id !== e.id))

@@ -18,7 +18,7 @@ export const CreateTag = createAsyncThunk<ITag, { id: string, color: string, nam
         isDefault: false
     }
 
-    if (res?.tags.length === 0) {
+    if (!res?.tags) {
         await FirestoreWrite<{ tags: ITag[] }>().createDoc('tags', id, {
             tags: [tag]
         })

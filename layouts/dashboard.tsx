@@ -64,10 +64,10 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
                     <Navbar></Navbar>
                 </div>
                 <div className="flex">
-                    <div className='w-[14.5%] 2xl:w-[15%] 3xl:w-[15%]'>
+                    <div className='w-[13.5%] 2xl:w-[15%] 3xl:w-[15%]'>
                         <Sidebar />
                     </div>
-                    <main key={router.asPath} id='main' className={`relative w-[85.5%] 2xl:w-[85%] 3xl:w-[85%] transition-all pt-[3rem] overflow-y-hidden h-screen`}>
+                    <main key={router.asPath} id='main' className={`relative w-[86.5%] 2xl:w-[85%] 3xl:w-[85%] transition-all pt-[3rem] overflow-y-hidden h-screen`}>
                         <div className='w-full overflow-y-auto overflow-x-hidden h-full hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin pr-8 pt-[4rem] pl-[4.25rem] pb-8'>
                             {children}
                         </div>

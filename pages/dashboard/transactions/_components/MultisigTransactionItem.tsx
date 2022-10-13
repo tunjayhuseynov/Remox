@@ -48,37 +48,58 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const { executeTransaction, confirmTransaction, revokeTransaction } = useMultisig()
 
-    const confirmFn = async () => {
+    const confirmFn = async (rejection?: boolean) => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await confirmTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
+        let hash = rejection && tx.rejection ? tx.rejection.safeTxHash : tx.hashOrIndex
+        await confirmTransaction(tx.contractAddress, hash, tx.provider)
         dispatch(addConfirmation({
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
-            txid: tx.hashOrIndex,
-            provider: tx.provider
+            txid: hash,
+            provider: tx.provider,
+            rejection: !!rejection,
+            rejectionHash: null
         }))
     }
 
-    const executeFn = async () => {
-        if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await executeTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
-        dispatch(changeToExecuted({
-            contractAddress: tx.contractAddress,
-            ownerAddress: providerAddress,
-            txid: tx.hashOrIndex,
-            provider: tx.provider
-        }))
+    const executeFn = async (rejection?: boolean) => {
+        try {
+            if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+            let hash = rejection && tx.rejection ? tx.rejection.safeTxHash : tx.hashOrIndex
+            await executeTransaction(tx.contractAddress, hash, tx.provider)
+            dispatch(changeToExecuted({
+                contractAddress: tx.contractAddress,
+                ownerAddress: providerAddress,
+                txid: hash,
+                provider: tx.provider,
+                rejection: !!rejection,
+                rejectionHash: null
+            }))
+        } catch (error) {
+            console.log(error)
+            ToastRun(<>Cannot execute transaction</>, "error");
+        }
     }
 
-    const revokeFn = async () => {
-        if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
-        await revokeTransaction(tx.contractAddress, tx.hashOrIndex, tx.provider)
-        dispatch(removeConfirmation({
-            contractAddress: tx.contractAddress,
-            ownerAddress: providerAddress,
-            txid: tx.hashOrIndex,
-            provider: tx.provider
-        }))
+    const revokeFn = async (rejection?: boolean) => {
+        try {
+            if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+            if (!account) return ToastRun(<>Cannot get your account</>, "error");
+            let hash = tx.hashOrIndex
+
+            const res = await revokeTransaction(account, hash, tx.provider, hash)
+            dispatch(removeConfirmation({
+                contractAddress: tx.contractAddress,
+                ownerAddress: providerAddress,
+                txid: hash,
+                provider: tx.provider,
+                rejection: !!rejection,
+                rejectionHash: typeof res === "string" ? res : null
+            }))
+        } catch (error) {
+            console.log(error)
+            ToastRun(<>Cannot revoke transaction</>, "error");
+        }
     }
 
     const [executeFnLoading, ExecuteFn] = useLoading(executeFn)
@@ -134,14 +155,15 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     return (
         <>
-            <tr className="pl-5 grid grid-cols-[8.5%,20%,18%,repeat(4,minmax(0,1fr))] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
-                <td className="text-left">
+            <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
+                <td className="text-left p-0">
                     <div className="relative inline">
                         <span className="font-medium text-sm">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
                         <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+tx.timestamp * 1e3), "HH:MM")}</span>
                     </div>
+                    {/* <div className="bg-light dark:bg-dark w-[150%] h-full mt-5 -ml-5"></div> */}
                 </td>
-                <td className="text-left">
+                <td className="text-left p-0">
                     <div className="flex items-center space-x-3">
                         <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-7 h-7 rounded-full" />
                         <div className="text-sm truncate font-semibold pr-5">
@@ -153,11 +175,11 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </div>
                         }
                     </div>
-
+                    {/* <div className="bg-light dark:bg-dark w-[75%] h-full mt-4"></div> */}
                 </td>
                 <td className="text-left">
                     <div className="flex space-x-3">
-                        <div className="w-[2.5rem] h-[2.5rem]">
+                        <div className="w-[1.875rem] h-[1.875rem]">
                             <Image
                                 src={image}
                                 width="100%"
@@ -247,12 +269,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
-                                <div className='lg:text-xs 2xl:text-base'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
+                                <div className='lg:text-sm 2xl:text-base'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
                             </div>
-                            <div className="text-gray-500 dark:text-gray-300 lg:text-xs 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
                                 |
                             </div>
-                            <div className="text-gray-500 dark:text-gray-300 lg:text-xs 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
@@ -265,25 +287,114 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     <div className="flex justify-end space-x-3 pr-5 items-center h-full text-xs">
-                        <div>
-                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.isExecuted ? <></> :
-                                !tx.confirmations.some(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
-                                    <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={ConfirmFn}>
-                                        <span className="tracking-wider" >
-                                            {confirmFnLoading ? <Loader size={14} /> : "Sign"}
-                                        </span>
-                                    </div> :
+                        {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.isExecuted || tx.rejection?.isExecuted ? <></> :
+                            <>
+                                {tx.provider === "GnosisSafe" && !tx.rejection && <div className="w-20 py-1 px-1 cursor-pointer border border-red-500 text-red-500 hover:bg-red-300 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
+                                    <span className="tracking-wider" >
+                                        {revokeFnLoading ? <Loader size={14} /> : "Reject"}
+                                    </span>
+                                </div>}
+                                {!tx.confirmations.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
+                                    <>
+                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ConfirmFn(false)}>
+                                            <span className="tracking-wider" >
+                                                {confirmFnLoading ? <Loader size={14} /> : "Sign"}
+                                            </span>
+                                        </div>
+                                    </> :
                                     isApprovable ?
-                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={ExecuteFn}>
+                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(false)}>
                                             <span className="tracking-wider" >
                                                 {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </span>
                                         </div> :
-                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={RevokeFn}>
-                                            <span className="tracking-wider" >
-                                                {executeFnLoading ? <Loader size={14} /> : "Revoke"}
-                                            </span>
-                                        </div>)
+                                        <>
+                                            {tx.provider === "Celo Terminal" &&
+                                                <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
+                                                    <span className="tracking-wider" >
+                                                        {revokeFnLoading ? <Loader size={14} /> : "Revoke"}
+                                                    </span>
+                                                </div>
+                                            }
+                                        </>
+                                }
+                            </>
+                        )
+                            :
+                            <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
+                                <span className="tracking-wider">
+                                    You're not an owner
+                                </span>
+                            </div>
+                        }
+                        <div className="cursor-pointer w-5" onClick={() => setOpenDetail(true)}>
+                            <AiFillRightCircle color="#FF7348" size={24} />
+                        </div>
+                    </div>
+                </td>
+
+                {tx.rejection && <>
+                    <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
+                    <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
+                    <td>
+                        <div className="flex space-x-3 pt-5">
+                            <div className="w-[1.875rem] h-[1.875rem]">
+                                <Image
+                                    src={image}
+                                    width="100%"
+                                    height="100%"
+                                    layout="responsive"
+                                    quality={100}
+                                    className="rounded-full"
+                                />
+                            </div>
+                            <div className="flex flex-col text-left">
+                                <span className="font-semibold text-left text-sm text-[#E84142]">
+                                    Reject
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-200">
+                                    {name}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td className="self-center w-[95%]">
+                        <div className="flex items-center space-x-3 mb-2">
+                            <div className="flex space-x-1 items-center font-semibold">
+                                <div className={`w-2 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
+                                <div className='lg:text-sm 2xl:text-base'>{tx.isExecuted ? "Rejected" : "Pending"}</div>
+                            </div>
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
+                                |
+                            </div>
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
+                                {tx.rejection.isExecuted ? tx.contractThresholdAmount : tx.rejection.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
+                            </div>
+                        </div>
+                        <div className="h-2 w-full rounded-lg bg-gray-300 relative" >
+                            <div className={`absolute left-0 top-0 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.confirmations.length === 0 || tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
+                                width: tx.rejection.isExecuted ? "100%" : Math.min(((tx.rejection.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
+                            }} />
+                        </div>
+                    </td>
+                    <td>
+                        <div className="flex items-center h-full justify-end pr-5 space-x-3">
+                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.rejection.isExecuted || tx.isExecuted ? <></> :
+                                !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) ?
+                                    <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={() => ConfirmFn(true)}>
+                                        <div className="tracking-wider" >
+                                            {confirmFnLoading ? <Loader size={14} /> : "Sign"}
+                                        </div>
+                                    </div> :
+                                    tx.contractThresholdAmount <= tx.rejection.confirmations.length ?
+                                        <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(true)}>
+                                            <div className="tracking-wider" >
+                                                {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                            </div>
+                                        </div> :
+                                        <></>)
                                 :
                                 <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                     <span className="tracking-wider">
@@ -291,12 +402,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     </span>
                                 </div>
                             }
+                            <div className="cursor-pointer w-5">
+                                
+                            </div>
                         </div>
-                        <div className="cursor-pointer" onClick={() => setOpenDetail(true)}>
-                            <AiFillRightCircle color="#FF7348" size={24} />
-                        </div>
-                    </div>
-                </td>
+                    </td>
+                </>}
             </tr>
             <Detail
                 transaction={{
