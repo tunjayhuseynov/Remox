@@ -261,7 +261,7 @@ export default async function handler(
                 }
             })
 
-            const safeTxs = await parseSafeTransaction(transactionsData, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])
+            const safeTxs = await parseSafeTransaction(transactionsData, [transactionsData], Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])
             return res.json(safeTxs)
         }
     } catch (e: any) {

@@ -60,8 +60,8 @@ export default async function handler(
         const blockchainType = Blockchains.find(b => b.name === blockchain);
         if (!blockchainType) throw new Error("blockchain not found")
 
-        const tagDoc = (await adminApp.firestore().collection("tags").doc(parentId).get()).data() as { tags: ITag[] };
-        const tags = tagDoc.tags;
+        const tagDoc = (await adminApp.firestore().collection("tags").doc(parentId).get()).data() as { tags: ITag[] } | undefined;
+        const tags = tagDoc ? tagDoc.tags : [];
 
         const snapshots = await adminApp.firestore().collection(budgetExerciseCollectionName).where("parentId", "==", parentId).get();
         let budget_exercises: IBudgetExercise[] = snapshots.docs.map(snapshot => snapshot.data() as IBudgetExercise);

@@ -23,7 +23,7 @@ import { SelectIndividual } from 'redux/slices/account/remoxData';
 import { Multisig_Fetch_Thunk } from "redux/slices/account/thunks/multisig";
 import { useCelo } from "@celo/react-celo";
 import { ITag } from "pages/api/tags/index.api";
-import { AltCoins, GnosisConfirmation, GnosisDataDecoded } from "types";
+import { AltCoins, GnosisConfirmation, GnosisDataDecoded, GnosisTransaction } from "types";
 import { ethers } from "ethers";
 import EthersAdapter from "@gnosis.pm/safe-ethers-lib";
 import Safe, {
@@ -74,7 +74,7 @@ export interface ITransactionMultisig {
     executedAt?: number,
     tags: ITag[],
     budget: IBudgetORM | null
-
+    rejection?: GnosisTransaction | null,
 
     tx: Omit<
         Partial<ITransfer> &
@@ -915,7 +915,7 @@ export default function useMultisig() {
                         }))
                     }
                 })
-                console.log(tx)
+
                 return hexToNumberString(tx.logs[0].topics[1]);
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
@@ -956,6 +956,7 @@ export default function useMultisig() {
 
                 const senderAddress = await safeOwner.getAddress();
                 let safeHash = "";
+                const nonce = await safeService.getNextNonce(account.address)
                 if (!Array.isArray(input)) {
                     const transaction: SafeTransactionDataPartial = {
                         to: toChecksumAddress(input.destination ?? ""),
@@ -966,7 +967,7 @@ export default function useMultisig() {
                         gasPrice: optionals?.gasPrice, // Optional
                         gasToken: optionals?.gasToken, // Optional
                         refundReceiver: optionals?.refundReceiver, // Optional
-                        nonce: optionals?.nonce, // Optional
+                        nonce: nonce, // Optional
                     };
 
                     const safeTransaction = await safeSdk.createTransaction(transaction);
@@ -992,14 +993,13 @@ export default function useMultisig() {
                             value: tx.value?.toString() ?? "0",
                         };
                     });
-
                     const options: SafeTransactionOptionalProps = {
                         safeTxGas: optionals?.safeTxGas, // Optional
                         baseGas: optionals?.baseGas, // Optional
                         gasPrice: optionals?.gasPrice, // Optional
                         gasToken: optionals?.gasToken, // Optional
                         refundReceiver: optionals?.refundReceiver, // Optional
-                        nonce: optionals?.nonce, // Optional
+                        nonce: nonce, // Optional
                     };
 
                     const safeTransaction = await safeSdk.createTransaction(
@@ -1038,12 +1038,13 @@ export default function useMultisig() {
         }
     }
 
-    const revokeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
+    const revokeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
+            if (!selectedAddress) throw new Error("Account is not selected")
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
                     const tx = wallet.program.instruction.unapprove({
                         accounts: {
@@ -1054,8 +1055,8 @@ export default function useMultisig() {
                     })
 
                     const pending = await wallet.newTransaction({ instructions: [tx] })
-                    await pending.tx.confirm()
-                    return { message: "sucess" }
+                    const transaction = await pending.tx.confirm()
+                    return transaction;
                 }
                 throw new Error("Wallet has no data")
             } else if (provider === "Celo Terminal") {
@@ -1063,16 +1064,22 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
-                await contract.methods.revokeConfirmation(transactionId).send({
+
+                const data = contract.methods.revokeConfirmation(transactionId).encodeABI()
+
+                const tx = await web3.eth.sendTransaction({
                     from: selectedAddress,
-                    gas: 500000,
-                    gasPrice: "500000000",
+                    to: account.address,
+                    value: "0",
+                    data: data,
+                    gas: 250000,
+                    gasPrice: "5000000000",
                 })
 
 
-                return { message: "success" }
+                return tx.transactionHash;
             }
             else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")
@@ -1087,12 +1094,12 @@ export default function useMultisig() {
                 const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
 
                 const transaction = await safeService.getTransaction(safeTxHash!);
-
+                console.log("tx", transaction)
                 const nonce = transaction.nonce;
 
                 const safeSdk = await Safe.create({
                     ethAdapter,
-                    safeAddress: multisigAddress,
+                    safeAddress: account.address,
                     isL1SafeMasterCopy: false,
                 });
 
@@ -1101,6 +1108,15 @@ export default function useMultisig() {
                 );
 
                 const transactionHash = await safeSdk.getTransactionHash(rejectionTransaction);
+                const sign = await safeSdk.signTransactionHash(transactionHash);
+                rejectionTransaction.addSignature(sign);
+                const hash = await safeService.proposeTransaction({
+                    safeAddress: account.address,
+                    safeTransactionData: rejectionTransaction.data,
+                    safeTxHash: transactionHash,
+                    senderAddress: await safeOwner.getAddress(),
+                    senderSignature: sign.data,
+                })
                 return transactionHash;
             }
         } catch (e: any) {
@@ -1159,10 +1175,10 @@ export default function useMultisig() {
 
                 const ethSignuture = new EthSignSignature(onwerAddress, signature.data);
 
-                if (transaction!.confirmations!.length + 1 >= threshold) {
-                    const receipt = await executeTransaction(multisigAddress, transactionId, providerName, ethSignuture)
+                // if (transaction!.confirmations!.length + 1 >= threshold) {
+                //     const receipt = await executeTransaction(multisigAddress, transactionId, providerName, ethSignuture)
 
-                }
+                // }
 
             } else if (providerName === "Celo Terminal") {
                 let web3 = new Web3((window as any).celo);
@@ -1233,23 +1249,15 @@ export default function useMultisig() {
                 });
 
 
-                const safeTransactionData: SafeTransactionData = {
-                    to: transaction!.to,
-                    value: transaction!.value,
-                    data: transaction!.data!,
-                    operation: transaction!.operation,
-                    safeTxGas: transaction!.safeTxGas,
-                    baseGas: transaction!.baseGas,
-                    gasPrice: Number(transaction!.gasPrice),
-                    gasToken: transaction!.gasToken,
-                    refundReceiver: transaction!.refundReceiver!,
-                    nonce: transaction!.nonce,
-                };
-
                 const safeTransaction = await safeSdk.createTransaction(
-                    safeTransactionData
+                    {
+                        to: transaction.to,
+                        value: transaction.value,
+                        data: transaction.data ?? "",
+                        nonce: transaction.nonce,
+                        safeTxGas: transaction.safeTxGas,
+                    }
                 );
-
 
                 transaction.confirmations?.forEach((confirmation) => {
                     const signature = new EthSignSignature(
@@ -1258,11 +1266,33 @@ export default function useMultisig() {
                     );
                     safeTransaction.addSignature(signature);
                 });
-                safeTransaction.addSignature(ethSignuture!);
 
+                // safeTransaction.addSignature(ethSignuture!);
                 const executeTxResponse = await safeSdk.executeTransaction(
-                    safeTransaction
+                    {
+                        addSignature: safeTransaction.addSignature,
+                        data: {
+                            baseGas: safeTransaction.data.baseGas,
+                            data: safeTransaction.data.data,
+                            gasPrice: safeTransaction.data.gasPrice,
+                            gasToken: safeTransaction.data.gasToken,
+                            nonce: safeTransaction.data.nonce,
+                            operation: safeTransaction.data.operation,
+                            refundReceiver: safeTransaction.data.refundReceiver,
+                            safeTxGas: transaction.safeTxGas,
+                            to: safeTransaction.data.to,
+                            value: safeTransaction.data.value,
+                        },
+                        encodedSignatures: safeTransaction.encodedSignatures,
+                        signatures: safeTransaction.signatures,
+                    },
+                    {
+                        gasPrice: "500000000",
+                        gasLimit: 500000,
+                        from: await safeOwner.getAddress(),
+                    }
                 );
+                
                 const receipt =
                     executeTxResponse.transactionResponse &&
                     (await executeTxResponse.transactionResponse.wait());

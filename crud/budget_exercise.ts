@@ -1,5 +1,5 @@
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
-import { doc } from "firebase/firestore";
+import { arrayRemove, doc } from "firebase/firestore";
 import { db, IBudgetExercise } from "firebaseConfig";
 import { Get_Budget, Get_Budget_Ref } from "./budget";
 import { Get_Organization, Update_Organization } from "./organization";
@@ -42,4 +42,8 @@ export const Update_Budget_Exercise = async (budget_exercise: IBudgetExercise) =
 
 export const Delete_Budget_Exercise = async (budget_exercise: IBudgetExercise) => {
     await FirestoreWrite<IBudgetExercise>().deleteDocument(budgetExerciseCollectionName, budget_exercise.id);
+
+    await FirestoreWrite().updateDoc(budget_exercise.parentType === "individual" ? "individuals" : "organizations", budget_exercise.parentId, {
+        budget_execrises: arrayRemove(Get_Budget_Exercise_Ref(budget_exercise.id))
+    })
 }

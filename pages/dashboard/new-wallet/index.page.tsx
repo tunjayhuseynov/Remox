@@ -168,9 +168,11 @@ function NewWalletModal() {
     return <div className="w-full mx-auto relative">
         <div className=" w-1/2 mx-auto sm:flex flex-col items-center justify-center ">
             <div className=" text-center w-full pt-4">
-                <div className="text-2xl font-bold">Add New Wallet</div>
+                <div className="text-xl font-bold">Add New Wallet</div>
             </div>
-            <div className="flex justify-between w-[60%] py-7"><AnimatedTabBar data={data} index={index} /></div>
+            <div className="flex justify-between w-[40%] py-7">
+                <AnimatedTabBar data={data} index={index} fontSize={"!text-sm"} />
+            </div>
 
             {index === 0 && <form onSubmit={handleSubmit(submit)} className="flex flex-col w-[62%] gap-7">
                 <div className={`flex justify-center flex-shrink-0 flex-grow-0`}>
@@ -187,7 +189,7 @@ function NewWalletModal() {
                     {/* <div className="text-sm">Choose Wallet Provider</div> */}
                     <Dropdown
                         // parentClass={'w-full rounded-lg h-[3.4rem]'}
-                        className={'w-full'}
+                        className={'w-full bg-white dark:bg-darkSecond'}
                         selectClass={'py-2'}
                         list={providers}
                         sx={{
@@ -206,7 +208,12 @@ function NewWalletModal() {
                                 fontSize: "0.875rem"
                             }
                         }}
-                        type="text" {...register("name", { required: true })} label="Wallet Name" className="w-full" />
+                        InputLabelProps={{
+                            style: {
+                                fontSize: "0.875rem"
+                            }
+                        }}
+                        type="text" {...register("name", { required: true })} label="Wallet Name" className="w-full bg-white dark:bg-darkSecond" />
                 </div>
                 <div className="flex flex-col gap-1">
                     <TextField
@@ -215,13 +222,18 @@ function NewWalletModal() {
                                 fontSize: "0.875rem"
                             }
                         }}
-                        type="text" {...register("address", { required: true })} label="Wallet Address" className="w-full" />
+                        InputLabelProps={{
+                            style: {
+                                fontSize: "0.875rem"
+                            }
+                        }}
+                        type="text" {...register("address", { required: true })} label="Wallet Address" className="w-full bg-white dark:bg-darkSecond" />
                 </div>
                 <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
-                    <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { navigate.back() }}>
+                    <Button version="second" className="px-4 !py-2 rounded-md !text-sm" onClick={() => { navigate.back() }}>
                         Close
                     </Button>
-                    <Button type='submit' className="px-6 py-3 rounded-md" isLoading={loading}>
+                    <Button type='submit' className="px-4 !py-2 rounded-md !text-sm" isLoading={loading}>
                         Save
                     </Button>
                 </div>

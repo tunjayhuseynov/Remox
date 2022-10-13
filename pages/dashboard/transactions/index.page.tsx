@@ -347,23 +347,24 @@ const Transactions = () => {
                     <div className="mt-5">
                         <table className="w-full">
                             <thead>
-                                <tr className="pl-5 grid grid-cols-[8.5%,20%,18%,repeat(4,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
+                                <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
                                     <th className="py-3 self-center text-left">Date</th>
                                     <th className="py-3 self-center text-left">Wallet</th>
                                     <th className="py-3 self-center text-left">Type</th>
                                     <th className="py-3 self-center text-left">Amount</th>
                                     <th className="py-3 self-center text-left">Labels</th>
                                     <th className="py-3 self-center text-left">Signatures</th>
-                                    <th className="py-3 flex justify-start">
+                                    <th className="py-3 flex justify-end pr-14">
                                         <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                             {!refreshLoading && <div>
                                                 <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />
                                             </div>}
-                                            <span className="tracking-wider">
+                                            <div className="tracking-wider">
                                                 {refreshLoading ? <><Loader /></> : "Refresh"}
-                                            </span>
+                                            </div>
                                         </div>
                                     </th>
+                                    <th></th>
                                 </tr>
                                 {txs.slice(pagination - STABLE_INDEX, pagination).map((tx, i) => {
                                     if ((tx as IFormattedTransaction)['hash']) {

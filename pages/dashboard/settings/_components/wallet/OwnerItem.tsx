@@ -81,7 +81,7 @@ const OwnerItem = ({ item, account }: { item: IMember, account: IAccount }) => {
     const [deleteLoading, DeleteOwner] = useLoading(deleteOwner)
 
 
-    return <div className="grid grid-cols-[25%,15%,20%,1fr] px-5 py-4 dark:bg-darkSecond bg-white">
+    return <div className="grid grid-cols-[25%,23%,15%,1fr] px-5 py-4 dark:bg-darkSecond bg-white">
         <div className="flex items-center justify-start gap-2" >
             <EditableAvatar
                 avatarUrl={(typeof item.image?.imageUrl === "string" ? item.image?.imageUrl : null) ?? item.image?.nftUrl ?? null}
@@ -89,17 +89,17 @@ const OwnerItem = ({ item, account }: { item: IMember, account: IAccount }) => {
                 noNFT={true}
                 userId={item.address}
                 onChange={updateImage}
-                size={4}
+                size={2}
             />
             <div className="flex flex-col">
                 <div className="">
                     <EditableTextInput defaultValue={item.name} onSubmit={updateName} placeholder="Name" />
                 </div>
-                <div className="text-greylish dark:text-white text-sm mx-2">{AddressReducer(item.address)}</div>
+                <div className="text-greylish dark:text-white text-xs mx-2">{AddressReducer(item.address)}</div>
             </div>
         </div>
-        <div className="flex items-center justify-center">
-            {item.address === providerAddress && <div className="flex items-center justify-center px-8 py-2 bg-primary bg-opacity-40 text-primary font-semibold border border-primary">You</div>}
+        <div className="flex items-center justify-start">
+            {item.address === providerAddress && <div className="flex items-center justify-center px-4 py-1 text-xs bg-primary bg-opacity-40 text-primary font-semibold border border-primary">You</div>}
         </div>
         <div className="flex items-center justify-center">
             {<EditableTextInput defaultValue={item.mail ?? ""} onSubmit={updateMail} placeholder="Email" />}

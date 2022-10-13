@@ -1,8 +1,9 @@
-import { Accordion, AccordionDetails, AccordionSummary, Avatar, AvatarGroup, Tooltip } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Avatar, AvatarGroup, TextField, Tooltip } from '@mui/material';
 import Button from 'components/button';
 import EditableAvatar from 'components/general/EditableAvatar';
 import EditableTextInput from 'components/general/EditableTextInput';
 import Modal from 'components/general/modal';
+import makeBlockie from 'ethereum-blockies-base64';
 import useLoading from 'hooks/useLoading';
 import useMultisig from 'hooks/walletSDK/useMultisig';
 import { IAccountORM } from 'pages/api/account/index.api';
@@ -41,12 +42,13 @@ function WalletItem({ item }: { item: IAccountORM }) {
     const id = useAppSelector(SelectID)
     const preference = useAppSelector(SelectFiatPreference)
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    const symbol = useAppSelector(SelectFiatSymbol)
 
 
 
     const totalValue = useMemo(() => {
         return item.coins.reduce((a, b) => {
-            return a + calculatePrice(b)    
+            return a + calculatePrice(b)
         }, 0)
     }, [item, coins, preference])
 
@@ -174,18 +176,18 @@ function WalletItem({ item }: { item: IAccountORM }) {
                     </div>
                 </div>
                 <div className="flex items-center justify-center">
-                    <div className="text-base font-semibold">
+                    <div className="text-base font-medium">
                         {fiatSymbol}
                         <NG number={totalValue} decimalSize={80}/>
                     </div>
                 </div>
                 <div className={`flex items-center justify-center`}>
-                    <span className={`${!item.multidata && "hidden"}`}>{item.multidata?.threshold.sign} out of {item.multidata?.owners.length}</span>
+                    <span className={`${!item.multidata && "hidden"} text-sm`}>{item.multidata?.threshold.sign} out of {item.multidata?.owners.length} owners</span>
                 </div>
                 <div className="flex items-center justify-center">
                     <div className="flex pl-3">
                         <AvatarGroup max={3}>
-                            {item.members.map((member, index) => <Avatar key={member.id} alt={member.name} src={member.image?.imageUrl ?? member.image?.nftUrl ?? ""} />)}
+                            {item.members.map((member) => <Avatar key={member.id} alt={member.name} src={individual?.accounts?.[0].id === member.address ? individual.image?.imageUrl ?? makeBlockie(individual?.name || "random") : member.image?.imageUrl ?? member.image?.nftUrl ?? makeBlockie(member?.name || "random")} />)}
                         </AvatarGroup>
                     </div>
                 </div>
@@ -196,7 +198,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                                 <IoPersonAddSharp size={20} />
                             </Tooltip>
                         </div>
-                        <div className="cursor-pointer" onClick={() => setDeleteModal(true)}>
+                        <div className="cursor-pointer" onClick={() => setChangeThresholdModal(true)}>
                             <Tooltip title={"Change threshold"}>
                                 <MdPublishedWithChanges size={20} />
                             </Tooltip>
@@ -227,8 +229,8 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 </div>
             </Modal>}
         {addOwnerModal &&
-            <Modal onDisable={setAddOwnerModal} animatedModal={false} disableX={true} className={'!pt-6'}>
-                <form onSubmit={handleAddOwnerSubmit(AddOwner)} className="flex flex-col w-[62%] gap-7">
+            <Modal onDisable={setAddOwnerModal} animatedModal={false} disableX={true} className={'!pt-6 !w-[30%]'}>
+                <form onSubmit={handleAddOwnerSubmit(AddOwner)} className="flex flex-col gap-7">
                     <div className={`flex justify-center flex-shrink-0 flex-grow-0`}>
                         <EditableAvatar
                             avatarUrl={null}
@@ -240,16 +242,13 @@ function WalletItem({ item }: { item: IAccountORM }) {
                         />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <div className="text-sm">Owner Name</div>
-                        <input type="text" {...registerAddOwner("name", { required: true })} placeholder="E.g: Jessy" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
+                        <TextField label="Owner Name" type="text" {...registerAddOwner("name", { required: true })} placeholder="E.g: Jessy" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <div className="text-sm">Owner Address</div>
-                        <input type="text" {...registerAddOwner("address", { required: true })} placeholder="Owner Adress" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
+                        <TextField label="Owner Address" type="text" {...registerAddOwner("address", { required: true })} placeholder="0x0000000000000000000000000000000000000000" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <div className="text-sm">Owner Email</div>
-                        <input type="email" {...registerAddOwner("mail", { required: false })} placeholder="Mail" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
+                        <TextField label="Owner Email" type="email" {...registerAddOwner("mail", { required: false })} placeholder="remox@remox.io" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
                     </div>
                     <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
                         <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { setAddOwnerModal(false) }}>
@@ -262,11 +261,10 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 </form>
             </Modal>}
         {changeThresholdModal &&
-            <Modal onDisable={setChangeThresholdModal} animatedModal={false} disableX={true} className={'!pt-6'}>
-                <form onSubmit={handleThresholdSubmit(ChangeThreshold)} className="flex flex-col w-[62%] gap-7">
+            <Modal onDisable={setChangeThresholdModal} animatedModal={false} disableX={true} className={'!pt-6 !w-[30%]'}>
+                <form onSubmit={handleThresholdSubmit(ChangeThreshold)} className="flex flex-col gap-7">
                     <div className="flex flex-col gap-1">
-                        <div className="text-sm">Threshold</div>
-                        <input type="text" {...registerThreshold("threshold", { required: true, valueAsNumber: true })} placeholder="E.g: 5" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
+                        <TextField defaultValue={item.multidata?.threshold.sign} label="Threshold" type="number" {...registerThreshold("threshold", { required: true, valueAsNumber: true })} placeholder="E.g: 5" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond"/>
                     </div>
                     <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
                         <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { setChangeThresholdModal(false) }}>
