@@ -13,19 +13,32 @@ const TokenItem = ({asset}: {asset: LendingReserveData}) => {
     const fiatSymbol = useAppSelector(SelectFiatSymbol)
     const coin = Object.values(GetCoins).find((coin) => coin.address.toLowerCase() === asset.coinReserveConfig.Address.toLowerCase());
 
-    const totalSupply = Math.round(+asset.totalStableDebt + +asset.totalVariableDebt + +asset.rawAvailableLiquidity)
+    const fiatPrice = GetFiatPrice(coin ?? Object.values(GetCoins)[0] , fiat)
 
+    // BORROW
+    const variableBorrowAPR = Math.round(+asset.variableBorrowRate / 10**25)
+    const stableBorrowAPR = Math.round(+asset.stableBorrowRate / 10**25)
+    const variableBorrowAPY = Math.round(((1+variableBorrowAPR/12)**12) - 1)
+    const stableBorrowAPY = Math.round(((1+stableBorrowAPR/12)**12) - 1)
     const totalBorrow = Math.round(+asset.totalStableDebt + +asset.totalVariableDebt)
-    const totalBorrowPrice = GetFiatPrice(coin ?? Object.values(GetCoins)[0] , fiat) * totalBorrow
+    const totalBorrowPrice = fiatPrice * totalBorrow
 
-    const stableBorrowAPY = Math.pow(1+(+asset.stableBorrowRate/12),12) - 1
-    const variableBorrowAPY = Math.pow(1+(+asset.variableBorrowRate/12),12) - 1
+    // SUPPLY
+    const totalSupply = Math.round(+asset.totalStableDebt + +asset.totalVariableDebt + (+asset.rawAvailableLiquidity/10**18))
+    const totalSupplyPrice = fiatPrice * totalSupply
 
-    console.log("totalSupply: " + totalSupply)
-    console.log("stableBorrowAPY: " + stableBorrowAPY)
-    console.log("variableBorrowAPY: " + variableBorrowAPY)
+    
+
+
+    console.log(`Variable Borrow APR: ${variableBorrowAPR}%`)
+    console.log(`Variable Borrow APY: ${variableBorrowAPY}%`)
+    console.log(`Stable Borrow APR: ${stableBorrowAPR}%`)
+    console.log(`Stable Borrow APY: ${stableBorrowAPY}%`)
+    console.log(`Total Borrow: ${totalBorrow}`)
     console.log(coin?.symbol)
-    console.log(asset)
+
+
+
     
 
     return (
@@ -39,13 +52,13 @@ const TokenItem = ({asset}: {asset: LendingReserveData}) => {
                 {asset.coinReserveConfig.LoanToValue}
             </div>
 
-            <div className="flex flex-col ">
-                <div className="text-lg font-medium text-right">
-                    {/* {asset.} {coin?.name} */}
-                </div>
-                <div className="text-sm text-greylish font-medium text-right">
-                    {/* ${item.totalSupply.usdValue} */}
-                </div>
+            <div className="flex flex-col justify-center items-start">
+                <span>
+                    <NG number={totalSupply} fontSize={0.875} decimalSize={80} /> {coin?.symbol}
+                </span>
+                <span className='text-xs text-greylish font-medium flex justify-end items-end '>
+                    {fiatSymbol}<NG number={totalSupplyPrice} fontSize={0.75} decimalSize={80} />
+                </span>
             </div>
             <div className="text-lg font-medium text-right">
                 {/* {item.supplyApy}% */}
