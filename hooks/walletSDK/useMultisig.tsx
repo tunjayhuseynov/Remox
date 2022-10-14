@@ -404,12 +404,13 @@ export default function useMultisig() {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (accounts.some(s => s.address.toLowerCase() === contractAddress.toLowerCase())) throw new Error("This address already exist");
-            if (!publicKey) throw new Error("Public key is not selected")
             if (!auth.currentUser) throw new Error("User is not logged in")
 
             let members: string[] = [];
 
             if (provider === "Goki") {
+                if (!publicKey) throw new Error("Public key is not selected")
+
                 const programs = GokiProgram(contractAddress);
 
                 const data = await programs.SmartWallet.account.smartWallet.fetch(new PublicKey(contractAddress));
@@ -1292,7 +1293,7 @@ export default function useMultisig() {
                         from: await safeOwner.getAddress(),
                     }
                 );
-                
+
                 const receipt =
                     executeTxResponse.transactionResponse &&
                     (await executeTxResponse.transactionResponse.wait());

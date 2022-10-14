@@ -60,21 +60,23 @@ export const SelectDailyBalance = createDraftSafeSelector(
                 })
             })
 
-            if (response[stringTime(new Date())] === undefined) response[stringTime(new Date())] = totalBalance
+            if (response[stringTime(new Date())] === undefined && Object.keys(response).length > 0) response[stringTime(new Date())] = totalBalance
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
 
             const calendarList = Object.entries(response)
-            const last = calendarList.at(-1)
-            const first = calendarList[0][0]
-            let saved = response[calendarList[0][0]]
-            if (last && calendarList.length > 0) {
-                const difference = date.subtract(new Date(last[0]), new Date(first)).toDays()
-                for (let index = 0; index < difference; index++) {
-                    const time = stringTime(date.addDays(new Date(first), index + 1))
-                    if (response[time]) {
-                        saved = response[time]
-                    } else {
-                        response[time] = saved;
+            if (calendarList.length > 0) {
+                const last = calendarList.at(-1)
+                const first = calendarList[0][0]
+                let saved = response[calendarList[0][0]]
+                if (last && calendarList.length > 0) {
+                    const difference = date.subtract(new Date(last[0]), new Date(first)).toDays()
+                    for (let index = 0; index < difference; index++) {
+                        const time = stringTime(date.addDays(new Date(first), index + 1))
+                        if (response[time]) {
+                            saved = response[time]
+                        } else {
+                            response[time] = saved;
+                        }
                     }
                 }
             }

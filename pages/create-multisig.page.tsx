@@ -39,6 +39,7 @@ function CreateMultisig() {
 
     const dispatch = useAppDispatch()
 
+
     const { Address, blockchain } = useWalletKit();
 
     const [address, setProviderAddress] = useState<string>("")
@@ -171,18 +172,18 @@ function CreateMultisig() {
     return <div className="h-screen w-full">
         <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
             <div>
-                <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="135" />
+                <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" height="40" />
             </div>
         </header>
         <form onSubmit={handleSubmit(OnSubmit)} className="py-[10rem] sm:py-0 sm:h-full " >
-            <section className="flex flex-col items-center h-full  gap-6 pt-36">
+            <section className="flex flex-col items-center h-full gap-6 pt-36">
                 <div className="flex flex-col items-center justify-center gap-4">
                     <div className="text-6xl dark:text-white text-center font-semibold">Set Account Details</div>
                     <div className="flex px-10 pt-2 w-full justify-between">
                         <AnimatedTabBar data={pages} index={index} className={'!text-lg'} fontSize={"!text-sm"}/>
                     </div>
                 </div>
-                <div className="flex flex-col px-3 space-y-10 items-center justify-start min-w-[25%]">
+                <div className="flex flex-col px-3 space-y-6 items-center justify-start min-w-[25%]">
                     <EditableAvatar
                         avatarUrl={null}
                         name={"random"}

@@ -85,7 +85,8 @@ const CreateAccount = () => {
           <img
             src={dark ? "/logo.png" : "/logo_white.png"}
             alt=""
-            width="135"
+            width="150"
+            height="40"
           />
         </div>
       </header>
