@@ -3,7 +3,7 @@ import { useWalletKit } from 'hooks'
 import { useAppDispatch } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { isOldUser } from 'hooks/singingProcess/utils';
@@ -95,7 +95,7 @@ const Home = () => {
             }}
             label="Blockchain"
             selected={selected}
-            setSelect={setSelected}
+            setSelect={setSelected as any}
             list={Blockchains}
           />
           <Button onClick={ConnectEvent} className={"w-[12rem] text-xs px-0"} isLoading={isLoading}>{buttonText}</Button>
