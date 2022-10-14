@@ -37,11 +37,7 @@ const WalletSetting = () => {
         wallets: accounts
     }
 
-    return <div className="flex flex-col space-y-7 ">
-        <div className="w-full py-6">
-            <div className="text-greylish font-semibold">Total Balance</div>
-            <div className="text-2xl font-medium mt-2">{fiatSymbol}<NG number={totalBalance} fontSize={1.5} decimalSize={80}/></div>
-        </div>
+    return <div className="flex flex-col space-y-7 mt-8">
         <div className='flex flex-col space-y-5 pb-10'>
             {walletData.wallets.map((item, index) => {
                 return <WalletItem item={item} key={item.id} />

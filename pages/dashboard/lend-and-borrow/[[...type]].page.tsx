@@ -9,9 +9,9 @@ import TokenItem from './_components/token';
 const Lendborrow = () => {
     const router = useRouter()
     const { type } = router.query as { type: string[] | undefined }
-    const [tokenData, setTokenData] = useState('Variable')
     const {getReservesData} = useLending()
     const [reservesData, setReservesData] = useState<LendingReserveData[]>([]);
+    const [variable, setVariable] = useState(true)
 
     useAsyncEffect(async () => {
         const reserveDatas = await getReservesData()
@@ -22,16 +22,6 @@ const Lendborrow = () => {
 
     const [apy, setApy] = useState(false)
 
-    const data = [
-        {
-            to: "/dashboard/lend-and-borrow",
-            text: "Lending"
-        },
-        {
-            to: "/dashboard/lend-and-borrow/borrow",
-            text: "Borrowing"
-        }
-    ]
    
     return <div className="flex flex-col pt-8 space-y-3">
     <div className="flex items-center justify-between ">
@@ -40,8 +30,8 @@ const Lendborrow = () => {
                 Lend & Borrow
             </div>
             <div className="bg-light dark:bg-dark border border-[#D6D6D6] dark:border-greylish py-1 px-2 flex rounded-md ml-5">
-                <div className={`text-primary cursor-pointer ${tokenData === 'Variable' && '!text-white !bg-primary rounded-md'} px-3 py-[3px]`} onClick={() => { setTokenData('Variable') }}>Variable</div>
-                <div className={`text-primary cursor-pointer ${tokenData === 'Stable' && '!text-white !bg-primary rounded-md'} px-3 py-[3px]`} onClick={() => { setTokenData('Stable') }}>Stable</div>
+                <div className={`text-primary cursor-pointer ${variable && '!text-white !bg-primary rounded-md'} px-3 py-[3px]`} onClick={() => { setVariable(true) }}>Variable</div>
+                <div className={`text-primary cursor-pointer ${!variable && '!text-white !bg-primary rounded-md'} px-3 py-[3px]`} onClick={() => { setVariable(false) }}>Stable</div>
             </div>
             <img src="/icons/info_icon.png" className='w-4 h-4 object-cover cursor-pointer' alt="" />
         </div>

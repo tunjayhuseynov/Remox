@@ -44,7 +44,7 @@ function Payments() {
 
     return <>
         {data.map((item, index) => {
-            return <div key={index} className="w-full self-end cursor-pointer">
+            return <div key={index} className="w-full self-end cursor-pointer h-[5rem]">
                 <div className="w-full shadow-15 px-7 py-1 rounded-md bg-white transition-all dark:bg-darkSecond hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
                     <div className="flex items-center gap-7 ">
                         <div className="hidden lg:block w-6 h-6"><img src={`/icons/dashboard_side/${item.icon}.png`} alt="" /></div>
