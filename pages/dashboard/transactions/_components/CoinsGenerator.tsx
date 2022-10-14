@@ -49,7 +49,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
                         {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-200">
-                        {`${symbol}`} <NG fontSize={0.75} number={price.toFixed(0).length > 18 ? 0 : price} />
+                        {`${symbol}`}<NG fontSize={0.75} number={price.toFixed(0).length > 18 ? 0 : price} />
                     </span>
                 </div>
             </>

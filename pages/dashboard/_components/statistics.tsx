@@ -4,13 +4,14 @@ import LineChart from "components/general/Linechart";
 import Button from "components/button";
 import useStorage from "hooks/storage/useStorage";
 import WalletList from "./WalletList";
-import { SelectAccounts, SelectDailyBalance, SelectFiatSymbol, SelectStats, SelectTotalBalance } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectDailyBalance, SelectFiatSymbol, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
 import { useAppSelector } from "redux/hooks";
 import Payments from "./request-payment";
 
 const Statistic = () => {
     const stats = useAppSelector(SelectStats)
+    const storage = useAppSelector(SelectStorage)
     const { getName } = useStorage()
 
     const [chartDate, setChartDate] = useState<"week" | "month" | "quart" | "year">("week")
@@ -25,7 +26,7 @@ const Statistic = () => {
             <NewWalletModal onDisable={setNotify} />
         </Modal> */}
         <div className="flex flex-col space-y-3">
-            <div className="text-6xl font-semibold text-left">Welcome, {getName}</div>
+            <div className="text-6xl font-semibold text-left">Welcome, {storage?.individual.name}</div>
             <div className="grid grid-cols-[66.6%,33.3%] gap-x-12 ">
                 <div className="bg-white dark:bg-darkSecond py-5 px-3 rounded-md shadow-15 ">
                     <div className="w-full flex justify-between">

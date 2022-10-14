@@ -267,6 +267,7 @@ const Pay = () => {
             dispatch(Set_Address_Book([...books.filter(s => !newAddressBooks.find(w => w.name === s.name)), ...newAddressBooks]))
 
             ToastRun(<>Successfully processed. Wait for a confirmation</>, "success")
+            router.push('/dashboard/transactions')
         } catch (error) {
             const message = (error as any).message || "Something went wrong"
             console.error(error)

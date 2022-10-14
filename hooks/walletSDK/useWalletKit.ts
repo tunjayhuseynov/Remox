@@ -343,7 +343,7 @@ export default function useWalletKit() {
           if (account.signerType === "single") { // SINGLE SIGNER
             const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
               if (num > 23) {
-           
+
                 dispatch(Add_Tx_To_TxList_Thunk({
                   account: account,
                   authId: id,
@@ -474,10 +474,6 @@ export default function useWalletKit() {
           }))
         }
 
-        dispatch(Refresh_Balance_Thunk({
-          blockchain: blockchain,
-        }))
-
         if (notes && txhash) {
           dispatch(Add_Notes_Thunk({
             note: {
@@ -489,6 +485,10 @@ export default function useWalletKit() {
           }))
         }
 
+
+        dispatch(Refresh_Balance_Thunk({
+          blockchain: blockchain,
+        }))
         dispatch(Refresh_Accounts_Thunk({
           id: account.id,
         }))

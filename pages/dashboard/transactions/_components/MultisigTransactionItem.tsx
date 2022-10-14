@@ -65,8 +65,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const executeFn = async (rejection?: boolean) => {
         try {
             if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+            if (!account) return ToastRun(<>Cannot get your account</>, "error");
             let hash = rejection && tx.rejection ? tx.rejection.safeTxHash : tx.hashOrIndex
-            await executeTransaction(tx.contractAddress, hash, tx.provider)
+            await executeTransaction(account, hash, tx.provider)
             dispatch(changeToExecuted({
                 contractAddress: tx.contractAddress,
                 ownerAddress: providerAddress,
@@ -296,7 +297,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 </div>}
                                 {!tx.confirmations.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
                                     <>
-                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ConfirmFn(false)}>
+                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(false)}>
                                             <span className="tracking-wider" >
                                                 {confirmFnLoading ? <Loader size={14} /> : "Sign"}
                                             </span>
@@ -336,7 +337,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 {tx.rejection && <>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
-                    <td>
+                    <td className="border-t">
                         <div className="flex space-x-3 pt-5">
                             <div className="w-[1.875rem] h-[1.875rem]">
                                 <Image
@@ -358,8 +359,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </div>
                         </div>
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td className="border-t"></td>
+                    <td className="border-t"></td>
                     <td className="self-center w-[95%]">
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
@@ -383,7 +384,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         <div className="flex items-center h-full justify-end pr-5 space-x-3">
                             {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.rejection.isExecuted || tx.isExecuted ? <></> :
                                 !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) ?
-                                    <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2" onClick={() => ConfirmFn(true)}>
+                                    <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
                                         <div className="tracking-wider" >
                                             {confirmFnLoading ? <Loader size={14} /> : "Sign"}
                                         </div>
@@ -403,7 +404,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 </div>
                             }
                             <div className="cursor-pointer w-5">
-                                
+
                             </div>
                         </div>
                     </td>

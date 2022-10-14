@@ -4,7 +4,9 @@ import { IAccount, IIndividual, IOrganization } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BASE_URL } from "utils/api";
+import { generatePriceCalculation } from "utils/const";
 import { toChecksumAddress } from "web3-utils";
+import { IRemoxAccountORM } from "../account/multiple.api";
 import { IMultisigOwners } from "../multisig/owners.api";
 
 
@@ -107,8 +109,29 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
             return account;
         }))
 
+        // const accountReq = await axios.get<IRemoxAccountORM>("/api/account/multiple", {
+        //     params: {
+        //         id: organization.id,
+        //         type: "organization",
+        //     },
+        // });
+
+        // const account = accountReq.data;
+
+        // if (account) {
+        //     let pc = organization.priceCalculation ?? "current";
+        //     let fiat = organization.fiatMoneyPreference ?? "USD";
+
+        //     let totalBalance = 0;
+        //     account.accounts.forEach((account) => {
+        //         account.coins.forEach((coin) => {
+        //             totalBalance += generatePriceCalculation(coin, hp, pc, fiat);
+        //         })
+        //     })
+        // }
+
         // const creator = await adminApp.firestore().collection("individuals").doc(organization.creator.id).get()
-       
+
         // organization.creator = creator.data() as IIndividual;
     }
 

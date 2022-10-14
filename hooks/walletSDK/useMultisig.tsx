@@ -52,6 +52,8 @@ import { MultisigProviders } from "types/blockchains";
 import { ISendTx } from "pages/api/payments/send/index.api";
 import axios from "axios";
 import { hexToNumberString, toChecksumAddress } from "web3-utils";
+import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
+import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
 
 
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
@@ -506,6 +508,7 @@ export default function useMultisig() {
         try {
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
+            if(!selectedId) throw new Error("Selected id is not selected")
 
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
@@ -576,6 +579,14 @@ export default function useMultisig() {
                     senderAddress: senderAddress,
                     senderSignature: senderSignature.data,
                 });
+
+                dispatch(Add_Tx_To_TxList_Thunk({
+                    account: account,
+                    authId: selectedId,
+                    blockchain: blockchain,
+                    txHash: safeTxHash,
+                    // tags: tags,
+                }))
             }
 
 
@@ -685,6 +696,14 @@ export default function useMultisig() {
                     senderSignature: senderSignature.data,
                 });
 
+                dispatch(Add_Tx_To_TxList_Thunk({
+                    account: account,
+                    authId: selectedId,
+                    blockchain: blockchain,
+                    txHash: safeTxHash,
+                    // tags: tags,
+                }))
+
                 return safeTxHash;
             }
 
@@ -783,8 +802,16 @@ export default function useMultisig() {
                         senderSignature: senderSignature.data,
                     });
 
+                    dispatch(Add_Tx_To_TxList_Thunk({
+                        account: account,
+                        authId: selectedId,
+                        blockchain: blockchain,
+                        txHash: safeTxHash,
+                        // tags: tags,
+                    }))
                     return safeTxHash;
                 }
+
 
                 // await Add_Member(newOwner, name, image, mail)
                 dispatch(Add_Member_To_Pending_List_Thunk({
@@ -1201,12 +1228,12 @@ export default function useMultisig() {
         }
     }
 
-    const executeTransaction = async (multisigAddress: string, transactionId: string, provider: MultisigProviders, ethSignuture?: EthSignSignature) => {
+    const executeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, ethSignuture?: EthSignSignature) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
                     const tx = await wallet.executeTransaction({ transactionKey: new PublicKey(transactionId!), owner: publicKey! })
                     const pending = await wallet.newTransactionFromEnvelope({ tx })
@@ -1219,7 +1246,7 @@ export default function useMultisig() {
 
                 let Multisig = await multisigContract
 
-                let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                 const tx = await contract.methods.executeTransaction(+transactionId).send({
                     from: selectedAddress,
@@ -1300,7 +1327,12 @@ export default function useMultisig() {
 
                 return receipt;
             }
-
+            dispatch(Refresh_Balance_Thunk({
+                blockchain: blockchain,
+            }))
+            dispatch(Refresh_Accounts_Thunk({
+                id: account.id,
+            }))
 
             return { message: "success" }
         } catch (e: any) {

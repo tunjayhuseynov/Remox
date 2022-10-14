@@ -5,7 +5,7 @@ import { AltCoins, TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference } from 'redux/slices/account/remoxData';
 import useNextSelector from 'hooks/useNextSelector';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -96,7 +96,6 @@ const Assets = () => {
     const nftTotalPrice =  getTotalNftPrice(nfts, fiat,  Object.values(GetCoins).find((c) => c.symbol === "CELO")!)
 
     let totalBalance = (spotTotalBalance + yieldTotalBalance).toFixed(2);
-    const balanceRedux = useAppSelector(SelectBalance)
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
@@ -164,7 +163,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-medium text-xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalance && balanceRedux) || (totalBalance !== undefined && parseFloat(totalBalance) === 0 && balanceRedux) ? <div className='text-xl'>{symbol}<NG number={+totalBalance} fontSize={1.25} decimalSize={100} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} decimalSize={100}/></div>}
+                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalance) || (totalBalance !== undefined && parseFloat(totalBalance) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalance} fontSize={1.25} decimalSize={100} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} decimalSize={100}/></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>

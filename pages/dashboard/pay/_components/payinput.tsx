@@ -30,7 +30,7 @@ interface IProps {
 }
 
 const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length, allowSecond, account }: IProps) => {
-    const coins = account.coins.reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
+    const coins = account.coins.filter(s=>s.amount > 0).reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
         acc[cur.coin.symbol] = cur
         return acc
     }, {})

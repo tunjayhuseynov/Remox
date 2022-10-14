@@ -4,7 +4,7 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { SelectContributors, SelectSelectedAccountAndBudget, SelectID, addMemberToContributor, SelectBalance } from "redux/slices/account/remoxData";
+import { SelectContributors, SelectSelectedAccountAndBudget, SelectID, addMemberToContributor } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { AltCoins, CoinsURL } from "types";

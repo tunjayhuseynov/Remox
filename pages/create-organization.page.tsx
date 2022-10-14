@@ -3,11 +3,11 @@ import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectDarkMode } from 'redux/slices/account/remoxData';
+import { SelectDarkMode, setOrganizations } from 'redux/slices/account/remoxData';
 import useLoading from "hooks/useLoading";
 import { SubmitHandler } from "react-hook-form";
 import { ToastRun } from "utils/toast";
-import { Create_Organization_Thunk } from "redux/slices/account/thunks/organization";
+import { Create_Organization_Thunk, Get_Organizations_Thunk } from "redux/slices/account/thunks/organization";
 import { SelectIndividual } from "redux/slices/account/selector";
 import EditableAvatar from "components/general/EditableAvatar";
 import { nanoid } from "@reduxjs/toolkit";
@@ -57,6 +57,9 @@ const CreateOrganization = () => {
         uploadType: type,
         image: image
       })).unwrap()
+
+      const organizations = await dispatch(Get_Organizations_Thunk(address)).unwrap()
+      dispatch(setOrganizations(organizations))
 
       navigate.push('/create-multisig')
     } catch (error) {

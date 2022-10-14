@@ -12,7 +12,7 @@ const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
   const fiatSymbol = useAppSelector(SelectFiatSymbol)
   const fiat = useAppSelector(SelectFiatPreference)
   const fiatPrice = GetFiatPrice(asset, fiat)
-
+  console.log(asset, fiatPrice)
   const percent = useMemo(() => {
     return totalBalance > 0 ? (calculatePrice(asset) / totalBalance) * 100 : 0
   }, [totalBalance])

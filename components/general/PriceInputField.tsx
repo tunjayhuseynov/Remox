@@ -54,7 +54,6 @@ export const fiatList: FiatList[] = [
 ]
 
 const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin, defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount }: IProps) => {
-    // const coins = useAppSelector(SelectBalance)
     const [dropdown, setDropdown] = useState<boolean>(false);
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
