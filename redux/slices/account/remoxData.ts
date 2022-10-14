@@ -337,8 +337,8 @@ const remoxDataSlice = createSlice({
         builder.addCase(UpdateTag.fulfilled, (state, action) => {
             state.tags = [...state.tags.filter(tag => tag.id !== action.payload.oldTag.id), action.payload.newTag];
             state.cumulativeTransactions = state.cumulativeTransactions.map(transaction => {
-                const tagIndex = transaction.tags.findIndex(s=>s.id === action.payload.newTag.id);
-                if(tagIndex !== -1){
+                const tagIndex = transaction.tags.findIndex(s => s.id === action.payload.newTag.id);
+                if (tagIndex !== -1) {
                     transaction.tags[tagIndex] = action.payload.newTag;
                 }
                 return transaction;
@@ -529,7 +529,9 @@ const remoxDataSlice = createSlice({
 
         builder.addCase(launchApp.pending, (state, action) => {
             // if (!state.IsInit) {
+            if (!action.meta.arg.isProgressivScreen) {
                 state.isFetching = true;
+            }
             // }
         });
         builder.addCase(launchApp.fulfilled, (state, action) => {

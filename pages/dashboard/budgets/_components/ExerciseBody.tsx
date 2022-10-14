@@ -13,7 +13,7 @@ const ExerciseBody = ({ exercise }: IProps) => {
     return <>
         {exercise.budgets.length > 0 && <table className="w-full">
             <thead>
-                <tr className="pl-5 grid grid-cols-[repeat(7,minmax(0,1fr))] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-200 dark:bg-darkSecond rounded-md">
+                <tr className="pl-5 grid grid-cols-[repeat(7,minmax(0,1fr))] text-greylish dark:text-gray-300 text-sm font-normal bg-tabelBarLight dark:bg-darkSecond rounded-md">
                     <th className="py-3 self-center text-left">Budget name</th>
                     <th className="py-3 self-center text-left">Total budget</th>
                     <th className="py-3 self-center text-left">Used</th>

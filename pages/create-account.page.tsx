@@ -113,6 +113,20 @@ const CreateAccount = () => {
             <div className="flex flex-col mb-4 gap-1 w-full">
               <div className={`w-full rounded-lg`}>
                 <TextField
+                  InputProps={
+                    {
+                      style: {
+                        fontSize: "0.75rem",
+                      }
+                    }
+                  }
+                  InputLabelProps={
+                    {
+                      style: {
+                        fontSize: "0.75rem",
+                      }
+                    }
+                  }
                   type={"text"}
                   {...register("name", { required: true })}
                   className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
@@ -125,6 +139,20 @@ const CreateAccount = () => {
               <div className={`w-full rounded-lg`}>
                 <TextField
                   type={'text'}
+                  InputProps={
+                    {
+                      style: {
+                        fontSize: "0.875rem",
+                      }
+                    }
+                  }
+                  InputLabelProps={
+                    {
+                      style: {
+                        fontSize: "0.875rem",
+                      }
+                    }
+                  }
                   variant="outlined"
                   value={address}
                   className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1"
@@ -135,10 +163,10 @@ const CreateAccount = () => {
             </div>
           </div>
           <div className="grid grid-rows-2 sm:grid-cols-2 gap-8 min-w-[23.5%]">
-            <Button version="second" onClick={() => navigate.push("/")}>
+            <Button version="second" className="!py-2 !text-sm" onClick={() => navigate.push("/")}>
               Back
             </Button>
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" className="!py-2 !text-sm" isLoading={isLoading}>
               Next
             </Button>
           </div>

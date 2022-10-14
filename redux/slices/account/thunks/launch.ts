@@ -57,6 +57,7 @@ interface LaunchParams {
   accountType: IAccountType;
   id: string;
   storage: IStorage;
+  isProgressivScreen?: boolean;
 }
 
 export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(

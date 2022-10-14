@@ -11,6 +11,7 @@ import { ITag } from "../tags/index.api";
 import axiosRetry from "axios-retry";
 
 export interface IBudgetCoin {
+    id: string;
     coin: string,
     fiat: FiatMoneyList | null,
     totalAmount: number,

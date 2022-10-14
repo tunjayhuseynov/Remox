@@ -1,4 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import { Create_Budget, Delete_Budget, Update_Budget } from "crud/budget";
 import { Get_Budget_Exercise, Update_Budget_Exercise } from "crud/budget_exercise";
 import { IBudget, IBudgetTX } from "firebaseConfig";
@@ -37,10 +37,10 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
         ...budget,
         tags: [],
         subbudgets: budget.subbudgets.map(sub => {
-
             return {
                 ...sub,
                 budgetCoins: {
+                    id: nanoid(),
                     coin: sub.token,
                     totalAmount: sub.amount,
                     totalUsedAmount: 0,
@@ -58,6 +58,7 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
             }
         }),
         budgetCoins: {
+            id: nanoid(),
             coin: budget.token,
             totalAmount: budget.amount,
             totalPending: 0,

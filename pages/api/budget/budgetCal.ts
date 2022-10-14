@@ -8,6 +8,7 @@ import { IPriceResponse } from "../calculation/price.api";
 import { MultisigTxCal } from "./MultisigTxCal";
 import { ITag } from "../tags/index.api";
 import axiosRetry from "axios-retry";
+import { nanoid } from "@reduxjs/toolkit";
 
 export const CalculateBudget = async (budget: IBudget, parentId: string, parsedAddress: string[], blockchain: string, blockchainType: BlockchainType, prices: IPriceResponse, tags: ITag[]) => {
     let totalBudgetCoin: IBudgetCoin, orm: IBudgetORM;
@@ -71,6 +72,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         tagTxs.push({
             tag: tag,
             budgetCoin: {
+                id: nanoid(),
                 coin: budget.token,
                 fiat: budget.fiatMoney,
                 totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
@@ -110,6 +112,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
     }, {})
 
     let budgetCoin: IBudgetCoin = {
+        id: nanoid(),
         coin: budget.token,
         fiat: budget.fiatMoney,
         totalAmount: budget.amount, //- (coinParsed[budget.token] ?? 0) - totalFirstCoinSpent - totalFirstCoinPending,
@@ -165,6 +168,7 @@ export const CalculateBudget = async (budget: IBudget, parentId: string, parsedA
         })
 
         let budgetCoin: IBudgetCoin = {
+            id: nanoid(),
             coin: subbudget.token,
             totalAmount: subbudget.amount,
             fiat: subbudget.fiatMoney,

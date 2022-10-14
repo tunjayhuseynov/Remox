@@ -70,7 +70,7 @@ const NotificationCointainer = () => {
                         {list.length === 0 && <div className="text-center py-1">No notification yet</div>}
                     </div>
                     <div
-                        className="border-t dark:border-greylish flex space-x-2 items-center justify-center py-5 text-lg font-semibold cursor-pointer text-primary hover:bg-light dark:hover:bg-dark"
+                        className="border-t dark:border-greylish flex space-x-2 items-center justify-center py-5 text-sm font-semibold cursor-pointer text-primary hover:bg-light dark:hover:bg-dark"
                         onClick={() => navigate.push('/dashboard/transactions')}>
                         <span>View All</span>
                         <AiFillRightCircle color="#FF7348" />

@@ -94,7 +94,7 @@ const Home = () => {
             setSelect={setSelected}
             list={Blockchains}
           />
-          <Button onClick={ConnectEvent} className={"w-[12rem] text-sm px-0"} isLoading={isLoading}>{buttonText}</Button>
+          <Button onClick={ConnectEvent} className={"w-[12rem] text-xs px-0"} isLoading={isLoading}>{buttonText}</Button>
         </div>
       </div>
     </section>

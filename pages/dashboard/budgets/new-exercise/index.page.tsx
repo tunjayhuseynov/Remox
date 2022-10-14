@@ -81,18 +81,22 @@ function NewExercise() {
         <form onSubmit={handleSubmit(submit)} className="w-3/5 mx-auto pt-10">
             <div className="text-xl text-center font-medium py-6">Define  of your budgetary exercise</div>
             <div className="px-12 flex flex-col space-y-12">
-                <TextField 
-                InputProps={{
-                    style: {
-                        fontSize: '0.875rem'
-                    }
-                }}
-                InputLabelProps={{
-                    style: {
-                        fontSize: '0.875rem'
-                    }
-                }}
-                type="text" {...register("name", { required: true })} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
+                <TextField
+                    InputProps={{
+                        style: {
+                            fontSize: '0.75rem'
+                        }
+                    }}
+                    InputLabelProps={{
+                        style: {
+                            fontSize: '0.75rem'
+                        }
+                    }}
+                    type="text"
+                    {...register("name", { required: true })}
+                    label="Name  of your budgetary exercise"
+                    className="w-full py-2 px-1 rounded-lg bg-white dark:bg-darkSecond"
+                />
                 <div>
                     <Dropdown
                         labelSX={{
@@ -118,7 +122,7 @@ function NewExercise() {
                             if (Array.isArray(data)) {
                                 setDate(data.map(s => s.toDate().getTime()))
                             }
-                        }} range={true}  className={`w-full`} style={
+                        }} range={true} className={`w-full`} style={
                             {
                                 height: "3.25rem",
                                 width: "100%",
@@ -144,7 +148,7 @@ function CustomRangeInput({ openCalendar, value }: any) {
 
     return (
         <input
-        className='dark:bg-darkSecond h-14 pl-3 text-xs border border-gray-300 dark:border-gray-600 w-full rounded-md'
+            className='dark:bg-darkSecond h-14 pl-3 text-xs border border-gray-300 dark:border-gray-600 w-full rounded-md'
             onFocus={openCalendar}
             value={value}
             readOnly

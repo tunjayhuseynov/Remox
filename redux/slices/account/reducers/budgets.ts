@@ -27,12 +27,19 @@ export default {
     addBudget: (state: IRemoxData, { payload }: { payload: IBudgetORM }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.parentId);
         if (index !== -1) {
+            state.budgetExercises[index].budgetCoins.push(payload.budgetCoins)
             state.budgetExercises[index].budgets.push(payload as any);
         }
     },
     updateBudget: (state: IRemoxData, { payload }: { payload: IBudgetORM }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.parentId);
         if (index !== -1) {
+            state.budgetExercises[index].budgetCoins = state.budgetExercises[index].budgetCoins.map((budgetCoin) => {
+                if (budgetCoin.id === payload.budgetCoins.id) {
+                    return payload.budgetCoins;
+                }
+                return budgetCoin;
+            })
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.id);
             if (budgetIndex !== -1) {
                 state.budgetExercises[index].budgets[budgetIndex] = payload;
@@ -42,6 +49,7 @@ export default {
     deleteBudget: (state: IRemoxData, { payload }: { payload: IBudgetORM }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.parentId);
         if (index !== -1) {
+            state.budgetExercises[index].budgetCoins = state.budgetExercises[index].budgetCoins.filter((budgetCoin) => budgetCoin.id !== payload.budgetCoins.id);
             const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.id);
             if (budgetIndex !== -1) {
                 const oldBudget = state.budgetExercises[index].budgets[budgetIndex]

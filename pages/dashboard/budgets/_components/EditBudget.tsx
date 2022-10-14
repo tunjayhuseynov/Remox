@@ -108,6 +108,7 @@ function EditBudget({ onBack, budget }: IProps) {
                 labelFiat: budgetFiat ?? null,
                 txs: [],
                 budgetCoins: {
+                    id: nanoid(),
                     coin: budgetCoin.symbol,
                     totalAmount: 0,
                     totalPending: 0,
@@ -167,6 +168,7 @@ function EditBudget({ onBack, budget }: IProps) {
             labelFiat: budgetFiat ?? null,
             txs: [],
             budgetCoins: {
+                id: nanoid(),
                 coin: "",
                 totalAmount: 0,
                 totalPending: 0,
@@ -229,6 +231,7 @@ function EditBudget({ onBack, budget }: IProps) {
                 secondFiatMoney: budgetFiat2 ?? null,
                 tags: budget.tags,
                 budgetCoins: {
+                    id: nanoid(),
                     fiat: budgetFiat ?? null,
                     coin: budgetCoin.symbol,
                     second: anotherToken ? {
@@ -265,6 +268,7 @@ function EditBudget({ onBack, budget }: IProps) {
 
 
                     budgetCoins: {
+                        id: nanoid(),
                         coin: s.labelCoin.symbol,
                         fiat: s.labelFiat ?? null,
                         totalAmount: s.labelAmount ?? 0,

@@ -34,7 +34,8 @@ module.exports = {
         greylish: "#707070",
         darkSecond: "#1C1C1C",
         dark: '#252525',
-        light: '#f9f9f9'
+        light: '#f9f9f9',
+        tabelBarLight: "#F2F2F2"
       },
       boxShadow: {
         custom: "0px 0px 4px 0px #dad8d8",

@@ -49,7 +49,7 @@ const Budgets = () => {
     return <div>
         <div className="flex flex-col space-y-8">
             <div className="flex justify-between items-center w-full">
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-semibold">
                     Budgets
                 </div>
                 {/* <Button className="!py-[.5rem] !font-medium !text-lg !px-0 min-w-[9.1rem]" onClick={() => setModalVisible(true)}>Share Link</Button>
@@ -91,7 +91,7 @@ const Budgets = () => {
                 <div className="inline-block text-xl relative">
                     <div className="relative w-full">
                         <div onClick={() => setOpen(!isOpen)} className={`w-full font-normal py-3 rounded-lg bg-light dark:bg-dark cursor-pointer bg-sec flex items-center gap-2`}>
-                            <span className="flex items-center justify-center text-2xl font-semibold">{selectedExercise?.name}</span>
+                            <span className="flex items-center justify-center text-xl font-semibold">{selectedExercise?.name}</span>
                             <div>
                                 <IoIosArrowDown className='transition w-[0.7em] h-[0.7rem]' style={isOpen ? { transform: "rotate(180deg)" } : undefined} />
                             </div>
@@ -135,13 +135,13 @@ const Budgets = () => {
                                                 }, { totalAmount: 0 })
 
                                                 return <div onClick={() => setSelectedExerciseId(item.id)} key={item.id} className="hover:bg-greylish hover:bg-opacity-5 p-2 hover:transition-all transition-all text-start justify-start cursor-pointer w-full border-b dark:border-greylish">
-                                                    <div className="grid grid-cols-[1fr,1fr,33%,1fr] gap-x-5 px-2 ">
+                                                    <div className="grid grid-cols-[35%,1fr,33%,1fr] gap-x-1 px-2 ">
                                                         <span className="font-medium text-sm transition-all self-center">{item.name}</span>
-                                                        <div className="text-primary border border-primary bg-primary  bg-opacity-30 text-xs px-1 py-1 rounded-sm max-w-[6rem] cursor-pointer text-center font-semibold">
+                                                        <div className="text-primary border border-primary bg-primary bg-opacity-30 text-xxs px-1 py-1 rounded-sm cursor-pointer text-center font-semibold self-center">
                                                             {item.from * 1e3 > new Date().getTime() ? "Future" : item.to * 1e3 < new Date().getTime() ? "Past" : "Current"}
                                                         </div>
-                                                        <span className="font-medium text-sm self-center pl-1">{fiatSymbol}<NG number={TotalBudget.totalAmount} fontSize={0.875} /></span>
-                                                        <div className="flex space-x-3 self-center justify-end w-full">
+                                                        <span className="font-medium text-sm self-center pl-2">{fiatSymbol}<NG number={TotalBudget.totalAmount} fontSize={0.875} /></span>
+                                                        <div className="flex space-x-2 self-center justify-end w-full pl-2">
                                                             <VscEdit size={"1.125rem"} className="cursor-pointer hover:text-green-500" onClick={() => { setEditModal(true); setSelectedEditExercise(item) }} />
                                                             <GiCancel size={"1.125rem"} className="cursor-pointer hover:text-red-500" onClick={() => { setDeleteModal(true); setSelectedDeleteExercise(item) }} />
                                                         </div>
@@ -149,7 +149,7 @@ const Budgets = () => {
                                                 </div>
                                             })}
                                         </div>
-                                        <div className="p-4 hover:bg-greylish hover:bg-opacity-5">
+                                        <div className="px-4 py-2 hover:bg-greylish hover:bg-opacity-5">
                                             <div className="text-primary cursor-pointer flex space-x-2 items-center" onClick={() => { navigate.push('/dashboard/budgets/new-exercise') }} >
                                                 <AiOutlinePlusCircle className='text-primary' /> <span className='text-sm tracking-wide font-medium'>Create a new budgetary exercise</span>
                                             </div>

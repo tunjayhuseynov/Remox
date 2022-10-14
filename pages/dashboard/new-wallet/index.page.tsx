@@ -152,7 +152,8 @@ function NewWalletModal() {
                     uid: auth.currentUser.uid,
                     individual: individual!,
                     organization: accountType === "organization" ? (account as IOrganization) : null,
-                }
+                },
+                isProgressivScreen: true
             })).unwrap()
 
             ToastRun(<>Account is added successfully</>, "success")

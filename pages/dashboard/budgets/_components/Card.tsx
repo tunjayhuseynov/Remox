@@ -56,7 +56,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                 {/* {openNotify && createPortal(<div className="w-full h-full !my-0 !ml-0 blur-sm absolute left-0 top-0 z-[98]"></div>, document.body)} */}
 
                 <td className='self-center'>
-                    <span className='font-medium text-black dark:text-white text-lg'>{item.name}</span>
+                    <span className='font-medium text-black dark:text-white text-sm'>{item.name}</span>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>

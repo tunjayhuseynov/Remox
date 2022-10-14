@@ -84,15 +84,15 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                 <TextField
                     InputProps={{
                         style: {
-                            fontSize: '0.875rem'
+                            fontSize: '0.75rem'
                         }
                     }}
                     InputLabelProps={{
                         style: {
-                            fontSize: '0.875rem'
+                            fontSize: '0.75rem'
                         }
                     }}
-                    type="text" {...register("name", { required: true })} defaultValue={exercise.name} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg dark:bg-darkSecond" />
+                    type="text" {...register("name", { required: true })} defaultValue={exercise.name} label="Name  of your budgetary exercise" className="border w-full py-2 px-1 rounded-lg bg-white dark:bg-darkSecond" />
                 <div>
                     <Dropdown
                         labelSX={{

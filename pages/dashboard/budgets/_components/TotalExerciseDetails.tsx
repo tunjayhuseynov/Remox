@@ -48,7 +48,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
         </div>
         <AnimatePresence>
             {openNotify &&
-                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className=" z-[99] fixed shadow-custom grid grid-cols-[70%,30%] h-[100vh] w-[105%]  pr-1 overflow-y-auto overflow-x-hidden top-0 right-4 cursor-default ">
+                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className=" z-[99] fixed shadow-custom grid grid-cols-[60%,40%] h-[100vh] w-[105%]  pr-1 overflow-y-auto overflow-x-hidden top-0 right-4 cursor-default ">
                     <div className="w-full h-full backdrop-blur-[2px]" onClick={() => { setNotify(!openNotify) }}></div>
                     <button onClick={() => setNotify(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                         <CloseOutlinedIcon className="t !w-8 !h-8 text-greylish hover:text-[#aaaaaa]" />
@@ -57,8 +57,8 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                         <div className="flex flex-col sm:flex-row justify-center sm:items-center text-2xl font-medium tracking-wide">Spending Details</div>
                         <div className="flex flex-col gap-8 py-8 border-b dark:border-b-greylish px-10 ">
                             <div className="flex justify-between px-2">
-                                <span className="font-medium text-lg text-gray-600 dark:text-gray-400">Total budget</span>
-                                <span className=" dark:text-white text-lg">{symbol}<NG number={TotalBudget.totalAmount} /> </span></div>
+                                <span className="font-medium text-xl text-gray-600 dark:text-gray-400">Total budget</span>
+                                <span className=" dark:text-white text-xl">{symbol}<NG number={TotalBudget.totalAmount} /> </span></div>
                             <div className="pt-3 pb-16 px-2 flex flex-col">
                                 {
                                     total.budgets.map((b, i) => {
@@ -70,7 +70,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                         const pendingPercentStyle = ProgressBarWidth(pendingPercent)
 
                                         return <div className="flex justify-between relative">
-                                            <div className="font-medium text-lg text-gray-600 dark:text-gray-400">{b.name}</div>
+                                            <div className="font-medium text-xl text-gray-600 dark:text-gray-400">{b.name}</div>
                                             <div className="w-[45%] grid grid-cols-[75%,5%,1fr]">
                                                 <div className="rounded-xl h-3 relative bg-greylish bg-opacity-40 overflow-hidden self-center">
                                                     <div className='absolute left-0 top-0 w-full h-full flex'>
@@ -79,7 +79,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                                     </div>
                                                 </div>
                                                 <div></div>
-                                                <div className='pl-2 font-semibold text-lg self-center'>
+                                                <div className='pl-2 font-medium text-xl self-center'>
                                                     {usedPercent + pendingPercent}%
                                                 </div>
                                             </div>
@@ -88,11 +88,11 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                 }
                             </div>
                             <div className="flex justify-between px-2">
-                                <span className="text-lg font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
+                                <span className="text-xl font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
-                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                        // const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
+                                        // const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
 
                                         return <Fragment key={index}>
                                             <div className="flex items-center gap-1">
@@ -108,14 +108,14 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b dark:border-b-greylish px-10">
                             <div className="flex justify-between px-2">
-                                <span className="font-medium text-lg text-gray-600 dark:text-gray-400">Total Used</span>
-                                <span className=" dark:text-white text-lg">{symbol}<NG number={TotalBudget.totalUsedAmount} /></span></div>
+                                <span className="font-medium text-xl text-gray-600 dark:text-gray-400">Total Used</span>
+                                <span className=" dark:text-white text-xl">{symbol}<NG number={TotalBudget.totalUsedAmount} /></span></div>
                             <div className="flex justify-between px-2">
-                                <span className="text-lg font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
+                                <span className="text-xl font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
-                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
-                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                        // const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
+                                        // const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
                                         return <Fragment key={index}>
                                             <div className="flex items-center gap-1">
                                                 <CurrencyElement coin={coins[coin.coin]} fiat={coin.fiat} amount={coin.totalUsedAmount} size={1} />
@@ -130,10 +130,10 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b dark:border-b-greylish px-10">
                             <div className="flex justify-between px-2">
-                                <span className="font-medium text-lg dark:text-gray-400">Total Pending</span>
-                                <span className=" dark:text-white text-lg">{symbol}<NG number={TotalBudget.totalPending} /></span></div>
+                                <span className="font-medium text-xl dark:text-gray-400">Total Pending</span>
+                                <span className=" dark:text-white text-xl">{symbol}<NG number={TotalBudget.totalPending} /></span></div>
                             <div className="flex justify-between px-2">
-                                <span className="text-lg font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
+                                <span className="text-xl font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
                                         const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
@@ -152,10 +152,10 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                         </div>
                         <div className="flex flex-col gap-8 py-8 border-b dark:border-b-greylish px-10">
                             <div className="flex justify-between px-2">
-                                <span className="font-medium text-lg text-gray-600 dark:text-gray-400">Total Available</span>
-                                <span className=" dark:text-white text-lg">{symbol}<NG number={TotalBudget.totalAmount - TotalBudget.totalPending - TotalBudget.totalUsedAmount} /></span></div>
+                                <span className="font-medium text-xl text-gray-600 dark:text-gray-400">Total Available</span>
+                                <span className=" dark:text-white text-xl">{symbol}<NG number={TotalBudget.totalAmount - TotalBudget.totalPending - TotalBudget.totalUsedAmount} /></span></div>
                             <div className="flex justify-between px-2">
-                                <span className="text-lg font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
+                                <span className="text-xl font-medium text-gray-600 dark:text-gray-400">Token Breakdown</span>
                                 <div className="flex flex-col  items-end gap-2">
                                     {total.budgetCoins.map((coin, index) => {
                                         const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo

@@ -37,6 +37,7 @@ const Transactions = () => {
     const navigate = useRouter()
 
     const index = navigate.query?.index as string | undefined;
+    const pending = navigate.query?.pending as string | undefined;
 
     const dispatch = useAppDispatch()
     const { Address, blockchain } = useWalletKit()
@@ -108,8 +109,10 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
+            if(pending === "true" && c.isExecuted) return false
         } else {
             // console.log(selectedAccounts, c.address)
+            if(pending === "true") return false
             const tx = c as any
             let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
             if (tx.method === ERC20MethodIds.swap) {

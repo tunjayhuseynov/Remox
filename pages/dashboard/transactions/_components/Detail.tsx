@@ -203,7 +203,7 @@ const Detail = ({
                                         </div>
                                         <div className="pt-3 flex flex-col gap-7 items-center">
                                             {transfer && (
-                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
+                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} amountImageThenName/>
                                             )}
                                             {
                                                 transferBatch && (

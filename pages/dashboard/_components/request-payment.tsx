@@ -19,7 +19,7 @@ function Payments() {
             header: "Signings needed",
             icon: "signature_1",
             value: multisig?.signingNeedTxs?.length ?? 0,
-            router: "/dashboard"
+            router: "/dashboard/transactions?pending=true"
         },
         {
             header: "Pending requests",

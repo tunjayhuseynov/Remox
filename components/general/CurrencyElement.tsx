@@ -9,7 +9,7 @@ const CurrencyElement = ({fiat, coin, amount, size} : {fiat: FiatMoneyList | nul
 
   return (
     <div className="flex items-center">
-        <div className="flex items-center mr-3">
+        <div className="mr-3">
           {
             fiat ? (
               <div className="relative">

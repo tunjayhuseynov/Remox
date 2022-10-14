@@ -42,33 +42,33 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
             {total.budgets.length > 0 && <>
                 <div className={`flex pr-16  border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4`}>
-                        <div className='text-lg font-bold text-gray-500'>Total Budget</div>
-                        <div className={`text-4xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalAmount} fontSize={2.25} />
+                        <div className='text-sm font-bold text-gray-500'>Total Budget</div>
+                        <div className={`text-3xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalAmount} fontSize={1.75} />
                         </div>
                     </div>
                 </div>
                 <div className={`flex pl-8 border-r dark:border-[#aaaaaa] !my-0`}>
-                    <div className={`flex flex-col gap-12 lg:gap-4 `}>
-                        <div className='text-lg font-bold text-gray-500'>Total Used</div>
-                        <div className={`text-2xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalUsedAmount} fontSize={1.5} />
+                    <div className={`flex flex-col gap-12 lg:gap-4 justify-between`}>
+                        <div className='text-sm font-bold text-gray-500'>Total Used</div>
+                        <div className={`text-xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalUsedAmount} fontSize={1.25} />
                         </div>
                     </div>
                 </div>
                 <div className={`flex px-8 border-r dark:border-[#aaaaaa] !my-0`}>
-                    <div className={`flex flex-col gap-12 lg:gap-4 `}>
-                        <div className='text-lg font-bold text-gray-500'>Total Pending</div>
-                        <div className={`text-2xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalPending} fontSize={1.5} />
+                    <div className={`flex flex-col gap-12 lg:gap-4 justify-between`}>
+                        <div className='text-sm font-bold text-gray-500'>Total Pending</div>
+                        <div className={`text-xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalPending} fontSize={1.25} />
                         </div>
                     </div>
                 </div>
                 <div className={`pl-8 !border-r-0 gap-8 !flex-row text-2xl min-w-[18rem] items-center justify-center dark:border-[#aaaaaa] !my-0`}>
-                    <div className={`self-start flex flex-col gap-12 lg:gap-4`}>
-                        <div className='text-lg font-bold text-gray-500'>Total Available</div>
-                        <div className={`text-2xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending} fontSize={1.5} />
+                    <div className={`justify-between flex flex-col h-full gap-12 lg:gap-4`}>
+                        <div className='text-sm font-bold text-gray-500'>Total Available</div>
+                        <div className={`text-xl font-semibold gap-2`}>
+                            {symbol}<NG number={TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending} fontSize={1.25} />
                         </div>
                     </div>
                 </div>

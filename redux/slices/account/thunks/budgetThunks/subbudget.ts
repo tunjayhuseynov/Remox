@@ -27,6 +27,7 @@ export const Create_Subbudget_Thunk = createAsyncThunk<void, IBaseSubbudget>("re
         budgetORM.subbudgets = [...budgetORM.subbudgets, {
             ...subbudget,
             budgetCoins: {
+                id: subbudget.id,
                 coin: subbudget.token,
                 totalAmount: subbudget.amount,
                 totalPending: 0,
