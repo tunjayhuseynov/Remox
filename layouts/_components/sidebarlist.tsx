@@ -76,7 +76,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     aria-controls="panel2d-content"
                     className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark  !min-h-[2rem] !pb-0 !rounded-md"
                     id="panel2d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-semibold  xl:text-sm leading-4 ">Payments</span>
+                    <span className="font-sans font-semibold  text-xs leading-4 ">Payments</span>
                 </AccordionSummary>
                 <AccordionDetails >
                     <div>
@@ -94,7 +94,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     aria-controls="panel1d-content"
                     className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark   !min-h-[2rem]  !pb-0 !rounded-md"
                     id="panel1d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-semibold  xl:text-sm  leading-4 ">Analytics</span>
+                    <span className="font-sans font-semibold  text-xs  leading-4 ">Analytics</span>
                 </AccordionSummary>
                 <AccordionDetails  >
                     <div>
@@ -111,7 +111,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     aria-controls="panel3d-content"
                     className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark !min-h-[2rem] !pb-0 !rounded-md"
                     id="panel3d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-semibold  xl:text-sm  leading-4 ">Investments</span>
+                    <span className="font-sans font-semibold  text-xs  leading-4 ">Investments</span>
                 </AccordionSummary>
                 <AccordionDetails >
                     <div>
