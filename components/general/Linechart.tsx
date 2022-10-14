@@ -15,21 +15,25 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     {
       name: "Value",
       data: [
-        ...Object.values(data),
+        ...Object.entries(data).map(([key, value]) => ({ x: new Date(key).getTime(), y: value }))
       ],
 
     },
 
   ];
 
-  console.log(data)
-
   const options: ApexCharts.ApexOptions = {
+    noData: {
+      text: "You do not have any transactions yet",
+    },
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
     grid: {
       show: false,
       padding: {
+        left: 20,
+        right: 40 // Also you may want to increase this (based on the length of your labels)
+
         // left: chartDate === "month" ? 17 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 15,
         // right: chartDate === "month" ? 20 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 20,
       },
@@ -91,9 +95,10 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     xaxis: {
       // tickAmount: "dataPoints",
       type: "datetime",
-      categories: [
-        ...keys,
-      ],
+      // categories: [
+      //   ...keys,
+      // ],
+
     },
   };
 

@@ -70,8 +70,8 @@ function ChooseType() {
 
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
-      <div className='w-[10rem]'>
-        <Image src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="450" height={"135"} layout='responsive' />
+      <div className='w-[9.375rem]'>
+        <Image src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" height={"40"} layout='responsive' />
       </div>
     </header>
     <div className="h-full w-full  gap-10 flex flex-col justify-center items-center">

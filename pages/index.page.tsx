@@ -3,8 +3,7 @@ import { useWalletKit } from 'hooks'
 import { useAppDispatch } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import Dropdown from 'components/general/dropdown';
+import { Dispatch, useEffect, useState } from 'react';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { isOldUser } from 'hooks/singingProcess/utils';
@@ -15,6 +14,11 @@ import { Get_Individual } from 'crud/individual';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { Blockchains, BlockchainType } from 'types/blockchains';
 import Image from 'next/image'
+import dynamic from 'next/dynamic';
+
+const Dropdown = dynamic(() => import('components/general/dropdown'), {
+  ssr: false
+})
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
@@ -78,7 +82,7 @@ const Home = () => {
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="w-[25rem]">
-            <Image src={dark ? "/logo.png" : "/logo_white.png"} alt="Remox DAO" layout='responsive' height={50} width={200}/>
+            <Image src={dark ? "/logo.png" : "/logo_white.png"} alt="Remox DAO" layout='responsive' height={50} width={200} />
           </div>
           <span className="font-semibold text-greylish text-center text-lg tracking-wider">Simplified and Collaborative Treasury Management</span>
         </div>
@@ -91,7 +95,7 @@ const Home = () => {
             }}
             label="Blockchain"
             selected={selected}
-            setSelect={setSelected}
+            setSelect={setSelected as any}
             list={Blockchains}
           />
           <Button onClick={ConnectEvent} className={"w-[12rem] text-xs px-0"} isLoading={isLoading}>{buttonText}</Button>

@@ -61,7 +61,7 @@ const Automations = () => {
         <div className="text-2xl font-bold">Streaming</div>
       </div>
       <>
-        <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
+       {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
           <div className="flex  space-y-3 gap-12">
             <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
               <div className="text-base font-medium text-gray-500">Total Streaming Payment</div>
@@ -101,7 +101,7 @@ const Automations = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>}
         <div className="w-full pt-4 pb-6 h-full">
           <table className="w-full">
             <thead>
