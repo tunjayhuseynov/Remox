@@ -18,7 +18,7 @@ export default forwardRef<HTMLButtonElement, IProps>(function Button({ children,
             ref={ref}
             className={`
             ${className} 
-            ${version === "main" && "bg-primary border-primary tracking-wide font-medium text-white hover:bg-[#ff5413] dark:hover:bg-[#ff5413] hover:border-[#ff5413] hover:text-white"}
+            ${version === "main" && "bg-primary border-primary tracking-wide font-medium text-white hover:bg-[#ff4513] dark:hover:bg-[#ff4513] hover:border-[#ff4513] hover:text-white"}
             ${version === "second" && 'bg-white  text-primary tracking-wide font-medium border-primary hover:bg-[#f0f0f0] dark:bg-darkSecond dark:hover:bg-[#2e2e2e] hover:text-primary'}
             ${version === "reject" && 'bg-white  text-[#A60000] tracking-wide font-medium border-[#A60000] hover:bg-[#f0f0f0] dark:bg-darkSecond dark:hover:bg-[#2e2e2e] hover:text-[#A60000]' }
             ${version === "transparent" && 'bg-transparent text-primary tracking-wide font-medium border-primary hover:bg-[#f0f0f0] dark:hover:bg-[#2e2e2e] hover:text-primary'}
