@@ -86,7 +86,8 @@ export const MultisigTxParser = async (
                 to: destination
             }),
             address: contractAddress,
-            provider: provider
+            provider: provider,
+            showMultiOut: false
         })
         obj.tx = reader as any
     } else {
@@ -165,6 +166,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTra
             blockchain: blockchain,
             Coins: Coins,
             provider: "GnosisSafe",
+            showMultiOut: false,
             tags: tags,
             transaction: GenerateTransaction({
                 hash: tx.safeTxHash,
