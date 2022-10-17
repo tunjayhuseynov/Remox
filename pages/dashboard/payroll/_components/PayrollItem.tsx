@@ -108,8 +108,10 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
         }
       </td>
       <td className="flex items-center justify-start text-sm font-medium">
-        {member.interval === DateInterval.monthly && "Monthly"}
-        {member.interval === DateInterval.weekly && "Weekly"}
+        {member.execution === "Auto" ? 
+          member.interval === DateInterval.monthly ? "Monthly" : "Weekly" : 
+          "Streaming"
+        }
       </td>
       <td className="flex items-center justify-start text-sm font-medium">
         {member.execution === "Auto" ? "Streaming" : "Manual"}
