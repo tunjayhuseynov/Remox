@@ -72,7 +72,7 @@ export default function TagItem({ tag }: { tag: ITag }) {
         <>
             {deleteModal &&
                 <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true}>
-                    <Delete name={`${tag.name} tag`} onCurrentModal={setDeleteModal} onDelete={deleteTag} />
+                    <Delete name={`"${tag.name}" tag`} onCurrentModal={setDeleteModal} onDelete={deleteTag} />
                 </Modal>}
             <div className="w-full bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom flex items-center gap-[23.6rem] py-6  px-5 relative" >
                 <div className="flex space-x-3 items-center">
