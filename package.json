@@ -73,7 +73,6 @@
     "tweetnacl": "^1.0.3",
     "uniqid": "^5.4.0",
     "url": "^0.11.0",
-    "wagmi": "^0.7.3",
     "web3": "^1.8.0",
     "web3modal": "^1.9.8",
     "zebecprotocol-sdk": "https://github.com/tunjayhuseynov/zebec-sdk-multisig.git"
