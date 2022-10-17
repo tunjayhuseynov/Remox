@@ -220,7 +220,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 <div className="flex flex-col space-y-8 items-center">
                     <div className="text-2xl text-primary">Are You Sure?</div>
                     <div className="flex items-center justify-center text-xl">
-                        Your Are About Delete This Wallet
+                        You Are About Delete This Wallet
                     </div>
                     <div className="flex justify-center items-center space-x-4">
                         <Button version="second" className="border-2  w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={() => { setDeleteModal(false) }}>No</Button>

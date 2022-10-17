@@ -41,6 +41,7 @@ export default async function handler(
 
     const addresses = req.query["addresses[]"];
     const txs = req.query["txs[]"];
+    const onlyTransferList = req.query["onlyTransferList"] as string | undefined;
 
     const start = req.query.start as string | undefined;
     const take = req.query.take as string | undefined;
@@ -83,6 +84,7 @@ export default async function handler(
       parsedtxs,
       start ? parseInt(start) : undefined,
       take ? parseInt(take) : undefined,
+      onlyTransferList === "true" ? true : false
     )))
 
     txList = txList.concat(...txRes)
@@ -110,7 +112,8 @@ const GetTxs = async (
   coins: Coins,
   inTxs?: string[],
   start?: number,
-  take?: number
+  take?: number,
+  onlyTransferList?: boolean
 ) => {
   axiosRetry(axios, { retries: 10 });
   let txList: Transactions[] = [];
@@ -207,11 +210,12 @@ const GetTxs = async (
 
       const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
 
-      const tokens = tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
+      const tokens = onlyTransferList ? tokenReq.data.result : tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
       const nfts = tokenReq.data.result.filter(s => s.tokenID)
-
+    
+      
       const txs = exReq.data;
-      txList = txs.result.concat(tokens).concat(nfts).sort((a, b) => +a.timeStamp > +b.timeStamp ? -1 : 1);
+      txList = onlyTransferList ? tokens : txs.result.concat(tokens).concat(nfts).sort((a, b) => +a.timeStamp > +b.timeStamp ? -1 : 1);
     }
   } else if (blockchain.name === "polygon_evm") {
     if (inTxs) {
@@ -235,7 +239,7 @@ const GetTxs = async (
       // txList = txList.filter((tx) => tx).map((tx: any) => tx["rawData"])
     }
   }
-  const parsedTxs = await ParseTxs(start != undefined || take ? txList.splice(start ?? 0, take) : txList, blockchain, tags, address, coins);
+  const parsedTxs = await ParseTxs(start != undefined || take ? txList.splice(start ?? 0, take) : txList, blockchain, tags, address, coins, onlyTransferList);
 
   return parsedTxs;
 };
@@ -246,6 +250,7 @@ const ParseTxs = async (
   tags: ITag[],
   address: string,
   coins: Coins,
+  onlyTransferList?: boolean
 ) => {
   try {
     let result: Transactions[] = [...transactions];
@@ -268,7 +273,7 @@ const ParseTxs = async (
       []
     );
 
-    const txs = await Promise.all(uniqueHashs.map(transaction => getParsedTransaction(transaction, blockchain, tags, coins, address)))
+    const txs = await Promise.all(uniqueHashs.map(transaction => getParsedTransaction(transaction, blockchain, tags, coins, address, !!onlyTransferList)))
 
     FormattedTransaction.push(...txs.filter(s => s) as IFormattedTransaction[]);
 
@@ -280,7 +285,7 @@ const ParseTxs = async (
   }
 };
 
-const getParsedTransaction = async (transaction: Transactions, blockchain: BlockchainType, tags: ITag[], coins: Coins, address: string) => {
+const getParsedTransaction = async (transaction: Transactions, blockchain: BlockchainType, tags: ITag[], coins: Coins, address: string, allowMultiOut: boolean) => {
   const input = transaction.input;
 
   if (blockchain.name.includes("evm")) {
@@ -291,7 +296,8 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
       Coins: coins,
       blockchain,
       address,
-      provider: "GnosisSafe"
+      provider: "GnosisSafe",
+      showMultiOut: allowMultiOut,
     });
     if (formatted && formatted.method) {
       return {
@@ -306,14 +312,13 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
 
   } else if (blockchain.name === "celo") {
     // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
-    const formatted = await CeloInputReader({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
+    const formatted = await CeloInputReader({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe", showMultiOut: allowMultiOut });
 
     if (formatted && formatted.method && ((formatted.method === ERC20MethodIds.automatedCanceled && (formatted as any)?.streamId) || ((formatted as any)?.payments?.length ?? 0) > 0
       || (formatted.method === ERC20MethodIds.swap && (formatted as any)?.coinIn)
       || (formatted.method === ERC20MethodIds.nftTokenERC721)
       || (formatted as any)?.coin
     )) {
-
       return {
         timestamp: +transaction.timeStamp,
         rawData: transaction,

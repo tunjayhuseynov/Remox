@@ -38,21 +38,21 @@ const Sidebar = () => {
 
     let organizationList = [
         ...(organization ? allOrganizations.map(e => {
-            // let pc = e?.priceCalculation ?? "current";
-            // let fiat = e?.fiatMoneyPreference ?? "USD";
+            let pc = e?.priceCalculation ?? "current";
+            let fiat = e?.fiatMoneyPreference ?? "USD";
 
-            // let tb = 0;
-            // e.accounts.forEach((account) => {
-            //     (account as any).coins.forEach((coin: IPrice[0]) => {
-            //         tb += generatePriceCalculation(coin, hp, pc, fiat);
-            //     })
-            // })
+            let tb = 0;
+            e.accounts.forEach((account) => {
+                (account as any).coins.forEach((coin: IPrice[0]) => {
+                    tb += generatePriceCalculation(coin, hp, pc, fiat);
+                })
+            })
 
             return {
                 id: e.id,
                 name: e.name,
                 image: (typeof e.image?.imageUrl === 'string' ? e.image.imageUrl : null) || e.image?.nftUrl || makeBlockie(e.id),
-                secondValue: `${symbol}${totalBalance.toFixed(2)/*e.totalBalance*/}`,
+                secondValue: `${symbol}${tb.toFixed(2)/*e.totalBalance*/}`,
                 onClick: () => {
                     if (!individual) return ToastRun(<>You must be logged in as an individual to switch organizations</>, "error")
                     if (!selectedAddress) return ToastRun(<>You must be logged in as an individual to switch organizations</>, "error")
@@ -114,10 +114,10 @@ const Sidebar = () => {
                             <AiOutlineDown className='text-greylish dark:text-white text-opacity-50' />
                         </div>
                     </div>
-                    {sidedown && <div className='absolute overflow-hidden -bottom-1 bg-white dark:bg-darkSecond translate-y-full w-full left-0 z-[999999999999]'>
-                        <AnimatePresence>
+                    <AnimatePresence>
+                        {sidedown && <div className='absolute overflow-hidden -bottom-1 bg-white dark:bg-darkSecond translate-y-full w-full left-0 z-[999999999999]'>
                             <ClickAwayListener onClickAway={() => setSidedown(false)}>
-                                <motion.div className="overflow-auto h-[200px]">
+                                <motion.div className="overflow-auto h-[200px]" animate={{ opacity: 1 }} initial={{ opacity: 0 }} transition={{ duration: .33 }} exit={{ opacity: 0 }}>
                                     <div>
                                         {filteredOrganization.map((e, i) => {
                                             return <div key={e.id} className="flex flex-col dark:hover:bg-white dark:hover:bg-opacity-5" onClick={() => e.onClick()}>
@@ -127,7 +127,7 @@ const Sidebar = () => {
                                                     </div>
                                                     <div className='flex flex-col pl-1'>
                                                         <div className='text-sm'>{e.name}</div>
-                                                        {/* <div className='text-xxs text-greylish'>{e.secondValue}</div> */}
+                                                        <div className='text-xxs text-greylish'>{e.secondValue}</div>
                                                     </div>
                                                     <div className='flex items-center justify-end'>
                                                         {/* <AiOutlineDown className='text-greylish dark:text-white text-opacity-50' /> */}
@@ -150,8 +150,8 @@ const Sidebar = () => {
                                     </div>
                                 </motion.div>
                             </ClickAwayListener>
-                        </AnimatePresence>
-                    </div>}
+                        </div>}
+                    </AnimatePresence>
                     {/* <Dropdown
                         parentClass="w-full bg-white dark:bg-darkSecond truncate"
                         list={organizationList}

@@ -77,7 +77,37 @@
         "stateMutability": "nonpayable",
         "type": "function"
     },
-    {"type":"function","stateMutability":"nonpayable","payable":false,"outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"transferWithComment","inputs":[{"type":"address","name":"to","internalType":"address"},{"type":"uint256","name":"value","internalType":"uint256"},{"type":"string","name":"comment","internalType":"string"}],"constant":false},
+    {
+        "type": "function",
+        "stateMutability": "nonpayable",
+        "payable": false,
+        "outputs": [
+            {
+                "type": "bool",
+                "name": "",
+                "internalType": "bool"
+            }
+        ],
+        "name": "transferWithComment",
+        "inputs": [
+            {
+                "type": "address",
+                "name": "to",
+                "internalType": "address"
+            },
+            {
+                "type": "uint256",
+                "name": "value",
+                "internalType": "uint256"
+            },
+            {
+                "type": "string",
+                "name": "comment",
+                "internalType": "string"
+            }
+        ],
+        "constant": false
+    },
     {
         "constant": true,
         "inputs": [],

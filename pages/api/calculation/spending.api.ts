@@ -43,7 +43,8 @@ export default async function handler(
                 params: {
                     addresses: parsedAddress,
                     blockchain: blockchainName,
-                    txs: parsedtxs
+                    txs: parsedtxs,
+                    onlyTransferList: "true"
                 }
             })
         } else {
@@ -54,6 +55,7 @@ export default async function handler(
                 params: {
                     addresses: parsedAddress,
                     blockchain: blockchainName,
+                    onlyTransferList: "true"
                 }
             })
         }
@@ -70,6 +72,7 @@ export default async function handler(
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
         const allTxs = specificTxs.data
+        console.log(allTxs)
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
         const AccountReq = await AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
         // const AccountReqWeek = AccountInOut(allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
@@ -130,7 +133,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
     if (!transactions || transactions.length === 0) return [];
 
     let sum: CoinStats[] = []
-
+ 
     transactions.forEach(transaction => {
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
             if (transaction.id === ERC20MethodIds.transfer ||
@@ -185,7 +188,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
         const feeAll: {
             [key: string]: { name: AltCoins, amount: string }[]
         } = {}
-
+        
 
         const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1 > 9 ? time.getMonth() + 1 : `0${time.getMonth() + 1}`}/${time.getDate() > 9 ? time.getDate() : `0${time.getDate()}`}`
 

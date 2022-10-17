@@ -72,6 +72,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
           params: {
             addresses: addresses.map(s => s.address),
             blockchain: blockchain.name,
+            addressTypes: addresses.map(s => s.provider ?? "0"),
             id: id,
           },
         }

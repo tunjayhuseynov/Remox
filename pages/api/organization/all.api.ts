@@ -99,7 +99,27 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
 
         const organizations = organizationDocs.docs.map(s => s.data()) as IOrganization[]
 
-        for (const organization of organizations) {
+        // for (const organization of organizations) {
+        //     if (!organization?.notes) {
+        //         await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+        //             notes: []
+        //         })
+        //         organization["notes"] = [];
+        //     }
+        //     organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
+        //         const { data } = await axios.get(BASE_URL + '/api/account', {
+        //             params: {
+        //                 id: accountId.id,
+        //                 accountId: organization.id
+        //             }
+        //         })
+        //         // const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
+        //         // const account = accountRef.data() as IAccount;
+        //         return data;
+        //     }))
+
+        // }
+        const orgList = await Promise.all(organizations.map(async organization => {
             if (!organization?.notes) {
                 await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
                     notes: []
@@ -110,33 +130,13 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
                 const { data } = await axios.get(BASE_URL + '/api/account', {
                     params: {
                         id: accountId.id,
-                        accountId: organization.id
+                        accountId: organization.id,
+                        txDisabled: false
                     }
                 })
                 // const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
                 // const account = accountRef.data() as IAccount;
                 return data;
-            }))
-
-        }
-        const orgList = await Promise.all(organizations.map(async organization => {
-            if (!organization?.notes) {
-                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
-                    notes: []
-                })
-                organization["notes"] = [];
-            }
-            organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
-                // const { data } = await axios.get(BASE_URL + '/api/account', {
-                //     params: {
-                //         id: accountId.id,
-                //         accountId: organization.id,
-                //         txDisabled: false
-                //     }
-                // })
-                const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
-                const account = accountRef.data() as IAccount;
-                return account;
             }))
             return organization;
         }))

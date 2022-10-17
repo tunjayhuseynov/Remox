@@ -337,7 +337,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 {tx.rejection && <>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
-                    <td className="border-t">
+                    <td className="border-t -mx-5">
                         <div className="flex space-x-3 pt-5">
                             <div className="w-[1.875rem] h-[1.875rem]">
                                 <Image

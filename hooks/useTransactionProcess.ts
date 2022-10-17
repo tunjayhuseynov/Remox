@@ -159,11 +159,12 @@ interface IReader {
   Coins: Coins;
   blockchain: BlockchainType;
   address: string,
-  provider: MultisigProviders
+  provider: MultisigProviders,
+  showMultiOut: boolean,
 }
 
 export default async (
-  { input, transaction, tags, Coins, blockchain, address, provider }: IReader
+  { input, transaction, tags, Coins, blockchain, address, provider, showMultiOut }: IReader
 ) => {
   try {
     const theTags = tags.filter((s) =>
@@ -237,8 +238,8 @@ export default async (
         method: ERC20MethodIds.transferFrom,
         id: ERC20MethodIds.transferFrom,
         coin: coin,
-        from: result.inputs[0],
-        to: result.inputs[1],
+        from: "0x" + result.inputs[0],
+        to: "0x" + result.inputs[1],
         amount: (result.inputs[2] as BigNumber).toString(),
         tags: theTags,
       };
@@ -248,7 +249,7 @@ export default async (
         method: ERC20MethodIds.transferFrom,
         id: ERC20MethodIds.transferFrom,
         coin: coin,
-        to: result.inputs[0],
+        to: "0x" + result.inputs[0],
         amount: (result.inputs[1] as BigNumber).toString(),
         tags: theTags,
       };
@@ -354,6 +355,26 @@ export default async (
         tags: theTags,
       };
 
+    }
+    else if (result.method === "execTransaction" && showMultiOut) {
+      const data = result.inputs[2] as string;
+      let decoder = new InputDataDecoder(ERC20);
+      let erc = decoder.decodeData(data);
+      const coin = Object.values(Coins).find(
+        (s) =>
+          s.address?.toLowerCase() === "0x" + result.inputs[0]?.toLowerCase()
+      );
+      if (coin && (erc.method === ERC20MethodIds.transferFrom || erc.method === ERC20MethodIds.transfer || erc.method === ERC20MethodIds.transferWithComment)) {
+        return {
+          method: erc.method === ERC20MethodIds.transfer ? ERC20MethodIds.transfer : ERC20MethodIds.transferFrom,
+          id: erc.method === ERC20MethodIds.transfer ? ERC20MethodIds.transfer : ERC20MethodIds.transferFrom,
+          coin: coin,
+          from: erc.method === ERC20MethodIds.transferFrom ? "0x" + erc.inputs[0] : undefined,
+          to: erc.method === ERC20MethodIds.transferFrom ? "0x" + erc.inputs[1] : "0x" + erc.inputs[0],
+          amount: erc.method === ERC20MethodIds.transferFrom ? erc.inputs[2].toString() : erc.inputs[1].toString(),
+          tags: theTags,
+        };
+      }
     }
     else if (result.method === "cancelStream") {
       // console.log(result)

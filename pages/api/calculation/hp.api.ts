@@ -36,13 +36,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const coins = data.data() as IHpPrice["coins"][0]["historicalPrices"]
 
         const response: IHpApiResponse[0] = {
-            AUD: fiatMoney === "AUD" ? coins.aud.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
-            CAD: fiatMoney === "CAD" ? coins.cad.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
-            JPY: fiatMoney === "JPY" ? coins.jpy.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
-            EUR: fiatMoney === "EUR" ? coins.eur.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
-            GBP: fiatMoney === "GBP" ? coins.gbp.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
-            TRY: fiatMoney === "TRY" ? coins.try.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
-            USD: fiatMoney === "USD" ? coins.usd.filter(c => GetTime(new Date(c.date)) > lastDate!) : [],
+            AUD: fiatMoney === "AUD" ? coins.aud.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            CAD: fiatMoney === "CAD" ? coins.cad.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            JPY: fiatMoney === "JPY" ? coins.jpy.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            EUR: fiatMoney === "EUR" ? coins.eur.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            GBP: fiatMoney === "GBP" ? coins.gbp.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            TRY: fiatMoney === "TRY" ? coins.try.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            USD: fiatMoney === "USD" ? coins.usd.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
         }
 
         return {
