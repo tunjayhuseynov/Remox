@@ -138,15 +138,15 @@ export default function DynamicPayroll() {
       <RunModal selectedContributors={selectedContributors} setChoosingBudget={setChoosingBudget} runmodal={runmodal} isAvaible={isAvaible} setSelectedContributors={setSelectedContributors} />
     </Modal>}
     <div className='space-y-5'>
-      <div className="flex justify-between items-center w-full space-y-3">
-        <div className="text-2xl font-semibold">
+      <div className="flex justify-between items-center w-full">
+        <div className="text-2xl font-semibold tracking-wide">
           Payroll
         </div>
         <div>
-          <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-medium !text-lg !px-0 min-w-[9.1rem]"} >
+          {contributors.length > 0 ? <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
             {isAvaible ? "Cancel Payroll" : "Run Payroll"}
-          </Button>
-          {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] ml-2 !font-medium !text-lg !px-0 min-w-[9.1rem]"} >
+          </Button> : <></>}
+          {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] ml-2 !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
             Submit Payroll
           </Button>}
         </div>

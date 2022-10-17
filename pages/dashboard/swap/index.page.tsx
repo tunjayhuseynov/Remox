@@ -142,7 +142,7 @@ const Swap = () => {
 
     return <>
         <div className="flex justify-start">
-            <div className="text-2xl font-semibold ">Swap</div>
+            <div className="text-2xl font-semibold">Swap</div>
         </div>
         <div className="flex flex-col items-center justify-center pt-12">
             <div className="flex flex-col w-[45%]">
@@ -258,7 +258,8 @@ const Swap = () => {
                                                     </div>
                                                     <div className='text-greylish mt-3 mb-2 font-medium text-xs tracking-wide'>Select Token</div>
                                                     <div className='flex flex-col overflow-y-auto pb-2 h-[10rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
-                                                        {coinsList.map((coin, index) => {
+                                                        {coinsList.filter((coin) => balances[coin.symbol].amount > 0).map((coin, index) => {
+                                                            console.log(coin)
                                                             return <div key={index} onClick={() => {
                                                                 if (token2 == coin) {
                                                                     setToken2(token1)

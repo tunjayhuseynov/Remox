@@ -44,11 +44,12 @@ const Statistic = () => {
                         <LineChart data={dailyBalance?.[chartDate] ?? {}} type={'area'} />
                     </div>
                 </div>
-                {/* <div className="flex items-center justify-center h-[30%] w-[30%]"><Chartjs data={data} ref={chartjs} items={orderBalance4 as any} dispatch={setSelectcoin} /></div> */}
                 <div className="pr-10">
                     <div id="transaction" className="flex flex-col justify-between h-full">
-                        <div className="text-xl font-semibold">Requests & Payments</div>
-                        <Payments />
+                        <div className="text-xl font-semibold mb-2">Requests & Payments</div>
+                        <div className="flex flex-col h-full justify-between">
+                            <Payments />
+                        </div>
                     </div>
                 </div>
             </div>

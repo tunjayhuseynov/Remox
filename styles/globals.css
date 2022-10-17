@@ -16,6 +16,9 @@ input[class~="unvisibleArrow"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+html{
+  scroll-behavior: smooth;
+}
 
 .MuiAvatar-root	{
   width: 25px!important;
