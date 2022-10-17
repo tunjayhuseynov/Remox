@@ -31,7 +31,7 @@ const ModeratorItem = ({ item }: IProps) => {
                 type,
                 tokenId: null
             }
-        }))
+        })).unwrap()
     }
 
     const deleteModerator = async () => {

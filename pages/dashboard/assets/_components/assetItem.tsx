@@ -32,9 +32,9 @@ const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
           </div>
           <div className="font-medium text-sm ">{asset.symbol}</div>
         </div>
-        <div className="font-medium text-sm"><NG number={asset.amount} fontSize={0.875} decimalSize={80}/></div>
-        <div className="font-medium text-sm">{fiatSymbol}<NG number={fiatPrice} fontSize={0.875} decimalSize={80}/></div>
-        <div className="font-medium text-sm text-right">{fiatSymbol}<NG number={calculatePrice(asset)} fontSize={0.875} decimalSize={80} /></div>
+        <div className="font-medium text-sm"><NG number={asset.amount} fontSize={0.875}/></div>
+        <div className="font-medium text-sm">{fiatSymbol}<NG number={fiatPrice} fontSize={0.875} /></div>
+        <div className="font-medium text-sm text-right">{fiatSymbol}<NG number={calculatePrice(asset)} fontSize={0.875} /></div>
       </div>
       <div className="grid grid-cols-[95%,5%] gap-2  items-center pt-2 pr-2">
         <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl  h-3 ">

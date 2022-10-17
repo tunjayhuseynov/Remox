@@ -69,7 +69,7 @@ const SingleRequestModal = ({
                 <div className="flex items-center text-sm font-medium">
                   <span className="w-2 h-2 rounded-full mr-2 bg-primary"></span>
                   <div>
-                    <NG number={+request.amount} fontSize={0.875} decimalSize={100}/>
+                    <NG number={+request.amount} fontSize={0.875} />
                   </div>
                 </div>
                 <div className="flex gap-x-2 items-center">
@@ -95,7 +95,7 @@ const SingleRequestModal = ({
                   <div className="flex items-center">
                     <span className="w-2 h-2 rounded-full mr-2 bg-primary"></span>
                     <div>
-                      <NG number={+request.secondAmount} fontSize={0.875} decimalSize={100}/>
+                      <NG number={+request.secondAmount} fontSize={0.875} />
                     </div>
                   </div>
                   <div className="flex gap-x-2 items-center">

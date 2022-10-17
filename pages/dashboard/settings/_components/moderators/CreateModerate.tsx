@@ -51,7 +51,7 @@ const CreateModerate = ({ onDisable }: { onDisable: Dispatch<boolean> }) => {
                 name,
                 mail
             }
-        }))
+        })).unwrap()
         ToastRun(<>Moderator created</>, "success")
         onDisable(false)
     }

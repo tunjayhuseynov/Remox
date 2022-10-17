@@ -1,4 +1,3 @@
-import Button from "components/button";
 import Modal from "components/general/modal";
 import { useModalSideExit } from "hooks";
 import { useState } from "react";

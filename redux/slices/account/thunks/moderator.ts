@@ -52,10 +52,10 @@ export const Update_Moderator_Name_Thunk = createAsyncThunk<void, { moderatorId:
 
     const currentMod = allMods.find(s => s.id === moderatorId)
     if (!currentMod) throw new Error("No Moderator Found")
-    currentMod.name = name
+    let updatedVal = {...currentMod, name }
 
     await FirestoreWrite<Pick<IOrganization, "moderators">>().updateDoc(type === "organization" ? "organizations" : "individuals", id, {
-        moderators: [...allMods.filter(s => s.id !== moderatorId), currentMod]
+        moderators: [...allMods.filter(s => s.id !== moderatorId), updatedVal]
     })
 
 
@@ -92,10 +92,10 @@ export const Update_Moderator_Image_Thunk = createAsyncThunk<void, { moderatorId
 
     const currentMod = allMods.find(s => s.id === moderatorId)
     if (!currentMod) throw new Error("No Moderator Found")
-    currentMod.image = image
+    let updatedVal = {...currentMod, image}
 
     await FirestoreWrite<Pick<IOrganization, "moderators">>().updateDoc(type === "organization" ? "organizations" : "individuals", id, {
-        moderators: [...allMods.filter(s => s.id !== moderatorId), currentMod]
+        moderators: [...allMods.filter(s => s.id !== moderatorId), updatedVal]
     })
 
 

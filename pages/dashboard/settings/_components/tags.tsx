@@ -1,14 +1,9 @@
-import Button from "components/button";
-import Modal from "components/general/modal";
-import { useModalSideExit } from "hooks";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { TwitterPicker } from "react-color";
 import { AiOutlineDown } from "react-icons/ai";
-import { useDispatch, useSelector } from "react-redux";
-import { selectTags } from "redux/slices/tags";
+import { useSelector } from "react-redux";
 import TagItem from "pages/dashboard/settings/_components/labels/tagItem";
-import { useForm, SubmitHandler } from "react-hook-form";
-import useLoading from "hooks/useLoading";
+
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { CreateTag } from "redux/slices/account/thunks/tags";
 import { SelectID, SelectTags } from "redux/slices/account/remoxData";
@@ -20,22 +15,18 @@ import {
 } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
 import { ITag } from "pages/api/tags/index.api";
-import CreateButton from "components/general/CreateButton";
 import { BsPlusLg } from "react-icons/bs";
-
-export interface IFormInput {
-  name: string;
-  color: string;
-}
+import EditableTextInput from "components/general/EditableTextInput";
+import { IoTrashOutline } from "react-icons/io5";
+import { ToastRun } from "utils/toast";
 
 export default function TagsSetting() {
-  const { register, handleSubmit, reset } = useForm<IFormInput>();
   const tags = useSelector(SelectTags);
   const [stateTags, setStateTags] = useState<ITag[]>([]);
 
   useEffect(() => {
-    setStateTags(tags)
-  }, [tags])
+    setStateTags(tags);
+  }, [tags]);
 
   const id = useAppSelector(SelectID);
   const dispatch = useAppDispatch();
@@ -48,19 +39,22 @@ export default function TagsSetting() {
     setColor(color.hex);
   };
 
-  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+  const onSubmit = async (value: string) => {
     const Color = color;
     if (!id) return;
-    if (Color && data.name) {
+    if (Color && value) {
       await dispatch(
         CreateTag({
           color: Color,
           id: id,
-          name: data.name,
+          name: value,
         })
       ).unwrap();
+    } else {
+      ToastRun(<>please fill in all cells</>, )
     }
-    reset({ name: "" });
+
+    setColor("")
     setShowModal(false);
   };
 
@@ -75,18 +69,10 @@ export default function TagsSetting() {
     }
   };
 
-  const [isLoading, OnSubmit] = useLoading(onSubmit);
 
   return (
     <>
       <div>
-        {/* <div className="flex justify-between items-center py-5 px-[1rem] relative">
-                    <div className="absolute -top-[7.7rem] right-0">
-                        <Button onClick={() => setShowModal(true)} className="!py-1">
-                            Create Tag
-                        </Button>
-                    </div>
-                </div> */}
         <div className="flex items-center mt-8 mb-10">
           <FormControl className="w-[30%]">
             <TextField
@@ -100,7 +86,7 @@ export default function TagsSetting() {
                   width: "100%",
                   height: "35px",
                   borderColor: "#D6D6D6",
-                  color: "#D6D6D6"
+                  color: "#D6D6D6",
                 },
                 startAdornment: (
                   <InputAdornment position="start">
@@ -122,8 +108,56 @@ export default function TagsSetting() {
         </div>
         <div className="w-full pb-2">
           <div>
+            {showModal && (
+              <div className="w-full bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom flex items-center gap-[23.6rem] py-6  px-5 relative">
+                <div className="flex space-x-3 items-center">
+                  <div className="flex flex-col  ">
+                    <label className="text-greylish bg-opacity-50"></label>
+                  </div>
+                  <div
+                    className="flex space-x-3 border !ml-0  rounded-md items-center justify-center cursor-pointer relative"
+                    onClick={() => setColorPicker(true)}
+                  >
+                    <div className="py-1 pl-3">
+                      <div
+                        className="w-1 h-4"
+                        style={{
+                          backgroundColor: color,
+                        }}
+                      />
+                    </div>
+                    <div className="border-l  px-2 py-2 " >
+                      <AiOutlineDown />
+                    </div>
+                    {colorPicker && (
+                      <ClickAwayListener
+                        onClickAway={() => {
+                          setColorPicker(false);
+                        }}
+                      >
+                        <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
+                          <TwitterPicker onChange={colorHandler} />
+                        </div>
+                      </ClickAwayListener>
+                    )}
+                  </div>
+                  <div className="font-semibold">
+                    <EditableTextInput
+                      defaultValue=""
+                      placeholder="Tag name"
+                      onSubmit={async (val) => {
+                        onSubmit(val);
+                      }}
+                    />
+                  </div>
+                  <div className="cursor-pointer" onClick={() => setShowModal(false)}>
+                        <IoTrashOutline size={20} className="hover:text-red-500" />
+                    </div>
+                </div>
+              </div>
+            )}
             {tags.length > 0 &&
-              stateTags.map((tag, index) => <TagItem key={tag.id} tag={tag} />)}
+              stateTags.map((tag) => <TagItem key={tag.id} tag={tag} />)}
             {tags.length === 0 && (
               <div className="text-2xl text-center py-10 font-semibold tracking-wide">
                 No tag yet. Create a tag to track what you care about.
@@ -132,69 +166,6 @@ export default function TagsSetting() {
           </div>
         </div>
       </div>
-      {showModal && (
-        <Modal
-          onDisable={setShowModal}
-          openNotify={showModal}
-          animatedModal={false}
-          disableX={true}
-          className="!pt-5 !overflow-visible  !w-80"
-        >
-          <form
-            onSubmit={handleSubmit(OnSubmit)}
-            className="flex flex-col space-y-12 items-center"
-          >
-            <div className="flex  font-semibold tracking-wider text-2xl">
-              Create a New Tag
-            </div>
-            <div className="flex items-center justify-between w-full">
-              <div className="">
-                <TextField type={"text"} {...register("name", { required: true })} label="Tag Name" placeholder="E.g: Marketing"  />
-              </div>
-              <div
-                className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative"
-                onClick={() => setColorPicker(true)}
-              >
-                <div className="py-1 pl-3">
-                  <div
-                    className="w-1 h-4"
-                    style={{
-                      backgroundColor: color,
-                    }}
-                  />
-                </div>
-                <div className="border-l px-2 py-1">
-                  <AiOutlineDown size={"0.5rem"} />
-                </div>
-                {colorPicker && (
-                  <ClickAwayListener
-                    onClickAway={() => {
-                      setColorPicker(false);
-                    }}
-                  >
-                    <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
-                      <TwitterPicker onChange={colorHandler} />
-                    </div>
-                  </ClickAwayListener>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center w-full justify-between">
-              <Button
-                type="submit"
-                version="second"
-                onClick={() => setShowModal(false)}
-                className="w-[40%] !py-2 flex justify-center"
-              >
-                Back
-              </Button>
-              <Button type="submit"  className="!py-2 w-[40%] flex justify-center" isLoading={isLoading} >
-                Create
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
     </>
   );
 }

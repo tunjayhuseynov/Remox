@@ -163,7 +163,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-medium text-xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalance) || (totalBalance !== undefined && parseFloat(totalBalance) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalance} fontSize={1.25} decimalSize={100} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} decimalSize={100}/></div>}
+                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalance) || (totalBalance !== undefined && parseFloat(totalBalance) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalance} fontSize={1.25} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} /></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -176,7 +176,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10 rounded-md">
                                 <div className="flex items-center justify-between  w-full ">
                                     <div className="text-sm font-semibold pl-1">{TypeCoin[0].header}</div>
-                                    <div className={`text-base font-semibold`}>{symbol}<NG number={+TypeCoin[0].balance} fontSize={1} decimalSize={100}  /></div>
+                                    <div className={`text-base font-semibold`}>{symbol}<NG number={+TypeCoin[0].balance}/></div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -209,7 +209,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10">
                                 <div className="flex items-center justify-between w-full">
                                     <div className="text-sm font-medium pl-2 ">{TypeCoin[1].header}</div>
-                                    <div className="text-sm font-medium">{symbol}<NG number={+TypeCoin[1].balance} fontSize={0.875} decimalSize={100} /></div>
+                                    <div className="text-sm font-medium">{symbol}<NG number={+TypeCoin[1].balance} fontSize={0.875}/></div>
                                 </div>
                             </div>
                         </AccordionSummary>

@@ -29,10 +29,10 @@ const nftItem = ({nft}: {nft: INFT}) => {
               <div className="font-semibold text-base">{nft.text}</div>
               <div className="text-xs font-semibold text-greylish">{nft.name}</div>
           </div>
-          <div className="text-base font-medium flex items-center"><div><NG number={+nft.value} decimalSize={80} /></div><img src={coin?.logoURI} className="rounded-[50%] h-3/5 w-5 ml-2" alt="" /> </div>
+          <div className="text-base font-medium flex items-center"><div><NG number={+nft.value} /></div><img src={coin?.logoURI} className="rounded-[50%] h-3/5 w-5 ml-2" alt="" /> </div>
       </div>
       <div className="flex justify-between items-center  py-4 px-3">
-          <div className="text-base font-semibold">{fiatSymbol}<NG number={+nft.value * fiatPrice} decimalSize={80} /></div>
+          <div className="text-base font-semibold">{fiatSymbol}<NG number={+nft.value * fiatPrice} /></div>
           <div className="flex  items-center gap-3 justify-center">
               <div className="text-2xl font-semibold" ref={setDivRef}>
                 <RiFileCopyLine className="cursor-pointer" onClick={() => {

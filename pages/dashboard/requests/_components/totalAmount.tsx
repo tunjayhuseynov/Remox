@@ -54,7 +54,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
     return <>
         <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r dark:border-[#D6D6D6]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
             <div className="w-full flex justify-start  items-center">
-                <div className={`font-semibold  text-3xl`}>{fiatCurrency}<NG number={totalBalance} fontSize={1.75} decimalSize={100} /></div>
+                <div className={`font-semibold  text-3xl`}>{fiatCurrency}<NG number={totalBalance} fontSize={1.75} /></div>
             </div>
             {totalAmount.toFixed(2) !== "0.00" &&
                 <div className="w-full flex justify-start items-center text-lg font-semibold">
@@ -65,7 +65,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
         {totalAmount.toFixed(2) !== "0.00" &&  
             <div className="w-full pt-3  pr-10">
                 <div className="w-full flex justify-start items-center">
-                    <div className="font-semibold text-3xl">{fiatCurrency}<NG number={totalBalance-totalAmount} fontSize={1.75} decimalSize={100} /></div>
+                    <div className="font-semibold text-3xl">{fiatCurrency}<NG number={totalBalance-totalAmount} fontSize={1.75} /></div>
                 </div>
             </div>
         }

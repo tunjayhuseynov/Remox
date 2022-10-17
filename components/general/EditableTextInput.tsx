@@ -1,6 +1,6 @@
 import { FormControl, Input, InputAdornment } from "@mui/material"
 import Loader from "components/Loader";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import  { MdDone } from "react-icons/md";
 
 interface IProps {
