@@ -17,7 +17,7 @@ import { BASE_URL } from 'utils/api';
 import { CeloProvider, NetworkNames } from '@celo/react-celo';
 import { Blockchains } from 'types/blockchains';
 
-import { publicProvider } from 'wagmi/providers/public';
+// import { publicProvider } from 'wagmi/providers/public';
 
 
 
