@@ -25,8 +25,15 @@ export const SelectDailyBalance = createDraftSafeSelector(
             let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
             let response: { [time: string]: number } = {}
-            let balance: typeof balances = Object.entries(balances).reduce<typeof balances>((a, c) => {
-                a[c[0]] = { ...c[1] }
+            let balance: typeof balances = accounts.reduce<typeof balances>((a, account) => {
+                account.coins.forEach(coin => {
+                    if (a[coin.symbol] === undefined) {
+                        a[coin.symbol] = Object.assign({}, coin);
+                    } else {
+                        a[coin.symbol].amount += coin.amount;
+                    }
+                })
+                // a[c[0]] = { ...c[1] }
                 return a;
             }, {});
             let newest = "1970/1/1";
@@ -42,8 +49,11 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     if (balance[item.fee.name.symbol]) {
                         balance[item.fee.name.symbol].amount += DecimalConverter(item.fee.amount, item.fee.name.decimals);
                     }
+                    console.log(((item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals)))
+                    console.log(item.name.symbol, balance[item.name.symbol].amount)
                     // if (!timeCoins[flowKey][item.name.symbol]) {
                     timeCoins[flowKey][item.name.symbol] = balance[item.name.symbol].amount
+
                     // }
                     // total += (item.type === "in" ? 1 : -1) * DecimalConverter(item.amount, item.name.decimals)
                 })
@@ -52,7 +62,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     return a;
                 }, 0);
             })
-
+            console.log("TimeCoins: ", timeCoins)
             let totalBalance = 0;
             accounts.forEach((account) => {
                 account.coins.forEach((coin) => {

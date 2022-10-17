@@ -16,6 +16,19 @@ import {
 import { BASE_URL } from 'utils/api';
 import { CeloProvider, NetworkNames } from '@celo/react-celo';
 import { Blockchains } from 'types/blockchains';
+import '@rainbow-me/rainbowkit/styles.css';
+import {
+    getDefaultWallets,
+    RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+import {
+    chain,
+    configureChains,
+    createClient,
+    WagmiConfig,
+} from 'wagmi';
+import { publicProvider } from 'wagmi/providers/public';
+
 
 
 export const CeloEndpoint = 'https://forno.celo.org';
@@ -26,6 +39,43 @@ export const SolanaSerumEndpoint = "https://solana-api.projectserum.com"
 export default function Wallet({ children }: { children: JSX.Element }) {
     // const web3React = useWeb3React()
     const SolNetwork = WalletAdapterNetwork.Mainnet;
+
+    const { chains, provider } = configureChains(
+        [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, {
+            id: 42220,
+            name: 'Celo',
+            network: 'mainnet',
+            rpcUrls: {
+                default: CeloEndpoint
+            },
+            nativeCurrency: {
+                decimals: 18,
+                name: 'CELO',
+                symbol: 'CELO',
+            },
+            blockExplorers: {
+                default: {
+                    name: 'Celo Explorer',
+                    url: 'https://explorer.celo.org',
+                },
+            },
+            testnet: false,
+        }],
+        [
+            publicProvider()
+        ]
+    );
+
+    const { connectors } = getDefaultWallets({
+        appName: 'Remox App',
+        chains
+    });
+
+    const wagmiClient = createClient({
+        autoConnect: true,
+        connectors,
+        provider
+    })
 
     // const endpoint = useMemo(() => clusterApiUrl(SolNetwork), [SolNetwork]);
 
@@ -48,6 +98,11 @@ export default function Wallet({ children }: { children: JSX.Element }) {
         <ConnectionProvider endpoint={SolanaEndpoint} >
             <WalletProvider wallets={solWallets} autoConnect>
                 <WalletModalProvider>
+                    {/* <WagmiConfig client={wagmiClient}>
+                        <RainbowKitProvider chains={chains}>
+                            <YourApp />
+                        </RainbowKitProvider>
+                    </WagmiConfig> */}
                     <CeloProvider
                         dapp={{
                             name: 'Remox DAO',

@@ -8,6 +8,7 @@ import { AddressReducer } from 'utils';
 import { RiFileCopyLine } from 'react-icons/ri'
 import { BiLinkExternal } from 'react-icons/bi';
 import Copied from 'components/copied';
+import makeBlockie from 'ethereum-blockies-base64';
 
 interface IProps {
     onDisable: Dispatch<boolean>,
@@ -24,7 +25,7 @@ const Deposit = ({ account, onDisable }: IProps) => {
 
     return <div>
         <div className='flex flex-col space-y-5'>
-            <div className='text-center text-xl font-semibold'>
+            <div className='text-center text-xl font-bold'>
                 Deposit
             </div>
             <div>
@@ -33,16 +34,16 @@ const Deposit = ({ account, onDisable }: IProps) => {
                 </div>
             </div>
             <div>
-                <div className='border border-gray-600 bg-gray-200 dark:bg-darkSecond flex p-5 rounded-md space-x-2 w-full justify-between'>
-                    <div className='flex space-x-2'>
+                <div className='border border-gray-600 bg-gray-200 dark:bg-darkSecond grid grid-cols-[85%,1fr] gap-x-2 px-5 py-3 rounded-md w-full justify-between'>
+                    <div className='flex space-x-2 items-center'>
                         <div>
-                            <Avatar src={account.image?.imageUrl} />
+                            <Avatar src={account.image?.imageUrl ?? makeBlockie(account?.name ?? "random")} />
                         </div>
-                        <div className='overflow-hidden'>
-                            <div>{AddressReducer(account.address)}</div>
+                        <div className='overflow-hidden text-sm text-greylish '>
+                            <div>{account.address}</div>
                         </div>
                     </div>
-                    <div className='flex space-x-2'>
+                    <div className='flex space-x-2 items-center'>
                         <div ref={setDivRef} className={'cursor-pointer'} onClick={() => {
                             navigator.clipboard.writeText(account.address.trim())
                             setTooltip(true)

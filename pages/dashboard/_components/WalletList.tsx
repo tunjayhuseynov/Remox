@@ -144,7 +144,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                     </div>
                     <div className="rounded-xl">
                         <div className="w-full h-full" ref={customRef}>
-                            {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).slice(0, 3).map((item, index) => {
+                            {coins.sort((a, b) => a.percent > b.percent ? -1 : 1).filter(s=>s.amount > 0).slice(0, 3).map((item, index) => {
                                 return <div className={`w-[95%] mx-auto ${index !== 2 && "dark:border-[#454545] border-b"}`} key={item.coin.address} >
                                     <CoinItem
                                         key={item.coin.address + item.coin.name}

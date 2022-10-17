@@ -264,6 +264,9 @@ const remoxDataSlice = createSlice({
         setOrganizations: (state: IRemoxData, action: { payload: IOrganizationORM[] }) => {
             state.organizations = action.payload;
         },
+        addOrganizationToList: (state: IRemoxData, action: { payload: IOrganizationORM }) => {
+            state.organizations = [...state.organizations, action.payload];
+        },
         setAccountType: (state: IRemoxData, action: { payload: IAccountType }) => {
             state.accountType = action.payload;
         },

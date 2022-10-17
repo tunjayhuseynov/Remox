@@ -21,6 +21,8 @@ export default async function handler(
     try {
         const id = req.query.id;
         const accountId = req.query.accountId;
+        const txDisabled = req.query.txDisabled;
+
         if (typeof id !== "string") throw new Error("There should be an id parameter as string");
 
         axiosRetry(axios, { retries: 10 });

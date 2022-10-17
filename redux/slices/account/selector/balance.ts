@@ -5,8 +5,21 @@ import { IPrice } from "utils/api";
 import { generatePriceCalculation } from "utils/const";
 
 export const SelectBalance = createDraftSafeSelector(
-    (state: RootState) => state.remoxData.balances,
-    (balances) => balances
+    (state: RootState) => state.remoxData.accounts,
+    (accounts) => {
+        return accounts.reduce((acc, account) => {
+
+            account.coins.forEach(coin => {
+                if (acc[coin.symbol]) {
+                    acc[coin.symbol].amount += coin.amount
+                } else {
+                    acc[coin.symbol] = coin
+                }
+            })
+
+            return acc;
+        }, {} as IPrice);
+    }
 );
 
 
@@ -21,7 +34,6 @@ export const SelectTotalBalance = createDraftSafeSelector(
         let fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
 
         let totalBalance = 0;
-        const preference = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
         accounts.forEach((account) => {
             account.coins.forEach((coin) => {
                 totalBalance += generatePriceCalculation(coin, hp, pc, fiat);
@@ -32,14 +44,24 @@ export const SelectTotalBalance = createDraftSafeSelector(
 );
 
 export const SelectYieldBalance = createDraftSafeSelector(
-    (state: RootState) => state.remoxData.balances,
-    (balances) => {
-        if (balances) {
-            return Object.entries(balances).reduce<IPrice>(
+    (state: RootState) => state.remoxData.accounts,
+    (accounts) => {
+        if (accounts.length > 0) {
+            return accounts.reduce<IPrice>(
                 (a, c) => {
-                    if (c[1].coin.type === "Yield") {
-                        a[c[0]] = c[1];
-                    }
+
+                    c.coins.forEach((coin) => {
+
+                        if (coin.type === "Yield") {
+                            if (a?.[coin.symbol]) {
+                                a[coin.symbol].amount += coin.amount;
+                            } else {
+                                a[coin.symbol] = coin;
+                            }
+                        }
+
+                    })
+
                     return a;
                 },
                 {}
@@ -51,14 +73,24 @@ export const SelectYieldBalance = createDraftSafeSelector(
 
 
 export const SelectSpotBalance = createDraftSafeSelector(
-    (state: RootState) => state.remoxData.balances,
-    (balances) => {
-        if (balances) {
-            return Object.entries(balances).reduce<IPrice>(
+    (state: RootState) => state.remoxData.accounts,
+    (accounts) => {
+        if (accounts.length > 0) {
+            return accounts.reduce<IPrice>(
                 (a, c) => {
-                    if (c[1].coin.type === "Spot") {
-                        a[c[0]] = c[1];
-                    }
+
+                    c.coins.forEach((coin) => {
+
+                        if (coin.type === "Spot") {
+                            if (a?.[coin.symbol]) {
+                                a[coin.symbol].amount += coin.amount;
+                            } else {
+                                a[coin.symbol] = coin;
+                            }
+                        }
+
+                    })
+
                     return a;
                 },
                 {}
@@ -69,18 +101,20 @@ export const SelectSpotBalance = createDraftSafeSelector(
 );
 
 export const SelectSpotTotalBalance = createDraftSafeSelector(
-    (state: RootState) => state.remoxData.balances,
+    (state: RootState) => state.remoxData.accounts,
     (state: RootState) => state.remoxData.storage,
     (state: RootState) => state.remoxData.historyPriceList,
-    (balances, storage, hp) => {
-        if (balances) {
+    (accounts, storage, hp) => {
+        if (accounts.length > 0) {
             const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
             let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
-            return Object.entries(balances).reduce<number>((a, c) => {
-                if (c[1].coin.type !== TokenType.YieldToken) {
-                    a += generatePriceCalculation(c[1], hp, pc, fiat);
-                }
+            return accounts.reduce<number>((a, c) => {
+                c.coins.forEach((s) => {
+                    if (s.coin.type !== TokenType.YieldToken) {
+                        a += generatePriceCalculation(s, hp, pc, fiat);
+                    }
+                })
                 return a;
             }, 0);
         }
@@ -90,18 +124,20 @@ export const SelectSpotTotalBalance = createDraftSafeSelector(
 
 
 export const SelectYieldTotalBalance = createDraftSafeSelector(
-    (state: RootState) => state.remoxData.balances,
+    (state: RootState) => state.remoxData.accounts,
     (state: RootState) => state.remoxData.storage,
     (state: RootState) => state.remoxData.historyPriceList,
-    (balances, storage, hp) => {
-        if (balances) {
+    (accounts, storage, hp) => {
+        if (accounts.length > 0) {
             const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
             let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
-            return Object.entries(balances).reduce<number>((a, c) => {
-                if (c[1].coin.type === TokenType.YieldToken) {
-                    a += generatePriceCalculation(c[1], hp, pc, fiat);
-                }
+            return accounts.reduce<number>((a, c) => {
+                c.coins.forEach((s) => {
+                    if (s.coin.type === TokenType.YieldToken) {
+                        a += generatePriceCalculation(s, hp, pc, fiat);
+                    }
+                })
                 return a;
             }, 0);
         }

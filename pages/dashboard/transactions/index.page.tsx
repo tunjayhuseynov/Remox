@@ -109,10 +109,10 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-            if(pending === "true" && c.isExecuted) return false
+            if (pending === "true" && c.isExecuted) return false
         } else {
             // console.log(selectedAccounts, c.address)
-            if(pending === "true") return false
+            if (pending === "true") return false
             const tx = c as any
             let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
             if (tx.method === ERC20MethodIds.swap) {
@@ -334,7 +334,7 @@ const Transactions = () => {
                                     'Amount:': swapping ? `${swapping.amountIn} ${swapping.amountInCoin} => ${swapping.amountOut} ${swapping.amountOutCoin}` : amountCoins.map(w => `${w.amount} ${w.coin}`).join(',\n'),
                                     'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
                                     'Date': method === ERC20MethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
-                                    "Labels": w.tags.join(', '),
+                                    "Labels": w.tags.map(s=>s.name).join(', '),
                                     "Gas": `${gas} ${gasCoin}`,
                                     "Block Number": blockNumber,
                                     "Transaction Hash": hash,
@@ -343,7 +343,7 @@ const Transactions = () => {
                                 }
                             })}>
                                 <img className={`w-[1rem] h-[1rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
-                                <div >{txs.length !== Txs.length ? "Export Filtered" : "Export All"}</div>
+                                <div className="text-sm">{txs.length !== Txs.length ? "Export Filtered" : "Export All"}</div>
                             </CSVLink>
                         </div>}
                     </div>
@@ -357,8 +357,8 @@ const Transactions = () => {
                                     <th className="py-3 self-center text-left">Amount</th>
                                     <th className="py-3 self-center text-left">Labels</th>
                                     <th className="py-3 self-center text-left">Signatures</th>
-                                    <th className="py-3 flex justify-end pr-14">
-                                        <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
+                                    <th className="py-3 flex justify-end pr-[3.25rem]">
+                                        <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary hover:bg-primary hover:bg-opacity-5 text-primary rounded-md flex items-center justify-center space-x-2">
                                             {!refreshLoading && <div>
                                                 <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />
                                             </div>}
@@ -374,13 +374,13 @@ const Transactions = () => {
                                         const address = (tx as IFormattedTransaction).address;
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
                                         const txData = (tx as IFormattedTransaction)
-                                        return <SingleTxContainer isDetailOpen={!!index} txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
+                                        return <SingleTxContainer isDetailOpen={index !== undefined && Txs[+index] === tx} txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
                                     } else {
                                         const txData = (tx as ITransactionMultisig)
                                         const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
                                         const isSafe = "safeTxHash" in txData
                                         let directionType = TransactionDirectionDeclare(txData, accounts);
-                                        return <MultisigTx isDetailOpen={!!index} txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
+                                        return <MultisigTx isDetailOpen={index !== undefined && Txs[+index] === tx} txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
                                     }
                                 })}
                             </thead>

@@ -81,7 +81,7 @@ function ChooseType() {
           <div className="h-full  border border-b-0 dark:border-greylish transition-all hover:transition-all hover:!border-primary rounded-lg w-full">
             <div className="bg-white dark:bg-darkSecond rounded-lg overflow-auto h-[13.1rem] w-full relative">
               {organizations.map((i, id) => {
-                return <div key={i.id} onClick={() => organizationLogin(i)} className={`cursor-pointer ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === organizations.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
+                return <div key={i.id} onClick={() => organizationLogin(i)} className={`cursor-pointer ${id === 0 ? 'rounded-lg !border-b !border-t-0' : id === organizations.length - 1 && '!border-t !border-b-0'} flex items-center gap-3 border-y  transition-all hover:transition-all bg-white dark:bg-darkSecond hover:dark:bg-greylish hover:bg-opacity-10 dark:border-greylish hover:bg-light hover:!border-primary py-3 px-3`}>
                   <div className="rounded-full">
                     <img src={i.image?.imageUrl ?? makeBlockie(i.name || "random")} className="w-9 h-9 rounded-full" />
                   </div>
