@@ -265,7 +265,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         )}
                     </div>
                 </td>
-                <td className="text-left w-[95%]">
+                <td className="text-left w-full">
                     <div>
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
@@ -337,7 +337,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 {tx.rejection && <>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
-                    <td className="border-t -mx-5">
+                    <td className="border-t dark:border-gray-700 border-gray-100 -mx-6 pl-6">
                         <div className="flex space-x-3 pt-5">
                             <div className="w-[1.875rem] h-[1.875rem]">
                                 <Image
@@ -359,9 +359,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </div>
                         </div>
                     </td>
-                    <td className="border-t"></td>
-                    <td className="border-t"></td>
-                    <td className="self-center w-[95%]">
+                    <td className="border-t dark:border-gray-700 border-gray-100"></td>
+                    <td className="border-t dark:border-gray-700 border-gray-100"></td>
+                    <td className="self-center w-[100%] h-full border-t dark:border-gray-700 border-gray-100 pt-4">
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
@@ -380,8 +380,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             }} />
                         </div>
                     </td>
-                    <td>
-                        <div className="flex items-center h-full justify-end pr-5 space-x-3">
+                    <td className="p-0">
+                        <div className="flex items-center h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700">
                             {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.rejection.isExecuted || tx.isExecuted ? <></> :
                                 !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
