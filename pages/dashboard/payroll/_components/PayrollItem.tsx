@@ -64,7 +64,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
                 }
             />
           ) : (
-            <div className=""></div>
+            <></>
           )}
           <div
             className={`hover:cursor-pointer flex items-center space-x-2 ${

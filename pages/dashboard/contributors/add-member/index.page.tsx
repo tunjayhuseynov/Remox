@@ -4,7 +4,7 @@ import Dropdown from "components/general/dropdown";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import Button from "components/button";
 import { DateInterval, ExecutionType, IMember } from "types/dashboard/contributors";
-import { SelectContributors, SelectSelectedAccountAndBudget, SelectID, addMemberToContributor } from "redux/slices/account/remoxData";
+import { SelectContributors, SelectID, addMemberToContributor } from "redux/slices/account/remoxData";
 import useContributors from "hooks/useContributors";
 import { v4 as uuidv4 } from "uuid";
 import { AltCoins, CoinsURL } from "types";
@@ -25,6 +25,7 @@ import Modal from "components/general/modal";
 import ChooseBudget from "components/general/chooseBudget";
 import { IAccountORM } from "pages/api/account/index.api";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
+import { DateTimePicker } from "@mui/x-date-pickers";
 
 
 const AddMember = () => {
@@ -258,29 +259,45 @@ const AddMember = () => {
                         <div className="flex flex-col space-y-1 w-full">
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]`}>
-                                    <DesktopDatePicker
+                                    <DateTimePicker
+                                      renderInput={(props) => <TextField {...props} />}
+                                      disablePast={true}
+                                      label="Payment Start Date"
+                                      value={startDate}
+                                      onChange={(newValue) => {
+                                        setStartDate(newValue);
+                                      }}
+                                    />
+                                    {/* <DesktopDatePicker
                                         label="Payment Start Date"
-
+                                        disablePast
                                         inputFormat="MM/dd/yyyy"
                                         value={startDate}
                                         onChange={(newValue) => setStartDate(newValue)}
-
                                         renderInput={(params) => <TextField {...params} />}
-                                    />
+                                    /> */}
                                 </Stack>
                             </LocalizationProvider>
                         </div>
                         <div className="flex flex-col space-y-1 w-full">
                             <LocalizationProvider dateAdapter={AdapterDateFns} >
                                 <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]`}>
-                                    <DesktopDatePicker
+                                    {/* <DesktopDatePicker
+                                        disablePast
                                         label="Payment End Date"
-
                                         inputFormat="MM/dd/yyyy"
                                         value={endDate}
                                         onChange={(newValue) => setEndDate(newValue)}
-
                                         renderInput={(params) => <TextField {...params} />}
+                                    /> */}
+                                    <DateTimePicker
+                                        disablePast
+                                      renderInput={(props) => <TextField {...props} />}
+                                      label="Payment End Date"
+                                      value={endDate}
+                                      onChange={(newValue) => {
+                                        setEndDate(newValue);
+                                      }}
                                     />
                                 </Stack>
                             </LocalizationProvider>

@@ -155,18 +155,18 @@ const Swap = () => {
                             <AnimatePresence>
                                 {isSetting && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={settingRef} className="absolute z-[300] shadow-custom bg-white dark:bg-darkSecond rounded-xl min-w-[15.625rem] left-0 translate-x-[-90%] bottom-0 translate-y-full p-3 text-sm">
                                     <div className="flex flex-col space-y-4">
-                                        <div className="font-bold text-xl">Transaction Settings</div>
+                                        <div className="font-medium text-sm">Transaction Settings</div>
                                         <div className="flex flex-col space-y-3">
-                                            <div className="text-xl">Slippage tolerance</div>
-                                            <div className="flex space-x-1 px-2">
+                                            <div className="text-sm font-semibold text-[#707070]">Slippage tolerance</div>
+                                            <div className="flex space-x-2 ">
                                                 {slippageArr.filter(s => !s.invisible).map((item, index) => <div key={index} onClick={() => {
                                                     const arr = [...slippageArr]
                                                     arr.forEach(i => i.selected = false)
                                                     arr[index].selected = true
                                                     setSlippageArr(arr)
-                                                }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : ""} px-4 py-2 bg-greylish bg-opacity-10 cursor-pointer rounded-xl`}>{item.label}</div>)}
-                                                <div className="bg-greylish bg-opacity-10 rounded-xl flex items-center pl-3 pr-5 space-x-1">
-                                                    <input placeholder="0.5" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
+                                                }} className={`${item.selected ? "bg-primary bg-opacity-100 text-white" : "bg-[#D6D6D6] dark:bg-[#252525]"}  text-sm font-medium w-12 h-7 flex justify-center items-center cursor-pointer rounded-2xl`}>{item.label}</div>)}
+                                                <div className="w-28 h-7 bg-[#D6D6D6] dark:bg-[#252525] rounded-xl flex items-center justify-end pr-2">
+                                                    <input placeholder="0.50" type="number" value={((slippageArr[slippageArr.length - 1]!.value / 10) || undefined)} className="outline-none font-medium text-sm text-right bg-transparent max-w-[3.125rem] unvisibleArrow" min={0} step={"any"} max={100} onChange={(event) => {
                                                         const value = (event.target as HTMLInputElement).value
                                                         if (parseFloat(value) >= 0) {
                                                             setSlippageArr(slippageArr.map((item, index) => {
@@ -186,19 +186,19 @@ const Swap = () => {
                                                             }))
                                                         }
                                                     }} />
-                                                    <span>%</span>
+                                                    <span className="text-sm text-[#707070] ml-1">%</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex flex-col space-y-3">
-                                            <div className="text-xl">Transaction deadline</div>
+                                            <div className="text-sm text-[#707070]">Transaction deadline</div>
                                             <div className="flex space-x-1 px-2 items-center">
                                                 <input type="number" value={deadline === 1.5 ? undefined : deadline} onChange={(event) => {
                                                     const value = (event.target as HTMLInputElement).value
                                                     if (value) {
                                                         setDeadline(parseFloat(value))
                                                     } else setDeadline(1.5)
-                                                }} className="bg-greylish bg-opacity-10 rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
+                                                }} className="bg-[#D6D6D6] dark:bg-[#252525] rounded-xl py-1 w-[6.25rem] outline-none px-2 text-right unvisibleArrow" placeholder="1.5" />
                                                 <div>minutes</div>
                                             </div>
                                         </div>
@@ -421,20 +421,20 @@ const Swap = () => {
                         <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} CELO</div>
                     </div>
                 </div>
-                <div className="text-center ">
+                <div className="flex justify-center items-center text-center ">
                     {parseFloat(oneCoinPrice) ?
                         balances[token1.symbol].amount > (token1Amount ?? 0) ?
-                            <Button className="w-[97%] text-[20px] !rounded-2xl"
-                            onClick={() => setChoosingBudget(true)}
-                            isLoading={isLoading || isSwappingLoading}
+                            <Button className="w-[97%] text-lg !rounded-2xl"
+                                onClick={() => setChoosingBudget(true)}
+                                isLoading={isLoading || isSwappingLoading}
                             >
                                 Swap
                             </Button> :
-                            <div className="w-full bg-greylish py-4 text-white rounded-md text-sm">
+                            <div className="w-[97%] bg-greylish py-3 text-white rounded-md text-lg">
                                 Insufficient {token1.symbol} balance
                             </div>
                         :
-                        <div className="w-full bg-greylish py-4 text-white rounded-md text-sm">
+                        <div className="w-[97%] bg-greylish py-3 text-white rounded-md text-lg">
                             Insufficient liquidity for this trade
                         </div>
                     }
