@@ -295,7 +295,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         {revokeFnLoading ? <Loader size={14} /> : "Reject"}
                                     </span>
                                 </div>}
-                                {!tx.confirmations.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ?
+                                {!tx.confirmations.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.confirmations.length ?
                                     <>
                                         <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(false)}>
                                             <span className="tracking-wider" >
@@ -383,7 +383,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     <td className="p-0">
                         <div className="flex items-center h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700">
                             {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.rejection.isExecuted || tx.isExecuted ? <></> :
-                                !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) ?
+                                !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
                                         <div className="tracking-wider" >
                                             {confirmFnLoading ? <Loader size={14} /> : "Sign"}
