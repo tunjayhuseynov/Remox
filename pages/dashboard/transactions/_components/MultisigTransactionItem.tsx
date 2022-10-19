@@ -361,7 +361,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </td>
                     <td className="border-t dark:border-gray-700 border-gray-100"></td>
                     <td className="border-t dark:border-gray-700 border-gray-100"></td>
-                    <td className="self-center w-[100%] h-full border-t dark:border-gray-700 border-gray-100 pt-4">
+                    <td className="self-center w-[100%] h-full border-t dark:border-gray-700 border-gray-100 pt-5">
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
@@ -381,7 +381,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         </div>
                     </td>
                     <td className="p-0">
-                        <div className="flex items-center h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-end h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700 pb-2">
                             {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.rejection.isExecuted || tx.isExecuted ? <></> :
                                 !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
