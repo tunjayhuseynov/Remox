@@ -23,7 +23,7 @@ export default function Dashboard() {
                         + Add Wallet
                     </Button>
                 </div>
-                <div className="grid grid-cols-2 gap-x-14 gap-y-12 pb-4">
+                <div className="grid grid-cols-2 gap-x-5 gap-y-12 pb-4">
                     {accounts.map((item) => {
                         return <WalletList item={item} key={item.id} />
                     })}

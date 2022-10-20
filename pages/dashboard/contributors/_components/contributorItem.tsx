@@ -66,7 +66,7 @@ const ContributorItem = ({ member }: PageProps) => {
     return <>
         {
             deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-4'}>
-                <Delete name={member.fullname} onDelete={onDelete} onCurrentModal={setDeleteModal} />
+                <Delete name={`"${member.fullname}" contributor`} onDelete={onDelete} onCurrentModal={setDeleteModal} />
             </Modal>
         }
         <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%]  text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
