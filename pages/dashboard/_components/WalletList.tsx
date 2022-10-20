@@ -80,7 +80,7 @@ function WalletList({ item }: { item: IAccountORM }) {
             </Box>
         </MuiModal>
 
-        <div className="w-full shadow-15 pt-2 rounded-md bg-white dark:bg-darkSecond min-w-[50%] hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
+        <div className="shadow-15 pt-2 rounded-md bg-white dark:bg-darkSecond w-[21.25rem] hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
             <div className="w-full">
                 <div className="pb-2 border-b dark:border-[#454545]">
                     <div className="flex justify-between items-center">

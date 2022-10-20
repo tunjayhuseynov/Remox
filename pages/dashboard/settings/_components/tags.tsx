@@ -63,7 +63,7 @@ export default function TagsSetting() {
       setStateTags(tags);
     } else {
       const filteredCoins = tags.filter((tag) =>
-        tag.name.toLowerCase().includes(e.target.value.toLowerCase())
+        tag.name.toLowerCase().startsWith(e.target.value.toLowerCase())
       );
       setStateTags(filteredCoins);
     }

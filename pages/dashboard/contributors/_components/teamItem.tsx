@@ -83,7 +83,7 @@ const teamItem = ({ props }: { props: IContributor }) => {
                 </div>
             </div>
             {deleteModal && <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-2'}>
-                <Delete name={props.name} onCurrentModal={setDeleteModal} onDelete={DeleteTeam} />
+                <Delete name={`"${props.name}" team`} onCurrentModal={setDeleteModal} onDelete={DeleteTeam} />
             </Modal>}
         </>
     )
