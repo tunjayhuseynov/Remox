@@ -4,7 +4,7 @@ import { ITag, ITxTag } from "pages/api/tags/index.api"
 import { RootState } from "redux/store"
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase"
 import { generate } from "shortid"
-import { addTransactionHashToTag, removeTransactionHashFromTag } from "../remoxData"
+import { addTransactionHashToTag, removeTransactionHashFromTag, updateTag } from "../remoxData"
 
 
 
@@ -31,13 +31,21 @@ export const CreateTag = createAsyncThunk<ITag, { id: string, color: string, nam
     return tag;
 })
 
-export const UpdateTag = createAsyncThunk<{ newTag: ITag, oldTag: ITag }, { id: string, oldTag: ITag, newTag: ITag }>("remoxData/updateTag", async ({ id, oldTag, newTag }) => {
+export const UpdateTag = createAsyncThunk<{ newTag: ITag, oldTag: ITag }, { id: string, oldTag: ITag, newTag: ITag }>("remoxData/updateTag", async ({ id, oldTag, newTag }, API) => {
     await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
         tags: arrayRemove(oldTag)
     })
     await FirestoreWrite<{ tags: any }>().updateDoc('tags', id, {
         tags: arrayUnion(newTag)
     })
+
+    API.dispatch(updateTag({
+        id: id,
+        color: newTag.color,
+        name: newTag.name,
+        isDefault: newTag.isDefault,
+        transactions: newTag.transactions
+    }))
 
     return { newTag, oldTag };
 })

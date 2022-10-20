@@ -1,6 +1,5 @@
 import { useEffect, Dispatch, Fragment, useState, useMemo } from 'react'
 import { createPortal } from "react-dom"
-import { useModalSideExit } from "hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { ERC20MethodIds, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IFormattedTransaction, IRemoveOwner, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { AltCoins, TransactionDirection } from "types";
@@ -13,7 +12,7 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks, SelectTags, SelectID } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import Tooltip from '@mui/material/Tooltip';
@@ -22,6 +21,13 @@ import { FiRepeat } from 'react-icons/fi'
 import useLoading from 'hooks/useLoading';
 import Loader from 'components/Loader';
 import { ToastRun } from 'utils/toast';
+import { AiOutlineDown } from 'react-icons/ai';
+import EditableTextInput from 'components/general/EditableTextInput';
+import { TwitterPicker } from 'react-color';
+import { CreateTag, UpdateTag } from 'redux/slices/account/thunks/tags';
+import { nanoid } from '@reduxjs/toolkit';
+import { AddTransactionToTag } from 'redux/slices/account/thunks/tags'
+import useAsyncEffect from 'hooks/useAsyncEffect';
 
 interface IProps {
     // date: string;
@@ -68,11 +74,19 @@ const Detail = ({
 
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
 
+    const myTag = tags?.[0]
+
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const symbol = useAppSelector(SelectFiatSymbol)
     const hp = useAppSelector(SelectHistoricalPrices)
     const budgets = useAppSelector(SelectAllBudgets)
     const streamings = useAppSelector(SelectAlldRecurringTasks)
+    const allTags = useAppSelector(SelectTags)
+    const selectedId = useAppSelector(SelectID)
+
+    const [color, setColor] = useState<string>(myTag?.color || '#000000')
+    const [colorPicker, setColorPicker] = useState(false)
+    const [name, setName] = useState<string>(myTag?.name)
 
     const dispatch = useAppDispatch()
 
@@ -172,6 +186,63 @@ const Detail = ({
 
     const [isRemovingBudget, removeBudget] = useLoading(RemoveBudget)
 
+    const addLabelHandler = async () => {
+        const findTag = allTags.find(s => s.name === name)
+        if (findTag?.name === myTag?.name && findTag?.color === myTag?.color) return
+        if (!selectedId) return ToastRun("Please login to create a label", "error")
+        if (!findTag && color) {
+            if (!name) return ToastRun("Please enter a name for the label", "error")
+            if (!color) return ToastRun("Please select a color for the label", "error")
+            const newTag = await dispatch(CreateTag({
+                color: color,
+                id: selectedId,
+                name: name
+            })).unwrap()
+            try {
+                await dispatch(AddTransactionToTag({
+                    tagId: newTag.id,
+                    transaction: {
+                        id: nanoid(),
+                        address: transaction.address,
+                        hash: transaction.hash,
+                        contractType: isMultisig ? "multi" : "single",
+                        provider: account?.provider ?? null
+                    },
+                    txIndex: txIndex
+                })).unwrap()
+                // setLabelLoading(false)
+            } catch (error) {
+                ToastRun(<>{(error as any).message}</>, "error");
+            }
+        } else if (findTag && color && myTag?.color !== color && myTag) {
+            const old = findTag
+            if (!old) return ToastRun("Cannot find the label", "error")
+            await dispatch(UpdateTag({
+                id: selectedId,
+                newTag: {
+                    id: old.id,
+                    name: name,
+                    color: color,
+                    isDefault: old.isDefault,
+                    transactions: old.transactions
+                },
+                oldTag: old
+            }))
+        }
+    }
+
+    useAsyncEffect(async () => {
+        if (name && color) {
+            console.log("add label")
+            console.log(name, color)
+            await addLabelHandler()
+        }
+    }, [name, color])
+
+    const colorHandler = (color: { hex: string }) => {
+        setColor(color.hex)
+    }
+
     return mounted ? createPortal(
         <AnimatePresence>
             {openDetail &&
@@ -203,7 +274,7 @@ const Detail = ({
                                         </div>
                                         <div className="pt-3 flex flex-col gap-7 items-center">
                                             {transfer && (
-                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} amountImageThenName/>
+                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} amountImageThenName />
                                             )}
                                             {
                                                 transferBatch && (
@@ -383,17 +454,37 @@ const Detail = ({
                                         />
                                     </div>
                                 </div>} */}
-                                {tags.length > 0 && <div className="flex justify-between items-center w-full">
+                                <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Tags</div>
                                     <div className="flex">
-                                        {tags.map((tag, index) => {
-                                            return <div key={tag.id} className="flex space-x-1 items-center">
-                                                <div className="w-[0.7rem] h-[0.7rem] rounded-full" style={{ backgroundColor: tag.color }}></div>
-                                                <div className="!mt-0 text-base">{tag.name}</div>
+                                        <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
+                                            <div className="py-1 pl-3">
+                                                <div className="w-1 h-4" style={{
+                                                    backgroundColor: color,
+                                                }} />
                                             </div>
-                                        })}
+                                            <div className="border-l px-2 py-1">
+                                                <AiOutlineDown size={"0.75rem"} />
+                                            </div>
+                                            {colorPicker &&
+                                                <ClickAwayListener onClickAway={() => { setColorPicker(false) }}>
+                                                    <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
+                                                        <TwitterPicker onChange={colorHandler} />
+                                                    </div>
+                                                </ClickAwayListener>
+                                            }
+                                        </div>
+                                        <div>
+                                            <EditableTextInput
+                                                defaultValue={myTag?.name ?? ""}
+                                                placeholder="Tag name"
+                                                onSubmit={async (val) => {
+                                                    setName(val)
+                                                }}
+                                            />
+                                        </div>
                                     </div>
-                                </div>}
+                                </div>
                                 {selectedNote && selectedNote.attachLink && <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Attach Link</div>
                                     <Tooltip title={selectedNote.attachLink!}>
