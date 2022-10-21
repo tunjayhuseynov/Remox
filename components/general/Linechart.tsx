@@ -108,6 +108,8 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
       series={series}
       height={315}
       type={'area'}
+      className={'w-full h-full rounded-full flex '}
+
     />
   </div>
 }

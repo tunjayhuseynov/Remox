@@ -164,7 +164,7 @@ const Sidebar = () => {
                 <div className="grid grid-rows-[95%,1fr] pb-4  h-full">
                     <div>
                         <Siderbarlist showbar={showBar} />
-                        <Button className="px-8 !py-[.5rem] !text-lg  mb-10  w-full font-semibold" onClick={() => {
+                    <Button className="px-8 !py-[.5rem] !text-sm  mb-10  w-full font-semibold" onClick={() => {
                             navigator.push("/dashboard/choose-budget?page=pay")
                         }}>Send</Button>
                     </div>

@@ -1,14 +1,10 @@
 import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
-import { removeStorage } from 'redux/slices/account/storage'
 import { useDispatch } from 'react-redux'
-import { removeTransactions } from 'redux/slices/account/transactions'
 import { useAppSelector } from 'redux/hooks';
 import React from "react";
 import { changeDarkMode, SelectDarkMode, SelectIsModerator, setResetRemoxData } from 'redux/slices/account/remoxData';
-import { useCelo } from "@celo/react-celo";
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
