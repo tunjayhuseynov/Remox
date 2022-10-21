@@ -39,13 +39,13 @@ export const UpdateTag = createAsyncThunk<{ newTag: ITag, oldTag: ITag }, { id: 
         tags: arrayUnion(newTag)
     })
 
-    API.dispatch(updateTag({
-        id: id,
-        color: newTag.color,
-        name: newTag.name,
-        isDefault: newTag.isDefault,
-        transactions: newTag.transactions
-    }))
+    // API.dispatch(updateTag({
+    //     id: oldTag.id,
+    //     color: newTag.color,
+    //     name: newTag.name,
+    //     isDefault: newTag.isDefault,
+    //     transactions: newTag.transactions
+    // }))
 
     return { newTag, oldTag };
 })

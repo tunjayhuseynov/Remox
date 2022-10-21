@@ -5,16 +5,20 @@ import Web3 from 'web3'
 import ERC20 from 'rpcHooks/ABI/ERC.json'
 import { AbiItem } from './ABI/AbiItem'
 import { AltCoins } from 'types'
+import { useCelo } from '@celo/react-celo'
 
 export default function useAllowance() {
     // const { kit, address } = useContractKit()
+    const { kit } = useCelo()
+    const providerKit = kit.connection.web3.givenProvider
+
     const [loading, setLoading] = useState(false)
 
     const allow = async (address: string, coin: AltCoins, spender: string, etherAmount: string, payer: string) => {
         setLoading(true)
         try {
 
-            const web3 = new Web3((window as any).celo)
+            const web3 = new Web3(providerKit)
 
             const contract = new web3.eth.Contract(ERC20 as AbiItem[], coin.address)
             const allowance = await contract.methods.allowance(address, spender).call()
@@ -40,7 +44,7 @@ export default function useAllowance() {
     const disallow = async (address: string, contractAddress: string, spender: string, etherAmount: string) => {
         setLoading(true)
         try {
-            const web3 = new Web3((window as any).celo)
+            const web3 = new Web3(providerKit)
 
             const contract = new web3.eth.Contract(ERC20 as AbiItem[], contractAddress)
             const allowance = await contract.methods.allowance(address, spender).call()

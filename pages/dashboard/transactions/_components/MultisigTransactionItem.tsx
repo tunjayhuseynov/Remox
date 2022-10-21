@@ -26,7 +26,16 @@ import AddLabel from './tx/AddLabel';
 import { ClickAwayListener } from '@mui/material';
 
 
-interface IProps { isDetailOpen?: boolean, address: string | undefined, tx: ITransactionMultisig, blockchain: BlockchainType, direction: TransactionDirection, tags: ITag[], txPositionInRemoxData: number, account?: IAccount }
+interface IProps {
+    isDetailOpen?: boolean,
+    address: string | undefined,
+    tx: ITransactionMultisig,
+    blockchain: BlockchainType,
+    direction: TransactionDirection,
+    tags: ITag[],
+    txPositionInRemoxData: number,
+    account?: IAccount
+}
 const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account, isDetailOpen }, ref) => {
     const transaction = tx.tx;
     const timestamp = tx.timestamp;
@@ -157,17 +166,18 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     return (
         <>
             <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
-                <td className="text-left p-0">
+                <td className="text-left p-0 pt-1 flex space-x-2">
+                    {!tx.isExecuted && tx.nonce && <div className="font-medium text-sm w-6 h-6 bg-gray flex justify-center items-center self-center rounded-md">{tx.nonce}</div>}
                     <div className="relative inline">
                         <span className="font-medium text-sm">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
                         <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+tx.timestamp * 1e3), "HH:MM")}</span>
                     </div>
                     {/* <div className="bg-light dark:bg-dark w-[150%] h-full mt-5 -ml-5"></div> */}
                 </td>
-                <td className="text-left p-0">
+                <td className="text-left p-0 flex items-center">
                     <div className="flex items-center space-x-3">
-                        <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-7 h-7 rounded-full" />
-                        <div className="text-sm truncate font-semibold pr-5">
+                        <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] rounded-full" />
+                        <div className="text-sm truncate font-medium pr-5">
                             {account?.name ?? "N/A"}
                         </div>
                         {transaction.isError &&
@@ -178,8 +188,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </div>
                     {/* <div className="bg-light dark:bg-dark w-[75%] h-full mt-4"></div> */}
                 </td>
-                <td className="text-left">
-                    <div className="flex space-x-3">
+                <td className="text-left flex items-center">
+                    <div className="grid grid-cols-[1.875rem,1fr] gap-x-[4px]">
                         <div className="w-[1.875rem] h-[1.875rem]">
                             <Image
                                 src={image}
@@ -190,11 +200,11 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 className="rounded-full"
                             />
                         </div>
-                        <div className="flex flex-col text-left">
-                            <span className="font-semibold text-left text-sm">
+                        <div className="grid grid-rows-[18px,12px] text-left">
+                            <span className="font-medium text-left text-sm leading-none pt-[2px]">
                                 {action}
                             </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-200">
+                            <span className="text-xxs font-medium text-gray-500 dark:text-gray-200 leading-none">
                                 {name}
                             </span>
                         </div>
@@ -279,7 +289,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
-                        <div className="h-2 w-full rounded-lg bg-gray-300 relative" >
+                        <div className="h-2 w-[90%] rounded-lg bg-gray-300 relative" >
                             <div className={`absolute left-0 top-0 h-2 ${tx.isExecuted ? "bg-green-500" : tx.confirmations.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.isExecuted ? "100%" : Math.min(((tx.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />
@@ -337,8 +347,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 {tx.rejection && <>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
-                    <td className="border-t dark:border-gray-700 border-gray-100 -mx-6 pl-6">
-                        <div className="flex space-x-3 pt-5">
+                    <td className="border-t dark:border-gray-700 border-gray-100 -mx-6 pl-6 flex items-end">
+                        <div className="grid grid-cols-[1.875rem,1fr] gap-x-[4px]">
                             <div className="w-[1.875rem] h-[1.875rem]">
                                 <Image
                                     src={image}
@@ -349,11 +359,11 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     className="rounded-full"
                                 />
                             </div>
-                            <div className="flex flex-col text-left">
-                                <span className="font-semibold text-left text-sm text-[#E84142]">
+                            <div className="grid grid-rows-[18px,12px] text-left">
+                                <span className="font-medium pt-[2px] leading-none text-left text-sm text-[#E84142]">
                                     Reject
                                 </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-200">
+                                <span className="text-xxs text-gray-500 dark:text-gray-200 leading-none">
                                     {name}
                                 </span>
                             </div>
@@ -374,7 +384,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 {tx.rejection.isExecuted ? tx.contractThresholdAmount : tx.rejection.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
-                        <div className="h-2 w-full rounded-lg bg-gray-300 relative" >
+                        <div className="h-2 w-[90%] rounded-lg bg-gray-300 relative" >
                             <div className={`absolute left-0 top-0 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.confirmations.length === 0 || tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.rejection.isExecuted ? "100%" : Math.min(((tx.rejection.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />

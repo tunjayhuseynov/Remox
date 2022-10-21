@@ -108,13 +108,13 @@ const SingleTransactionItem = ({
   return (
     <>
       <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
-        <td className="text-left">
+        <td className="text-left pt-1">
           <div className="relative inline">
             <span className="font-medium text-sm">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
             <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
           </div>
         </td>
-        <td className="text-left">
+        <td className="text-left flex items-center">
           <div className="flex items-center space-x-3">
             <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-8 h-8 aspect-square rounded-full" />
             <div className="text-sm truncate font-semibold pr-5">
@@ -123,7 +123,7 @@ const SingleTransactionItem = ({
           </div>
         </td>
         <td className="text-left">
-          <div className="flex space-x-3">
+          <div className="grid grid-cols-[1.875rem,1fr] gap-x-[4px]">
             <div className="w-[1.875rem] h-[1.875rem]">
               <Image
                 src={image}
@@ -134,11 +134,11 @@ const SingleTransactionItem = ({
                 className="rounded-full"
               />
             </div>
-            <div className="flex flex-col text-left">
-              <span className="font-semibold text-left text-sm">
+            <div className="grid grid-rows-[18px,12px] text-left">
+              <span className="font-medium text-left text-sm leading-none pt-[2px]">
                 {action}
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-200">
+              <span className="text-xxs font-medium text-gray-500 dark:text-gray-200 leading-none">
                 {name}
               </span>
             </div>

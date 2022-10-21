@@ -340,7 +340,7 @@ const remoxDataSlice = createSlice({
         builder.addCase(UpdateTag.fulfilled, (state, action) => {
             state.tags = [...state.tags.filter(tag => tag.id !== action.payload.oldTag.id), action.payload.newTag];
             state.cumulativeTransactions = state.cumulativeTransactions.map(transaction => {
-                const tagIndex = transaction.tags.findIndex(s => s.id === action.payload.newTag.id);
+                const tagIndex = transaction.tags.findIndex(s => s.id === action.payload.oldTag.id);
                 if (tagIndex !== -1) {
                     transaction.tags[tagIndex] = action.payload.newTag;
                 }

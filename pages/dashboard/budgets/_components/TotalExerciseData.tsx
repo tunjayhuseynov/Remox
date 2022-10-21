@@ -77,25 +77,25 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
             {
                 total.budgets.length === 0 && <>
                     <div className='grid grid-rows-2 h-full border-r dark:border-[#aaaaaa] px-8'>
-                        <Skeleton variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
-                        <Skeleton variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
+                        <Skeleton animation={false} variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
+                        <Skeleton animation={false} variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
                     </div>
                     <div className={`px-8 border-r dark:border-[#aaaaaa] !my-0`}>
                         <div className='grid grid-rows-2 h-full'>
-                            <Skeleton variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
-                            <Skeleton variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
+                            <Skeleton animation={false} variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
+                            <Skeleton animation={false} variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
                         </div>
                     </div>
                     <div className={`px-8 border-r dark:border-[#aaaaaa] !my-0`}>
                         <div className='grid grid-rows-2 h-full'>
-                            <Skeleton variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
-                            <Skeleton variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
+                            <Skeleton animation={false} variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
+                            <Skeleton animation={false} variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
                         </div>
                     </div>
                     <div className={`px-8 !border-r-0 gap-8 text-2xl min-w-[18rem] items-center justify-center dark:border-[#aaaaaa] !my-0`}>
                         <div className='grid grid-rows-2 h-full'>
-                            <Skeleton variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
-                            <Skeleton variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
+                            <Skeleton animation={false} variant="text" sx={{ fontSize: '0.5rem' }} height="2rem" width={'50%'} />
+                            <Skeleton animation={false} variant="text" sx={{ fontSize: '1rem' }} height="2.5rem" />
                         </div>
                     </div>
                 </>

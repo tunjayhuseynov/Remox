@@ -150,6 +150,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTra
         contractThresholdAmount: contractThreshold,
         contractOwnerAmount: tx.confirmations.length,
         contractOwners: owners,
+        nonce: tx.nonce,
         destination: tx.to,
         hashOrIndex: tx.safeTxHash,
         txHash: tx.transactionHash ?? undefined,

@@ -295,7 +295,7 @@ export default function useWalletKit() {
           const destination = Array.isArray(txData) ? "" : txData.destination as string;
           const data = Array.isArray(txData) ? "" : txData.data as string;
           const value = Array.isArray(txData) ? 0 : txData.value;
-          const web3 = new Web3((window as any).celo);
+          const web3 = new Web3(kit.connection.web3.givenProvider);
 
 
           let option = {

@@ -24,10 +24,11 @@ import { ToastRun } from 'utils/toast';
 import { AiOutlineDown } from 'react-icons/ai';
 import EditableTextInput from 'components/general/EditableTextInput';
 import { TwitterPicker } from 'react-color';
-import { CreateTag, UpdateTag } from 'redux/slices/account/thunks/tags';
+import { CreateTag, RemoveTransactionFromTag, UpdateTag } from 'redux/slices/account/thunks/tags';
 import { nanoid } from '@reduxjs/toolkit';
 import { AddTransactionToTag } from 'redux/slices/account/thunks/tags'
 import useAsyncEffect from 'hooks/useAsyncEffect';
+import { BiTrash } from 'react-icons/bi';
 
 interface IProps {
     // date: string;
@@ -87,6 +88,7 @@ const Detail = ({
     const [color, setColor] = useState<string>(myTag?.color || '#000000')
     const [colorPicker, setColorPicker] = useState(false)
     const [name, setName] = useState<string>(myTag?.name)
+    const [tagDelete, setTagDelete] = useState(false)
 
     const dispatch = useAppDispatch()
 
@@ -187,10 +189,13 @@ const Detail = ({
     const [isRemovingBudget, removeBudget] = useLoading(RemoveBudget)
 
     const addLabelHandler = async () => {
-        const findTag = allTags.find(s => s.name === name)
-        if (findTag?.name === myTag?.name && findTag?.color === myTag?.color) return
+        console.log("add label")
         if (!selectedId) return ToastRun("Please login to create a label", "error")
-        if (!findTag && color) {
+        let id;
+        const findTag = allTags.find(s => s.name === name)
+        if (findTag?.name === myTag?.name && findTag?.color === color) {
+            id = findTag.id
+        } else if (!findTag && color) {
             if (!name) return ToastRun("Please enter a name for the label", "error")
             if (!color) return ToastRun("Please select a color for the label", "error")
             const newTag = await dispatch(CreateTag({
@@ -198,9 +203,25 @@ const Detail = ({
                 id: selectedId,
                 name: name
             })).unwrap()
+            id = newTag.id
             try {
+                if (!id) throw new Error("Cannot find the label")
+                if (myTag) {
+                    await dispatch(RemoveTransactionFromTag({
+                        id: id,
+                        tagId: myTag.id,
+                        transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
+                            hash: transaction.hash,
+                            address: transaction.address,
+                            contractType: isMultisig ? "multi" : "single",
+                            id: transaction.id,
+                            provider: account?.provider ?? null,
+                        },
+                        txIndex: txIndex
+                    }))
+                }
                 await dispatch(AddTransactionToTag({
-                    tagId: newTag.id,
+                    tagId: id,
                     transaction: {
                         id: nanoid(),
                         address: transaction.address,
@@ -214,7 +235,7 @@ const Detail = ({
             } catch (error) {
                 ToastRun(<>{(error as any).message}</>, "error");
             }
-        } else if (findTag && color && myTag?.color !== color && myTag) {
+        } else if (findTag && color && myTag && myTag?.color !== color) {
             const old = findTag
             if (!old) return ToastRun("Cannot find the label", "error")
             await dispatch(UpdateTag({
@@ -228,13 +249,14 @@ const Detail = ({
                 },
                 oldTag: old
             }))
+            id = old.id
         }
     }
 
     useAsyncEffect(async () => {
         if (name && color) {
-            console.log("add label")
-            console.log(name, color)
+            // console.log("add label")
+            // console.log(name, color)
             await addLabelHandler()
         }
     }, [name, color])
@@ -457,32 +479,60 @@ const Detail = ({
                                 <div className="flex justify-between items-center w-full">
                                     <div className="text-greylish">Tags</div>
                                     <div className="flex">
-                                        <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
-                                            <div className="py-1 pl-3">
-                                                <div className="w-1 h-4" style={{
-                                                    backgroundColor: color,
-                                                }} />
+                                        {!tagDelete && <>
+                                            <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
+                                                <div className="py-1 pl-3">
+                                                    <div className="w-1 h-4" style={{
+                                                        backgroundColor: myTag?.color ?? "#000000",
+                                                    }} />
+                                                </div>
+                                                <div className="border-l px-2 py-1">
+                                                    <AiOutlineDown size={"0.75rem"} />
+                                                </div>
+                                                {colorPicker &&
+                                                    <ClickAwayListener onClickAway={() => { setColorPicker(false) }}>
+                                                        <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
+                                                            <TwitterPicker onChange={colorHandler} />
+                                                        </div>
+                                                    </ClickAwayListener>
+                                                }
                                             </div>
-                                            <div className="border-l px-2 py-1">
-                                                <AiOutlineDown size={"0.75rem"} />
+                                            <div>
+                                                <EditableTextInput
+                                                    defaultValue={myTag?.name ?? ""}
+                                                    placeholder="Tag name"
+                                                    onSubmit={async (val) => {
+                                                        setName(val)
+                                                    }}
+                                                />
                                             </div>
-                                            {colorPicker &&
-                                                <ClickAwayListener onClickAway={() => { setColorPicker(false) }}>
-                                                    <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
-                                                        <TwitterPicker onChange={colorHandler} />
-                                                    </div>
-                                                </ClickAwayListener>
-                                            }
-                                        </div>
-                                        <div>
-                                            <EditableTextInput
-                                                defaultValue={myTag?.name ?? ""}
-                                                placeholder="Tag name"
-                                                onSubmit={async (val) => {
-                                                    setName(val)
-                                                }}
-                                            />
-                                        </div>
+                                            <div className="flex items-center cursor-pointer hover:text-red-500" onClick={async () => {
+                                                if (myTag) {
+                                                    if (!selectedId) return
+                                                    setTagDelete(true)
+                                                    await dispatch(RemoveTransactionFromTag({
+                                                        id: selectedId,
+                                                        tagId: myTag.id,
+                                                        transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
+                                                            hash: transaction.hash,
+                                                            address: transaction.address,
+                                                            contractType: isMultisig ? "multi" : "single",
+                                                            id: transaction.id,
+                                                            provider: account?.provider ?? null,
+                                                        },
+                                                        txIndex: txIndex
+                                                    }))
+                                                }
+                                                setColor("")
+                                                setName("")
+                                                setTagDelete(false)
+                                            }}>
+                                                <BiTrash />
+                                            </div>
+                                        </>}
+                                        {tagDelete && <div className="flex items-center">
+                                            <Loader />
+                                        </div>}
                                     </div>
                                 </div>
                                 {selectedNote && selectedNote.attachLink && <div className="flex justify-between items-center w-full">

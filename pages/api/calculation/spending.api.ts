@@ -72,7 +72,7 @@ export default async function handler(
         const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
 
         const allTxs = specificTxs.data
-        console.log(allTxs)
+
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
         const AccountReq = await AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
         // const AccountReqWeek = AccountInOut(allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)

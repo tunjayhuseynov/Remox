@@ -157,7 +157,7 @@ export default {
         }
 
         if (payload.txIndexInCM != undefined) {
-            console.log("payload.txIndexInCM", payload.txIndexInCM, payload)
+            // console.log("payload.txIndexInCM", payload.txIndexInCM, payload)
             if (state.cumulativeTransactions[payload.txIndexInCM].budget) {
                 state.cumulativeTransactions[payload.txIndexInCM].budget!.txs =
                     [...state.cumulativeTransactions[payload.txIndexInCM].budget!.txs.filter(s => s.contractAddress.toLowerCase() !== payload.tx.contractAddress.toLowerCase() && s.hashOrIndex.toLowerCase() !== payload.tx.hashOrIndex.toLowerCase())]

@@ -136,13 +136,15 @@ const Sidebar = () => {
                                             </div>
                                         })}
                                         <div className="flex flex-col dark:hover:bg-white dark:hover:bg-opacity-5" onClick={() => { navigator.push('/create-organization') }}>
-                                            <div className={`rounded-b-md grid grid-cols-[22%,1fr] px-3 py-2 border border-[#D6D6D6] dark:border-greylish border-b`}>
-                                                <div className="items-center flex justify-center">
+                                            <div className={`rounded-b-md px-3 py-2 border border-[#D6D6D6] dark:border-greylish border-b`}>
+                                                {/* <div className="items-center flex justify-center">
                                                     <div className="w-3 h-3 rounded-full border border-primary"></div>
-                                                    {/* <img src={e.image ?? makeBlockie(e.name ?? "random")} className='w-7 h-7 object-cover rounded-full' alt="" /> */}
-                                                </div>
+                                                    {/* <img src={e.image ?? makeBlockie(e.name ?? "random")} className='w-7 h-7 object-cover rounded-full' alt="" /> u
+                                                    
+                                                </div> 
+                                                */}
                                                 <div className='flex pl-1 items-center'>
-                                                    <div className='text-xs text-primary'>Add Organization</div>
+                                                    <div className='text-xs font-semibold text-primary'>+ Add Organization</div>
                                                     {/* <div className='text-xxs text-greylish'>{e.secondValue}</div> */}
                                                 </div>
                                             </div>
@@ -164,7 +166,7 @@ const Sidebar = () => {
                 <div className="grid grid-rows-[95%,1fr] pb-4  h-full">
                     <div>
                         <Siderbarlist showbar={showBar} />
-                        <Button className="px-8 !py-[.5rem] !text-lg  mb-10  w-full font-semibold" onClick={() => {
+                        <Button className="px-8 !py-[.5rem] !text-sm  mb-10  w-full font-medium" onClick={() => {
                             navigator.push("/dashboard/choose-budget?page=pay")
                         }}>Send</Button>
                     </div>
