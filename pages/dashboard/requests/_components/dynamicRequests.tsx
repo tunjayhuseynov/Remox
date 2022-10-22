@@ -198,7 +198,7 @@ export default function DynamicRequest({
         </Modal>
         <table className="w-full pt-4 pb-6 mt-5">
           <thead>
-            <tr className="overflow-hidden grid grid-cols-[25%,20.5%,25.5%,15%,14%] items-center mb-5 font-semibold tracking-wide bg-[#F2F2F2] shadow-15  dark:bg-darkSecond rounded-md  ">
+            <tr className="overflow-hidden grid grid-cols-[25%,20.5%,25.5%,12%,17%] items-center mb-5 font-semibold tracking-wide bg-[#F2F2F2] shadow-15  dark:bg-darkSecond rounded-md  ">
               <th className="flex py-3 items-center space-x-1 pl-2">
                 {page !== RequestStatus.rejected && (
                   <Checkbox
@@ -240,7 +240,7 @@ export default function DynamicRequest({
                 <th className="flex justify-end pr-4">
                   {selectedpPendingRequests.length > 0 && (
                     <Button
-                      className="text-sm !py-1 border-none !my-0 !px-3"
+                      className="!text-sm font-semibold !py-1 border-none !my-0 !px-3"
                       onClick={() => {
                         setNotify2(true);
                       }}
@@ -250,7 +250,7 @@ export default function DynamicRequest({
                  </th>
                 }
                 {page === RequestStatus.approved &&
-                  <th className="flex justify-end pr-4">
+                  <th className="!text-sm font-semibold flex justify-end pr-4">
                     {selectedApprovedRequests.length > 0 && (
                     <Button
                       className="text-sm !py-1 border-none !my-0 !px-3"

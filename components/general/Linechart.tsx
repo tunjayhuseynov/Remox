@@ -26,13 +26,14 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     noData: {
       text: "You do not have any transactions yet",
     },
+    
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
     grid: {
       show: false,
       padding: {
-        left: 20,
-        right: 40 // Also you may want to increase this (based on the length of your labels)
+        left: 15,
+        right: 20, // Also you may want to increase this (based on the length of your labels)
 
         // left: chartDate === "month" ? 17 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 15,
         // right: chartDate === "month" ? 20 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 20,
@@ -40,7 +41,6 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     },
     tooltip: {
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-        const label = w?.globals?.labels;
         const date = keys[dataPointIndex];
 
         return (
@@ -63,7 +63,7 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
           </div>
           </div>`
         );
-      }
+      },
       // x: {
       //   show: true,
       //   format: "dd MMM yyyy - hh:mm"
@@ -102,16 +102,17 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     },
   };
 
-  return <div className="h-full w-full">
+  return <div className="w-full h-full">
     <ReactApexChart
       options={options}
       series={series}
       height={315}
       type={'area'}
       className={'w-full h-full rounded-full flex '}
-
     />
+
   </div>
+    
 }
 
 export default LineChart;

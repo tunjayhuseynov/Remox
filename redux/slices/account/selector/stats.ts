@@ -49,8 +49,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     if (balance[item.fee.name.symbol]) {
                         balance[item.fee.name.symbol].amount += DecimalConverter(item.fee.amount, item.fee.name.decimals);
                     }
-                    console.log(((item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals)))
-                    console.log(item.name.symbol, balance[item.name.symbol].amount)
+                
                     // if (!timeCoins[flowKey][item.name.symbol]) {
                     timeCoins[flowKey][item.name.symbol] = balance[item.name.symbol].amount
 
@@ -62,7 +61,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     return a;
                 }, 0);
             })
-            console.log("TimeCoins: ", timeCoins)
+            // console.log("TimeCoins: ", timeCoins)
             let totalBalance = 0;
             accounts.forEach((account) => {
                 account.coins.forEach((coin) => {

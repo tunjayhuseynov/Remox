@@ -20,8 +20,8 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
 
     const price = hpCoinPrice ? DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice : fiatPrice
 
-    return <div className="flex space-x-2">
-        {amountImageThenName ? <>
+    return <>
+        {amountImageThenName ? <div className="flex space-x-2">
             <span className="text-sm text-left">
                 {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
             </span>
@@ -34,25 +34,28 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
                 /> : <div className="w-full h-full rounded-full bg-gray-500" />}
             </div>
             <div className="text-sm">{transfer.coin.symbol}</div>
-        </> :
-            <>
-                <div className="w-[1.5rem] h-[1.5rem]">
-                    {transfer?.coin?.logoURI ? <img
-                        src={transfer.coin.logoURI}
-                        width="100%"
-                        height="100%"
-                        className="rounded-full"
-                    /> : <div className="w-full h-full rounded-full bg-gray-500" />}
-                </div>
-                <div className="flex flex-col text-left">
-                    <span className="font-semibold text-left">
+        </div> :
+            <div className="flex flex-col">
+                <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
+                    <div className="w-[1.25rem] h-[1.25rem]">
+                        {transfer?.coin?.logoURI ? <img
+                            src={transfer.coin.logoURI}
+                            width="100%"
+                            height="100%"
+                            className="rounded-full"
+                        /> : <div className="w-full h-full rounded-full bg-gray-500" />}
+                    </div>
+                    <span className="font-medium text-sm text-left leading-none self-center gap-x-[7px]">
                         {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-200">
-                        {`${symbol}`}<NG fontSize={0.75} number={price.toFixed(0).length > 18 ? 0 : price} />
+                </div>
+                <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
+                    <div></div>
+                    <span className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200">
+                        {`${symbol}`}<NG fontSize={0.625} decimalSize={100} number={price.toFixed(0).length > 18 ? 0 : price} />
                     </span>
                 </div>
-            </>
+            </div>
         }
-    </div>
+    </>
 }

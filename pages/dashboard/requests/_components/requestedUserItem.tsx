@@ -173,7 +173,7 @@ const RequestedUserItem = ({
     <>
       <tr
         ref={divRef}
-        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : ""}  grid-cols-[25%,20.5%,25.5%,15%,14%]`}
+        className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : ""}  grid-cols-[25%,20.5%,25.5%,12%,17%]`}
       >
         <td className="flex overflow-hidden">
           <div className="flex items-center ml-2 mr-3">
@@ -326,7 +326,7 @@ const RequestedUserItem = ({
               isLoading={isExecuting}
               onClick={() => setChooseBudget(true)}
             >
-              Confirm & Submit
+              Pay
             </Button>
           </div>}
         </div>

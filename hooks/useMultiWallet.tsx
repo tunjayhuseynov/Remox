@@ -20,7 +20,6 @@ import { Create_Account_For_Individual, Create_Account_For_Organization } from '
 import { GetTime } from 'utils';
 import { generate } from 'shortid';
 import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh/refresh';
-import { setProviderAddress } from 'redux/slices/account/remoxData';
 
 
 export enum WalletIds {

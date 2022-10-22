@@ -72,7 +72,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     aria-controls="panel2d-content"
                     className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark  !min-h-[2rem] !pb-0 !rounded-md"
                     id="panel2d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-semibold  text-xs leading-4 ">Payments</span>
+                    <span className="font-sans font-medium  text-xs leading-4 ">Payments</span>
                 </AccordionSummary>
                 <AccordionDetails >
                     <div>
@@ -90,7 +90,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     aria-controls="panel1d-content"
                     className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark   !min-h-[2rem]  !pb-0 !rounded-md"
                     id="panel1d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-semibold  text-xs  leading-4 ">Analytics</span>
+                    <span className="font-sans font-medium  text-xs  leading-4 ">Analytics</span>
                 </AccordionSummary>
                 <AccordionDetails  >
                     <div>
@@ -107,7 +107,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     aria-controls="panel3d-content"
                     className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark !min-h-[2rem] !pb-0 !rounded-md"
                     id="panel3d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-semibold  text-xs  leading-4 ">Investments</span>
+                    <span className="font-sans font-medium  text-xs  leading-4 ">Investments</span>
                 </AccordionSummary>
                 <AccordionDetails >
                     <div>
@@ -121,7 +121,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
 
                 <div className="flex gap-8 items-center justify-center  pt-1 pb-5">
                     <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <SettingSVG active={isActive} darkMode={darkMode} />}</NavLink>
-                    {!darkMode ? <DarkModeOutlinedIcon onClick={darkModee} className=" hover:text-greylish self-center cursor-pointer" /> : <LightModeOutlinedIcon onClick={darkModee} className="hover:text-greylish  self-center cursor-pointer" />}
+                    {!darkMode ? <DarkModeOutlinedIcon onClick={darkModee} className=" hover:text-greylish self-center cursor-pointer !text-xl" /> : <LightModeOutlinedIcon onClick={darkModee} className="hover:text-greylish  self-center cursor-pointer !text-xl" />}
                     <span className="cursor-pointer text-red" onClick={() => {
                         dispatch(setResetRemoxData())
                         router.push('/')
@@ -145,33 +145,33 @@ const NavLink = ({ children, to, className, end = false, customPath }: { end?: b
 
 }
 
-const DashboardSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/dashboard_active.png' : darkMode ? '/icons/sidebar/dashboard_white.png' : '/icons/sidebar/dashboard.png'} alt='Dashboard' />
+const DashboardSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/dashboard_active.png' : darkMode ? '/icons/sidebar/dashboard_white.png' : '/icons/sidebar/dashboard.png'} alt='Dashboard' />
 
-const AutomationsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem] mb-1`} src={active ? '/icons/sidebar/refresh_active.png' : darkMode ? '/icons/sidebar/refresh_white.png' : '/icons/sidebar/refresh.png'} alt="Automations" />
+const AutomationsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4 mb-1`} src={active ? '/icons/sidebar/refresh_active.png' : darkMode ? '/icons/sidebar/refresh_white.png' : '/icons/sidebar/refresh.png'} alt="Automations" />
 
-const PayrollSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/payroll_active.png' : darkMode ? '/icons/sidebar/payroll_white.png' : '/icons/sidebar/payroll.png'} alt="Payroll" />
+const PayrollSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/payroll_active.png' : darkMode ? '/icons/sidebar/payroll_white.png' : '/icons/sidebar/payroll.png'} alt="Payroll" />
 
-const RequestsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? "/icons/sidebar/requests_active.png" : darkMode ? '/icons/sidebar/requests_white.png' : '/icons/sidebar/requests.png'} alt="Requests" />
+const RequestsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/requests_active.png" : darkMode ? '/icons/sidebar/requests_white.png' : '/icons/sidebar/requests.png'} alt="Requests" />
 
-const TransactionsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? "/icons/sidebar/transaction_active.png" : darkMode ? '/icons/sidebar/transaction_white.png' : '/icons/sidebar/transaction.png'} alt="Transaction" />
+const TransactionsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/transaction_active.png" : darkMode ? '/icons/sidebar/transaction_white.png' : '/icons/sidebar/transaction.png'} alt="Transaction" />
 
-const SwapSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/swap_active.png' : darkMode ? '/icons/sidebar/swap_white.png' : '/icons/sidebar/swap.png'} alt="Swap" />
+const SwapSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/swap_active.png' : darkMode ? '/icons/sidebar/swap_white.png' : '/icons/sidebar/swap.png'} alt="Swap" />
 
-const BorrowSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/borrow_active.png' : darkMode ? '/icons/sidebar/borrow_white.png' : '/icons/sidebar/borrow.png'} alt="Swap" />
+const BorrowSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/borrow_active.png' : darkMode ? '/icons/sidebar/borrow_white.png' : '/icons/sidebar/borrow.png'} alt="Swap" />
 
-const AssetsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/managment_active.png' : darkMode ? '/icons/sidebar/managment_white.png' : '/icons/sidebar/managment.png'} alt="Asset" />
+const AssetsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/managment_active.png' : darkMode ? '/icons/sidebar/managment_white.png' : '/icons/sidebar/managment.png'} alt="Asset" />
 
-const RiskSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/risk_active.png' : darkMode ? '/icons/sidebar/risk.png' : '/icons/sidebar/risk_white.png'} alt="Risk" />
+const RiskSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/risk_active.png' : darkMode ? '/icons/sidebar/risk.png' : '/icons/sidebar/risk_white.png'} alt="Risk" />
 
-const TeamsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/team_active.png' : darkMode ? '/icons/sidebar/team_white.png' : '/icons/sidebar/team.png'} alt="Teams" />
+const TeamsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/team_active.png' : darkMode ? '/icons/sidebar/team_white.png' : '/icons/sidebar/team.png'} alt="Teams" />
 
-const BudgetsSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? '/icons/sidebar/budget_active.png' : darkMode ? '/icons/sidebar/budget_white.png' : '/icons/sidebar/budget.png'} alt="Budgets" />
+const BudgetsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/budget_active.png' : darkMode ? '/icons/sidebar/budget_white.png' : '/icons/sidebar/budget.png'} alt="Budgets" />
 
-const SettingSVG = ({ active = false, darkMode = true }) => <SettingsOutlinedIcon className={`${active ? 'text-primary' : darkMode ? 'text-white' : 'text-black'} hover:text-greylish`} />
+const SettingSVG = ({ active = false, darkMode = true }) => <SettingsOutlinedIcon className={`${active ? 'text-primary' : darkMode ? 'text-white' : 'text-black'} hover:text-greylish !text-xl`} />
 
-const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-[1.2125rem] h-[1.2125rem]`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
+const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
 
-const LogoutSVG = ({ darkMode = true }) => <LogoutOutlinedIcon className={`${darkMode ? 'text-white' : 'text-black'} hover:text-greylish`} />
+const LogoutSVG = ({ darkMode = true }) => <LogoutOutlinedIcon className={`${darkMode ? 'text-white' : 'text-black'} hover:text-greylish !text-xl`} />
 
 export default Sidebarlist;
 

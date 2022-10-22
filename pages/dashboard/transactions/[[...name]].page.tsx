@@ -26,6 +26,7 @@ import Loader from "components/Loader";
 import DateTime from 'date-and-time'
 import dateFormat from "dateformat";
 import { IAutomationTransfer } from 'hooks/useTransactionProcess'
+import AnimatedTabBar from "components/animatedTabBar";
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
@@ -37,6 +38,7 @@ const Transactions = () => {
     const navigate = useRouter()
 
     const index = navigate.query?.index as string | undefined;
+    const name = navigate.query?.name as string | undefined;
     const pending = navigate.query?.pending as string | undefined;
 
     const dispatch = useAppDispatch()
@@ -109,10 +111,11 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-            if (pending === "true" && c.isExecuted) return false
+            if ((pending === "true" || !name) && c.isExecuted) return false
+            if (name && !c.isExecuted) return false
         } else {
             // console.log(selectedAccounts, c.address)
-            if (pending === "true") return false
+            if (pending === "true" || !name) return false
             const tx = c as any
             let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
             if (tx.method === ERC20MethodIds.swap) {
@@ -157,9 +160,44 @@ const Transactions = () => {
         return true
 
     }
+    const tabFilterFn = (c: (IFormattedTransaction | ITransactionMultisig), type?: "signing" | "history") => {
+        if ('tx' in c) {
+            if (!type) {
+                if ((pending === "true" || !name) && c.isExecuted) return false
+                if (name && !c.isExecuted) return false
+            } else if (type === "signing") {
+                if (c.isExecuted) return false
+            }else if(type === "history"){
+                if (!c.isExecuted) return false
+            }
+        } else {
+            if (!type) {
+                if (pending === "true" || !name) return false
+            } else if (type === "signing") {
+                return false;
+            }
+        }
+        return true
+    }
     const txs = Txs?.filter(filterFn)
+    if(!name){
+        txs.sort((a, b) => (a as any)?.nonce > (b as any)?.nonce ? 1 : -1)
+    }
 
     const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
+
+    const data = [
+        {
+            to: "/dashboard/transactions",
+            text: "Signing",
+            count: Txs.filter((s) => tabFilterFn(s, "signing")).length.toString(),
+        },
+        {
+            to: "/dashboard/transactions/history",
+            text: "History",
+            count: Txs.filter((s) => tabFilterFn(s, "history")).length.toString(),
+        },
+    ]
     return <>
         <div>
             <div className="flex flex-col space-y-5 gap-14" >
@@ -178,10 +216,13 @@ const Transactions = () => {
                             />
                         </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center w-[32%] mb-5 !text-xl mt-4">
+                        <AnimatedTabBar data={data} index={name ? 1 : 0} fontSize={"!text-xl"} />
+                    </div>
+                    {!!name && <div className="flex justify-between">
                         <div className="flex space-x-5 items-center">
                             <div className="relative" ref={exceptRef} onClick={() => setOpen(true)}>
-                                <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-4 py-2 font-semibold text-sm">
+                                <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white hover:bg-gray hover:bg-opacity-10 border-2 dark:border-gray-500 border-gray-200 px-4 py-1 font-semibold text-sm">
                                     + Add Filter
                                 </div>
                                 <div ref={filterRef} className="absolute bottom-0 translate-y-full z-[900]">
@@ -210,7 +251,7 @@ const Transactions = () => {
                                     </AnimatePresence>
                                 </div>
                             </div>
-                            <div>|</div>
+                            <div className="w-[1px] h-full bg-dark dark:bg-white"></div>
                             <div className="flex space-x-5">
                                 {datePicker.length > 0 &&
                                     <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
@@ -267,7 +308,7 @@ const Transactions = () => {
                             </div>
                         </div>
                         {txs.length > 0 && <div className="py-1">
-                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-2 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
+                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-1 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
                                 const [, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w);
                                 let method = 'tx' in w ? w.tx.method : w.method;
@@ -334,7 +375,7 @@ const Transactions = () => {
                                     'Amount:': swapping ? `${swapping.amountIn} ${swapping.amountInCoin} => ${swapping.amountOut} ${swapping.amountOutCoin}` : amountCoins.map(w => `${w.amount} ${w.coin}`).join(',\n'),
                                     'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
                                     'Date': method === ERC20MethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
-                                    "Labels": w.tags.map(s=>s.name).join(', '),
+                                    "Labels": w.tags.map(s => s.name).join(', '),
                                     "Gas": `${gas} ${gasCoin}`,
                                     "Block Number": blockNumber,
                                     "Transaction Hash": hash,
@@ -346,18 +387,18 @@ const Transactions = () => {
                                 <div className="text-sm">{txs.length !== Txs.length ? "Export Filtered" : "Export All"}</div>
                             </CSVLink>
                         </div>}
-                    </div>
+                    </div>}
                     <div className="mt-5">
                         <table className="w-full">
                             <thead>
                                 <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
-                                    <th className="py-3 self-center text-left">Date</th>
-                                    <th className="py-3 self-center text-left">Wallet</th>
-                                    <th className="py-3 self-center text-left">Type</th>
-                                    <th className="py-3 self-center text-left">Amount</th>
-                                    <th className="py-3 self-center text-left">Labels</th>
-                                    <th className="py-3 self-center text-left">Signatures</th>
-                                    <th className="py-3 flex justify-end pr-[3.25rem]">
+                                    <th className="py-2 self-center text-left">Date</th>
+                                    <th className="py-2 self-center text-left">Wallet</th>
+                                    <th className="py-2 self-center text-left">Type</th>
+                                    <th className="py-2 self-center text-left">Amount</th>
+                                    <th className="py-2 self-center text-left">Labels</th>
+                                    <th className="py-2 self-center text-left">Signatures</th>
+                                    <th className="py-1 flex justify-end pr-[3.25rem]">
                                         <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary hover:bg-primary hover:bg-opacity-5 text-primary rounded-md flex items-center justify-center space-x-2">
                                             {!refreshLoading && <div>
                                                 <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />

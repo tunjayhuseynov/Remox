@@ -154,7 +154,7 @@ export default ({
             isLoading={loading}
             className=" w-[9.375rem] text-lg sm:w-full bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg"
           >
-            Approve Request
+            Confirm & Submit
           </Button>
         </form>
       </div>

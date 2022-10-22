@@ -18,6 +18,17 @@ export default {
             }
             return tag;
         });
+        state.cumulativeTransactions = state.cumulativeTransactions.map(tx => {
+            if (tx.tags) {
+                tx.tags = tx.tags.map(tag => {
+                    if (tag.id === action.payload.id) {
+                        return action.payload;
+                    }
+                    return tag;
+                });
+            }
+            return tx;
+        })
     },
     addTransactionHashToTag: (state: IRemoxData, action: { payload: { tagId: string; txIndex?: number, transactionTag: ITxTag } }) => {
         const tagIndex = state.tags.findIndex(tag => tag.id === action.payload.tagId);
