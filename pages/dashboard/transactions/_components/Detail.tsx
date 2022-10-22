@@ -355,7 +355,14 @@ const Detail = ({
                                     <div className="text-greylish text-sm">Signers</div>
                                     <div>
                                         <div className="flex flex-col items-center justify-center gap-2">
-                                            {signers.map(s => <span key={s} className='text-sm'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name ?? AddressReducer(s)}</span>)}
+                                            {signers.map(s => <span
+                                                onClick={async () => {
+                                                    if (s) {
+                                                        await navigator.clipboard.writeText(s)
+                                                        ToastRun("Copied to clipboard", "success")
+                                                    }
+                                                }}
+                                                key={s} className='text-sm cursor-pointer'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name ?? AddressReducer(s)}</span>)}
                                             {signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
                                         </div>
                                     </div>
@@ -382,11 +389,29 @@ const Detail = ({
                                                     </div>
                                                 }
                                                 {transfer &&
-                                                    <div className="text-sm">
+                                                    <div className="text-sm cursor-pointer"
+                                                        onClick={async () => {
+                                                            let address = transfer!.to.toLowerCase() === account?.address.toLowerCase() ? transfer!.rawData.from : account?.address || transaction.address
+                                                            if (address) {
+                                                                await navigator.clipboard.writeText(address)
+                                                                ToastRun("Copied to clipboard", "success")
+                                                            }
+                                                        }}
+                                                    >
                                                         {transfer.to.toLowerCase() === account?.address.toLowerCase() ? AddressReducer(transfer.rawData.from) : (account?.name || AddressReducer(account?.address || transaction.address))}
                                                     </div>
                                                 }
-                                                {!transfer && !swap && <div>{account?.name || AddressReducer(account?.address || transaction.address)}</div>}
+                                                {!transfer && !swap && <div
+                                                    className="cursor-pointer"
+                                                    onClick={
+                                                        async () => {
+                                                            if (account?.address || transaction.address) {
+                                                                await navigator.clipboard.writeText(account?.address || transaction.address)
+                                                                ToastRun("Copied to clipboard", "success")
+                                                            }
+                                                        }
+                                                    }
+                                                >{account?.name || AddressReducer(account?.address || transaction.address)}</div>}
                                             </div>}
                                         </div>
                                     </div>
@@ -401,11 +426,65 @@ const Detail = ({
                                                     <span>{swap.coinOutMin.symbol}</span>
                                                 </div>
                                             }
-                                            {transfer && <div>{transfer.to.toLowerCase() === account?.address ? (account?.name ?? AddressReducer(account?.address)) : AddressReducer(transfer.to)}</div>}
-                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map((s, index) => <div key={index}>{AddressReducer(s.to)}</div>)}</div>}
-                                            {automation && <div>{AddressReducer(automation.to)}</div>}
-                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map((s, index) => <div key={index}>{AddressReducer(s.to)}</div>)}</div>}
-                                            {automationCanceled && <div>{AddressReducer(automationCanceled.to)}</div>}
+                                            {transfer && <div
+                                                className="cursor-pointer"
+                                                onClick={
+                                                    async () => {
+                                                        let address = transfer!.to.toLowerCase() === account?.address ? account?.address : transfer!.to
+                                                        if (address) {
+                                                            await navigator.clipboard.writeText(address)
+                                                            ToastRun("Copied to clipboard", "success")
+                                                        }
+                                                    }
+                                                }
+                                            >
+                                                {transfer.to.toLowerCase() === account?.address ? (account?.name ?? AddressReducer(account?.address)) : AddressReducer(transfer.to)}
+                                            </div>}
+                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map((s, index) => <div
+                                                className='cursor-pointer'
+                                                onClick={
+                                                    async () => {
+                                                        if (s.to) {
+                                                            await navigator.clipboard.writeText(s.to)
+                                                            ToastRun("Copied to clipboard", "success")
+                                                        }
+                                                    }
+                                                }
+                                                key={index}>{AddressReducer(s.to)}</div>)}</div>}
+                                            {automation && <div
+                                                className="cursor-pointer"
+                                                onClick={
+                                                    async () => {
+                                                        if (automation.to) {
+                                                            await navigator.clipboard.writeText(automation.to)
+                                                            ToastRun("Copied to clipboard", "success")
+                                                        }
+                                                    }
+                                                }
+                                            >{AddressReducer(automation.to)}</div>
+                                            }
+                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map((s, index) => <div
+                                                className='cursor-pointer'
+                                                onClick={
+                                                    async () => {
+                                                        if (s.to) {
+                                                            await navigator.clipboard.writeText(s.to)
+                                                            ToastRun("Copied to clipboard", "success")
+                                                        }
+                                                    }
+                                                }
+                                                key={index}>{AddressReducer(s.to)}</div>)}</div>}
+                                            {automationCanceled && <div
+                                                className="cursor-pointer"
+                                                onClick={
+                                                    async () => {
+                                                        if (automationCanceled.to) {
+                                                            await navigator.clipboard.writeText(automationCanceled.to)
+                                                            ToastRun("Copied to clipboard", "success")
+                                                        }
+                                                    }
+                                                }
+                                            >{AddressReducer(automationCanceled.to)}</div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}
@@ -501,6 +580,7 @@ const Detail = ({
                                                 <EditableTextInput
                                                     defaultValue={myTag?.name ?? ""}
                                                     placeholder="Tag name"
+                                                    letterLimit={15}
                                                     onSubmit={async (val) => {
                                                         setName(val)
                                                     }}

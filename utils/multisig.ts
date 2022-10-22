@@ -127,7 +127,7 @@ export const MultisigTxParser = async (
     return obj;
 }
 
-export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTransaction[], Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, owners: string[], tags: ITag[],) => {
+export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTransaction[], Coins: Coins, blockchainName: string, contractAddress: string, contractThreshold: number, owners: string[], tags: ITag[], nonce: number) => {
     const blockchain = Blockchains.find((b) => b.name === blockchainName);
     if (!blockchain) throw new Error("Blockchain not found");
     let all = txs.filter(s => tx.nonce === s.nonce)
@@ -151,6 +151,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTra
         contractOwnerAmount: tx.confirmations.length,
         contractOwners: owners,
         nonce: tx.nonce,
+        firstNonce: nonce,
         destination: tx.to,
         hashOrIndex: tx.safeTxHash,
         txHash: tx.transactionHash ?? undefined,

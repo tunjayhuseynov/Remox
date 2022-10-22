@@ -175,13 +175,18 @@ export default async (
 
       let decoder = new InputDataDecoder(CyberBoxABI)
       let res = decoder.decodeData(input)
+      const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.feeCurrency || s.address?.toLowerCase() === transaction?.tokenSymbol)
 
       return {
         // rawData: transaction,
+
         rawData: {
           ...transaction,
-          value: +(hexToNumberString(res.inputs[2])) / 10 ** 18
+          value: (res.inputs[2] as BigNumber).div(new BigNumber(10).pow(coin?.decimals || 18)).toString(),
         },
+        coin: coin,
+        to: "0x" + res.inputs[0],
+        amount: (res.inputs[2] as BigNumber).toString(),
         method: ERC20MethodIds.nftTokenERC721,
         hash: transaction.hash,
         id: ERC20MethodIds.nftTokenERC721,

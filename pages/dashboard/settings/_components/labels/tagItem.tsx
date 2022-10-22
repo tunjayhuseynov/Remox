@@ -101,6 +101,7 @@ export default function TagItem({ tag }: { tag: ITag }) {
                         <EditableTextInput
                             defaultValue={tag.name}
                             placeholder="Tag name"
+                            letterLimit={15}
                             onSubmit={async (val) => {
                                 updateName(val)
                             }}

@@ -1,23 +1,19 @@
-import { useWalletKit } from 'hooks';
 import { useRouter } from 'next/router';
-import { removeStorage } from 'redux/slices/account/storage'
 import { useDispatch } from 'react-redux'
-import { removeTransactions } from 'redux/slices/account/transactions'
 import { useAppSelector } from 'redux/hooks';
 import React from "react";
 import { changeDarkMode, SelectDarkMode, SelectIsModerator, setResetRemoxData } from 'redux/slices/account/remoxData';
-import { useCelo } from "@celo/react-celo";
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import useNextSelector from "hooks/useNextSelector";
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
+import { AiOutlinePoweroff } from 'react-icons/ai';
+import { FiPower } from 'react-icons/fi';
 
 
 const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-3 rounded-md mb-2 pl-[.835rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 cursor-pointer ${className} tracking-wide bg-light dark:bg-dark`} title={`${showbar ? '' : text}`} >
@@ -74,8 +70,8 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
             <Accordion expanded={expanded2 === 'panel2'} onChange={handleChange2('panel2')} sx={{ borderRadius: '5px', marginBottom: '10px' }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel2d-content"
-                    className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark  !min-h-[2rem] !pb-0 !rounded-md"
-                    id="panel2d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
+                    className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark  !min-h-[1.875rem] !py-0 !rounded-md"
+                    id="panel2d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
                     <span className="font-sans font-medium  text-xs leading-4 ">Payments</span>
                 </AccordionSummary>
                 <AccordionDetails >
@@ -92,9 +88,9 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
             <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} sx={{ borderRadius: '5px', marginBottom: '10px' }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1d-content"
-                    className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark   !min-h-[2rem]  !pb-0 !rounded-md"
-                    id="panel1d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
-                    <span className="font-sans font-medium  text-xs  leading-4 ">Analytics</span>
+                    className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark !min-h-[1.875rem] !pb-0 !py-0 !rounded-md"
+                    id="panel1d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
+                    <span className="font-sans font-medium text-xs leading-4 ">Analytics</span>
                 </AccordionSummary>
                 <AccordionDetails  >
                     <div>
@@ -109,8 +105,8 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
             <Accordion expanded={expanded3 === 'panel3'} onChange={handleChange3('panel3')} sx={{ borderRadius: '5px', marginBottom: '16px' }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel3d-content"
-                    className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark !min-h-[2rem] !pb-0 !rounded-md"
-                    id="panel3d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '5px', paddingBottom: '5px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
+                    className="hover:bg-[#f9f9f9] dark:bg-darkSecond dark:hover:bg-dark !min-h-[1.875rem] !py-0 !rounded-md"
+                    id="panel3d-header" sx={{ borderRadius: '5px', border: !darkMode ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', '.MuiAccordionSummary-content': { margin: '0px !important' } }}>
                     <span className="font-sans font-medium  text-xs  leading-4 ">Investments</span>
                 </AccordionSummary>
                 <AccordionDetails >
@@ -122,14 +118,13 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                 </AccordionDetails>
             </Accordion>
             {showbar && <><div className=" border-b dark:border-[#454545] my-4 w-full"></div>
-
-                <div className="flex gap-8 items-center justify-center  pt-1 pb-5">
+                <div className="flex gap-7 items-center justify-center  pt-1 pb-5">
                     <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <SettingSVG active={isActive} darkMode={darkMode} />}</NavLink>
                     {!darkMode ? <DarkModeOutlinedIcon onClick={darkModee} className=" hover:text-greylish self-center cursor-pointer !text-xl" /> : <LightModeOutlinedIcon onClick={darkModee} className="hover:text-greylish  self-center cursor-pointer !text-xl" />}
                     <span className="cursor-pointer text-red" onClick={() => {
                         dispatch(setResetRemoxData())
                         router.push('/')
-                    }}><LogoutSVG darkMode={darkMode} />
+                    }}><FiPower />
                     </span>
                 </div></>}
         </ul>

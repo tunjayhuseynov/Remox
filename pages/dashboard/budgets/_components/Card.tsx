@@ -108,8 +108,8 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                         <div className='absolute left-0 top-0 w-full h-full flex'>
                             <div className="h-full bg-primary rounded-l-xl" style={usedPercentStyle}></div>
                             <div className="stripe-1 object-cover h-full" style={pendingPercentStyle}></div>
-                            <div className='relative w-full'>
-                            </div>
+                            {/* <div className='relative w-full'>
+                            </div> */}
                         </div>
                         {/* <div className="w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
                     </div>

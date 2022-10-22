@@ -13,6 +13,14 @@ interface IConfirmationProp {
 }
 
 export default {
+    increaseNonce: (state: IRemoxData, action: { payload: { contractAddress: string, nonce: number } }) => {
+        state.cumulativeTransactions = state.cumulativeTransactions.map(s=>{
+            if('tx' in s && s.contractAddress === action.payload.contractAddress){
+                s.firstNonce = action.payload.nonce;
+            }
+            return s;
+        })
+    },
     addConfirmation: (state: IRemoxData, action: { payload: IConfirmationProp }) => {
         state.cumulativeTransactions = state.cumulativeTransactions.map((tx) => {
             if (!("tx" in tx)) return tx;

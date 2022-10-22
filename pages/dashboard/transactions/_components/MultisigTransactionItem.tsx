@@ -18,12 +18,12 @@ import Image from 'next/image';
 import Dropdown from 'components/general/dropdown';
 import Detail from './Detail';
 import useLoading from 'hooks/useLoading';
-import { addConfirmation, changeToExecuted, removeConfirmation, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import { addConfirmation, changeToExecuted, increaseNonce, removeConfirmation, SelectFiatSymbol } from 'redux/slices/account/remoxData';
 import Loader from 'components/Loader';
 import makeBlockie from 'ethereum-blockies-base64';
 import { FiRepeat } from 'react-icons/fi';
 import AddLabel from './tx/AddLabel';
-import { ClickAwayListener } from '@mui/material';
+import { ClickAwayListener, Tooltip } from '@mui/material';
 
 
 interface IProps {
@@ -77,6 +77,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             if (!account) return ToastRun(<>Cannot get your account</>, "error");
             let hash = rejection && tx.rejection ? tx.rejection.safeTxHash : tx.hashOrIndex
             await executeTransaction(account, hash, tx.provider)
+            if (tx.firstNonce) {
+                dispatch(increaseNonce({
+                    contractAddress: tx.contractAddress,
+                    nonce: tx.firstNonce + 1,
+                }))
+            }
             dispatch(changeToExecuted({
                 contractAddress: tx.contractAddress,
                 ownerAddress: providerAddress,
@@ -165,9 +171,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     return (
         <>
-            <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
-                <td className="text-left p-0 pt-1 flex space-x-2">
-                    {!tx.isExecuted && tx.nonce && <div className="font-medium text-sm w-6 h-6 bg-gray flex justify-center items-center self-center rounded-md">{tx.nonce}</div>}
+            <tr className={`pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond ${tx.rejection ? "mt-5" : "my-5"} rounded-md shadow-custom`}>
+                <td className="text-left p-0 pt-1 flex space-x-2 rounded-md">
+                    {!tx.isExecuted && tx.nonce && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center items-center self-center rounded-md dark:text-black">{tx.nonce}</div>}
                     <div className="relative inline">
                         <span className="font-medium text-sm">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
                         <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+tx.timestamp * 1e3), "HH:MM")}</span>
@@ -314,11 +320,18 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         </div>
                                     </> :
                                     isApprovable ?
-                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(false)}>
-                                            <span className="tracking-wider" >
-                                                {executeFnLoading ? <Loader size={14} /> : "Execute"}
-                                            </span>
-                                        </div> :
+                                        tx.firstNonce !== tx.nonce ?
+                                            <Tooltip title="Please, finish to execute previous transactions">
+                                                <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-grey text-grey hover:bg-gray-400 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
+                                                    <div className="tracking-wider" >
+                                                        {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                    </div>
+                                                </div>
+                                            </Tooltip> : <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(false)}>
+                                                <div className="tracking-wider" >
+                                                    {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                </div>
+                                            </div> :
                                         <>
                                             {tx.provider === "Celo Terminal" &&
                                                 <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
@@ -343,10 +356,11 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         </div>
                     </div>
                 </td>
-
-                {tx.rejection && <>
-                    <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
-                    <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6"></td>
+            </tr>
+            {tx.rejection && <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 pb-5 bg-white dark:bg-darkSecond mb-5 rounded-md ">
+                <>
+                    <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6 p-0"></td>
+                    <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6 p-0"></td>
                     <td className="border-t dark:border-gray-700 border-gray-100 -mx-6 pl-6 flex items-end">
                         <div className="grid grid-cols-[1.875rem,1fr] gap-x-[4px]">
                             <div className="w-[1.875rem] h-[1.875rem]">
@@ -400,11 +414,18 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         </div>
                                     </div> :
                                     tx.contractThresholdAmount <= tx.rejection.confirmations.length ?
-                                        <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(true)}>
+                                        tx.firstNonce !== tx.nonce ? <Tooltip title="Please, finish to execute previous transactions">
+                                            <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-grey text-grey hover:bg-gray-400 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
+                                                <div className="tracking-wider" >
+                                                    {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                </div>
+                                            </div>
+                                        </Tooltip> : <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(true)}>
                                             <div className="tracking-wider" >
                                                 {executeFnLoading ? <Loader size={14} /> : "Execute"}
                                             </div>
-                                        </div> :
+                                        </div>
+                                        :
                                         <></>)
                                 :
                                 <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
@@ -418,8 +439,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </div>
                         </div>
                     </td>
-                </>}
-            </tr>
+                </>
+            </tr>}
             <Detail
                 transaction={{
                     ...transaction,

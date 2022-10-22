@@ -99,12 +99,12 @@ const Sidebar = () => {
     const filteredOrganization = organizationList.filter(s => s.id !== selectedItem.id)
 
     return <>
-        <div className={`hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin fixed w-[16.5%] 2xl:w-[15%] 3xl:w-[15%] h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none  overflow-y-auto pt-28 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
+        <div className={`hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin fixed w-[16.875%] 2xl:w-[15%] 3xl:w-[15%] h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none  overflow-y-auto pt-28 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
             <div className='flex flex-col px-9'>
                 <div className='space-y-1 border border-[#D6D6D6] dark:border-greylish rounded-md w-full px-3 py-1 cursor-pointer relative'>
-                    <div className='grid grid-cols-[22%,58%,1fr]' onClick={() => setSidedown(!sidedown)}>
+                    <div className='grid grid-cols-[25%,55%,1fr]' onClick={() => setSidedown(!sidedown)}>
                         <div className='self-center'>
-                            <img src={selectedItem.image ?? makeBlockie(selectedItem.name ?? "random")} className='w-7 h-7 object-cover rounded-full' alt="" />
+                            <img src={selectedItem.image ?? makeBlockie(selectedItem.name ?? "random")} className='w-[1.875rem] h-[1.875rem] object-cover rounded-full' alt="" />
                         </div>
                         <div className='flex flex-col pl-1'>
                             <div className='text-sm'>{selectedItem.name}</div>
@@ -121,9 +121,9 @@ const Sidebar = () => {
                                     <div>
                                         {filteredOrganization.map((e, i) => {
                                             return <div key={e.id} className="flex flex-col dark:hover:bg-white dark:hover:bg-opacity-5" onClick={() => e.onClick()}>
-                                                <div className={`${i === 0 ? "rounded-t-md" : ""} grid grid-cols-[22%,58%,1fr] px-3 py-1 border border-[#D6D6D6] dark:border-greylish border-b`}>
+                                                <div className={`${i === 0 ? "rounded-t-md" : ""} grid grid-cols-[25%,55%,1fr] px-3 py-1 border border-[#D6D6D6] dark:border-greylish border-b`}>
                                                     <div className="self-center">
-                                                        <img src={e.image ?? makeBlockie(e.name ?? "random")} className='w-7 h-7 object-cover rounded-full' alt="" />
+                                                        <img src={e.image ?? makeBlockie(e.name ?? "random")} className='w-[1.875rem] h-[1.875rem] object-cover rounded-full' alt="" />
                                                     </div>
                                                     <div className='flex flex-col pl-1'>
                                                         <div className='text-sm'>{e.name}</div>
