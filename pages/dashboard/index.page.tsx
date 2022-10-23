@@ -16,8 +16,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-[65%,35%]">
             <div className="flex flex-col space-y-5">
                 <div className="flex justify-between items-center w-full">
-                    <div className="text-xl font-semibold">Connected Wallets</div>
-                    <Button className="text-sm !py-[.5rem]"
+                    <div className="text-xl font-medium">Connected Wallets</div>
+                    <Button className="text-sm font-bold"
                         onClick={() => { route.push("/dashboard/new-wallet") }}
                     >
                         + Add Wallet

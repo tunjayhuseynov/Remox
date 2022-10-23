@@ -1,16 +1,18 @@
 import dynamic from 'next/dynamic';
 import { useAppSelector } from 'redux/hooks';
 import { SelectDarkMode, SelectFiatSymbol } from 'redux/slices/account/remoxData';
+import dateFormat from 'dateformat';
 
 const ReactApexChart = dynamic(
   () => import('react-apexcharts'),
   { ssr: false }
 );
 
-function LineChart({ data, type }: { data: { [key: string]: number }, type: string }) {
+function LineChart({ data, type, selectedDate }: { data: { [key: string]: number }, type: string, selectedDate: "week" | "month" | "quart" | "year" }) {
   const dark = useAppSelector(SelectDarkMode)
   const keys = Object.keys(data).map(s => new Date(s).getTime())
   const symbol = useAppSelector(SelectFiatSymbol)
+  console.log(keys)
   const series = [
     {
       name: "Value",
@@ -26,7 +28,6 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     noData: {
       text: "You do not have any transactions yet",
     },
-    
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
     grid: {
@@ -42,6 +43,20 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
       },
     },
     tooltip: {
+      x: {
+        format: "dd MMM yyyy",
+        formatter: (value, { series, seriesIndex, dataPointIndex, w })=>{
+       
+          if(selectedDate === "week"){
+            return dateFormat(value, "ddd")
+          }
+          if(selectedDate === "month" || selectedDate === "quart"){
+            return dateFormat(value, "dd mmm")
+          }
+          return dateFormat(value, "mmm");
+        }
+
+      },
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const date = keys[dataPointIndex];
 
@@ -86,6 +101,7 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     },
     yaxis: { show: false },
     chart: {
+      width: "100%",
       toolbar: { show: false },
       zoom: { enabled: false },
       background: dark ? "#1C1C1C" : "#FFFFFF"
@@ -96,7 +112,19 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     },
     xaxis: {
       // tickAmount: "dataPoints",
-      type: "datetime",
+      type: "numeric",
+      // offsetX: -20,
+      labels: {
+        formatter: (val)=>{
+          if(selectedDate === "week"){
+            return dateFormat(val, "ddd")
+          }
+          if(selectedDate === "month" || selectedDate === "quart"){
+            return dateFormat(val, "dd mmm")
+          }
+          return dateFormat(val, "mmm");
+        }
+      },
       categories: [
         ...Object.entries(data).map(([key, value]) => ({ x: new Date(key).getTime(), y: value }))
       ]
@@ -110,8 +138,9 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
       options={options}
       series={series}
       height={315}
+      // width={'750'}
       type={'area'}
-      className={'w-full h-full rounded-full  flex'}
+      className={'w-full h-full rounded-full flex'}
     />
 
   </>
