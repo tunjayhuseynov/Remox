@@ -92,7 +92,6 @@ export const Remove_Account_From_Individual = createAsyncThunk<IAccount, { accou
 
 export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { account: IAccount, organization: IOrganization }>("remoxData/Add_Account_To_Organization", async ({ account, organization }, api) => {
     await Create_Account(Object.assign({}, account));
-
     let org: IOrganization = Object.assign({}, organization)
     const members = Array.from(new Set([...org.members, ...account.members.map(m => toChecksumAddress(m.address))]));
     org.members = members;

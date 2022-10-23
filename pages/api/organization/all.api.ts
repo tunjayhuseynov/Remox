@@ -1,7 +1,7 @@
 import axios from "axios";
 import { accountCollectionName } from "crud/account";
 import { organizationCollectionName } from "crud/organization";
-import { IAccount, IIndividual, IOrganization } from "firebaseConfig";
+import { IAccount, IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Blockchains } from "types/blockchains";
@@ -138,6 +138,9 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
                 // const account = accountRef.data() as IAccount;
                 return data;
             }))
+            organization.budget_execrises = await Promise.all(organization.budget_execrises.map(async (budgetExecriseId) => {
+                return (await adminApp.firestore().collection("budget_exercises").doc(budgetExecriseId.id).get()).data() as IBudgetExercise
+            }));
             return organization;
         }))
 

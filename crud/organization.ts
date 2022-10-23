@@ -63,20 +63,17 @@ export const Create_Organization = async (organization: IOrganization) => {
 export const Update_Organization = async (org: IOrganization) => {
     let organization = Object.assign({}, org);
     let accountRefs: DocumentReference[] = []
-    
     for (let account of organization.accounts) {
         if (!(await Get_Account(account.id))) {
             await Create_Account(account as IAccount);
         }
-        accountRefs.push(Get_Account_Ref(account.id));
+        accountRefs = [...accountRefs, Get_Account_Ref(account.id)];
     }
-
     let exec: DocumentReference[] = []
     for (let exercise of organization.budget_execrises) {
-        exec.push(Get_Budget_Exercise_Ref(exercise.id));
+        exec = [...exec, Get_Budget_Exercise_Ref(exercise.id) ];
     }
 
-    
 
     organization.budget_execrises = exec;
     organization.accounts = accountRefs;

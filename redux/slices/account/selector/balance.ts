@@ -7,15 +7,18 @@ import { generatePriceCalculation } from "utils/const";
 export const SelectBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.accounts,
     (accounts) => {
-        return accounts.reduce((acc, account) => {
-
-            account.coins.forEach(coin => {
+        return [...accounts].reduce((accum, account) => {
+            const acc = Object.assign({}, accum);
+            for (const coin of [...account.coins]) {
                 if (acc[coin.symbol]) {
-                    acc[coin.symbol].amount += coin.amount
+                    Object.defineProperty(acc[coin.symbol], "amount", {
+                        value: coin.amount, 
+                        writable: true,
+                    })
                 } else {
-                    acc[coin.symbol] = coin
+                    acc[coin.symbol] = {...coin}
                 }
-            })
+            }
 
             return acc;
         }, {} as IPrice);

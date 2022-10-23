@@ -113,11 +113,14 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-            if ((pending === "true" || !name) && c.isExecuted) return false
-            if (name && !c.isExecuted) return false
+            if(c.nonce === 3){
+                console.log(c)
+            }
+            if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
+            if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
         } else {
             // console.log(selectedAccounts, c.address)
-            if (pending === "true" || !name) return false
+            if (!name) return false
             const tx = c as any
             let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
             if (tx.method === ERC20MethodIds.swap) {
@@ -165,16 +168,16 @@ const Transactions = () => {
     const tabFilterFn = (c: (IFormattedTransaction | ITransactionMultisig), type?: "signing" | "history") => {
         if ('tx' in c) {
             if (!type) {
-                if ((pending === "true" || !name) && c.isExecuted) return false
-                if (name && !c.isExecuted) return false
+                if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
+                if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
             } else if (type === "signing") {
-                if (c.isExecuted) return false
+                if ((c.isExecuted === true || c.rejection?.isExecuted === true)) return false
             }else if(type === "history"){
-                if (!c.isExecuted) return false
+                if (c.rejection?.isExecuted === false || c.isExecuted === false) return false
             }
         } else {
             if (!type) {
-                if (pending === "true" || !name) return false
+                if (!name) return false
             } else if (type === "signing") {
                 return false;
             }

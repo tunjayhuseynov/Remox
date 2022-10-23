@@ -18,6 +18,7 @@ export interface Transactions{
     isError?: string,
     gasUsed: string,
     hash: string,
+    safeHash?: string,
     input: string,
     logIndex: string,
     nonce: string,

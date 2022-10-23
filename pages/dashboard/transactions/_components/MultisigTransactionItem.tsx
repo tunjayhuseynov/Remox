@@ -173,7 +173,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
         <>
             <tr className={`pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond ${tx.rejection ? "mt-5" : "my-5"} rounded-md shadow-custom`}>
                 <td className="text-left p-0 pt-1 flex space-x-2 rounded-md">
-                    {!tx.isExecuted && tx.nonce && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center items-center self-center rounded-md dark:text-black">{tx.nonce}</div>}
+                    {(!tx.isExecuted || (tx.rejection && !tx.rejection.isExecuted)) && tx.nonce && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center items-center self-center rounded-md dark:text-black">{tx.nonce}</div>}
                     <div className="relative inline">
                         <span className="font-medium text-sm">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
                         <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+tx.timestamp * 1e3), "HH:MM")}</span>
@@ -357,7 +357,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </div>
                 </td>
             </tr>
-            {tx.rejection && <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 pb-5 bg-white dark:bg-darkSecond mb-5 rounded-md ">
+            {tx.rejection && (!tx.isExecuted) && <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 pb-5 bg-white dark:bg-darkSecond mb-5 rounded-md ">
                 <>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6 p-0"></td>
                     <td className="bg-light dark:bg-dark -ml-6 w-full -mb-6 p-0"></td>
@@ -388,8 +388,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     <td className="self-center w-[100%] h-full border-t dark:border-gray-700 border-gray-100 pt-5">
                         <div className="flex items-center space-x-3 mb-2">
                             <div className="flex space-x-1 items-center font-semibold">
-                                <div className={`w-2 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
-                                <div className='lg:text-sm 2xl:text-base'>{tx.isExecuted ? "Rejected" : "Pending"}</div>
+                                <div className={`w-2 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
+                                <div className='lg:text-sm 2xl:text-base'>{tx.rejection.isExecuted ? "Rejected" : "Pending"}</div>
                             </div>
                             <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
                                 |
@@ -399,7 +399,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </div>
                         </div>
                         <div className="h-2 w-[90%] rounded-lg bg-gray-300 relative" >
-                            <div className={`absolute left-0 top-0 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.confirmations.length === 0 || tx.isExecuted ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
+                            <div className={`absolute left-0 top-0 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.confirmations.length === 0 || tx.rejection.isExecuted ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.rejection.isExecuted ? "100%" : Math.min(((tx.rejection.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />
                         </div>
