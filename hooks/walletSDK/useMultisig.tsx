@@ -66,6 +66,7 @@ export interface ITransactionMultisig {
     hashOrIndex: string,
     txHash?: string,
     nonce?: number,
+    firstNonce?: number,
     contractAddress: string,
     contractOwnerAmount: number,
     contractOwners: string[],

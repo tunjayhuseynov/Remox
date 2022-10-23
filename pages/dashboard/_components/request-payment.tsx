@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { IFormattedTransaction } from "hooks/useTransactionProcess";
+import React from 'react'
 import { useRouter } from "next/router";
 import { useAppSelector } from 'redux/hooks'
 import { SelectDarkMode, SelectMultisig, SelectNonCanceledRecurringTasks, SelectRequests } from 'redux/slices/account/remoxData';
@@ -11,8 +10,8 @@ function Payments() {
     const requests = useAppSelector(SelectRequests)
 
     const dark = useAppSelector(SelectDarkMode)
-    const router = useRouter()
     let multisig = useAppSelector(SelectMultisig)
+    const router = useRouter()
 
     const data = [
         {
@@ -39,12 +38,11 @@ function Payments() {
             value: recurring.length,
             router: "/dashboard/streaming",
         }
-
     ]
 
     return <>
         {data.map((item, index) => {
-            return <div key={index} className=" self-end cursor-pointer !min-h-[5rem] w-[21.25rem]">
+            return <div key={index} className="cursor-pointer !min-h-[5rem] w-[21.25rem]">
                 <div className="w-full shadow-15 px-7 rounded-md bg-white transition-all dark:bg-darkSecond hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
                     <div className="flex items-center gap-7 ">
                         <div className="hidden lg:block w-6 h-6"><img src={`/icons/dashboard_side/${item.icon}.png`} alt="" /></div>

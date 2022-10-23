@@ -8,7 +8,7 @@ import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectAlldRecurringTasks, SelectCumlativeTxs as SelectCumulativeTxs, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectAlldRecurringTasks, SelectCumlativeTxs as SelectCumulativeTxs, SelectCurrencies, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
@@ -36,6 +36,8 @@ const Transactions = () => {
     const Txs = useAppSelector(SelectCumulativeTxs)
     const streamings = useAppSelector(SelectAlldRecurringTasks)
     const navigate = useRouter()
+    const coins = useAppSelector(SelectCurrencies)
+
 
     const index = navigate.query?.index as string | undefined;
     const name = navigate.query?.name as string | undefined;
@@ -361,6 +363,7 @@ const Transactions = () => {
                                 let timestamp = w.timestamp * 1e3;
 
                                 let gasCoin = 'tx' in w ? "" : w.rawData.tokenSymbol ?? w.rawData.feeCurrency ?? "";
+                                let gasCoinObj = coins[gasCoin.toUpperCase()];
                                 let gas = 'tx' in w ? "" : +w.rawData.gasPrice * +w.rawData.gasUsed;
                                 let blockNumber = 'tx' in w ? "" : w.rawData.blockNumber;
                                 let hash = 'tx' in w ? "" : w.rawData.hash;
@@ -376,7 +379,7 @@ const Transactions = () => {
                                     'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
                                     'Date': method === ERC20MethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
                                     "Labels": w.tags.map(s => s.name).join(', '),
-                                    "Gas": `${gas} ${gasCoin}`,
+                                    "Gas": `${DecimalConverter(gas || "0", gasCoinObj?.decimals ?? 1).toFixed(3)} ${gasCoin}`,
                                     "Block Number": blockNumber,
                                     "Transaction Hash": hash,
                                     "Block Hash": blockhash,
@@ -389,8 +392,9 @@ const Transactions = () => {
                         </div>}
                     </div>}
                     <div className="mt-5">
-                        <table className="w-full">
-                            <thead>
+                        <table className="w-full" style={{
+                            emptyCells: "hide"
+                        }}>
                                 <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
                                     <th className="py-2 self-center text-left">Date</th>
                                     <th className="py-2 self-center text-left">Wallet</th>
@@ -424,7 +428,6 @@ const Transactions = () => {
                                         return <MultisigTx isDetailOpen={index !== undefined && Txs[+index] === tx} txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
                                     }
                                 })}
-                            </thead>
                         </table>
                         <div className="flex justify-between">
                             <div></div>

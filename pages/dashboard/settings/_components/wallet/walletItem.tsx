@@ -147,12 +147,12 @@ function WalletItem({ item }: { item: IAccountORM }) {
             setAccordionOpend(!!newExpanded);
         };
 
-    return <div>
+    return <div onClick={() => { if (item.multidata) { setAccordionOpend(!isAccordionOpend) } }} className="cursor-pointer">
         <Accordion expanded={isAccordionOpend} onChange={handleChange()} className="border-0 !shadow-none" TransitionProps={{
             className: "dark:!bg-dark !bg-light",
         }}>
             <div className={`bg-white dark:bg-darkSecond rounded-md shadow-custom p-5 pr-9 grid grid-cols-[2.5%,25%,20%,25%,7.5%,1fr] `} >
-                <div className='flex items-center' onClick={() => { if (item.multidata) { setAccordionOpend(!isAccordionOpend) } }}>
+                <div className='flex items-center'>
                     {item.multidata && <MdKeyboardArrowRight color='#C4C4C4' className='font-semibold cursor-pointer' size={25} style={{
                         transform: isAccordionOpend ? 'rotate(90deg)' : 'rotate(0deg)',
                         transition: "all 0.1s ease-in-out"

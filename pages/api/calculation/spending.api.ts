@@ -137,6 +137,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
     transactions.forEach(transaction => {
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
             if (transaction.id === ERC20MethodIds.transfer ||
+                transaction.id === ERC20MethodIds.nftTokenERC721 ||
                 transaction.id === ERC20MethodIds.transferFrom ||
                 transaction.id === ERC20MethodIds.transferWithComment ||
                 transaction.id === ERC20MethodIds.automatedTransfer ||
@@ -215,7 +216,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                 feeAll[sTime] = [...(feeAll?.[sTime] ?? []), txFee]
 
                 if (!txItem.isError) {
-                    if (txItem.id === ERC20MethodIds.transfer || txItem.id === ERC20MethodIds.transferFrom || txItem.id === ERC20MethodIds.transferWithComment || txItem.id === ERC20MethodIds.automatedTransfer || txItem.id === ERC20MethodIds.automatedCanceled) {
+                    if (txItem.id === ERC20MethodIds.transfer || txItem.id === ERC20MethodIds.transferFrom || txItem.id === ERC20MethodIds.transferWithComment || txItem.id === ERC20MethodIds.automatedTransfer || txItem.id === ERC20MethodIds.automatedCanceled || txItem.id === ERC20MethodIds.nftTokenERC721) {
                         const tx = txItem as ITransfer;
                         if (!tx.coin) continue;
                         const current: IFlowDetailItem = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in", fee: txFee };

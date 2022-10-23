@@ -13,7 +13,7 @@ export default function Dashboard() {
         <div>
             <Statistics />
         </div>
-        <div className="grid grid-cols-[66.6%,33.3%]">
+        <div className="grid grid-cols-[65%,35%]">
             <div className="flex flex-col space-y-5">
                 <div className="flex justify-between items-center w-full">
                     <div className="text-xl font-semibold">Connected Wallets</div>

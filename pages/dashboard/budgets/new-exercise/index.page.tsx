@@ -118,7 +118,7 @@ function NewExercise() {
                             <div>From {dateFormat(new Date(), "dd/mm/yyyy")} to {dateFormat(datentime.addYears(new Date(), 1), "dd/mm/yyyy")}</div>
                         </div>
                         :
-                        <DatePicker render={<CustomRangeInput />} plugins={[<DatePanel sort="date" />]} containerClassName="w-full dark:bg-darkSecond bg-white" value={date} onChange={(data) => {
+                        <DatePicker render={<CustomRangeInput />} placeholder="-/-/-" plugins={[<DatePanel sort="date" />]} containerClassName="w-full dark:bg-darkSecond bg-white" value={date} onChange={(data) => {
                             if (Array.isArray(data)) {
                                 setDate(data.map(s => s.toDate().getTime()))
                             }
@@ -151,6 +151,7 @@ function CustomRangeInput({ openCalendar, value }: any) {
             className='dark:bg-darkSecond h-14 pl-3 text-xs border border-gray-300 dark:border-gray-600 w-full rounded-md'
             onFocus={openCalendar}
             value={value}
+            placeholder="From -/-/- to -/-/-"
             readOnly
         />
     )

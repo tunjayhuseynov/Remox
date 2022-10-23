@@ -30,9 +30,11 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
     grid: {
-      show: false,
+      show: true,
+      position: 'back',
+      borderColor: "#707070",
       padding: {
-        left: 15,
+        left: 20,
         right: 20, // Also you may want to increase this (based on the length of your labels)
 
         // left: chartDate === "month" ? 17 : chartDate === "quart" ? 20 : chartDate === "year" ? 20 : 15,
@@ -95,23 +97,24 @@ function LineChart({ data, type }: { data: { [key: string]: number }, type: stri
     xaxis: {
       // tickAmount: "dataPoints",
       type: "datetime",
-      // categories: [
-      //   ...keys,
-      // ],
-
+      categories: [
+        ...Object.entries(data).map(([key, value]) => ({ x: new Date(key).getTime(), y: value }))
+      ]
     },
   };
 
-  return <div className="w-full h-full">
+  console.log(data)
+
+  return <>
     <ReactApexChart
       options={options}
       series={series}
       height={315}
       type={'area'}
-      className={'w-full h-full rounded-full flex '}
+      className={'w-full h-full rounded-full  flex'}
     />
 
-  </div>
+  </>
     
 }
 

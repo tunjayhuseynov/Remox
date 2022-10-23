@@ -1,11 +1,7 @@
 import { useState } from "react";
-import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import LineChart from "components/general/Linechart";
-import Button from "components/button";
 import useStorage from "hooks/storage/useStorage";
-import WalletList from "./WalletList";
-import { SelectAccounts, SelectDailyBalance, SelectFiatSymbol, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
-import { useRouter } from "next/router";
+import { SelectDailyBalance, SelectFiatSymbol, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
 import { useAppSelector } from "redux/hooks";
 import Payments from "./request-payment";
 
@@ -27,7 +23,7 @@ const Statistic = () => {
         </Modal> */}
         <div className="flex flex-col space-y-3">
             <div className="text-6xl font-semibold text-left">Welcome, {storage?.individual.name}</div>
-            <div className="grid grid-cols-[66.6%,33.3%] gap-x-12 ">
+            <div className="grid grid-cols-[65%,35%] gap-x-12 ">
                 <div className="bg-white dark:bg-darkSecond pt-4 rounded-md shadow-15 ">
                     <div className="w-full flex justify-between px-4">
                         <div className="flex flex-col gap-1">
@@ -41,12 +37,12 @@ const Statistic = () => {
                             <span className={`${chartDate === "year" && '!text-primary text-opacity-100'}   text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-greylish text-xs font-semibold tracking-wide`} onClick={() => setChartDate("year")}>1Y</span>
                         </div>
                     </div>
-                    <div className="w-full h-full">
+                    <div className="w-full h-full flex items-center justify-center">
                         <LineChart data={dailyBalance?.[chartDate] ?? {}} type={'area'} />
                     </div>
                 </div>
                 <div className="pr-10">
-                    <div id="transaction" className="flex flex-col justify-between h-full">
+                    <div id="transaction" className="flex flex-col items-start justify-between h-full">
                         <div className="text-xl font-semibold">Requests & Payments</div>
                         <Payments />
                     </div>

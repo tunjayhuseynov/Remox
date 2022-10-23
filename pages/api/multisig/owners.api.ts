@@ -13,6 +13,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 
 export interface IMultisigOwners {
     owners: string[];
+    nonce?: number;
 }
 
 
@@ -54,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         } else if (providerName === "GnosisSafe") {
             const { data } = await axios.get(blockchain.multisigProviders.find(p => p.name === providerName)?.txServiceUrl + "/api/v1/safes/" + multisigAddress)
-            return res.status(200).json({ owners: data.owners })
+            return res.status(200).json({ owners: data.owners, nonce: data.nonce })
         }
         throw new Error(`Invalid multiSignature`)
     } catch (e: any) {

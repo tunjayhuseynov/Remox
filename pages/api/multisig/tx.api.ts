@@ -261,7 +261,9 @@ export default async function handler(
                 }
             })
 
-            const safeTxs = await parseSafeTransaction(transactionsData, [transactionsData], Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [])
+            if(ownerData.nonce === undefined) throw new Error("Nonce is not found");
+
+            const safeTxs = await parseSafeTransaction(transactionsData, [transactionsData], Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [], ownerData.nonce!)
             return res.json(safeTxs)
         }
     } catch (e: any) {

@@ -603,7 +603,7 @@ export const {
     setProviderID, updateContributor, deleteSelectedAccountAndBudget, setSelectedAccountAndBudget, setCredentials,
     updateAllCurrencies, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget, removeConfirmation,
     AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
-    Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name, setResetRemoxData
+    Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name, setResetRemoxData, addOrganizationToList, increaseNonce
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

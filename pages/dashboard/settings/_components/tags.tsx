@@ -144,6 +144,7 @@ export default function TagsSetting() {
                   <div className="font-semibold">
                     <EditableTextInput
                       defaultValue=""
+                      letterLimit={15}
                       placeholder="Tag name"
                       onSubmit={async (val) => {
                         onSubmit(val);
