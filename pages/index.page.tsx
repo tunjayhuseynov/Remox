@@ -93,7 +93,7 @@ const Home = () => {
               height: "2.5rem",
               width: "12rem",
             }}
-            label="Blockchain"
+            label="Network"
             selected={selected}
             setSelect={setSelected as any}
             list={Blockchains}

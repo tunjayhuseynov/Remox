@@ -183,7 +183,7 @@ export default async (
 
         rawData: {
           ...transaction,
-          value: (res.inputs[2] as BigNumber).div(new BigNumber(10).pow(coin?.decimals || 18)).toString(),
+          value: (new BigNumber(res.inputs[2])).div(new BigNumber(10).pow(coin?.decimals || 18)).toString(),
         },
         coin: coin,
         to: "0x" + res.inputs[0],
