@@ -345,24 +345,24 @@ const Pay = () => {
                     <div className="w-full px-3 py-3 bg-white dark:bg-darkSecond shadow-custom">
                         <div className={`grid grid-cols-[30%,30%,40%]`}>
                             <div className="flex flex-col gap-2 mb-4 border-r">
-                                <div className="font-medium text-greylish dark:text-white text-xs">Total Treasury</div>
-                                <div className="text-xl font-medium">{`${symbol}`}<NG number={totalBalance} fontSize={1.25} /></div>
+                                <div className="font-medium text-greylish dark:text-white text-sm">Total Treasury</div>
+                                <div className="text-3xl font-medium leading-none">{`${symbol}`}<NG number={totalBalance} fontSize={1.75} /></div>
                             </div>
                             <div className="flex flex-col gap-2 mb-4 border-r pl-5">
-                                <div className="font-medium text-greylish dark:text-white text-xs">Wallet Balance</div>
-                                <div className="text-sm font-medium">{`${symbol}`}<NG number={walletBalance} fontSize={0.875} /></div>
+                                <div className="font-medium text-greylish dark:text-white text-sm">Wallet Balance</div>
+                                <div className="text-xl font-medium leading-none">{`${symbol}`}<NG number={walletBalance} fontSize={1.25} /></div>
 
                             </div>
                             <div className="flex flex-col gap-2 mb-4 pl-5">
-                                <div className="font-medium  text-greylish dark:text-white text-xs">Token Allocation</div>
+                                <div className="font-medium  text-greylish dark:text-white text-sm">Token Allocation</div>
                                 <div className="flex flex-col space-y-4">{tokenAllocation.map((s, i) => {
                                     return <div key={i} className="grid grid-cols-[8.5%,1fr] gap-x-2">
                                         <div className="self-start">
                                             <img className="rounded-full w-full aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
                                         <div className="flex flex-col">
-                                            <div className="text-sm">{s.amount}</div>
-                                            <div className="text-xs text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.75} /></div>
+                                            <div className="text-xl">{s.amount}</div>
+                                            <div className="text-sm text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.875} /></div>
                                         </div>
                                     </div>
                                 })}
@@ -374,12 +374,12 @@ const Pay = () => {
                         <div className={`mt-[1px] shadow-custom px-5 bg-white dark:bg-darkSecond py-2`}>
                             <div className="grid grid-cols-2">
                                 <div className="flex flex-col gap-2 mb-4 border-r">
-                                    <div className="font-medium text-greylish dark:text-white text-xs">Budget Balance</div>
-                                    <div className="text-sm font-medium">{`${symbol}`}<NG number={(TotalBudget?.totalPending ?? 0) + (TotalBudget?.totalUsedAmount ?? 0)} fontSize={0.875} /></div>
+                                    <div className="font-medium text-greylish dark:text-white text-sm">Budget Balance</div>
+                                    <div className="text-xl font-medium leading-none">{`${symbol}`}<NG number={(TotalBudget?.totalAmount ?? 0) - (TotalBudget?.totalPending ?? 0) + (TotalBudget?.totalUsedAmount ?? 0)} fontSize={1.25} /></div>
                                 </div>
                                 <div className="flex flex-col gap-2 mb-4 pl-5">
-                                    <div className="font-medium text-greylish dark:text-white text-xs">Budget-label Balance</div>
-                                    <div className="text-sm font-medium">{`${symbol}`}<NG number={(TotalBudgetLabel?.totalPending ?? 0) + (TotalBudgetLabel?.totalUsedAmount ?? 0)} fontSize={0.875} /></div>
+                                    <div className="font-medium text-greylish dark:text-white text-sm">Budget-label Balance</div>
+                                    <div className="text-xl font-medium leading-none">{`${symbol}`}<NG number={(TotalBudgetLabel?.totalAmount ?? 0) - (TotalBudgetLabel?.totalPending ?? 0) + (TotalBudgetLabel?.totalUsedAmount ?? 0)} fontSize={1.25} /></div>
                                 </div>
                             </div>
                         </div>
@@ -456,7 +456,7 @@ const Pay = () => {
                                         }
                                     }} />
                                     <Tooltip title="Download an example file">
-                                        <div className="bg-greylish rounded-full p-1 cursor-pointer" onClick={() => {
+                                        <div className="bg-[#D6D6D6] dark:bg-greylish rounded-full p-1 cursor-pointer" onClick={() => {
                                             window.open("/Example/Remox_Example.csv")
                                         }}>
                                             <AiOutlineDownload />

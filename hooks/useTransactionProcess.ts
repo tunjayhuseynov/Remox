@@ -135,6 +135,7 @@ export const GenerateTransaction = (
   contractAddress: transaction.contractAddress ?? "",
   cumulativeGasUsed: transaction.cumulativeGasUsed ?? "0",
   from: transaction.from ?? "",
+  safeHash: transaction.safeHash ?? undefined,
   gas: transaction.gas ?? "0",
   gasPrice: transaction.gasPrice ?? "0",
   gasUsed: transaction.gasUsed ?? "0",

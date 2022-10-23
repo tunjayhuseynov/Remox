@@ -208,7 +208,7 @@ const SingleTransactionItem = ({
             )}
           </div>
         </td>
-        <td className="text-left w-[95%]">
+        <td className="text-left w-full">
           <div>
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex space-x-1 items-center font-semibold">
@@ -222,7 +222,7 @@ const SingleTransactionItem = ({
                 1 <span className="font-thin">/</span> 1
               </div>
             </div>
-            <div className="h-2 w-full rounded-lg bg-gray-300 relative" >
+            <div className="h-2 w-[90%] rounded-lg bg-gray-300 relative" >
               <div className="absolute left-0 top-0 h-2 bg-green-500 rounded-lg" style={{
                 width: 100 + "%"
               }} />

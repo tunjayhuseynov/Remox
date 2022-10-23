@@ -108,7 +108,7 @@ function NewWalletModal() {
                     providerName: selectedWalletProvider.name
                 }
             })).data;
-
+         
             let myResponse: IAccount = {
                 created_date: GetTime(),
                 blockchain: blockchain.name,
@@ -129,6 +129,7 @@ function NewWalletModal() {
                 signerType: "multi"
             }
             let org = Object.assign({}, account)
+            console.log(org, myResponse)
             if (accountType === "organization") {
                 await dispatch(Create_Account_For_Organization({
                     account: myResponse,
@@ -140,6 +141,7 @@ function NewWalletModal() {
                     individual: org as IIndividual
                 })).unwrap()
             }
+            console.log(contract)
 
             await dispatch(launchApp({
                 accountType: accountType === "organization" ? "organization" : "individual",

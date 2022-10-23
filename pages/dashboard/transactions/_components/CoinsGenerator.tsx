@@ -46,7 +46,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
                         /> : <div className="w-full h-full rounded-full bg-gray-500" />}
                     </div>
                     <span className="font-medium text-sm text-left leading-none self-center gap-x-[7px]">
-                        {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
+                        {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(2)}
                     </span>
                 </div>
                 <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
