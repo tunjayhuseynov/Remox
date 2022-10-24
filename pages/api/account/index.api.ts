@@ -36,6 +36,12 @@ export default async function handler(
 
         const account = accountData as IAccount;
 
+        if (!account?.["pendingMembersObjects"]) {
+            await fs.collection(accountCollectionName).doc(id).update({
+                pendingMembersObjects: []
+            })
+        }
+
         let reqs = [];
 
         let priceReq = axios.get<IPriceResponse>(BASE_URL + "/api/calculation/price", {
