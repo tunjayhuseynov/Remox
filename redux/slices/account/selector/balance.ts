@@ -59,7 +59,7 @@ export const SelectYieldBalance = createDraftSafeSelector(
                             if (a?.[coin.symbol]) {
                                 a[coin.symbol].amount += coin.amount;
                             } else {
-                                a[coin.symbol] = coin;
+                                a[coin.symbol] = {...coin};
                             }
                         }
 
@@ -88,7 +88,7 @@ export const SelectSpotBalance = createDraftSafeSelector(
                             if (a?.[coin.symbol]) {
                                 a[coin.symbol].amount += coin.amount;
                             } else {
-                                a[coin.symbol] = coin;
+                                a[coin.symbol] = {...coin};
                             }
                         }
 

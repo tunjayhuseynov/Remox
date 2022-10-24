@@ -54,7 +54,7 @@ const RunModal = ({
             </div>
                 <ModalAllocation selectedList={selectedContributors}/>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end pb-5">
             <Button onClick={() => setChoosingBudget(true)} className={" py-3 mt-10 mb-3 text-base"}>
               Run Payroll 
             </Button>
