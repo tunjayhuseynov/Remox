@@ -512,20 +512,68 @@ const Pay = () => {
                                                 closeMenuOnSelect={true}
                                                 isMulti
                                                 isClearable={false}
+                                                placeholder="Select labels"
                                                 options={labels.map(s => ({ value: s.id, label: s.name, color: s.color, transactions: s.transactions, isDefault: s.isDefault }))}
                                                 styles={{
                                                     control: (styles: any) => {
                                                         return {
                                                             ...colourStyles(dark).control(styles),
-                                                            backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+                                                            backgroundColor: dark ? "#1F1F1F" : "white",
+                                                            border: `1px solid ${dark ? "rgba(255, 255, 255, 0.23)" : "rgba(0,0,0,0.23)"}`,
                                                         }
                                                     },
                                                     option: (styles: any, { data, isDisabled, isFocused, isSelected }: any) => {
                                                         return {
                                                             ...colourStyles(dark).option(styles, { data, isDisabled, isFocused, isSelected }),
-                                                            backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+                                                            backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
+                                                            ":hover": {
+                                                                backgroundColor: dark ? "#707070" : "#eaeaea",
+                                                                cursor: "pointer"
+                                                            },
                                                         }
                                                     },
+                                                    container: (styles: any) => {
+                                                        return {
+                                                            ...styles,
+                                                            backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+
+                                                        }
+                                                    },
+                                                    multiValueLabel: (styles: any, { data }) => {
+                                                        return {
+                                                            ...styles,
+                                                            color: data.color,
+                                                            backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+
+                                                        }
+                                                    },
+                                                    multiValue: (styles: any, { data }) => {
+                                                        return {
+                                                            ...styles,
+                                                            color: data.color,
+                                                            backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+
+                                                        }
+                                                    },
+                                                    multiValueRemove: (styles: any) => {
+                                                        return {
+                                                            ...styles,
+                                                            color: dark ? "white" : "black",
+                                                            backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+                                                            ":hover": {
+                                                                backgroundColor: dark ? "#707070" : "#eaeaea",
+                                                            }
+
+                                                        }
+                                                    },
+                                                    menuList: (styles: any) => {
+                                                        return {
+                                                            ...styles,
+                                                            backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
+                                                            border: `1px solid ${dark ? "rgba(255, 255, 255, 0.23)" : "rgba(0,0,0,0.23)"}`,
+                                                            
+                                                        }
+                                                    }
                                                 }}
                                                 className="h-full"
                                                 onChange={onTagChange}

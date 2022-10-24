@@ -50,7 +50,7 @@ export default {
             state.tags[tagIndex].transactions = state.tags[tagIndex].transactions.filter(
                 transactionId => transactionId !== action.payload.transactionId
             );
-            if (action.payload.txIndex) {
+            if (action.payload.txIndex != undefined) {
                 state.cumulativeTransactions[action.payload.txIndex].tags = state.cumulativeTransactions[action.payload.txIndex].tags.filter(
                     tag => tag.id !== action.payload.tagId
                 );

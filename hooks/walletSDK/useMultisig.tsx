@@ -64,6 +64,7 @@ export interface ITransactionMultisig {
     name: string;
     destination: string,
     hashOrIndex: string,
+    indexPlace?: number,
     txHash?: string,
     nonce?: number,
     firstNonce?: number,

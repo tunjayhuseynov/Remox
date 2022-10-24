@@ -79,7 +79,7 @@ function NewExercise() {
 
     return <div className="w-full relative">
         <form onSubmit={handleSubmit(submit)} className="w-3/5 mx-auto pt-10">
-            <div className="text-xl text-center font-medium py-6">Define of your budgetary exercise</div>
+            <div className="text-xl text-center font-medium py-6">Define your budgetary exercise</div>
             <div className="px-12 flex flex-col space-y-12">
                 <TextField
                     InputProps={{

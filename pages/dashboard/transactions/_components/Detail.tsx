@@ -268,7 +268,7 @@ const Detail = ({
     return mounted ? createPortal(
         <AnimatePresence>
             {openDetail &&
-                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className="fixed shadow-custom h-[100vh] w-[35%] scrollbar-thin overflow-y-auto overflow-x-hidden top-0 right-0 cursor-default ">
+                <motion.div initial={{ x: "100%", opacity: 0.5 }} animate={{ x: 15, opacity: 1 }} exit={{ x: "100%", opacity: 0.5 }} transition={{ type: "spring", stiffness: 400, damping: 40 }} className="fixed z-[9999] shadow-custom h-[100vh] w-[35%] scrollbar-thin overflow-y-auto overflow-x-hidden top-0 right-0 cursor-default ">
                     <ClickAwayListener onClickAway={handleClickAway} mouseEvent={'onMouseUp'}>
                         <div>
                             <div className="w-full h-full backdrop-blur-[2px]" onClick={() => setOpenDetail(false)}></div>
@@ -501,7 +501,7 @@ const Detail = ({
                                     }
                                 </div>
 
-                                <div className="flex justify-between items-center w-ful text-sm">
+                                <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Type</div>
                                     <div>
                                         {action}
@@ -559,7 +559,7 @@ const Detail = ({
                                     <div className="text-greylish">Tags</div>
                                     <div className="flex">
                                         {!tagDelete && <>
-                                            <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative" onClick={() => setColorPicker(true)}>
+                                            <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative z-[999999]" onClick={() => setColorPicker(true)}>
                                                 <div className="py-1 pl-3">
                                                     <div className="w-1 h-4" style={{
                                                         backgroundColor: myTag?.color ?? "#000000",
@@ -570,8 +570,8 @@ const Detail = ({
                                                 </div>
                                                 {colorPicker &&
                                                     <ClickAwayListener onClickAway={() => { setColorPicker(false) }}>
-                                                        <div className="absolute -bottom-3 left-0 translate-y-full z-[99999]">
-                                                            <TwitterPicker onChange={colorHandler} />
+                                                        <div className="absolute -top-2 left-0  -translate-y-full z-[999999999] !ml-0">
+                                                            <TwitterPicker onChange={colorHandler} triangle={"hide"} width={"15rem"}/>
                                                         </div>
                                                     </ClickAwayListener>
                                                 }
@@ -587,25 +587,41 @@ const Detail = ({
                                                 />
                                             </div>
                                             <div className="flex items-center cursor-pointer hover:text-red-500" onClick={async () => {
-                                                if (myTag) {
-                                                    if (!selectedId) return
-                                                    setTagDelete(true)
-                                                    await dispatch(RemoveTransactionFromTag({
-                                                        id: selectedId,
-                                                        tagId: myTag.id,
-                                                        transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
-                                                            hash: transaction.hash,
-                                                            address: transaction.address,
-                                                            contractType: isMultisig ? "multi" : "single",
-                                                            id: transaction.id,
-                                                            provider: account?.provider ?? null,
-                                                        },
-                                                        txIndex: txIndex
-                                                    }))
+                                                try {
+                                                    if (myTag) {
+                                                        if (!selectedId) return
+                                                        setTagDelete(true)
+                                                        console.log({
+                                                            id: selectedId,
+                                                            tagId: myTag.id,
+                                                            transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
+                                                                hash: transaction.hash,
+                                                                address: transaction.address,
+                                                                contractType: isMultisig ? "multi" : "single",
+                                                                id: transaction.id,
+                                                                provider: account?.provider ?? null,
+                                                            },
+                                                            txIndex: txIndex
+                                                        })
+                                                        await dispatch(RemoveTransactionFromTag({
+                                                            id: selectedId,
+                                                            tagId: myTag.id,
+                                                            transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
+                                                                hash: transaction.hash,
+                                                                address: transaction.address,
+                                                                contractType: isMultisig ? "multi" : "single",
+                                                                id: transaction.id,
+                                                                provider: account?.provider ?? null,
+                                                            },
+                                                            txIndex: txIndex
+                                                        }))
+                                                    }
+                                                    setColor("")
+                                                    setName("")
+                                                    setTagDelete(false)
+                                                } catch (error) {
+                                                    console.log(error)
                                                 }
-                                                setColor("")
-                                                setName("")
-                                                setTagDelete(false)
                                             }}>
                                                 <BiTrash />
                                             </div>
