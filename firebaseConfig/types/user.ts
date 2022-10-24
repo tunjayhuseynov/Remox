@@ -113,10 +113,10 @@ interface ICommonUserTypes {
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
-    pendingMembers: string[];
-    pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
-    removableMembers: string[];
-    removableMembersObjects: { accountId: string, member: string }[];
+    // pendingMembers: string[];
+    // pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
+    // removableMembers: string[];
+    // removableMembersObjects: { accountId: string, member: string }[];
     moderators: IModerator[]
     created_date: number;
     budget_execrises: DocumentReference[] | IBudgetExercise[];
@@ -159,6 +159,7 @@ export interface IAccount {
     signerType: "single" | "multi";
     provider: MultisigProviders | null;
     blockchain: BlockchainType["name"];
+    pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
     createdBy: string;
     address: string;
     name: string;

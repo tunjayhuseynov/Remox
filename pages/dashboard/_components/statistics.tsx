@@ -43,7 +43,7 @@ const Statistic = () => {
                 </div>
                 <div className="pr-10">
                     <div id="transaction" className="flex flex-col items-start justify-between h-full">
-                        <span className="text-xl font-semibold">Requests & Payments</span>
+                        <span className="text-xl font-semibold leading-none">Requests & Payments</span>
                         <Payments />
                     </div>
                 </div>

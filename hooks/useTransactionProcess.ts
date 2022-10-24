@@ -60,6 +60,7 @@ export interface IFormattedTransaction {
   budget?: IBudgetORM,
   address: string,
   isError: boolean
+  indexPlace?: number,
 }
 
 export interface IAddOwner extends IFormattedTransaction {

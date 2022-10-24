@@ -115,6 +115,7 @@ function NewWalletModal() {
                 address: data.address,
                 mail: null,
                 createdBy: auth.currentUser.uid,
+                pendingMembersObjects: [],
                 id: generate(),
                 members: contract.owners.map<IMember>(s => ({
                     address: toChecksumAddress(s),

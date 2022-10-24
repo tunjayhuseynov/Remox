@@ -32,7 +32,7 @@ export interface ISubInputs {
     subAnotherToken: boolean;
 }[]
 
-const steps = ['Budget', 'Budget Labels'];
+const steps = ['Budget', 'Budget Label'];
 interface IProps {
     exerciseId: string;
     onBack: () => void

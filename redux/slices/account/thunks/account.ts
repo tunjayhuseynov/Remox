@@ -223,10 +223,10 @@ interface IPendingMember {
     accountId: string
 }
 export const Add_Member_To_Pending_List_Thunk = createAsyncThunk<IPendingMember, IPendingMember>("remoxData/add_pending_list_member", async ({ accountId, memberAddress, memberObject }, api) => {
-    const accountType = (api.getState() as RootState).remoxData.accountType;
-    const remoxAccount = (api.getState() as RootState).remoxData.storage?.organization ?? (api.getState() as RootState).remoxData.storage?.individual;
-    if (!remoxAccount) throw new Error("Account not found")
-    await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
+    // const accountType = (api.getState() as RootState).remoxData.accountType;
+    // const remoxAccount = (api.getState() as RootState).remoxData.storage?.organization ?? (api.getState() as RootState).remoxData.storage?.individual;
+    // if (!remoxAccount) throw new Error("Account not found")
+    await FirestoreWrite().updateDoc("accounts", accountId, {
         pendingMembersObjects: arrayUnion({
             member: toChecksumAddress(memberAddress),
             accountId: accountId,
@@ -234,9 +234,9 @@ export const Add_Member_To_Pending_List_Thunk = createAsyncThunk<IPendingMember,
         })
     })
 
-    await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
-        pendingMembers: arrayUnion(toChecksumAddress(memberAddress))
-    })
+    // await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
+    //     pendingMembers: arrayUnion(toChecksumAddress(memberAddress))
+    // })
 
     return {
         accountId,
@@ -245,26 +245,26 @@ export const Add_Member_To_Pending_List_Thunk = createAsyncThunk<IPendingMember,
     }
 })
 
-export const Add_Member_To_Removing_List_Thunk = createAsyncThunk<Omit<IPendingMember, "memberObject">, Omit<IPendingMember, "memberObject">>("remoxData/add_removing_list_member", async ({ accountId, memberAddress }, api) => {
-    const accountType = (api.getState() as RootState).remoxData.accountType;
-    const remoxAccount = (api.getState() as RootState).remoxData.storage?.organization ?? (api.getState() as RootState).remoxData.storage?.individual;
-    if (!remoxAccount) throw new Error("Account not found")
-    await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
-        removableMembersObjects: arrayUnion({
-            member: toChecksumAddress(memberAddress),
-            accountId: accountId,
-        })
-    })
+// export const Add_Member_To_Removing_List_Thunk = createAsyncThunk<Omit<IPendingMember, "memberObject">, Omit<IPendingMember, "memberObject">>("remoxData/add_removing_list_member", async ({ accountId, memberAddress }, api) => {
+//     const accountType = (api.getState() as RootState).remoxData.accountType;
+//     const remoxAccount = (api.getState() as RootState).remoxData.storage?.organization ?? (api.getState() as RootState).remoxData.storage?.individual;
+//     if (!remoxAccount) throw new Error("Account not found")
+//     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
+//         removableMembersObjects: arrayUnion({
+//             member: toChecksumAddress(memberAddress),
+//             accountId: accountId,
+//         })
+//     })
 
-    await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
-        removableMembers: arrayUnion(toChecksumAddress(memberAddress))
-    })
+//     await FirestoreWrite().updateDoc(accountType === "individual" ? "individuals" : "organizations", remoxAccount.id, {
+//         removableMembers: arrayUnion(toChecksumAddress(memberAddress))
+//     })
 
-    return {
-        accountId,
-        memberAddress: toChecksumAddress(memberAddress)
-    }
-})
+//     return {
+//         accountId,
+//         memberAddress: toChecksumAddress(memberAddress)
+//     }
+// })
 interface IReplace {
     remoxAccount: IIndividual | IOrganization,
     accountAddress: string;

@@ -187,7 +187,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         .unwrap();
 
       const allBudgets = budgetRes.data.map(s => s.budgets).flat();
-
+      let mapIndex = 0;
       const mapping = (s: ITransactionMultisig | IFormattedTransaction) => {
         const budget = allBudgets.find(
           b => b.txs.find(t => t.hashOrIndex.toLowerCase() === ('tx' in s ? s.hashOrIndex : s.hash).toLowerCase() && t.contractAddress.toLowerCase() === ('tx' in s ? s.contractAddress : s.address).toLowerCase())
@@ -196,17 +196,19 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         if (budget) {
           return {
             ...s,
-            budget
+            budget,
           }
         }
-        return s;
+        return {
+          ...s,
+        };
       }
       const state = (api.getState() as RootState)
       // const singleAddresses = state.remoxData.accounts.filter(s => s.signerType === "single").map(s => s.address)
       let allCumulativeTransactions = [
         ...transactionsRes.data.filter(s => !s.rawData.tokenID).map(mapping), //&& !singleAddresses.find(d => d.toLowerCase() === s.rawData.from.toLowerCase())
         ...multisigRequests.map(mapping),
-      ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+      ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1)).map((s, i) => ({ ...s, indexPlace: mapIndex++ }));
 
       const allCoins: string[] = []
 

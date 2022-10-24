@@ -113,7 +113,7 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-            if(c.nonce === 3){
+            if (c.nonce === 3) {
                 console.log(c)
             }
             if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
@@ -172,7 +172,7 @@ const Transactions = () => {
                 if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
             } else if (type === "signing") {
                 if ((c.isExecuted === true || c.rejection?.isExecuted === true)) return false
-            }else if(type === "history"){
+            } else if (type === "history") {
                 if (c.rejection?.isExecuted === false || c.isExecuted === false) return false
             }
         } else {
@@ -185,12 +185,13 @@ const Transactions = () => {
         return true
     }
     const txs = Txs?.filter(filterFn)
-    if(!name){
+    if (!name) {
         txs.sort((a, b) => (a as any)?.nonce > (b as any)?.nonce ? 1 : -1)
     }
 
     const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
 
+    const historyTxLn = Txs.filter((s) => tabFilterFn(s, "history")).length
     const data = [
         {
             to: "/dashboard/transactions",
@@ -200,7 +201,7 @@ const Transactions = () => {
         {
             to: "/dashboard/transactions/history",
             text: "History",
-            count: Txs.filter((s) => tabFilterFn(s, "history")).length.toString(),
+            count: historyTxLn.toString(),
         },
     ]
     return <>
@@ -315,7 +316,8 @@ const Transactions = () => {
                         {txs.length > 0 && <div className="py-1">
                             <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-1 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
-                                const [, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w);
+                                const account = accountsRaw.find(s => s.address.toLowerCase() === ('tx' in w ? w.contractAddress : w.address).toLowerCase())
+                                const [img, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w, account?.provider ?? undefined);
                                 let method = 'tx' in w ? w.tx.method : w.method;
 
                                 const from = 'tx' in w ? w.contractAddress : w.rawData.from;
@@ -390,7 +392,7 @@ const Transactions = () => {
                                 }
                             })}>
                                 <img className={`w-[1rem] h-[1rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
-                                <div className="text-sm">{txs.length !== Txs.length ? "Export Filtered" : "Export All"}</div>
+                                <div className="text-sm">{txs.length !== historyTxLn ? "Export Filtered" : "Export All"}</div>
                             </CSVLink>
                         </div>}
                     </div>}
@@ -398,39 +400,39 @@ const Transactions = () => {
                         <table className="w-full" style={{
                             emptyCells: "hide"
                         }}>
-                                <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
-                                    <th className="py-2 self-center text-left">Date</th>
-                                    <th className="py-2 self-center text-left">Wallet</th>
-                                    <th className="py-2 self-center text-left">Type</th>
-                                    <th className="py-2 self-center text-left">Amount</th>
-                                    <th className="py-2 self-center text-left">Labels</th>
-                                    <th className="py-2 self-center text-left">Signatures</th>
-                                    <th className="py-1 flex justify-end pr-[3.25rem]">
-                                        <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary hover:bg-primary hover:bg-opacity-5 text-primary rounded-md flex items-center justify-center space-x-2">
-                                            {!refreshLoading && <div>
-                                                <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />
-                                            </div>}
-                                            <div className="tracking-wider">
-                                                {refreshLoading ? <><Loader /></> : "Refresh"}
-                                            </div>
+                            <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
+                                <th className="py-2 self-center text-left">Date</th>
+                                <th className="py-2 self-center text-left">Wallet</th>
+                                <th className="py-2 self-center text-left">Type</th>
+                                <th className="py-2 self-center text-left">Amount</th>
+                                <th className="py-2 self-center text-left">Labels</th>
+                                <th className="py-2 self-center text-left">Signatures</th>
+                                <th className="py-1 flex justify-end pr-[3.25rem]">
+                                    <div onClick={refresh} className="w-28 py-1 px-1 cursor-pointer border border-primary hover:bg-primary hover:bg-opacity-5 text-primary rounded-md flex items-center justify-center space-x-2">
+                                        {!refreshLoading && <div>
+                                            <img src="/icons/refresh_primary.png" alt="" className="w-3 h-3" />
+                                        </div>}
+                                        <div className="tracking-wider self-center leading-none">
+                                            {refreshLoading ? <><Loader /></> : "Refresh"}
                                         </div>
-                                    </th>
-                                    <th></th>
-                                </tr>
-                                {txs.slice(pagination - STABLE_INDEX, pagination).map((tx, i) => {
-                                    if ((tx as IFormattedTransaction)['hash']) {
-                                        const address = (tx as IFormattedTransaction).address;
-                                        const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
-                                        const txData = (tx as IFormattedTransaction)
-                                        return <SingleTxContainer isDetailOpen={index !== undefined && Txs[+index] === tx} txIndexInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
-                                    } else {
-                                        const txData = (tx as ITransactionMultisig)
-                                        const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
-                                        const isSafe = "safeTxHash" in txData
-                                        let directionType = TransactionDirectionDeclare(txData, accounts);
-                                        return <MultisigTx isDetailOpen={index !== undefined && Txs[+index] === tx} txPositionInRemoxData={i + (pagination - STABLE_INDEX)} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
-                                    }
-                                })}
+                                    </div>
+                                </th>
+                                {/* <th></th> */}
+                            </tr>
+                            {txs.slice(pagination - STABLE_INDEX, pagination).map((tx, i) => {
+                                if ((tx as IFormattedTransaction)['hash']) {
+                                    const address = (tx as IFormattedTransaction).address;
+                                    const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
+                                    const txData = (tx as IFormattedTransaction)
+                                    return <SingleTxContainer isDetailOpen={index !== undefined && Txs[+index] === tx} txIndexInRemoxData={tx.indexPlace ?? 0} tags={tags} blockchain={blockchain} key={`${txData.address}${txData.rawData.hash}`} selectedAccount={account} transaction={txData} accounts={accounts} color={"bg-white dark:bg-darkSecond"} />
+                                } else {
+                                    const txData = (tx as ITransactionMultisig)
+                                    const account = accountsRaw.find(s => s.address.toLowerCase() === txData.contractAddress.toLowerCase())
+                                    const isSafe = "safeTxHash" in txData
+                                    let directionType = TransactionDirectionDeclare(txData, accounts);
+                                    return <MultisigTx isDetailOpen={index !== undefined && Txs[+index] === tx} txPositionInRemoxData={tx.indexPlace ?? 0} tags={tags} blockchain={blockchain} direction={directionType} account={account} key={txData.contractAddress + txData.hashOrIndex} address={address} tx={tx as ITransactionMultisig} />
+                                }
+                            })}
                         </table>
                         <div className="flex justify-between">
                             <div></div>

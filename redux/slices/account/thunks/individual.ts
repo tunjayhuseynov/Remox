@@ -44,10 +44,6 @@ export const  Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateInd
     let individualState: IIndividual = {
         priceCalculation: "current",
         addressBook: [],
-        pendingMembers: [],
-        removableMembers: [],
-        pendingMembersObjects: [],
-        removableMembersObjects: [],
         notes: [],
         accounts: [
             {
@@ -59,6 +55,7 @@ export const  Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateInd
                 name: newAccountName,
                 id: nanoid(),
                 image: image?.image ?? null,
+                pendingMembersObjects: [],
                 members: [
                     {
                         address,

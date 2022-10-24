@@ -9,7 +9,7 @@ import { GokiSDK, GOKI_ADDRESSES, GOKI_IDLS, Programs } from '@gokiprotocol/clie
 import useSolanaProvider from "./useSolanaProvider";
 import { GetTime } from "utils";
 import { process } from "uniqid"
-import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Add_Member_To_Removing_List_Thunk, Add_Member_To_Pending_List_Thunk } from "redux/slices/account/thunks/account";
+import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Add_Member_To_Pending_List_Thunk } from "redux/slices/account/thunks/account";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectAccounts, SelectBlockchain, SelectID, SelectOrganization, SelectProviderAddress, SelectRemoxAccount } from "redux/slices/account/remoxData";
 import { AbiItem } from "rpcHooks/ABI/AbiItem";
@@ -64,6 +64,7 @@ export interface ITransactionMultisig {
     name: string;
     destination: string,
     hashOrIndex: string,
+    indexPlace?: number,
     txHash?: string,
     nonce?: number,
     firstNonce?: number,
@@ -374,6 +375,7 @@ export default function useMultisig() {
             blockchain: blockchain.name,
             createdBy: auth.currentUser?.uid,
             mail: null,
+            pendingMembersObjects: [],
             address: proxyAddress,
             id: nanoid(),
             members: owners.map<IMember>(s => ({
@@ -467,6 +469,7 @@ export default function useMultisig() {
                 address: contractAddress,
                 mail: null,
                 createdBy: auth.currentUser.uid,
+                pendingMembersObjects: [],
                 id: process(name.split(" ").join("")),
                 members: members.map<IMember>(s => ({
                     address: s,
@@ -593,10 +596,10 @@ export default function useMultisig() {
             }
 
 
-            dispatch(Add_Member_To_Removing_List_Thunk({
-                accountId: account.id,
-                memberAddress: ownerAddress,
-            }))
+            // dispatch(Add_Member_To_Removing_List_Thunk({
+            //     accountId: account.id,
+            //     memberAddress: ownerAddress,
+            // }))
 
             return true
         } catch (error) {
