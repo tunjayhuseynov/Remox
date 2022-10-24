@@ -98,7 +98,7 @@ function WalletList({ item }: { item: IAccountORM }) {
         </Box>
       </MuiModal>
 
-      <div className="shadow-15 pt-2 rounded-md bg-white dark:bg-darkSecond w-[21.25rem] hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
+      <div className="shadow-15 pt-2 rounded-md bg-white dark:bg-darkSecond min-w-[21.25rem] hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
         <div className="w-full">
           <div className="pb-2 border-b dark:border-[#454545]">
             <div className="flex justify-between items-center">
@@ -113,7 +113,6 @@ function WalletList({ item }: { item: IAccountORM }) {
                     }
                   />
                 </div>
-                {/* <div className="bg-greylish bg-opacity-40 w-9 h-9 rounded-full"></div> */}
                 <div className="flex flex-col">
                   <div className="font-semibold text-sm">{item.name}</div>
                   <div className="text-[10px] text-greylish">
@@ -183,7 +182,7 @@ function WalletList({ item }: { item: IAccountORM }) {
             </div>
           </div>
           <div className="grid grid-cols-[35%,1fr]">
-            <div className="flex flex-col gap-5 py-2 px-3 items-start border-r dark:border-[#454545]">
+            <div className="flex flex-col gap-3 py-2 px-3 items-start border-r dark:border-[#454545]">
               <div className="grid grid-flow-row">
                 <div className="text-greylish text-xs">Total Value</div>
                 <div className="text-sm font-semibold truncate">
@@ -204,38 +203,40 @@ function WalletList({ item }: { item: IAccountORM }) {
               </div>
               {
                 <div className="flex flex-col mr-2 w-full">
-                  <div className="text-greylish text-xs mb-5">Signers</div>
-                  <div className="relative w-full">
-                    {item.members.slice(0,3).map((member, index) => (
-                      <Avatar
-                        key={member.id}
-                        sx={{
-                          width: "1.25rem!important",
-                          height: "1.25rem!important",
-                          position: "absolute",
-                          bottom: "0",
-                          left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6  : 0}rem`,
-                          zIndex: `${zIndex}`,
-                        //   borderWidth: `${index === 0 ? 0 : 1}px`,
-                            borderWidth: "1px"
-                        }}
-                        alt={member.name}
-                        src={
-                          member.address.toLowerCase() ===
-                          providerID?.toLowerCase()
-                            ? individual?.image?.imageUrl ??
-                              makeBlockie(member.address)
-                            : member?.image?.imageUrl ??
-                              member?.image?.nftUrl ??
-                              makeBlockie(member.address)
-                        }
-                      />
-                    ))}
-                    {item.members.length > 3 && (
-                        <div className="w-[1.25rem] h-[1.25rem] bg-greylish flex items-center justify-center text-xs rounded-full float-left absolute !bottom-0 right-0">
-                            +{item.members.length - 3}
+                  <div className="text-greylish text-xs mb-6">Signers</div>
+                  <div className="relative w-full grid grid-cols-[60%,40%]">
+                    <div>
+                      {item.members.slice(0,4).map((member, index) => (
+                        <Avatar
+                          key={member.id}
+                          sx={{
+                            width: "1.25rem!important",
+                            height: "1.25rem!important",
+                            position: "absolute",
+                            bottom: "0",
+                            left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6  : index === 3 ? 2.4 : 0}rem`,
+                            zIndex: `${zIndex}`,
+                          //   borderWidth: `${index === 0 ? 0 : 1}px`,
+                              borderWidth: "1px"
+                          }}
+                          alt={member.name}
+                          src={
+                            member.address.toLowerCase() ===
+                            providerID?.toLowerCase()
+                              ? individual?.image?.imageUrl ??
+                                makeBlockie(member.address)
+                              : member?.image?.imageUrl ??
+                                member?.image?.nftUrl ??
+                                makeBlockie(member.address)
+                          }
+                        />
+                      ))}
+                    </div>
+                      {item.members.length > 4 && (
+                        <div className="w-[1.25rem] h-[1.25rem] bg-greylish flex items-center justify-center text-xs rounded-full ml-1">
+                            +{item.members.length - 4}
                         </div>
-                    )}
+                      )}
 
                   </div>
                 </div>
