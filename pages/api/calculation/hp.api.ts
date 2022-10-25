@@ -34,7 +34,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const result = await Promise.all(coinList.map(async (coin) => {
         const data = await adminApp.firestore().collection(bc.hpCollection).doc(coin).get()
         const coins = data.data() as IHpPrice["coins"][0]["historicalPrices"]
-
+        if (!coins) {
+            return {
+                [coin]: {
+                    AUD: [],
+                    CAD: [],
+                    EUR: [],
+                    GBP: [],
+                    JPY: [],
+                    TRY: [],
+                    USD: []
+                }
+            }
+        }
         const response: IHpApiResponse[0] = {
             AUD: fiatMoney === "AUD" ? coins.aud.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
             CAD: fiatMoney === "CAD" ? coins.cad.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
