@@ -107,7 +107,7 @@ const ProfileSetting = () => {
 
 
 
-    return <div className="py-5 grid grid-flow-row grid-rows-6 space-y-3">
+    return <div className="py-5 grid grid-flow-row grid-rows-6 gap-y-3">
         <div className="w-full bg-white dark:bg-darkSecond rounded-md shadow-custom px-5 grid grid-cols-[25%,25%,50%] items-center py-3">
             <div className="text-base font-medium">Fiat Currency</div>
             <div className="flex">

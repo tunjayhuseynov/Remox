@@ -218,11 +218,11 @@ const TotalMonthlyAmount = (contributorsList: IMember[], Coins: AltCoins[], Fiat
   return contributorsList.reduce((acc, curr) => {
     const coin = Coins.find((c) => c.symbol === curr.currency)
     if (!coin) return acc;
-    const fiatPrice = GetFiatPrice(coin, Fiat)
+    const fiatPrice = GetFiatPrice(coin, Fiat) * +curr.amount
     let fiatPrice2 = 0;
     const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
-    if (coin2) {
-      fiatPrice2 = GetFiatPrice(coin2, Fiat)
+    if (coin2 && curr.secondAmount) {
+      fiatPrice2 = GetFiatPrice(coin2, Fiat) * +curr.secondAmount
     }
     const contributorStartMonth = new Date(curr.paymantDate)
     const contributorEndMonth = new Date(curr.paymantEndDate)
