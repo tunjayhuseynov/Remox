@@ -795,8 +795,28 @@ export default function useMultisig() {
                     const senderAddress = await safeOwner.getAddress();
 
                     const safeTransaction = await safeSdk.getAddOwnerTx(params);
+                    const nonce = await safeService.getNextNonce(account.address)
 
-                    const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                    const transaction: SafeTransactionData = {
+                        to: toChecksumAddress(safeTransaction.data.to ?? ""),
+                        data: safeTransaction.data.data as string,
+                        value: safeTransaction.data.value?.toString() ?? "0",
+                        safeTxGas: safeTransaction.data?.safeTxGas,
+                        operation: safeTransaction.data.operation,
+                        baseGas: safeTransaction.data?.baseGas, // Optional
+                        gasPrice: safeTransaction.data?.gasPrice, // Optional
+                        gasToken: safeTransaction.data?.gasToken, // Optional
+                        refundReceiver: safeTransaction.data?.refundReceiver, // Optional
+                        nonce: nonce, // Optional
+                    };
+
+
+                    const safeTxHash = await safeSdk.getTransactionHash({
+                        addSignature: safeTransaction.addSignature,
+                        data: transaction,
+                        encodedSignatures: safeTransaction.encodedSignatures,
+                        signatures: safeTransaction.signatures,
+                    });
 
                     const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 

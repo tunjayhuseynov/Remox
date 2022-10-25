@@ -40,7 +40,7 @@ export const Multisig_Fetch_Thunk = createAsyncThunk<IReturnType, { accounts: IA
 
     multisigAccounts.forEach(s => {
         const txs = s.txs;
-        const Pendings = txs.filter(s => s.isExecuted === false)
+        const Pendings = txs.filter(s => s.isExecuted === false &&(s.rejection == null || (s.rejection && s.rejection?.isExecuted === false)))
         const Approveds = txs.filter(s => s.isExecuted === true)
 
         pendingRequests = [...pendingRequests, ...Pendings];

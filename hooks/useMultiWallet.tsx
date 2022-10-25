@@ -5,7 +5,7 @@ import {
     WalletConnectConnector,
     PrivateKeyConnector,
     InjectedConnector
-} from '@celo/react-celo/lib/connectors/connectors'
+} from '@celo/react-celo/lib/connectors'
 import { CeloContract } from '@celo/contractkit'
 import { useDispatch, useSelector } from 'react-redux';
 import { isMobile, isAndroid } from 'react-device-detect';
@@ -53,10 +53,10 @@ export default function useMultiWallet() {
             throw new Error("No Data In Users")
         }
 
-        if (connector && connector.account && storage) {
-            if (providerAddress === connector.account) throw new Error("Provider address already set")
+        if (connector && connector.kit.connection.defaultAccount && storage) {
+            if (providerAddress === connector.kit.connection.defaultAccount) throw new Error("Provider address already set")
 
-            const account = connector.account
+            const account = connector.kit.connection.defaultAccount
 
             if (account) {
                 if (!isOrganization) {
@@ -153,9 +153,9 @@ export default function useMultiWallet() {
     const WalletFinder = (type: string, { index, privateKey }: { index?: number, privateKey?: string } = {}) => {
         switch (type) {
             case WalletTypes.MetaMask:
-                return new MetaMaskConnector(Mainnet, CeloContract.GoldToken)
+                return new MetaMaskConnector(Mainnet, false, CeloContract.GoldToken)
             case WalletTypes.Injected:
-                return new InjectedConnector(Mainnet, CeloContract.GoldToken)
+                return new InjectedConnector(Mainnet, false, CeloContract.GoldToken)
             case WalletTypes.PrivateKey:
                 return new PrivateKeyConnector(Mainnet, (privateKey ?? ""), CeloContract.GoldToken)
             case WalletTypes.CeloExtensionWallet:
@@ -163,25 +163,25 @@ export default function useMultiWallet() {
             case WalletTypes.Ledger:
                 return new LedgerConnector(Mainnet, (index ?? 0), CeloContract.GoldToken)
             case WalletTypes.WalletConnect:
-                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                return new WalletConnectConnector(Mainnet, false, CeloContract.GoldToken, {
                     connect: {
                         chainId: Mainnet.chainId
                     },
                 }, isAndroid)
             case WalletTypes.CeloWallet:
-                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                return new WalletConnectConnector(Mainnet, false, CeloContract.GoldToken, {
                     connect: {
                         chainId: Mainnet.chainId
                     },
                 }, false, undefined, 1)
             case WalletTypes.CeloDance:
-                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                return new WalletConnectConnector(Mainnet, false, CeloContract.GoldToken, {
                     connect: {
                         chainId: Mainnet.chainId
                     },
                 }, isMobile, getDeepLink, 1)
             case WalletTypes.Valora:
-                return new WalletConnectConnector(Mainnet, CeloContract.GoldToken, {
+                return new WalletConnectConnector(Mainnet, false, CeloContract.GoldToken, {
                     connect: {
                         chainId: Mainnet.chainId
                     },
