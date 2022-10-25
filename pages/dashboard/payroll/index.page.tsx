@@ -15,7 +15,8 @@ import { FiatMoneyList } from 'firebaseConfig';
 import ChooseBudget from 'components/general/chooseBudget';
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IAccountORM } from "pages/api/account/index.api";
-
+import datetime from 'date-and-time'
+import { NG } from 'utils/jsxstyle'
 
 export default function DynamicPayroll() {
   const [isAvaible, setIsAviable] = useState<boolean>(false)
@@ -151,7 +152,7 @@ export default function DynamicPayroll() {
           </Button>}
         </div>
       </div>
-      {contributors.length > 0 &&<div className="pt-4 !mt-10 pb-5 pl-5 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md">
+      {contributors.length > 0 && <div className="pt-4 !mt-10 pb-5 pl-5 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md">
         <div className='flex'>
           <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r border-greylish dark:border-[#454545] border-opacity-10'>
             <div className='text-lg text-greylish dark:text-opacity-90 font-semibold'>Total Monthly Payment</div>
@@ -164,12 +165,12 @@ export default function DynamicPayroll() {
             <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12 pb-5'>
               {Object.entries(totalPrice[0]).map(([currency, amount], index) => {
                 return <div key={index} className="flex flex-col items-start  h-fit">
-                  <div className="font-semibold text-2xl flex gap-2 items-center">
-                    <img src={GetCoins[currency as keyof Coins].logoURI} width="24" height="24" className=" rounded-full" alt="" />
-                    <div className="font-semibold text-xl">{amount.toFixed(2)}</div>
+                  <div className="font-semibold text-2xl grid grid-cols-[1.5rem,1fr] gap-2">
+                    <img src={GetCoins[currency as keyof Coins].logoURI} width="24" height="24" className="self-center rounded-full" alt="" />
+                    <div className="font-semibold text-xl"><NG number={amount} fontSize={1.25} /></div>
                   </div>
-                  <div className="font-medium text-sm  text-greylish  text-left pl-10">
-                    ${(amount * GetCoins[currency as keyof Coins].priceUSD).toLocaleString()}
+                  <div className="font-medium text-sm text-greylish text-left pl-[2rem]">
+                    {fiatSymbol}{(amount * GetCoins[currency as keyof Coins].priceUSD).toLocaleString()}
                   </div>
                 </div>
               })}
@@ -210,87 +211,55 @@ export default function DynamicPayroll() {
 
 
 const TotalMonthlyAmount = (contributorsList: IMember[], Coins: AltCoins[], Fiat: FiatMoneyList) => {
-  const date = new Date()
-  const currentMonth = date.getMonth()
-  const currentYear = date.getFullYear()
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
 
   return contributorsList.reduce((acc, curr) => {
     const coin = Coins.find((c) => c.symbol === curr.currency)
-    const fiatPrice = GetFiatPrice(coin ?? Coins[0], Fiat)
+    if (!coin) return acc;
+    const fiatPrice = GetFiatPrice(coin, Fiat)
+    let fiatPrice2 = 0;
     const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
-    const fiatPrice2 = GetFiatPrice(coin2 ?? Coins[1], Fiat)
-    const contributorStartMonth = new Date(curr.paymantDate).getMonth()
-    const contributorEndMonth = new Date(curr.paymantEndDate).getMonth()
+    if (coin2) {
+      fiatPrice2 = GetFiatPrice(coin2, Fiat)
+    }
+    const contributorStartMonth = new Date(curr.paymantDate)
+    const contributorEndMonth = new Date(curr.paymantEndDate)
+
+    if (now.getTime() > contributorEndMonth.getTime()) return acc;
+
     const contributorYear = new Date(curr.paymantEndDate).getFullYear()
-    const monthDays = daysInMonth(date.getTime(), currentYear)
+    const monthDays = daysInMonth(now.getTime(), currentYear)
 
-    if (contributorYear === currentYear) {
-      if (curr.execution === "Manual") {
-        if (curr.interval === "monthly") {
-          if (currentMonth === contributorEndMonth) {
-            if (coin) {
-              const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
-              if (curr.fiat) {
-                const tokenFiatPrice = GetFiatPrice(coin!, curr.fiat)
-                const tokenAmount = amount / tokenFiatPrice
-                acc += (tokenAmount * fiatPrice)
-              } else {
-                acc += (amount * fiatPrice)
-              }
-            }
-
-            if (curr.secondAmount && curr.secondCurrency && coin2) {
-              const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
-              const amount = typeof curr.secondAmount === "string" ? parseFloat(curr.secondAmount) : curr.secondAmount
-              if (curr.fiatSecond) {
-                const tokenFiatPrice = GetFiatPrice(secondCoin!, curr.fiatSecond)
-                const tokenAmount = amount / tokenFiatPrice
-                acc += (tokenAmount * fiatPrice2)
-              } else {
-                acc += (amount * fiatPrice2)
-              }
-            }
-          } else {
-            acc += 0
+    if (curr.execution === "Manual") {
+      if (curr.interval === "monthly") {
+        if (now.getMonth() === contributorEndMonth.getMonth()) {
+          acc += fiatPrice + fiatPrice2
+        }
+      } else {
+        const diff = Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays());
+        let weeks = Math.floor(diff / 7)
+        while (weeks) {
+          const crr = datetime.addDays(contributorStartMonth, 7 * weeks)
+          if (crr.getMonth() === now.getMonth()) {
+            acc += fiatPrice + fiatPrice2
           }
-        } else if (curr.interval === "weekly") {
-          const daysDiff = days(curr.paymantDate, curr.paymantEndDate)
-          if (contributorStartMonth === currentMonth) {
-            if ((contributorEndMonth && contributorStartMonth) === currentMonth) {
-              if (coin) {
-                const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
-                if (curr.fiat) {
-                  const tokenFiatPrice = GetFiatPrice(coin!, curr.fiat)
-                  const tokenAmount = amount / tokenFiatPrice
-                  acc += ((tokenAmount * fiatPrice) * daysDiff)
-                } else {
-                  acc += ((amount * fiatPrice) * daysDiff)
-                }
-              }
-
-              if (curr.secondAmount && curr.secondCurrency && coin2) {
-                const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
-                const amount = typeof curr.secondAmount === "string" ? parseFloat(curr.secondAmount) : curr.secondAmount
-                if (curr.fiatSecond) {
-                  const tokenFiatPrice = GetFiatPrice(secondCoin!, curr.fiatSecond)
-                  const tokenAmount = amount / tokenFiatPrice
-                  acc += ((tokenAmount * fiatPrice2) * daysDiff)
-                } else {
-                  acc += ((amount * fiatPrice2) * daysDiff)
-                }
-              }
-            } else if (contributorStartMonth === currentMonth && contributorEndMonth !== currentMonth) {
-              const daysLeft = monthDays - new Date(contributorStartMonth).getDate()
-              const times = daysLeft / 7
-            }
-          } else {
-            acc += 0
-          }
-
+          weeks -= 1;
         }
       }
     } else {
-      acc += 0
+      const comDiff = Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays());
+      const firstPrice = fiatPrice / comDiff
+      const secondPrice = fiatPrice2 / comDiff
+      if (now.getMonth() === contributorEndMonth.getMonth()) {
+        const diff = Math.abs(datetime.subtract(now, contributorEndMonth).toDays())
+        acc += (firstPrice * diff) + (secondPrice * diff)
+      }
+      else {
+        const diff = Math.abs(datetime.subtract(now, new Date(now.getFullYear(), now.getMonth() + 1, 0)).toDays())
+        acc += (firstPrice * diff) + (secondPrice * diff)
+      }
     }
 
     return acc
