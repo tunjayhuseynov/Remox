@@ -102,36 +102,45 @@ function WalletItem({ item }: { item: IAccountORM }) {
     }
 
     const deleteWallet = async () => {
-        if (!id) return ToastRun(<>Cannot find your session</>, "error")
-        if (accountType === "individual") {
-            if (!individual) return ToastRun(<>Cannot find your session</>, "error")
-            await dispatch(Remove_Account_From_Individual({
-                account: item,
-                individual: individual,
-                userId: id
-            }))
-        } else {
-            if (!organization) return ToastRun(<>Cannot find your session</>, "error")
-            await dispatch(Remove_Account_From_Organization({
-                account: item,
-                organization: organization,
-                userId: id
-            }))
+        try {
+            if (!id) return ToastRun(<>Cannot find your session</>, "error")
+            if (accountType === "individual") {
+                if (!individual) return ToastRun(<>Cannot find your session</>, "error")
+                await dispatch(Remove_Account_From_Individual({
+                    account: item,
+                    individual: individual,
+                    userId: id
+                }))
+            } else {
+                if (!organization) return ToastRun(<>Cannot find your session</>, "error")
+                await dispatch(Remove_Account_From_Organization({
+                    account: item,
+                    organization: organization,
+                    userId: id
+                }))
+            }
+        } catch (error) {
+            ToastRun(<>Error deleting wallet</>, "error")
+            console.log(error)
         }
     }
 
 
     const addNewOwner = async (data: { name: string, address: string, mail?: string }) => {
-        if (!item.provider) return ToastRun(<>Cannot find the account's multisig provider</>, "error")
-        await addOwner(item, data.address, data.name, addOwnerImageURL ? {
-            blockchain: item.blockchain,
-            imageUrl: addOwnerImageURL,
-            nftUrl: addOwnerImageURL,
-            tokenId: null,
-            type: addOwnerImageType
-        } : null, data.mail, item.provider)
-        ToastRun(<>Transaction is created</>, "success")
-        setAddOwnerModal(false)
+        try {
+            if (!item.provider) return ToastRun(<>Cannot find the account's multisig provider</>, "error")
+            await addOwner(item, data.address, data.name, addOwnerImageURL ? {
+                blockchain: item.blockchain,
+                imageUrl: addOwnerImageURL,
+                nftUrl: addOwnerImageURL,
+                tokenId: null,
+                type: addOwnerImageType
+            } : null, data.mail, item.provider)
+            ToastRun(<>Transaction is created</>, "success")
+            setAddOwnerModal(false)
+        } catch (error) {
+            ToastRun(<>Be sure there is no another owner addition transaction</>, "error")
+        }
     }
 
     const changeThreshold = async (data: { threshold: number }) => {
@@ -167,7 +176,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                             transition: "all 0.1s ease-in-out"
                         }} />}
                     </div>
-                    <div className="flex items-center justify-start gap-2" onClick={event=> event.stopPropagation()}>
+                    <div className="flex items-center justify-start gap-2" onClick={event => event.stopPropagation()}>
                         <EditableAvatar
                             avatarUrl={(typeof item.image?.imageUrl === "string" ? item.image?.imageUrl : null) ?? item.image?.nftUrl ?? null}
                             name={item.name}
@@ -218,73 +227,12 @@ function WalletItem({ item }: { item: IAccountORM }) {
                         </div>
                     </div>
                 </div>
-                {item.multidata && <AccordionDetails className='!ml-[9%] bg-white dark:bg-darkSecond shadow-custom mt-1 rounded-sm'>
-                    {item.members.map((s, i) => <div key={item.id} className={`${i !== item.members.length - 1 && "border-b dark:border-gray-500 py-3"}`}>
+                {item.multidata && <AccordionDetails className='!ml-[9%] bg-white dark:bg-darkSecond shadow-custom mt-1 rounded-sm' onClick={event => event.stopPropagation()}>
+                    {item.members.map((s, i) => <div key={s.id} className={`${i !== item.members.length - 1 && "border-b dark:border-gray-500 py-3"}`}>
                         <OwnerItem item={s} account={item} />
                     </div>)}
                 </AccordionDetails>}
             </Accordion>
-            {deleteModal &&
-                <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-6'}>
-                    <div className="flex flex-col space-y-8 items-center">
-                        <div className="text-2xl text-primary">Are You Sure?</div>
-                        <div className="flex items-center justify-center text-xl">
-                            You Are About Delete This Wallet
-                        </div>
-                        <div className="flex justify-center items-center space-x-4">
-                            <Button version="second" className="border-2  w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={() => { setDeleteModal(false) }}>No</Button>
-                            <Button className="w-[7rem] h-[2.7rem] !px-1 !py-0" onClick={DeleteWallet} isLoading={deleteLoading}>Yes</Button>
-                        </div>
-                    </div>
-                </Modal>}
-            {addOwnerModal &&
-                <Modal onDisable={setAddOwnerModal} animatedModal={false} disableX={true} className={'!pt-6 !w-[30%]'}>
-                    <form onSubmit={handleAddOwnerSubmit(AddOwner)} className="flex flex-col gap-7">
-                        <div className={`flex justify-center flex-shrink-0 flex-grow-0`}>
-                            <EditableAvatar
-                                avatarUrl={null}
-                                name={"random"}
-                                blockchain={blockchain}
-                                evm={blockchain.name !== "solana"}
-                                userId={`${id ?? ""}/accounts/${item.id}`}
-                                onChange={(url, type) => { setAddOwnerImageURL(url); setAddOwnerImageType(type) }}
-                            />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <TextField label="Owner Name" type="text" {...registerAddOwner("name", { required: true })} placeholder="E.g: Jessy" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <TextField label="Owner Address" type="text" {...registerAddOwner("address", { required: true })} placeholder="0x0000000000000000000000000000000000000000" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <TextField label="Owner Email" type="email" {...registerAddOwner("mail", { required: false })} placeholder="remox@remox.io" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
-                            <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { setAddOwnerModal(false) }}>
-                                Close
-                            </Button>
-                            <Button type='submit' className="px-6 py-3 rounded-md" isLoading={addOwnerLoading}>
-                                Save
-                            </Button>
-                        </div>
-                    </form>
-                </Modal>}
-            {changeThresholdModal &&
-                <Modal onDisable={setChangeThresholdModal} animatedModal={false} disableX={true} className={'!pt-6 !w-[30%]'}>
-                    <form onSubmit={handleThresholdSubmit(ChangeThreshold)} className="flex flex-col gap-7">
-                        <div className="flex flex-col gap-1">
-                            <TextField defaultValue={item.multidata?.threshold.sign} label="Threshold" type="number" {...registerThreshold("threshold", { required: true, valueAsNumber: true })} placeholder="E.g: 5" className="border w-full py-3 text-base rounded-md px-3 dark:bg-darkSecond" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-10 pt-1 pb-2 justify-center">
-                            <Button version="second" className="px-6 py-3 rounded-md" onClick={() => { setChangeThresholdModal(false) }}>
-                                Close
-                            </Button>
-                            <Button type='submit' className="px-6 py-3 rounded-md" isLoading={changeThresholdLoading}>
-                                Save
-                            </Button>
-                        </div>
-                    </form>
-                </Modal>}
         </div>
         {deleteModal &&
             <Modal onDisable={setDeleteModal} animatedModal={false} disableX={true} className={'!pt-6'}>

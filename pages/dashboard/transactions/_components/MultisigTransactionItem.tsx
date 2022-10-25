@@ -76,6 +76,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
             if (!account) return ToastRun(<>Cannot get your account</>, "error");
             let hash = rejection && tx.rejection ? tx.rejection.safeTxHash : tx.hashOrIndex
+            console.log("executeFn", hash)
             await executeTransaction(account, hash, tx.provider)
             if (tx.firstNonce) {
                 dispatch(increaseNonce({

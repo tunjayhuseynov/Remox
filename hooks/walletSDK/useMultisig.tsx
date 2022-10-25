@@ -574,7 +574,28 @@ export default function useMultisig() {
 
                 const safeTransaction = await safeSdk.getRemoveOwnerTx(params);
 
-                const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                const nonce = await safeService.getNextNonce(account.address)
+
+                const transaction: SafeTransactionData = {
+                    to: safeTransaction.data.to,
+                    data: safeTransaction.data.data,
+                    value: safeTransaction.data.value?.toString(),
+                    safeTxGas: safeTransaction.data?.safeTxGas,
+                    operation: safeTransaction.data.operation,
+                    baseGas: safeTransaction.data?.baseGas, // Optional
+                    gasPrice: safeTransaction.data?.gasPrice, // Optional
+                    gasToken: safeTransaction.data?.gasToken, // Optional
+                    refundReceiver: safeTransaction.data?.refundReceiver, // Optional
+                    nonce: nonce, // Optional
+                };
+
+
+                const safeTxHash = await safeSdk.getTransactionHash({
+                    addSignature: safeTransaction.addSignature,
+                    data: transaction,
+                    encodedSignatures: safeTransaction.encodedSignatures,
+                    signatures: safeTransaction.signatures,
+                });
 
                 const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
@@ -690,7 +711,28 @@ export default function useMultisig() {
                 const senderAddress = await safeOwner.getAddress();
 
                 const safeTransaction = await safeSdk.getChangeThresholdTx(internalSign);
-                const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+                const nonce = await safeService.getNextNonce(account.address)
+
+                const transaction: SafeTransactionData = {
+                    to: safeTransaction.data.to,
+                    data: safeTransaction.data.data,
+                    value: safeTransaction.data.value?.toString(),
+                    safeTxGas: safeTransaction.data?.safeTxGas,
+                    operation: safeTransaction.data.operation,
+                    baseGas: safeTransaction.data?.baseGas, // Optional
+                    gasPrice: safeTransaction.data?.gasPrice, // Optional
+                    gasToken: safeTransaction.data?.gasToken, // Optional
+                    refundReceiver: safeTransaction.data?.refundReceiver, // Optional
+                    nonce: nonce, // Optional
+                };
+
+
+                const safeTxHash = await safeSdk.getTransactionHash({
+                    addSignature: safeTransaction.addSignature,
+                    data: transaction,
+                    encodedSignatures: safeTransaction.encodedSignatures,
+                    signatures: safeTransaction.signatures,
+                });
 
                 const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
@@ -761,6 +803,18 @@ export default function useMultisig() {
                                 blockchain: blockchain,
                                 txHash: receipt.transactionHash,
                             }))
+
+                            dispatch(Add_Member_To_Pending_List_Thunk({
+                                accountId: account.id,
+                                memberAddress: newOwner,
+                                memberObject: {
+                                    id: nanoid(),
+                                    address: newOwner,
+                                    name,
+                                    image,
+                                    mail,
+                                }
+                            }))
                         }
                     });
                 } else if (provider === "GnosisSafe") {
@@ -798,9 +852,9 @@ export default function useMultisig() {
                     const nonce = await safeService.getNextNonce(account.address)
 
                     const transaction: SafeTransactionData = {
-                        to: toChecksumAddress(safeTransaction.data.to ?? ""),
-                        data: safeTransaction.data.data as string,
-                        value: safeTransaction.data.value?.toString() ?? "0",
+                        to: safeTransaction.data.to,
+                        data: safeTransaction.data.data,
+                        value: safeTransaction.data.value?.toString(),
                         safeTxGas: safeTransaction.data?.safeTxGas,
                         operation: safeTransaction.data.operation,
                         baseGas: safeTransaction.data?.baseGas, // Optional
@@ -835,22 +889,23 @@ export default function useMultisig() {
                         txHash: safeTxHash,
                         // tags: tags,
                     }))
+                    dispatch(Add_Member_To_Pending_List_Thunk({
+                        accountId: account.id,
+                        memberAddress: newOwner,
+                        memberObject: {
+                            id: nanoid(),
+                            address: newOwner,
+                            name,
+                            image,
+                            mail,
+                        }
+                    }))
                     return safeTxHash;
                 }
 
 
                 // await Add_Member(newOwner, name, image, mail)
-                dispatch(Add_Member_To_Pending_List_Thunk({
-                    accountId: account.id,
-                    memberAddress: newOwner,
-                    memberObject: {
-                        id: nanoid(),
-                        address: newOwner,
-                        name,
-                        image,
-                        mail,
-                    }
-                }))
+
 
                 return true
             } catch (error) {
@@ -1320,7 +1375,7 @@ export default function useMultisig() {
                     );
                     safeTransaction.addSignature(signature);
                 });
-
+      
                 // safeTransaction.addSignature(ethSignuture!);
                 const executeTxResponse = await safeSdk.executeTransaction(
                     {

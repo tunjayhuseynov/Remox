@@ -72,7 +72,7 @@ const OwnerItem = ({ item, account }: { item: IMember, account: IAccount }) => {
     const deleteOwner = async () => {
         try {
             if (!account.provider) return ToastRun(<>Provider is not selected</>, "error")
-            removeOwner(account, item.address, account.provider)
+            await removeOwner(account, item.address, account.provider)
         } catch (error) {
             ToastRun(<>Error while deleting owner</>, "error")
         }
