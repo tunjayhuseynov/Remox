@@ -117,7 +117,7 @@ const Sidebar = () => {
                     <AnimatePresence>
                         {sidedown && <div className='absolute overflow-hidden -bottom-1 bg-white dark:bg-darkSecond translate-y-full w-full left-0 z-[999999999999]'>
                             <ClickAwayListener onClickAway={() => setSidedown(false)}>
-                                <motion.div className="overflow-auto h-[200px]" animate={{ opacity: 1 }} initial={{ opacity: 0 }} transition={{ duration: .33 }} exit={{ opacity: 0 }}>
+                                <motion.div className="overflow-auto max-h-[200px]" animate={{ opacity: 1 }} initial={{ opacity: 0 }} transition={{ duration: .33 }} exit={{ opacity: 0 }}>
                                     <div>
                                         {filteredOrganization.map((e, i) => {
                                             return <div key={e.id} className="flex flex-col dark:hover:bg-white dark:hover:bg-opacity-5" onClick={() => e.onClick()}>
