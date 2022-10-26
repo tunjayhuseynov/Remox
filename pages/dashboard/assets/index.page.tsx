@@ -78,11 +78,7 @@ const Assets = () => {
     const dark = useNextSelector(SelectDarkMode)
 
     const spotTokens = useAppSelector(SelectSpotBalance);
-    console.log(spotTokens)
     const yieldTokens = useAppSelector(SelectYieldBalance);
-    console.log(yieldTokens)
-
-
 
     const mySpotTokens = Object.values(spotTokens ?? {}).filter((token) => token.amount > 0);
     const myYieldTokens = Object.values(yieldTokens ?? {}).filter((token) => token.amount > 0);
@@ -91,6 +87,9 @@ const Assets = () => {
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
     const nfts = useAppSelector(SelectNfts)
+
+    console.log(nfts)
+
     const fiat = useAppSelector(SelectFiatPreference)
     const {GetCoins} = useWalletKit()
     const nftTotalPrice =  getTotalNftPrice(nfts, fiat,  Object.values(GetCoins).find((c) => c.symbol === "CELO")!)

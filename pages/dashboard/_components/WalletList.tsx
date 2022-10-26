@@ -204,9 +204,9 @@ function WalletList({ item }: { item: IAccountORM }) {
               {
                 <div className="flex flex-col mr-2 w-full">
                   <div className="text-greylish text-xs mb-6">Signers</div>
-                  <div className="relative w-full grid grid-cols-[60%,40%]">
+                  <div className="relative w-full">
                     <div>
-                      {item.members.slice(0,4).map((member, index) => (
+                      {item.members.slice(0,3).map((member, index) => (
                         <Avatar
                           key={member.id}
                           sx={{
@@ -214,10 +214,9 @@ function WalletList({ item }: { item: IAccountORM }) {
                             height: "1.25rem!important",
                             position: "absolute",
                             bottom: "0",
-                            left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6  : index === 3 ? 2.4 : 0}rem`,
+                            left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6  : 0}rem`,
                             zIndex: `${zIndex}`,
-                          //   borderWidth: `${index === 0 ? 0 : 1}px`,
-                              borderWidth: "1px"
+                            borderWidth: "1px"
                           }}
                           alt={member.name}
                           src={
@@ -231,13 +230,14 @@ function WalletList({ item }: { item: IAccountORM }) {
                           }
                         />
                       ))}
-                    </div>
-                      {item.members.length > 4 && (
-                        <div className="w-[1.25rem] h-[1.25rem] bg-greylish flex items-center justify-center text-xs rounded-full ml-1">
-                            +{item.members.length - 4}
+                      {item.members.length > 3 && (
+                        <div className="w-[1.25rem] h-[1.25rem] bg-[#E5E5E5] dark:bg-greylish absolute z-5 !bottom-0 left-[2.4rem] flex items-center justify-center !text-xs rounded-full border-[1px]">
+                          <span className="text-[10px] font-medium text-[#707070] dark:text-white">
+                            +{item.members.length - 3}
+                          </span>
                         </div>
                       )}
-
+                    </div>
                   </div>
                 </div>
               }

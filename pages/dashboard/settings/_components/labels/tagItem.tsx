@@ -37,6 +37,7 @@ export default function TagItem({ tag }: { tag: ITag }) {
                 id: id,
                 tag: tag
             }))
+            
             setDeleteModal(false)
         } catch (error) {
             console.error(error)

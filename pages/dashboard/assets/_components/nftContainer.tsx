@@ -15,8 +15,6 @@ const NftContainer = () => {
   const [nftsDataArray, setNftsDataArray] = useState<INFT[]>([]);
   const nfts = useAppSelector(SelectNfts);
 
-  console.log(nfts)
-
 
   useAsyncEffect(async () => {
     setLoading(true)
