@@ -56,6 +56,7 @@ import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balan
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
 
 
+
 let multiProxy = import("rpcHooks/ABI/MultisigProxy.json");
 let multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
 
@@ -191,6 +192,7 @@ export default function useMultisig() {
 
     //Celo
     const { kit } = useCelo()
+    
     const providerKit = kit.connection.web3.givenProvider
 
     //solana

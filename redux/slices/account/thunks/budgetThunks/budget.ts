@@ -5,7 +5,7 @@ import { IBudget, IBudgetTX } from "firebaseConfig";
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { RootState } from "redux/store";
 import { generatePriceCalculation } from "utils/const";
-import { addBudget, addTxToBudget, deleteBudget, removeTxFromBudget, updateBudget } from "../../remoxData";
+import { addBudget, addTxToBudget, chageTxToExecutedInBudget, deleteBudget, removeTxFromBudget, updateBudget } from "../../remoxData";
 
 
 interface IBaseBudget {
@@ -19,7 +19,8 @@ interface IBaseOrmBudget {
 interface IBudgetAndTx extends IBaseOrmBudget {
     tx: IBudgetTX,
     isExecuted: boolean,
-    txIndex?: number
+    txIndex?: number,
+    convertExecuted?: boolean
 }
 
 /*Budget */
@@ -75,12 +76,10 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
     }))
 })
 
-export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted, txIndex }, api) => {
+export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted, txIndex, convertExecuted }, api) => {
     const state = api.getState() as RootState
     const currencies = state.remoxData.coins
     const preference = state.remoxData.storage?.organization?.fiatMoneyPreference ?? state.remoxData.storage?.individual.fiatMoneyPreference ?? "USD"
-
-    await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
     const currency = currencies[tx.token];
 
     let amount = tx.amount;
@@ -89,6 +88,18 @@ export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remo
     } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
         amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
     }
+
+    if(budget.txs.find(s=>s.contractAddress === tx.contractAddress && s.hashOrIndex === tx.hashOrIndex) && convertExecuted){
+        api.dispatch(chageTxToExecutedInBudget({
+            budget,
+            currency,
+            tx:{ ...tx, amount },
+        }))
+        return
+    }
+
+    await Update_Budget({ ...budget, txs: [...budget.txs, tx] })
+
 
     api.dispatch(addTxToBudget({
         budget,

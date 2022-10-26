@@ -112,6 +112,37 @@ export default {
             }
         }
     },
+    chageTxToExecutedInBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins } }) => {
+        const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
+        if (index !== -1) {
+            const budgetIndex = state.budgetExercises[index].budgets.findIndex((budget) => budget.id === payload.budget.id);
+            if (budgetIndex !== -1) {
+                state.budgetExercises[index].budgets[budgetIndex].txs = [...state.budgetExercises[index].budgets[budgetIndex].txs, payload.tx];
+
+
+                if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
+                    state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
+                        ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount,
+                        totalPending: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                        totalUsedAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                    }
+                }
+                const second = state.budgetExercises[index].budgets[budgetIndex].budgetCoins?.second;
+                if (second && payload.currency.symbol.toLowerCase() === second.secondCoin.toLowerCase()) {
+                    state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
+                        ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
+                        second: second ? {
+                            ...second,
+                            secondTotalAmount: second.secondTotalAmount,
+                            secondTotalPending: second.secondTotalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            secondTotalUsedAmount: second.secondTotalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                        } : null
+                    }
+                }
+            }
+        }
+    },
     removeTxFromBudget: (state: IRemoxData, { payload }: { payload: { tx: IBudgetTX, budget: IBudgetORM, currency: AltCoins, isTxExecuted: boolean, txIndexInCM?: number } }) => {
         const index = state.budgetExercises.findIndex((budget) => budget.id === payload.budget.parentId);
         if (index !== -1) {
