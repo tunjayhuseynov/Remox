@@ -7,8 +7,6 @@ import {
 } from "@solana/web3.js";
 import { useCallback, useMemo } from "react";
 import { AltCoins, Coins, TokenType } from "types";
-import { fromLamport, fromWei } from "utils/ray";
-import * as spl from "easy-spl";
 import { TextDecoder, TextEncoder } from "util";
 import { GetSignedMessage, GetTime } from "utils";
 import {
@@ -45,6 +43,9 @@ import { ToastRun } from "utils/toast";
 import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
 import { Add_Notes_Thunk } from "redux/slices/account/thunks/notes";
+import { newKit } from "@celo/contractkit";
+import BigNumber from "bignumber.js";
+
 
 export enum CollectionName {
   Celo = "currencies",
@@ -108,6 +109,32 @@ export default function useWalletKit() {
       dispatch(SetBlockchain(Blockchains.find((bc) => bc.name === "solana")!));
     }
   };
+
+  const SpiralAPR = useCallback(async () => {
+    if (blockchain.name === "celo") {
+      const epochRewardsContract =  await newKit(blockchain.rpcUrl)._web3Contracts.getEpochRewards()
+
+      const [rewardsMultiplierFraction, { 0: targetVotingYieldFraction }] = await Promise.all([
+        epochRewardsContract.methods.getRewardsMultiplier().call(),
+        epochRewardsContract.methods.getTargetVotingYieldParameters().call(),
+      ]);
+  
+      // EpochRewards contract is using Fixidity library which operates on decimal part of numbers
+      // Fixidity is always using 24 length decimal parts
+      const fixidityDecimalSize = new BigNumber(10).pow(24);
+      const targetVotingYield = new BigNumber(targetVotingYieldFraction).div(fixidityDecimalSize);
+      const rewardsMultiplier = new BigNumber(rewardsMultiplierFraction).div(fixidityDecimalSize);
+  
+      // Target voting yield is for a single day only, so we have to calculate this for entire year
+      const unadjustedAPR = targetVotingYield.times(365);
+  
+      // According to the protocol it has to be adjusted by rewards multiplier
+      const adjustedAPR = unadjustedAPR.times(rewardsMultiplier);
+  
+      const percentageAPR = adjustedAPR.times(100);
+      return percentageAPR.toFixed(2);
+    }
+  }, [])
 
   const signMessageInWallet = useCallback(
     async (nonce: number) => {
@@ -514,6 +541,7 @@ export default function useWalletKit() {
     Collection,
     setBlockchainAuto,
     signMessageInWallet,
+    SpiralAPR
   };
 }
 

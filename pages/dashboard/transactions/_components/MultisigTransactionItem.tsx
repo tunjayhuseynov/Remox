@@ -24,6 +24,7 @@ import makeBlockie from 'ethereum-blockies-base64';
 import { FiRepeat } from 'react-icons/fi';
 import AddLabel from './tx/AddLabel';
 import { ClickAwayListener, Tooltip } from '@mui/material';
+import { Add_Tx_To_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 
 
 interface IProps {
@@ -56,6 +57,18 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
 
     const { executeTransaction, confirmTransaction, revokeTransaction } = useMultisig()
+   
+    let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
+    const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
+    const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
+    const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
+    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
+    const swap = transaction.id === ERC20MethodIds.swap ? transaction as unknown as ISwap : null;
+
+    const addOwner = transaction.id === ERC20MethodIds.addOwner ? transaction as unknown as IAddOwner : null;
+    const removeOwner = transaction.id === ERC20MethodIds.removeOwner ? transaction as unknown as IRemoveOwner : null;
+    const changeThreshold = transaction.id === ERC20MethodIds.changeThreshold ? transaction as unknown as IChangeThreshold : null;
+    const changeInternalThreshold = transaction.id === ERC20MethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
 
     const confirmFn = async (rejection?: boolean) => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
@@ -92,6 +105,43 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 rejection: !!rejection,
                 rejectionHash: null
             }))
+            if (tx.budget) {
+                if(transfer || automation){
+                    await dispatch(Add_Tx_To_Budget_Thunk({
+                        convertExecuted: true,
+                        tx: {
+                            amount: +(transfer?.amount ?? automation!.amount), 
+                            contractAddress: tx.contractAddress,
+                            contractType: "multi",
+                            hashOrIndex: tx.hashOrIndex,
+                            isSendingOut: true,
+                            protocol: tx.provider,
+                            timestamp: tx.timestamp,
+                            token: transfer?.coin.symbol ?? automation!.coin.symbol,
+                        },
+                        budget: tx.budget,
+                        isExecuted: true,
+                    }))
+                }else if(transferBatch || automationBatch){
+                    for (const transfer of (transferBatch?.payments ?? automationBatch!.payments)) {
+                        await dispatch(Add_Tx_To_Budget_Thunk({
+                            convertExecuted: true,
+                            tx: {
+                                amount: +(transfer?.amount ?? automation!.amount), 
+                                contractAddress: tx.contractAddress,
+                                contractType: "multi",
+                                hashOrIndex: tx.hashOrIndex,
+                                isSendingOut: true,
+                                protocol: tx.provider,
+                                timestamp: tx.timestamp,
+                                token: transfer?.coin.symbol ?? automation!.coin.symbol,
+                            },
+                            budget: tx.budget,
+                            isExecuted: true,
+                        }))
+                    }
+                }
+            }
         } catch (error) {
             console.log(error)
             ToastRun(<>Cannot execute transaction</>, "error");
@@ -124,17 +174,6 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const [revokeFnLoading, RevokeFn] = useLoading(revokeFn)
 
 
-    let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
-    const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
-    const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
-    const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
-    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
-    const swap = transaction.id === ERC20MethodIds.swap ? transaction as unknown as ISwap : null;
-
-    const addOwner = transaction.id === ERC20MethodIds.addOwner ? transaction as unknown as IAddOwner : null;
-    const removeOwner = transaction.id === ERC20MethodIds.removeOwner ? transaction as unknown as IRemoveOwner : null;
-    const changeThreshold = transaction.id === ERC20MethodIds.changeThreshold ? transaction as unknown as IChangeThreshold : null;
-    const changeInternalThreshold = transaction.id === ERC20MethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
 
     const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, true, account?.provider ?? undefined);
 
