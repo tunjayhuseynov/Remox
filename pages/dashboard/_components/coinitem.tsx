@@ -1,4 +1,5 @@
 import { MouseEventHandler } from "react";
+import { NG } from "utils/jsxstyle";
 
 
 
@@ -11,7 +12,7 @@ const CoinItem = ({ title, coin, usd, percent, img, setSelectcoin, selectcoin, o
                 <div className="text-xs">{title}</div>
             </div>
             <div className='text-xs !pl-4 text-center'>
-                    {`${coin.toFixed(1)}`}
+                <NG number={coin} fontSize={.75}/>
             </div>
             <div className="text-xs text-right">{percent}%</div>
         </div>

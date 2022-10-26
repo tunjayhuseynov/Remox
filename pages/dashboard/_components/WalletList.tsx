@@ -26,6 +26,7 @@ import MuiModal from "@mui/material/Modal";
 import { Box, Tooltip } from "@mui/material";
 import { useAppSelector } from "redux/hooks";
 import zIndex from "@mui/material/styles/zIndex";
+import { NG } from "utils/jsxstyle";
 
 const style = {
   position: "absolute" as "absolute",
@@ -181,8 +182,8 @@ function WalletList({ item }: { item: IAccountORM }) {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-[35%,1fr]">
-            <div className="flex flex-col gap-3 py-2 px-3 items-start border-r dark:border-[#454545]">
+          <div className="grid grid-cols-[27.9%,1fr]">
+            <div className="flex flex-col gap-3 py-2 px-[.68rem] items-start border-r dark:border-[#454545]">
               <div className="grid grid-flow-row">
                 <div className="text-greylish text-xs">Total Value</div>
                 <div className="text-sm font-semibold truncate">
@@ -190,13 +191,13 @@ function WalletList({ item }: { item: IAccountORM }) {
                     title={
                       <>
                         {symbol}
-                        {totalValue.toFixed(1)}
+                        <NG number={totalValue} fontSize={.875} />
                       </>
                     }
                   >
                     <>
                       {symbol}
-                      {totalValue.toFixed(1)}
+                      <NG number={totalValue} fontSize={.875} />
                     </>
                   </Tooltip>
                 </div>

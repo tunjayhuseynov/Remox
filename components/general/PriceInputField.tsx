@@ -112,7 +112,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                     <div className={`${selectedFiat ? "w-[120%]" : "w-auto"} flex space-x-3 justify-end`}>
                         {'amount' in selectedCoin &&
                             <div className='self-center'>
-                                <div className='px-2 dark:bg-greylish bg-[#D9D9D9] text-[0.5rem] cursor-pointer' onClick={() => {
+                                <div className='px-2 flex justify-center items-center dark:bg-greylish bg-[#D9D9D9] text-[0.5rem] cursor-pointer' onClick={() => {
                                     if (selectedCoin) {
                                         if (selectedFiat) {
                                             setValue((selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount).toString())
