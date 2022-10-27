@@ -79,14 +79,14 @@ export default function TagsSetting() {
               placeholder="Search"
               inputProps={{ style: { width: "100%" } }}
               onChange={searching}
-              className="bg-white !border-[#dad8d8] !text-[#dad8d8] dark:bg-darkSecond"
+              className="bg-white text-dark !border-[#dad8d8] dark:!text-[#dad8d8] dark:bg-darkSecond"
               InputProps={{
                 style: {
                   fontSize: "0.875rem",
                   width: "100%",
                   height: "35px",
                   borderColor: "#D6D6D6",
-                  color: "#D6D6D6",
+                  // color: "#D6D6D6",
                 },
                 startAdornment: (
                   <InputAdornment position="start">

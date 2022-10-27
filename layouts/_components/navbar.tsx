@@ -43,12 +43,12 @@ const Navbar = () => {
         <div className="hidden md:flex items-center justify-end">
             <div className="flex gap-x-4">
                 {blockchain.name === "celo" &&
-                    <div className="rounded-md bg-light flex items-center px-3 py-2 space-x-3">
-                        <div className="font-medium text-sm">
+                    <div className="rounded-md flex items-center px-3 py-2 space-x-3 bg-[#F9F9F9]  dark:bg-[#252525]" >
+                        <div className="font-medium text-sm dark:text-white text-dark">
                             {APR?.toLocaleString()} tCO2
                         </div>
                         <div className='flex items-center'>
-                            <Image src="/icons/companies/spirals.png" width="25" height="25" />
+                            <Image src="/icons/companies/spirals.svg" width="25" height="25" />
                         </div>
                     </div>}
                 <Visitcard name={'Multisig'} address={selectedAccount ?? ""} />

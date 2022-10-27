@@ -31,9 +31,9 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
     theme: { mode: dark ? "dark" : "light" },
     colors: ['#ff501a'],
     grid: {
-      show: true,
+      show: false,
       position: 'back',
-      borderColor: "#707070",
+      // borderColor: "#707070",
       padding: {
         left: 20,
         right: 20, // Also you may want to increase this (based on the length of your labels)

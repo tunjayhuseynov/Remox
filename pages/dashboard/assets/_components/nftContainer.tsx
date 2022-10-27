@@ -15,8 +15,6 @@ const NftContainer = () => {
   const [nftsDataArray, setNftsDataArray] = useState<INFT[]>([]);
   const nfts = useAppSelector(SelectNfts);
 
-  console.log(nfts)
-
 
   useAsyncEffect(async () => {
     setLoading(true)
@@ -54,7 +52,7 @@ const NftContainer = () => {
 
   return (
     <div className="w-full h-full grid grid-cols-3 gap-20 mb-10" >
-      {nftsDataArray.reverse().map((nft: INFT, index: number) => {
+      {nftsDataArray.map((nft: INFT, index: number) => {
         return <NftItem key={index} nft={nft} />
       })}
     </div>
