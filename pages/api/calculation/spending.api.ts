@@ -189,6 +189,11 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
         const feeAll: {
             [key: string]: { name: AltCoins, amount: string }[]
         } = {}
+
+        let feeName = "";
+        if(blockchain.name === "celo"){
+            feeName = "CELO"
+        }
         
 
         const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1 > 9 ? time.getMonth() + 1 : `0${time.getMonth() + 1}`}/${time.getDate() > 9 ? time.getDate() : `0${time.getDate()}`}`
@@ -210,7 +215,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
             const sTime = stringTime(tTime)
 
             if (tDay <= selectedDay) {
-                let feeToken = currencies[txItem.rawData?.tokenSymbol?.toUpperCase() ?? txItem.rawData?.feeCurrency?.toUpperCase() ?? ""];
+                let feeToken = currencies[feeName];
 
                 const txFee = { name: feeToken, amount: ((+txItem.rawData.gasPrice) * (+txItem.rawData.gasUsed)).toString() }
                 feeAll[sTime] = [...(feeAll?.[sTime] ?? []), txFee]

@@ -59,12 +59,12 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
       },
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const date = keys[dataPointIndex];
-
+        console.log(series)
         return (
           `<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">
           <div class="flex justify-between">
           <span class='text-greylish dark:text-white text-sm'>
-          ${date ? new Date(date).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "N/A"}
+          ${date ? new Date(date).toLocaleDateString("en-US", {day: "numeric",month: "short", year: "numeric" }) : "N/A"}
           </span>
           <span class='text-greylish dark:text-white text-sm'>
           </span>

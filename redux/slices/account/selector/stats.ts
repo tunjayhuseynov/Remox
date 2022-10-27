@@ -91,10 +91,10 @@ export const SelectDailyBalance = createDraftSafeSelector(
             }
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
             return {
-                week: Object.entries(response).filter(([time, amount]) => date.subtract(new Date(), new Date(time)).toDays() <= 7).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
-                month: Object.entries(response).filter(([time, amount]) => date.subtract(new Date(), new Date(time)).toDays() <= 31).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
-                quart: Object.entries(response).filter(([time, amount]) => date.subtract(new Date(), new Date(time)).toDays() <= 90).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
-                year: Object.entries(response).filter(([time, amount]) => date.subtract(new Date(), new Date(time)).toDays() <= 365).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
+                week: Object.entries(response).filter(([time, amount]) => Math.abs(date.subtract(new Date(), new Date(time)).toDays()) <= 7).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
+                month: Object.entries(response).filter(([time, amount]) => Math.abs(date.subtract(new Date(), new Date(time)).toDays()) <= 31).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
+                quart: Object.entries(response).filter(([time, amount]) => Math.abs(date.subtract(new Date(), new Date(time)).toDays()) <= 90).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
+                year: Object.entries(response).filter(([time, amount]) => Math.abs(date.subtract(new Date(), new Date(time)).toDays()) <= 365).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
             };
         }
         return null;
