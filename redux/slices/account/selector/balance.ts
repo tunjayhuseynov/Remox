@@ -12,7 +12,7 @@ export const SelectBalance = createDraftSafeSelector(
             for (const coin of [...account.coins]) {
                 if (acc[coin.symbol]) {
                     Object.defineProperty(acc[coin.symbol], "amount", {
-                        value: coin.amount, 
+                        value:  accum[coin.symbol].amount += coin.amount, 
                         writable: true,
                     })
                 } else {

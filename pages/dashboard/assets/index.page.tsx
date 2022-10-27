@@ -88,7 +88,6 @@ const Assets = () => {
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
     const nfts = useAppSelector(SelectNfts)
 
-    console.log(nfts)
 
     const fiat = useAppSelector(SelectFiatPreference)
     const {GetCoins} = useWalletKit()
@@ -207,7 +206,7 @@ const Assets = () => {
                         >
                             <div className="w-full flex items-center h-10">
                                 <div className="flex items-center justify-between w-full">
-                                    <div className="text-sm font-medium pl-2 ">{TypeCoin[1].header}</div>
+                                    <div className="text-sm font-semibold pl-2 ">{TypeCoin[1].header}</div>
                                     <div className="text-sm font-medium">{symbol}<NG number={+TypeCoin[1].balance} fontSize={0.875}/></div>
                                 </div>
                             </div>

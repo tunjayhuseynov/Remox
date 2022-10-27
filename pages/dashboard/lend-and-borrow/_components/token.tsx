@@ -6,7 +6,7 @@ import { LendingReserveData } from 'rpcHooks/useLending'
 import { GetFiatPrice } from 'utils/const'
 import { NG } from 'utils/jsxstyle'
 
-const TokenItem = ({asset}: {asset: LendingReserveData}) => {
+const TokenItem = ({asset, isVariable, isAPY}: {asset: LendingReserveData, isVariable: boolean, isAPY: boolean }) => {
     const [detailModal, setDetailModal] = useState<boolean>(false)  
     const {GetCoins} = useWalletKit()
     const fiat = useAppSelector(SelectFiatPreference)

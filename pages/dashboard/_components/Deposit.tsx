@@ -1,10 +1,9 @@
 import { Avatar } from '@mui/material';
 import { IAccountORM } from 'pages/api/account/index.api';
 import { Dispatch, useState } from 'react';
-// import QRCode from 'react-qr-code';
+import QRCode from 'react-qr-code';
 import { useAppSelector } from 'redux/hooks';
 import { SelectBlockchain, SelectDarkMode } from 'redux/slices/account/selector';
-import { AddressReducer } from 'utils';
 import { RiFileCopyLine } from 'react-icons/ri'
 import { BiLinkExternal } from 'react-icons/bi';
 import Copied from 'components/copied';
@@ -30,7 +29,7 @@ const Deposit = ({ account, onDisable }: IProps) => {
             </div>
             <div>
                 <div className='flex justify-center'>
-                    {/* <QRCode value={account.address} bgColor={dark ? "#1C1C1C" : "#FFFFFF"} fgColor={dark ? "#FFFFFF" : "#1C1C1C"} /> */}
+                    <QRCode value={account.address} bgColor={dark ? "#1C1C1C" : "#FFFFFF"} fgColor={dark ? "#FFFFFF" : "#1C1C1C"} />
                 </div>
             </div>
             <div>
