@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, Fragment, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { AddressReducer } from "../../../utils";
 import useNextSelector from "hooks/useNextSelector";
 import Modal from "components/general/modal";
@@ -13,9 +13,7 @@ import {
 } from "redux/slices/account/remoxData";
 import CoinItem from "./coinitem";
 import useModalSideExit from "hooks/useModalSideExit";
-import { useRouter } from "next/router";
 import { IAccountORM } from "pages/api/account/index.api";
-import AvatarGroup from "@mui/material/AvatarGroup";
 import Avatar from "@mui/material/Avatar";
 import makeBlockie from "ethereum-blockies-base64";
 import EditWallet from "./editWallet";
@@ -48,7 +46,6 @@ function WalletList({ item }: { item: IAccountORM }) {
   const [modalEditVisible, setModalEditVisible] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [depositModal, setDepositModal] = useState<boolean>(false);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const dark = useNextSelector(SelectDarkMode);
   const [selectcoin, setSelectcoin] = useState<string>("");
   const [customRef] = useModalSideExit<string>(selectcoin, setSelectcoin, "");
@@ -138,7 +135,6 @@ function WalletList({ item }: { item: IAccountORM }) {
                       className="cursor-pointer border-b dark:border-[#454545] text-sm items-start hover:bg-greylish hover:bg-opacity-5 hover:transition-all w-full pl-3 py-2 gap-3"
                       onClick={() => {
                         setModalEditVisible(true);
-                        setModalVisible(false);
                       }}
                     >
                       <div className="flex w-full space-x-2">
@@ -154,7 +150,6 @@ function WalletList({ item }: { item: IAccountORM }) {
                       className="cursor-pointer border-b dark:border-[#454545] text-sm flex w-full hover:bg-greylish hover:bg-opacity-5 hover:transition-all pl-3 pr-12 py-2 gap-3"
                       onClick={() => {
                         setDeleteModal(true);
-                        setModalVisible(false);
                       }}
                     >
                       <div className="flex w-full space-x-2">
@@ -169,7 +164,6 @@ function WalletList({ item }: { item: IAccountORM }) {
                       className="cursor-pointer text-sm flex w-full hover:bg-greylish hover:bg-opacity-5 hover:transition-all pl-3 pr-12 py-2 gap-3"
                       onClick={() => {
                         setDepositModal(true);
-                        setModalVisible(false);
                       }}
                     >
                       <div className="flex space-x-2">
@@ -202,7 +196,6 @@ function WalletList({ item }: { item: IAccountORM }) {
                   </Tooltip>
                 </div>
               </div>
-              {
                 <div className="flex flex-col mr-2 w-full">
                   <div className="text-greylish text-xs mb-6">Signers</div>
                   <div className="relative w-full">
@@ -241,7 +234,6 @@ function WalletList({ item }: { item: IAccountORM }) {
                     </div>
                   </div>
                 </div>
-              }
             </div>
             <div className="rounded-xl">
               <div className="w-full h-full" ref={customRef}>
