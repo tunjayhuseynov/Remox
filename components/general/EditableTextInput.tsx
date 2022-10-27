@@ -30,6 +30,7 @@ export default ({ defaultValue, onSubmit, placeholder, fontSize, letterLimit = 9
                 value={value}
                 placeholder={placeholder ?? ""}
                 fullWidth
+                className="leading-none"
                 onChange={(e) => {
                     if (e.target.value.length <= letterLimit) {
                         setValue(e.target.value)

@@ -89,13 +89,13 @@ const OwnerItem = ({ item, account }: { item: IMember, account: IAccount }) => {
                 noNFT={true}
                 userId={item.address}
                 onChange={updateImage}
-                size={2}
+                size={2.125}
             />
             <div className="flex flex-col">
                 <div className="">
-                    <EditableTextInput defaultValue={item.name} onSubmit={updateName} placeholder="Name" />
+                    <EditableTextInput fontSize={0.75}  defaultValue={item.name} onSubmit={updateName} placeholder="Name" />
                 </div>
-                <div className="text-greylish dark:text-white text-xs mx-2">{AddressReducer(item.address)}</div>
+                <div className="text-greylish dark:text-white text-xxs mx-2">{AddressReducer(item.address)}</div>
             </div>
         </div>
         <div className="flex items-center justify-start">

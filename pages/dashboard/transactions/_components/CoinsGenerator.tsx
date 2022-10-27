@@ -52,7 +52,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
                 <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
                     <div></div>
                     <span className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200">
-                        {`${symbol}`}<NG fontSize={0.625} decimalSize={100} number={price.toFixed(0).length > 18 ? 0 : price} />
+                        {`${symbol}`}<NG fontSize={0.625} decimalSize={80} number={price.toFixed(0).length > 18 ? 0 : price} />
                     </span>
                 </div>
             </div>

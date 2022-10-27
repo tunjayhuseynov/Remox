@@ -14,7 +14,7 @@ import {
     WalletModalProvider,
 } from '@solana/wallet-adapter-react-ui';
 import { BASE_URL } from 'utils/api';
-import { CeloProvider, NetworkNames } from '@celo/react-celo';
+import { CeloProvider, NetworkNames, SupportedProviders } from '@celo/react-celo';
 import { Blockchains } from 'types/blockchains';
 
 // import { publicProvider } from 'wagmi/providers/public';
@@ -100,12 +100,41 @@ export default function Wallet({ children }: { children: JSX.Element }) {
                             description: 'Remox - Contributor and Treasury Management Platform',
                             url: `${BASE_URL}`,
                         }}
-                        network={{
-                            name: NetworkNames.Mainnet,
-                            rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
-                            chainId: 42220,
-                            explorer: Blockchains.find(s => s.name === "celo")!.explorerUrl,
+                        defaultNetwork={"Celo"}
+                        // network={{
+                        //     name: NetworkNames.Mainnet,
+                        //     rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
+                        //     chainId: 42220,
+                        //     explorer: Blockchains.find(s => s.name === "celo")!.explorerUrl,
+                        // }}
+                        manualNetworkMode={true}
+                        connectModal={{
+                            providersOptions: {
+                                hideFromDefaults: [
+                                    SupportedProviders.Valora,
+                                    SupportedProviders.CeloDance,
+                                    SupportedProviders.Omni,
+                                    SupportedProviders.Steakwallet,
+                                    SupportedProviders.CeloWallet,
+                                    SupportedProviders.CeloTerminal,
+                                    SupportedProviders.CeloExtensionWallet,
+                                ]
+                            }
                         }}
+                        networks={[
+                            {
+                                name: "Celo",
+                                rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
+                                chainId: 42220,
+                                explorer: Blockchains.find(s => s.name === "celo")!.explorerUrl,
+                            },
+                            // {
+                            //     chainId: 42220,
+                            //     name: "Ethereum",
+                            //     rpcUrl: Blockchains.find(s => s.name === "ethereum_evm")!.rpcUrl,
+                            //     explorer: Blockchains.find(s => s.name === "ethereum_evm")!.explorerUrl,
+                            // }
+                        ]}
                     >
                         {children}
                     </CeloProvider>

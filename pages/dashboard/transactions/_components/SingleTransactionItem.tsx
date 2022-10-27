@@ -107,7 +107,7 @@ const SingleTransactionItem = ({
 
   return (
     <>
-      <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
+      <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-[1.469rem] bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
         <td className="text-left pt-1">
           <div className="relative inline">
             <span className="font-medium text-sm">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
@@ -116,8 +116,8 @@ const SingleTransactionItem = ({
         </td>
         <td className="text-left flex items-center">
           <div className="flex items-center space-x-3">
-            <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-8 h-8 aspect-square rounded-full" />
-            <div className="text-sm truncate font-semibold pr-5">
+            <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] aspect-square rounded-full" />
+            <div className="text-sm truncate font-medium pr-5">
               {account?.name ?? "N/A"}
             </div>
           </div>
@@ -209,7 +209,7 @@ const SingleTransactionItem = ({
           </div>
         </td>
         <td className="text-left w-full">
-          <div>
+          {/* <div>
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex space-x-1 items-center font-semibold">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -227,7 +227,7 @@ const SingleTransactionItem = ({
                 width: 100 + "%"
               }} />
             </div>
-          </div>
+          </div> */}
         </td>
         <td className="text-left">
           <div className="flex justify-between pr-5 items-center h-full">

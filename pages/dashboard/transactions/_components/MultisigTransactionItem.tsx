@@ -57,7 +57,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
 
     const { executeTransaction, confirmTransaction, revokeTransaction } = useMultisig()
-   
+
     let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
     const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
     const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
@@ -106,11 +106,11 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 rejectionHash: null
             }))
             if (tx.budget) {
-                if(transfer || automation){
+                if (transfer || automation) {
                     await dispatch(Add_Tx_To_Budget_Thunk({
                         convertExecuted: true,
                         tx: {
-                            amount: +(transfer?.amount ?? automation!.amount), 
+                            amount: +(transfer?.amount ?? automation!.amount),
                             contractAddress: tx.contractAddress,
                             contractType: "multi",
                             hashOrIndex: tx.hashOrIndex,
@@ -122,12 +122,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         budget: tx.budget,
                         isExecuted: true,
                     }))
-                }else if(transferBatch || automationBatch){
+                } else if (transferBatch || automationBatch) {
                     for (const transfer of (transferBatch?.payments ?? automationBatch!.payments)) {
                         await dispatch(Add_Tx_To_Budget_Thunk({
                             convertExecuted: true,
                             tx: {
-                                amount: +(transfer?.amount ?? automation!.amount), 
+                                amount: +(transfer?.amount ?? automation!.amount),
                                 contractAddress: tx.contractAddress,
                                 contractType: "multi",
                                 hashOrIndex: tx.hashOrIndex,
@@ -386,7 +386,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             </>
                         )
                             :
-                            <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
+                            <div className="py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
                                 <span className="tracking-wider">
                                     You're not an owner
                                 </span>
