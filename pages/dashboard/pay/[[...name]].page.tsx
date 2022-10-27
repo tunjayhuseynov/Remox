@@ -356,14 +356,15 @@ const Pay = () => {
                             <div className="flex flex-col gap-2 mb-4 pl-5">
                                 <div className="font-medium  text-greylish dark:text-white text-sm">Token Allocation</div>
                                 <div className="flex flex-col space-y-4">{tokenAllocation.map((s, i) => {
-                                    return <div key={i} className="grid grid-cols-[8.5%,1fr] gap-x-2">
-                                        <div className="self-start">
+                                    return <div key={i} className="grid grid-cols-[8.5%,1fr] gap-x-1">
+                                        <div className="self-center">
                                             <img className="rounded-full w-full aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
-                                        <div className="flex flex-col">
+                                        <div>
                                             <div className="text-xl">{s.amount}</div>
-                                            <div className="text-sm text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.875} /></div>
                                         </div>
+                                        <div></div>
+                                        <div className="text-sm text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.875} /></div>
                                     </div>
                                 })}
                                 </div>
@@ -571,7 +572,7 @@ const Pay = () => {
                                                             ...styles,
                                                             backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
                                                             border: `1px solid ${dark ? "rgba(255, 255, 255, 0.23)" : "rgba(0,0,0,0.23)"}`,
-                                                            
+
                                                         }
                                                     }
                                                 }}
