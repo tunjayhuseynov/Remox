@@ -46,7 +46,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     if (balance[item.name.symbol]) {
                         balance[item.name.symbol].amount += ((item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals));
                     }
-                    if (balance[item.fee.name.symbol]) {
+                    if (balance?.[item?.fee?.name?.symbol]) {
                         balance[item.fee.name.symbol].amount += DecimalConverter(item.fee.amount, item.fee.name.decimals);
                     }
                 

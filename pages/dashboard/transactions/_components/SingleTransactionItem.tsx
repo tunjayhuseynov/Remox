@@ -208,7 +208,12 @@ const SingleTransactionItem = ({
             )}
           </div>
         </td>
-        <td className="text-left w-full">
+        <td className="text-left">
+          {transaction.isError &&
+            <span className="border border-primary bg-primary bg-opacity-10 text-primary px-3 py-1 font-medium text-xs">
+              Failed
+            </span>
+          }
           {/* <div>
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex space-x-1 items-center font-semibold">

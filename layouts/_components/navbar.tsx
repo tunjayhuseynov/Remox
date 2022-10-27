@@ -30,7 +30,7 @@ const Navbar = () => {
             const apr = await SpiralAPR()
             if (apr && balance["gCELO"]) {
                 const coin = balance["gCELO"];
-                const total = coin.amount * GetFiatPrice(coin, preference) * +apr;
+                const total = (coin.amount * coin.priceUSD * +apr) / 100;
                 setAPR(total / 15)
             }
         }
