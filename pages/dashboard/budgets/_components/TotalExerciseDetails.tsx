@@ -69,7 +69,7 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                                         const pendingPercent = b.budgetCoins.totalPending * 100 / b.budgetCoins.totalAmount
                                         const pendingPercentStyle = ProgressBarWidth(pendingPercent)
 
-                                        return <div className="flex justify-between relative">
+                                        return <div key={b.id} className="flex justify-between relative">
                                             <div className="font-medium text-xl text-gray-600 dark:text-gray-400">{b.name}</div>
                                             <div className="w-[45%] grid grid-cols-[75%,5%,1fr]">
                                                 <div className="rounded-xl h-3 relative bg-greylish bg-opacity-40 overflow-hidden self-center">

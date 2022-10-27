@@ -121,11 +121,12 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                 <div className="flex gap-7 items-center justify-center  pt-1 pb-5">
                     <NavLink to="/dashboard/settings" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <SettingSVG active={isActive} darkMode={darkMode} />}</NavLink>
                     {!darkMode ? <DarkModeOutlinedIcon onClick={darkModee} className=" hover:text-greylish self-center cursor-pointer !text-xl" /> : <LightModeOutlinedIcon onClick={darkModee} className="hover:text-greylish  self-center cursor-pointer !text-xl" />}
-                    <span className="cursor-pointer text-red" onClick={() => {
+                    <div className="cursor-pointer text-red" onClick={() => {
                         dispatch(setResetRemoxData())
                         router.push('/')
-                    }}><FiPower />
-                    </span>
+                    }}>
+                        <FiPower />
+                    </div>
                 </div></>}
         </ul>
     </>

@@ -86,7 +86,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
         TXs.push(item)
     }
     let direction = TransactionDirectionDeclare(item, addresses);
-    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, 'tx' in item);
+    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, 'tx' in item, 'tx' in item ? item.provider : undefined);
 
     const goToTx = () => {
         navigate.push(`/dashboard/transactions?index=${index}`)

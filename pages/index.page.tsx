@@ -15,6 +15,7 @@ import useAsyncEffect from 'hooks/useAsyncEffect';
 import { Blockchains, BlockchainType } from 'types/blockchains';
 import Image from 'next/image'
 import dynamic from 'next/dynamic';
+import { useCelo } from '@celo/react-celo';
 
 const Dropdown = dynamic(() => import('components/general/dropdown'), {
   ssr: false
@@ -22,6 +23,7 @@ const Dropdown = dynamic(() => import('components/general/dropdown'), {
 
 const Home = () => {
   const { Connect, Address } = useWalletKit();
+  const { walletChainId, network, updateNetwork } = useCelo()
   const { processSigning } = useOneClickSign()
   const dark = useNextSelector(SelectDarkMode)
   const navigate = useRouter()
@@ -47,6 +49,9 @@ const Home = () => {
 
   const connectEvent = async () => {
     try {
+      if (walletChainId !== network.chainId) {
+        await updateNetwork(network)
+      }
       const address = await Address
       if (!address) {
         console.log("No address");
