@@ -115,17 +115,14 @@ const Detail = ({
     const changeInternalThreshold = transaction.id === ERC20MethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
 
     const amount = transfer ?
-        +transfer.amount :
+        DecimalConverter(transfer.amount, transfer.coin.decimals) :
         automation ?
-            +automation.amount :
-            automationBatch ?
-                +automationBatch.payments.reduce((acc, curr) => acc + +curr.amount, 0) :
-                automationCanceled ? +automationCanceled.amount : transferBatch?.payments.reduce((acc, curr) => acc + +curr.amount, 0) ?? 0;
+            DecimalConverter(automation.amount, automation.coin.decimals) : null
 
     const budgetChangeFn = (val: IBudgetORM) => async () => {
         // if (!account?.provider) return ToastRun(<>Cannot get the multisig provider</>, "error")
         setBudgetLoading(true)
-        if (transaction.budget) {
+        if (transaction.budget && amount && (transfer || automation)) {
             await dispatch(Remove_Tx_From_Budget_Thunk({
                 budget: transaction.budget,
                 isExecuted: isExecuted,
@@ -142,22 +139,63 @@ const Detail = ({
                 }
             })).unwrap()
         }
+        if (transaction.budget && (automationBatch || transferBatch)) {
+            for (const batch of (automationBatch?.payments ?? transferBatch!.payments)) {
+                const amount = DecimalConverter(batch.amount, batch.coin.decimals)
+                await dispatch(Remove_Tx_From_Budget_Thunk({
+                    budget: transaction.budget,
+                    txIndex: txIndex,
+                    tx: {
+                        amount: amount,
+                        contractAddress: transaction.address,
+                        contractType: isMultisig ? "multi" : "single",
+                        hashOrIndex: transaction.hash,
+                        timestamp: timestamp,
+                        protocol: account?.provider ?? null,
+                        token: batch.coin.symbol,
+                        isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+                    },
+                    isExecuted: isExecuted,
+                })).unwrap()
+            }
+        }
 
-        await dispatch(Add_Tx_To_Budget_Thunk({
-            budget: val,
-            txIndex: txIndex,
-            tx: {
-                amount: amount,
-                contractAddress: transaction.address,
-                contractType: isMultisig ? "multi" : "single",
-                hashOrIndex: transaction.hash,
-                timestamp: timestamp,
-                protocol: account?.provider ?? null,
-                token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
-                isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
-            },
-            isExecuted: isExecuted,
-        })).unwrap()
+        if (amount && (transfer || automation)) {
+            await dispatch(Add_Tx_To_Budget_Thunk({
+                budget: val,
+                txIndex: txIndex,
+                tx: {
+                    amount: amount,
+                    contractAddress: transaction.address,
+                    contractType: isMultisig ? "multi" : "single",
+                    hashOrIndex: transaction.hash,
+                    timestamp: timestamp,
+                    protocol: account?.provider ?? null,
+                    token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationCanceled?.coin.symbol ?? "",
+                    isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+                },
+                isExecuted: isExecuted,
+            })).unwrap()
+        } else if (automationBatch || transferBatch) {
+            for (const batch of (automationBatch?.payments ?? transferBatch!.payments)) {
+                const amount = DecimalConverter(batch.amount, batch.coin.decimals)
+                await dispatch(Add_Tx_To_Budget_Thunk({
+                    budget: val,
+                    txIndex: txIndex,
+                    tx: {
+                        amount: amount,
+                        contractAddress: transaction.address,
+                        contractType: isMultisig ? "multi" : "single",
+                        hashOrIndex: transaction.hash,
+                        timestamp: timestamp,
+                        protocol: account?.provider ?? null,
+                        token: batch.coin.symbol,
+                        isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+                    },
+                    isExecuted: isExecuted,
+                })).unwrap()
+            }
+        }
 
         setBudgetLoading(false)
     }
@@ -168,21 +206,43 @@ const Detail = ({
 
     const RemoveBudget = async () => {
         if (!selectedBudget) return ToastRun(<>Cannot get the budget</>, "error")
-        await dispatch(Remove_Tx_From_Budget_Thunk({
-            budget: selectedBudget,
-            txIndex: txIndex,
-            isExecuted: isExecuted,
-            tx: {
-                amount: amount,
-                contractAddress: transaction.address,
-                contractType: isMultisig ? "multi" : "single",
-                hashOrIndex: transaction.hash,
-                timestamp: timestamp,
-                protocol: account?.provider ?? null,
-                token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationBatch?.payments[0].coin.symbol ?? automationCanceled?.coin.symbol ?? transferBatch?.payments[0].coin.symbol ?? "",
-                isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+        if (amount && (transfer || automation)) {
+            await dispatch(Remove_Tx_From_Budget_Thunk({
+                budget: selectedBudget,
+                txIndex: txIndex,
+                tx: {
+                    amount: amount,
+                    contractAddress: transaction.address,
+                    contractType: isMultisig ? "multi" : "single",
+                    hashOrIndex: transaction.hash,
+                    timestamp: timestamp,
+                    protocol: account?.provider ?? null,
+                    token: transfer?.coin.symbol ?? automation?.coin.symbol ?? automationCanceled?.coin.symbol ?? "",
+                    isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+                },
+                isExecuted: isExecuted,
+            })).unwrap()
+        } else if (automationBatch || transferBatch) {
+            for (const batch of (automationBatch?.payments ?? transferBatch!.payments)) {
+                const amount = DecimalConverter(batch.amount, batch.coin.decimals)
+                await dispatch(Remove_Tx_From_Budget_Thunk({
+                    budget: selectedBudget,
+                    txIndex: txIndex,
+                    tx: {
+                        amount: amount,
+                        contractAddress: transaction.address,
+                        contractType: isMultisig ? "multi" : "single",
+                        hashOrIndex: transaction.hash,
+                        timestamp: timestamp,
+                        protocol: account?.provider ?? null,
+                        token: batch.coin.symbol,
+                        isSendingOut: isMultisig ? true : direction === TransactionDirection.In ? false : true
+                    },
+                    isExecuted: isExecuted,
+                })).unwrap()
             }
-        })).unwrap()
+        }
+
         setSelectedBudget(undefined)
     }
 
@@ -571,7 +631,7 @@ const Detail = ({
                                                 {colorPicker &&
                                                     <ClickAwayListener onClickAway={() => { setColorPicker(false) }}>
                                                         <div className="absolute -top-2 left-0  -translate-y-full z-[999999999] !ml-0">
-                                                            <TwitterPicker onChange={colorHandler} triangle={"hide"} width={"15rem"}/>
+                                                            <TwitterPicker onChange={colorHandler} triangle={"hide"} width={"15rem"} />
                                                         </div>
                                                     </ClickAwayListener>
                                                 }

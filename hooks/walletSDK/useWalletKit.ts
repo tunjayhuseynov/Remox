@@ -112,25 +112,25 @@ export default function useWalletKit() {
 
   const SpiralAPR = useCallback(async () => {
     if (blockchain.name === "celo") {
-      const epochRewardsContract =  await newKit(blockchain.rpcUrl)._web3Contracts.getEpochRewards()
+      const epochRewardsContract = await newKit(blockchain.rpcUrl)._web3Contracts.getEpochRewards()
 
       const [rewardsMultiplierFraction, { 0: targetVotingYieldFraction }] = await Promise.all([
         epochRewardsContract.methods.getRewardsMultiplier().call(),
         epochRewardsContract.methods.getTargetVotingYieldParameters().call(),
       ]);
-  
+
       // EpochRewards contract is using Fixidity library which operates on decimal part of numbers
       // Fixidity is always using 24 length decimal parts
       const fixidityDecimalSize = new BigNumber(10).pow(24);
       const targetVotingYield = new BigNumber(targetVotingYieldFraction).div(fixidityDecimalSize);
       const rewardsMultiplier = new BigNumber(rewardsMultiplierFraction).div(fixidityDecimalSize);
-  
+
       // Target voting yield is for a single day only, so we have to calculate this for entire year
       const unadjustedAPR = targetVotingYield.times(365);
-  
+
       // According to the protocol it has to be adjusted by rewards multiplier
       const adjustedAPR = unadjustedAPR.times(rewardsMultiplier);
-  
+
       const percentageAPR = adjustedAPR.times(100);
       return percentageAPR.toFixed(2);
     }
@@ -463,7 +463,7 @@ export default function useWalletKit() {
               Add_Tx_To_Budget_Thunk({
                 budget: budget,
                 tx: {
-                  protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
+                  protocol: account.provider,
                   contractAddress: account.address,
                   contractType: account.signerType,
                   isSendingOut: true,
@@ -481,7 +481,7 @@ export default function useWalletKit() {
                 Add_Tx_To_Subbudget_Thunk({
                   subbudget: subbudget,
                   tx: {
-                    protocol: blockchain.multisigProviders[0].name, /// TODO: need to convert it to selectable from form
+                    protocol: account.provider,
                     contractAddress: account.address,
                     contractType: account.signerType,
                     isSendingOut: true,

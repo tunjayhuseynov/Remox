@@ -25,6 +25,7 @@ import { FiRepeat } from 'react-icons/fi';
 import AddLabel from './tx/AddLabel';
 import { ClickAwayListener, Tooltip } from '@mui/material';
 import { Add_Tx_To_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
+import { DecimalConverter } from 'utils/api';
 
 
 interface IProps {
@@ -107,10 +108,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
             }))
             if (tx.budget) {
                 if (transfer || automation) {
+                    const amount = (transfer?.amount ?? automation!.amount);
+                    const token = (transfer?.coin ?? automation!.coin);
+                    const ethAmount = DecimalConverter(amount, token.decimals);
                     await dispatch(Add_Tx_To_Budget_Thunk({
                         convertExecuted: true,
                         tx: {
-                            amount: +(transfer?.amount ?? automation!.amount),
+                            amount: ethAmount,
                             contractAddress: tx.contractAddress,
                             contractType: "multi",
                             hashOrIndex: tx.hashOrIndex,
@@ -124,10 +128,14 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     }))
                 } else if (transferBatch || automationBatch) {
                     for (const transfer of (transferBatch?.payments ?? automationBatch!.payments)) {
+                        const amount = (transfer?.amount ?? automation!.amount);
+                        const token = (transfer?.coin ?? automation!.coin);
+                        const ethAmount = DecimalConverter(amount, token.decimals);
+                        
                         await dispatch(Add_Tx_To_Budget_Thunk({
                             convertExecuted: true,
                             tx: {
-                                amount: +(transfer?.amount ?? automation!.amount),
+                                amount: ethAmount,
                                 contractAddress: tx.contractAddress,
                                 contractType: "multi",
                                 hashOrIndex: tx.hashOrIndex,
@@ -221,17 +229,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </div>
                     {/* <div className="bg-light dark:bg-dark w-[150%] h-full mt-5 -ml-5"></div> */}
                 </td>
-                <td className="text-left p-0 flex items-center">
+                <td className="text-left p-0">
                     <div className="flex items-center space-x-3">
                         <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] rounded-full" />
                         <div className="text-sm truncate font-medium pr-5">
                             {account?.name ?? "N/A"}
                         </div>
-                        {transaction.isError &&
-                            <div>
-                                Error
-                            </div>
-                        }
                     </div>
                     {/* <div className="bg-light dark:bg-dark w-[75%] h-full mt-4"></div> */}
                 </td>
@@ -344,7 +347,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </div>
                 </td>
                 <td className="text-left">
-                    <div className="flex justify-end space-x-3 pr-5 items-center h-full text-xs">
+                    <div className="flex justify-end space-x-3 pr-5 h-full text-xs">
                         {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.isExecuted || tx.rejection?.isExecuted ? <></> :
                             <>
                                 {tx.provider === "GnosisSafe" && !tx.rejection && <div className="w-20 py-1 px-1 cursor-pointer border border-red-500 text-red-500 hover:bg-red-300 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
@@ -392,7 +395,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 </span>
                             </div>
                         }
-                        <div className="cursor-pointer w-5" onClick={() => setOpenDetail(true)}>
+                        <div className="cursor-pointer w-5 pt-2" onClick={() => setOpenDetail(true)}>
                             <AiFillRightCircle color="#FF7348" size={24} />
                         </div>
                     </div>

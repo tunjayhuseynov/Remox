@@ -114,7 +114,7 @@ const SingleTransactionItem = ({
             <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-1 left-0">{dateFormat(new Date(+date * 1e3), "HH:MM")}</span>
           </div>
         </td>
-        <td className="text-left flex items-center">
+        <td className="text-left">
           <div className="flex items-center space-x-3">
             <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] aspect-square rounded-full" />
             <div className="text-sm truncate font-medium pr-5">
@@ -230,7 +230,7 @@ const SingleTransactionItem = ({
           </div> */}
         </td>
         <td className="text-left">
-          <div className="flex justify-between pr-5 items-center h-full">
+          <div className="flex justify-between pr-5 pt-2 h-full">
             <div></div>
             <div className="cursor-pointer" onClick={() => setOpenDetail(true)}>
               <AiFillRightCircle color="#FF7348" size={24} />

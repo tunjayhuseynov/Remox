@@ -68,13 +68,13 @@ export default {
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount -= (payload.tx.amount, payload.currency.decimals),
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += ((payload.tx.amount, payload.currency.decimals)),
                         totalUsedAmount: payload.isTxExecuted ?
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += (payload.tx.amount, payload.currency.decimals)
                             :
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
                     }
@@ -85,13 +85,13 @@ export default {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
                         second: second ? {
                             ...second,
-                            secondTotalAmount: second.secondTotalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            secondTotalAmount: second.secondTotalAmount -= ((payload.tx.amount, payload.currency.decimals)),
                             secondTotalPending: payload.isTxExecuted ?
                                 second.secondTotalPending
                                 :
-                                second.secondTotalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                second.secondTotalPending += payload.tx.amount,
                             secondTotalUsedAmount: payload.isTxExecuted ?
-                                second.secondTotalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                                second.secondTotalUsedAmount += payload.tx.amount
                                 :
                                 second.secondTotalUsedAmount,
                         } : null
@@ -124,8 +124,8 @@ export default {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
                         totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount,
-                        totalPending: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
-                        totalUsedAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                        totalPending: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= payload.tx.amount,
+                        totalUsedAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += payload.tx.amount
                     }
                 }
                 const second = state.budgetExercises[index].budgets[budgetIndex].budgetCoins?.second;
@@ -135,8 +135,8 @@ export default {
                         second: second ? {
                             ...second,
                             secondTotalAmount: second.secondTotalAmount,
-                            secondTotalPending: second.secondTotalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
-                            secondTotalUsedAmount: second.secondTotalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                            secondTotalPending: second.secondTotalPending -= payload.tx.amount,
+                            secondTotalUsedAmount: second.secondTotalUsedAmount += payload.tx.amount,
                         } : null
                     }
                 }
@@ -155,13 +155,13 @@ export default {
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount += payload.tx.amount,
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending -= payload.tx.amount,
                         totalUsedAmount: payload.isTxExecuted ?
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount -= payload.tx.amount
                             :
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
                     }
@@ -172,13 +172,13 @@ export default {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
                         second: second ? {
                             ...second,
-                            secondTotalAmount: second.secondTotalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            secondTotalAmount: second.secondTotalAmount += payload.tx.amount,
                             secondTotalPending: payload.isTxExecuted ?
                                 second.secondTotalPending
                                 :
-                                second.secondTotalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                second.secondTotalPending -= payload.tx.amount,
                             secondTotalUsedAmount: payload.isTxExecuted ?
-                                second.secondTotalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                                second.secondTotalUsedAmount -= payload.tx.amount
                                 :
                                 second.secondTotalUsedAmount,
                         } : null
@@ -223,13 +223,13 @@ export default {
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount -= payload.tx.amount,
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending += payload.tx.amount,
                             totalUsedAmount: payload.isTxExecuted ?
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount += payload.tx.amount
                                 :
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
                         }
@@ -240,13 +240,13 @@ export default {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
                             second: second ? {
                                 ...second,
-                                secondTotalAmount: second.secondTotalAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                secondTotalAmount: second.secondTotalAmount -= payload.tx.amount,
                                 secondTotalPending: payload.isTxExecuted ?
                                     second.secondTotalPending
                                     :
-                                    second.secondTotalPending += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                    second.secondTotalPending += payload.tx.amount,
                                 secondTotalUsedAmount: payload.isTxExecuted ?
-                                    second.secondTotalUsedAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                                    second.secondTotalUsedAmount += payload.tx.amount
                                     :
                                     second.secondTotalUsedAmount,
                             } : null
@@ -270,13 +270,13 @@ export default {
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount += payload.tx.amount,
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending -= payload.tx.amount, 
                             totalUsedAmount: payload.isTxExecuted ?
-                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                                state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount -= payload.tx.amount
                                 :
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalUsedAmount,
                         }
@@ -287,13 +287,13 @@ export default {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
                             second: second ? {
                                 ...second,
-                                secondTotalAmount: second.secondTotalAmount += ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                secondTotalAmount: second.secondTotalAmount += payload.tx.amount,
                                 secondTotalPending: payload.isTxExecuted ?
                                     second.secondTotalPending
                                     :
-                                    second.secondTotalPending -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals))),
+                                    second.secondTotalPending -= payload.tx.amount,
                                 secondTotalUsedAmount: payload.isTxExecuted ?
-                                    second.secondTotalUsedAmount -= ((DecimalConverter(payload.tx.amount, payload.currency.decimals)))
+                                    second.secondTotalUsedAmount -= payload.tx.amount
                                     :
                                     second.secondTotalUsedAmount,
                             } : null
