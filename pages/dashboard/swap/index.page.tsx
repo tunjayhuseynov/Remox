@@ -12,9 +12,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
 import { ToastRun } from "utils/toast";
-import useLoading from "hooks/useLoading";
-import Modal from "components/general/modal";
-import ChooseBudget from "components/general/chooseBudget";
 import { IAccountORM } from "pages/api/account/index.api";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 
@@ -24,14 +21,15 @@ const Swap = () => {
     const { MinmumAmountOut, isLoading } = useSwap()
     const isDark = useAppSelector(SelectDarkMode)
     const balances = useAppSelector(SelectBalance)
-    const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins)[0])
+    const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1])
-
+    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1].address === Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0].address ? Object.values(GetCoins)[0] : Object.values(GetCoins)[1] )
+    const [loading, setLoading] = useState<boolean>(false)
 
     const [dropdown, setDropdown] = useState<boolean>(false)
     const [dropdown2, setDropdown2] = useState<boolean>(false)
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(GetCoins))
+
 
     const token1Input = useRef<HTMLInputElement>(null)
 
@@ -40,7 +38,6 @@ const Swap = () => {
     const [oneCoinPrice, setOneCoinPrice] = useState<string>("")
     const [isSetting, setSetting] = useState<boolean>(false)
 
-    const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
 
     const [slippageArr, setSlippageArr] = useState([
         { value: 1, label: '0,1%', selected: false },
@@ -88,9 +85,10 @@ const Swap = () => {
     }
 
     const startSwap = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+        setLoading(true)
         if (token1!.symbol && token2!.symbol && token1Amount && token1Amount > 0 && account) {
             try {
-                const data = await SendTransaction(account, [], {
+                await SendTransaction(account, [], {
                     swap: {
                         account: account.address,
                         inputCoin: GetCoins[token1!.symbol],
@@ -106,16 +104,16 @@ const Swap = () => {
                         <div className="font-semobold text-xl">Successfully Swapped</div>
                     </div>
                 )
-
+                setLoading(false)
             } catch (error) {
                 const message = (error as any).message || "Something went wrong"
                 console.error(message)
+                setLoading(false)
                 ToastRun(<div>Something went wrong</div>, "error")
             }
         }
     }
 
-    const [isSwappingLoading, swapping] = useLoading(startSwap)
 
     useEffect(() => {
         if (token1 && token2) {
@@ -425,8 +423,8 @@ const Swap = () => {
                     {parseFloat(oneCoinPrice) ?
                         balances[token1.symbol].amount > (token1Amount ?? 0) ?
                             <Button className="w-[97%] text-lg !rounded-2xl"
-                                onClick={() => setChoosingBudget(true)}
-                                isLoading={isLoading || isSwappingLoading}
+                                onClick={() => startSwap()}
+                                isLoading={loading}
                             >
                                 Swap
                             </Button> :
@@ -453,9 +451,6 @@ const Swap = () => {
                 </div>
             </div>
         </div>
-        <Modal openNotify={choosingBudget} onDisable={setChoosingBudget}>
-           <ChooseBudget submit={startSwap}/> 
-        </Modal>
     </>
 }
 

@@ -354,7 +354,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                     onClick={() => setAddOwnerModal(true)}
                   >
                     <Tooltip title={"Add a new owner"}>
-                      <IoPersonAddSharp size={20} />
+                      <IoPersonAddSharp className="hover:text-green-500 transition-all" size={20} />
                     </Tooltip>
                   </div>
                   <div
@@ -362,7 +362,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                     onClick={() => setChangeThresholdModal(true)}
                   >
                     <Tooltip title={"Change threshold"}>
-                      <MdPublishedWithChanges size={20} />
+                      <MdPublishedWithChanges className="hover:text-primary transition-all" size={20} />
                     </Tooltip>
                   </div>
                 </>
@@ -371,7 +371,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 className="cursor-pointer"
                 onClick={() => setDeleteModal(true)}
               >
-                <IoTrashOutline size={20} className="hover:text-red-500" />
+                <IoTrashOutline size={20} className="hover:text-red-500 transition-all" />
               </div>
             </div>
           </div>

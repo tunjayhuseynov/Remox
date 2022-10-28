@@ -12,6 +12,7 @@ const Lendborrow = () => {
     const {getReservesData} = useLending()
     const [reservesData, setReservesData] = useState<LendingReserveData[]>([]);
     const [variable, setVariable] = useState(true)
+    const [apy, setApy] = useState(true)
 
     useAsyncEffect(async () => {
         const reserveDatas = await getReservesData()
@@ -20,7 +21,6 @@ const Lendborrow = () => {
 
     }, [])
 
-    const [apy, setApy] = useState(false)
 
    
     return <div className="flex flex-col pt-8 space-y-3">
@@ -38,7 +38,7 @@ const Lendborrow = () => {
 
         <div className="">
             <label className="toggle">
-                {/* <input type="checkbox" onClick={() => { setApy(!apy) }} /> */}
+                <input type="checkbox" onClick={() => { setApy(!apy) }} />
                 <span className="slider"></span>
                 <span className="labels" data-on="APR" data-off="APY"></span>
             </label>
@@ -150,7 +150,7 @@ const Lendborrow = () => {
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Total Borrow</th>
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Borrow {!apy ? 'APY' : 'APR'}</th>
             </tr>
-            {reservesData.map((token,index) =>  <TokenItem key={index} asset={token} />)}
+            {reservesData.map((token,index) =>  <TokenItem key={index} asset={token} isVariable={variable} isAPY={apy} />)}
         </thead>
     </table>
 </div>
