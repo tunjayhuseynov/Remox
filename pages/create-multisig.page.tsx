@@ -244,7 +244,7 @@ function CreateMultisig() {
                                         fontSize: "0.875rem"
                                     }
                                 }}
-                                label="Name"  {...register("name", { required: true })} placeholder="E.g. Remox DAO" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />
+                                label="Name"  {...register("name", { required: true })} placeholder="E.g. Community Treasury" className="bg-white dark:bg-darkSecond h-[3.4rem] rounded-lg w-full px-1" />
                         </div>
                     </div>
 

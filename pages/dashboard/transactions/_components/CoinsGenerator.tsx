@@ -5,8 +5,14 @@ import { DecimalConverter } from "utils/api"
 import { NG } from "utils/jsxstyle"
 
 
-interface IProps { transfer: Pick<ITransfer, "coin" | "amount">, timestamp: number, amountImageThenName?: boolean }
-export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }: IProps) => {
+interface IProps {
+    transfer: Pick<ITransfer, "coin" | "amount">,
+    timestamp: number,
+    amountImageThenName?: boolean,
+    disableFiat?: boolean,
+    imgSize?: number,
+}
+export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName, disableFiat, imgSize = 1.25 }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const hp = useAppSelector(SelectHistoricalPrices)
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
@@ -36,8 +42,13 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
             <div className="text-sm">{transfer.coin.symbol}</div>
         </div> :
             <div className="flex flex-col">
-                <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
-                    <div className="w-[1.25rem] h-[1.25rem]">
+                <div className="grid gap-x-[4px]" style={{
+                    gridTemplateColumns: `${imgSize}rem 1fr`
+                }}>
+                    <div style={{
+                        width: `${imgSize}rem`,
+                        height: `${imgSize}rem`,
+                    }}>
                         {transfer?.coin?.logoURI ? <img
                             src={transfer.coin.logoURI}
                             width="100%"
@@ -49,12 +60,12 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName }
                         {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(2)}
                     </span>
                 </div>
-                <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
+                {!disableFiat && <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
                     <div></div>
                     <span className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200">
                         {`${symbol}`}<NG fontSize={0.625} decimalSize={80} number={price.toFixed(0).length > 18 ? 0 : price} />
                     </span>
-                </div>
+                </div>}
             </div>
         }
     </>

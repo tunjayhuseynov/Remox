@@ -3,7 +3,7 @@ import { useWalletKit } from 'hooks'
 import { useAppDispatch } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { useRouter } from 'next/router';
-import { Dispatch, useEffect, useState } from 'react';
+import { Dispatch, useEffect, useRef, useState } from 'react';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
 import { isOldUser } from 'hooks/singingProcess/utils';
@@ -22,7 +22,7 @@ const Dropdown = dynamic(() => import('components/general/dropdown'), {
 })
 
 const Home = () => {
-  const { Connect, Address } = useWalletKit();
+  const { Connect, Address, Disconnect } = useWalletKit();
   const { walletChainId, network, updateNetwork } = useCelo()
   const { processSigning } = useOneClickSign()
   const dark = useNextSelector(SelectDarkMode)
@@ -31,6 +31,7 @@ const Home = () => {
   const { blockchain } = navigate.query as { blockchain?: string | undefined }
 
   const [buttonText, setButtonText] = useState("Connect to a wallet")
+  const ref = useRef(0)
 
   useAsyncEffect(async () => {
     const address = await Address
@@ -46,6 +47,14 @@ const Home = () => {
       dispatch(setBlockchain(selected as BlockchainType))
     }
   }, [selected])
+
+  useAsyncEffect(async () => {
+    const address = await Address;
+    if (address && ref.current === 1) {
+      await Disconnect()
+    }
+    ref.current++;
+  }, [Address])
 
   const connectEvent = async () => {
     try {

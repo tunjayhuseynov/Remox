@@ -68,13 +68,13 @@ export default {
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount -= (payload.tx.amount, payload.currency.decimals),
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount,
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += ((payload.tx.amount, payload.currency.decimals)),
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending += payload.tx.amount,
                         totalUsedAmount: payload.isTxExecuted ?
-                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += (payload.tx.amount, payload.currency.decimals)
+                            state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount += payload.tx.amount
                             :
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalUsedAmount,
                     }
@@ -155,7 +155,7 @@ export default {
                 if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].budgetCoins.coin.toLowerCase()) {
                     state.budgetExercises[index].budgets[budgetIndex].budgetCoins = {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
-                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount += payload.tx.amount,
+                        totalAmount: state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalAmount,
                         totalPending: payload.isTxExecuted ?
                             state.budgetExercises[index].budgets[budgetIndex].budgetCoins.totalPending
                             :

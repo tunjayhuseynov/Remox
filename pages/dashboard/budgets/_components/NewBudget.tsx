@@ -32,7 +32,7 @@ export interface ISubInputs {
     subAnotherToken: boolean;
 }[]
 
-const steps = ['Budget', 'Budget Label'];
+const steps = ['Budget', 'Budget Labels'];
 interface IProps {
     exerciseId: string;
     onBack: () => void
@@ -316,7 +316,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                         const max = (budgetAmount ?? 0) - labels.reduce((a, c) => a + (c.labelAmount ?? 0), 0)
                         const max2 = (budgetAmount2 ?? 0) - labels.reduce((a, c) => a + (c?.second?.labelAmount ?? 0), 0)
                         return <div key={label.id} className='flex flex-col space-y-5'>
-                            <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
+                            <div className='text-xl font-semibold text-center'>Budget Label {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
                                 <TextField
                                     InputProps={{ style: { fontSize: '0.875rem' } }}
@@ -366,7 +366,7 @@ function NewBudget({ exerciseId, onBack }: IProps) {
                     })}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8 pt-6">
                         <div className='col-span-2 bg-gray-100 dark:bg-darkSecond py-2 px-3 rounded-md text-center text-primary cursor-pointer font-medium text-sm' onClick={onAddLabel}>
-                            + Add Budget Labels
+                            + Add Budget Label
                         </div>
                         <Button version="second" className="!rounded-xl !py-2 !text-sm" onClick={() => {
                             setActiveStep(0)

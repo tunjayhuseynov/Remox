@@ -18,6 +18,7 @@ import BigNumber from "bignumber.js";
 import Web3 from 'web3'
 import { IBudgetORM } from "pages/api/budget/index.api";
 import CyberBoxABI from 'rpcHooks/ABI/CyberBox.json'
+import GToken from 'rpcHooks/ABI/GToken.json';
 
 export const ERC20MethodIds = {
   transferFrom: "transferFrom",
@@ -202,23 +203,27 @@ export default async (
       decoder = new InputDataDecoder(Ubeswap.output.abi);
       result = decoder.decodeData(input);
       if (!result.method) {
-        decoder = new InputDataDecoder(Moola.abi);
+        decoder = new InputDataDecoder(GToken.abi);
         result = decoder.decodeData(input);
         if (!result.method) {
-          decoder = new InputDataDecoder(BatchRequest.abi);
+          decoder = new InputDataDecoder(Moola.abi);
           result = decoder.decodeData(input);
           if (!result.method) {
-            decoder = new InputDataDecoder(Sablier.abi);
+            decoder = new InputDataDecoder(BatchRequest.abi);
             result = decoder.decodeData(input);
             if (!result.method) {
-              decoder = new InputDataDecoder(MoolaAirdrop);
+              decoder = new InputDataDecoder(Sablier.abi);
               result = decoder.decodeData(input);
-              if (!result.method && provider === "Celo Terminal") {
-                decoder = new InputDataDecoder(CeloTerminal.abi);
+              if (!result.method) {
+                decoder = new InputDataDecoder(MoolaAirdrop);
                 result = decoder.decodeData(input);
-              } else if (!result.method && provider === "GnosisSafe") {
-                decoder = new InputDataDecoder(GnosisSafe);
-                result = decoder.decodeData(input);
+                if (!result.method && provider === "Celo Terminal") {
+                  decoder = new InputDataDecoder(CeloTerminal.abi);
+                  result = decoder.decodeData(input);
+                } else if (!result.method && provider === "GnosisSafe") {
+                  decoder = new InputDataDecoder(GnosisSafe);
+                  result = decoder.decodeData(input);
+                }
               }
             }
           }
@@ -228,15 +233,14 @@ export default async (
 
     const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
 
-    if (!input) {
-      if (!coin) return { method: null }
+    if (!input || input === "0x") {
       return {
-        method: ERC20MethodIds.noInput,
-        id: ERC20MethodIds.noInput,
+        method: ERC20MethodIds.transfer,
+        id: ERC20MethodIds.transfer,
         from: transaction.from,
         to: transaction.to,
         amount: transaction.value.toString(),
-        coin: coin,
+        coin: coin ?? Object.values(Coins).find(s => s.address?.toLowerCase() === blockchain.nativeToken.toLowerCase()),
         tags: theTags,
       };
     } else if (result.method === ERC20MethodIds.transferFrom) {
@@ -457,20 +461,52 @@ export default async (
         to: "0x" + result.inputs[0],
         tags: theTags,
       };
-    } else if (result.method === ERC20MethodIds.withdraw) {
+    } else if (result.method === "depositETH") {
       const coins: AltCoins[] = Object.values(Coins);
-      return {
-        method: ERC20MethodIds.withdraw,
-        id: ERC20MethodIds.withdraw,
-        coin: coins.find(
+      let coin;
+      if ((transaction?.contractAddress?.toLowerCase() || transaction?.to?.toLowerCase()) === "0x8A1639098644A229d08F441ea45A63AE050Ee018".toLowerCase()) {
+        coin = coins.find(
           (s) =>
-            s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
-        )!,
-        amount: result.inputs[1].toString(),
+            s.symbol === "CELO"
+        )!
+      }
+      return {
+        method: ERC20MethodIds.deposit,
+        id: ERC20MethodIds.deposit,
+        coin: coin,
+        amount: transaction.value,
         to: "0x" + result.inputs[0],
         tags: theTags,
       };
-    } else if (result.method === ERC20MethodIds.repay) {
+    }
+    else if (result.method === ERC20MethodIds.withdraw) {
+      const coins: AltCoins[] = Object.values(Coins);
+      let amount, coin, to;
+      if ((transaction?.contractAddress?.toLowerCase() || transaction?.to?.toLowerCase()) === "0x8A1639098644A229d08F441ea45A63AE050Ee018".toLowerCase()) {
+        coin = coins.find(
+          (s) =>
+            s.symbol === "CELO"
+        )!
+        amount = result.inputs[0].toString()
+        to = "0x" + result.inputs[1]
+      } else {
+        coin = coins.find(
+          (s) =>
+            s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
+        )!
+        amount = result.inputs[1].toString()
+        to = "0x" + result.inputs[0]
+      }
+      return {
+        method: ERC20MethodIds.withdraw,
+        id: ERC20MethodIds.withdraw,
+        coin: coin,
+        amount: amount,
+        to: to,
+        tags: theTags,
+      };
+    }
+    else if (result.method === ERC20MethodIds.repay) {
       const coins: AltCoins[] = Object.values(Coins);
       return {
         method: ERC20MethodIds.repay,

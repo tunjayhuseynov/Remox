@@ -260,7 +260,7 @@ const SingleTransactionItem = ({
         setOpenDetail={setOpenDetail}
         gasFee={{
           amount: (+transaction.rawData.gasPrice * +transaction.rawData.gasUsed),
-          currency: Object.values(coins).find(coin => coin.symbol.toLowerCase() === (transaction?.rawData?.tokenSymbol?.toLowerCase() ?? transaction?.rawData?.feeCurrency?.toLowerCase()))
+          currency: Object.values(coins).find(coin => coin.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
         }} />
       {addLabelModal && <AddLabel onSubmit={async (tag) => {
         await labelChangeFn(tag)()
