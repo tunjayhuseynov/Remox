@@ -583,7 +583,7 @@ const Detail = ({
                                         }
                                     }}>{AddressReducer(transaction.hash)}</div>
                                 </div>
-                                {!swap && action != "Received" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
+                                {!swap && action != "Received" && action != "Swap" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
                                     <div className="text-greylish">Budget</div>
                                     <div className='w-[10rem]'>
                                         {budgets.length > 0 && !selectedBudget && <Dropdown
