@@ -156,10 +156,10 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 			break;
 		case TransactionDirection.In:
 			if (isMultisig) {
-				img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
+				img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? blockchain.logoUrl ?? REMOX_LOGO;
 				name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
 			} else {
-				img = REMOX_LOGO
+				img = blockchain.logoUrl ?? REMOX_LOGO
 				name = 'Remox'
 			}
 			action = "Received"

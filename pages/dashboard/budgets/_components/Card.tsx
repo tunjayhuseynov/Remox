@@ -114,7 +114,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                         {/* <div className="w-[15%] h-full bg-greylish bg-opacity-10 rounded-r-xl"></div> */}
                     </div>
                     <div className='absolute right-0 -bottom-1 translate-y-full font-semibold text-xs'>
-                        {usedPercent + pendingPercent}%
+                        {(usedPercent + pendingPercent).toFixed(2)}%
                     </div>
                 </td>
                 <td className='self-center'>

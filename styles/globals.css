@@ -11,6 +11,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'); 
 
+.css-10nakn3-MuiModal-root-MuiPopover-root-MuiMenu-root{
+  z-index: 99999999!important;
+}
+
 input[class~="unvisibleArrow"]::-webkit-outer-spin-button,
 input[class~="unvisibleArrow"]::-webkit-inner-spin-button {
   -webkit-appearance: none;

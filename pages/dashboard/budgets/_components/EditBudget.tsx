@@ -34,7 +34,7 @@ export interface ISubInputs {
     subAnotherToken: boolean;
 }[]
 
-const steps = ['Budget', 'Budget Label'];
+const steps = ['Budget', 'Budget Labels'];
 interface IProps {
     budget: IBudgetORM;
     onBack: () => void
@@ -419,7 +419,7 @@ function EditBudget({ onBack, budget }: IProps) {
                         const max = (budgetAmount ?? 0) - labels.reduce((a, c) => a + (c.labelAmount ?? 0), 0)
                         const max2 = (budgetAmount2 ?? 0) - labels.reduce((a, c) => a + (c?.second?.labelAmount ?? 0), 0)
                         return <div key={label.id} className='flex flex-col space-y-5'>
-                            <div className='text-xl font-semibold text-center'>Budget Label{labels.length > 1 && "s"} {index > 0 ? `${index + 1}` : ""}</div>
+                            <div className='text-xl font-semibold text-center'>Budget Label {index > 0 ? `${index + 1}` : ""}</div>
                             <div className='relative'>
                                 <TextField
                                     InputProps={{ style: { fontSize: '0.875rem' } }}

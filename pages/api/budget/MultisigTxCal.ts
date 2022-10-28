@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { IBudget, IBudgetTX } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { IBatchRequest, ITransfer, ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
@@ -18,7 +19,7 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
 
         if (tx.protocol === "Celo Terminal" || tx.protocol === "GnosisSafe") {
             let txRes: IFormattedTransaction | null = null;
-            const { data } = await axios.get<ITransactionMultisig>(BASE_URL + "/multisig/tx", {
+            const { data } = await axios.get<ITransactionMultisig>(BASE_URL + "/api/multisig/tx", {
                 params: {
                     blockchain: blockchainType.name,
                     id: userId,
@@ -28,13 +29,14 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
                     providerName: tx.protocol
                 }
             })
+            axiosRetry(axios, { retries: 10 });
 
             txRes = data.tx as IFormattedTransaction;
-
+        
             if (txRes) {
                 if (txRes.method === ERC20MethodIds.batchRequest || txRes.method === ERC20MethodIds.automatedBatchRequest) {
                     const x = txRes as unknown as IBatchRequest
-                    if (data.isExecuted == false) {
+                    if (data.rejection?.isExecuted === false || data.isExecuted == false) {
                         x.payments.forEach(p => {
                             if (p.coin.symbol === budget.token) {
                                 totalFirstCoinPending += DecimalConverter(p.amount, p.coin.decimals)
@@ -53,9 +55,9 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
                             }
                         })
                     }
-                } else if (txRes.method === ERC20MethodIds.transfer || txRes.method === ERC20MethodIds.transferFrom || txRes.method === ERC20MethodIds.automatedTransfer) {
+                } else if (txRes.method === ERC20MethodIds.transfer || txRes.method === ERC20MethodIds.transferFrom || txRes.method === ERC20MethodIds.automatedTransfer || txRes.method === ERC20MethodIds.deposit) {
                     const x = txRes as unknown as ITransfer
-                    if (data.isExecuted == false) {
+                    if (data.rejection?.isExecuted === false || data.isExecuted == false) {
                         if (budget.token === x.coin.symbol) {
                             totalFirstCoinPending += DecimalConverter(x.amount, x.coin.decimals)
                         } else if (budget.secondToken === x.coin.symbol) {

@@ -126,7 +126,7 @@ export default function Wallet({ children }: { children: JSX.Element }) {
                                 name: "Celo",
                                 rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
                                 chainId: 42220,
-                                explorer: Blockchains.find(s => s.name === "celo")!.explorerUrl,
+                                explorer: Blockchains.find(s => s.name === "celo")!.explorerAPIUrl,
                             },
                             // {
                             //     chainId: 42220,

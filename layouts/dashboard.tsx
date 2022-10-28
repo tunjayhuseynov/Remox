@@ -10,6 +10,7 @@ import { Get_Individual } from 'crud/individual'
 import Navbar from './_components/navbar'
 import Sidebar from './_components/sidebar'
 
+
 export const DashboardContext = createContext<{ refetch: () => void, setMainAnimate?: Dispatch<boolean>, mainAnimate?: boolean }>({ refetch: () => { } })
 
 
@@ -26,6 +27,8 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const address = useAppSelector(SelectProviderAddress)
     const remoxAccount = useAppSelector(SelectRemoxAccount)
     const blockchain = useAppSelector(SelectBlockchain)
+
+
 
     useEffect(() => {
         (async () => {

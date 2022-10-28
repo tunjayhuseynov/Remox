@@ -95,7 +95,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
 
     return <div ref={ref} key={hash} onClick={goToTx} className="py-2 grid grid-cols-[5%,1fr,60%,25%] items-center hover:bg-light dark:hover:bg-dark rounded-md cursor-pointer">
         {item.timestamp > lastSeenTime ? <div className="rounded-full w-[10px] h-[10px] bg-primary ml-2"></div> : <span></span>}
-        <img src={image} alt="" className="w-8 h-8 rounded-full" />
+        <img src={image} alt="" className="w-8 h-8 rounded-full object-cover" />
         <div className="flex flex-col items-start">
             <div className="text-sm font-medium">
                 {action} {amount && coin && method !== ERC20MethodIds.swap && method !== ERC20MethodIds.batchRequest ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERC20MethodIds.swap !== method ? coin.symbol : ''}

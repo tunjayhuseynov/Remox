@@ -19,7 +19,7 @@ export interface Transactions{
     gasUsed: string,
     hash: string,
     safeHash?: string,
-    input: string,
+    input?: string,
     logIndex: string,
     nonce: string,
     timeStamp: string,

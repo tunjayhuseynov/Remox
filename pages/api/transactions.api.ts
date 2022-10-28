@@ -194,7 +194,7 @@ const GetTxs = async (
     if (inTxs) {
       for (const tx of inTxs) {
         const exReq = await axios.get<{ result: Transactions }>(
-          `${blockchain.explorerUrl}?module=transaction&action=gettxinfo&txhash=${tx}`
+          `${blockchain.explorerAPIUrl}?module=transaction&action=gettxinfo&txhash=${tx}`
         );
 
         const txs = exReq.data;
@@ -202,10 +202,10 @@ const GetTxs = async (
       }
     } else {
       const exReqRaw = axios.get<GetTransactions>(
-        `${blockchain.explorerUrl}?module=account&action=txlist&address=${address}`
+        `${blockchain.explorerAPIUrl}?module=account&action=txlist&address=${address}`
       );
       const tokenReqRaw = axios.get<GetTransactions>(
-        `${blockchain.explorerUrl}?module=account&action=tokentx&address=${address}`
+        `${blockchain.explorerAPIUrl}?module=account&action=tokentx&address=${address}`
       );
 
       const [exReq, tokenReq] = await Promise.all([exReqRaw, tokenReqRaw]);
@@ -221,7 +221,7 @@ const GetTxs = async (
     if (inTxs) {
       for (const tx of inTxs) {
         const exReq = await axios.get<{ result: Transactions }>(
-          `${blockchain.explorerUrl}?module=transaction&action=gettxreceiptstatus&txhash=${tx}&apikey=JEH6JVI32EP99FG14NBEIUVQK1FNJIATBT`
+          `${blockchain.explorerAPIUrl}?module=transaction&action=gettxreceiptstatus&txhash=${tx}&apikey=JEH6JVI32EP99FG14NBEIUVQK1FNJIATBT`
         );
 
         const txs = exReq.data;
@@ -229,7 +229,7 @@ const GetTxs = async (
       }
     } else {
       const exReq = await axios.get<GetTransactions>(
-        `${blockchain.explorerUrl}?module=account&action=txlist&address=${address}&apikey=JEH6JVI32EP99FG14NBEIUVQK1FNJIATBT`
+        `${blockchain.explorerAPIUrl}?module=account&action=txlist&address=${address}&apikey=JEH6JVI32EP99FG14NBEIUVQK1FNJIATBT`
       );
       const txs = exReq.data;
       txList = txs.result;
@@ -255,7 +255,7 @@ const ParseTxs = async (
   try {
     let result: Transactions[] = [...transactions];
     const FormattedTransaction: IFormattedTransaction[] = [];
-
+   
     const groupedHash = _(result).groupBy("hash").value();
     const uniqueHashs = Object.values(groupedHash).reduce(
       (acc: Transactions[], value: Transactions[]) => {
@@ -289,8 +289,8 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
   const input = transaction.input;
 
   if (blockchain.name.includes("evm")) {
-    const formatted = await EvmInputReader(input, blockchain.name, {
-      input,
+    const formatted = await EvmInputReader(input ?? "", blockchain.name, {
+      input: input ?? "",
       transaction,
       tags,
       Coins: coins,
@@ -312,7 +312,7 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
 
   } else if (blockchain.name === "celo") {
     // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
-    const formatted = await CeloInputReader({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe", showMultiOut: allowMultiOut });
+    const formatted = await CeloInputReader({ input: input ?? "", transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe", showMultiOut: allowMultiOut });
 
     if (formatted && formatted.method && ((formatted.method === ERC20MethodIds.automatedCanceled && (formatted as any)?.streamId) || ((formatted as any)?.payments?.length ?? 0) > 0
       || (formatted.method === ERC20MethodIds.swap && (formatted as any)?.coinIn)

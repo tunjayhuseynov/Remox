@@ -67,7 +67,7 @@ const PayrollItem = ({ member, selectedMembers, setSelectedMembers, isRuning, ru
             <></>
           )}
           <div
-            className={`hover:cursor-pointer flex items-center space-x-2 ${
+            className={`flex items-center space-x-2 ${
               member.execution !== ExecutionType.auto 
                 ? "pl-0"
                 : "pl-3"

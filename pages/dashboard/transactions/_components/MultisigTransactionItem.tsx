@@ -131,7 +131,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         const amount = (transfer?.amount ?? automation!.amount);
                         const token = (transfer?.coin ?? automation!.coin);
                         const ethAmount = DecimalConverter(amount, token.decimals);
-                        
+
                         await dispatch(Add_Tx_To_Budget_Thunk({
                             convertExecuted: true,
                             tx: {
@@ -339,7 +339,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
-                        <div className="h-2 w-[90%] rounded-lg bg-gray-300 relative" >
+                        <div className="h-2 rounded-lg bg-gray-300 relative" >
                             <div className={`absolute left-0 top-0 h-2 ${tx.isExecuted ? "bg-green-500" : tx.confirmations.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.isExecuted ? "100%" : Math.min(((tx.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />
@@ -450,8 +450,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </td>
                     <td className="p-0">
                         <div className="flex items-end h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700 pb-2">
-                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) ? (tx.rejection.isExecuted || tx.isExecuted ? <></> :
-                                !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
+                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) &&
+                                (!(tx.rejection.isExecuted || tx.isExecuted) &&
+                                    !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
                                         <div className="tracking-wider" >
                                             {confirmFnLoading ? <Loader size={14} /> : "Sign"}
@@ -470,13 +471,31 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                             </div>
                                         </div>
                                         :
-                                        <></>)
-                                :
-                                <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2">
-                                    <span className="tracking-wider">
-                                        You're not an owner
-                                    </span>
-                                </div>
+                                        <></>
+                                )
+                            }
+                            {!tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) &&
+                                (!(tx.rejection.isExecuted || tx.isExecuted) &&
+                                    !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
+                                    <Tooltip title="You are not an owner">
+                                        <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm">
+                                            <div className="tracking-wider" >
+                                                {confirmFnLoading ? <Loader size={14} /> : "Sign"}
+                                            </div>
+                                        </div>
+                                    </Tooltip>
+                                    :
+                                    tx.contractThresholdAmount <= tx.rejection.confirmations.length ?
+                                        <Tooltip title="You are not an owner">
+                                            <div className="w-20 py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
+                                                <div className="tracking-wider" >
+                                                    {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                </div>
+                                            </div>
+                                        </Tooltip>
+                                        :
+                                        <></>
+                                )
                             }
                             <div className="cursor-pointer w-5">
 
@@ -501,7 +520,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 direction={direction}
                 txIndex={txPositionInRemoxData}
                 action={action}
-                isExecuted={tx.isExecuted}
+                isExecuted={tx.rejection?.isExecuted === true || tx.isExecuted === true}
                 isMultisig={true}
                 isRejected={isRejected}
                 signers={tx.confirmations}

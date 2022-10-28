@@ -12,7 +12,7 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks, SelectTags, SelectID } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks, SelectTags, SelectID, SelectBlockchain } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import Tooltip from '@mui/material/Tooltip';
@@ -68,6 +68,7 @@ const Detail = ({
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(transaction.budget)
     // const [selectedBudgetLabel, setSelectedBudgetLabel] = useState<ISubbudgetORM | undefined>(budget)
     const notes = useAppSelector(SelectNotes)
+    const blockchain = useAppSelector(SelectBlockchain)
 
     const selectedNote = useMemo(() => {
         return notes.find(s => s.address.toLowerCase() === transaction.address.toLowerCase() && s.hashOrIndex.toLowerCase() === transaction.hash.toLowerCase())
@@ -332,7 +333,7 @@ const Detail = ({
                     <ClickAwayListener onClickAway={handleClickAway} mouseEvent={'onMouseUp'}>
                         <div>
                             <div className="w-full h-full backdrop-blur-[2px]" onClick={() => setOpenDetail(false)}></div>
-                            <div className="flex flex-col space-y-10 min-h-[325px] sm:min-h-[auto] px-12 py-12 justify-center sm:justify-between sm:items-stretch items-center bg-white dark:bg-darkSecond">
+                            <div className="flex flex-col space-y-10 min-h-screen px-12 py-12 justify-start sm:items-stretch items-center bg-white dark:bg-darkSecond">
                                 <button onClick={() => setOpenDetail(false)} className=" absolute left-full w-[2rem] top-0 translate-x-[-170%] translate-y-[25%] opacity-45">
                                     <img src="/icons/cross_greylish.png" alt="" />
                                 </button>
@@ -356,80 +357,88 @@ const Detail = ({
                                         </div>
                                         <div className="pt-3 flex flex-col gap-7 items-center">
                                             {transfer && (
-                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} amountImageThenName />
+                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />
                                             )}
                                             {
                                                 transferBatch && (
                                                     <div className="flex space-x-5">
-                                                        {transferBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} />)}
+                                                        {transferBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
                                                     </div>
                                                 )
                                             }
                                             {
                                                 automationBatch && (
                                                     <div className="flex space-x-5">
-                                                        {automationBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} />)}
+                                                        {automationBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
                                                     </div>
                                                 )
                                             }
                                             {
                                                 automationCanceled && (
-                                                    <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} />
+                                                    <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} disableFiat imgSize={0.875} />
                                                 )
                                             }
                                             {automation && (
-                                                <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
+                                                <CoinDesignGenerator transfer={automation} timestamp={timestamp} disableFiat imgSize={0.875} />
                                             )}
                                             {swap && (
                                                 <div className="flex space-x-5 items-center">
-                                                    <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
+                                                    <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} disableFiat imgSize={0.875} />
                                                     <FiRepeat />
-                                                    <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
+                                                    <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} disableFiat imgSize={0.875} />
                                                 </div>
                                             )}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="text-greylish text-sm">Status</div>
-                                    <div className="flex space-x-1 items-center font-semibold">
-                                        <div className={`w-2 h-2 ${isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
-                                        <div>{isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
-                                    </div>
-                                </div>
-                                {/* <div className="flex justify-start items-center w-full"><div className="text-sm text-greylish">Created by Orkhan Aslanov</div></div> */}
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="text-greylish text-sm">Signatures</div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="text-gray-300 flex text-sm">
-                                            {isExecuted ? threshold : signers.length} <span className="font-thin">/</span> {threshold}
-                                        </div>
-                                        <div className="h-4 w-28 rounded-lg bg-gray-300 relative" >
-                                            <div className={`absolute left-0 top-0 h-4 ${isExecuted ? "bg-green-500" : signers.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
-                                                width: isExecuted ? "100%" : Math.min(((signers.length / threshold) * 100), 100).toFixed(2) + "%"
-                                            }} />
+                                {isMultisig && <>
+                                    <div className="flex justify-between items-center w-full">
+                                        <div className="text-greylish text-sm">Status</div>
+                                        <div className="flex space-x-1 items-center font-semibold">
+                                            <div className={`w-2 h-2 ${isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
+                                            <div>{isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex justify-between  w-full">
-                                    <div className="text-greylish text-sm">Signers</div>
+                                    {/* <div className="flex justify-start items-center w-full"><div className="text-sm text-greylish">Created by Orkhan Aslanov</div></div> */}
+                                    <div className="flex justify-between items-center w-full">
+                                        <div className="text-greylish text-sm">Signatures</div>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="text-gray-300 flex text-sm">
+                                                {isExecuted ? threshold : signers.length} <span className="font-thin">/</span> {threshold}
+                                            </div>
+                                            <div className="h-4 w-28 rounded-lg bg-gray-300 relative" >
+                                                <div className={`absolute left-0 top-0 h-4 ${isExecuted ? "bg-green-500" : signers.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
+                                                    width: isExecuted ? "100%" : Math.min(((signers.length / threshold) * 100), 100).toFixed(2) + "%"
+                                                }} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between  w-full">
+                                        <div className="text-greylish text-sm">Signers</div>
+                                        <div>
+                                            <div className="flex flex-col items-center justify-center gap-2">
+                                                {signers.map(s => <span
+                                                    onClick={async () => {
+                                                        if (s) {
+                                                            await navigator.clipboard.writeText(s)
+                                                            ToastRun("Copied to clipboard", "success")
+                                                        }
+                                                    }}
+                                                    key={s} className='text-sm cursor-pointer'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name ?? AddressReducer(s)}</span>)}
+                                                {signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>}
+                                <div className="flex justify-between items-center w-full text-sm">
+                                    <div className="text-greylish">Type</div>
                                     <div>
-                                        <div className="flex flex-col items-center justify-center gap-2">
-                                            {signers.map(s => <span
-                                                onClick={async () => {
-                                                    if (s) {
-                                                        await navigator.clipboard.writeText(s)
-                                                        ToastRun("Copied to clipboard", "success")
-                                                    }
-                                                }}
-                                                key={s} className='text-sm cursor-pointer'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name ?? AddressReducer(s)}</span>)}
-                                            {signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
-                                        </div>
+                                        {action}
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center w-full text-sm">
-                                    <div className="text-greylish">Created</div>
-                                    <div>{dateFormat(new Date(timestamp * 1e3), "mmm dd")}</div>
+                                    <div className="text-greylish">{isMultisig ? "Created" : "Tx Time"}</div>
+                                    <div>{dateFormat(new Date(timestamp * 1e3), "mmm dd, yyyy, HH:MM:ss")}</div>
                                 </div>
                                 {/* <div className="flex justify-between items-center w-full"><div className="text-greylish">Closed On</div><div>{time}, 14:51:52</div></div> */}
                                 <div className="flex justify-between items-center w-full text-sm">
@@ -440,7 +449,7 @@ const Detail = ({
                                                 <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl} alt="" className="w-full h-full rounded-full border-greylish" />
                                             </div>
                                         </div>}
-                                        <div className={`sm:flex flex-col justify-center items-start`}>
+                                        <div className={`sm:flex flex-col justify-center items-start font-medium`}>
                                             {!isMultisig && <div className="text-lg dark:text-white">
                                                 {swap &&
                                                     <div className="flex space-x-2">
@@ -487,7 +496,7 @@ const Detail = ({
                                                 </div>
                                             }
                                             {transfer && <div
-                                                className="cursor-pointer"
+                                                className="cursor-pointer font-medium"
                                                 onClick={
                                                     async () => {
                                                         let address = transfer!.to.toLowerCase() === account?.address ? account?.address : transfer!.to
@@ -562,21 +571,19 @@ const Detail = ({
                                 </div>
 
                                 <div className="flex justify-between items-center w-full text-sm">
-                                    <div className="text-greylish">Type</div>
-                                    <div>
-                                        {action}
-                                    </div>
-                                </div>
-                                <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Tx Hash</div>
                                     <div className="cursor-pointer" onClick={async () => {
                                         if (transaction.hash) {
-                                            await navigator.clipboard.writeText(transaction.hash)
-                                            ToastRun("Copied to clipboard", "success")
+                                            if (isMultisig) {
+                                                await navigator.clipboard.writeText(transaction.hash)
+                                                ToastRun("Copied to clipboard", "success")
+                                            } else {
+                                                window.open(blockchain.explorerTxUrl + transaction.hash, "_blank")
+                                            }
                                         }
                                     }}>{AddressReducer(transaction.hash)}</div>
                                 </div>
-                                {!swap && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
+                                {!swap && action != "Received" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
                                     <div className="text-greylish">Budget</div>
                                     <div className='w-[10rem]'>
                                         {budgets.length > 0 && !selectedBudget && <Dropdown

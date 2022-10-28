@@ -37,10 +37,12 @@ export type BlockchainType = {
   hpCollection: string;
   currencyCollectionName: string;
   explorerUrlAddress: string;
+  explorerTxUrl: string;
   nativeToken: string;
   chainId?: number;
   rpcUrl: string;
-  explorerUrl: string;
+  wsUrl: string;
+  explorerAPIUrl: string;
   logoUrl: string;
   multisigProviders: {
     name: MultisigProviders;
@@ -93,8 +95,10 @@ export const Blockchains: BlockchainType[] = [
     nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
     // rpcUrl: "https://rpc.ankr.com/celo/eb990af6ca75cdcc3d06ff7e9f6f8fdecdb08abc587142224199970e4dc46964",
     rpcUrl: "https://forno.celo.org",
-    explorerUrl: "https://explorer.celo.org/api",
+    wsUrl: "wss://forno.celo.org/ws",
+    explorerAPIUrl: "https://explorer.celo.org/api",
     explorerUrlAddress: "https://explorer.celo.org/address/",
+    explorerTxUrl: "https://explorer.celo.org/mainnet/tx/",
     currencyCollectionName: "celoCurrency",
     hpCollection: "hpCELO",
     logoUrl: CoinsURL.CELO,
