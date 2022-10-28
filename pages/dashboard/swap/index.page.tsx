@@ -12,8 +12,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
 import { ToastRun } from "utils/toast";
-import { IAccountORM } from "pages/api/account/index.api";
-import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 
 
 const Swap = () => {
@@ -92,6 +90,8 @@ const Swap = () => {
             try {
                 setLoading(true)
                 await SendTransaction(account, [], {
+                    budget: accountAndBudget.budget,
+                    subbudget: accountAndBudget.subbudget,
                     swap: {
                         account: account.address,
                         inputCoin: GetCoins[token1!.symbol],
