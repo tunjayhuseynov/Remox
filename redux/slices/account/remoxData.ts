@@ -143,6 +143,8 @@ export const init = (): IRemoxData => {
             rejectedRequests: [],
         },
         blockchain: {
+            explorerTxUrl: "",
+            wsUrl: "",
             explorerUrlAddress: "",
             multisigProviders: [],
             batchPaymentProtocols: [],
@@ -234,6 +236,8 @@ const remoxDataSlice = createSlice({
             state.balances = {};
             state.addressBook = [];
             state.blockchain = {
+                explorerTxUrl: "",
+                wsUrl: "",
                 explorerUrlAddress: "",
                 multisigProviders: [],
                 batchPaymentProtocols: [],
