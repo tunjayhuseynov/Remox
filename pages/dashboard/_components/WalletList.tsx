@@ -197,7 +197,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                 </div>
               </div>
                 <div className="flex flex-col mr-2 w-full">
-                  <div className="text-greylish text-xs mb-6">Signers</div>
+                  <div className="text-greylish text-xs mb-[1.6rem]">Signers</div>
                   <div className="relative w-full">
                     <div>
                       {item.members.slice(0,3).map((member, index) => (
@@ -205,7 +205,7 @@ function WalletList({ item }: { item: IAccountORM }) {
                           key={member.id}
                           sx={{
                             width: "1.25rem!important",
-                            height: "1.25rem!important",
+                            height: "1.25rem!important", 
                             position: "absolute",
                             bottom: "0",
                             left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6  : 0}rem`,

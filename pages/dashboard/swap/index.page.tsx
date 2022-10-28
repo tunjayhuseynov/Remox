@@ -12,8 +12,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
 import { ToastRun } from "utils/toast";
-import { IAccountORM } from "pages/api/account/index.api";
-import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 
 
 const Swap = () => {
@@ -25,6 +23,8 @@ const Swap = () => {
     const [token1Amount, setToken1Amount] = useState<number>()
     const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1].address === Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0].address ? Object.values(GetCoins)[0] : Object.values(GetCoins)[1] )
     const [loading, setLoading] = useState<boolean>(false)
+    const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
+    const account = accountAndBudget.account
 
     const [dropdown, setDropdown] = useState<boolean>(false)
     const [dropdown2, setDropdown2] = useState<boolean>(false)
@@ -84,11 +84,14 @@ const Swap = () => {
         }
     }
 
-    const startSwap = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
-        setLoading(true)
+    const startSwap = async () => {
+        console.log(token1!.symbol)
         if (token1!.symbol && token2!.symbol && token1Amount && token1Amount > 0 && account) {
             try {
+                setLoading(true)
                 await SendTransaction(account, [], {
+                    budget: accountAndBudget.budget,
+                    subbudget: accountAndBudget.subbudget,
                     swap: {
                         account: account.address,
                         inputCoin: GetCoins[token1!.symbol],
