@@ -96,6 +96,9 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     <div>
                         <NavLink to="/dashboard/transactions" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Transactions"} showbar={showbar}><TransactionsSVG active={isActive} darkMode={darkMode} />{showbar && 'Transactions'}</Li>}</NavLink>
                         <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Assets"} showbar={showbar}><AssetsSVG active={isActive} darkMode={darkMode} />{showbar && 'Assets'}</Li>}</NavLink>
+                        <Li className={'!mb-0 text-[#00000076] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Insight"} showbar={showbar}>
+                                <InsightDisabledSVG darkMode={darkMode} />Insights <span className='text-primary text-[10px] bg-[#FBD8CD]'>soon</span>
+                            </Li>
                         {/* <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Insight"} showbar={showbar}><InsightSVG active={isActive} darkMode={darkMode} />{showbar && 'Insights'}</Li>}</NavLink> */}
                     </div>
                 </AccordionDetails>
@@ -112,7 +115,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                 <AccordionDetails >
                     <div>
                         {/* <NavLink to="/dashboard/risk" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Risk Assessment"} showbar={showbar}><RiskSVG active={isActive} darkMode={darkMode} />{showbar && 'Risk Assessment'}</Li>}</NavLink> */}
-                        {/* <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend & Borrow'}</Li>}</NavLink> */}
+                        <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend & Borrow'}</Li>}</NavLink>
                     <NavLink to={isModerator ? "/dashboard/choose-budget?page=swap" : "/dashboard/choose-budget?page=swap"} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
                     </div>
                 </AccordionDetails>
@@ -170,6 +173,9 @@ const BudgetsSVG = ({ active = false, darkMode = true }) => <img className={`w-4
 const SettingSVG = ({ active = false, darkMode = true }) => <SettingsOutlinedIcon className={`${active ? 'text-primary' : darkMode ? 'text-white' : 'text-black'} hover:text-greylish !text-xl`} />
 
 const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
+
+const InsightDisabledSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/insightDisabled.svg" : darkMode ? '/icons/sidebar/insightDisabled.png' : '/icons/sidebar/insightDisabled.png'} alt="Insight" />
+
 
 const LogoutSVG = ({ darkMode = true }) => <LogoutOutlinedIcon className={`${darkMode ? 'text-white' : 'text-black'} hover:text-greylish !text-xl`} />
 
