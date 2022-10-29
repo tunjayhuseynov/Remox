@@ -3,6 +3,7 @@ import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Blockchains } from "types/blockchains";
 import { GetTime } from "utils";
+import dateTime from 'date-and-time'
 
 export interface IHpApiResponse {
     [name: string]: {
@@ -47,14 +48,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 }
             }
         }
+        const now = new Date()
+        const diff = Math.abs(dateTime.subtract(new Date(lastDate! * 1000), now).toDays())
+        let filterDate = diff > 30 ? lastDate! : 30;
         const response: IHpApiResponse[0] = {
-            AUD: fiatMoney === "AUD" ? coins.aud.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
-            CAD: fiatMoney === "CAD" ? coins.cad.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
-            JPY: fiatMoney === "JPY" ? coins.jpy.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
-            EUR: fiatMoney === "EUR" ? coins.eur.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
-            GBP: fiatMoney === "GBP" ? coins.gbp.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
-            TRY: fiatMoney === "TRY" ? coins.try.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
-            USD: fiatMoney === "USD" ? coins.usd.filter(c => GetTime(new Date(c.date)) >= lastDate!) : [],
+            AUD: fiatMoney === "AUD" ? coins.aud.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            CAD: fiatMoney === "CAD" ? coins.cad.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            JPY: fiatMoney === "JPY" ? coins.jpy.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            EUR: fiatMoney === "EUR" ? coins.eur.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            GBP: fiatMoney === "GBP" ? coins.gbp.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            TRY: fiatMoney === "TRY" ? coins.try.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            USD: fiatMoney === "USD" ? coins.usd.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
         }
 
         return {
