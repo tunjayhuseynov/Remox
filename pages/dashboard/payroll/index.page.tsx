@@ -147,11 +147,11 @@ export default function DynamicPayroll() {
         <div className="text-2xl font-semibold tracking-wide">
           Payroll
         </div>
-        <div>
-          {contributors.length > 0 ? <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
+        <div className='flex gap-2'>
+          {contributors.length > 0 &&  <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
             {isAvaible ? "Cancel Payroll" : "Run Payroll"}
-          </Button> : <></>}
-          {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] ml-2 !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
+          </Button>}
+          {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
             Submit Payroll
           </Button>}
         </div>

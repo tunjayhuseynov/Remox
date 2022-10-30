@@ -30,12 +30,12 @@ const TokenItem = ({asset, isVariable, isAPY}: {asset: LendingReserveData, isVar
     
 
 
-    console.log(`Variable Borrow APR: ${variableBorrowAPR}%`)
-    console.log(`Variable Borrow APY: ${variableBorrowAPY}%`)
-    console.log(`Stable Borrow APR: ${stableBorrowAPR}%`)
-    console.log(`Stable Borrow APY: ${stableBorrowAPY}%`)
-    console.log(`Total Borrow: ${totalBorrow}`)
-    console.log(coin?.symbol)
+    // console.log(`Variable Borrow APR: ${variableBorrowAPR}%`)
+    // console.log(`Variable Borrow APY: ${variableBorrowAPY}%`)
+    // console.log(`Stable Borrow APR: ${stableBorrowAPR}%`)
+    // console.log(`Stable Borrow APY: ${stableBorrowAPY}%`)
+    // console.log(`Total Borrow: ${totalBorrow}`)
+    // console.log(coin?.symbol)
 
 
 
@@ -43,38 +43,39 @@ const TokenItem = ({asset, isVariable, isAPY}: {asset: LendingReserveData, isVar
 
     return (
     <>
-        <div onClick={() => { setDetailModal(true) }} className={`grid grid-cols-[16.66%,16.66%,16.66%,16.66%,16.66%,16.66%] items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all cursor-pointer `}>
-            <div className="flex items-center gap-2 pl-3">
+        <tr onClick={() => { setDetailModal(true) }} className={`grid grid-cols-[16.66%,16.66%,16.66%,16.66%,20.66%,12.66%] items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all cursor-pointer `}>
+            <td className="flex items-center gap-2 pl-3">
                 <img src={coin?.logoURI} className='w-7 h-7 rounded-full' alt="" />
                 <div className="text-sm font-medium h-6">{coin?.symbol}</div>
-            </div>
-            <div className="text-sm font-medium">
+            </td>
+            <td className="text-sm font-medium">
                 {asset.coinReserveConfig.LoanToValue}
-            </div>
+            </td>
 
-            <div className="flex flex-col justify-center items-start">
+            <td className="flex flex-col justify-center items-start">
                 <span>
                     <NG number={totalSupply} fontSize={0.875} decimalSize={80} /> {coin?.symbol}
                 </span>
                 <span className='text-xs text-greylish font-medium flex justify-end items-end '>
                     {fiatSymbol}<NG number={totalSupplyPrice} fontSize={0.75} decimalSize={80} />
                 </span>
-            </div>
-            <div className="text-lg font-medium text-right">
-                {/* {item.supplyApy}% */}
-            </div>
-            <div className="flex flex-col justify-center items-start">
+            </td>
+            <td className="text-sm font-medium ">
+
+            </td>
+            <td className="flex flex-col justify-center items-start">
                 <span>
                     <NG number={totalBorrow} fontSize={0.875} decimalSize={80} /> {coin?.symbol}
                 </span>
                 <span className='text-xs text-greylish font-medium flex justify-end items-end '>
                     {fiatSymbol}<NG number={totalBorrowPrice} fontSize={0.75} decimalSize={80} />
                 </span>
-            </div>
-            <div className="text-lg font-medium text-right">
+            </td>
+            <td className="text-sm font-medium">
                 {/* {item.borrowApy}% */}
-            </div>
-        </div>
+                <NG number={isVariable ? isAPY ? stableBorrowAPR : variableBorrowAPR : isAPY ? variableBorrowAPR : stableBorrowAPR} fontSize={.875} decimalSize={80}/>%
+            </td>
+        </tr>
     </>
   )
 }

@@ -364,6 +364,10 @@ export default function useLending() {
         await InitializeUser()
     }
 
+    const getUserATokens = useCallback(async () => {
+        
+    }, [])
+
     const getSingleInitialUserData = async (currency: AltCoins) => {
         try {
             if (blockchain.name === 'solana') {

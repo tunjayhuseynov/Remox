@@ -412,12 +412,12 @@ const Swap = () => {
                         </div>
                     </div>
                 </div>
-                <div className="px-3 py-3 font-extralight text-sm">
+                <div className="px-3 py-3 text-sm h-20">
                     <div className="flex justify-between">
-                        <div>Rate:</div>
+                        <div className="text-sm">Rate:</div>
                         <div className="flex">1 {token1.name} = {!isLoading ? parseFloat(oneCoinPrice).toFixed(2) || "No Route for this trade" : <div className="px-3"><Loader /></div>} {token2.name}</div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between  mt-1">
                         <div>Fee:</div>
                         <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} CELO</div>
                     </div>
@@ -440,7 +440,7 @@ const Swap = () => {
                         </div>
                     }
                 </div>
-                <div className="flex justify-center items-center mt-6 space-x-2">
+                <div className="flex justify-center items-center mt-6 space-x-2 pb-3">
                     <p className="text-base text-[#707070] ">Powered by</p>
                     {blockchain.name.includes("evm") ? isDark ? <img src="/icons/swap/1inch_color_white.png" className="w-20" alt="1inch" /> : <img src="/icons/swap/1inch_bw_black.png" className="w-20" alt="1inch" /> : blockchain.name === "celo" ?
                         <div className="flex space-x-2 items-center">

@@ -1,23 +1,22 @@
-import AnimatedTabBar from 'components/animatedTabBar';
 import Button from 'components/button';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import useLending, { LendingReserveData } from 'rpcHooks/useLending';
 import TokenItem from './_components/token';
+import {IoMdInformationCircleOutline} from 'react-icons/io'
 
 const Lendborrow = () => {
-    const router = useRouter()
-    const { type } = router.query as { type: string[] | undefined }
-    const {getReservesData} = useLending()
+    const {getReservesData } = useLending()
     const [reservesData, setReservesData] = useState<LendingReserveData[]>([]);
     const [variable, setVariable] = useState(true)
     const [apy, setApy] = useState(true)
 
     useAsyncEffect(async () => {
         const reserveDatas = await getReservesData()
+
         setReservesData(reserveDatas)
-        console.log(reserveDatas)
+
 
     }, [])
 
@@ -29,11 +28,11 @@ const Lendborrow = () => {
             <div className="text-2xl font-semibold">
                 Lend & Borrow
             </div>
-            <div className="bg-light dark:bg-dark border border-[#D6D6D6] dark:border-greylish py-1 px-2 flex rounded-md ml-5">
-                <div className={`text-primary cursor-pointer ${variable && '!text-white !bg-primary rounded-md'} px-3 py-[3px]`} onClick={() => { setVariable(true) }}>Variable</div>
-                <div className={`text-primary cursor-pointer ${!variable && '!text-white !bg-primary rounded-md'} px-3 py-[3px]`} onClick={() => { setVariable(false) }}>Stable</div>
+            <div className="bg-[#FFFFFF] dark:bg-dark border border-[#D6D6D6] dark:border-greylish py-1 px-2 flex rounded-md ml-5 h-9 gap-1">
+                <div className={`text-primary font-medium text-sm flex items-center justify-center cursor-pointer w-[50%] px-2 ${variable && '!text-white !bg-primary rounded-md'}`} onClick={() => { setVariable(true) }}>Variable</div>
+                <div className={`text-primary font-medium text-sm flex items-center justify-center cursor-pointer w-[50%] px-2 ${!variable && '!text-white !bg-primary rounded-md'}`} onClick={() => { setVariable(false) }}>Stable</div>
             </div>
-            <img src="/icons/info_icon.png" className='w-4 h-4 object-cover cursor-pointer' alt="" />
+            <img src='/icons/information.svg' className='cursor-pointer text-[#E7E7E7]' width={15} height={15} />
         </div>
 
         <div className="">
@@ -55,10 +54,11 @@ const Lendborrow = () => {
                     <span className="text-greylish">Balance: </span> $19.26
                 </div>
                 <div className="px-2 py-1 text-sm font-medium border dark:border-greylish rounded-md  flex items-center gap-1">
-                    <span className="text-greylish">APY: </span> 4.24% <img src="/icons/info_icon.png" className='w-4 h-4 object-cover cursor-pointer' alt="" />
+                    <span className="text-greylish">APY: </span> 4.24% <img src='/icons/information.svg' className='cursor-pointer text-[#E7E7E7]' width={15} height={15} />
+
                 </div>
                 <div className="px-2 py-1 text-sm font-medium border dark:border-greylish rounded-md flex items-center gap-1 ">
-                    <span className="text-greylish">Collateral: </span> $19.26 <img src="/icons/info_icon.png" className='w-4 h-4 object-cover cursor-pointer' alt="" />
+                    <span className="text-greylish">Collateral: </span> $19.26 <img src='/icons/information.svg' className='cursor-pointer text-[#E7E7E7]' width={15} height={15} />
                 </div>
             </div>
 
@@ -142,7 +142,7 @@ const Lendborrow = () => {
     </div>
     <table className="w-full pt-4 pb-6">
         <thead>
-            <tr id="header" className="grid grid-cols-[16.66%,16.66%,16.66%,16.66%,16.66%,16.66%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
+            <tr id="header" className="grid grid-cols-[16.66%,16.66%,16.66%,16.66%,20.66%,12.66%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
                 <th className="font-semibold text-left text-sm text-greylish  dark:text-[#aaaaaa] pl-3">Asset Name</th>
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">LTV</th>
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Total Supply</th>
