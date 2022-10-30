@@ -16,8 +16,8 @@ import { AiOutlinePoweroff } from 'react-icons/ai';
 import { FiPower } from 'react-icons/fi';
 
 
-const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-3 rounded-md mb-2 pl-[.835rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 cursor-pointer ${className} tracking-wide bg-light dark:bg-dark`} title={`${showbar ? '' : text}`} >
-    <div className="flex gap-3 items-center text-sm !font-medium">{children}</div>
+const Li = ({ children, onClick, className, text, showbar }: { children?: Array<any>, onClick?: () => void, className?: string, text?: string, showbar?: boolean }) => <li onClick={onClick} className={`py-3 rounded-md mb-2 px-[.6875rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 cursor-pointer tracking-wide bg-light dark:bg-dark ${className}`} title={`${showbar ? '' : text}`} >
+    <div className="flex gap-2 items-center text-sm !font-medium">{children}</div>
 </li>
 
 const Accordion = styled((props: AccordionProps) => (
@@ -96,9 +96,17 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                     <div>
                         <NavLink to="/dashboard/transactions" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Transactions"} showbar={showbar}><TransactionsSVG active={isActive} darkMode={darkMode} />{showbar && 'Transactions'}</Li>}</NavLink>
                         <NavLink to="/dashboard/assets" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Assets"} showbar={showbar}><AssetsSVG active={isActive} darkMode={darkMode} />{showbar && 'Assets'}</Li>}</NavLink>
-                        <Li className={'!mb-0 text-[#00000076] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Insight"} showbar={showbar}>
-                                <InsightDisabledSVG darkMode={darkMode} />Insights <span className='text-primary text-[10px] bg-[#FBD8CD]'>soon</span>
-                            </Li>
+                        <div className={`py-3 rounded-md px-[.6875rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 tracking-wide bg-light dark:bg-dark !mb-0 text-[#00000076] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all cursor-default transaction-all rounded-b-md rounded-t-none justify-between`}>
+                            <div className='flex gap-2 items-center text-sm !font-medium justify-between'>
+                                <div className='flex gap-2'>
+                                    <InsightDisabledSVG darkMode={darkMode} /> 
+                                    <span>
+                                        Insights 
+                                    </span>
+                                </div>
+                                <span className='text-primary text-[10px] bg-[#FBD8CD] border-[#FF7348] border-[0.2px] rounded-sm px-[0.13rem]'>soon</span>
+                            </div>
+                        </div>
                         {/* <NavLink to="/dashboard/insight" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Insight"} showbar={showbar}><InsightSVG active={isActive} darkMode={darkMode} />{showbar && 'Insights'}</Li>}</NavLink> */}
                     </div>
                 </AccordionDetails>
@@ -115,8 +123,30 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                 <AccordionDetails >
                     <div>
                         {/* <NavLink to="/dashboard/risk" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Risk Assessment"} showbar={showbar}><RiskSVG active={isActive} darkMode={darkMode} />{showbar && 'Risk Assessment'}</Li>}</NavLink> */}
-                        <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend & Borrow'}</Li>}</NavLink>
-                    <NavLink to={isModerator ? "/dashboard/choose-budget?page=swap" : "/dashboard/choose-budget?page=swap"} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
+                        <div className={`py-3 rounded-md px-[.6875rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 tracking-wide bg-light dark:bg-dark !mb-0 text-[#00000076] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all cursor-default transaction-all rounded-b-md rounded-t-none justify-between`}>
+                            <div className='flex gap-3 items-center text-sm !font-medium justify-between'>
+                                <div className='flex gap-2'>
+                                    <RiskDisabledSVG darkMode={darkMode} /> 
+                                    <span className='tracking-wide'>
+                                        Risk Rating 
+                                    </span>
+                                </div>
+                                <span className='text-primary text-[10px] bg-[#FBD8CD] border-[#FF7348] border-[0.2px] rounded-sm px-[0.13rem]'>soon</span>
+                            </div>
+                        </div>
+                        <NavLink to="" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend & Borrow'}</Li>}</NavLink>
+                        <NavLink to={isModerator ? "/dashboard/choose-budget?page=swap" : "/dashboard/choose-budget?page=swap"} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
+                        <div className={`py-3 rounded-md px-[.6875rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 tracking-wide bg-light dark:bg-dark !mb-0 text-[#00000076] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all cursor-default transaction-all rounded-b-md rounded-t-none justify-between`}>
+                            <div className='flex gap-3 items-center text-sm !font-medium justify-between'>
+                                <div className='flex gap-2'>
+                                    <PortfolioDisabled darkMode={darkMode} /> 
+                                    <span className='tracking-wide'>
+                                        Portfolio 
+                                    </span>
+                                </div>
+                                <span className='text-primary text-[10px] bg-[#FBD8CD] border-[#FF7348] border-[0.2px] rounded-sm px-[0.13rem]'>soon</span>
+                            </div>
+                        </div>
                     </div>
                 </AccordionDetails>
             </Accordion>
@@ -166,6 +196,8 @@ const AssetsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 
 
 const RiskSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/risk_active.png' : darkMode ? '/icons/sidebar/risk.png' : '/icons/sidebar/risk_white.png'} alt="Risk" />
 
+const RiskDisabledSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/risksDisabledLight.svg' : darkMode ? '/icons/sidebar/risksDisabledLight.svg' : '/icons/sidebar/risksDisabledLight.svg'} alt="Risk" />
+
 const TeamsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/team_active.png' : darkMode ? '/icons/sidebar/team_white.png' : '/icons/sidebar/team.png'} alt="Teams" />
 
 const BudgetsSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? '/icons/sidebar/budget_active.png' : darkMode ? '/icons/sidebar/budget_white.png' : '/icons/sidebar/budget.png'} alt="Budgets" />
@@ -174,7 +206,9 @@ const SettingSVG = ({ active = false, darkMode = true }) => <SettingsOutlinedIco
 
 const InsightSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/insight_active.png" : darkMode ? '/icons/sidebar/insight_white.png' : '/icons/sidebar/insight.png'} alt="Insight" />
 
-const InsightDisabledSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/insightDisabled.svg" : darkMode ? '/icons/sidebar/insightDisabled.png' : '/icons/sidebar/insightDisabled.png'} alt="Insight" />
+const InsightDisabledSVG = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/insightDisabled.svg" : darkMode ? '/icons/sidebar/insightDisabled.svg' : '/icons/sidebar/insightDisabled.svg'} alt="Insight" />
+
+const PortfolioDisabled = ({ active = false, darkMode = true }) => <img className={`w-4 h-4`} src={active ? "/icons/sidebar/portfolioLightDisabled.svg" : darkMode ? '/icons/sidebar/portfolioLightDisabled.svg' : '/icons/sidebar/portfolioLightDisabled.svg'} alt="Insight" />
 
 
 const LogoutSVG = ({ darkMode = true }) => <LogoutOutlinedIcon className={`${darkMode ? 'text-white' : 'text-black'} hover:text-greylish !text-xl`} />
