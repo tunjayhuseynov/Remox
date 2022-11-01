@@ -50,12 +50,12 @@ export default function TagsSetting() {
           name: value,
         })
       ).unwrap();
+      setShowModal(false);
     } else {
-      ToastRun(<>please fill in all cells</>, )
+      ToastRun(<>please fill in all cells</>, "warning" )
     }
 
     setColor("")
-    setShowModal(false);
   };
 
   const searching = (e: React.ChangeEvent<HTMLInputElement>) => {

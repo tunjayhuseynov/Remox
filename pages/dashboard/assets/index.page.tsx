@@ -5,7 +5,7 @@ import { AltCoins, TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference, SelectTotalBalance, SelectPriceCalculationFn } from 'redux/slices/account/remoxData';
 import useNextSelector from 'hooks/useNextSelector';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -90,10 +90,15 @@ const Assets = () => {
 
 
     const fiat = useAppSelector(SelectFiatPreference)
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const {GetCoins} = useWalletKit()
     const nftTotalPrice =  getTotalNftPrice(nfts, fiat,  Object.values(GetCoins).find((c) => c.symbol === "CELO")!)
 
-    let totalBalance = (spotTotalBalance + yieldTotalBalance).toFixed(2);
+    
+    const totalBalance = useAppSelector(SelectTotalBalance)
+
+
+    let totalBalances = (spotTotalBalance + yieldTotalBalance).toFixed(2);
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
@@ -161,14 +166,14 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-medium text-xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalance) || (totalBalance !== undefined && parseFloat(totalBalance) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalance} fontSize={1.25} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} /></div>}
+                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalances) || (totalBalances !== undefined && parseFloat(totalBalances) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalances} fontSize={1.25} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} /></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1d-content" id="panel1d-header"
-                            className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
+                            className=" hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
                             sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '3px', paddingBottom: '3px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
                         >
                             <div className="w-full flex items-center h-10 rounded-md">
@@ -190,7 +195,11 @@ const Assets = () => {
                                         </tr>
                                     </thead>
                                 </table>
-                                {mySpotTokens.map((token) => {
+                                {mySpotTokens.sort((a, b) => {
+                                    const precent1 = totalBalance > 0 ? (calculatePrice(a) / totalBalance) * 100 : 0
+                                    const precent2 = totalBalance > 0 ? (calculatePrice(b) / totalBalance) * 100 : 0
+                                    return precent2 - precent1
+                                }).map((token) => {
                                     return <AssetItem asset={token} key={token.address} />
                                 })}
                             </div>
@@ -201,7 +210,7 @@ const Assets = () => {
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel2d-content" id="panel2d-header"
-                            className="bg-white hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
+                            className="hover:bg-[#f9f9f9] dark:hover:bg-darkSecond  !min-h-[0.7rem]  !pb-0 !rounded-md w-full"
                             sx={{ borderRadius: '5px', border: !dark ? '1px solid #D6D6D6' : '1px solid #3C3C3C', paddingLeft: '11px', paddingRight: '7px', paddingTop: '3px', paddingBottom: '3px !important', '.MuiAccordionSummary-content': { margin: '0px !important' } }}
                         >
                             <div className="w-full flex items-center h-10">

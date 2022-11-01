@@ -5,12 +5,12 @@ import { useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
 import { useWalletKit } from 'hooks';
 import Modal from 'components/general/modal';
-import { SelectContributorMembers, SelectFiatPreference, SelectFiatSymbol, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
+import { SelectBalance, SelectContributorMembers, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectIndividual, SelectOrganization, SelectPriceCalculationFn, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import PayrollItem from './_components/PayrollItem';
 import { IPaymentInput } from 'pages/api/payments/send/index.api';
 import { AltCoins, Coins } from 'types';
 import RunModal from './_components/modalpay/runModal';
-import { GetFiatPrice } from 'utils/const';
+import { generatePriceCalculation, GetFiatPrice } from 'utils/const';
 import { FiatMoneyList } from 'firebaseConfig';
 import ChooseBudget from 'components/general/chooseBudget';
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
@@ -27,8 +27,12 @@ export default function DynamicPayroll() {
   const fiatSymbol = useAppSelector(SelectFiatSymbol)
   const { GetCoins, SendTransaction } = useWalletKit()
   const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
+  const organizatiion = useAppSelector(SelectOrganization)
+  const individual = useAppSelector(SelectIndividual)
+  const hp  = useAppSelector(SelectHistoricalPrices)
+  const balance = useAppSelector(SelectBalance)
 
-
+  const pc = organizatiion?.priceCalculation ?? individual?.priceCalculation ?? "current"
 
   useEffect(() => {
     if (!isAvaible) {
@@ -49,10 +53,10 @@ export default function DynamicPayroll() {
         const coin = Object.values(GetCoins).find((coin) => coin.symbol === member.currency);
 
         if (member.fiat) {
-          const fiatPrice = GetFiatPrice(coin!, member.fiat)
+          const fiatAmount = generatePriceCalculation(balance[coin!.symbol], hp, pc ,member.fiat)
 
           inputs.push({
-            amount: Number(amount) / (fiatPrice),
+            amount: fiatAmount,
             coin: coin?.symbol ?? "",
             recipient: address,
           });
@@ -69,10 +73,10 @@ export default function DynamicPayroll() {
           const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === member.secondCurrency);
 
           if (member.fiatSecond) {
-            const fiatPrice = GetFiatPrice(coin2!, member.fiatSecond)
+            const fiatAmount = generatePriceCalculation(balance[coin2!.symbol], hp, pc ,member.fiatSecond)
 
             inputs.push({
-              amount: Number(secondAmount) / (fiatPrice),
+              amount: fiatAmount,
               coin: coin2?.symbol ?? "",
               recipient: address,
             });
@@ -143,11 +147,11 @@ export default function DynamicPayroll() {
         <div className="text-2xl font-semibold tracking-wide">
           Payroll
         </div>
-        <div>
-          {contributors.length > 0 ? <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
+        <div className='flex gap-2'>
+          {contributors.length > 0 &&  <Button onClick={() => setIsAviable(!isAvaible)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
             {isAvaible ? "Cancel Payroll" : "Run Payroll"}
-          </Button> : <></>}
-          {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] ml-2 !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
+          </Button>}
+          {selectedContributors.length > 0 && <Button onClick={() => setRunmodal(true)} className={"!py-[.5rem] !font-semibold !text-sm cursor-pointer !px-0 min-w-[9.1rem]"} >
             Submit Payroll
           </Button>}
         </div>

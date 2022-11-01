@@ -177,7 +177,7 @@ function WalletList({ item }: { item: IAccountORM }) {
             </div>
           </div>
           <div className="grid grid-cols-[27.9%,1fr]">
-            <div className="flex flex-col gap-3 py-2 px-[.68rem] items-start border-r dark:border-[#454545]">
+            <div className="flex flex-col gap-[0.8rem] pb-2 pt-[0.4rem] px-[.68rem] items-start border-r dark:border-[#454545]">
               <div className="grid grid-flow-row">
                 <div className="text-greylish text-xs">Total Value</div>
                 <div className="text-sm font-semibold truncate">
