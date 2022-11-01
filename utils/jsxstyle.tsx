@@ -1,6 +1,6 @@
 
 
-export const NG = ({ fontSize = 1, number, decimalSize }: { number: number, fontSize?: number, decimalSize?: number }) => {
+export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: number, fontSize?: number, decimalSize?: number, className?: string}) => {
 
     return <>
         <span style={{

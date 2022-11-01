@@ -28,6 +28,7 @@ import { NG } from "utils/jsxstyle";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import moment from "moment";
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { IPrice } from "utils/api";
 
 export interface IPaymentInputs {
     id: string,
@@ -93,7 +94,10 @@ const Pay = () => {
             id: nanoid(),
             address: '',
             amount: null,
-            coin: null,
+            coin: selectedAccountAndBudget.account?.coins.filter(s => s.amount > 0).reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
+                acc[cur.coin.symbol] = cur
+                return acc 
+            }, {})?.[0] ?? null,
             fiatMoney: null,
             second: null
         }

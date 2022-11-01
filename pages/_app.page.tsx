@@ -72,7 +72,7 @@ function MyApp({ Component, pageProps, router }: AppPropsWithLayout) {
       <title>Remox - Simplified and Collaborative Treasury  Management for DAOs</title>
     </Head>
     <Provider store={store}>
-      <ToastContainer />
+      <ToastContainer className={"!z-[99999999999999]"}/>
       <Wallet>
         <App>
           {

@@ -19,7 +19,7 @@ import {
 } from "redux/slices/account/remoxData";
 import { FetchPaymentData } from "redux/slices/account/thunks/payment";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { IPaymentInput, ISwap } from "pages/api/payments/send/index.api";
+import { IPaymentInput, ISendTx, ISwap } from "pages/api/payments/send/index.api";
 import Web3 from "web3";
 import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useAllowance from "rpcHooks/useAllowance";
@@ -45,6 +45,7 @@ import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/acco
 import { Add_Notes_Thunk } from "redux/slices/account/thunks/notes";
 import { newKit } from "@celo/contractkit";
 import BigNumber from "bignumber.js";
+import { DecimalConverter } from "utils/api";
 
 
 export enum CollectionName {
@@ -66,7 +67,7 @@ export default function useWalletKit() {
 
   const id = useAppSelector(SelectID)
 
-  const { allow } = useAllowance();
+  const { allow, allowData } = useAllowance();
 
   const { submitTransaction } = useMultisig();
 
@@ -298,7 +299,7 @@ export default function useWalletKit() {
           streamId = streamingIdDirect
         }
 
-        const txData = await dispatch(
+        let txData = await dispatch(
           FetchPaymentData({
             walletAddress: account.address,
             blockchain: blockchain.name,
@@ -334,40 +335,43 @@ export default function useWalletKit() {
             value: "0",
           };
 
-          if (swap) {
-            await allow(
-              account.address,
-              swap.inputCoin,
-              blockchain.swapProtocols[0].contractAddress,
-              swap.amount,
-              account.signerType === "single" ? account.address : (await Address)!
-            );
-          }
-          if (createStreaming) {
-            await allow(
-              account.address,
-              coins[inputArr[0].coin],
-              blockchain.streamingProtocols[0].contractAddress,
-              inputArr[0].amount.toString(),
-              account.signerType === "single" ? account.address : (await Address)!
-            )
-          }
 
-          if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
-            const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
-
-            for (let index = 0; index < approveArr.length; index++) {
-              await allow(
-                account.address,
-                approveArr[index].coin,
-                Contracts.BatchRequest.address,
-                approveArr[index].amount.toString(),
-                account.signerType === "single" ? account.address : ((await Address)! as string)
-              );
-            }
-          }
 
           if (account.signerType === "single") { // SINGLE SIGNER
+
+            if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
+              const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
+
+              for (let index = 0; index < approveArr.length; index++) {
+                await allow(
+                  account.address,
+                  approveArr[index].coin,
+                  Contracts.BatchRequest.address,
+                  approveArr[index].amount.toString(),
+                  account.signerType === "single" ? account.address : ((await Address)! as string)
+                );
+              }
+            }
+
+            if (swap) {
+              await allow(
+                account.address,
+                swap.inputCoin,
+                blockchain.swapProtocols[0].contractAddress,
+                swap.amount,
+                account.signerType === "single" ? account.address : (await Address)!
+              );
+            }
+            if (createStreaming) {
+              await allow(
+                account.address,
+                coins[inputArr[0].coin],
+                blockchain.streamingProtocols[0].contractAddress,
+                inputArr[0].amount.toString(),
+                account.signerType === "single" ? account.address : (await Address)!
+              )
+            }
+
             const recipet = await web3.eth.sendTransaction(option).on('confirmation', function (num, receipt) {
               if (num > 23) {
 
@@ -377,6 +381,13 @@ export default function useWalletKit() {
                   blockchain: blockchain,
                   txHash: receipt.transactionHash,
                   tags: tags,
+                }))
+
+                dispatch(Refresh_Balance_Thunk({
+                  blockchain: blockchain,
+                }))
+                dispatch(Refresh_Accounts_Thunk({
+                  id: account.id,
                 }))
 
                 ToastRun("Transaction've been mined", "success")
@@ -391,6 +402,23 @@ export default function useWalletKit() {
           else { // MULTISIGNER
 
             if (!account.provider) throw new Error("Provider not found")
+            if (swap) {
+              const data = await allowData(account.address, swap.inputCoin, blockchain.swapProtocols[0].contractAddress, swap.amount.toString(), account.address)
+              txData = [{
+                data: data,
+                destination: swap.inputCoin.address,
+                value: 0,
+              }, (txData as ISendTx)]
+            }
+            if (createStreaming) {
+              const coin = coins[inputArr[0].coin]
+              const data = await allowData(account.address, coin, blockchain.streamingProtocols[0].contractAddress, inputArr[0].amount.toString(), account.address)
+              txData = [{
+                data: data,
+                destination: coin.address,
+                value: 0,
+              }, (txData as ISendTx)]
+            }
             const txHash = await submitTransaction(
               account,
               txData,
@@ -513,12 +541,12 @@ export default function useWalletKit() {
         }
 
 
-        dispatch(Refresh_Balance_Thunk({
-          blockchain: blockchain,
-        }))
-        dispatch(Refresh_Accounts_Thunk({
-          id: account.id,
-        }))
+        // dispatch(Refresh_Balance_Thunk({
+        //   blockchain: blockchain,
+        // }))
+        // dispatch(Refresh_Accounts_Thunk({
+        //   id: account.id,
+        // }))
         // await dispatch(Refresh_Data_Thunk()).unwrap();
         return txhash;
       } catch (error) {

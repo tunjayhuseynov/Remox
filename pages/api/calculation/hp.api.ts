@@ -21,7 +21,7 @@ export interface IHpApiResponse {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IHpApiResponse>) {
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" } as any);
     const { coinList, lastTxDate, blockchain, fiatMoney } = req.body as
-        { coinList: string[] | undefined, lastTxDate: number | undefined, blockchain: string | undefined, fiatMoney: FiatMoneyList | undefined };
+        { coinList: string[] | undefined, lastTxDate: number | undefined, blockchain: string | undefined, fiatMoney: FiatMoneyList[] | undefined };
     let lastDate = lastTxDate;
     if (!coinList) throw new Error("Coin list is required");
     if (lastDate === undefined) {
@@ -52,13 +52,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const diff = Math.abs(dateTime.subtract(new Date(lastDate! * 1000), now).toDays())
         let filterDate = diff > 30 ? lastDate! : 30;
         const response: IHpApiResponse[0] = {
-            AUD: fiatMoney === "AUD" ? coins.aud.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
-            CAD: fiatMoney === "CAD" ? coins.cad.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
-            JPY: fiatMoney === "JPY" ? coins.jpy.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
-            EUR: fiatMoney === "EUR" ? coins.eur.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
-            GBP: fiatMoney === "GBP" ? coins.gbp.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
-            TRY: fiatMoney === "TRY" ? coins.try.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
-            USD: fiatMoney === "USD" ? coins.usd.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            AUD: fiatMoney?.includes("AUD") && Array.isArray(coins?.aud)? coins.aud.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            CAD: fiatMoney?.includes("CAD") && Array.isArray(coins?.cad)? coins.cad.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            JPY: fiatMoney?.includes("JPY") && Array.isArray(coins?.jpy)? coins.jpy.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            EUR: fiatMoney?.includes("EUR") && Array.isArray(coins?.eur)? coins.eur.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            GBP: fiatMoney?.includes("GBP") && Array.isArray(coins?.gbp)? coins.gbp.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            TRY: fiatMoney?.includes("TRY") && Array.isArray(coins?.try)? coins.try.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
+            USD: fiatMoney?.includes("USD") && Array.isArray(coins?.usd)? coins.usd.filter(c => GetTime(new Date(c.date)) >= filterDate!) : [],
         }
 
         return {

@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 import { IBudget, IBudgetTX } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
-import { IBatchRequest, ITransfer, ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { IBatchRequest, ITransfer, ERCMethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { AltCoins, Coins } from "types";
 import { BlockchainType } from "types/blockchains";
@@ -34,7 +34,7 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
             txRes = data.tx as IFormattedTransaction;
         
             if (txRes) {
-                if (txRes.method === ERC20MethodIds.batchRequest || txRes.method === ERC20MethodIds.automatedBatchRequest) {
+                if (txRes.method === ERCMethodIds.batchRequest || txRes.method === ERCMethodIds.automatedBatchRequest) {
                     const x = txRes as unknown as IBatchRequest
                     if (data.rejection?.isExecuted === false || data.isExecuted == false) {
                         x.payments.forEach(p => {
@@ -55,7 +55,7 @@ export const MultisigTxCal = async (budget: IBudget, tx: Pick<IBudgetTX, "hashOr
                             }
                         })
                     }
-                } else if (txRes.method === ERC20MethodIds.transfer || txRes.method === ERC20MethodIds.transferFrom || txRes.method === ERC20MethodIds.automatedTransfer || txRes.method === ERC20MethodIds.deposit) {
+                } else if (txRes.method === ERCMethodIds.transfer || txRes.method === ERCMethodIds.transferFrom || txRes.method === ERCMethodIds.automatedTransfer || txRes.method === ERCMethodIds.deposit) {
                     const x = txRes as unknown as ITransfer
                     if (data.rejection?.isExecuted === false || data.isExecuted == false) {
                         if (budget.token === x.coin.symbol) {

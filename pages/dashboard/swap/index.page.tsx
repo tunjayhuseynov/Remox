@@ -12,6 +12,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
 import { ToastRun } from "utils/toast";
+import { useRouter } from "next/router";
 
 
 const Swap = () => {
@@ -30,6 +31,7 @@ const Swap = () => {
     const [dropdown2, setDropdown2] = useState<boolean>(false)
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(GetCoins))
 
+    const router = useRouter()
 
     const token1Input = useRef<HTMLInputElement>(null)
 
@@ -85,7 +87,6 @@ const Swap = () => {
     }
 
     const startSwap = async () => {
-        console.log(token1!.symbol)
         if (token1!.symbol && token2!.symbol && token1Amount && token1Amount > 0 && account) {
             try {
                 setLoading(true)
@@ -108,6 +109,9 @@ const Swap = () => {
                     </div>
                 )
                 setLoading(false)
+                if(account.signerType === "multi"){
+                    router.push('/dashboard/transactions')
+                }
             } catch (error) {
                 const message = (error as any).message || "Something went wrong"
                 console.error(message)

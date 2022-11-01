@@ -1,5 +1,5 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
-import { IMemberORM } from "firebaseConfig";
+import { FiatMoneyList, IMemberORM } from "firebaseConfig";
 import { RootState } from "redux/store";
 import { GetFiatPrice } from "utils/const";
 import { IPrice } from 'utils/api'
@@ -22,9 +22,12 @@ export const SelectPriceCalculationFn = createDraftSafeSelector(
     let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
     let fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
 
-    return (coin: IPrice[0] | null, { altcoin, amount }: { altcoin?: AltCoins, amount?: number } = {}) => {
+    return (coin: IPrice[0] | null, { altcoin, amount, customPc, fiatMoney }: { altcoin?: AltCoins, amount?: number, customPc?: string, fiatMoney?: FiatMoneyList } = {}) => {
+      if (fiatMoney) {
+        fiat = fiatMoney;
+      }
       if (altcoin && amount) {
-        switch (pc) {
+        switch (customPc ?? pc) {
           case "current":
             return amount * GetFiatPrice(altcoin, fiat);
           case "5":
@@ -41,7 +44,7 @@ export const SelectPriceCalculationFn = createDraftSafeSelector(
             return amount * GetFiatPrice(altcoin, fiat);
         }
       } else if (coin) {
-        switch (pc) {
+        switch (customPc ?? pc) {
           case "current":
             return coin.amount * GetFiatPrice(coin, fiat);
           case "5":

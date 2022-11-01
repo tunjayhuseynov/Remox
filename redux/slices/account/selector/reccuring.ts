@@ -1,5 +1,5 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
-import { ERC20MethodIds, IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IAutomationCancel, IAutomationTransfer } from "hooks/useTransactionProcess";
 import { RootState } from "redux/store";
 import { GetTime } from "utils";
 
@@ -12,8 +12,8 @@ export const SelectRecurringTasks = createDraftSafeSelector(
 export const SelectNonCanceledRecurringTasks = createDraftSafeSelector(
     (state: RootState) => state.remoxData.recurringTasks,
     (recurringTasks) => {
-        const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERC20MethodIds.automatedCanceled : s.method !== ERC20MethodIds.automatedCanceled);
-        const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERC20MethodIds.automatedCanceled : s.method === ERC20MethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
+        const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERCMethodIds.automatedCanceled : s.method !== ERCMethodIds.automatedCanceled);
+        const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERCMethodIds.automatedCanceled : s.method === ERCMethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
 
         return nonCanceledRecurringTasks.filter(s => !canceledReccuringTasks.includes((s as IAutomationTransfer).streamId) && (s as IAutomationTransfer).endTime > GetTime());
     }
@@ -22,8 +22,8 @@ export const SelectNonCanceledRecurringTasks = createDraftSafeSelector(
 export const SelectAlldRecurringTasks = createDraftSafeSelector(
     (state: RootState) => state.remoxData.recurringTasks,
     (recurringTasks) => {
-        const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERC20MethodIds.automatedCanceled : s.method !== ERC20MethodIds.automatedCanceled);
-        const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERC20MethodIds.automatedCanceled : s.method === ERC20MethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
+        const nonCanceledRecurringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method !== ERCMethodIds.automatedCanceled : s.method !== ERCMethodIds.automatedCanceled);
+        const canceledReccuringTasks = recurringTasks.filter(s => 'tx' in s ? s.tx.method === ERCMethodIds.automatedCanceled : s.method === ERCMethodIds.automatedCanceled).map(s => (s as IAutomationCancel).streamId);
 
         return nonCanceledRecurringTasks.filter(s => !canceledReccuringTasks.includes((s as IAutomationTransfer).streamId));
     }

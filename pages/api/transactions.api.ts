@@ -1,6 +1,6 @@
 import axios from "axios";
 import CeloInputReader, {
-  ERC20MethodIds,
+  ERCMethodIds,
   EvmInputReader,
   IFormattedTransaction,
 } from "hooks/useTransactionProcess";
@@ -170,7 +170,7 @@ const GetTxs = async (
           gasPrice: "1",
           gasUsed: "1",
           hash: tx?.transaction.signatures[0] ?? "",
-          input: ERC20MethodIds.noInput ?? "",
+          input: ERCMethodIds.noInput ?? "",
           nonce: "",
           timeStamp: (
             tx?.blockTime ?? Math.floor(new Date().getTime() / 1e3)
@@ -314,9 +314,9 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
     // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
     const formatted = await CeloInputReader({ input: input ?? "", transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe", showMultiOut: allowMultiOut });
 
-    if (formatted && formatted.method && ((formatted.method === ERC20MethodIds.automatedCanceled && (formatted as any)?.streamId) || ((formatted as any)?.payments?.length ?? 0) > 0
-      || (formatted.method === ERC20MethodIds.swap && (formatted as any)?.coinIn)
-      || (formatted.method === ERC20MethodIds.nftTokenERC721)
+    if (formatted && formatted.method && ((formatted.method === ERCMethodIds.automatedCanceled && (formatted as any)?.streamId) || ((formatted as any)?.payments?.length ?? 0) > 0
+      || (formatted.method === ERCMethodIds.swap && (formatted as any)?.coinIn)
+      || (formatted.method === ERCMethodIds.nftTokenERC721)
       || (formatted as any)?.coin
     )) {
       return {

@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useState } from "react";
 import { TransactionStatus } from "types";
-import { ERC20MethodIds, IAutomationBatchRequest, IAutomationCancel, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IAutomationBatchRequest, IAutomationCancel, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { CSVLink } from "react-csv";
 import _ from "lodash";
 import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils";
@@ -8,12 +8,12 @@ import { useModalSideExit, useWalletKit } from "hooks";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectAccounts, SelectAlldRecurringTasks, SelectCumlativeTxs as SelectCumulativeTxs, SelectCurrencies, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectAllBudgets, SelectAlldRecurringTasks, SelectCumlativeTxs as SelectCumulativeTxs, SelectCurrencies, SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import SingleTransactionItem from "./_components/SingleTransactionItem";
 import MultisigTx from "./_components/MultisigTransactionItem";
-import { TablePagination } from "@mui/material";
+import { Checkbox, ClickAwayListener, Input, TablePagination } from "@mui/material";
 import { IAccountORM } from "pages/api/account/index.api";
 import { BlockchainType } from "types/blockchains";
 import { ITag } from "pages/api/tags/index.api";
@@ -27,6 +27,10 @@ import DateTime from 'date-and-time'
 import dateFormat from "dateformat";
 import { IAutomationTransfer } from 'hooks/useTransactionProcess'
 import AnimatedTabBar from "components/animatedTabBar";
+import DatePicker from "react-multi-date-picker";
+import DatePanel from "react-multi-date-picker/plugins/date_panel";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import { AiOutlineSearch } from "react-icons/ai";
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
@@ -38,6 +42,8 @@ const Transactions = () => {
     const navigate = useRouter()
     const coins = useAppSelector(SelectCurrencies)
 
+    const dark = useAppSelector(SelectDarkMode)
+
 
     const index = navigate.query?.index as string | undefined;
     const name = navigate.query?.name as string | undefined;
@@ -47,6 +53,17 @@ const Transactions = () => {
     const { Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
     const [isOpen, setOpen] = useState(false)
+
+
+    const budgets = useAppSelector(SelectAllBudgets)
+    const accountsAll = useAppSelector(SelectAccounts)
+
+
+    const [isAddressFilterOpen, setAddressFilterOpen] = useState(false)
+    const [isDateFilterOpen, setDateFilterOpen] = useState(false)
+    const [isLabelFilterOpen, setLabelFilterOpen] = useState(false)
+    const [isBudgetFilterOpen, setBudgetFilterOpen] = useState(false)
+    const [isWalletFilterOpen, setWalletFilterOpen] = useState(false)
 
     const [pagination, setPagination] = useState(STABLE_INDEX)
 
@@ -94,7 +111,7 @@ const Transactions = () => {
         if ('tx' in c) {
             const tx = c.tx
             let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
-            if (tx.method === ERC20MethodIds.swap) {
+            if (tx.method === ERCMethodIds.swap) {
                 const swap = tx as ISwap
                 amount = swap?.amountIn && swap?.coinIn ? DecimalConverter(swap.amountIn, swap.coinIn.decimals) : undefined
             }
@@ -123,7 +140,7 @@ const Transactions = () => {
             if (!name) return false
             const tx = c as any
             let amount = tx?.amount && tx?.coin ? DecimalConverter(tx.amount, tx.coin.decimals).toFixed(0).length < 18 ? DecimalConverter(tx.amount, tx.coin.decimals) : undefined : undefined
-            if (tx.method === ERC20MethodIds.swap) {
+            if (tx.method === ERCMethodIds.swap) {
                 const swap = tx as ISwap
                 amount = swap?.amountIn && swap?.coinIn ? DecimalConverter(swap.amountIn, swap.coinIn.decimals) : undefined
             }
@@ -138,7 +155,7 @@ const Transactions = () => {
             if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
-            if (tx.method === ERC20MethodIds.repay) console.log(tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0))
+            if (tx.method === ERCMethodIds.repay) console.log(tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0))
             if (specificAmount && (amount ?? 0) !== specificAmount) return false
             if (minAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0) < minAmount) return false
             if (maxAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE) > maxAmount) return false
@@ -190,6 +207,8 @@ const Transactions = () => {
     }
 
     const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
+    const [searchLabel, setSearchLabel] = useState<string>("")
+
 
     const historyTxLn = Txs.filter((s) => tabFilterFn(s, "history")).length
     const data = [
@@ -227,92 +246,110 @@ const Transactions = () => {
                     </div>
                     {!!name && <div className="flex justify-between">
                         <div className="flex space-x-5 items-center">
-                            <div className="relative" ref={exceptRef} onClick={() => setOpen(true)}>
-                                <div className="cursor-pointer rounded-md dark:bg-darkSecond bg-white hover:bg-gray hover:bg-opacity-10 border-2 dark:border-gray-500 border-gray-200 px-4 py-1 font-semibold text-sm">
-                                    + Add Filter
+                            <Filter isOpen={isDateFilterOpen} setOpen={setDateFilterOpen} title={
+                                datePicker.length > 0 ? <div className="rounded-md py-0 px-2 font-semibold text-xs">
+                                    Specific date{datePicker.length > 1 ? "s" : ""}
                                 </div>
-                                <div ref={filterRef} className="absolute bottom-0 translate-y-full z-[900]">
-                                    <AnimatePresence>
-                                        {isOpen &&
-                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .33 }}>
-                                                <Filter
-                                                    date={datePicker}
-                                                    setDate={setDate}
-                                                    selectedTags={selectedTags}
-                                                    setSelectedTags={setSelectedTags}
-                                                    selectedBudgets={selectedBudgets}
-                                                    setSelectedBudgets={setSelectedBudgets}
-                                                    selectedAccounts={selectedAccounts}
-                                                    setSelectedAccounts={setSelectedAccounts}
-                                                    selectedDirection={selectedDirection}
-                                                    setSelectedDirection={setSelectedDirection}
-                                                    specificAmount={specificAmount}
-                                                    setSpecificAmount={setSpecificAmount}
-                                                    minAmount={minAmount}
-                                                    setMinAmount={setMinAmount}
-                                                    maxAmount={maxAmount}
-                                                    setMaxAmount={setMaxAmount}
-                                                />
-                                            </motion.div>}
-                                    </AnimatePresence>
+                                    : "All dates"
+                            } width={8.75}>
+                                <div className='text-xs pb-1 font-medium'>
+                                    Show transaction for
                                 </div>
-                            </div>
-                            <div className="w-[1px] h-full bg-dark dark:bg-white"></div>
-                            <div className="flex space-x-5">
-                                {datePicker.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        <div>{dateFormat(datePicker[0], "mmm dd, yyyy")}</div>
-                                        {datePicker.length > 1 && <div>-</div>}
-                                        {datePicker.length > 1 && <div>
-                                            {dateFormat(datePicker[1], "mmm dd, yyyy")}
-                                        </div>}
-                                        <div className="pl-3 cursor-pointer" onClick={() => setDate([])}>X</div>
-                                    </div>
-                                }
-                                {selectedTags.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        <div>Labels ({selectedTags.length})</div>
-                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedTags([])}>X</div>
-                                    </div>
-                                }
-                                {selectedBudgets.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        <div>Budgets ({selectedBudgets.length})</div>
-                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedBudgets([])}>X</div>
-                                    </div>
-                                }
-                                {selectedAccounts.length > 0 &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        <div>Accounts ({selectedAccounts.length})</div>
-                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedAccounts([])}>X</div>
-                                    </div>
-                                }
-                                {specificAmount &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        <div>Amount: {specificAmount}</div>
-                                        <div className="pl-3 cursor-pointer" onClick={() => setSpecificAmount(undefined)}>X</div>
-                                    </div>
-                                }
-                                {selectedDirection !== "Any" &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        <div>Direction: {selectedDirection}</div>
-                                        <div className="pl-3 cursor-pointer" onClick={() => setSelectedDirection("Any")}>X</div>
-                                    </div>
-                                }
-                                {
-                                    (minAmount || maxAmount) &&
-                                    <div className="flex items-center bg-primary bg-opacity-50 rounded-md py-2 px-2 font-medium text-sm">
-                                        {!!minAmount && <div>Min: {minAmount}</div>}
-                                        {(!!minAmount && !!maxAmount) && <div>-</div>}
-                                        {!!maxAmount && <div>Max: {maxAmount}</div>}
-                                        <div className="pl-3 cursor-pointer" onClick={() => {
-                                            setMinAmount(undefined)
-                                            setMaxAmount(undefined)
-                                        }}>X</div>
-                                    </div>
-                                }
-                            </div>
+                                <DatePicker plugins={[<DatePanel sort="date" />]} value={datePicker} onChange={(data) => {
+                                    if (Array.isArray(data)) {
+                                        setDate(data.map(s => s.toDate().getTime()))
+                                    }
+                                }} range={true} className={`${dark ? "bg-dark" : ""}`} style={
+                                    {
+                                        height: "1.9rem",
+                                    }
+                                } />
+                            </Filter>
+
+                            <Filter isOpen={isLabelFilterOpen} setOpen={setLabelFilterOpen} title={selectedTags.length > 0 ?
+                                <div className="rounded-md font-semibold text-xs">
+                                    <div>Labels ({selectedTags.length})</div>
+                                </div> : "Labels"} childWidth={10}>
+                                <Input fullWidth sx={{
+                                    fontSize: "0.875rem",
+                                }} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
+                                    <AiOutlineSearch />
+                                </>} />
+                                <div className='flex flex-col mt-3'>
+                                    {tags.filter(s => s.name.toLowerCase().includes(searchLabel.toLowerCase())).map((tag, index) => {
+                                        return <div key={tag.id} className='flex space-x-1 items-center'>
+                                            <Checkbox
+                                                style={{
+                                                    transform: "scale(0.875)",
+                                                    padding: 0
+                                                }}
+                                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedTags.includes(tag.id)} onChange={() => {
+                                                    if (selectedTags.includes(tag.id)) {
+                                                        setSelectedTags(selectedTags.filter(s => s !== tag.id))
+                                                    } else {
+                                                        setSelectedTags([...selectedTags, tag.id])
+                                                    }
+                                                }} /> <span className="text-xs">{tag.name}</span>
+                                        </div>
+                                    })}
+                                </div>
+                            </Filter>
+
+                            <Filter isOpen={isBudgetFilterOpen} setOpen={setBudgetFilterOpen} title={selectedBudgets.length > 0 ?
+                                <div className="rounded-md font-semimedium text-xs">
+                                    <div>Budgets ({selectedBudgets.length})</div>
+                                </div> : "Budgets"
+                            } childWidth={10}>
+                                <div className='flex flex-col'>
+                                    {budgets.map((budget) => {
+                                        return <div key={budget.id} className='flex space-x-1 items-center'>
+                                            <Checkbox
+                                                style={{
+                                                    transform: "scale(0.875)",
+                                                    padding: 0
+                                                }}
+                                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedBudgets.includes(budget.id)} onChange={() => {
+                                                    if (selectedBudgets.includes(budget.id)) {
+                                                        setSelectedBudgets(selectedBudgets.filter(s => s !== budget.id))
+                                                    } else {
+                                                        setSelectedBudgets([...selectedBudgets, budget.id])
+                                                    }
+                                                }} /> <span className="text-xs">{budget.name}</span>
+                                        </div>
+                                    })}
+                                    {budgets.length === 0 && <div className='text-xs text-gray-400'>
+                                        No budgets found
+                                    </div>}
+                                </div>
+                            </Filter>
+                            <Filter isOpen={isWalletFilterOpen} setOpen={setWalletFilterOpen} title={selectedAccounts.length > 0 ?
+                                <div className="rounded-md font-semimedium text-xs">
+                                    <div>Wallets ({selectedAccounts.length})</div>
+                                </div> : "All wallets"} childWidth={12}>
+                                <div className='flex flex-col'>
+                                    {accountsAll.map((account) => {
+                                        return <div key={account.id} className='flex space-x-1 items-center'>
+                                            <Checkbox
+                                                style={{
+                                                    transform: "scale(0.875)",
+                                                    padding: 0
+                                                }}
+                                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.includes(account.address)} onChange={() => {
+                                                    if (selectedAccounts.includes(account.address)) {
+                                                        setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))
+                                                    } else {
+                                                        setSelectedAccounts([...selectedAccounts, account.address])
+                                                    }
+                                                }} /> <span className="text-xs font-medium">{account.name}</span>
+                                        </div>
+                                    })}
+                                    {accounts.length === 0 && <div className='text-sm text-gray-400'>
+                                        No account found
+                                    </div>}
+                                </div>
+                            </Filter>
                         </div>
+
                         {txs.length > 0 && <div className="py-1">
                             <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-1 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
@@ -334,15 +371,15 @@ const Transactions = () => {
                                 let startDate: string | null = null
                                 let endDate: string | null = null
 
-                                if (method === ERC20MethodIds.transfer || method === ERC20MethodIds.transferFrom || method === ERC20MethodIds.transferWithComment
-                                    || method === ERC20MethodIds.deposit || method === ERC20MethodIds.withdraw || method === ERC20MethodIds.borrow || method === ERC20MethodIds.repay
+                                if (method === ERCMethodIds.transfer || method === ERCMethodIds.transferFrom || method === ERCMethodIds.transferWithComment
+                                    || method === ERCMethodIds.deposit || method === ERCMethodIds.withdraw || method === ERCMethodIds.borrow || method === ERCMethodIds.repay
                                 ) {
                                     const coinData = 'tx' in w ? (w.tx as ITransfer).coin : (w as ITransfer).coin;
                                     amountCoins = [{ amount: DecimalConverter('tx' in w ? (w.tx as ITransfer).amount : (w as ITransfer).amount, coinData.decimals), coin: coinData.symbol }];
-                                } else if (method === ERC20MethodIds.batchRequest || method === ERC20MethodIds.automatedBatchRequest) {
+                                } else if (method === ERCMethodIds.batchRequest || method === ERCMethodIds.automatedBatchRequest) {
                                     const payments = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments : (w as IBatchRequest).payments;
                                     amountCoins = payments.map(w => ({ amount: DecimalConverter(w.amount, w.coin.decimals), coin: w.coin.symbol }));
-                                } else if (method === ERC20MethodIds.swap) {
+                                } else if (method === ERCMethodIds.swap) {
                                     const swap = 'tx' in w ? (w.tx as unknown as ISwap) : (w as ISwap);
                                     swapping = {
                                         amountIn: DecimalConverter(swap.amountIn, swap.coinIn.decimals),
@@ -350,12 +387,12 @@ const Transactions = () => {
                                         amountInCoin: swap.coinIn.symbol,
                                         amountOutCoin: swap.coinOutMin.symbol,
                                     }
-                                } else if (method === ERC20MethodIds.automatedTransfer) {
+                                } else if (method === ERCMethodIds.automatedTransfer) {
                                     const transfer = 'tx' in w ? (w.tx as unknown as IAutomationTransfer) : (w as IAutomationTransfer);
                                     amountCoins = [{ amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coin: transfer.coin.symbol }];
                                     startDate = dateFormat(transfer.startTime * 1e3, "mmm dd, yyyy HH:MM:ss");
                                     endDate = dateFormat(transfer.endTime * 1e3, "mmm dd, yyyy HH:MM:ss");
-                                } else if (method === ERC20MethodIds.automatedCanceled) {
+                                } else if (method === ERCMethodIds.automatedCanceled) {
                                     const { streamId } = 'tx' in w ? (w.tx as unknown as IAutomationCancel) : (w as IAutomationCancel);
                                     const transfer = streamings.find(s => (s as IAutomationTransfer).streamId === streamId) as IAutomationTransfer;
                                     if (transfer) {
@@ -383,7 +420,7 @@ const Transactions = () => {
                                     'Amount': swapping ? `${swapping.amountIn} => ${swapping.amountOut}` : amountCoins.map(w => `${w.amount}`).join(',\n'),
                                     'Coin': swapping ? `${swapping.amountInCoin} => ${swapping.amountOut}` : amountCoins.map(w => `${w.coin}`).join(',\n'),
                                     'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
-                                    'Date': method === ERC20MethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
+                                    'Date': method === ERCMethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
                                     "Label": w.tags.map(s => s.name).join(', '),
                                     "Gas": `${DecimalConverter(gas || "0", gasCoinObj?.decimals ?? 1).toFixed(3)} ${gasCoin}`,
                                     "Block Number": blockNumber,
@@ -461,10 +498,10 @@ export default Transactions;
 interface IProps { isDetailOpen?: boolean, transaction: IFormattedTransaction, accounts: string[], selectedAccount?: IAccountORM, color: string, tags: ITag[], blockchain: BlockchainType, txIndexInRemoxData: number }
 
 export const SingleTxContainer = ({ transaction, accounts, selectedAccount, blockchain, tags, txIndexInRemoxData, isDetailOpen }: IProps) => {
-    const isBatch = transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest
+    const isBatch = transaction.id === ERCMethodIds.batchRequest || transaction.id === ERCMethodIds.automatedBatchRequest
     const TXs: IFormattedTransaction[] = [];
     if (isBatch) {
-        if (transaction.id === ERC20MethodIds.batchRequest) {
+        if (transaction.id === ERCMethodIds.batchRequest) {
             const groupBatch = _((transaction as IBatchRequest).payments).groupBy("to").value()
             Object.entries(groupBatch).forEach(([key, value]) => {
                 let tx: IBatchRequest = {
@@ -502,7 +539,7 @@ export const SingleTxContainer = ({ transaction, accounts, selectedAccount, bloc
     } else {
         TXs.push(transaction)
     }
-    const transactionCount = transaction.id === ERC20MethodIds.batchRequest ? TXs.length : 1
+    const transactionCount = transaction.id === ERCMethodIds.batchRequest ? TXs.length : 1
     let directionType = TransactionDirectionDeclare(transaction, accounts);
 
     return <>

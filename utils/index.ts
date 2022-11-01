@@ -1,4 +1,4 @@
-import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERCMethodIds, GenerateTransaction, IBatchRequest, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { IMultisigSafeTransaction, ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { TransactionDirection, TransactionType } from "types";
 import { BlockchainType, MultisigProviders } from "types/blockchains";
@@ -34,51 +34,73 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 
 	const direction = accounts.some(a => a.toLowerCase() === address);
 
-	switch ((transaction as IFormattedTransaction)['rawData'] ? (transaction as IFormattedTransaction).id : ((transaction as ITransactionMultisig).tx.method ?? '')) {
-		case ERC20MethodIds.swap:
+	const tx = (transaction as IFormattedTransaction)['rawData'] ? (transaction as IFormattedTransaction) : ((transaction as ITransactionMultisig).tx)
+
+	switch (tx.method) {
+		case ERCMethodIds.swap:
 			directionType = TransactionDirection.Swap;
 			break;
-		case ERC20MethodIds.automatedTransfer:
-		case ERC20MethodIds.automatedBatchRequest:
+		case ERCMethodIds.automatedTransfer:
+		case ERCMethodIds.automatedBatchRequest:
 			directionType = direction ? TransactionDirection.AutomationOut : TransactionDirection.AutomationIn;
 			break;
-		case ERC20MethodIds.automatedCanceled:
+		case ERCMethodIds.automatedCanceled:
 			directionType = TransactionDirection.AutomationCancel;
 			break;
 
-		case ERC20MethodIds.batchRequest:
-		case ERC20MethodIds.transferFrom:
-		case ERC20MethodIds.noInput:
-		case ERC20MethodIds.transferWithComment:
-		case ERC20MethodIds.transfer:
+		case ERCMethodIds.batchRequest:
+			if ((tx as IBatchRequest).payments.length === 1) {
+				const formatted: IFormattedTransaction = {
+					id: (tx as IBatchRequest).payments[0].method,
+					method: (tx as IBatchRequest).payments[0].method,
+					hash: "hash",
+					address: address,
+					isError: (transaction as IFormattedTransaction).isError,
+					rawData: GenerateTransaction({ blockHash: "", from: address }),
+					timestamp: transaction.timestamp,
+					tags: transaction.tags,
+					budget: transaction.budget ?? undefined,
+				}
+				directionType = TransactionDirectionDeclare(formatted, accounts) as number;
+			} else {
+				directionType = direction ? TransactionDirection.Out : TransactionDirection.In;
+			}
+			break;
+		case ERCMethodIds.transferFrom:
+		case ERCMethodIds.noInput:
+		case ERCMethodIds.transferWithComment:
+		case ERCMethodIds.transfer:
 			directionType = direction ? TransactionDirection.Out : TransactionDirection.In;
 			break;
-		case ERC20MethodIds.borrow:
+		case ERCMethodIds.borrow:
 			directionType = TransactionDirection.Borrow;
 			break;
-		case ERC20MethodIds.deposit:
+		case ERCMethodIds.deposit:
 			directionType = TransactionDirection.Deposit;
 			break;
-		case ERC20MethodIds.repay:
+		case ERCMethodIds.repay:
 			directionType = TransactionDirection.Repay;
 			break;
-		case ERC20MethodIds.withdraw:
+		case ERCMethodIds.withdraw:
 			directionType = TransactionDirection.Withdraw;
 			break;
-		case ERC20MethodIds.reward:
+		case ERCMethodIds.reward:
 			directionType = TransactionDirection.Reward;
 			break;
-		case ERC20MethodIds.addOwner:
+		case ERCMethodIds.addOwner:
 			directionType = TransactionDirection.AddOwner;
 			break;
-		case ERC20MethodIds.removeOwner:
+		case ERCMethodIds.removeOwner:
 			directionType = TransactionDirection.RemoveOwner;
 			break;
-		case ERC20MethodIds.changeInternalThreshold:
+		case ERCMethodIds.changeInternalThreshold:
 			directionType = TransactionDirection.changeInternalRequirement;
 			break;
-		case ERC20MethodIds.changeThreshold:
+		case ERCMethodIds.changeThreshold:
 			directionType = TransactionDirection.ChangeRequirement;
+			break;
+		case ERCMethodIds.unknown:
+			directionType = TransactionDirection.Unknown;
 			break;
 		default:
 			directionType = TransactionDirection.Out;
@@ -91,50 +113,50 @@ export const TransactionTypeDeclare = (transaction: IFormattedTransaction, accou
 	let directionType;
 	const direction = account.includes(transaction.rawData.from.toLowerCase())
 	switch (transaction.id) {
-		case ERC20MethodIds.swap:
+		case ERCMethodIds.swap:
 			directionType = TransactionType.Swap;
 			break;
-		case ERC20MethodIds.automatedTransfer:
-		case ERC20MethodIds.automatedBatchRequest:
+		case ERCMethodIds.automatedTransfer:
+		case ERCMethodIds.automatedBatchRequest:
 			directionType = TransactionType.AutomationPayout;
 			break;
-		case ERC20MethodIds.automatedCanceled:
+		case ERCMethodIds.automatedCanceled:
 			directionType = TransactionType.AutomationCaceled;
 			break;
-		case ERC20MethodIds.batchRequest:
+		case ERCMethodIds.batchRequest:
 			directionType = TransactionType.MassPayment
 			break;
-		case ERC20MethodIds.transferFrom:
-		case ERC20MethodIds.noInput:
-		case ERC20MethodIds.transferWithComment:
-		case ERC20MethodIds.transfer:
+		case ERCMethodIds.transferFrom:
+		case ERCMethodIds.noInput:
+		case ERCMethodIds.transferWithComment:
+		case ERCMethodIds.transfer:
 			directionType = direction ? TransactionType.QuickTransfer : TransactionType.IncomingPayment;
 			break;
-		case ERC20MethodIds.borrow:
+		case ERCMethodIds.borrow:
 			directionType = TransactionType.Borrow;
 			break;
-		case ERC20MethodIds.deposit:
+		case ERCMethodIds.deposit:
 			directionType = TransactionType.Deposit
 			break;
-		case ERC20MethodIds.repay:
+		case ERCMethodIds.repay:
 			directionType = TransactionType.Repay;
 			break;
-		case ERC20MethodIds.withdraw:
+		case ERCMethodIds.withdraw:
 			directionType = TransactionType.Withdraw;
 			break;
-		case ERC20MethodIds.reward:
+		case ERCMethodIds.reward:
 			directionType = TransactionType.Reward;
 			break;
-		case ERC20MethodIds.addOwner:
+		case ERCMethodIds.addOwner:
 			directionType = TransactionType.AddOwner;
 			break;
-		case ERC20MethodIds.removeOwner:
+		case ERCMethodIds.removeOwner:
 			directionType = TransactionType.RemoveOwner;
 			break;
-		case ERC20MethodIds.changeInternalThreshold:
+		case ERCMethodIds.changeInternalThreshold:
 			directionType = TransactionType.changeInternalRequirement;
 			break;
-		case ERC20MethodIds.changeThreshold:
+		case ERCMethodIds.changeThreshold:
 			directionType = TransactionType.ChangeRequirement;
 			break;
 		default:

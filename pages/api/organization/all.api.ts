@@ -43,13 +43,15 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
         //     }))
 
         // }
-        const orgList = await Promise.all(organizations.map(async organization => {
+        // process.setMaxListeners(20)
+        let orgList = await Promise.all(organizations.map(async organization => {
             if (!organization?.notes) {
                 await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
                     notes: []
                 })
                 organization["notes"] = [];
             }
+
             organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
                 const { data } = await axios.get(BASE_URL + '/api/account', {
                     params: {

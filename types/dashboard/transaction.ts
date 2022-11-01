@@ -35,6 +35,7 @@ export enum TransactionDirection {
     RemoveOwner,
     ChangeRequirement,
     changeInternalRequirement,
+    Unknown
 }
 
 export enum TransactionStatus{
