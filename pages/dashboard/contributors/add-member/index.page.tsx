@@ -50,7 +50,7 @@ const AddMember = () => {
     const { GetCoins, blockchain, SendTransaction } = useWalletKit();
     const [secondActive, setSecondActive] = useState(false);
     const [startDate, setStartDate] = useState<Date | null>(new Date());
-    const [endDate, setEndDate] = useState<Date | null>(new Date());
+    const [endDate, setEndDate] = useState<Date | null>(null);
     const [selectedTeam, setSelectedTeam] = useState<DropDownItem>(
         contributors.length > 0
         ? { name: "Select Team", coinUrl: CoinsURL.None }
@@ -142,11 +142,14 @@ const AddMember = () => {
                     execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
                     interval: Frequency as DateInterval,
                     paymantDate: new Date(startDate ?? dateNow).getTime(),
-                    paymantEndDate: new Date(endDate ?? dateNow).getTime(),
+                    paymantEndDate: endDate ? new Date(endDate).getTime() : null,
+                    lastCheckedDate: null,
+                    checkedCount: 0,
                     image: url ? Photo : null,
                     taskId: isAutoPayment ? taskId : null,
                 };
     
+                console.log(member)
                 await addMember(Team.id!.toString(), member);
                 dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
                 setIsLoading(false);
@@ -188,7 +191,7 @@ const AddMember = () => {
                             selected={selectedTeam}
                             list={teams}
                             className="border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]"
-                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                            sx={{ '.MuiSelect-select': { paddingTop: '8px', paddingBottom: '8px', maxHeight: '52px' } }}
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
@@ -198,7 +201,7 @@ const AddMember = () => {
                             list={schedule}
                             selected={selectedSchedule}
                             setSelect={setSelectedSchedule}
-                            sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                            sx={{ '.MuiSelect-select': { paddingTop: '8px', paddingBottom: '8px', maxHeight: '55px' } }}
                         />
                         <TextField label="Role" value={role} onChange={(e) => setRole(e.target.value)} required  className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                     </div>
@@ -242,7 +245,7 @@ const AddMember = () => {
                                 className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]"
                                 list={paymentType}
                                 selected={selectedPaymentType}
-                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                                sx={{ '.MuiSelect-select': { paddingTop: '8px', paddingBottom: '8px', maxHeight: '52px' } }}
                                 setSelect={setPaymentType} />
                         </div>
                         <div className="flex flex-col space-y-1 w-full">
@@ -251,7 +254,7 @@ const AddMember = () => {
                                 setSelect={setSelectedFrequency}
                                 selected={selectedFrequency}
                                 list={Frequency}
-                                sx={{ '.MuiSelect-select': { paddingTop: '6px', paddingBottom: '6px', maxHeight: '52px' } }}
+                                sx={{ '.MuiSelect-select': { paddingTop: '8px', paddingBottom: '8px', maxHeight: '52px' } }}
                                 className=" border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]" />
                         </div>
                     </div>
@@ -292,10 +295,10 @@ const AddMember = () => {
                                     /> */}
                                     <DateTimePicker
                                         disablePast
-                                      renderInput={(props) => <TextField {...props} />}
-                                      label="Payment End Date"
-                                      value={endDate}
-                                      onChange={(newValue) => {
+                                        renderInput={(props) => <TextField {...props} />}
+                                        label="Payment End Date"
+                                        value={endDate}
+                                        onChange={(newValue) => {
                                         setEndDate(newValue);
                                       }}
                                     />

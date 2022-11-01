@@ -5,25 +5,28 @@ import { useState } from 'react';
 import useLending, { LendingReserveData } from 'rpcHooks/useLending';
 import TokenItem from './_components/token';
 import {IoMdInformationCircleOutline} from 'react-icons/io'
+import Loader from 'components/Loader';
 
 const Lendborrow = () => {
-    const {getReservesData } = useLending()
+    const {getReservesData, getUserAccountData } = useLending()
     const [reservesData, setReservesData] = useState<LendingReserveData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true)
     const [variable, setVariable] = useState(true)
     const [apy, setApy] = useState(true)
 
     useAsyncEffect(async () => {
         const reserveDatas = await getReservesData()
-
+        // const userAccountData = await getUserAccountData(reserveDatas[1].coinReserveConfig.Address)
+        // console.log(userAccountData)
         setReservesData(reserveDatas)
-
-
+        setLoading(false)
     }, [])
 
 
-   
+    if(loading) return <div className='w-full flex  justify-center'><Loader/> </div> 
+
     return <div className="flex flex-col pt-8 space-y-3">
-    <div className="flex items-center justify-between ">
+    <div className="flex items-center justify-between mb-12">
         <div className="flex items-center justify-center gap-4">
             <div className="text-2xl font-semibold">
                 Lend & Borrow
@@ -43,7 +46,7 @@ const Lendborrow = () => {
             </label>
         </div>
     </div>
-    <div className='flex w-full gap-12 justify-between py-3'>
+    {/* <div className='flex w-full gap-12 justify-between py-3'>
         <div className="flex w-full flex-col gap-4 bg-white dark:bg-darkSecond dark:hover:!bg-[#191919]   shadow-15 rounded-md pt-5 ">
             <div className="flex items-center justify-start text-lg font-semibold px-5">
                 Lend
@@ -139,16 +142,16 @@ const Lendborrow = () => {
                 </div>
             </div>
         </div>
-    </div>
+    </div> */}
     <table className="w-full pt-4 pb-6">
         <thead>
-            <tr id="header" className="grid grid-cols-[16.66%,16.66%,16.66%,16.66%,20.66%,12.66%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
+            <tr id="header" className="grid grid-cols-[16.66%,16.66%,16.66%,16.66%,18.66%,14.66%] bg-[#F2F2F2] shadow-15 py-2 items-center dark:bg-darkSecond rounded-md mb-6">
                 <th className="font-semibold text-left text-sm text-greylish  dark:text-[#aaaaaa] pl-3">Asset Name</th>
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">LTV</th>
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Total Supply</th>
-                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Supply {!apy ? 'APY' : 'APR'}</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Supply {apy ? 'APY' : 'APR'}</th>
                 <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Total Borrow</th>
-                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Borrow {!apy ? 'APY' : 'APR'}</th>
+                <th className="font-semibold text-left text-sm text-greylish dark:text-[#aaaaaa]">Borrow {apy ? 'APY' : 'APR'}</th>
             </tr>
             {reservesData.map((token,index) =>  <TokenItem key={index} asset={token} isVariable={variable} isAPY={apy} />)}
         </thead>

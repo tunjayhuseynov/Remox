@@ -269,6 +269,8 @@ export default async function handler(
         }
       })
 
+      console.log("Sinsnf")
+
       const { data: ownerData } = await axios.get<IMultisigOwners>(BASE_URL + "/api/multisig/owners", {
         params: {
           blockchain,

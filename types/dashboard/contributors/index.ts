@@ -2,7 +2,6 @@ import { FiatMoneyList, Image } from "firebaseConfig";
 import { CoinsName } from "types/coins";
 
 export enum DateInterval {
-    daily = "daily",
     weekly = "weekly",
     monthly = "monthly",
 }
@@ -36,7 +35,9 @@ export interface IMember {
     execution: ExecutionType,
     interval: DateInterval,
     paymantDate: number ,
-    paymantEndDate: number ,
+    paymantEndDate: number | null,
+    lastCheckedDate?: number | null,
+    checkedCount?: number,
     image: Image | null,
     taskId: string | null,
 }
