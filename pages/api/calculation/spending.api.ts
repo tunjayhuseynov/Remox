@@ -69,27 +69,14 @@ export default async function handler(
         })
 
         const [specificTxs, prices] = await Promise.all([specificTxsReq, pricesReq]);
-
+        console.log(specificTxs)
         const tagReq = await adminApp.firestore().collection("tags").doc(authId).get() //await FirestoreRead<{ tags: ITag[] }>("tags", authId)
         const myTags = tagReq.data() ? tagReq.data()?.tags : []
         const allTxs = specificTxs.data
 
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
         const AccountReq = await AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        // const AccountReqWeek = AccountInOut(allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
-        // const AccountReqMonth = AccountInOut(allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
-        // const AccountReqQuart = AccountInOut(allTxs, parsedAddress, 90, prices.data.AllPrices, blockchain)
-        // const AccountReqYear = AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        // const AccountReqCM = AccountInOut(allTxs, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
-
-        // const [
-        //     { Account: AccountWeek, AccountAge },
-        //     { Account: AccountMonth },
-        //     { Account: AccountQuart },
-        //     { Account: AccountYear },
-        //     { Account: AccountCM }
-        // ] = await Promise.all([AccountReqWeek, AccountReqMonth, AccountReqQuart, AccountReqYear, AccountReqCM])
-
+     
         const { inATag: inATag7, outATag: outATag7 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { inATag: inATag30, outATag: outATag30 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
         const { inATag: inATag90, outATag: outATag90 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 90, prices.data.AllPrices, blockchain)
@@ -224,7 +211,10 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                 if (!txItem.isError) {
                     if (txItem.id === ERCMethodIds.transfer || txItem.id === ERCMethodIds.transferFrom || txItem.id === ERCMethodIds.transferWithComment || txItem.id === ERCMethodIds.automatedTransfer || txItem.id === ERCMethodIds.automatedCanceled || txItem.id === ERCMethodIds.nftTokenERC721 || txItem.id == ERCMethodIds.deposit) {
                         const tx = txItem as ITransfer;
-                        if (!tx.coin) continue;
+                        if (!tx.coin) {
+                            console.log(tx)
+                            continue
+                        };
                         const current: IFlowDetailItem = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in", fee: txFee };
                         calendar[sTime] = [...(calendar[sTime] ?? []), current];
                     }

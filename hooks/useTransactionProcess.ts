@@ -235,7 +235,10 @@ export default async (
       }
     }
 
-    const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase())
+    const coin = Object.values(Coins).find(s =>
+      s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase() ||
+      s.symbol.toLowerCase() === transaction?.tokenSymbol?.toLowerCase()
+    )
 
     if (!input || input === "0x") {
       return {
@@ -261,8 +264,8 @@ export default async (
     } else if (result.method === ERCMethodIds.transferWithComment) {
       if (!coin) return { method: null }
       return {
-        method: ERCMethodIds.transferFrom,
-        id: ERCMethodIds.transferFrom,
+        method: ERCMethodIds.transfer,
+        id: ERCMethodIds.transfer,
         coin: coin,
         to: "0x" + result.inputs[0],
         amount: (result.inputs[1] as BigNumber).toString(),

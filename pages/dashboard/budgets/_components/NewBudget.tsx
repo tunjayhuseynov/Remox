@@ -60,14 +60,14 @@ function NewBudget({ exercise, onBack }: IProps) {
     if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
         helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
     } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
-        helperCoin = budgetAmount / exercise.coins.customPrice
+        helperCoin = budgetAmount * exercise.coins.customPrice
     }
 
     let helperCoin2 = 0;
     if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
         helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
     } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
-        helperCoin2 = budgetAmount2 / exercise.coins.second.customPrice
+        helperCoin2 = budgetAmount2 * exercise.coins.second.customPrice
     }
 
     const onNext = () => {
@@ -123,10 +123,16 @@ function NewBudget({ exercise, onBack }: IProps) {
         } | null
     }[]>([])
 
+    const maxAmount = exercise.coins.amount - (exercise.budgets as IBudget[]).reduce((acc, curr) => acc + curr.amount, 0)
+    const maxSecAmount = (exercise.coins.second?.amount ?? 0) - (exercise.budgets as IBudget[]).reduce((acc, curr) => acc + (curr.secondAmount ?? 0), 0)
+
+
     const onSubmit = async () => {
         if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
         if (!budgetAmount) return ToastRun(<>Please, input an amount</>, "error")
         if (!budgetCoin) return ToastRun(<>Please, select a coin</>, "error")
+        if (budgetAmount > maxAmount) return ToastRun(<>The amount you entered is greater than the amount you have left</>, "error")
+        if ((budgetAmount2 ?? 0) > maxSecAmount) return ToastRun("The amount you entered is greater than the amount you have left", "error")
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
         if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
@@ -203,8 +209,6 @@ function NewBudget({ exercise, onBack }: IProps) {
 
 
 
-    const maxAmount = exercise.coins.amount - (exercise.budgets as IBudget[]).reduce((acc, curr) => acc + curr.amount, 0)
-    const maxSecAmount = (exercise.coins.second?.amount ?? 0) - (exercise.budgets as IBudget[]).reduce((acc, curr) => acc + (curr.secondAmount ?? 0), 0)
 
     return <div className="w-full relative pb-16">
         <div className="w-[40%] mx-auto flex flex-col space-y-[5rem]">
@@ -273,8 +277,8 @@ function NewBudget({ exercise, onBack }: IProps) {
                         </div>
                     </div>} */}
 
-                    {anotherToken ? <div className="relative">
-                        <PriceInputField isMaxActive maxRegularCalc helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${exercise.coins.second?.coin}`} coins={{ [exercise.coins.second?.coin!]: coins[exercise.coins.second?.coin!] }} setMaxAmount={maxSecAmount} defaultFiat={exercise.coins.second?.fiat ?? "USD"} customFiatList={[fiatList.find(s => s.name === exercise.coins.second?.fiat!)!]} disableFiatNoneSelection onChange={(val, coin, fiatMoney) => {
+                    {anotherToken && exercise.coins.second && exercise.coins.second.coin ? <div className="relative">
+                        <PriceInputField helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${exercise.coins.second?.coin}`} isMaxActive maxRegularCalc setMaxAmount={maxSecAmount} coins={{ [exercise.coins.second.coin]: coins[exercise.coins.second.coin] }} customFiatList={[fiatList.find(s => s.name === exercise.coins.second?.fiat)!]} defaultFiat={exercise.coins.second?.fiat ?? undefined} disableFiatNoneSelection onChange={(val, coin, fiatMoney) => {
                             setBudgetAmount2(val)
                             setBudgetCoin2(coin)
                             setBudgetFiat2(fiatMoney)
@@ -308,12 +312,12 @@ function NewBudget({ exercise, onBack }: IProps) {
                             </div>
                         </div>} */}
                     </div> :
-                        <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setAnotherToken(true)}>
+                        exercise.coins.second && exercise.coins.second.coin ? <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setAnotherToken(true)}>
                             <div className="self-center">
                                 <AiOutlinePlusCircle className='text-primary' />
                             </div>
                             <span className="text-primary font-medium">Add</span>
-                        </div>
+                        </div> : <></>
                     }
 
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8  pt-6">

@@ -73,7 +73,13 @@ function NewExercise() {
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
             if (!remoxAccountType) return ToastRun(<>Please. sign in first</>, "warning")
-            if (!budgetAmount) return ToastRun(<>Please. enter an amount</>, "warning")
+            if (!budgetAmount) return ToastRun(<>Please, enter an amount</>, "warning")
+            if (selectedPriceOption.name === "Custom Price" && !customPrice) {
+                return ToastRun(<>Please, enter a custom price</>, "warning")
+            }
+            if (selectedPriceOption2.name === "Custom Price" && !customPrice) {
+                return ToastRun(<>Please, enter a custom price</>, "warning")
+            }
             if (anotherToken && !budgetAmount2) return ToastRun(<>Please. enter an amount for the second token</>, "warning")
             if (!remoxAccount) throw new Error("No remox account found")
             // if (selectedPayment.name === "Custom period" && (!date[0] || !date[1])) throw new Error("Custom period has not been selected")

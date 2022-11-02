@@ -15,8 +15,9 @@ import EditBudget from './EditBudget';
 import { fiatList } from 'components/general/PriceInputField';
 import CurrencyElement from 'components/general/CurrencyElement';
 import { CoinDesignGenerator } from 'pages/dashboard/transactions/_components/CoinsGenerator';
+import { IBudgetExercise } from 'firebaseConfig';
 
-function BudgetCard({ item, }: { item: IBudgetORM }) {
+function BudgetCard({ item, exercise }: { item: IBudgetORM, exercise: IBudgetExercise }) {
     // const [openNotify, setNotify] = useState(false)
     const [details, setDetails] = useState(false)
     const [detailModal, setDetailModal] = useState(false)
@@ -151,13 +152,13 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                 </td>
                 <td className='self-center'>
                     <div className='flex justify-end pr-5 space-x-4 items-center'>
-                        {/* <VscEdit size={"1rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} /> */}
+                        <VscEdit size={"1rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} />
                         <GiCancel size={"1rem"} className="cursor-pointer hover:text-red-500" onClick={() => setDelBudget(true)} />
                         <AiFillRightCircle size={"1.85rem"} className="cursor-pointer text-primary hover:text-secondary" onClick={() => setDetailModal(true)} />
                     </div>
                 </td>
                 <Modal onDisable={setEditBudget} openNotify={editBudget} disableX={true}>
-                    <EditBudget budget={item} onBack={() => setEditBudget(false)} />
+                    <EditBudget budget={item} onBack={() => setEditBudget(false)} exercise={exercise} />
                 </Modal>
                 {
                     delBudget &&

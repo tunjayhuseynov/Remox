@@ -22,7 +22,7 @@ const ExerciseBody = ({ exercise }: IProps) => {
                     <th className="py-3 self-center text-left">Status</th>
                     <th></th>
                 </tr>
-                {exercise.budgets.map(s => <Card key={s.id} item={s} />)}
+                {exercise.budgets.map(s => <Card key={s.id} item={s} exercise={exercise}/>)}
             </thead>
         </table>}
         <div className="flex justify-center !mt-0 py-10">
