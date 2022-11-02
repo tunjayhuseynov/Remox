@@ -20,7 +20,7 @@ import RequestReducers from './reducers/requests'
 import AccountMembers from './reducers/accountMembers'
 import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail, Update_Account_Image } from "./thunks/account";
-import { IAccount, IAddressBook, IBudget, Image, IMember, INotes, ISubBudget } from "firebaseConfig";
+import { IAccount, IAddressBook, IBudget, Image, IMember, INotes, IRemoxPayTransactions, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
@@ -268,6 +268,11 @@ const remoxDataSlice = createSlice({
         },
         setOrganizations: (state: IRemoxData, action: { payload: IOrganizationORM[] }) => {
             state.organizations = action.payload;
+        },
+        addPayTransaction: (state: IRemoxData, action: { payload: IRemoxPayTransactions }) => {
+            if (state.storage?.organization) {
+                state.storage.organization.payTransactions = [...state.storage.organization.payTransactions, action.payload]
+            }
         },
         addOrganizationToList: (state: IRemoxData, action: { payload: IOrganizationORM }) => {
             state.organizations = [...state.organizations, action.payload];
@@ -609,7 +614,7 @@ export const {
     updateAllCurrencies, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget, removeConfirmation,
     AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
     Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name, setResetRemoxData, addOrganizationToList, increaseNonce,
-    chageTxToExecutedInBudget
+    chageTxToExecutedInBudget, addPayTransaction
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

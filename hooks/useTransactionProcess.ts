@@ -80,6 +80,7 @@ export interface IChangeThreshold extends IFormattedTransaction {
 
 export interface ITransfer extends IFormattedTransaction {
   to: string;
+  from?: string
   amount: string;
   coin: AltCoins;
 }
@@ -182,17 +183,20 @@ export default async (
 
       let decoder = new InputDataDecoder(CyberBoxABI)
       let res = decoder.decodeData(input)
-      const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === transaction?.feeCurrency || s.address?.toLowerCase() === transaction?.tokenSymbol)
-
+      const coin = Object.values(Coins).find(s =>
+        s.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
       return {
         // rawData: transaction,
 
         rawData: {
           ...transaction,
+          from: "0x" + res.inputs[0],
+          to: "0xabb380bd683971bdb426f0aa2bf2f111aa7824c2",
           value: (new BigNumber(res.inputs[2].toString())).div(new BigNumber(10).pow(coin?.decimals ?? 18)).toString(),
         },
         coin: coin,
-        to: "0x" + res.inputs[0],
+        from: "0x" + res.inputs[0],
+        to: "0xabb380bd683971bdb426f0aa2bf2f111aa7824c2",
         amount: (res.inputs[2] as BigNumber).toString(),
         method: ERCMethodIds.nftTokenERC721,
         hash: transaction.hash,
@@ -466,7 +470,8 @@ export default async (
             s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
         )!,
         amount: result.inputs[1].toString(),
-        to: "0x" + result.inputs[0],
+        from: "0x" + result.inputs[0],
+        to: blockchain.lendingProtocols[0].contractAddress,
         tags: theTags,
       };
     } else if (result.method === "depositETH") {
@@ -514,17 +519,20 @@ export default async (
         tags: theTags,
       };
     }
-    else if (result.method === ERCMethodIds.repay) {
+    else if (result.method === ERCMethodIds.repay || result.method === "repayDelegation") {
       const coins: AltCoins[] = Object.values(Coins);
+      const assetAddress = result.method === "repayDelegation" ? result.inputs[1] : result.inputs[0];
+      const to = result.method === "repayDelegation" ? result.inputs[0] : result.inputs[0]
+      const amount = result.method === "repayDelegation" ? result.inputs[2].toString() : result.inputs[1].toString()
       return {
         method: ERCMethodIds.repay,
         id: ERCMethodIds.repay,
         coin: coins.find(
           (s) =>
-            s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
+            s.address?.toLowerCase() === '0x' + assetAddress?.toLowerCase()
         )!,
-        amount: result.inputs[1].toString(),
-        to: result.inputs[0],
+        amount,
+        to,
         tags: theTags,
       };
     } else if (result.method === ERCMethodIds.reward) {

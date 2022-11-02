@@ -51,6 +51,12 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
                 })
                 organization["notes"] = [];
             }
+            if (!organization?.payTransactions) {
+                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                    payTransactions: []
+                })
+                organization["payTransactions"] = [];
+            }
 
             organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
                 const { data } = await axios.get(BASE_URL + '/api/account', {

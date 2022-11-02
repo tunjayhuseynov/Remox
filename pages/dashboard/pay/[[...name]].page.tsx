@@ -17,7 +17,7 @@ import { ITag } from "pages/api/tags/index.api";
 import { ToastRun } from "utils/toast";
 import { GetTime, SetComma } from "utils";
 import Input from "./_components/payinput";
-import { FiatMoneyList, IAddressBook, INotes } from "firebaseConfig";
+import { FiatMoneyList, IAddressBook, INotes, IRemoxPayTransactions } from "firebaseConfig";
 import { nanoid } from "@reduxjs/toolkit";
 import { AiOutlineDownload } from "react-icons/ai";
 import { Tooltip } from "@mui/material";
@@ -96,7 +96,7 @@ const Pay = () => {
             amount: null,
             coin: selectedAccountAndBudget.account?.coins.filter(s => s.amount > 0).reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
                 acc[cur.coin.symbol] = cur
-                return acc 
+                return acc
             }, {})?.[0] ?? null,
             fiatMoney: null,
             second: null
@@ -199,10 +199,14 @@ const Pay = () => {
             const Budget = selectedAccountAndBudget.budget
             const subBudget = selectedAccountAndBudget.subbudget
 
+            let payTxs: IRemoxPayTransactions[] = []
+
             const pays: IPaymentInput[] = []
             const newAddressBooks: IAddressBook[] = []
             for (const input of inputs) {
                 const { amount, address, coin, fiatMoney, id, second, name } = input;
+
+
                 if (name && address) {
                     newAddressBooks.push({
                         id: nanoid(),
@@ -221,6 +225,17 @@ const Pay = () => {
                         recipient: address,
                         amount: parsedAmount,
                     })
+
+
+                    // payTxs.push({
+                    //     amount: parsedAmount,
+                    //     contract: Wallet.address,
+                    //     contractType: Wallet.signerType,
+                    //     customPrice: null,
+                    //     fiat: fiatMoney,
+                    //     fiatAmount: amount,
+                    //     hashOrIndex:
+                    // })
                 }
                 if (second && second.coin && second.amount && address) {
                     let parsedAmount = second.amount;
@@ -257,6 +272,7 @@ const Pay = () => {
                     notes: note ?? null
                 }
             }
+
 
             await SendTransaction(Wallet, pays, {
                 budget: Budget ?? undefined,

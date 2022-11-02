@@ -42,11 +42,11 @@ const Sidebar = () => {
             let fiat = e?.fiatMoneyPreference ?? "USD";
 
             let tb = 0;
-            // e.accounts.forEach((account) => {
-            //     (account as any).coins.forEach((coin: IPrice[0]) => {
-            //         tb += generatePriceCalculation(coin, hp, pc, fiat);
-            //     })
-            // })
+            e.accounts.forEach((account) => {
+                (account as any).coins.forEach((coin: IPrice[0]) => {
+                    tb += generatePriceCalculation(coin, hp, pc, fiat);
+                })
+            })
 
             return {
                 id: e.id,

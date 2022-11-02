@@ -45,6 +45,7 @@ export const  Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateInd
         priceCalculation: "current",
         addressBook: [],
         notes: [],
+        payTransactions: [],
         accounts: [
             {
                 mail: null,
