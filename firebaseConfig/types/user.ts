@@ -153,7 +153,7 @@ interface ICommonUserTypes {
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
-    payTransactions: DocumentReference[] | IRemoxPayTransactions[];
+    payTransactions: (DocumentReference | IRemoxPayTransactions)[];
     // pendingMembers: string[];
     // pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
     // removableMembers: string[];
