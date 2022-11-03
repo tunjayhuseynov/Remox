@@ -73,7 +73,6 @@ export default async function handler(
       myTags = (
         await adminApp.firestore().collection("tags").doc(authId).get()
       ).data() as { tags: ITag[] };
-      // myTags = await FirestoreRead<{tags: Tag[]}>("tags", authId)
     }
 
     const txRes = await Promise.all(parsedAddress.map(address => GetTxs(
@@ -88,16 +87,6 @@ export default async function handler(
     )))
 
     txList = txList.concat(...txRes)
-    // for (const key of parsedAddress) {
-    //   const txs = await GetTxs(
-    //     key,
-    //     myTags?.tags ?? [],
-    //     blockchain,
-    //     coins,
-    //     parsedtxs
-    //   );
-    //   txList = txList.concat(txs);
-    // }
 
     res.status(200).json(txList);
   } catch (error: any) {
@@ -118,79 +107,7 @@ const GetTxs = async (
   axiosRetry(axios, { retries: 10 });
   let txList: Transactions[] = [];
 
-  if (blockchain.name === "solana") {
-    const txsList: Transactions[] = [];
-    // new PublicKey("So11111111111111111111111111111111111111112")
-    const connection = new solanaWeb3.Connection(SolanaEndpoint);
-    const sings = !inTxs
-      ? await connection.getConfirmedSignaturesForAddress2(
-        new solanaWeb3.PublicKey(address),
-        { limit: 1000 }
-      )
-      : null;
-    const txs = await connection.getParsedTransactions(
-      inTxs ?? sings!.map((s) => s.signature)
-    );
-    // const tokens = await connection.getTokenAccountsByOwner(
-    //   new solanaWeb3.PublicKey(address),
-    //   { programId: TOKEN_PROGRAM_ID }
-    // );
-    const CoinArray = Object.values(coins)
-    for (const tx of txs) {
-      const arr = tx?.transaction.message.instructions;
-      if (arr) {
-        const arrLen = arr.length;
-        let amount, from, to, token: AltCoins;
-        for (let index = 0; index < arrLen - 1; index++) {
-          if ((arr[index] as any)?.["parsed"]?.["type"]) {
-            from = (arr[index] as any)["parsed"]["info"]["source"] ?? "";
-            to = (arr[index] as any)["parsed"]["info"]["destination"] ?? "";
-            if ((arr[index] as any)["parsed"]["info"]?.["mint"]) {
-              token =
-                CoinArray.find(
-                  (c) =>
-                    c.address.toLowerCase() ===
-                    (arr[index] as any)["parsed"]["info"]["mint"]?.toLowerCase()
-                ) ?? CoinArray.find((c) => c.symbol === "SOL")!;
-              amount = (arr[index] as any)["parsed"]["info"]["tokenAmount"]
-                ?.amount;
-            } else {
-              token = CoinArray.find((c) => c.symbol === "SOL")!;
-              amount = (arr[index] as any)["parsed"]["info"]["lamports"] ?? "0";
-            }
-          }
-        }
-        let parsedTx: Transactions = {
-          from,
-          to,
-          blockHash: tx?.transaction.message.recentBlockhash ?? "",
-          blockNumber: "",
-          confirmations: "",
-          gas: tx?.meta?.fee.toString() ?? "",
-          gasPrice: "1",
-          gasUsed: "1",
-          hash: tx?.transaction.signatures[0] ?? "",
-          input: ERCMethodIds.noInput ?? "",
-          nonce: "",
-          timeStamp: (
-            tx?.blockTime ?? Math.floor(new Date().getTime() / 1e3)
-          ).toString(),
-          contractAddress: token!.address ?? "",
-          value: amount,
-          isError: "0",
-          cumulativeGasUsed: "",
-          logIndex: "",
-          tokenDecimal: "",
-          tokenName: token!.name,
-          tokenSymbol: token!.symbol,
-          transactionIndex: "",
-        };
-        txsList.push(parsedTx);
-      }
-    }
-
-    txList = txsList;
-  } else if (blockchain.name === "celo" || blockchain.name === "ethereum_evm") {
+  if (blockchain.name === "celo" || blockchain.name === "ethereum_evm") {
     if (inTxs) {
       for (const tx of inTxs) {
         const exReq = await axios.get<{ result: Transactions }>(
@@ -212,8 +129,8 @@ const GetTxs = async (
 
       const tokens = onlyTransferList ? tokenReq.data.result : tokenReq.data.result.filter(s => s.from?.toLowerCase() !== address?.toLowerCase());
       const nfts = tokenReq.data.result.filter(s => s.tokenID)
-    
-      
+
+
       const txs = exReq.data;
       txList = onlyTransferList ? tokens : txs.result.concat(tokens).concat(nfts).sort((a, b) => +a.timeStamp > +b.timeStamp ? -1 : 1);
     }
@@ -255,7 +172,7 @@ const ParseTxs = async (
   try {
     let result: Transactions[] = [...transactions];
     const FormattedTransaction: IFormattedTransaction[] = [];
-   
+
     const groupedHash = _(result).groupBy("hash").value();
     const uniqueHashs = Object.values(groupedHash).reduce(
       (acc: Transactions[], value: Transactions[]) => {

@@ -90,8 +90,15 @@ async function handler(
                 })
                 getIndividual["notes"] = [];
             }
-    
-    
+
+            if (!getIndividual?.payTransactions) {
+                await adminApp.firestore().collection(individualCollectionName).doc(getIndividual.id).update({
+                    payTransactions: []
+                })
+                getIndividual["payTransactions"] = [];
+            }
+
+
 
             if (getIndividual.members.length === 0) throw new Error("No member in individual");
             const ss = await adminApp.firestore().collection(registeredIndividualCollectionName).doc(getIndividual.members[0] as string).get()

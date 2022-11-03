@@ -1,3 +1,5 @@
+import { fiatList } from "components/general/PriceInputField"
+import { IRemoxPayTransactions } from "firebaseConfig"
 import { ITransfer } from "hooks/useTransactionProcess"
 import { useAppSelector } from "redux/hooks"
 import { SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectPriceCalculationFn } from "redux/slices/account/selector"
@@ -9,12 +11,13 @@ import { NG } from "utils/jsxstyle"
 interface IProps {
     transfer: Pick<ITransfer, "coin" | "amount">,
     timestamp: number,
-    amountImageThenName?: boolean,
     disableFiat?: boolean,
     imgSize?: number,
     ether?: boolean,
+    payTx?: IRemoxPayTransactions,
+    afterPrice?: boolean,
 }
-export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName, disableFiat, imgSize = 1.25, ether }: IProps) => {
+export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize = 1.25, ether, payTx, afterPrice }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const hp = useAppSelector(SelectHistoricalPrices)
     // const calculatePrice = useAppSelector(SelectPriceCalculationFn)
@@ -34,47 +37,42 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName, 
 
     const price = hpCoinPrice ? +tokenAmount * hpCoinPrice : fiatPrice
 
+    const fiatImg = fiatList.find(f => f.name === payTx?.fiat)?.logo
+
     return <>
-        {amountImageThenName ? <div className="flex space-x-2">
-            <span className="text-sm text-left">
-                {tokenAmount}
-            </span>
-            <div className="w-[1.25rem] h-[1.25rem]">
-                {transfer?.coin?.logoURI ? <img
-                    src={transfer.coin.logoURI}
-                    width="100%"
-                    height="100%"
-                    className="rounded-full"
-                /> : <div className="w-full h-full rounded-full bg-gray-500" />}
-            </div>
-            <div className="text-sm">{transfer.coin.symbol}</div>
-        </div> :
-            <div className="flex flex-col">
-                <div className="grid gap-x-[4px]" style={{
-                    gridTemplateColumns: `${imgSize}rem 1fr`
+        <div className="flex flex-col">
+            <div className="grid gap-x-[4px]" style={{
+                gridTemplateColumns: `${imgSize}rem 1fr`
+            }}>
+                <div style={{
+                    width: `${imgSize}rem`,
+                    height: `${imgSize}rem`,
                 }}>
-                    <div style={{
-                        width: `${imgSize}rem`,
-                        height: `${imgSize}rem`,
-                    }}>
-                        {transfer?.coin?.logoURI ? <img
-                            src={transfer.coin.logoURI}
-                            width="100%"
-                            height="100%"
-                            className="rounded-full"
-                        /> : <div className="w-full h-full rounded-full bg-gray-500" />}
-                    </div>
-                    <span className="font-medium text-sm text-left leading-none self-center gap-x-[7px]">
-                        {tokenAmount}
-                    </span>
+                    {transfer?.coin?.logoURI || fiatImg ? <img
+                        src={fiatImg ?? transfer.coin.logoURI}
+                        width="100%"
+                        height="100%"
+                        className="rounded-full object-cover aspect-square"
+                    /> : <div className="w-full h-full rounded-full bg-gray-500" />}
                 </div>
-                {!disableFiat && <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
-                    <div></div>
-                    <span className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200">
-                        {`${symbol}`}<NG fontSize={0.625} decimalSize={80} number={price.toFixed(0).length > 18 ? 0 : price} />
-                    </span>
-                </div>}
+                <span className="font-medium text-sm text-left leading-none self-center gap-x-[7px]">
+                    {payTx?.fiatAmount ?? tokenAmount} <span className="text-greylish">{afterPrice ? `(${symbol}${price})`: ""}</span>
+                </span>
             </div>
-        }
+            {!disableFiat && <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
+                <div></div>
+                <span className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200 flex items-center space-x-[2px]">
+                    <div>
+                        {payTx ? <img
+                            src={transfer.coin.logoURI}
+                            className="rounded-full w-[0.75rem] h-[0.75rem]"
+                        /> : `${symbol}`}
+                    </div>
+                    <div>
+                        <NG fontSize={0.625} decimalSize={80} number={payTx?.amount ?? (price.toFixed(0).length > 18 ? 0 : price)} />
+                    </div>
+                </span>
+            </div>}
+        </div>
     </>
 }

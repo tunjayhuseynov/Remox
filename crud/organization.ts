@@ -1,11 +1,12 @@
 import { FirestoreRead, FirestoreReadMultiple, FirestoreWrite } from "rpcHooks/useFirebase"
-import { IAccount, IBudgetExercise, IOrganization } from "firebaseConfig"
+import { IAccount, IBudgetExercise, IOrganization, IRemoxPayTransactions } from "firebaseConfig"
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account"
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise"
 import { Get_Individual } from "./individual"
 import { arrayRemove, arrayUnion } from "firebase/firestore"
 import type { DocumentReference, FieldValue } from "firebase/firestore"
 import { log } from "console"
+import { Create_PayTx, Get_PayTx, Get_PayTx_Ref } from "./payTxs"
 
 export const organizationCollectionName = "organizations"
 
@@ -19,6 +20,12 @@ export const Get_Organization = async (id: string) => {
         return accountData;
     })
 
+    const payTxs = organization.payTransactions.map(async (tx) => {
+        const txData = await Get_PayTx(tx.id)
+        if (!txData) throw new Error("Account not found");
+        return txData;
+    })
+
     const budgetExercises = organization.budget_execrises.map(async (budget_execrise) => {
         const accountData = await Get_Budget_Exercise(budget_execrise.id)
         if (!accountData) throw new Error("Account not found");
@@ -29,12 +36,11 @@ export const Get_Organization = async (id: string) => {
     // if (individual) organization.creator = individual;
     organization.budget_execrises = await Promise.all(budgetExercises);
     organization.accounts = await Promise.all(accounts);
+    organization.payTransactions = await Promise.all(payTxs);
     return organization;
 }
 
 export const Get_Organizations = async (address: string) => {
-
-
     const organization = await FirestoreReadMultiple<IOrganization>(organizationCollectionName, [
         {
             firstQuery: "members",
@@ -74,7 +80,16 @@ export const Update_Organization = async (org: IOrganization) => {
         exec = [...exec, Get_Budget_Exercise_Ref(exercise.id) ];
     }
 
+    let txs : DocumentReference[] = []
+    for (const tx of organization.payTransactions) {
+        if (!(await Get_PayTx(tx.id))) {
+            await Create_PayTx(tx as IRemoxPayTransactions);
+        }
+        txs = [...txs, Get_PayTx_Ref(tx.id)];
+    }
 
+
+    organization.payTransactions = txs;
     organization.budget_execrises = exec;
     organization.accounts = accountRefs;
 

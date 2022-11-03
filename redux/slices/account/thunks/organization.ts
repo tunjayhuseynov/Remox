@@ -35,6 +35,7 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
             // account
         ],
         notes: [],
+        payTransactions: [],
         priceCalculation: "current",
         moderators: [],
         budget_execrises: [],

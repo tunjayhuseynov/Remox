@@ -13,8 +13,8 @@ import Dropdown from "components/general/dropdown";
 import { TransactionDirection } from "types";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { TransactionDirectionImageNameDeclaration } from "utils";
-import { SelectAlldRecurringTasks, SelectCurrencies, SelectID, SelectNonCanceledRecurringTasks } from "redux/slices/account/selector";
-import { IAccount, IBudget } from "firebaseConfig";
+import { SelectAlldRecurringTasks, SelectCurrencies, SelectID, SelectNonCanceledRecurringTasks, SelectPayTransactions } from "redux/slices/account/selector";
+import { IAccount, IBudget, IRemoxPayTransactions } from "firebaseConfig";
 import { BlockchainType } from "types/blockchains";
 import Image from "next/image";
 import { ITag } from "pages/api/tags/index.api";
@@ -74,6 +74,11 @@ const SingleTransactionItem = ({
   const swap = transaction.id === ERCMethodIds.swap ? transaction as ISwap : null;
 
   const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, false);
+
+
+  const txs = useAppSelector(SelectPayTransactions) as IRemoxPayTransactions[]
+  const payTx = txs.find(s => s.contract?.toLowerCase() === transaction.address?.toLowerCase() && s.hashOrIndex?.toLowerCase() === transaction.hash?.toLowerCase())
+
 
   const dispatch = useAppDispatch()
   const id = useAppSelector(SelectID)

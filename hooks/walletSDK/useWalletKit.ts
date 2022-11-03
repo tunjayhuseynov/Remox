@@ -10,6 +10,7 @@ import { AltCoins, Coins, TokenType } from "types";
 import { TextDecoder, TextEncoder } from "util";
 import { GetSignedMessage, GetTime } from "utils";
 import {
+  addPayTransaction,
   removeRecurringTask,
   SelectBlockchain,
   SelectCurrencies,
@@ -25,7 +26,7 @@ import { Contracts } from "rpcHooks/Contracts/Contracts";
 import useAllowance from "rpcHooks/useAllowance";
 import { DateInterval } from "types/dashboard/contributors";
 import { ITag } from "pages/api/tags/index.api";
-import { IAccount, IBudget, INotes, ISubBudget } from "firebaseConfig";
+import { IAccount, IBudget, INotes, IRemoxPayTransactions, ISubBudget } from "firebaseConfig";
 import useMultisig from "./useMultisig";
 import { AddTransactionToTag } from "redux/slices/account/thunks/tags";
 import { Add_Tx_To_Budget_Thunk } from "redux/slices/account/thunks/budgetThunks/budget";
@@ -42,7 +43,7 @@ import { hexToNumberString } from "web3-utils";
 import { ToastRun } from "utils/toast";
 import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
-import { Add_Notes_Thunk } from "redux/slices/account/thunks/notes";
+import { Add_Notes_Thunk, Add_Pay_Transactions } from "redux/slices/account/thunks/notes";
 import { newKit } from "@celo/contractkit";
 import BigNumber from "bignumber.js";
 import { DecimalConverter } from "utils/api";
@@ -264,7 +265,8 @@ export default function useWalletKit() {
         cancelStreaming,
         streamingIdTxHash,
         streamingIdDirect,
-        notes
+        notes,
+        payTransactions
       }: {
         tags?: ITag[];
         createStreaming?: boolean;
@@ -276,7 +278,8 @@ export default function useWalletKit() {
         cancelStreaming?: boolean;
         streamingIdTxHash?: string,
         streamingIdDirect?: string,
-        notes?: INotes
+        notes?: INotes,
+        payTransactions?: IRemoxPayTransactions[]
       } = {}
     ) => {
       try {
@@ -390,6 +393,13 @@ export default function useWalletKit() {
                   id: account.id,
                 }))
 
+                if (payTransactions) {
+                  dispatch(Add_Pay_Transactions(payTransactions.map(s => ({
+                    ...s,
+                    hashOrIndex: receipt.transactionHash
+                  }))))
+                }
+
                 ToastRun("Transaction've been mined", "success")
               }
 
@@ -427,6 +437,12 @@ export default function useWalletKit() {
               tags
             );
             txhash = txHash;
+            if (payTransactions) {
+              dispatch(Add_Pay_Transactions(payTransactions.map(s => ({
+                ...s,
+                hashOrIndex: txHash
+              }))))
+            }
             type = "multi"
           }
 

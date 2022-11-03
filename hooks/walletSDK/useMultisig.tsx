@@ -34,7 +34,7 @@ import Safe, {
 } from "@gnosis.pm/safe-core-sdk";
 import {
     getMultiSendCallOnlyDeployment,
-    getCreateCallDeployment
+    getMultiSendDeployment
 } from '@gnosis.pm/safe-deployments'
 import { SafeAccountConfig } from "@gnosis.pm/safe-core-sdk";
 import SafeServiceClient from "@gnosis.pm/safe-service-client";
@@ -575,7 +575,7 @@ export default function useMultisig() {
 
                 const senderAddress = await safeOwner.getAddress();
 
-                const safeTransaction = await safeSdk.getRemoveOwnerTx(params);
+                const safeTransaction = await safeSdk.createRemoveOwnerTx(params);
 
                 const nonce = await safeService.getNextNonce(account.address)
 
@@ -713,7 +713,7 @@ export default function useMultisig() {
 
                 const senderAddress = await safeOwner.getAddress();
 
-                const safeTransaction = await safeSdk.getChangeThresholdTx(internalSign);
+                const safeTransaction = await safeSdk.createChangeThresholdTx(internalSign);
                 const nonce = await safeService.getNextNonce(account.address)
 
                 const transaction: SafeTransactionData = {
@@ -851,7 +851,7 @@ export default function useMultisig() {
 
                     const senderAddress = await safeOwner.getAddress();
 
-                    const safeTransaction = await safeSdk.getAddOwnerTx(params);
+                    const safeTransaction = await safeSdk.createAddOwnerTx(params);
                     const nonce = await safeService.getNextNonce(account.address)
 
                     const transaction: SafeTransactionData = {
@@ -1039,16 +1039,25 @@ export default function useMultisig() {
                     signer: safeOwner,
                 });
 
-                const multiSendDeployment =
+                const multiSendCallOnlyDeployment =
                     getMultiSendCallOnlyDeployment({
                         network: "42220",
                     }) || getMultiSendCallOnlyDeployment()
 
-                const contractAddress = multiSendDeployment?.networkAddresses["42220"] ?? multiSendDeployment?.defaultAddress
+                const multiSendCallOnlyAddress = multiSendCallOnlyDeployment?.networkAddresses["42220"] ?? multiSendCallOnlyDeployment?.defaultAddress
+
+                const multiSendDeployment = getMultiSendDeployment({
+                    network: "42220"
+                }) || getMultiSendDeployment()
+
+                const miltiSendContractAddress = multiSendDeployment?.networkAddresses["42220"] ?? multiSendDeployment?.defaultAddress;
+
                 const { data } = await axios.get(blockchain.multisigProviders.find(s => s.name === "GnosisSafe")?.txServiceUrl as string + `api/v1/safes/${account.address}/creation/`)
+                console.log(multiSendCallOnlyAddress, miltiSendContractAddress)
                 const network = {
                     [4220]: {
-                        multiSendAddress: contractAddress ?? "",
+                        multiSendAddress: miltiSendContractAddress ?? "",
+                        multiSendCallOnlyAddress: multiSendCallOnlyAddress ?? "",
                         safeMasterCopyAddress: data.masterCopy,
                         safeProxyFactoryAddress: data.factoryAddress,
                     }
@@ -1082,7 +1091,9 @@ export default function useMultisig() {
                         nonce: nonce, // Optional
                     };
 
-                    const safeTransaction = await safeSdk.createTransaction(transaction);
+                    const safeTransaction = await safeSdk.createTransaction({
+                        safeTransactionData: transaction,
+                    });
 
                     const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
 
@@ -1103,26 +1114,30 @@ export default function useMultisig() {
                             to: toChecksumAddress(tx.destination ?? ""),
                             data: tx.data as string,
                             value: tx.value?.toString() ?? "0",
+                            // operation: 1
                         };
                     });
                     const options: SafeTransactionOptionalProps = {
-                        safeTxGas: optionals?.safeTxGas, // Optional
-                        baseGas: optionals?.baseGas, // Optional
-                        gasPrice: optionals?.gasPrice, // Optional
-                        gasToken: optionals?.gasToken, // Optional
-                        refundReceiver: optionals?.refundReceiver, // Optional
-                        nonce: nonce, // Optional
+                        // safeTxGas: optionals?.safeTxGas, // Optional
+                        // baseGas: optionals?.baseGas, // Optional
+                        // gasPrice: optionals?.gasPrice, // Optional
+                        // gasToken: optionals?.gasToken, // Optional
+                        // refundReceiver: optionals?.refundReceiver, // Optional
+                        nonce: nonce, // Optional,
                     };
 
                     const safeTransaction = await safeSdk.createTransaction(
-                        transactions,
-                        options
+                        {
+                            safeTransactionData: transactions,
+                            options: options,
+                            // onlyCalls: true
+                        }
                     );
 
                     const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
 
                     const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
-                    
+
                     await safeService.proposeTransaction({
                         safeAddress: account.address,
                         safeTransactionData: safeTransaction.data,
@@ -1348,6 +1363,30 @@ export default function useMultisig() {
                     signer: safeOwner,
                 });
 
+                const multiSendCallOnlyDeployment =
+                    getMultiSendCallOnlyDeployment({
+                        network: "42220",
+                    }) || getMultiSendCallOnlyDeployment()
+
+                const multiSendCallOnlyAddress = multiSendCallOnlyDeployment?.networkAddresses["42220"] ?? multiSendCallOnlyDeployment?.defaultAddress
+
+                const multiSendDeployment = getMultiSendDeployment({
+                    network: "42220"
+                }) || getMultiSendDeployment()
+
+                const miltiSendContractAddress = multiSendDeployment?.networkAddresses["42220"] ?? multiSendDeployment?.defaultAddress;
+
+                const { data } = await axios.get(blockchain.multisigProviders.find(s => s.name === "GnosisSafe")?.txServiceUrl as string + `api/v1/safes/${account.address}/creation/`)
+           
+                const network = {
+                    [4220]: {
+                        multiSendAddress: miltiSendContractAddress ?? "",
+                        multiSendCallOnlyAddress: multiSendCallOnlyAddress ?? "",
+                        safeMasterCopyAddress: data.masterCopy,
+                        safeProxyFactoryAddress: data.factoryAddress,
+                    }
+                }
+
                 const safeService = new SafeServiceClient({ txServiceUrl, ethAdapter });
 
                 const transaction = await safeService.getTransaction(transactionId)
@@ -1358,6 +1397,7 @@ export default function useMultisig() {
                     ethAdapter,
                     safeAddress,
                     isL1SafeMasterCopy: false,
+                    contractNetworks: blockchain.name === "celo" ? network : undefined
                 });
 
 
@@ -1368,11 +1408,18 @@ export default function useMultisig() {
                 } else {
                     safeTransaction = await safeSdk.createTransaction(
                         {
-                            to: transaction.to,
-                            value: transaction.value,
-                            data: transaction.data ?? "",
-                            nonce: transaction.nonce,
-                            safeTxGas: transaction.safeTxGas,
+                            safeTransactionData: {
+                                to: transaction.to,
+                                value: transaction.value,
+                                data: transaction.data ?? "",
+                                nonce: transaction.nonce,
+                                safeTxGas: transaction.safeTxGas,
+                                operation: transaction.operation,
+                                baseGas: transaction.baseGas,
+                                gasPrice: +transaction.gasPrice,
+                                gasToken: transaction.gasToken,
+                                refundReceiver: transaction.refundReceiver,
+                            }
                         }
                     );
                 }
@@ -1386,7 +1433,7 @@ export default function useMultisig() {
                 });
 
                 // safeTransaction.addSignature(ethSignuture!);
-               
+
                 const executeTxResponse = await safeSdk.executeTransaction(
                     {
                         addSignature: safeTransaction.addSignature,

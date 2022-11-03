@@ -145,7 +145,7 @@ const PriceInputField = ({ isMaxActive: max, helper, onChange, coins, maxRegular
                 label="Amount"
             />
             {'amount' in selectedCoin && <FormHelperText className='!text-xs'>Balance: {selectedFiat && selectedCoin ? selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount : selectedCoin?.amount} {selectedFiat?.name ?? selectedCoin?.symbol}</FormHelperText>}
-            {max && setMaxAmount &&
+            {max && setMaxAmount !== undefined &&
                 <FormHelperText className='!text-xs flex justify-between'>
                     <div>Remains: {setMaxAmount - (+(value ?? "0"))} {selectedFiat?.name ?? selectedCoin?.symbol}</div>
                     <div>{helper}</div>

@@ -76,19 +76,6 @@ export default async function handler(
 
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
         const AccountReq = await AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        // const AccountReqWeek = AccountInOut(allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
-        // const AccountReqMonth = AccountInOut(allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
-        // const AccountReqQuart = AccountInOut(allTxs, parsedAddress, 90, prices.data.AllPrices, blockchain)
-        // const AccountReqYear = AccountInOut(allTxs, parsedAddress, 365, prices.data.AllPrices, blockchain)
-        // const AccountReqCM = AccountInOut(allTxs, parsedAddress, new Date().getDay() + 1, prices.data.AllPrices, blockchain)
-
-        // const [
-        //     { Account: AccountWeek, AccountAge },
-        //     { Account: AccountMonth },
-        //     { Account: AccountQuart },
-        //     { Account: AccountYear },
-        //     { Account: AccountCM }
-        // ] = await Promise.all([AccountReqWeek, AccountReqMonth, AccountReqQuart, AccountReqYear, AccountReqCM])
 
         const { inATag: inATag7, outATag: outATag7 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 7, prices.data.AllPrices, blockchain)
         const { inATag: inATag30, outATag: outATag30 } = SpendingAccordingTags(myTags?.tags ?? [], allTxs, parsedAddress, 30, prices.data.AllPrices, blockchain)
@@ -209,7 +196,6 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                 timeIndex = Number(txItem.rawData.timeStamp);
                 oldest = txItem;
             }
-            const isOut = !!selectedAccounts.find(s => s.toLowerCase() === txItem.rawData.from.toLowerCase());
 
             const tTime = new Date(parseInt(txItem.rawData.timeStamp) * 1e3)
             const tDay = Math.abs(date.subtract(new Date(Date.now()), tTime).toDays());
@@ -222,14 +208,20 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                 feeAll[sTime] = [...(feeAll?.[sTime] ?? []), txFee]
 
                 if (!txItem.isError) {
-                    if (txItem.id === ERCMethodIds.transfer || txItem.id === ERCMethodIds.transferFrom || txItem.id === ERCMethodIds.transferWithComment || txItem.id === ERCMethodIds.automatedTransfer || txItem.id === ERCMethodIds.automatedCanceled || txItem.id === ERCMethodIds.nftTokenERC721 || txItem.id == ERCMethodIds.deposit) {
+                    if (txItem.method === ERCMethodIds.transfer || txItem.method === ERCMethodIds.transferFrom ||
+                        txItem.method === ERCMethodIds.transferWithComment || txItem.method === ERCMethodIds.automatedTransfer ||
+                        txItem.method === ERCMethodIds.automatedCanceled || txItem.method === ERCMethodIds.nftTokenERC721 ||
+                        /*txItem.method == ERCMethodIds.deposit ||*/ txItem.method === ERCMethodIds.repay ||
+                        txItem.method === ERCMethodIds.borrow || txItem.method === ERCMethodIds.withdraw
+                    ) {
                         const tx = txItem as ITransfer;
-                        if (!tx.coin) continue;
+                        let isOut = !selectedAccounts.find(s => s.toLowerCase() === tx.to.toLowerCase());
                         const current: IFlowDetailItem = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in", fee: txFee };
                         calendar[sTime] = [...(calendar[sTime] ?? []), current];
                     }
-                    if (txItem.id === ERCMethodIds.noInput) {
+                    if (txItem.method === ERCMethodIds.noInput) {
                         const coin = (txItem as ITransfer).coin;
+                        let isOut = !!selectedAccounts.find(s => s.toLowerCase() === txItem.rawData.from.toLowerCase());
                         if (coin) {
                             const current: IFlowDetailItem = { name: coin, amount: txItem.rawData.value, type: isOut ? "out" : "in", fee: txFee };
                             calendar[sTime] = [...(calendar[sTime] ?? []), current];
@@ -238,6 +230,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                     if (txItem.id === ERCMethodIds.batchRequest || txItem.id === ERCMethodIds.automatedBatchRequest) {
                         const tx = txItem as IBatchRequest;
                         tx.payments.forEach(transfer => {
+                            let isOut = !selectedAccounts.find(s => s.toLowerCase() === transfer.to.toLowerCase());
                             const current: IFlowDetailItem = { name: transfer.coin, amount: transfer.amount, type: isOut ? "out" : "in", fee: txFee };
                             calendar[sTime] = [...(calendar[sTime] ?? []), current];
                         })

@@ -31,6 +31,9 @@ import DatePicker from "react-multi-date-picker";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { AiOutlineSearch } from "react-icons/ai";
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+
 
 const Transactions = () => {
     const STABLE_INDEX = 6;
@@ -52,14 +55,11 @@ const Transactions = () => {
     const dispatch = useAppDispatch()
     const { Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
-    const [isOpen, setOpen] = useState(false)
 
 
     const budgets = useAppSelector(SelectAllBudgets)
     const accountsAll = useAppSelector(SelectAccounts)
 
-
-    const [isAddressFilterOpen, setAddressFilterOpen] = useState(false)
     const [isDateFilterOpen, setDateFilterOpen] = useState(false)
     const [isLabelFilterOpen, setLabelFilterOpen] = useState(false)
     const [isBudgetFilterOpen, setBudgetFilterOpen] = useState(false)
@@ -130,9 +130,7 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-            if (c.nonce === 3) {
-                console.log(c)
-            }
+       
             if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
             if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
         } else {
@@ -155,7 +153,6 @@ const Transactions = () => {
             if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
-            if (tx.method === ERCMethodIds.repay) console.log(tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0))
             if (specificAmount && (amount ?? 0) !== specificAmount) return false
             if (minAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0) < minAmount) return false
             if (maxAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE) > maxAmount) return false
@@ -174,7 +171,7 @@ const Transactions = () => {
             const dateTwo = new Date(date[1])
             const prev = new Date(dateOne.getFullYear(), dateOne.getMonth(), dateOne.getDate())
             const next = new Date(DateTime.addDays(dateTwo, 1).getFullYear(), DateTime.addDays(dateTwo, 1).getMonth(), DateTime.addDays(dateTwo, 1).getDate())
-            console.log(crr.getTime(), prev.getTime(), next.getTime())
+
             if (crr.getTime() < prev.getTime()) return false
             if (crr.getTime() > next.getTime()) return false
         }
@@ -206,8 +203,53 @@ const Transactions = () => {
         txs.sort((a, b) => (a as any)?.nonce > (b as any)?.nonce ? 1 : -1)
     }
 
-    const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
     const [searchLabel, setSearchLabel] = useState<string>("")
+    const [searchBudget, setSearchBudget] = useState<string>("")
+
+    const [dateLast, setDateLast] = useState<string>("")
+
+    const lastList = [
+        {
+            label: "Today",
+            value: "today",
+            action: () => {
+                setDateLast("today")
+                setDate([DateTime.addDays(new Date(), -1).getTime(), Date.now()])
+            }
+        },
+        {
+            label: "Last 3 days",
+            value: "3",
+            action: () => {
+                setDateLast("3");
+                setDate([DateTime.addDays(new Date(), -3).getTime(), Date.now()])
+            }
+        },
+        {
+            label: "Last 7 days",
+            value: "7",
+            action: () => {
+                setDateLast("7");
+                setDate([DateTime.addDays(new Date(), -7).getTime(), Date.now()])
+            }
+        },
+        {
+            label: "Last 30 days",
+            value: "30",
+            action: () => {
+                setDateLast("30");
+                setDate([DateTime.addDays(new Date(), -30).getTime(), Date.now()])
+            }
+        },
+        {
+            label: "Last Quarter",
+            value: "90",
+            action: () => {
+                setDateLast("90");
+                setDate([DateTime.addDays(new Date(), -90).getTime(), Date.now()])
+            }
+        },
+    ]
 
 
     const historyTxLn = Txs.filter((s) => tabFilterFn(s, "history")).length
@@ -253,26 +295,52 @@ const Transactions = () => {
                                     : "All dates"
                             } width={8.75}>
                                 <div className='text-xs pb-1 font-medium'>
-                                    Show transaction for
+                                    Custom dates
                                 </div>
                                 <DatePicker plugins={[<DatePanel sort="date" />]} value={datePicker} onChange={(data) => {
                                     if (Array.isArray(data)) {
                                         setDate(data.map(s => s.toDate().getTime()))
+                                        setDateLast("")
                                     }
                                 }} range={true} className={`${dark ? "bg-dark" : ""}`} style={
                                     {
                                         height: "1.9rem",
+                                        fontSize: "0.75rem",
                                     }
                                 } />
+                                <div className="flex flex-col space-y-1 mt-2">
+                                    {
+                                        lastList.map((s, i) =>
+                                            <div className='flex space-x-1 items-center'>
+                                                <Checkbox
+                                                    icon={<RadioButtonUncheckedIcon />}
+                                                    checkedIcon={<RadioButtonCheckedIcon />}
+                                                    style={{
+                                                        transform: "scale(0.875)",
+                                                        padding: 0
+                                                    }}
+                                                    classes={{ colorPrimary: "!text-primary", root: "" }} checked={dateLast === s.value} onChange={() => {
+                                                        if (dateLast !== s.value) {
+                                                            s.action()
+                                                        }else{
+                                                            setDateLast("")
+                                                            setDate([])
+                                                        }
+                                                    }} />
+                                                <span className="text-xs font-medium">{s.label}</span>
+                                            </div>
+                                        )
+                                    }
+                                </div>
                             </Filter>
 
                             <Filter isOpen={isLabelFilterOpen} setOpen={setLabelFilterOpen} title={selectedTags.length > 0 ?
                                 <div className="rounded-md font-semibold text-xs">
                                     <div>Labels ({selectedTags.length})</div>
                                 </div> : "Labels"} childWidth={10}>
-                                <Input fullWidth sx={{
+                                <Input fullWidth disableUnderline sx={{
                                     fontSize: "0.875rem",
-                                }} onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
+                                }} className="border px-1" placeholder="Search" onChange={(val) => setSearchLabel(val.target.value)} endAdornment={<>
                                     <AiOutlineSearch />
                                 </>} />
                                 <div className='flex flex-col mt-3'>
@@ -300,8 +368,13 @@ const Transactions = () => {
                                     <div>Budgets ({selectedBudgets.length})</div>
                                 </div> : "Budgets"
                             } childWidth={10}>
-                                <div className='flex flex-col'>
-                                    {budgets.map((budget) => {
+                                <Input fullWidth disableUnderline sx={{
+                                    fontSize: "0.875rem",
+                                }} className="border px-1" placeholder="Search" onChange={(val) => setSearchBudget(val.target.value)} endAdornment={<>
+                                    <AiOutlineSearch />
+                                </>} />
+                                <div className='flex flex-col mt-3'>
+                                    {budgets.filter(s => s.name.toLowerCase().includes(searchBudget.toLowerCase())).map((budget) => {
                                         return <div key={budget.id} className='flex space-x-1 items-center'>
                                             <Checkbox
                                                 style={{
@@ -327,6 +400,18 @@ const Transactions = () => {
                                     <div>Wallets ({selectedAccounts.length})</div>
                                 </div> : "All wallets"} childWidth={12}>
                                 <div className='flex flex-col'>
+                                    <div className='flex space-x-1 items-center'>
+                                        <Checkbox
+                                            icon={<RadioButtonUncheckedIcon />}
+                                            checkedIcon={<RadioButtonCheckedIcon />}
+                                            style={{
+                                                transform: "scale(0.875)",
+                                                padding: 0
+                                            }}
+                                            classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.length === 0} onChange={() => {
+                                                setSelectedAccounts([])
+                                            }} /> <span className="text-xs font-medium">All wallets</span>
+                                    </div>
                                     {accountsAll.map((account) => {
                                         return <div key={account.id} className='flex space-x-1 items-center'>
                                             <Checkbox
@@ -340,7 +425,8 @@ const Transactions = () => {
                                                     } else {
                                                         setSelectedAccounts([...selectedAccounts, account.address])
                                                     }
-                                                }} /> <span className="text-xs font-medium">{account.name}</span>
+                                                }} />
+                                            <span className="text-xs font-medium">{account.name}</span>
                                         </div>
                                     })}
                                     {accounts.length === 0 && <div className='text-sm text-gray-400'>
@@ -351,7 +437,7 @@ const Transactions = () => {
                         </div>
 
                         {txs.length > 0 && <div className="py-1">
-                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-1 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
+                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
                                 const account = accountsRaw.find(s => s.address.toLowerCase() === ('tx' in w ? w.contractAddress : w.address).toLowerCase())
                                 const [img, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w, account?.provider ?? undefined);
@@ -429,8 +515,8 @@ const Transactions = () => {
                                     "Input": data
                                 }
                             })}>
-                                <img className={`w-[1rem] h-[1rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
-                                <div className="text-sm">{txs.length !== historyTxLn ? "Export Filtered" : "Export All"}</div>
+                                <img className={`w-[0.875rem] h-[0.875rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
+                                <div className="text-xs">{txs.length !== historyTxLn ? "Export Filtered" : "Export All"}</div>
                             </CSVLink>
                         </div>}
                     </div>}

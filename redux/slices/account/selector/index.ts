@@ -220,3 +220,15 @@ export const SelectNotes = createDraftSafeSelector(
     return [];
   }
 )
+
+export const SelectPayTransactions = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.storage,
+  (storage) => {
+    if (storage?.organization?.payTransactions) {
+      return storage.organization.payTransactions;
+    } else if (storage?.individual?.payTransactions) {
+      return storage.individual.payTransactions
+    }
+    return [];
+  }
+)

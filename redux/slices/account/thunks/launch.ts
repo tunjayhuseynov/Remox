@@ -211,21 +211,21 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         ...multisigRequests.map(mapping),
       ].sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1)).map((s, i) => ({ ...s, indexPlace: mapIndex++ }));
 
-      const allCoins: string[] = []
+      // const allCoins: string[] = []
 
-      allCumulativeTransactions.forEach(s => {
-        const data = ('tx' in s ? s.tx : s)
-        if (data.method !== ERCMethodIds.swap) {
-          if ('payments' in data) {
-            allCoins.push(data.coin?.symbol ?? '')
-          } else {
-            allCoins.push(...(data as IBatchRequest).payments?.map(s => s.coin.symbol) ?? [])
-          }
-        } else {
-          allCoins.push((data as ISwap).coinIn?.symbol ?? "")
-          allCoins.push((data as ISwap).coinOutMin?.symbol ?? "")
-        }
-      })
+      // allCumulativeTransactions.forEach(s => {
+      //   const data = ('tx' in s ? s.tx : s)
+      //   if (data.method !== ERCMethodIds.swap) {
+      //     if ('payments' in data) {
+      //       allCoins.push(data.coin?.symbol ?? '')
+      //     } else {
+      //       allCoins.push(...(data as IBatchRequest).payments?.map(s => s.coin.symbol) ?? [])
+      //     }
+      //   } else {
+      //     allCoins.push((data as ISwap).coinIn?.symbol ?? "")
+      //     allCoins.push((data as ISwap).coinOutMin?.symbol ?? "")
+      //   }
+      // })
 
 
       // const storageState = state.remoxData.storage;

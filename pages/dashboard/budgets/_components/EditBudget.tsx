@@ -1,28 +1,24 @@
 import React, { useState } from 'react'
-import Dropdown from "../../../../components/general/dropdown";
-import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { generate } from 'shortid'
-import { SelectCurrencies, SelectPriceCalculation } from 'redux/slices/account/remoxData';
+import { SelectCurrencies, SelectHistoricalPrices, SelectPriceCalculation } from 'redux/slices/account/remoxData';
 
 import { AltCoins } from 'types/coins';
-import { SubmitHandler } from "react-hook-form";
 import { GetTime } from 'utils';
 import useLoading from 'hooks/useLoading';
-import { Create_Budget_Thunk, Update_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
+import { Update_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import { Step, StepLabel, Stepper } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import PriceInputField, { fiatList } from 'components/general/PriceInputField';
 import { IoMdRemoveCircle } from 'react-icons/io';
-import { FiatMoneyList, IBudget, IBudgetTX } from 'firebaseConfig';
+import { FiatMoneyList, IBudget, IBudgetExercise, IBudgetTX } from 'firebaseConfig';
 import { ToastRun } from 'utils/toast';
 import { nanoid } from '@reduxjs/toolkit';
 import FormHelperText from '@mui/material/FormHelperText';
 import { BiTrash } from 'react-icons/bi';
 import { IBudgetCoin, IBudgetORM } from 'pages/api/budget/index.api';
-import { ITag } from 'pages/api/tags/index.api';
+import { generatePriceCalculation, generateTokenPriceCalculation } from 'utils/const';
 
 export interface ISubInputs {
     id: string;
@@ -37,21 +33,37 @@ export interface ISubInputs {
 const steps = ['Budget', 'Budget Labels'];
 interface IProps {
     budget: IBudgetORM;
+    exercise: IBudgetExercise;
     onBack: () => void
 }
 
-function EditBudget({ onBack, budget }: IProps) {
+function EditBudget({ onBack, budget, exercise }: IProps) {
 
     const [activeStep, setActiveStep] = useState(0);
     const coins = useAppSelector(SelectCurrencies)
     const dispatch = useAppDispatch()
     const priceCalculation = useAppSelector(SelectPriceCalculation)
     const PC = priceCalculation == "current" ? "Current Price" : `${priceCalculation} days average price`
+    const hp = useAppSelector(SelectHistoricalPrices)
 
     const [anotherToken, setAnotherToken] = useState(!!budget.secondAmount)
     const [budgetName, setBudgetName] = useState(budget.name)
-    const [budgetAmount, setBudgetAmount] = useState<number | null>(budget.amount)
-    const [budgetAmount2, setBudgetAmount2] = useState<number | null>(budget.secondAmount)
+    let bAmount = 0;
+    if (exercise.coins.calculation !== "Custom Price") {
+        bAmount = generatePriceCalculation({ ...coins[budget.token], amount: budget.amount, coin: coins[budget.token] }, hp, exercise.coins.calculation, exercise.coins.fiat)
+    } else if (exercise.coins.calculation === "Custom Price" && exercise.coins.customPrice) {
+        bAmount = budget.amount / exercise.coins.customPrice
+    }
+
+    let bAmount2: number | null = null;
+    if (exercise.coins.second?.calculation !== "Custom Price" && budget.secondAmount && budget.secondToken && exercise.coins.second?.calculation && exercise.coins.second?.fiat) {
+        bAmount2 = generatePriceCalculation({ ...coins[budget.secondToken], amount: budget.secondAmount, coin: coins[budget.secondToken] }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
+    } else if (exercise.coins.second?.calculation === "Custom Price" && exercise.coins.second?.customPrice && budget.secondAmount) {
+        bAmount2 = budget.secondAmount / exercise.coins.second?.customPrice
+    }
+
+    const [budgetAmount, setBudgetAmount] = useState<number | null>(bAmount)
+    const [budgetAmount2, setBudgetAmount2] = useState<number | null>(bAmount2)
     const [budgetCoin, setBudgetCoin] = useState(coins[budget.token])
     const [budgetCoin2, setBudgetCoin2] = useState(budget.secondToken ? coins[budget.secondToken] : Object.values(coins)[0])
     const [budgetFiat, setBudgetFiat] = useState<FiatMoneyList | undefined>(budget.fiatMoney ?? undefined)
@@ -62,40 +74,31 @@ function EditBudget({ onBack, budget }: IProps) {
     const [customPrice, setCustomPrice] = useState<number | null>(budget.customPrice)
     const [customPrice2, setCustomPrice2] = useState<number | null>(budget.secondCustomPrice)
 
+
+    let helperCoin = 0;
+    if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
+        helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
+    } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
+        helperCoin = budgetAmount * exercise.coins.customPrice
+    }
+
+    let helperCoin2 = 0;
+    if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
+        helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
+    } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
+        helperCoin2 = budgetAmount2 * exercise.coins.second.customPrice
+    }
+
     const onNext = () => {
         if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
         if (!budgetAmount) return ToastRun(<>Please, input an amount</>, "error")
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
 
         setActiveStep(1)
-        // setLabels([
-        //     {
-        //         id: nanoid(),
-        //         labelName: '',
-        //         labelAmount: null,
-        //         labelCoin: budgetCoin,
-        //         labelFiat: budgetFiat ?? null,
-        //         txs: [],
-        //         budgetCoins: {
-        //             coin: budgetCoin.symbol,
-        //             totalAmount: 0,
-        //             totalPending: 0,
-        //             totalUsedAmount: 0,
-        //             second: anotherToken ? {
-        //                 secondCoin: budgetCoin2.symbol,
-        //                 secondTotalAmount: 0,
-        //                 secondTotalPending: 0,
-        //                 secondTotalUsedAmount: 0,
-        //             } : null
-        //         },
-        //         second: anotherToken ? {
-        //             labelAmount: null,
-        //             labelCoin: budgetCoin2,
-        //             labelFiat: budgetFiat2 ?? null,
-        //         } : null
-        //     }
-        // ])
     }
+
+    const maxAmount = exercise.coins.amount - (exercise.budgets as IBudget[]).reduce((acc, curr) => acc + curr.amount, 0) + budget.amount
+    const maxSecAmount = (exercise.coins.second?.amount ?? 0) - (exercise.budgets as IBudget[]).reduce((acc, curr) => acc + (curr.secondAmount ?? 0), 0) + (budget.secondAmount ?? 0)
 
     const onAddLabel = () => {
         setLabels([
@@ -194,6 +197,8 @@ function EditBudget({ onBack, budget }: IProps) {
         if (!budgetName) return ToastRun(<>Please enter a budget name</>, 'error')
         if (!budgetAmount) return ToastRun(<>Please, input an amount</>, "error")
         if (!budgetCoin) return ToastRun(<>Please, select a coin</>, "error")
+        if (budgetAmount > maxAmount) return ToastRun(<>The amount you entered is greater than the amount you have left</>, "error")
+        if ((budgetAmount2 ?? 0) > maxSecAmount) return ToastRun("The amount you entered is greater than the amount you have left", "error")
         if (anotherToken && !budgetAmount2) return ToastRun(<>Please, input an amount for the second amount field</>, "error")
         if (anotherToken && !budgetCoin2) return ToastRun(<>Please, select a coin for the second amount field</>, "error")
 
@@ -223,10 +228,10 @@ function EditBudget({ onBack, budget }: IProps) {
                 token: budgetCoin.symbol,
                 customPrice,
                 fiatMoney: budgetFiat ?? null,
-                amount: budgetAmount,
+                amount: helperCoin,
 
                 secondToken: budgetCoin2.symbol,
-                secondAmount: budgetAmount2 ?? null,
+                secondAmount: helperCoin2 ?? null,
                 secondCustomPrice: customPrice2,
                 secondFiatMoney: budgetFiat2 ?? null,
                 tags: budget.tags,
@@ -237,11 +242,11 @@ function EditBudget({ onBack, budget }: IProps) {
                     second: anotherToken ? {
                         fiat: budgetFiat2 ?? null,
                         secondCoin: budgetCoin2.symbol,
-                        secondTotalAmount: budgetAmount2 ?? 0,
+                        secondTotalAmount: helperCoin2 ?? 0,
                         secondTotalPending: budget.budgetCoins.second?.secondTotalPending ?? 0,
                         secondTotalUsedAmount: budget.budgetCoins.second?.secondTotalUsedAmount ?? 0,
                     } : null,
-                    totalAmount: budgetAmount,
+                    totalAmount: helperCoin,
                     totalPending: budget.budgetCoins.totalPending,
                     totalUsedAmount: budget.budgetCoins.totalUsedAmount,
                 },
@@ -292,6 +297,7 @@ function EditBudget({ onBack, budget }: IProps) {
     }
 
 
+
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
     return <div className="w-full relative pb-14">
@@ -335,13 +341,13 @@ function EditBudget({ onBack, budget }: IProps) {
                         InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                         label="Name" placeholder='E.g. Remox Budget Q4 2023' value={budgetName} className='w-full bg-white dark:bg-darkSecond' onChange={(e) => setBudgetName(e.target.value)} />
 
-                    <PriceInputField coins={coins} defaultCoin={budgetCoin} defaultFiat={budgetFiat} defaultValue={budgetAmount} onChange={(val, coin, fiatMoney) => {
+                    <PriceInputField helper={`Price Calculation: ${helperCoin.toFixed(2)} ${exercise.coins.coin}`} isMaxActive maxRegularCalc setMaxAmount={maxAmount} coins={{ [exercise.coins.coin]: coins[exercise.coins.coin] }} customFiatList={[fiatList.find(s => s.name === exercise.coins.fiat)!]} defaultFiat={exercise.coins.fiat} disableFiatNoneSelection defaultValue={budgetAmount} onChange={(val, coin, fiatMoney) => {
                         setBudgetAmount(val)
                         setBudgetCoin(coin)
                         setBudgetFiat(fiatMoney)
                     }} />
 
-                    {(budgetFiat) && <div>
+                    {/* {(budgetFiat) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
                                 sx={{
@@ -360,10 +366,10 @@ function EditBudget({ onBack, budget }: IProps) {
                                 InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                                 disabled={selectedPriceOption.name === PC} value={customPrice?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />
                         </div>
-                    </div>}
+                    </div>} */}
 
-                    {anotherToken ? <div className="relative">
-                        <PriceInputField defaultCoin={budgetCoin2} defaultFiat={budgetFiat2} defaultValue={budgetAmount2} isMaxActive coins={coins} onChange={(val, coin, fiatMoney) => {
+                    {anotherToken && budget.secondToken ? <div className="relative">
+                        <PriceInputField defaultCoin={coins[budget.secondToken]} defaultValue={budgetAmount2} isMaxActive maxRegularCalc helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${exercise.coins.second?.coin}`} coins={{ [exercise.coins.second?.coin!]: coins[exercise.coins.second?.coin!] }} setMaxAmount={maxSecAmount} defaultFiat={exercise.coins.second?.fiat ?? "USD"} customFiatList={[fiatList.find(s => s.name === exercise.coins.second?.fiat!)!]} disableFiatNoneSelection onChange={(val, coin, fiatMoney) => {
                             setBudgetAmount2(val)
                             setBudgetCoin2(coin)
                             setBudgetFiat2(fiatMoney)
@@ -377,15 +383,15 @@ function EditBudget({ onBack, budget }: IProps) {
                             <IoMdRemoveCircle color="red" />
                         </div>
                     </div> :
-                        <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setAnotherToken(true)}>
+                        budget.secondToken ? <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setAnotherToken(true)}>
                             <div className="self-center">
                                 <AiOutlinePlusCircle className='text-primary' />
                             </div>
                             <span className="text-primary font-medium">Add</span>
-                        </div>
+                        </div> : <></>
                     }
 
-                    {(budgetFiat2) && <div>
+                    {/* {(budgetFiat2) && <div>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <Dropdown
                                 sx={{
@@ -404,7 +410,7 @@ function EditBudget({ onBack, budget }: IProps) {
                                 InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                                 disabled={selectedPriceOption2.name === PC} value={customPrice2?.toString() ?? ""} className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />
                         </div>
-                    </div>}
+                    </div>} */}
                     <div className="grid grid-cols-2 w-full sm:w-full justify-center gap-8 text-sm pt-6">
                         <Button version="second" className="!rounded-xl" onClick={onBack}>Cancel</Button>
                         <Button type="submit" className="!rounded-xl bg-primary  px-3 py-2 text-white flex items-center justify-center text-sm" onClick={onNext}>Next</Button>
@@ -490,8 +496,6 @@ function EditBudget({ onBack, budget }: IProps) {
                         </div>
                         <Button version="second" className="!rounded-xl" onClick={() => {
                             setActiveStep(0)
-                            setBudgetFiat2(undefined)
-                            setBudgetFiat(undefined)
                         }}>Back</Button>
                         <Button type="submit" className="!rounded-xl bg-primary px-3 py-2 text-white flex items-center justify-center" isLoading={isLoading} onClick={OnSubmit}>Edit</Button>
                     </div>

@@ -28,7 +28,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
             let balance: typeof balances = accounts.reduce<typeof balances>((a, account) => {
                 account.coins.forEach(coin => {
                     if (a[coin.symbol] === undefined) {
-                        a[coin.symbol] = Object.assign({}, coin);
+                        a[coin.symbol] = Object.assign({amount: 0}, coin);
                     } else {
                         a[coin.symbol].amount += coin.amount;
                     }
@@ -37,19 +37,19 @@ export const SelectDailyBalance = createDraftSafeSelector(
                 return a;
             }, {});
             let newest = "1970/1/1";
-            Object.entries(stats.Account).reverse().forEach(([flowKey, flowValue]) => {
+            Object.entries(stats.Account).forEach(([flowKey, flowValue]) => {
                 if (new Date(flowKey).getTime() > new Date(newest).getTime()) newest = flowKey
                 flowValue.forEach((item: IFlowDetailItem) => {
                     if (!timeCoins[flowKey]) {
                         timeCoins[flowKey] = {};
                     }
                     if (balance[item.name.symbol]) {
-                        balance[item.name.symbol].amount += ((item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals));
+                        balance[item.name.symbol].amount += ((item.type === "in" ? 1 : -1) * DecimalConverter(item.amount, item.name.decimals));
                     }
                     if (balance?.[item?.fee?.name?.symbol]) {
-                        balance[item.fee.name.symbol].amount += DecimalConverter(item.fee.amount, item.fee.name.decimals);
+                        balance[item.fee.name.symbol].amount -= DecimalConverter(item.fee.amount, item.fee.name.decimals);
                     }
-                ``
+                
                     // if (!timeCoins[flowKey][item.name.symbol]) {
                     timeCoins[flowKey][item.name.symbol] = balance[item.name.symbol].amount
 

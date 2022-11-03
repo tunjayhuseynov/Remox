@@ -1,7 +1,7 @@
 import axios from "axios";
 import { accountCollectionName } from "crud/account";
 import { organizationCollectionName } from "crud/organization";
-import { IAccount, IBudgetExercise, IIndividual, IOrganization } from "firebaseConfig";
+import { IAccount, IBudgetExercise, IIndividual, IOrganization, IRemoxPayTransactions } from "firebaseConfig";
 import { adminApp } from "firebaseConfig/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Blockchains } from "types/blockchains";
@@ -10,6 +10,7 @@ import { generatePriceCalculation } from "utils/const";
 import { toChecksumAddress } from "web3-utils";
 import { IRemoxAccountORM } from "../account/multiple.api";
 import { IMultisigOwners } from "../multisig/owners.api";
+import { payTxCollectionName } from "crud/payTxs";
 
 
 const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrganization[]>) => {
@@ -51,6 +52,12 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
                 })
                 organization["notes"] = [];
             }
+            if (!organization?.payTransactions) {
+                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                    payTransactions: []
+                })
+                organization["payTransactions"] = [];
+            }
 
             organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
                 const { data } = await axios.get(BASE_URL + '/api/account', {
@@ -66,6 +73,9 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
             }))
             organization.budget_execrises = await Promise.all(organization.budget_execrises.map(async (budgetExecriseId) => {
                 return (await adminApp.firestore().collection("budget_exercises").doc(budgetExecriseId.id).get()).data() as IBudgetExercise
+            }));
+            organization.payTransactions = await Promise.all(organization.payTransactions.map(async (pxId) => {
+                return (await adminApp.firestore().collection(payTxCollectionName).doc(pxId.id).get()).data() as IRemoxPayTransactions
             }));
             return organization;
         }))

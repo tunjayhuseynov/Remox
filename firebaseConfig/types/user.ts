@@ -121,12 +121,39 @@ export interface INotes {
     attachLink: string | null;
     notes: string | null
 }
+
+export interface IRemoxPayTransactions {
+    id: string;
+    contract: string | null;
+    contractType: 'single' | 'multi';
+    hashOrIndex: string;
+    isSendingOut: boolean;
+    timestamp: number;
+
+    token: string;
+    amount: number;
+    fiat: FiatMoneyList | null;
+    fiatAmount: number | null;
+    customPrice: number | null;
+    priceCalculation: PriceCalculationList | null;
+
+    second: {
+        token: string;
+        amount: number;
+        fiat: FiatMoneyList | null;
+        fiatAmount: number | null;
+        customPrice: number | null;
+        priceCalculation: PriceCalculationList | null;
+    } | null;
+}
+
 interface ICommonUserTypes {
     id: string;
     name: string;
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
+    payTransactions: (DocumentReference | IRemoxPayTransactions)[];
     // pendingMembers: string[];
     // pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
     // removableMembers: string[];
