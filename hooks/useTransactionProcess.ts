@@ -239,10 +239,14 @@ export default async (
       }
     }
 
-    const coin = Object.values(Coins).find(s =>
-      s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase() ||
-      s.symbol.toLowerCase() === transaction?.tokenSymbol?.toLowerCase()
+    let coin = Object.values(Coins).find(s =>
+      s.address?.toLowerCase() === transaction?.to?.toLowerCase() || s.address?.toLowerCase() === transaction?.contractAddress?.toLowerCase()
     )
+    if (!coin) {
+      coin = Object.values(Coins).find(s =>
+        s.symbol.toLowerCase() === transaction?.tokenSymbol?.toLowerCase()
+      )
+    }
 
     if (!input || input === "0x") {
       return {

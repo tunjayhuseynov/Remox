@@ -123,6 +123,7 @@ export interface INotes {
 }
 
 export interface IRemoxPayTransactions {
+    id: string;
     contract: string | null;
     contractType: 'single' | 'multi';
     hashOrIndex: string;
@@ -152,7 +153,7 @@ interface ICommonUserTypes {
     image: Image | null,
     accounts: DocumentReference[] | IAccount[];
     members: string[];
-    payTransactions: IRemoxPayTransactions[];
+    payTransactions: DocumentReference[] | IRemoxPayTransactions[];
     // pendingMembers: string[];
     // pendingMembersObjects: { accountId: string, member: string, memberObject: IMember }[];
     // removableMembers: string[];

@@ -2,13 +2,13 @@ import useMultisig, { ITransactionMultisig } from 'hooks/walletSDK/useMultisig'
 import { forwardRef, useState } from 'react'
 import { TransactionDirection } from 'types'
 import { TransactionDirectionImageNameDeclaration } from "utils";
-import { IAccount } from 'firebaseConfig';
+import { IAccount, IRemoxPayTransactions } from 'firebaseConfig';
 import { AiFillRightCircle } from 'react-icons/ai';
 import { CoinDesignGenerator } from './CoinsGenerator';
 import { ERCMethodIds, GenerateTransaction, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IRemoveOwner, ISwap, ITransfer } from 'hooks/useTransactionProcess';
 import { ITag } from 'pages/api/tags/index.api';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectID, SelectProviderAddress, SelectAlldRecurringTasks } from 'redux/slices/account/selector';
+import { SelectID, SelectProviderAddress, SelectAlldRecurringTasks, SelectPayTransactions } from 'redux/slices/account/selector';
 import { BlockchainType } from 'types/blockchains';
 import { ToastRun } from 'utils/toast';
 import { AddTransactionToTag } from 'redux/slices/account/thunks/tags';
@@ -41,7 +41,7 @@ interface IProps {
     txPositionInRemoxData: number,
     account?: IAccount
 }
-const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account, isDetailOpen }, ref) => {
+const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account, isDetailOpen,address }, ref) => {
     const transaction = tx.tx;
     const timestamp = tx.timestamp;
     const [isLabelActive, setLabelActive] = useState(false);
@@ -49,9 +49,10 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const [labelLoading, setLabelLoading] = useState(false)
     const [openDetail, setOpenDetail] = useState(isDetailOpen ?? false)
     const [addLabelModal, setAddLabelModal] = useState(false);
-    const {allow} = useAllowance()
-    const {address} = useCelo()
+    const { allow } = useAllowance()
 
+    const txs = useAppSelector(SelectPayTransactions) as IRemoxPayTransactions[]
+    const payTx = txs.find(s => s.contract?.toLowerCase() === tx.contractAddress?.toLowerCase() && s.hashOrIndex?.toLowerCase() === tx.hashOrIndex?.toLowerCase())
 
     const providerAddress = useAppSelector(SelectProviderAddress)
     const id = useAppSelector(SelectID)
@@ -252,7 +253,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
         <>
             <tr className={`pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond ${tx.rejection ? "mt-5" : "my-5"} rounded-md shadow-custom hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5`}>
                 <td className="text-left p-0 flex space-x-2 rounded-md">
-                    {(!tx.isExecuted || (tx.rejection && !tx.rejection.isExecuted)) && tx.nonce && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center mt-1 rounded-md dark:text-black">{tx.nonce}</div>}
+                    {(!tx.isExecuted || (tx.rejection && !tx.rejection.isExecuted)) && tx.nonce !== undefined && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center mt-1 rounded-md dark:text-black">{tx.nonce}</div>}
                     <div className="relative inlin leading-none">
                         <span className="font-medium text-sm">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
                         <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-[0.5rem] left-0">{dateFormat(new Date(+tx.timestamp * 1e3), "HH:MM")}</span>
@@ -292,36 +293,36 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left">
                     {transfer && (
-                        <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
+                        <CoinDesignGenerator payTx={payTx} transfer={transfer} timestamp={timestamp} />
                     )}
                     {
                         transferBatch && (
                             <div className="flex flex-col space-y-5">
-                                {transferBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
+                                {transferBatch.payments.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={transfer} timestamp={timestamp} />)}
                             </div>
                         )
                     }
                     {
                         automationBatch && (
                             <div className="flex flex-col space-y-5">
-                                {automationBatch.payments.map((transfer, i) => <CoinDesignGenerator key={i} transfer={transfer} timestamp={timestamp} />)}
+                                {automationBatch.payments.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={transfer} timestamp={timestamp} />)}
                             </div>
                         )
                     }
                     {
-                        automationCanceled && <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} />
+                        automationCanceled && <CoinDesignGenerator payTx={payTx} transfer={automationCanceled} timestamp={timestamp} />
                     }
                     {automation && (
-                        <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
+                        <CoinDesignGenerator payTx={payTx} transfer={automation} timestamp={timestamp} />
                     )}
                     {swap && (
                         <div className="flex flex-col">
-                            <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
+                            <CoinDesignGenerator payTx={payTx} transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
                             <div className="ml-[2px]">
                                 <FiRepeat />
                             </div>
                             <div className="mt-1">
-                                <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
+                                <CoinDesignGenerator payTx={payTx} transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
                             </div>
                         </div>
                     )}

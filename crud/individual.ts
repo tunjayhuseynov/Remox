@@ -1,8 +1,9 @@
 import { FirestoreRead, FirestoreWrite } from "rpcHooks/useFirebase";
-import { db, IAccount, IIndividual } from "firebaseConfig";
+import { db, IAccount, IIndividual, IRemoxPayTransactions } from "firebaseConfig";
 import { Get_Budget_Exercise, Get_Budget_Exercise_Ref } from "./budget_exercise";
 import { arrayRemove, arrayUnion, doc, DocumentReference, FieldValue } from "firebase/firestore";
 import { Create_Account, Get_Account, Get_Account_Ref } from "./account";
+import { Create_PayTx, Get_PayTx, Get_PayTx_Ref } from "./payTxs";
 
 export const individualCollectionName = "individuals"
 
@@ -22,7 +23,12 @@ export const Get_Individual = async (id: string) => {
         return await Get_Budget_Exercise(budget_execrise.id)
     })
 
+    const payTxs = individual.payTransactions.map(async (pay) => {
+        return await Get_PayTx(pay.id)
+    })
+
     individual.budget_execrises = await Promise.all(budgetExercises);
+    individual.payTransactions = await Promise.all(payTxs);
     individual.accounts = (await Promise.all(accounts)).filter(s => s !== undefined) as IAccount[];
 
     return individual;
@@ -41,8 +47,15 @@ export const Create_Individual = async (individualFreeze: IIndividual) => {
         accountRefs.push(Get_Account_Ref(account.id));
     }
 
+    let txRefs: DocumentReference[] = []
+    for (let tx of individual.payTransactions) {
+        await Create_PayTx(tx as IRemoxPayTransactions)
+        txRefs.push(Get_PayTx_Ref(tx.id));
+    }
+
     individual.accounts = [...accountRefs];
     individual.budget_execrises = [...exerciseRef];
+    individual.payTransactions = [...txRefs];
     await FirestoreWrite<IIndividual>().createDoc(individualCollectionName, individual.id, individual);
     return individual;
 }
@@ -58,8 +71,15 @@ export const Update_Individual = async (individualFreeze: IIndividual) => {
     for (let account of individual.accounts) {
         accountRefs.push(Get_Account_Ref(account.id));
     }
+
+    let TXRefs: DocumentReference[] = []
+    for (let tx of individual.payTransactions) {
+        TXRefs.push(Get_PayTx_Ref(tx.id));
+    }
     individual.accounts = [...accountRefs];
     individual.budget_execrises = [...exerciseRef];
+    individual.payTransactions = [...TXRefs];
+    
     await FirestoreWrite<IIndividual>().updateDoc(individualCollectionName, individual.id, individual);
     return individual;
 }

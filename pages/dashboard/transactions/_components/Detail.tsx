@@ -358,35 +358,35 @@ const Detail = ({
                                         </div>
                                         <div className="pt-3 flex flex-col gap-7 items-center">
                                             {transfer && (
-                                                <CoinDesignGenerator transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />
+                                                <CoinDesignGenerator afterPrice transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />
                                             )}
                                             {
                                                 transferBatch && (
                                                     <div className="flex space-x-5">
-                                                        {transferBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
+                                                        {transferBatch.payments.map((transfer, index) => <CoinDesignGenerator afterPrice key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
                                                     </div>
                                                 )
                                             }
                                             {
                                                 automationBatch && (
                                                     <div className="flex space-x-5">
-                                                        {automationBatch.payments.map((transfer, index) => <CoinDesignGenerator key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
+                                                        {automationBatch.payments.map((transfer, index) => <CoinDesignGenerator afterPrice key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
                                                     </div>
                                                 )
                                             }
                                             {
                                                 automationCanceled && (
-                                                    <CoinDesignGenerator transfer={automationCanceled} timestamp={timestamp} disableFiat imgSize={0.875} />
+                                                    <CoinDesignGenerator afterPrice transfer={automationCanceled} timestamp={timestamp} disableFiat imgSize={0.875} />
                                                 )
                                             }
                                             {automation && (
-                                                <CoinDesignGenerator transfer={automation} timestamp={timestamp} disableFiat imgSize={0.875} />
+                                                <CoinDesignGenerator afterPrice transfer={automation} timestamp={timestamp} disableFiat imgSize={0.875} />
                                             )}
                                             {swap && (
                                                 <div className="flex space-x-5 items-center">
-                                                    <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} disableFiat imgSize={0.875} />
+                                                    <CoinDesignGenerator afterPrice transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} disableFiat imgSize={0.875} />
                                                     <FiRepeat />
-                                                    <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} disableFiat imgSize={0.875} />
+                                                    <CoinDesignGenerator afterPrice transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} disableFiat imgSize={0.875} />
                                                 </div>
                                             )}
                                         </div>

@@ -29,6 +29,7 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import moment from "moment";
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { IPrice } from "utils/api";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface IPaymentInputs {
     id: string,
@@ -123,12 +124,12 @@ const Pay = () => {
             if (c.amount && c.coin) {
                 a[c.coin.symbol] = {
                     coin: c.coin,
-                    amount: (a[c.coin.symbol]?.amount || 0) + c.amount
+                    amount: (a[c.coin.symbol]?.amount || 0) + (c.amount / (c.fiatMoney ? GetFiatPrice(c.coin, c.fiatMoney) : 1))
                 }
                 if (c.second && c.second.amount && c.second.coin) {
                     a[c.second.coin.symbol] = {
                         coin: c.second.coin,
-                        amount: (a[c.second.coin.symbol]?.amount || 0) + c.second.amount
+                        amount: (a[c.second.coin.symbol]?.amount || 0) + (c.second.amount / (c.second.fiatMoney ? GetFiatPrice(c.second.coin, c.second.fiatMoney) : 1))
                     }
                 }
             }
@@ -227,15 +228,28 @@ const Pay = () => {
                     })
 
 
-                    // payTxs.push({
-                    //     amount: parsedAmount,
-                    //     contract: Wallet.address,
-                    //     contractType: Wallet.signerType,
-                    //     customPrice: null,
-                    //     fiat: fiatMoney,
-                    //     fiatAmount: amount,
-                    //     hashOrIndex:
-                    // })
+                    payTxs.push({
+                        id: uuidv4(),
+                        amount: parsedAmount,
+                        contract: Wallet.address,
+                        contractType: Wallet.signerType,
+                        customPrice: null,
+                        fiat: fiatMoney,
+                        fiatAmount: fiatMoney ? amount : null,
+                        hashOrIndex: "",
+                        isSendingOut: true,
+                        priceCalculation: null,
+                        timestamp: GetTime(),
+                        token: coin.symbol,
+                        second: second && second.amount && second.coin?.symbol ? {
+                            amount: second.amount,
+                            customPrice: null,
+                            fiat: second.fiatMoney,
+                            fiatAmount: second.fiatMoney ? (second.amount ?? 0) : null,
+                            priceCalculation: null,
+                            token: second.coin.symbol
+                        } : null,
+                    })
                 }
                 if (second && second.coin && second.amount && address) {
                     let parsedAmount = second.amount;
@@ -281,7 +295,8 @@ const Pay = () => {
                 endTime: index === 1 && endDate ? GetTime(endDate) : undefined,
                 startTime: index === 1 && startDate ? GetTime(startDate) : undefined,
                 tags: selectedTags,
-                notes
+                notes,
+                payTransactions: payTxs
             })
 
             dispatch(Set_Address_Book([...books.filter(s => !newAddressBooks.find(w => w.name === s.name)), ...newAddressBooks]))
@@ -381,7 +396,7 @@ const Pay = () => {
                                             <img className="rounded-full w-full aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
                                         <div>
-                                            <div className="text-xl">{s.amount}</div>
+                                            <div className="text-xl">{s.amount.toFixed(2)}</div>
                                         </div>
                                         <div></div>
                                         <div className="text-sm text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.875} /></div>

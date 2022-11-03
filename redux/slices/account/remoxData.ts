@@ -269,9 +269,9 @@ const remoxDataSlice = createSlice({
         setOrganizations: (state: IRemoxData, action: { payload: IOrganizationORM[] }) => {
             state.organizations = action.payload;
         },
-        addPayTransaction: (state: IRemoxData, action: { payload: IRemoxPayTransactions }) => {
+        addPayTransaction: (state: IRemoxData, action: { payload: IRemoxPayTransactions[] }) => {
             if (state.storage?.organization) {
-                state.storage.organization.payTransactions = [...state.storage.organization.payTransactions, action.payload]
+                state.storage.organization.payTransactions = [...state.storage.organization.payTransactions, ...action.payload]
             }
         },
         addOrganizationToList: (state: IRemoxData, action: { payload: IOrganizationORM }) => {

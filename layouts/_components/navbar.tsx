@@ -74,7 +74,7 @@ const Navbar = () => {
             <div className="flex gap-x-4">
                 {blockchain.name === "celo" &&
                     <div className="relative group">
-                        <div className="rounded-md flex items-center px-3 py-2 space-x-3 bg-[#F9F9F9] dark:bg-[#252525] cursor-pointer hover:shadow-custom" onClick={() => window.open("https://app.spirals.so/", "_blank")}>
+                        <div className="rounded-md flex items-center px-3 py-2 space-x-3 bg-[#F9F9F9] dark:bg-[#252525] cursor-pointer" onClick={() => window.open("https://app.spirals.so/", "_blank")}>
                             <div className="font-medium text-sm dark:text-white text-dark">
                                 {APR?.toLocaleString()} tCO2
                             </div>

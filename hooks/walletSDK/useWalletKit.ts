@@ -43,7 +43,7 @@ import { hexToNumberString } from "web3-utils";
 import { ToastRun } from "utils/toast";
 import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
-import { Add_Notes_Thunk } from "redux/slices/account/thunks/notes";
+import { Add_Notes_Thunk, Add_Pay_Transactions } from "redux/slices/account/thunks/notes";
 import { newKit } from "@celo/contractkit";
 import BigNumber from "bignumber.js";
 import { DecimalConverter } from "utils/api";
@@ -279,7 +279,7 @@ export default function useWalletKit() {
         streamingIdTxHash?: string,
         streamingIdDirect?: string,
         notes?: INotes,
-        payTransactions?: IRemoxPayTransactions
+        payTransactions?: IRemoxPayTransactions[]
       } = {}
     ) => {
       try {
@@ -394,7 +394,10 @@ export default function useWalletKit() {
                 }))
 
                 if (payTransactions) {
-                  dispatch(addPayTransaction(payTransactions))
+                  dispatch(Add_Pay_Transactions(payTransactions.map(s => ({
+                    ...s,
+                    hashOrIndex: receipt.transactionHash
+                  }))))
                 }
 
                 ToastRun("Transaction've been mined", "success")
@@ -434,6 +437,12 @@ export default function useWalletKit() {
               tags
             );
             txhash = txHash;
+            if (payTransactions) {
+              dispatch(Add_Pay_Transactions(payTransactions.map(s => ({
+                ...s,
+                hashOrIndex: txHash
+              }))))
+            }
             type = "multi"
           }
 

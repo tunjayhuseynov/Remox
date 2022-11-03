@@ -55,14 +55,11 @@ const Transactions = () => {
     const dispatch = useAppDispatch()
     const { Address, blockchain } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
-    const [isOpen, setOpen] = useState(false)
 
 
     const budgets = useAppSelector(SelectAllBudgets)
     const accountsAll = useAppSelector(SelectAccounts)
 
-
-    const [isAddressFilterOpen, setAddressFilterOpen] = useState(false)
     const [isDateFilterOpen, setDateFilterOpen] = useState(false)
     const [isLabelFilterOpen, setLabelFilterOpen] = useState(false)
     const [isBudgetFilterOpen, setBudgetFilterOpen] = useState(false)
@@ -133,9 +130,7 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-            if (c.nonce === 3) {
-                console.log(c)
-            }
+       
             if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
             if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
         } else {
@@ -158,7 +153,6 @@ const Transactions = () => {
             if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
-            if (tx.method === ERCMethodIds.repay) console.log(tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0))
             if (specificAmount && (amount ?? 0) !== specificAmount) return false
             if (minAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0) < minAmount) return false
             if (maxAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE) > maxAmount) return false
@@ -177,7 +171,7 @@ const Transactions = () => {
             const dateTwo = new Date(date[1])
             const prev = new Date(dateOne.getFullYear(), dateOne.getMonth(), dateOne.getDate())
             const next = new Date(DateTime.addDays(dateTwo, 1).getFullYear(), DateTime.addDays(dateTwo, 1).getMonth(), DateTime.addDays(dateTwo, 1).getDate())
-            console.log(crr.getTime(), prev.getTime(), next.getTime())
+
             if (crr.getTime() < prev.getTime()) return false
             if (crr.getTime() > next.getTime()) return false
         }
@@ -209,7 +203,6 @@ const Transactions = () => {
         txs.sort((a, b) => (a as any)?.nonce > (b as any)?.nonce ? 1 : -1)
     }
 
-    const [filterRef, exceptRef] = useModalSideExit<boolean>(isOpen, setOpen, false)
     const [searchLabel, setSearchLabel] = useState<string>("")
     const [searchBudget, setSearchBudget] = useState<string>("")
 
@@ -444,7 +437,7 @@ const Transactions = () => {
                         </div>
 
                         {txs.length > 0 && <div className="py-1">
-                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border-2 dark:border-gray-500 border-gray-200 px-5 py-1 font-semibold flex items-center space-x-5" filename={"remox_transactions.csv"} data={txs.map(w => {
+                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
                                 const account = accountsRaw.find(s => s.address.toLowerCase() === ('tx' in w ? w.contractAddress : w.address).toLowerCase())
                                 const [img, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w, account?.provider ?? undefined);
@@ -522,8 +515,8 @@ const Transactions = () => {
                                     "Input": data
                                 }
                             })}>
-                                <img className={`w-[1rem] h-[1rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
-                                <div className="text-sm">{txs.length !== historyTxLn ? "Export Filtered" : "Export All"}</div>
+                                <img className={`w-[0.875rem] h-[0.875rem] !m-0 `} src={darkMode ? '/icons/import_white.png' : '/icons/import.png'} alt='Import' />
+                                <div className="text-xs">{txs.length !== historyTxLn ? "Export Filtered" : "Export All"}</div>
                             </CSVLink>
                         </div>}
                     </div>}

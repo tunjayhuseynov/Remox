@@ -211,7 +211,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                     if (txItem.method === ERCMethodIds.transfer || txItem.method === ERCMethodIds.transferFrom ||
                         txItem.method === ERCMethodIds.transferWithComment || txItem.method === ERCMethodIds.automatedTransfer ||
                         txItem.method === ERCMethodIds.automatedCanceled || txItem.method === ERCMethodIds.nftTokenERC721 ||
-                        txItem.method == ERCMethodIds.deposit || txItem.method === ERCMethodIds.repay ||
+                        /*txItem.method == ERCMethodIds.deposit ||*/ txItem.method === ERCMethodIds.repay ||
                         txItem.method === ERCMethodIds.borrow || txItem.method === ERCMethodIds.withdraw
                     ) {
                         const tx = txItem as ITransfer;

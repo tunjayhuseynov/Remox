@@ -1084,7 +1084,7 @@
     elliptic "6.5.4"
     hash.js "1.1.7"
 
-"@ethersproject/solidity@5.7.0", "@ethersproject/solidity@^5.6.0":
+"@ethersproject/solidity@5.7.0", "@ethersproject/solidity@^5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/solidity/-/solidity-5.7.0.tgz#5e9c911d8a2acce2a5ebb48a5e2e0af20b631cb8"
   integrity sha512-HmabMd2Dt/raavyaGukF4XxizWKhKQ24DoLtdNbBmNKUOPqwjsKQSdV9GQtj9CBEea9DlzETlVER1gYeXXBGaA==
@@ -1565,7 +1565,7 @@
   dependencies:
     "@floating-ui/core" "^1.0.1"
 
-"@gnosis.pm/safe-core-sdk-types@^1.4.0", "@gnosis.pm/safe-core-sdk-types@^1.5.0", "@gnosis.pm/safe-core-sdk-types@^1.6.1":
+"@gnosis.pm/safe-core-sdk-types@^1.5.0", "@gnosis.pm/safe-core-sdk-types@^1.6.1":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@gnosis.pm/safe-core-sdk-types/-/safe-core-sdk-types-1.6.1.tgz#dcd0c19d61fb5266b6e40bac1cd91fde44eda1d7"
   integrity sha512-KRflubR/W2qVeRxavh2ALtXI6CyCCcyuL1olJAVn/xkZVYJJjvXn+5GxbRloJFIJrgFCNWYbHrO0sXtywP5Y1g==
@@ -1585,24 +1585,17 @@
     semver "^7.3.7"
     web3-utils "^1.8.0"
 
-"@gnosis.pm/safe-core-sdk@^2.3.2":
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/@gnosis.pm/safe-core-sdk/-/safe-core-sdk-2.4.1.tgz#55b0764dc6968a683841fb07ac7d930f96357b41"
-  integrity sha512-FlpHW+jzKNtO9HMFF+R7IbdvJM5J4R4JW76jSe3MAbUA5KlmAW9BFDl/sgdQTREttIZMG2dr9A94RU9YcsljXw==
+"@gnosis.pm/safe-core-sdk@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@gnosis.pm/safe-core-sdk/-/safe-core-sdk-3.1.1.tgz#d609e51fce387b8f12148965a3a053bd50b05b3d"
+  integrity sha512-RhU7ENNHvqD8SDGwUDSp8PirNzR48N7IlfAmFWSdhVqpqnCUW2Pzaxcn+e/E+rLx3GhZRvM2T6Cl98+JjWQwog==
   dependencies:
-    "@ethersproject/solidity" "^5.6.0"
-    "@gnosis.pm/safe-core-sdk-types" "^1.4.0"
-    "@gnosis.pm/safe-deployments" "1.15.0"
-    ethereumjs-util "^7.1.4"
-    semver "^7.3.5"
-    web3-utils "^1.7.1"
-
-"@gnosis.pm/safe-deployments@1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@gnosis.pm/safe-deployments/-/safe-deployments-1.15.0.tgz#71ed9a37437a3080443c49aa65308f2d8839d751"
-  integrity sha512-twfC5HNuj+TKS2gOowf6A1FGZfOLBHAV2JhYpmOCf2MKsfcG+Fe4TrSRgQg605MhWdwFiaGVpNkcwjvpxhGuew==
-  dependencies:
+    "@ethersproject/solidity" "^5.7.0"
+    "@gnosis.pm/safe-core-sdk-types" "^1.6.1"
+    "@gnosis.pm/safe-deployments" "1.16.0"
+    ethereumjs-util "^7.1.5"
     semver "^7.3.7"
+    web3-utils "^1.8.0"
 
 "@gnosis.pm/safe-deployments@1.16.0":
   version "1.16.0"
@@ -8622,7 +8615,7 @@ ethereumjs-util@^5.0.0, ethereumjs-util@^5.0.1, ethereumjs-util@^5.1.1, ethereum
     rlp "^2.0.0"
     safe-buffer "^5.1.1"
 
-ethereumjs-util@^7.0.10, ethereumjs-util@^7.0.2, ethereumjs-util@^7.1.0, ethereumjs-util@^7.1.4, ethereumjs-util@^7.1.5:
+ethereumjs-util@^7.0.10, ethereumjs-util@^7.0.2, ethereumjs-util@^7.1.0, ethereumjs-util@^7.1.5:
   version "7.1.5"
   resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-7.1.5.tgz#9ecf04861e4fbbeed7465ece5f23317ad1129181"
   integrity sha512-SDl5kKrQAudFBUe5OJM9Ac6WmMyYmXX/6sTmLZ3ffG2eY6ZIGBes3pEDxNN6V72WyOw4CPD5RomKdsa8DAAwLg==
@@ -17143,7 +17136,7 @@ web3-utils@1.7.4:
     randombytes "^2.1.0"
     utf8 "3.0.0"
 
-web3-utils@1.8.0, web3-utils@^1.0.0-beta.31, web3-utils@^1.7.0, web3-utils@^1.7.1, web3-utils@^1.8.0:
+web3-utils@1.8.0, web3-utils@^1.0.0-beta.31, web3-utils@^1.7.0, web3-utils@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.8.0.tgz#0a506f8c6af9a2ad6ba79689892662769534fc03"
   integrity sha512-7nUIl7UWpLVka2f09CMbKOSEvorvHnaugIabU4mj7zfMvm0tSByLcEu3eyV9qgS11qxxLuOkzBIwCstTflhmpQ==
