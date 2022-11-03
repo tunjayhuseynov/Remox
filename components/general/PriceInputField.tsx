@@ -14,11 +14,14 @@ interface IProps {
     customFiatList?: FiatList[],
     disableFiatNoneSelection?: boolean,
     isMaxActive?: boolean;
+    maxRegularCalc?: boolean;
     setMaxAmount?: number;
     onChange: (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatList["name"] | undefined) => void,
     defaultValue?: number | null,
     defaultCoin?: IPrice[0] | AltCoins,
     defaultFiat?: FiatList["name"],
+    textSize?: number,
+    helper?: string
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
@@ -53,7 +56,7 @@ export const fiatList: FiatList[] = [
     },
 ]
 
-const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defaultCoin, defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount }: IProps) => {
+const PriceInputField = ({ isMaxActive: max, helper, onChange, coins, maxRegularCalc, defaultValue, defaultCoin, defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount, textSize = 0.875 }: IProps) => {
     const [dropdown, setDropdown] = useState<boolean>(false);
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
@@ -86,7 +89,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
     return <>
         <FormControl fullWidth className='relative'>
             <InputLabel htmlFor='display-amount' sx={{
-                fontSize: '0.875rem',
+                fontSize: `${textSize}rem`,
                 top: 2
             }}>Amount</InputLabel>
             <OutlinedInput
@@ -94,7 +97,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                 fullWidth
                 type="number"
                 className='dark:bg-darkSecond bg-white '
-                inputProps={{ step: 0.01, value: value?.toString() ?? "", inputMode: "numeric", style: { fontSize: '0.875rem' } }}
+                inputProps={{ step: 0.01, value: value?.toString() ?? "", inputMode: "numeric", style: { fontSize: `${textSize}rem` } }}
                 onChange={(e) => {
                     const val = e.target.value;
                     if (!val && val !== "0") {
@@ -103,7 +106,7 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                         return
                     };
                     if ((val || val === "0") && !isNaN(+val)) {
-                        if (max && (setMaxAmount || 'amount' in selectedCoin) && +val > (selectedFiat ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (setMaxAmount ?? (selectedCoin as IPrice[0])?.amount ?? Number.MAX_SAFE_INTEGER) : (setMaxAmount ?? (selectedCoin as IPrice[0])?.amount ?? Number.MAX_SAFE_INTEGER))) return;
+                        if (max && (setMaxAmount || 'amount' in selectedCoin) && +val > (selectedFiat && !maxRegularCalc ? (selectedCoin?.[`price${selectedFiat.name}`] ?? 1) * (setMaxAmount ?? (selectedCoin as IPrice[0])?.amount ?? Number.MAX_SAFE_INTEGER) : (setMaxAmount ?? (selectedCoin as IPrice[0])?.amount ?? Number.MAX_SAFE_INTEGER))) return;
                         onChange(+val, selectedCoin, selectedFiat?.name)
                         setValue(val)
                     }
@@ -142,6 +145,11 @@ const PriceInputField = ({ isMaxActive: max, onChange, coins, defaultValue, defa
                 label="Amount"
             />
             {'amount' in selectedCoin && <FormHelperText className='!text-xs'>Balance: {selectedFiat && selectedCoin ? selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount : selectedCoin?.amount} {selectedFiat?.name ?? selectedCoin?.symbol}</FormHelperText>}
+            {max && setMaxAmount &&
+                <FormHelperText className='!text-xs flex justify-between'>
+                    <div>Remains: {setMaxAmount - (+(value ?? "0"))} {selectedFiat?.name ?? selectedCoin?.symbol}</div>
+                    <div>{helper}</div>
+                </FormHelperText>}
             <AnimatePresence>
                 {dropdown &&
                     <ClickAwayListener onClickAway={() => setDropdown(false)}>

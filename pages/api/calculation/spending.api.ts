@@ -1,5 +1,5 @@
 import { BASE_URL, DecimalConverter, IPrice } from "utils/api";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { FirestoreRead } from "rpcHooks/useFirebase";
@@ -11,6 +11,7 @@ import axiosRetry from "axios-retry";
 import { IPriceResponse } from "./price.api";
 import { AltCoins } from "types";
 import date from 'date-and-time';
+import { adminApp } from "firebaseConfig/admin";
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ISpendingResponse>
@@ -69,8 +70,8 @@ export default async function handler(
 
         const [specificTxs, prices] = await Promise.all([specificTxsReq, pricesReq]);
 
-        const myTags = await FirestoreRead<{ tags: ITag[] }>("tags", authId)
-
+        const tagReq = await adminApp.firestore().collection("tags").doc(authId).get() //await FirestoreRead<{ tags: ITag[] }>("tags", authId)
+        const myTags = tagReq.data() ? tagReq.data()?.tags : []
         const allTxs = specificTxs.data
 
         const coinsSpending = CoinsAndSpending(allTxs, parsedAddress, prices.data.AllPrices, blockchain, coin, secondCoin)
@@ -133,16 +134,16 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
     if (!transactions || transactions.length === 0) return [];
 
     let sum: CoinStats[] = []
- 
+
     transactions.forEach(transaction => {
         if (selectedAccounts.some(s => s.toLowerCase() === transaction.rawData.from.toLowerCase()) && currencies) {
-            if (transaction.id === ERC20MethodIds.transfer ||
-                transaction.id === ERC20MethodIds.nftTokenERC721 ||
-                transaction.id === ERC20MethodIds.transferFrom ||
-                transaction.id === ERC20MethodIds.transferWithComment ||
-                transaction.id === ERC20MethodIds.automatedTransfer ||
-                transaction.id === ERC20MethodIds.repay ||
-                transaction.id === ERC20MethodIds.deposit
+            if (transaction.id === ERCMethodIds.transfer ||
+                transaction.id === ERCMethodIds.nftTokenERC721 ||
+                transaction.id === ERCMethodIds.transferFrom ||
+                transaction.id === ERCMethodIds.transferWithComment ||
+                transaction.id === ERCMethodIds.automatedTransfer ||
+                transaction.id === ERCMethodIds.repay ||
+                transaction.id === ERCMethodIds.deposit
             ) {
                 const tx = transaction as ITransfer;
                 if (!tx.coin.symbol) return
@@ -153,7 +154,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                     totalSpending: DecimalConverter(tx.amount, tx.coin.decimals),
                 })
             }
-            if (transaction.id === ERC20MethodIds.noInput) {
+            if (transaction.id === ERCMethodIds.noInput) {
                 const currentCoin = (transaction as ITransfer).coin;
                 if (!currentCoin) return
                 if (coin && currentCoin.symbol !== coin) return
@@ -163,7 +164,7 @@ const CoinsAndSpending = (transactions: IFormattedTransaction[], selectedAccount
                     totalSpending: DecimalConverter(transaction.rawData.value, currentCoin.decimals),
                 })
             }
-            if (transaction.id === ERC20MethodIds.batchRequest || transaction.id === ERC20MethodIds.automatedBatchRequest) {
+            if (transaction.id === ERCMethodIds.batchRequest || transaction.id === ERCMethodIds.automatedBatchRequest) {
                 const tx = transaction as IBatchRequest;
                 tx.payments.forEach(transfer => {
                     if (coin && transfer.coin.symbol !== coin) return
@@ -191,10 +192,10 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
         } = {}
 
         let feeName = "";
-        if(blockchain.name === "celo"){
+        if (blockchain.name === "celo") {
             feeName = "CELO"
         }
-        
+
 
         const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1 > 9 ? time.getMonth() + 1 : `0${time.getMonth() + 1}`}/${time.getDate() > 9 ? time.getDate() : `0${time.getDate()}`}`
 
@@ -221,20 +222,20 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                 feeAll[sTime] = [...(feeAll?.[sTime] ?? []), txFee]
 
                 if (!txItem.isError) {
-                    if (txItem.id === ERC20MethodIds.transfer || txItem.id === ERC20MethodIds.transferFrom || txItem.id === ERC20MethodIds.transferWithComment || txItem.id === ERC20MethodIds.automatedTransfer || txItem.id === ERC20MethodIds.automatedCanceled || txItem.id === ERC20MethodIds.nftTokenERC721 || txItem.id == ERC20MethodIds.deposit) {
+                    if (txItem.id === ERCMethodIds.transfer || txItem.id === ERCMethodIds.transferFrom || txItem.id === ERCMethodIds.transferWithComment || txItem.id === ERCMethodIds.automatedTransfer || txItem.id === ERCMethodIds.automatedCanceled || txItem.id === ERCMethodIds.nftTokenERC721 || txItem.id == ERCMethodIds.deposit) {
                         const tx = txItem as ITransfer;
                         if (!tx.coin) continue;
                         const current: IFlowDetailItem = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in", fee: txFee };
                         calendar[sTime] = [...(calendar[sTime] ?? []), current];
                     }
-                    if (txItem.id === ERC20MethodIds.noInput) {
+                    if (txItem.id === ERCMethodIds.noInput) {
                         const coin = (txItem as ITransfer).coin;
                         if (coin) {
                             const current: IFlowDetailItem = { name: coin, amount: txItem.rawData.value, type: isOut ? "out" : "in", fee: txFee };
                             calendar[sTime] = [...(calendar[sTime] ?? []), current];
                         }
                     }
-                    if (txItem.id === ERC20MethodIds.batchRequest || txItem.id === ERC20MethodIds.automatedBatchRequest) {
+                    if (txItem.id === ERCMethodIds.batchRequest || txItem.id === ERCMethodIds.automatedBatchRequest) {
                         const tx = txItem as IBatchRequest;
                         tx.payments.forEach(transfer => {
                             const current: IFlowDetailItem = { name: transfer.coin, amount: transfer.amount, type: isOut ? "out" : "in", fee: txFee };
@@ -242,7 +243,7 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                         })
                     }
 
-                    if (txItem.id === ERC20MethodIds.swap) {
+                    if (txItem.id === ERCMethodIds.swap) {
                         const tx = txItem as ISwap;
 
                         const currentInput: IFlowDetailItem = { name: tx.coinIn, amount: tx.amountIn, type: "out", fee: { amount: "0", name: feeToken } };

@@ -1,4 +1,4 @@
-import { ERC20MethodIds, GenerateTransaction, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess"
+import { ERCMethodIds, GenerateTransaction, IBatchRequest, IFormattedTransaction, ISwap, ITransfer } from "hooks/useTransactionProcess"
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig"
 import { BlockchainType } from "types/blockchains"
 import { TransactionDirectionDeclare, TransactionDirectionImageNameDeclaration } from "utils"
@@ -36,7 +36,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
     let amountTo: string | undefined;
     let coinTo: AltCoins | undefined;
 
-    if (method === ERC20MethodIds.swap) {
+    if (method === ERCMethodIds.swap) {
         const data = 'tx' in item ? item.tx as ISwap : item as ISwap;
 
         amountFrom = data.amountIn;
@@ -47,21 +47,21 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
     }
 
     if (
-        method === ERC20MethodIds.transfer ||
-        method === ERC20MethodIds.transferFrom ||
-        method === ERC20MethodIds.transferWithComment ||
-        method === ERC20MethodIds.automatedTransfer ||
-        method === ERC20MethodIds.borrow ||
-        method === ERC20MethodIds.repay ||
-        method === ERC20MethodIds.withdraw ||
-        method === ERC20MethodIds.deposit
+        method === ERCMethodIds.transfer ||
+        method === ERCMethodIds.transferFrom ||
+        method === ERCMethodIds.transferWithComment ||
+        method === ERCMethodIds.automatedTransfer ||
+        method === ERCMethodIds.borrow ||
+        method === ERCMethodIds.repay ||
+        method === ERCMethodIds.withdraw ||
+        method === ERCMethodIds.deposit
     ) {
 
         amount = 'tx' in item ? item.tx.amount : (item as ITransfer).amount
         coin = 'tx' in item ? item.tx.coin : (item as ITransfer).coin
     }
 
-    const isBatch = method === ERC20MethodIds.batchRequest
+    const isBatch = method === ERCMethodIds.batchRequest
     const TXs: (IFormattedTransaction | ITransactionMultisig)[] = [];
     if (isBatch) {
         const groupBatch = _((item as IBatchRequest).payments).groupBy("to").value()
@@ -98,9 +98,9 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
         <img src={image} alt="" className="w-8 h-8 rounded-full object-cover" />
         <div className="flex flex-col items-start">
             <div className="text-sm font-medium">
-                {action} {amount && coin && method !== ERC20MethodIds.swap && method !== ERC20MethodIds.batchRequest ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERC20MethodIds.swap !== method ? coin.symbol : ''}
-                {method === ERC20MethodIds.batchRequest ? `${TXs.reduce((a, c) => a + ((c as any)?.["payments"] as any[]).length, 0)} batch requests` : ''}
-                {method === ERC20MethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18).toFixed(2)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18).toFixed(2)} {coinTo?.symbol}</>)}
+                {action} {amount && coin && method !== ERCMethodIds.swap && method !== ERCMethodIds.batchRequest ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERCMethodIds.swap !== method ? coin.symbol : ''}
+                {method === ERCMethodIds.batchRequest ? `${TXs.reduce((a, c) => a + ((c as any)?.["payments"] as any[]).length, 0)} batch requests` : ''}
+                {method === ERCMethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18).toFixed(2)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18).toFixed(2)} {coinTo?.symbol}</>)}
             </div>
             <div className="font-medium text-[10px] text-primary cursor-pointer" onClick={() => navigate.push('/dashboard/transactions')}>View Transaction</div>
         </div>

@@ -269,8 +269,6 @@ export default async function handler(
         }
       })
 
-      console.log("Sinsnf")
-
       const { data: ownerData } = await axios.get<IMultisigOwners>(BASE_URL + "/api/multisig/owners", {
         params: {
           blockchain,
@@ -279,9 +277,9 @@ export default async function handler(
         }
       })
       const txs = transactionsData.results;
-      if(ownerData.nonce === undefined) throw new Error("Nonce is not found");
+      if (ownerData.nonce === undefined) throw new Error("Nonce is not found");
 
-      const safeTxs = await Promise.all(txs.map((tx: any) => parseSafeTransaction(tx, txs, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [], ownerData.nonce!)))
+      const safeTxs = await Promise.all(txs.filter(s => !(s.to === s.safe && !s.data)).map((tx: any) => parseSafeTransaction(tx, txs, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [], ownerData.nonce!)))
       transactionArray.push(...safeTxs.filter(s => s.tx.method));
     }
 

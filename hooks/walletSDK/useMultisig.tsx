@@ -54,6 +54,7 @@ import axios from "axios";
 import { hexToNumberString, toChecksumAddress } from "web3-utils";
 import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
+import { Tx_Refresh_Data_Thunk } from "redux/slices/account/thunks/refresh/txRefresh";
 
 
 
@@ -192,7 +193,7 @@ export default function useMultisig() {
 
     //Celo
     const { kit } = useCelo()
-    
+
     const providerKit = kit.connection.web3.givenProvider
 
     //solana
@@ -1121,14 +1122,13 @@ export default function useMultisig() {
                     const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
 
                     const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
-
+                    
                     await safeService.proposeTransaction({
                         safeAddress: account.address,
                         safeTransactionData: safeTransaction.data,
                         safeTxHash,
                         senderAddress,
                         senderSignature: senderSignature.data,
-                        origin,
                     });
                     safeHash = safeTxHash;
 
@@ -1140,6 +1140,7 @@ export default function useMultisig() {
                     txHash: safeHash,
                     tags: tags,
                 }))
+
 
                 return safeHash;
             }
@@ -1311,7 +1312,7 @@ export default function useMultisig() {
         }
     }
 
-    const executeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, ethSignuture?: EthSignSignature) => {
+    const executeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, rejection?: boolean) => {
         try {
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (provider === "Goki") {
@@ -1360,15 +1361,21 @@ export default function useMultisig() {
                 });
 
 
-                const safeTransaction = await safeSdk.createTransaction(
-                    {
-                        to: transaction.to,
-                        value: transaction.value,
-                        data: transaction.data ?? "",
-                        nonce: transaction.nonce,
-                        safeTxGas: transaction.safeTxGas,
-                    }
-                );
+                let safeTransaction: any;
+
+                if (rejection) {
+                    safeTransaction = await safeSdk.createRejectionTransaction(transaction.nonce)
+                } else {
+                    safeTransaction = await safeSdk.createTransaction(
+                        {
+                            to: transaction.to,
+                            value: transaction.value,
+                            data: transaction.data ?? "",
+                            nonce: transaction.nonce,
+                            safeTxGas: transaction.safeTxGas,
+                        }
+                    );
+                }
 
                 transaction.confirmations?.forEach((confirmation) => {
                     const signature = new EthSignSignature(
@@ -1377,14 +1384,15 @@ export default function useMultisig() {
                     );
                     safeTransaction.addSignature(signature);
                 });
-      
+
                 // safeTransaction.addSignature(ethSignuture!);
+               
                 const executeTxResponse = await safeSdk.executeTransaction(
                     {
                         addSignature: safeTransaction.addSignature,
                         data: {
                             baseGas: safeTransaction.data.baseGas,
-                            data: safeTransaction.data.data,
+                            data: safeTransaction.data.data ?? "0x",
                             gasPrice: safeTransaction.data.gasPrice,
                             gasToken: safeTransaction.data.gasToken,
                             nonce: safeTransaction.data.nonce,
@@ -1408,14 +1416,17 @@ export default function useMultisig() {
                     executeTxResponse.transactionResponse &&
                     (await executeTxResponse.transactionResponse.wait());
 
+                dispatch(Refresh_Balance_Thunk({
+                    blockchain: blockchain,
+                }))
+                // dispatch(Refresh_Accounts_Thunk({
+                //     id: account.id,
+                // }))
+                dispatch(Tx_Refresh_Data_Thunk())
+
                 return receipt;
             }
-            dispatch(Refresh_Balance_Thunk({
-                blockchain: blockchain,
-            }))
-            dispatch(Refresh_Accounts_Thunk({
-                id: account.id,
-            }))
+
 
             return { message: "success" }
         } catch (e: any) {

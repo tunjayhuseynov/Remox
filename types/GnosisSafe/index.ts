@@ -1,9 +1,15 @@
 export interface GnosisDataDecoded {
-    method: "transfer" | "changeThreshold" | "addOwnerWithThreshold" | "removeOwner" | "rejectionTransaction";
+    method: string;
     parameters: {
         name: string;
         type: string;
         value: string;
+        valueDecoded: {
+            operation: number;
+            to: string;
+            value: string;
+            data: string;
+        }[]
     }[]
 }
 

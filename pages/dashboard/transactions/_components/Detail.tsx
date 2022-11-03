@@ -1,7 +1,7 @@
 import { useEffect, Dispatch, Fragment, useState, useMemo } from 'react'
 import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "framer-motion";
-import { ERC20MethodIds, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IFormattedTransaction, IRemoveOwner, ISwap, ITransfer } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IFormattedTransaction, IRemoveOwner, ISwap, ITransfer } from "hooks/useTransactionProcess";
 import { AltCoins, TransactionDirection } from "types";
 import { IAccount, IBudget, IMember } from "firebaseConfig";
 import { ITag } from "pages/api/tags/index.api";
@@ -29,6 +29,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { AddTransactionToTag } from 'redux/slices/account/thunks/tags'
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { BiTrash } from 'react-icons/bi';
+import { GetFiatPrice } from 'utils/const';
 
 interface IProps {
     // date: string;
@@ -103,17 +104,17 @@ const Detail = ({
         return () => setMounted(false)
     }, [])
 
-    let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
-    const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
-    const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
-    const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
-    const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
-    const swap = transaction.id === ERC20MethodIds.swap ? transaction as unknown as ISwap : null;
+    let transfer = [ERCMethodIds.transfer, ERCMethodIds.noInput, ERCMethodIds.transferFrom, ERCMethodIds.transferWithComment, ERCMethodIds.repay, ERCMethodIds.borrow, ERCMethodIds.deposit, ERCMethodIds.withdraw].indexOf(transaction.method ?? "") > -1 ? transaction as ITransfer : null;
+    const transferBatch = transaction.id === ERCMethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
+    const automation = transaction.id === ERCMethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
+    const automationBatch = transaction.id === ERCMethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
+    const automationCanceled = transaction.id === ERCMethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
+    const swap = transaction.id === ERCMethodIds.swap ? transaction as unknown as ISwap : null;
 
-    const addOwner = transaction.id === ERC20MethodIds.addOwner ? transaction as unknown as IAddOwner : null;
-    const removeOwner = transaction.id === ERC20MethodIds.removeOwner ? transaction as unknown as IRemoveOwner : null;
-    const changeThreshold = transaction.id === ERC20MethodIds.changeThreshold ? transaction as unknown as IChangeThreshold : null;
-    const changeInternalThreshold = transaction.id === ERC20MethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
+    const addOwner = transaction.id === ERCMethodIds.addOwner ? transaction as unknown as IAddOwner : null;
+    const removeOwner = transaction.id === ERCMethodIds.removeOwner ? transaction as unknown as IRemoveOwner : null;
+    const changeThreshold = transaction.id === ERCMethodIds.changeThreshold ? transaction as unknown as IChangeThreshold : null;
+    const changeInternalThreshold = transaction.id === ERCMethodIds.changeInternalThreshold ? transaction as unknown as IChangeThreshold : null;
 
     const amount = transfer ?
         DecimalConverter(transfer.amount, transfer.coin.decimals) :
@@ -344,12 +345,12 @@ const Detail = ({
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>
                                                 {direction === TransactionDirection.In ? "+" : "-"}
-                                                {symbol}<NG fontSize={1.5} number={(DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? 0)) || calculatePrice({ ...transfer.coin, coin: transfer.coin, amount: DecimalConverter(+transfer.amount, transfer.coin.decimals) })} />
+                                                {symbol}<NG fontSize={1.5} number={(DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? 0)) || GetFiatPrice(transfer.coin, fiatPreference) * DecimalConverter(+transfer.amount, transfer.coin.decimals)} />
                                             </div>}
-                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || calculatePrice({ ...c.coin, coin: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) })), 0)} /></div>}
-                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? 0)) || calculatePrice({ ...automation.coin, coin: automation.coin, amount: DecimalConverter(automation.amount, automation.coin.decimals) })} /></div>}
-                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || calculatePrice({ ...c.coin, coin: c.coin, amount: DecimalConverter(c.amount, c.coin.decimals) })), 0)} /></div>}
-                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? 0)) || calculatePrice({ ...automationCanceled.coin, coin: automationCanceled.coin, amount: DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) })} /></div>}
+                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
+                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? 0)) || GetFiatPrice(automation.coin, fiatPreference) * DecimalConverter(automation.amount, automation.coin.decimals)} /></div>}
+                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
+                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? 0)) || GetFiatPrice(automationCanceled.coin, fiatPreference) * DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals)} /></div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}

@@ -1,9 +1,9 @@
 import Button from 'components/button';
 import { useState, useEffect, useMemo } from 'react';
 import { IMember } from 'types/dashboard/contributors';
-import { useAppSelector } from 'redux/hooks';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import _ from 'lodash';
-import { useWalletKit } from 'hooks';
+import { useContributors, useWalletKit } from 'hooks';
 import Modal from 'components/general/modal';
 import { SelectBalance, SelectContributorMembers, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectIndividual, SelectOrganization, SelectPriceCalculationFn, SelectSelectedAccountAndBudget } from 'redux/slices/account/selector';
 import PayrollItem from './_components/PayrollItem';
@@ -17,6 +17,7 @@ import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IAccountORM } from "pages/api/account/index.api";
 import datetime from 'date-and-time'
 import { NG } from 'utils/jsxstyle'
+import {updateMemberCheckDate} from "redux/slices/account/remoxData"
 
 export default function DynamicPayroll() {
   const [isAvaible, setIsAviable] = useState<boolean>(false)
@@ -31,6 +32,8 @@ export default function DynamicPayroll() {
   const individual = useAppSelector(SelectIndividual)
   const hp  = useAppSelector(SelectHistoricalPrices)
   const balance = useAppSelector(SelectBalance)
+  const {updateMemberDate} = useContributors()
+  const dispatch = useAppDispatch()
 
   const pc = organizatiion?.priceCalculation ?? individual?.priceCalculation ?? "current"
 
@@ -40,13 +43,14 @@ export default function DynamicPayroll() {
     }
   }, [isAvaible])
 
-  // const totalMonthlyPayment = TotalMonthlyAmount(contributors, Object.values(GetCoins), defaultFiat)
+  const totalMonthlyPayment = TotalMonthlyAmount(contributors, Object.values(GetCoins), defaultFiat)
 
 
   const ExecutePayroll = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
     try {
       let inputs: IPaymentInput[] = [];
       const members = [...selectedContributors];
+      const dateNow = new Date().getTime()
       for (const member of members) {
         const amount = member.amount;
         const address = member.address;
@@ -94,6 +98,14 @@ export default function DynamicPayroll() {
         budget: budget,
         subbudget: subbudget
       })
+
+      for (const member of members) {
+        await updateMemberDate(member.teamId, member.id)
+        dispatch(updateMemberCheckDate({
+          id: member.teamId,
+          member: member
+        }))
+      }
 
       inputs = [];
 
@@ -156,16 +168,16 @@ export default function DynamicPayroll() {
           </Button>}
         </div>
       </div>
-      {contributors.length > 0 && <div className="pt-4 !mt-10 pb-5 pl-5 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md">
+      {contributors.length > 0 && <div className="pt-4 !mt-10 pb-5 px-3 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md">
         <div className='flex'>
-          <div className='flex flex-col space-y-5 gap-12 lg:gap-4 pr-8 border-r border-greylish dark:border-[#454545] border-opacity-10'>
-            <div className='text-lg text-greylish dark:text-opacity-90 font-semibold'>Total Monthly Payment</div>
+          <div className='flex flex-col space-y-5 gap-4 pr-8 border-r border-greylish dark:border-[#454545] border-opacity-10'>
+            <div className='text-base text-greylish dark:text-opacity-90 font-semibold'>Total Monthly Payment</div>
             <div className='text-3xl font-semibold !mt-1'>
-              {/* {fiatSymbol}{totalMonthlyPayment.toLocaleString()} */}
+              {fiatSymbol}<NG number={totalMonthlyPayment} fontSize={1.75} />
             </div>
           </div>
           <div className="flex flex-col space-y-5 pl-8 !mt-0">
-            <div className='text-lg text-greylish dark:text-opacity-90 font-semibold'>Token Allocation</div>
+            <div className='text-base text-greylish dark:text-opacity-90 font-semibold'>Token Allocation</div>
             <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12 pb-5'>
               {Object.entries(totalPrice[0]).map(([currency, amount], index) => {
                 return <div key={index} className="flex flex-col items-start  h-fit">
@@ -185,7 +197,7 @@ export default function DynamicPayroll() {
       <table className="w-full pt-1 pb-4 ">
         <thead>
           {/* grid-cols-[18%,11%,11%,13%,13%,12%,9%,13%] */}
-          <tr id="header" className={`grid  grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] bg-[#F2F2F2] shadow-15 py-2 px-2 dark:bg-darkSecond rounded-md`} >
+          <tr id="header" className={`grid  grid-cols-[18.5%,9.5%,9.5%,13.5%,14.5%,12.5%,9.5%,12.5%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-darkSecond rounded-md`} >
             <th className={`text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]`}>Contributor</th>
             <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</th>
             <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</th>
@@ -216,60 +228,96 @@ export default function DynamicPayroll() {
 }
 
 
-// const TotalMonthlyAmount = (contributorsList: IMember[], Coins: AltCoins[], Fiat: FiatMoneyList) => {
-//   const now = new Date()
-//   const currentYear = now.getFullYear()
+const TotalMonthlyAmount = (contributorsList: IMember[], Coins: AltCoins[], Fiat: FiatMoneyList) => {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth()
 
-//   return contributorsList.reduce((acc, curr) => {
-//     const coin = Coins.find((c) => c.symbol === curr.currency)
-//     if (!coin) return acc;
-//     const fiatPrice = GetFiatPrice(coin, Fiat) * +curr.amount
-//     let fiatPrice2 = 0;
-//     const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
-//     if (coin2 && curr.secondAmount) {
-//       fiatPrice2 = GetFiatPrice(coin2, Fiat) * +curr.secondAmount
-//     }
-//     const contributorStartMonth = new Date(curr.paymantDate)
-//     const contributorEndMonth = new Date(curr.paymantEndDate)
+  return contributorsList.reduce((acc, curr) => {
+    const coin = Coins.find((c) => c.symbol === curr.currency)
+    if (!coin) return acc;
+    const fiatPrice = GetFiatPrice(coin, Fiat) * +curr.amount
+    let fiatPrice2 = 0;
+    const coin2 = Coins.find((c) => c.symbol === curr.secondCurrency)
+    if (coin2 && curr.secondAmount) {
+      fiatPrice2 = GetFiatPrice(coin2, Fiat) * +curr.secondAmount
+    }
+    const contributorStartMonth = new Date(curr.paymantDate)
+    
+    if (curr.execution === "Manual" ) {
+      if (curr.interval === "monthly") {
+        if(curr.paymantEndDate) {
+          const contributorEndMonth = new Date(curr.paymantEndDate)
+          const diff = Math.floor(Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays()));
+          if (now.getMonth() === contributorEndMonth.getMonth()) {
+            acc += fiatPrice + fiatPrice2
+          } else if (diff > 28){
+            const monthPassed = currentMonth - contributorStartMonth.getMonth()
+            
+            const diffInMounth = MonthDiff(contributorStartMonth, contributorEndMonth)
+            if(monthPassed < diffInMounth) {
+              acc += fiatPrice + fiatPrice2
+            }
+            console.log("Month Passed: " + diffInMounth)
+          }
+        } else {
+          acc += fiatPrice + fiatPrice2
+        }
+      } else {
+        if(curr.paymantEndDate) {
+          const contributorEndMonth = new Date(curr.paymantEndDate)
+          const diff = Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays());
+          let weeks = Math.floor(diff / 7)
+          while (weeks) {
+            const crr = datetime.addDays(contributorStartMonth, 7 * weeks)
+            if (crr.getMonth() === now.getMonth()) {
+              acc += fiatPrice + fiatPrice2
+            }
+            weeks -= 1;
+          }
+        } else {
+          if(now >= contributorStartMonth) {
+            if(now.getFullYear() > contributorStartMonth.getFullYear() && now.getMonth() > contributorStartMonth.getMonth()) {
+              let weeks = weeksCount(currentYear,currentMonth)
+              while (weeks) {
+                const crr = datetime.addDays(contributorStartMonth, 7 * weeks)
+                if (crr.getMonth() === now.getMonth()) {
+                  acc += fiatPrice + fiatPrice2
+                }
+                weeks -= 1;
+              }
+            } else if(now.getFullYear() === contributorStartMonth.getFullYear() && now.getMonth() === contributorStartMonth.getMonth()) {
+              const days = daysInMonth(contributorStartMonth.getMonth(), contributorStartMonth.getFullYear())
+              let remainsWeek = Math.floor((days-contributorStartMonth.getDate())/7)
+              while (remainsWeek) {
+                const crr = datetime.addDays(contributorStartMonth, 7 * remainsWeek)
+                if (crr.getMonth() === now.getMonth()) {
+                  acc += fiatPrice + fiatPrice2
+                }
+                remainsWeek -= 1;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      const contributorEndMonth = new Date(curr.paymantEndDate!)
+      const comDiff = Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays());
+      const firstPrice = fiatPrice / comDiff
+      const secondPrice = fiatPrice2 / comDiff
+      if (now.getMonth() === contributorEndMonth.getMonth()) {
+        const diff = Math.abs(datetime.subtract(now, contributorEndMonth).toDays())
+        acc += (firstPrice * diff) + (secondPrice * diff)
+      }
+      else {
+        const diff = Math.abs(datetime.subtract(now, new Date(now.getFullYear(), now.getMonth() + 1, 0)).toDays())
+        acc += (firstPrice * diff) + (secondPrice * diff)
+      }
+    }
 
-//     if (now.getTime() > contributorEndMonth.getTime()) return acc;
-
-//     const contributorYear = new Date(curr.paymantEndDate).getFullYear()
-//     const monthDays = daysInMonth(now.getTime(), currentYear)
-
-//     if (curr.execution === "Manual") {
-//       if (curr.interval === "monthly") {
-//         if (now.getMonth() === contributorEndMonth.getMonth()) {
-//           acc += fiatPrice + fiatPrice2
-//         }
-//       } else {
-//         const diff = Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays());
-//         let weeks = Math.floor(diff / 7)
-//         while (weeks) {
-//           const crr = datetime.addDays(contributorStartMonth, 7 * weeks)
-//           if (crr.getMonth() === now.getMonth()) {
-//             acc += fiatPrice + fiatPrice2
-//           }
-//           weeks -= 1;
-//         }
-//       }
-//     } else {
-//       const comDiff = Math.abs(datetime.subtract(contributorStartMonth, contributorEndMonth).toDays());
-//       const firstPrice = fiatPrice / comDiff
-//       const secondPrice = fiatPrice2 / comDiff
-//       if (now.getMonth() === contributorEndMonth.getMonth()) {
-//         const diff = Math.abs(datetime.subtract(now, contributorEndMonth).toDays())
-//         acc += (firstPrice * diff) + (secondPrice * diff)
-//       }
-//       else {
-//         const diff = Math.abs(datetime.subtract(now, new Date(now.getFullYear(), now.getMonth() + 1, 0)).toDays())
-//         acc += (firstPrice * diff) + (secondPrice * diff)
-//       }
-//     }
-
-//     return acc
-//   }, 0)
-// }
+    return acc
+  }, 0)
+}
 
 function daysInMonth(month: number, year: number) {
   return new Date(year, month, 0).getDate();
@@ -280,6 +328,29 @@ export const DayDifference = (date_1: number, date_2: number) => {
   let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
   return TotalDays;
 }
+
+export function MonthDiff(d1 : Date, d2 : Date) {
+  let months;
+  months = (d2.getFullYear() - d1.getFullYear()) * 12;
+  months -= d1.getMonth();
+  months += d2.getMonth();
+  return months <= 0 ? 0 : months;
+}
+
+export const weeksCount = (year: number, month_number: number) => {
+  const firstOfMonth = new Date(year, month_number - 1, 1);
+  let day = firstOfMonth.getDay() || 6;
+  day = day === 1 ? 0 : day;
+  if (day) { day-- }
+  let diff = 7 - day;
+  const lastOfMonth = new Date(year, month_number, 0);
+  const lastDate = lastOfMonth.getDate();
+  if (lastOfMonth.getDay() === 1) {
+      diff--;
+  }
+  const result = Math.ceil((lastDate - diff) / 7);
+  return result + 1;
+};
 
 // Monthly Current Month
 // Monthly Next Month 

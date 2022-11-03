@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ERC20MethodIds, IBatchRequest, IFormattedTransaction, ISwap } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IBatchRequest, IFormattedTransaction, ISwap } from "hooks/useTransactionProcess";
 import type { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import type { IBudgetExerciseORM } from "pages/api/budget/index.api";
 import type { ISpendingResponse } from "pages/api/calculation/_spendingType";
@@ -23,6 +23,7 @@ import { IHpApiResponse } from "pages/api/calculation/hp.api";
 import { RootState } from "redux/store";
 import axiosRetry from 'axios-retry';
 import { IAccount } from "firebaseConfig";
+import { fiatList } from "components/general/PriceInputField";
 
 
 type LaunchResponse = {
@@ -214,7 +215,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       allCumulativeTransactions.forEach(s => {
         const data = ('tx' in s ? s.tx : s)
-        if (data.method !== ERC20MethodIds.swap) {
+        if (data.method !== ERCMethodIds.swap) {
           if ('payments' in data) {
             allCoins.push(data.coin?.symbol ?? '')
           } else {
@@ -227,23 +228,23 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       })
 
 
-      const storageState = state.remoxData.storage;
-      const fiatPreference = storageState?.organization?.fiatMoneyPreference ?? storageState?.individual.fiatMoneyPreference ?? "USD"
+      // const storageState = state.remoxData.storage;
+      // const fiatPreference = storageState?.organization?.fiatMoneyPreference ?? storageState?.individual.fiatMoneyPreference ?? "USD"
 
       const hpList = await axios.post<IHpApiResponse>('/api/calculation/hp', {
         coinList: Object.keys(balanceRes.data.AllPrices), //Array.from(new Set(allCoins.filter(s => s))),
         lastTxDate: allCumulativeTransactions.at(-1)?.timestamp,
         blockchain: blockchain.name,
-        fiatMoney: fiatPreference
+        fiatMoney: fiatList.map(s => s.name)
       })
 
       const nfts = transactionsRes.data.filter(s => s.rawData.tokenID);
 
       const recurringList = allCumulativeTransactions
         .filter(s => ('tx' in s) ?
-          s.tx.method === ERC20MethodIds.automatedTransfer || s.tx.method === ERC20MethodIds.automatedCanceled || s.tx.method === ERC20MethodIds.automatedBatchRequest
+          s.tx.method === ERCMethodIds.automatedTransfer || s.tx.method === ERCMethodIds.automatedCanceled || s.tx.method === ERCMethodIds.automatedBatchRequest
           :
-          s.method === ERC20MethodIds.automatedTransfer || s.method === ERC20MethodIds.automatedCanceled || s.method === ERC20MethodIds.automatedBatchRequest
+          s.method === ERCMethodIds.automatedTransfer || s.method === ERCMethodIds.automatedCanceled || s.method === ERCMethodIds.automatedBatchRequest
         )
 
       const res: LaunchResponse = {

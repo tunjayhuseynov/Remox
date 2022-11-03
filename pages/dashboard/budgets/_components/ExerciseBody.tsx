@@ -29,7 +29,7 @@ const ExerciseBody = ({ exercise }: IProps) => {
             <CreateButton onClick={() => setModalVisible(true)} />
         </div>
         <Modal onDisable={setModalVisible} disableX openNotify={modalVisibility}>
-            <NewBudget exerciseId={exercise.id} onBack={() => setModalVisible(false)} />
+            <NewBudget exercise={exercise} onBack={() => setModalVisible(false)} />
         </Modal>
     </>
 }

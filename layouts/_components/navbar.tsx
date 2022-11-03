@@ -5,7 +5,7 @@ import Loader from 'components/Loader';
 import useNextSelector from 'hooks/useNextSelector';
 import { IAccount } from 'firebaseConfig';
 import NotificationCointainer from './Notification';
-import { SelectAccounts, SelectBlockchain, SelectDarkMode, SelectFiatPreference, SelectProviderAddress } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectBlockchain, SelectDarkMode, SelectFiatPreference, SelectProviderAddress, setResetRemoxData } from 'redux/slices/account/remoxData';
 import { useWalletKit } from 'hooks';
 import { useEffect, useMemo, useState } from 'react';
 import useAsyncEffect from 'hooks/useAsyncEffect';
@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { SelectBalance } from 'redux/slices/account/remoxData';
 import Web3 from 'web3'
 import { Tx_Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh/txRefresh';
+import { useCelo } from '@celo/react-celo';
 
 const Navbar = () => {
 
@@ -21,11 +22,19 @@ const Navbar = () => {
     const blockchain = useAppSelector(SelectBlockchain)
     const preference = useAppSelector(SelectFiatPreference)
     const balance = useAppSelector(SelectBalance)
-    const dark = useNextSelector(SelectDarkMode)
+    const dark = useAppSelector(SelectDarkMode)
     const { SpiralAPR } = useWalletKit()
     const { data } = useMultiWallet()
     const [APR, setAPR] = useState<number | undefined>()
     const dispatch = useAppDispatch()
+    const { address } = useCelo()
+
+
+    useEffect(() => {
+        if (!address) {
+            dispatch(setResetRemoxData())
+        }
+    }, [address])
 
     useAsyncEffect(async () => {
         if (blockchain.name === "celo") {
@@ -64,8 +73,8 @@ const Navbar = () => {
         <div className="hidden md:flex items-center justify-end">
             <div className="flex gap-x-4">
                 {blockchain.name === "celo" &&
-                    <div className="relative group">
-                        <div className="rounded-md flex items-center px-3 py-2 space-x-3 bg-[#F9F9F9] dark:bg-[#252525] cursor-pointer" onClick={() => window.open("https://www.spirals.so/", "_blank")}>
+                    <div className="relative group hover:shadow-navbarShadow">
+                        <div className="rounded-md flex items-center px-3 py-2 space-x-3 bg-[#F9F9F9] dark:bg-[#252525] cursor-pointer" onClick={() => window.open("https://app.spirals.so/", "_blank")}>
                             <div className="font-medium text-sm dark:text-white text-dark">
                                 {APR?.toLocaleString()} tCO2
                             </div>
@@ -74,7 +83,7 @@ const Navbar = () => {
                             </div>
                         </div>
                         <div className="absolute group-hover:flex hidden shadow-xl -bottom-3 rounded-md translate-y-full space-x-1 bg-[#F9F9F9] dark:bg-[#252525] px-4 py-3 right-0 w-[11rem] items-center font-medium text-sm justify-between">
-                            <span>Stake on</span> <img src="/icons/companies/spiralsLogo.svg" className="h-[1.25rem]" alt="" />
+                            <span>Stake on</span> <img src={dark ? "/icons/companies/spiralsLogoDark.svg" : "/icons/companies/spiralsLogo.svg"} className="h-[1.25rem]" alt="" />
                         </div>
                     </div>
                 }

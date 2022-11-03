@@ -40,6 +40,32 @@ export default function useAllowance() {
             throw new Error(error.message)
         }
     }
+    const allowData = async (address: string, coin: AltCoins, spender: string, etherAmount: string, payer: string) => {
+        setLoading(true)
+        try {
+
+            const web3 = new Web3(providerKit)
+
+            const contract = new web3.eth.Contract(ERC20 as AbiItem[], coin.address)
+            const allowance = await contract.methods.allowance(address, spender).call()
+            const amount = new BigNumber(etherAmount).multipliedBy(new BigNumber(10).pow(coin.decimals))
+            return contract.methods.approve(spender, amount.plus(allowance).toString()).encodeABI()
+            // const tokenContract = await kit.contracts.getErc20(contractAddress)
+
+
+            // const allowance = await tokenContract.allowance(address!, spender)
+
+
+            // const approve = tokenContract.approve(spender, (amount.plus(allowance)).toString())
+
+            // await approve.sendAndWaitForReceipt({ from: address!, gas: 300000, gasPrice: kit.web3.utils.toWei("0.5", 'Gwei') })
+            setLoading(false)
+        } catch (error: any) {
+            console.error(error)
+            setLoading(false)
+            throw new Error(error.message)
+        }
+    }
 
     const disallow = async (address: string, contractAddress: string, spender: string, etherAmount: string) => {
         setLoading(true)
@@ -70,5 +96,5 @@ export default function useAllowance() {
         }
     }
 
-    return { allow, disallow, loading }
+    return { allow, disallow, loading, allowData }
 }

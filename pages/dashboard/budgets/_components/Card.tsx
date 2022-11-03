@@ -14,6 +14,7 @@ import { AiFillRightCircle } from 'react-icons/ai';
 import EditBudget from './EditBudget';
 import { fiatList } from 'components/general/PriceInputField';
 import CurrencyElement from 'components/general/CurrencyElement';
+import { CoinDesignGenerator } from 'pages/dashboard/transactions/_components/CoinsGenerator';
 
 function BudgetCard({ item, }: { item: IBudgetORM }) {
     // const [openNotify, setNotify] = useState(false)
@@ -27,7 +28,6 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
 
 
     const budgetCoins = item.budgetCoins;
-
 
     const usedPercent = useMemo(() => budgetCoins.totalUsedAmount * 100 / budgetCoins.totalAmount, [item])
     const usedPercentStyle = useMemo(() => ProgressBarWidth(usedPercent), [item, usedPercent])
@@ -61,46 +61,78 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='space-x-3 font-medium text-lg'>
-                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalAmount} />
+                            <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                coin: GetCoins[budgetCoins.coin],
+                                amount: budgetCoins.totalAmount.toFixed(2),
+                            }} />
+                            {/* <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalAmount} /> */}
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount} />
+                                <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                    coin: GetCoins[budgetCoins.second.secondCoin],
+                                    amount: budgetCoins.second.secondTotalAmount.toFixed(2),
+                                }} />
+                                {/* <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount} /> */}
                             </div>}
                     </div>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='space-x-3 font-medium text-lg'>
-                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalUsedAmount} />
+                            <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                coin: GetCoins[budgetCoins.coin],
+                                amount: budgetCoins.totalUsedAmount.toFixed(2),
+                            }} />
+                            {/* <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalUsedAmount} /> */}
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalUsedAmount} />
+                                <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                    coin: GetCoins[budgetCoins.second.secondCoin],
+                                    amount: budgetCoins.second.secondTotalUsedAmount.toFixed(2),
+                                }} />
+                                {/* <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalUsedAmount} /> */}
                             </div>}
                     </div>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='space-x-3 font-medium text-lg'>
-                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalPending} />
+                            <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                coin: GetCoins[budgetCoins.coin],
+                                amount: budgetCoins.totalPending.toFixed(2),
+                            }} />
+                            {/* <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalPending} /> */}
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalPending} />
+                                <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                    coin: GetCoins[budgetCoins.second.secondCoin],
+                                    amount: budgetCoins.second.secondTotalPending.toFixed(2),
+                                }} />
+                                {/* <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalPending} /> */}
                             </div>}
                     </div>
                 </td>
                 <td>
                     <div className='flex flex-col justify-center h-full space-y-3'>
                         <div className='space-x-3 font-medium text-lg'>
-                            <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount)} />
+                            <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                coin: GetCoins[budgetCoins.coin],
+                                amount: (budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount)).toFixed(2),
+                            }} />
+                            {/* <CurrencyElement fiat={item.fiatMoney} coin={GetCoins[budgetCoins.coin]} amount={budgetCoins.totalAmount - (budgetCoins.totalPending + budgetCoins.totalUsedAmount)} /> */}
                         </div>
                         {budgetCoins.second &&
                             <div className='flex items-center space-x-3 font-medium text-lg'>
-                                <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount)} />
+                                <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
+                                    coin: GetCoins[budgetCoins.second.secondCoin],
+                                    amount: (budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount)).toFixed(2),
+                                }} />
+                                {/* <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount - (budgetCoins.second.secondTotalPending + budgetCoins.second.secondTotalUsedAmount)} /> */}
                             </div>
-                            }
+                        }
                     </div>
                 </td>
                 <td className='self-center relative'>
@@ -119,7 +151,7 @@ function BudgetCard({ item, }: { item: IBudgetORM }) {
                 </td>
                 <td className='self-center'>
                     <div className='flex justify-end pr-5 space-x-4 items-center'>
-                        <VscEdit size={"1rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} />
+                        {/* <VscEdit size={"1rem"} className="cursor-pointer hover:text-green-500" onClick={() => setEditBudget(true)} /> */}
                         <GiCancel size={"1rem"} className="cursor-pointer hover:text-red-500" onClick={() => setDelBudget(true)} />
                         <AiFillRightCircle size={"1.85rem"} className="cursor-pointer text-primary hover:text-secondary" onClick={() => setDetailModal(true)} />
                     </div>

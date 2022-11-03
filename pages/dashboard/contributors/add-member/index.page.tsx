@@ -262,38 +262,38 @@ const AddMember = () => {
                         <div className="flex flex-col space-y-1 w-full">
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]`}>
-                                    <DateTimePicker
+                                    {/* <DateTimePicker
                                       renderInput={(props) => <TextField {...props} />}
-                                      disablePast={true}
+                                    //   disablePast={true}
                                       label="Payment Start Date"
                                       value={startDate}
                                       onChange={(newValue) => {
                                         setStartDate(newValue);
                                       }}
-                                    />
-                                    {/* <DesktopDatePicker
+                                    /> */}
+                                    <DesktopDatePicker
                                         label="Payment Start Date"
                                         disablePast
                                         inputFormat="MM/dd/yyyy"
                                         value={startDate}
                                         onChange={(newValue) => setStartDate(newValue)}
                                         renderInput={(params) => <TextField {...params} />}
-                                    /> */}
+                                    />
                                 </Stack>
                             </LocalizationProvider>
                         </div>
                         <div className="flex flex-col space-y-1 w-full">
                             <LocalizationProvider dateAdapter={AdapterDateFns} >
                                 <Stack spacing={3} className={` bg-white dark:bg-darkSecond text-sm !rounded-md z-[0]`}>
-                                    {/* <DesktopDatePicker
+                                    <DesktopDatePicker
                                         disablePast
                                         label="Payment End Date"
                                         inputFormat="MM/dd/yyyy"
                                         value={endDate}
                                         onChange={(newValue) => setEndDate(newValue)}
                                         renderInput={(params) => <TextField {...params} />}
-                                    /> */}
-                                    <DateTimePicker
+                                    />
+                                    {/* <DateTimePicker
                                         disablePast
                                         renderInput={(props) => <TextField {...props} />}
                                         label="Payment End Date"
@@ -301,7 +301,7 @@ const AddMember = () => {
                                         onChange={(newValue) => {
                                         setEndDate(newValue);
                                       }}
-                                    />
+                                    /> */}
                                 </Stack>
                             </LocalizationProvider>
                         </div>

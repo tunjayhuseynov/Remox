@@ -1,7 +1,7 @@
 import { createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import axios from "axios";
 import { IAccount } from "firebaseConfig";
-import { ERC20MethodIds, IAutomationCancel, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IAutomationCancel, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { ITag } from "pages/api/tags/index.api";
 import { BlockchainType } from "types/blockchains";
@@ -36,10 +36,10 @@ export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | I
 
     const data = 'tx' in result.data ? result.data : result.data[0];
 
-    if (('tx' in data && data.tx.method === ERC20MethodIds.automatedTransfer) || (!('tx' in data) && data.method === ERC20MethodIds.automatedTransfer)) {
+    if (('tx' in data && data.tx.method === ERCMethodIds.automatedTransfer) || (!('tx' in data) && data.method === ERCMethodIds.automatedTransfer)) {
         api.dispatch(addRecurringTask(data))
     }
-    if (('tx' in data && data.tx.method === ERC20MethodIds.automatedCanceled) || (!('tx' in data) && data.method === ERC20MethodIds.automatedCanceled)) {
+    if (('tx' in data && data.tx.method === ERCMethodIds.automatedCanceled) || (!('tx' in data) && data.method === ERCMethodIds.automatedCanceled)) {
         const id = 'tx' in data ? (data.tx as IAutomationCancel).streamId : (data as IAutomationCancel).streamId;
         api.dispatch(removeRecurringTask({ streamId: id }))
     }

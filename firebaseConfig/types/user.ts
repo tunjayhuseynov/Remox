@@ -30,6 +30,20 @@ export interface IBudgetExercise {
     from: number;
     to: number;
     budgets: DocumentReference[] | IBudget[];
+    coins: {
+        calculation: string,
+        customPrice: number | null,
+        amount: number,
+        fiat: FiatMoneyList,
+        coin: string
+        second: {
+            calculation: string | null,
+            amount: number | null,
+            customPrice: number | null
+            coin: string | null,
+            fiat: FiatMoneyList | null
+        } | null
+    }
 
     blockchain: BlockchainType["name"];
 

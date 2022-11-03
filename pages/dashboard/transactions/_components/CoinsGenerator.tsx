@@ -2,6 +2,7 @@ import { ITransfer } from "hooks/useTransactionProcess"
 import { useAppSelector } from "redux/hooks"
 import { SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectPriceCalculationFn } from "redux/slices/account/selector"
 import { DecimalConverter } from "utils/api"
+import { GetFiatPrice } from "utils/const"
 import { NG } from "utils/jsxstyle"
 
 
@@ -11,25 +12,32 @@ interface IProps {
     amountImageThenName?: boolean,
     disableFiat?: boolean,
     imgSize?: number,
+    ether?: boolean,
 }
-export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName, disableFiat, imgSize = 1.25 }: IProps) => {
+export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName, disableFiat, imgSize = 1.25, ether }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const hp = useAppSelector(SelectHistoricalPrices)
-    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    // const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const symbol = useAppSelector(SelectFiatSymbol)
 
-    const fiatPrice = calculatePrice({ ...transfer.coin, amount: DecimalConverter(transfer.amount, transfer.coin.decimals), coin: transfer.coin })
+    let tokenAmount = "";
+    if (!ether) {
+        tokenAmount = DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? "0" : DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(2)
+    } else {
+        tokenAmount = transfer.amount
+    }
+    const fiatPrice = GetFiatPrice(transfer.coin, fiatPreference) * +tokenAmount
 
     const date = new Date(timestamp)
     const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
     const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
 
-    const price = hpCoinPrice ? DecimalConverter(transfer.amount, transfer.coin.decimals) * hpCoinPrice : fiatPrice
+    const price = hpCoinPrice ? +tokenAmount * hpCoinPrice : fiatPrice
 
     return <>
         {amountImageThenName ? <div className="flex space-x-2">
             <span className="text-sm text-left">
-                {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toLocaleString()}
+                {tokenAmount}
             </span>
             <div className="w-[1.25rem] h-[1.25rem]">
                 {transfer?.coin?.logoURI ? <img
@@ -57,7 +65,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, amountImageThenName, 
                         /> : <div className="w-full h-full rounded-full bg-gray-500" />}
                     </div>
                     <span className="font-medium text-sm text-left leading-none self-center gap-x-[7px]">
-                        {DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? 0 : DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(2)}
+                        {tokenAmount}
                     </span>
                 </div>
                 {!disableFiat && <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">

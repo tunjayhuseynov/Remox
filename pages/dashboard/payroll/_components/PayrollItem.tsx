@@ -11,10 +11,9 @@ import {
   IMember,
 } from "types/dashboard/contributors";
 import { AddressReducer } from "utils";
-import { NG } from "utils/jsxstyle";
 import CurrencyElement from "components/general/CurrencyElement";
 import { motion } from "framer-motion";
-import { DayDifference } from "../index.page";
+import { DayDifference, MonthDiff } from "../index.page";
 
 interface IProps {
   member: IMember;
@@ -39,26 +38,22 @@ const PayrollItem = ({
     (coin) => coin.symbol === member.secondCurrency
   );
 
-  const haveToBeChecked = member.paymantEndDate
-    ? Math.round(DayDifference(member.paymantDate, member.paymantEndDate) /
-      (member.interval === "weekly" ? 7 : 30))
-    : null;
+  
+  const dateNow = new Date()
+  const haveToBeChecked = member.paymantEndDate ? MonthDiff(new Date(member.paymantDate), new Date(member.paymantEndDate)) + 1 : null
 
-  const checkedPrecentage =  (haveToBeChecked && member.paymantEndDate) ? (member.checkedCount ?? 0 * 100)/haveToBeChecked : "yeah"
+  const monthPassed = MonthDiff(new Date(member.paymantDate), dateNow)
 
-  if(member.paymantEndDate) {
+  const startDate = new Date(member.paymantDate)
+  const payCheckDate = member.paymantEndDate ? (dateNow.getMonth() === new Date(member.paymantEndDate).getMonth() && dateNow.getFullYear() === new Date(member.paymantEndDate).getFullYear()) ? member.paymantEndDate :  startDate.setMonth(startDate.getMonth() + monthPassed) : startDate.setMonth(startDate.getMonth() + monthPassed) ;
+  const checkedPrecentage =  (haveToBeChecked && member.paymantEndDate) ? ((member.checkedCount ?? 0) * 100)/haveToBeChecked : null
 
-    console.log(haveToBeChecked)
-    console.log("Checked:" + " " + member.checkedCount )
-    console.log("Checked Precentage" + " " +checkedPrecentage)
-  }
+  const daysLeft = dateNow.getTime() < payCheckDate ?  DayDifference(dateNow.getTime(), payCheckDate) : 0
 
   return (
-    <tr className="grid grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
+    <tr className="grid grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] py-3 px-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
       <td
-        className={` ${
-          member.execution !== ExecutionType.auto && isRuning ? "pl-4" : "pl-2"
-        } flex `}
+        className={` flex `}
       >
         <div className={`flex space-x-2 items-center `}>
           {member.execution !== ExecutionType.auto && isRuning && !runmodal ? (
@@ -85,14 +80,14 @@ const PayrollItem = ({
             <></>
           )}
           <div
-            className={`flex items-center space-x-2 ${
-              member.execution !== ExecutionType.auto ? "pl-0" : "pl-3"
-            } `}
+            className={`flex items-center space-x-2 `}
           >
             <img
               src={member.image?.imageUrl ?? makeBlockie(member.address)}
               alt=""
-              className="rounded-full border w-10 object-cover h-10"
+              height={40}
+              width={40}
+              className="rounded-full border object-cover"
             />
             <div className="flex flex-col text-left">
               <div className=" h-6 font-medium text-sm">{member.fullname}</div>
@@ -146,8 +141,10 @@ const PayrollItem = ({
             : "Weekly"
           : "Streaming"}
       </td>
-      <td className="flex items-center justify-start text-sm font-medium">
-        {member.execution === "Auto" ? "Streaming" : "Manual"}
+      <td className="flex flex-col items-start justify-center text-sm font-medium">
+        {member.execution === "Auto" ? <p>Streaming</p> : <p>Manual</p>}
+        {member.execution !== "Auto" ? payCheckDate < dateNow.getTime() && (member.lastCheckedDate ? member.lastCheckedDate < payCheckDate : true ) && <span className="text-[#E84142] ">(overdue)</span>  : <></>   }
+        {member.execution !== "Auto" ? daysLeft <= 3 && daysLeft > 0 ? <span className="text-[#707070]">({daysLeft} days left)</span> : <></>  : <></>   }
       </td>
       <td className="flex items-center text-sm font-medium justify-start">
         {member.compensation}

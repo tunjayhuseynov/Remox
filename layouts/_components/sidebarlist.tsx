@@ -80,7 +80,18 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                         <NavLink to={isModerator ? "/dashboard/payroll" : "/dashboard/payroll"} className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Payroll"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><PayrollSVG active={isActive} darkMode={darkMode} />{showbar && 'Payroll'}</Li>}</NavLink>
                         <NavLink to={isModerator ? "/dashboard/requests" : "/dashboard/requests"} className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Request"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><RequestsSVG active={isActive} darkMode={darkMode} />{showbar && 'Requests'}</Li>}</NavLink>
                         <NavLink to={isModerator ? "/dashboard/contributors" : "/dashboard/contributors"} className={({ isActive }) => `  ${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Contributors"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} showbar={showbar}><TeamsSVG active={isActive} darkMode={darkMode} />{showbar && 'Contributors'}</Li>}</NavLink>
-                        <NavLink to="/dashboard/streaming" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Recurring"} showbar={showbar}><AutomationsSVG active={isActive} darkMode={darkMode} />{showbar && 'Streaming'}</Li>}</NavLink>
+                        {/* <NavLink to="/dashboard/streaming" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-b-md rounded-t-none'} text={"Recurring"} showbar={showbar}><AutomationsSVG active={isActive} darkMode={darkMode} />{showbar && 'Streaming'}</Li>}</NavLink> */}
+                        <div className={`py-3 rounded-md px-[.6875rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 tracking-wide bg-light dark:bg-dark !mb-0 text-[#00000076] dark:text-[#717171] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all cursor-default transaction-all rounded-b-none rounded-t-none justify-between`}>
+                            <div className='flex gap-3 items-center text-sm !font-medium justify-between'>
+                                <div className='flex gap-2'>
+                                    <RiskDisabledSVG darkMode={darkMode} /> 
+                                    <span className='tracking-wide'>
+                                        Streaming 
+                                    </span>
+                                </div>
+                                <span className='text-primary text-[10px] bg-[#FBD8CD] border-[#FF7348] dark:bg-[#51352C] border-[0.2px] rounded-sm px-[0.13rem]'>soon</span>
+                            </div>
+                        </div>
                     </div>
                 </AccordionDetails>
             </Accordion>
@@ -135,7 +146,7 @@ const Sidebarlist = ({ showbar }: { showbar: boolean }) => {
                             </div>
                         </div>
                         {/* <NavLink to="/dashboard/lend-and-borrow" className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all rounded-none'} text={"Lend and Borrow"} showbar={showbar}><BorrowSVG active={isActive} darkMode={darkMode} />{showbar && 'Lend & Borrow'}</Li>}</NavLink> */}
-                        <NavLink to={isModerator ? "/dashboard/choose-budget?page=swap" : "/dashboard/choose-budget?page=swap"} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all  rounded-b-none rounded-t-none'} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink>
+                        {/* <NavLink to={isModerator ? "/dashboard/choose-budget?page=swap" : "/dashboard/choose-budget?page=swap"} className={({ isActive }) => `${isActive ? 'text-primary' : ''}`}>{({ isActive }) => <Li text={"Swap"} className={' !mb-0 hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all transaction-all  rounded-b-none rounded-t-none'} showbar={showbar}><SwapSVG active={isActive} darkMode={darkMode} />{showbar && 'Swap'}</Li>}</NavLink> */}
                         <div className={`py-3 rounded-md px-[.6875rem] text-left font-sans font-semibold  xl:text-lg leading-4 xl:mb-2 tracking-wide bg-light dark:bg-dark !mb-0 text-[#00000076] dark:text-[#717171] hover:bg-[#e2e2e2] dark:hover:bg-[#2E2E2E] hover:transaction-all cursor-default transaction-all rounded-b-md rounded-t-none justify-between`}>
                             <div className='flex gap-3 items-center text-sm !font-medium justify-between'>
                                 <div className='flex gap-2'>

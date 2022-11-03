@@ -1,5 +1,5 @@
 import {
-  ERC20MethodIds,
+  ERCMethodIds,
   IAutomationCancel,
   IAutomationTransfer,
   IBatchRequest,
@@ -26,12 +26,13 @@ import { CoinDesignGenerator } from "./CoinsGenerator";
 import Detail from "./Detail";
 import makeBlockie from "ethereum-blockies-base64";
 import { FiRepeat } from "react-icons/fi";
-import { ClickAwayListener } from "@mui/material";
+import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
 import Loader from "components/Loader";
 import Modal from "components/general/modal";
 import Button from "components/button";
 import useLoading from "hooks/useLoading";
 import AddLabel from "./tx/AddLabel";
+import { BiSearch } from "react-icons/bi";
 
 const SingleTransactionItem = ({
   transaction,
@@ -65,19 +66,26 @@ const SingleTransactionItem = ({
 
   const timestamp = transaction.timestamp;
 
-  let transfer = [ERC20MethodIds.transfer, ERC20MethodIds.noInput, ERC20MethodIds.transferFrom, ERC20MethodIds.transferWithComment, ERC20MethodIds.repay, ERC20MethodIds.borrow, ERC20MethodIds.deposit, ERC20MethodIds.withdraw].indexOf(transaction.id) > -1 ? transaction as ITransfer : null;
-  const transferBatch = transaction.id === ERC20MethodIds.batchRequest ? transaction as IBatchRequest : null;
-  const automation = transaction.id === ERC20MethodIds.automatedTransfer ? transaction as IAutomationTransfer : null;
-  const automationBatch = transaction.id === ERC20MethodIds.automatedBatchRequest ? transaction as IBatchRequest : null;
-  const automationCanceled = transaction.id === ERC20MethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
-  const swap = transaction.id === ERC20MethodIds.swap ? transaction as ISwap : null;
+  let transfer = [ERCMethodIds.transfer, ERCMethodIds.noInput, ERCMethodIds.transferFrom, ERCMethodIds.transferWithComment, ERCMethodIds.repay, ERCMethodIds.borrow, ERCMethodIds.deposit, ERCMethodIds.withdraw].indexOf(transaction.id) > -1 ? transaction as ITransfer : null;
+  const transferBatch = transaction.id === ERCMethodIds.batchRequest ? transaction as IBatchRequest : null;
+  const automation = transaction.id === ERCMethodIds.automatedTransfer ? transaction as IAutomationTransfer : null;
+  const automationBatch = transaction.id === ERCMethodIds.automatedBatchRequest ? transaction as IBatchRequest : null;
+  const automationCanceled = transaction.id === ERCMethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
+  const swap = transaction.id === ERCMethodIds.swap ? transaction as ISwap : null;
 
   const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, false);
 
   const dispatch = useAppDispatch()
   const id = useAppSelector(SelectID)
+  const [tagName, setTagName] = useState<string>()
+  let uniqTags = tags.filter(s => transaction.tags?.findIndex(d => d.id === s.id) === -1)
+  if (tagName) {
+    uniqTags = uniqTags.filter(s => s.name.toLowerCase().startsWith(tagName?.toLowerCase()))
+  }
 
-  const uniqTags = tags.filter(s => transaction.tags?.findIndex(d => d.id === s.id) === -1)
+  const searching = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagName(e.target.value.trim())
+  }
 
   const labelChangeFn = (val: ITag) => async () => {
     try {
@@ -104,10 +112,9 @@ const SingleTransactionItem = ({
   }
 
 
-
   return (
     <>
-      <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-[1.469rem] bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom">
+      <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-[1.469rem] bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5">
         <td className="text-left pt-1">
           <div className="relative inline">
             <span className="font-medium text-sm">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
@@ -169,10 +176,14 @@ const SingleTransactionItem = ({
             <CoinDesignGenerator transfer={automation} timestamp={timestamp} />
           )}
           {swap && (
-            <div className="flex flex-col space-y-5">
+            <div className="flex flex-col">
               <CoinDesignGenerator transfer={{ amount: swap.amountIn, coin: swap.coinIn }} timestamp={timestamp} />
-              <FiRepeat />
-              <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
+              <div className="ml-[2px]">
+                <FiRepeat />
+              </div>
+              <div className="mt-1">
+                <CoinDesignGenerator transfer={{ amount: swap.amountOutMin, coin: swap.coinOutMin }} timestamp={timestamp} />
+              </div>
             </div>
           )}
         </td>
@@ -193,11 +204,35 @@ const SingleTransactionItem = ({
               <ClickAwayListener onClickAway={() => {
                 setLabelActive(false)
               }}>
-                <div className="absolute z-[9999] -bottom-1 w-full bg-white dark:bg-darkSecond translate-y-full rounded-md border border-gray-500">
-                  <div className="flex flex-col items-center">
+                <div className="absolute z-[9999] -bottom-1 w-full bg-white dark:bg-darkSecond translate-y-full rounded-md border border-gray-500 h-[10.5rem] overflow-y-hidden">
+                  <div className="flex flex-col items-center  overflow-y-scroll h-full">
+                    <div className={`flex space-x-2 text-primary py-2 cursor-pointer w-full text-left px-1 h-12`}>
+                      <div className='w-full'>
+                        <FormControl fullWidth>
+                          <TextField
+                            placeholder='Search'
+                            inputProps={{ style: { width: '100%' } }}
+                            onChange={searching}
+                            InputProps={{
+                              style: {
+                                fontSize: '0.875rem',
+                                width: '100%',
+                                height: '30px'
+                              },
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <BiSearch />
+                                </InputAdornment>
+                              ),
+                            }}
+                            variant="outlined"
+                          />
+                        </FormControl>
+                      </div>
+                    </div>
                     {/* <div onClick={() => { setAddLabelModal(true); setLabelActive(false); }} className="text-xs text-primary py-2 hover:bg-gray-100 rounded-t-md hover:dark:bg-gray-800 cursor-pointer w-full text-left border-b border-greylish pl-2 font-medium">+ New Label</div> */}
                     {uniqTags.map((e, i) => {
-                      return <div key={e.id} onClick={() => { labelChangeFn(e)(); setLabelActive(false) }} className={`flex space-x-2 text-primary py-2 hover:bg-gray-100 hover:dark:bg-gray-800 cursor-pointer w-full text-left pl-2 ${i !== uniqTags.length - 1 ? "border-b border-greylish" : " rounded-b-md"}`}>
+                      return <div key={e.id} onClick={() => { labelChangeFn(e)(); setLabelActive(false) }} className={`h-10 flex space-x-2 text-primary py-2 hover:bg-gray-100 hover:dark:bg-gray-800 cursor-pointer w-full text-left pl-2 ${i !== uniqTags.length - 1 ? "border-b border-greylish" : " rounded-b-md"}`}>
                         <div className="w-1 h-4" style={{ backgroundColor: e.color }}></div>
                         <span className="text-xs font-medium">{e.name}</span>
                       </div>

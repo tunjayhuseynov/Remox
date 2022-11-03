@@ -9,30 +9,23 @@ import { NG } from 'utils/jsxstyle'
 import TotalExerciseDetails from './TotalExerciseDetails'
 
 function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
-    const fiatPreference = useAppSelector(SelectFiatPreference)
+    // const fiatPreference = useAppSelector(SelectFiatPreference)
     const symbol = useAppSelector(SelectFiatSymbol)
     const coins = useAppSelector(SelectCurrencies)
 
     const TotalBudget = total.budgets.reduce((a, b) => {
-
-        const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
-
-        const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
-        const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
-        const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
-        const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
-
-        const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
-
-        const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
-        const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
-       
-        const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
-        const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending
         return {
-            totalAmount: a.totalAmount + ((b.customPrice ?? MainFiatPrice) * totalAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalAmountSecond ?? 0)),
-            totalUsedAmount: a.totalUsedAmount + ((b.customPrice ?? MainFiatPrice) * totalUsedAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalUsedAmountSecond ?? 0)),
-            totalPending: a.totalPending + ((b.customPrice ?? MainFiatPrice) * totalPendingAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalPendingAmountSecond ?? 0))
+            totalAmount: a.totalAmount + b.budgetCoins.totalAmount,
+            totalUsedAmount: a.totalUsedAmount + b.budgetCoins.totalUsedAmount,
+            totalPending: a.totalPending + b.budgetCoins.totalPending,
+        }
+    }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
+
+    const TotalSecondBudget = total.budgets.reduce((a, b) => {
+        return {
+            totalAmount: a.totalAmount + (b.budgetCoins.second?.secondTotalAmount ?? 0),
+            totalUsedAmount: a.totalUsedAmount + (b.budgetCoins.second?.secondTotalUsedAmount ?? 0),
+            totalPending: a.totalPending + (b.budgetCoins.second?.secondTotalPending ?? 0),
         }
     }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
 
@@ -43,32 +36,80 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                 <div className={`flex pr-16  border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4`}>
                         <div className='text-sm font-bold text-gray-500'>Total Budget</div>
-                        <div className={`text-3xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalAmount} fontSize={1.75} />
+                        <div className="flex space-x-5">
+                            <div className={`text-3xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                                <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.5rem] h-[1.5rem]' />
+                                <div>
+                                    <NG number={TotalBudget.totalAmount} fontSize={1.75} />
+                                </div>
+                            </div>
+                            {total.coins.second?.coin && <div className={`text-3xl font-semibold gap-2 flex items-center`}>
+                                <img src={coins[total.coins.second.coin].logoURI} alt="" className='rounded-full object-cover w-[1.5rem] h-[1.5rem]' />
+                                <div>
+                                    <NG number={TotalSecondBudget.totalAmount} fontSize={1.75} />
+                                </div>
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>
                 <div className={`flex pl-8 border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4 justify-between`}>
                         <div className='text-sm font-bold text-gray-500'>Total Used</div>
-                        <div className={`text-xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalUsedAmount} fontSize={1.25} />
+                        <div className="flex space-x-5">
+                            <div className={`text-xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                                <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
+                                <div>
+                                    <NG number={TotalBudget.totalUsedAmount} fontSize={1.25} />
+                                </div>
+                            </div>
+                            {total.coins.second?.coin && <div className={`text-xl font-semibold gap-2 flex items-center`}>
+                                <img src={coins[total.coins.second.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
+                                <div>
+                                    <NG number={TotalSecondBudget.totalUsedAmount} fontSize={1.25} />
+                                </div>
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>
                 <div className={`flex px-8 border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4 justify-between`}>
                         <div className='text-sm font-bold text-gray-500'>Total Pending</div>
-                        <div className={`text-xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalPending} fontSize={1.25} />
+                        <div className="flex space-x-5">
+                            <div className={`text-xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                                <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
+                                <div>
+                                    <NG number={TotalBudget.totalPending} fontSize={1.25} />
+                                </div>
+                            </div>
+                            {total.coins.second?.coin && <div className={`text-xl font-semibold gap-2 flex items-center`}>
+                                <img src={coins[total.coins.second.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
+                                <div>
+                                    <NG number={TotalSecondBudget.totalPending} fontSize={1.25} />
+                                </div>
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>
                 <div className={`pl-8 !border-r-0 gap-8 !flex-row text-2xl min-w-[18rem] items-center justify-center dark:border-[#aaaaaa] !my-0`}>
                     <div className={`justify-between flex flex-col h-full gap-12 lg:gap-4`}>
                         <div className='text-sm font-bold text-gray-500'>Total Available</div>
-                        <div className={`text-xl font-semibold gap-2`}>
-                            {symbol}<NG number={TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending} fontSize={1.25} />
+                        <div className="flex space-x-5">
+                            <div className={`text-xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                                <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
+                                <div>
+                                    <NG number={TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending} fontSize={1.25} />
+                                </div>
+                            </div>
+                            {total.coins.second?.coin && <div className={`text-xl font-semibold gap-2 flex items-center`}>
+                                <img src={coins[total.coins.second.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
+                                <div>
+                                    <NG number={TotalSecondBudget.totalAmount - TotalSecondBudget.totalUsedAmount - TotalSecondBudget.totalPending} fontSize={1.25} />
+                                </div>
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>

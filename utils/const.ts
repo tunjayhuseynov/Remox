@@ -129,6 +129,25 @@ export const generatePriceCalculation = (coin: IPrice[0], hp: IHpApiResponse, pc
     }
 }
 
+export const generateTokenPriceCalculation = (coin: IPrice[0], hp: IHpApiResponse, pc: string, fiat: FiatMoneyList) => {
+    switch (pc) {
+        case "current":
+            return coin.amount / GetFiatPrice(coin, fiat);
+        case "5":
+            return coin.amount / (hp[coin.symbol]?.[fiat].slice(-5).reduce((a, b) => a + b.price, 0) / 5) ?? GetFiatPrice(coin, fiat);
+        case "10":
+            return coin.amount / (hp[coin.symbol]?.[fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10) ?? GetFiatPrice(coin, fiat);
+        case "15":
+            return coin.amount / (hp[coin.symbol]?.[fiat].slice(-15).reduce((a, b) => a + b.price, 0) / 15) ?? GetFiatPrice(coin, fiat);
+        case "20":
+            return coin.amount / (hp[coin.symbol]?.[fiat].slice(-20).reduce((a, b) => a + b.price, 0) / 20) ?? GetFiatPrice(coin, fiat);
+        case "30":
+            return coin.amount / (hp[coin.symbol]?.[fiat].slice(-30).reduce((a, b) => a + b.price, 0) / 30) ?? GetFiatPrice(coin, fiat);
+        default:
+            return coin.amount / GetFiatPrice(coin, fiat);
+    }
+}
+
 export const GetFiatSymbol = (fiat: FiatMoneyList) => {
     switch (fiat) {
         case "USD":

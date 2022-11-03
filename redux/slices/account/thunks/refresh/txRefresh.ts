@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { ERC20MethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import { IBudgetExerciseORM } from "pages/api/budget/index.api";
@@ -121,9 +121,9 @@ export const Tx_Refresh_Data_Thunk = createAsyncThunk<TxRefreshResponse>("remoxD
 
     const recurringList = allCumulativeTransactions
         .filter(s => ('tx' in s) ?
-            s.tx.method === ERC20MethodIds.automatedTransfer || s.tx.method === ERC20MethodIds.automatedCanceled || s.tx.method === ERC20MethodIds.automatedBatchRequest
+            s.tx.method === ERCMethodIds.automatedTransfer || s.tx.method === ERCMethodIds.automatedCanceled || s.tx.method === ERCMethodIds.automatedBatchRequest
             :
-            s.method === ERC20MethodIds.automatedTransfer || s.method === ERC20MethodIds.automatedCanceled || s.method === ERC20MethodIds.automatedBatchRequest
+            s.method === ERCMethodIds.automatedTransfer || s.method === ERCMethodIds.automatedCanceled || s.method === ERCMethodIds.automatedBatchRequest
         )
 
     const res: TxRefreshResponse = {

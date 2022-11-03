@@ -4,7 +4,7 @@ import { AltCoins } from 'types'
 import { NG } from 'utils/jsxstyle'
 import { fiatList } from './PriceInputField'
 
-const CurrencyElement = ({fiat, coin, amount, size} : {fiat: FiatMoneyList | null, coin: AltCoins, amount: string | number, size?: number}) => {
+const CurrencyElement = ({fiat, coin, amount, size} : {fiat?: FiatMoneyList | null, coin: AltCoins, amount: string | number, size?: number}) => {
     const fiatDetails = fiatList.find((f) => f.name === fiat )
 
   return (
