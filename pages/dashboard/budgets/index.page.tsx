@@ -113,22 +113,22 @@ const Budgets = () => {
                                             {budget_exercises.map((item) => {
                                                 const TotalBudget = item.budgets.reduce((a, b) => {
 
-                                                    const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+                                                    // const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
 
-                                                    const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
-                                                    const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
+                                                    const fiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+                                                    const totalAmount = b.budgetCoins.totalAmount * (b.customPrice ?? fiatPrice)
                                                     // const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
                                                     // const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
 
-                                                    const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
+                                                    // const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
 
-                                                    const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
-                                                    const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
+                                                    const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0;
+                                                    const totalAmountSecond = (b.budgetCoins.second?.secondTotalAmount ?? 0) * (b.secondCustomPrice ?? fiatPriceSecond)
 
                                                     // const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
                                                     // const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending
                                                     return {
-                                                        totalAmount: a.totalAmount + ((b.customPrice ?? MainFiatPrice) * totalAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalAmountSecond ?? 0))
+                                                        totalAmount: a.totalAmount + totalAmount + (totalAmountSecond ?? 0)
                                                         // totalUsedAmount: a.totalUsedAmount + ((b.customPrice ?? MainFiatPrice) * totalUsedAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalUsedAmountSecond ?? 0)),
                                                         // totalPending: a.totalPending + ((b.customPrice ?? MainFiatPrice) * totalPendingAmount) + ((b.secondCustomPrice ?? MainFiatPriceSecond) * (totalPendingAmountSecond ?? 0))
                                                     }

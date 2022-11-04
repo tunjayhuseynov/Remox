@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
-import { IBudgetExerciseORM } from 'pages/api/budget/index.api';
+import { IBudgetCoin, IBudgetExerciseORM, IBudgetORM } from 'pages/api/budget/index.api';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { GetFiatPrice } from 'utils/const';
 import { useAppSelector } from 'redux/hooks';
@@ -26,6 +26,30 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
     }, { totalAmount: 0, totalUsedAmount: 0, totalPending: 0 })
 
 
+    const reduceFn = (a: IBudgetORM[], c: IBudgetORM) => {
+        const b = c.budgetCoins;
+        if (a.find(x => x.budgetCoins.coin === b.coin)) {
+            const index = a.findIndex(x => x.budgetCoins.coin === b.coin)
+            a[index].budgetCoins = Object.assign({}, a[index].budgetCoins)
+            a[index].budgetCoins.totalAmount += b.totalAmount
+            a[index].budgetCoins.totalUsedAmount += b.totalUsedAmount
+            a[index].budgetCoins.totalPending += b.totalPending
+
+            if (b.second) {
+                if (a[index].budgetCoins.second) {
+                    a[index].budgetCoins.second!.secondTotalAmount += b.second.secondTotalAmount
+                    a[index].budgetCoins.second!.secondTotalUsedAmount += b.second.secondTotalUsedAmount
+                    a[index].budgetCoins.second!.secondTotalPending += b.second.secondTotalPending
+                } else {
+                    a[index].budgetCoins.second = b.second
+                }
+            }
+
+            return a
+        } else {
+            return [...a, Object.assign({}, c)]
+        }
+    }
 
     return <>
         <div onClick={() => { setNotify(!openNotify) }}>
@@ -44,18 +68,22 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                             <div className="flex justify-between px-2">
                                 <span className="font-medium text-xl text-greylish">Total budget</span>
                                 <div className="flex flex-col space-y-3">
-                                    {total.budgetCoins.map((coin, index) => {
+                                    {total.budgets.reduce(reduceFn, []).map((budget, index) => {
                                         // const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
                                         // const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
-
+                                        let coin = budget.budgetCoins;
                                         return <Fragment key={index}>
                                             <div className="flex items-center gap-1">
                                                 <img src={coins[coin.coin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.totalAmount} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.totalAmount} fontSize={1.25} />
+                                                </div>
                                             </div>
                                             {coin.second && <div className="flex items-center gap-1">
                                                 <img src={coins[coin.second.secondCoin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.second.secondTotalAmount} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.second.secondTotalAmount} fontSize={1.25} />
+                                                </div>
                                             </div>}
                                         </Fragment>
                                     })}
@@ -94,17 +122,22 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                             <div className="flex justify-between px-2">
                                 <span className="font-medium text-xl text-greylish">Total Used</span>
                                 <div className="flex flex-col space-y-1">
-                                    {total.budgetCoins.map((coin, index) => {
+                                    {total.budgets.reduce(reduceFn, []).map((budget, index) => {
+                                        let coin = budget.budgetCoins
                                         // const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
                                         // const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
                                         return <Fragment key={index}>
                                             <div className="flex items-center gap-1">
                                                 <img src={coins[coin.coin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.totalUsedAmount} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.totalUsedAmount} fontSize={1.25} />
+                                                </div>
                                             </div>
                                             {coin.second && <div className="flex items-center gap-1">
                                                 <img src={coins[coin.second.secondCoin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.second.secondTotalUsedAmount} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.second.secondTotalUsedAmount} fontSize={1.25} />
+                                                </div>
                                             </div>}
                                         </Fragment>
                                     })}
@@ -115,17 +148,20 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                             <div className="flex justify-between px-2">
                                 <span className="font-medium text-xl text-greylish">Total Pending</span>
                                 <div className="flex flex-col space-y-1">
-                                    {total.budgetCoins.map((coin, index) => {
-                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
-                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                    {total.budgets.reduce(reduceFn, []).map((budget, index) => {
+                                        let coin = budget.budgetCoins;
                                         return <Fragment key={index}>
                                             <div className="flex items-center gap-1">
                                                 <img src={coins[coin.coin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.totalPending} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.totalPending} fontSize={1.25} />
+                                                </div>
                                             </div>
                                             {coin.second && <div className="flex items-center gap-1">
                                                 <img src={coins[coin.second.secondCoin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.second.secondTotalPending} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.second.secondTotalPending} fontSize={1.25} />
+                                                </div>
                                             </div>}
                                         </Fragment>
                                     })}
@@ -136,18 +172,21 @@ function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
                             <div className="flex justify-between px-2">
                                 <span className="font-medium text-xl text-greylish">Total Available</span>
                                 <div className="flex flex-col space-y-1">
-                                    {total.budgetCoins.map((coin, index) => {
-                                        const firstFiat = fiatList.find(f => f.name === coin.fiat)?.logo
-                                        const secondFiat = fiatList.find(f => f.name === coin.second?.fiat)?.logo
+                                    {total.budgets.reduce(reduceFn, []).map((budget, index) => {
+                                        let coin = budget.budgetCoins;
                                         return <Fragment key={index}>
                                             <div className="flex items-center gap-1">
                                                 <img src={coins[coin.coin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
 
-                                                <NG number={coin.totalAmount - coin.totalPending - coin.totalUsedAmount} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.totalAmount - coin.totalPending - coin.totalUsedAmount} fontSize={1.25} />
+                                                </div>
                                             </div>
                                             {coin.second && <div className="flex items-center gap-1">
                                                 <img src={coins[coin.second.secondCoin].logoURI} className="rounded-full object-cover w-[1.25rem] aspect-square" />
-                                                <NG number={coin.second.secondTotalAmount - coin.second.secondTotalPending - coin.second.secondTotalUsedAmount} fontSize={1.25} />
+                                                <div>
+                                                    <NG number={coin.second.secondTotalAmount - coin.second.secondTotalPending - coin.second.secondTotalUsedAmount} fontSize={1.25} />
+                                                </div>
                                             </div>}
                                         </Fragment>
                                     })}

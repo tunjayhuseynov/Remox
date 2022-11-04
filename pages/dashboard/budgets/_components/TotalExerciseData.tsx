@@ -31,13 +31,13 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
 
 
     return <div className="px-5 py-8 rounded-md bg-white dark:bg-darkSecond dark:border-[#aaaaaa] hover:dark:shadow-customDark hover:shadow-custom">
-        <div className='grid grid-cols-[25%,20%,20%,20%,15%]'>
+        <div className={`grid ${total.coins.second ? "grid-cols-[25%,20%,20%,20%,15%]" : "grid-cols-[20%,20%,20%,20%,20%]"}`}>
             {total.budgets.length > 0 && <>
                 <div className={`flex pr-16  border-r dark:border-[#aaaaaa] !my-0`}>
                     <div className={`flex flex-col gap-12 lg:gap-4`}>
                         <div className='text-sm font-bold text-gray-500'>Total Budget</div>
                         <div className="flex space-x-5">
-                            <div className={`text-3xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                            <div className={`text-3xl font-semibold gap-2 flex items-center ${total.coins.second ? "border-r" : ""} pr-5`}>
                                 <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.5rem] h-[1.5rem]' />
                                 <div>
                                     <NG number={TotalBudget.totalAmount} fontSize={1.75} />
@@ -57,7 +57,7 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                     <div className={`flex flex-col gap-12 lg:gap-4 justify-between`}>
                         <div className='text-sm font-bold text-gray-500'>Total Used</div>
                         <div className="flex space-x-5">
-                            <div className={`text-xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                            <div className={`text-xl font-semibold gap-2 flex items-center ${total.coins.second ? "border-r" : ""} pr-5`}>
                                 <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
                                 <div>
                                     <NG number={TotalBudget.totalUsedAmount} fontSize={1.25} />
@@ -77,7 +77,7 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                     <div className={`flex flex-col gap-12 lg:gap-4 justify-between`}>
                         <div className='text-sm font-bold text-gray-500'>Total Pending</div>
                         <div className="flex space-x-5">
-                            <div className={`text-xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                            <div className={`text-xl font-semibold gap-2 flex items-center ${total.coins.second ? "border-r" : ""} pr-5`}>
                                 <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
                                 <div>
                                     <NG number={TotalBudget.totalPending} fontSize={1.25} />
@@ -97,7 +97,7 @@ function TotalExerciseData({ total }: { total: IBudgetExerciseORM }) {
                     <div className={`justify-between flex flex-col h-full gap-12 lg:gap-4`}>
                         <div className='text-sm font-bold text-gray-500'>Total Available</div>
                         <div className="flex space-x-5">
-                            <div className={`text-xl font-semibold gap-2 flex items-center border-r pr-5`}>
+                            <div className={`text-xl font-semibold gap-2 flex items-center ${total.coins.second ? "border-r" : ""} pr-5`}>
                                 <img src={coins[total.coins.coin].logoURI} alt="" className='rounded-full object-cover w-[1.125rem] h-[1.125rem]' />
                                 <div>
                                     <NG number={TotalBudget.totalAmount - TotalBudget.totalUsedAmount - TotalBudget.totalPending} fontSize={1.25} />

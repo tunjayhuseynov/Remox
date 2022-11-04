@@ -22,7 +22,7 @@ interface IProps {
     defaultFiat?: FiatList["name"],
     textSize?: number,
     helper?: string,
-    onlyCoinSelection?: boolean
+    disableFiat?: boolean,
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
@@ -57,7 +57,10 @@ export const fiatList: FiatList[] = [
     },
 ]
 
-const PriceInputField = ({ isMaxActive: max, helper, onChange, coins, maxRegularCalc, defaultValue, defaultCoin, defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount, textSize = 0.875, onlyCoinSelection = true}: IProps) => {
+const PriceInputField = (
+    { isMaxActive: max, helper, onChange, coins, maxRegularCalc, defaultValue, defaultCoin,
+        defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount, textSize = 0.875, disableFiat
+    }: IProps) => {
     const [dropdown, setDropdown] = useState<boolean>(false);
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
@@ -159,8 +162,8 @@ const PriceInputField = ({ isMaxActive: max, helper, onChange, coins, maxRegular
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className='cursor-default absolute w-[30rem] h-[15rem] bg-white dark:bg-darkSecond z-[9999] bottom-0 right-0 translate-y-full rounded-md border border-[#a7a7a7] dark:border-[#777777]'>
-                            <div className={`grid ${onlyCoinSelection ? "grid-cols-2" : ""} `}>
+                            className={`${disableFiat ? "w-[15rem]" : "w-[30rem]"} cursor-default absolute h-[15rem] bg-white dark:bg-darkSecond z-[9999] bottom-0 right-0 translate-y-full rounded-md border border-[#a7a7a7] dark:border-[#777777]`}>
+                            <div className={`${disableFiat ? "" : "grid grid-cols-2"}`}>
                                 <div className='pt-2 px-3 border-r border-[#a7a7a7] dark:border-[#777777]'>
                                     <div className='w-full'>
                                         <FormControl fullWidth>
@@ -196,7 +199,7 @@ const PriceInputField = ({ isMaxActive: max, helper, onChange, coins, maxRegular
                                         })}
                                     </div>
                                 </div>
-                                {onlyCoinSelection && <div className='overflow-y-auto'>
+                                {!disableFiat && <div className='overflow-y-auto'>
                                     <div className='pt-2 px-3 '>
                                         <div className='h-[35px] font-medium flex items-center text-xs'>
                                             Fiat Currency

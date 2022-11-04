@@ -55,7 +55,7 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                             <CurrencyElement coin={GetCoins[coin.coin]} amount={coin.totalUsedAmount + coin.totalPending} size={1.25} />
                                         </span>
                                         <span className="text-sm">impacted on</span>
-                                        <span className="text-sm font-bold flex items-center gap-1">
+                                        <span className="text-sm font-bold flex items-center">
                                             <CurrencyElement coin={GetCoins[coin.coin]} amount={coin.totalAmount} size={0.875} />
                                         </span>
                                     </div>

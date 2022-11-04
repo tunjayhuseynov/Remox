@@ -79,8 +79,9 @@ const Pay = () => {
     const dark = useAppSelector(SelectDarkMode)
     const coins = useAppSelector(SelectBalance)
 
+
     const router = useRouter();
-    const { GetCoins, SendTransaction } = useWalletKit()
+    const { GetCoins, SendTransaction, blockchain } = useWalletKit()
 
     const symbol = useAppSelector(SelectFiatSymbol)
 
@@ -426,7 +427,7 @@ const Pay = () => {
                             <div className="flex flex-col">
                                 <div className="font-semibold tracking-wide my-5">General</div>
                                 <div className="flex flex-col space-y-10">
-                                    {inputs.map((e, i) => <Input account={selectedAccountAndBudget.account!} key={e.id} input={e} allowSecond={index === 0} length={inputs.length}
+                                    {inputs.map((e, i) => <Input disableFiat={index === 1} account={selectedAccountAndBudget.account!} key={e.id} input={e} allowSecond={index === 0} length={inputs.length}
                                         onDelete={() => {
                                             if (inputs.length > 1) {
                                                 setInputs(inputs.filter((r, index) => r.id !== e.id))
@@ -636,6 +637,10 @@ const Pay = () => {
                                 <Button type="submit" className="bg-primary px-3 py-2 text-white flex items-center justify-center rounded-lg" isLoading={isLoading} onClick={() => submit()}>Send</Button>
                             </div>
                         </div>
+                        {index === 1 && <div className="flex space-x-1 justify-center text-xxs font-medium text-greylish mt-2">
+                            <span>Powered by</span>
+                            <img src={blockchain.streamingProtocols[0].secondLogoUrl ?? blockchain.streamingProtocols[0].logoURL} alt="" />
+                        </div>}
                     </div>
                 </div>
             </div>

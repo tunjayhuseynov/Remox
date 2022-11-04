@@ -107,7 +107,7 @@ const Sidebar = () => {
                             <img src={selectedItem.image ?? makeBlockie(selectedItem.name ?? "random")} className='w-[1.875rem] h-[1.875rem] object-cover rounded-full' alt="" />
                         </div>
                         <div className='flex flex-col pl-1'>
-                            <div className='text-sm'>{selectedItem.name}</div>
+                            <div className='text-sm 2xl:text-xs'>{selectedItem.name}</div>
                             <div className='text-xxs text-greylish'>{selectedItem.secondValue}</div>
                         </div>
                         <div className='flex items-center justify-end'>
@@ -126,7 +126,7 @@ const Sidebar = () => {
                                                         <img src={e.image ?? makeBlockie(e.name ?? "random")} className='w-[1.875rem] h-[1.875rem] object-cover rounded-full' alt="" />
                                                     </div>
                                                     <div className='flex flex-col pl-1'>
-                                                        <div className='text-sm'>{e.name}</div>
+                                                        <div className='text-sm 2xl:text-xs'>{e.name}</div>
                                                         <div className='text-xxs text-greylish'>{e.secondValue}</div>
                                                     </div>
                                                     <div className='flex items-center justify-end'>

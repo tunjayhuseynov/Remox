@@ -74,6 +74,7 @@ export type BlockchainType = {
     logoURL: string;
     contractAddress: string;
     abi: AbiItem[];
+    secondLogoUrl?: string;
   }[];
   batchPaymentProtocols: {
     name: string;
@@ -141,6 +142,7 @@ export const Blockchains: BlockchainType[] = [
         abi: Sablier.abi as AbiItem[],
         contractAddress: "0x22651fc5799f1f046d5613f7622f1ee1b06f386e",
         logoURL: "/icons/companies/xeggo.jpg",
+        secondLogoUrl: "/icons/companies/xeggo_line.svg"
       }
     ],
     batchPaymentProtocols: [
