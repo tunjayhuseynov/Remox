@@ -26,11 +26,12 @@ interface IProps {
     input: IPaymentInputs,
     length: number,
     allowSecond: boolean,
-    account: IAccountORM
+    account: IAccountORM,
+    disableFiat?: boolean,
 }
 
-const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length, allowSecond, account }: IProps) => {
-    const coins = account.coins.filter(s=>s.amount > 0).reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
+const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length, allowSecond, account, disableFiat }: IProps) => {
+    const coins = account.coins.filter(s => s.amount > 0).reduce<{ [key: string]: IPrice[0] }>((acc, cur) => {
         acc[cur.coin.symbol] = cur
         return acc
     }, {})
@@ -89,7 +90,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                 />
             </div>
             <div className="col-span-2 relative">
-                <PriceInputField isMaxActive coins={coins} defaultValue={input.amount} defaultCoin={input.coin ?? undefined} onChange={(val, coin, fiatMoney) => {
+                <PriceInputField disableFiat={disableFiat} isMaxActive coins={coins} defaultValue={input.amount} defaultCoin={input.coin ?? undefined} onChange={(val, coin, fiatMoney) => {
                     setAmount(val)
                     setCoin('amount' in coin ? coin.coin : coin)
                     setFiatMoney(fiatMoney ?? null)

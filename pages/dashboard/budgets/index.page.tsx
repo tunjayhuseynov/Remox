@@ -115,15 +115,15 @@ const Budgets = () => {
 
                                                     const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
 
-                                                    const fiatPrice = GetFiatPrice(coins[b.token], b.fiatMoney ?? fiatPreference)
-                                                    const totalAmount = b.budgetCoins.fiat ? b.budgetCoins.totalAmount / fiatPrice : b.budgetCoins.totalAmount
+                                                    const fiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
+                                                    const totalAmount = b.budgetCoins.totalAmount * fiatPrice 
                                                     // const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
                                                     // const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
 
                                                     const MainFiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0
 
-                                                    const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], b.secondFiatMoney ?? fiatPreference) : 0;
-                                                    const totalAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalAmount
+                                                    const fiatPriceSecond = b.secondToken ? GetFiatPrice(coins[b.secondToken], fiatPreference) : 0;
+                                                    const totalAmountSecond = (b.budgetCoins.second?.secondTotalAmount ?? 0) * fiatPriceSecond
 
                                                     // const totalUsedAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalUsedAmount / fiatPriceSecond : b.budgetCoins.second?.secondTotalUsedAmount
                                                     // const totalPendingAmountSecond = b.budgetCoins.second?.fiat ? b.budgetCoins.second.secondTotalPending / fiatPriceSecond : b.budgetCoins.second?.secondTotalPending

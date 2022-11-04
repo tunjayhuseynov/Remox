@@ -383,7 +383,7 @@ function EditBudget({ onBack, budget, exercise }: IProps) {
                             <IoMdRemoveCircle color="red" />
                         </div>
                     </div> :
-                        budget.secondToken ? <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setAnotherToken(true)}>
+                        exercise.coins.second && exercise.coins.second.coin ? <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem]" onClick={() => setAnotherToken(true)}>
                             <div className="self-center">
                                 <AiOutlinePlusCircle className='text-primary' />
                             </div>

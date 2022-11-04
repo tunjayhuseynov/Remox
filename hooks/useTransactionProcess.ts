@@ -461,7 +461,7 @@ export default async (
             s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
         )!,
         amount: result.inputs[1].toString(),
-        to: result.inputs[0],
+        to: "0x" + result.inputs[4],
         tags: theTags,
       };
     } else if (result.method === ERCMethodIds.deposit) {
@@ -474,8 +474,7 @@ export default async (
             s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
         )!,
         amount: result.inputs[1].toString(),
-        from: "0x" + result.inputs[0],
-        to: blockchain.lendingProtocols[0].contractAddress,
+        to: "0x" + result.inputs[2],
         tags: theTags,
       };
     } else if (result.method === "depositETH") {
@@ -526,8 +525,12 @@ export default async (
     else if (result.method === ERCMethodIds.repay || result.method === "repayDelegation") {
       const coins: AltCoins[] = Object.values(Coins);
       const assetAddress = result.method === "repayDelegation" ? result.inputs[1] : result.inputs[0];
-      const to = result.method === "repayDelegation" ? result.inputs[0] : result.inputs[0]
-      const amount = result.method === "repayDelegation" ? result.inputs[2].toString() : result.inputs[1].toString()
+      const to = result.method === "repayDelegation" ? result.inputs[1] : result.inputs[0]
+      let amount = result.method === "repayDelegation" ? result.inputs[2].toString() : result.inputs[1].toString()
+      if(amount.length > 18){
+        amount = "10000000000000000"
+      }
+      const from = result.method === "repayDelegation" ? result.inputs[0] : result.inputs[3]
       return {
         method: ERCMethodIds.repay,
         id: ERCMethodIds.repay,
@@ -537,6 +540,7 @@ export default async (
         )!,
         amount,
         to,
+        from,
         tags: theTags,
       };
     } else if (result.method === ERCMethodIds.reward) {
@@ -550,7 +554,7 @@ export default async (
             s.address?.toLowerCase() === "0x17700282592D6917F6A73D0bF8AcCf4D578c131e"?.toLowerCase()
         )!,
         amount: result.inputs[2].toString(),
-        to: result.inputs[1],
+        to: "0x" + result.inputs[1],
       }
     }
   } catch (error: any) {

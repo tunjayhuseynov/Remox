@@ -210,11 +210,12 @@ const AccountInOut = async (transactions: IFormattedTransaction[], selectedAccou
                 if (!txItem.isError) {
                     if (txItem.method === ERCMethodIds.transfer || txItem.method === ERCMethodIds.transferFrom ||
                         txItem.method === ERCMethodIds.transferWithComment || txItem.method === ERCMethodIds.automatedTransfer ||
-                        txItem.method === ERCMethodIds.automatedCanceled || txItem.method === ERCMethodIds.nftTokenERC721 ||
+                        /*txItem.method === ERCMethodIds.automatedCanceled ||*/ txItem.method === ERCMethodIds.nftTokenERC721 ||
                         /*txItem.method == ERCMethodIds.deposit ||*/ txItem.method === ERCMethodIds.repay ||
                         txItem.method === ERCMethodIds.borrow || txItem.method === ERCMethodIds.withdraw
                     ) {
                         const tx = txItem as ITransfer;
+                        if(!tx?.to) console.log(txItem)
                         let isOut = !selectedAccounts.find(s => s.toLowerCase() === tx.to.toLowerCase());
                         const current: IFlowDetailItem = { name: tx.coin, amount: tx.amount, type: isOut ? "out" : "in", fee: txFee };
                         calendar[sTime] = [...(calendar[sTime] ?? []), current];

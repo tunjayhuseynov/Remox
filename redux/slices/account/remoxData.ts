@@ -232,7 +232,7 @@ const remoxDataSlice = createSlice({
                 password: "",
             }
             state.tags = [];
-            state.isFetching = false;
+            state.isFetching = true;
             state.IsInit = false;
             state.balances = {};
             state.addressBook = [];
