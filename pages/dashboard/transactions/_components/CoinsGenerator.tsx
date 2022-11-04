@@ -6,7 +6,7 @@ import { SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectP
 import { DecimalConverter } from "utils/api"
 import { GetFiatPrice } from "utils/const"
 import { NG } from "utils/jsxstyle"
-
+import DateTime from 'date-and-time'
 
 interface IProps {
     transfer: Pick<ITransfer, "coin" | "amount">,
@@ -32,10 +32,10 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
     const fiatPrice = GetFiatPrice(transfer.coin, fiatPreference) * +tokenAmount
 
     const date = new Date(timestamp)
+    const diff = Math.abs(DateTime.subtract(date, new Date()).toDays())
     const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
     const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
-
-    const price = hpCoinPrice ? +tokenAmount * hpCoinPrice : fiatPrice
+    const price = hpCoinPrice && diff >= 1 ? +tokenAmount * hpCoinPrice : fiatPrice
 
     const fiatImg = fiatList.find(f => f.name === payTx?.fiat)?.logo
 
@@ -61,9 +61,9 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
             </div>
             {!disableFiat && <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">
                 <div></div>
-                <span className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200 flex items-center space-x-[2px]">
+                <div className="text-xxs font-medium text-gray-500 leading-none dark:text-gray-200 flex items-center space-x-[2px]">
                     <div>
-                        {payTx ? <img
+                        {fiatImg ? <img
                             src={transfer.coin.logoURI}
                             className="rounded-full w-[0.75rem] h-[0.75rem]"
                         /> : `${symbol}`}
@@ -71,7 +71,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
                     <div>
                         <NG fontSize={0.625} decimalSize={80} number={payTx?.amount ?? (price.toFixed(0).length > 18 ? 0 : price)} />
                     </div>
-                </span>
+                </div>
             </div>}
         </div>
     </>
