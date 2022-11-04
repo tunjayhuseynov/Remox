@@ -42,6 +42,19 @@ export default {
             }
         }
     },
+    updateMemberCheckDate: (state: IRemoxData, action: {payload: {id: string, member: IMember }}) => {
+        if(action.payload !== undefined) {
+            const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
+            if(contributorIndex !== -1){
+                const memberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
+                if(memberIndex !== -1){
+                    const updatedCount = action.payload.member.checkedCount ? action.payload.member.checkedCount + 1 : 0
+                    const dateNow = new Date().getTime()
+                    state.contributors[contributorIndex].members[memberIndex] =  {...action.payload.member, checkedCount: updatedCount, lastCheckedDate: dateNow };
+                }
+            }
+        }
+    },
     setContributors: (state: IRemoxData, action: { payload: { data: IContributor[]; secretKey?: string } }) => {
         if (action.payload.secretKey !== undefined) {
             const teams = action.payload.data.map((contributor) => ({

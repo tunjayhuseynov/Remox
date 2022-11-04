@@ -35,7 +35,7 @@ export function printRay(num: Num) {
 }
 
 export function printRayRate(num: Num) {
-	return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2) + '%';
+	return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2);
 }
 export function printRayRateRaw(num: Num) {
 	return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2);

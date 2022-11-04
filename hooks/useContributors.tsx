@@ -20,14 +20,7 @@ export default function useContributors() {
     }
 
 
-    const editTeam = async (id: string, name: string) => {
-        setLoading(true)
-        await FirestoreWrite<{ name: string }>().updateDoc("contributors", id, {
-            name: name,
-        })
-        setLoading(false)
-    }
-
+    
     const getMember = async (teamId: string, memberId: string) => {
         try {
             setLoading(true)
@@ -38,11 +31,19 @@ export default function useContributors() {
             console.error(error)
         }
     }
-
+    
     const addMember = async (id: string, member: IMember) => {
         setLoading(true)
         await FirestoreWrite<{ members: FieldValue }>().updateDoc("contributors", id, {
             members: arrayUnion(member),
+        })
+        setLoading(false)
+    }
+    
+    const editTeam = async (id: string, name: string) => {
+        setLoading(true)
+        await FirestoreWrite<{ name: string }>().updateDoc("contributors", id, {
+            name: name,
         })
         setLoading(false)
     }
@@ -55,6 +56,26 @@ export default function useContributors() {
                 if (member) {
                     await FirestoreWrite<{ members: FieldValue }>().updateDoc("contributors", teamId, {
                         members: arrayRemove(member),
+                    })
+                }
+            }
+        })
+        setLoading(false)
+    }
+
+    const updateMemberDate = async (teamId: string, memberId: string) => {
+        setLoading(true)
+        await FirestoreRead<IContributor>("contributors", teamId).then(async (team) => {
+            if(team) {
+                const member = team.members.find(m=> m.id === memberId)
+                const dateNow = new Date().getTime
+                if(member) {
+                    await FirestoreWrite<{ members: FieldValue }>().updateDoc("contributors", teamId, {
+                        members: arrayUnion({
+                            ...member,
+                            checkedCount: member.checkedCount ? member.checkedCount += 1 : 0,
+                            lastCheckedDate: dateNow
+                        }),
                     })
                 }
             }
@@ -80,5 +101,5 @@ export default function useContributors() {
         setLoading(false)
     }
 
-    return { addTeam, removeTeam, editTeam, addMember, removeMember, editMember, getMember, isLoading };
+    return { addTeam, removeTeam, editTeam, addMember, removeMember, editMember, getMember, updateMemberDate, isLoading };
 }

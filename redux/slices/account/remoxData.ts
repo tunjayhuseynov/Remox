@@ -17,19 +17,17 @@ import TagReducers from './reducers/tag'
 import RecurringTaks from './reducers/tasks'
 import Moderators from './reducers/moderators'
 import RequestReducers from './reducers/requests'
-import AccountMembers from './reducers/accountMembers'
 import { IAccountORM } from "pages/api/account/index.api";
 import { Create_Account_For_Individual, Create_Account_For_Organization, Add_Member_To_Account_Thunk, Remove_Account_From_Individual, Remove_Account_From_Organization, Remove_Member_From_Account_Thunk, Replace_Member_In_Account_Thunk, Update_Account_Name, Update_Account_Mail, Update_Account_Image } from "./thunks/account";
 import { IAccount, IAddressBook, IBudget, Image, IMember, INotes, IRemoxPayTransactions, ISubBudget } from "firebaseConfig";
 import { IFormattedTransaction } from "hooks/useTransactionProcess";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
-import { AddTransactionToTag, CreateTag, DeleteTag, RemoveTransactionFromTag, UpdateTag } from "./thunks/tags";
+import { CreateTag, DeleteTag, RemoveTransactionFromTag, UpdateTag } from "./thunks/tags";
 import { ITag } from "pages/api/tags/index.api";
 import { generate } from "shortid";
 import { IOrganizationORM } from "types/orm";
 import { Multisig_Fetch_Thunk } from "./thunks/multisig";
-import { Refresh_Data_Thunk } from "./thunks/refresh/refresh";
 import { BlockchainType } from "types/blockchains";
 import { AltCoins, Coins } from "types";
 import { IPrice } from "utils/api";
@@ -603,7 +601,7 @@ export const {
     setOrganizations, changeDarkMode, addRecurringTask, removeRecurringTask,
     addApprovedRequest, addPendingRequest, addRejectedRequest, removeApprovedRequest, removePendingRequest, removeRejectedRequest,
     addTag, removeTag, updateTag, addTransactionHashToTag, removeTransactionHashFromTag, setTags,
-    setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor,
+    setAccountStats, setAccountType, addTxToBudget, addTxToSubbudget, updateMemberFromContributor, updateMemberCheckDate,
     addBudget, addBudgetExercise, addSubBudget, deleteBudget, deleteBudgetExercise,
     deleteSubBudget, setBudgetExercises, updateBudget, updateBudgetExercise, updateSubBudget,
     addContributor, removeContributor, setContributors, setBlockchain,

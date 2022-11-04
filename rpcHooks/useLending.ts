@@ -270,7 +270,7 @@ export default function useLending() {
                         LoanToValue: `${BN(ltv.ltv).div(BN(100))}%`,
                         LiquidationThreshold: `${BN(ltv.liquidationThreshold).div(BN(100))}%`,
                         LiquidationBonus: `${BN(ltv.liquidationBonus).div(BN(100)).minus(BN(100))}%`,
-                        ReserveFactor: `${BN(ltv.reserveFactor).div(BN(100))}%`,
+                        ReserveFactor: `${BN(ltv.reserveFactor).div(BN(100))}`,
                         CollateralEnabled: ltv.usageAsCollateralEnabled,
                         BorrowingEnabled: ltv.borrowingEnabled,
                         StableEnabled: ltv.stableBorrowRateEnabled,

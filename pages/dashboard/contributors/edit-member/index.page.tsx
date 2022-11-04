@@ -17,7 +17,6 @@ import { Stack, TextField } from "@mui/material";
 import {
   SelectContributors,
   SelectID,
-  SelectSelectedAccountAndBudget,
   updateMemberFromContributor,
 } from "redux/slices/account/remoxData";
 import { useRouter } from "next/router";
@@ -97,7 +96,7 @@ const EditMember = () => {
   const [startDate, setStartDate] = useState<Date>(
     new Date(member.paymantDate)
   );
-  const [endDate, setEndDate] = useState<Date>(new Date(member.paymantEndDate));
+  const [endDate, setEndDate] = useState<Date | null>(member.paymantEndDate ? new Date(member.paymantEndDate) : null);
   const [taskId, setTaskId] = useState<string | null>(member.taskId);
   const [loading, setLoading] = useState<boolean>(false);
   const [choosingBudget, setChoosingBudget] = useState<boolean>(false);
@@ -168,7 +167,7 @@ const EditMember = () => {
                 {
                   createStreaming: true,
                   startTime: startDate.getTime(),
-                  endTime: endDate.getTime(),
+                  endTime: endDate!.getTime(),
                   budget: budget,
                   subbudget: subbudget
                 }
@@ -206,7 +205,7 @@ const EditMember = () => {
               {
                 createStreaming: true,
                 startTime: startDate.getTime(),
-                endTime: endDate.getTime(),
+                endTime: endDate!.getTime(),
                 budget: budget,
                 subbudget: subbudget
               }
@@ -236,7 +235,9 @@ const EditMember = () => {
             : ExecutionType.manual,
         interval: selectedFrequency.type as DateInterval,
         paymantDate: new Date(startDate ?? dateNow).getTime(),
-        paymantEndDate: new Date(endDate ?? dateNow).getTime(),
+        paymantEndDate: endDate ? new Date(endDate).getTime() : null,
+        checkedCount: member.checkedCount,
+        lastCheckedDate: member.lastCheckedDate,
         image: url ? Photo : null,
         taskId: taskId,
       };
@@ -305,8 +306,8 @@ const EditMember = () => {
                 className="z-[0] border dark:border-white bg-white dark:bg-darkSecond text-sm !rounded-md"
                 sx={{
                   ".MuiSelect-select": {
-                    paddingTop: "6px",
-                    paddingBottom: "6px",
+                    paddingTop: "8px",
+                    paddingBottom: "8px",
                     maxHeight: "52px",
                   },
                 }}
@@ -321,8 +322,8 @@ const EditMember = () => {
                 setSelect={setSchedule}
                 sx={{
                   ".MuiSelect-select": {
-                    paddingTop: "6px",
-                    paddingBottom: "6px",
+                    paddingTop: "8px",
+                    paddingBottom: "8px",
                     maxHeight: "52px",
                   },
                 }}
@@ -410,8 +411,8 @@ const EditMember = () => {
                   selected={selectedPaymentType}
                   sx={{
                     ".MuiSelect-select": {
-                      paddingTop: "6px",
-                      paddingBottom: "6px",
+                      paddingTop: "8px",
+                      paddingBottom: "8px",
                       maxHeight: "52px",
                     },
                   }}
@@ -426,8 +427,8 @@ const EditMember = () => {
                   list={Frequency}
                   sx={{
                     ".MuiSelect-select": {
-                      paddingTop: "6px",
-                      paddingBottom: "6px",
+                      paddingTop: "8px",
+                      paddingBottom: "8px",
                       maxHeight: "52px",
                     },
                   }}
@@ -474,7 +475,7 @@ const EditMember = () => {
                 className="px-8 py-3 w-full"
                 onClick={() => {
                   if(!(member.execution === selectedPaymentType.name)){
-                    if(selectedPaymentType.name === "Auto" && (new Date(startDate).getTime() !== member.paymantDate || new Date(endDate).getTime() !== member.paymantEndDate)) {
+                    if(selectedPaymentType.name === "Auto" && (new Date(startDate).getTime() !== member.paymantDate || new Date(endDate!).getTime() !== member.paymantEndDate)) {
                       setChoosingBudget(true)
                     } else if((member.execution === "Auto" && selectedPaymentType.name == "Manual") || (member.execution === "Manual" && selectedPaymentType.name === "Auto") ) {
                       setChoosingBudget(true)

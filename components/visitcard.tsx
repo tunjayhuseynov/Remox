@@ -1,10 +1,7 @@
 import { AddressReducer } from "../utils";
-import { useRef, useState } from "react";
+import {  useState } from "react";
 import Copied from "./copied";
-import { SelectBlockchain } from "redux/slices/account/selector";
-import { useAppSelector } from "redux/hooks";
-import { useWalletKit } from "hooks";
-import { PROVIDERS, useReactCeloContext } from "@celo/react-celo";
+import { useReactCeloContext } from "@celo/react-celo";
 import { WalletConnect, MetaMask, Ledger, PrivateKey, CoinbaseWallet } from "@celo/react-celo/lib/components/icons";
 
 
@@ -12,7 +9,7 @@ const Visitcard = ({ name, address }: { name?: string, address: string }) => {
 
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
-    const blockchain = useAppSelector(SelectBlockchain)
+
     const [state, dispatch, methods] = useReactCeloContext()
     let Image;
     switch (state.connector.type) {
@@ -36,7 +33,7 @@ const Visitcard = ({ name, address }: { name?: string, address: string }) => {
     }
 
     return <>
-        <div ref={setDivRef} className="px-4 min-w-[10rem] min-h-[40px] cursor-pointer py-2 grid grid-cols-[80%,20%] gap-x-1 bg-[#F9F9F9] dark:bg-[#252525] rounded-md relative items-center" onClick={() => {
+        <div ref={setDivRef} className="px-4 min-w-[10rem] min-h-[40px] cursor-pointer py-2 grid grid-cols-[80%,20%] gap-x-1 bg-[#F9F9F9] dark:bg-[#252525] hover:shadow-navbarShadow rounded-md relative items-center" onClick={() => {
             navigator.clipboard.writeText(address.trim())
             setTooltip(true)
             setTimeout(() => {
