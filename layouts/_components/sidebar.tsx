@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import Dropdown from 'components/general/dropdown';
 import Siderbarlist from './sidebarlist'
 import Button from 'components/button';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectFiatSymbol, SelectHistoricalPrices, SelectIndividual, SelectOrganization, SelectProviderAddress, SelectTotalBalance, setAccountType, setProviderID } from 'redux/slices/account/remoxData';
-import { SetComma } from 'utils';
 import makeBlockie from 'ethereum-blockies-base64';
 import { launchApp } from 'redux/slices/account/thunks/launch';
 import { auth, IAccount } from 'firebaseConfig';
 import { setStorage } from 'redux/slices/account/storage';
 import { ToastRun } from 'utils/toast';
 import { Blockchains } from 'types/blockchains';
-import { generatePriceCalculation } from 'utils/const';
+import { GetFiatPrice } from 'utils/const';
 import { AiOutlineDown } from 'react-icons/ai';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ClickAwayListener } from '@mui/material';
@@ -44,7 +42,7 @@ const Sidebar = () => {
             let tb = 0;
             e.accounts.forEach((account) => {
                 (account as any).coins.forEach((coin: IPrice[0]) => {
-                    tb += generatePriceCalculation(coin, hp, pc, fiat);
+                    tb += (coin.amount * GetFiatPrice(coin, fiat)) //generatePriceCalculation(coin, hp, pc, fiat);
                 })
             })
 

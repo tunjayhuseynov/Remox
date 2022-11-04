@@ -2,7 +2,7 @@ import { createDraftSafeSelector } from "@reduxjs/toolkit";
 import { RootState } from "redux/store";
 import { TokenType } from "types";
 import { IPrice } from "utils/api";
-import { generatePriceCalculation } from "utils/const";
+import { GetFiatPrice } from "utils/const";
 
 export const SelectBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.accounts,
@@ -12,11 +12,11 @@ export const SelectBalance = createDraftSafeSelector(
             for (const coin of [...account.coins]) {
                 if (acc[coin.symbol]) {
                     Object.defineProperty(acc[coin.symbol], "amount", {
-                        value:  accum[coin.symbol].amount += coin.amount, 
+                        value: accum[coin.symbol].amount += coin.amount,
                         writable: true,
                     })
                 } else {
-                    acc[coin.symbol] = {...coin}
+                    acc[coin.symbol] = { ...coin }
                 }
             }
 
@@ -33,13 +33,13 @@ export const SelectTotalBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.historyPriceList,
     (coins, accounts, storage, hp) => {
 
-        let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
+        // let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
         let fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
 
         let totalBalance = 0;
         accounts.forEach((account) => {
             account.coins.forEach((coin) => {
-                totalBalance += generatePriceCalculation(coin, hp, pc, fiat);
+                totalBalance += (coin.amount * GetFiatPrice(coin, fiat)) //generatePriceCalculation(coin, hp, pc, fiat);
             })
         })
         return totalBalance;
@@ -59,7 +59,7 @@ export const SelectYieldBalance = createDraftSafeSelector(
                             if (a?.[coin.symbol]) {
                                 a[coin.symbol].amount += coin.amount;
                             } else {
-                                a[coin.symbol] = {...coin};
+                                a[coin.symbol] = { ...coin };
                             }
                         }
 
@@ -88,7 +88,7 @@ export const SelectSpotBalance = createDraftSafeSelector(
                             if (a?.[coin.symbol]) {
                                 a[coin.symbol].amount += coin.amount;
                             } else {
-                                a[coin.symbol] = {...coin};
+                                a[coin.symbol] = { ...coin };
                             }
                         }
 
@@ -110,12 +110,12 @@ export const SelectSpotTotalBalance = createDraftSafeSelector(
     (accounts, storage, hp) => {
         if (accounts.length > 0) {
             const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
-            let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
+            // let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
             return accounts.reduce<number>((a, c) => {
                 c.coins.forEach((s) => {
                     if (s.coin.type !== TokenType.YieldToken) {
-                        a += generatePriceCalculation(s, hp, pc, fiat);
+                        a += (s.amount * GetFiatPrice(s, fiat)) //generatePriceCalculation(s, hp, pc, fiat);
                     }
                 })
                 return a;
@@ -138,7 +138,7 @@ export const SelectYieldTotalBalance = createDraftSafeSelector(
             return accounts.reduce<number>((a, c) => {
                 c.coins.forEach((s) => {
                     if (s.coin.type === TokenType.YieldToken) {
-                        a += generatePriceCalculation(s, hp, pc, fiat);
+                        a += (s.amount * GetFiatPrice(s, fiat)) //generatePriceCalculation(s, hp, pc, fiat);
                     }
                 })
                 return a;

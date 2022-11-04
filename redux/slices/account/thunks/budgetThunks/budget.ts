@@ -79,15 +79,15 @@ export const Create_Budget_Thunk = createAsyncThunk<void, IBaseBudget>("remoxDat
 export const Add_Tx_To_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>("remoxData/add_tx_to_budget", async ({ budget, tx, isExecuted, txIndex, convertExecuted }, api) => {
     const state = api.getState() as RootState
     const currencies = state.remoxData.coins
-    const preference = state.remoxData.storage?.organization?.fiatMoneyPreference ?? state.remoxData.storage?.individual.fiatMoneyPreference ?? "USD"
+    // const preference = state.remoxData.storage?.organization?.fiatMoneyPreference ?? state.remoxData.storage?.individual.fiatMoneyPreference ?? "USD"
     const currency = currencies[tx.token];
 
     let amount = tx.amount;
-    if ((budget.budgetCoins.coin === tx.token && budget.fiatMoney)) {
-        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.fiatMoney)
-    } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
-        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
-    }
+    // if ((budget.budgetCoins.coin === tx.token && budget.fiatMoney)) {
+    //     amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.fiatMoney)
+    // } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
+    //     amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
+    // }
 
     if(budget.txs.find(s=>s.contractAddress === tx.contractAddress && s.hashOrIndex === tx.hashOrIndex) && convertExecuted){
         api.dispatch(chageTxToExecutedInBudget({
@@ -137,11 +137,11 @@ export const Remove_Tx_From_Budget_Thunk = createAsyncThunk<void, IBudgetAndTx>(
     const currency = currencies[tx.token];
 
     let amount = tx.amount;
-    if ((budget.budgetCoins.coin === tx.token && budget.fiatMoney)) {
-        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.fiatMoney)
-    } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
-        amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
-    }
+    // if ((budget.budgetCoins.coin === tx.token && budget.fiatMoney)) {
+    //     amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.fiatMoney)
+    // } else if (budget.budgetCoins.second?.secondCoin === tx.token && budget.secondFiatMoney) {
+    //     amount = tx.amount * generatePriceCalculation({ ...currency, amount: tx.amount } as any, state.remoxData.historyPriceList, preference, budget.secondFiatMoney)
+    // }
 
     api.dispatch(removeTxFromBudget({
         budget,

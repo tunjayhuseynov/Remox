@@ -3,7 +3,7 @@ import { IFlowDetail, IFlowDetailItem } from "pages/api/calculation/_spendingTyp
 import { RootState } from "redux/store";
 import { DecimalConverter } from "utils/api";
 import date from 'date-and-time';
-import { generatePriceCalculation, GetFiatPrice } from "utils/const";
+import { GetFiatPrice } from "utils/const";
 
 export const SelectStats = createDraftSafeSelector(
     (state: RootState) => state.remoxData.stats,
@@ -28,7 +28,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
             let balance: typeof balances = accounts.reduce<typeof balances>((a, account) => {
                 account.coins.forEach(coin => {
                     if (a[coin.symbol] === undefined) {
-                        a[coin.symbol] = Object.assign({amount: 0}, coin);
+                        a[coin.symbol] = Object.assign({ amount: 0 }, coin);
                     } else {
                         a[coin.symbol].amount += coin.amount;
                     }
@@ -49,7 +49,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
                     if (balance?.[item?.fee?.name?.symbol]) {
                         balance[item.fee.name.symbol].amount -= DecimalConverter(item.fee.amount, item.fee.name.decimals);
                     }
-                
+
                     // if (!timeCoins[flowKey][item.name.symbol]) {
                     timeCoins[flowKey][item.name.symbol] = balance[item.name.symbol].amount
 
@@ -65,7 +65,7 @@ export const SelectDailyBalance = createDraftSafeSelector(
             let totalBalance = 0;
             accounts.forEach((account) => {
                 account.coins.forEach((coin) => {
-                    totalBalance += generatePriceCalculation(coin, hp, pc, preference);
+                    totalBalance += (coin.amount * GetFiatPrice(coin, preference)) //generatePriceCalculation(coin, hp, pc, preference);
                 })
             })
 
