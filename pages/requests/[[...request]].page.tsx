@@ -225,6 +225,7 @@ export default function RequestId() {
                         setCoin('amount' in coin ? coin.coin : coin)
                         setFiatMoney(fiatMoney ?? null)
                       }}
+                      onlyCoinSelection={false}
                     />
                   </div>
                   {secondActive ? (
@@ -237,6 +238,7 @@ export default function RequestId() {
                           setCoinSecond('amount' in coin ? coin.coin : coin)
                           setFiatMoneySecond(fiatMoney ?? null)
                         }}
+                        onlyCoinSelection={false}
                       />
                       <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
                         setSecondActive(false),

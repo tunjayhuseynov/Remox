@@ -5,7 +5,7 @@ import { AltCoins, TokenType } from "types/coins/index";
 import AnimatedTabBar from 'components/animatedTabBar';
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
-import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference, SelectTotalBalance, SelectPriceCalculationFn } from 'redux/slices/account/remoxData';
+import { SelectSpotBalance, SelectYieldBalance, SelectSpotTotalBalance, SelectYieldTotalBalance, SelectNfts, SelectDarkMode, SelectFiatSymbol, SelectFiatPreference, SelectTotalBalance, SelectPriceCalculationFn, SelectAccounts } from 'redux/slices/account/remoxData';
 import useNextSelector from 'hooks/useNextSelector';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -21,6 +21,12 @@ import { GetFiatPrice } from 'utils/const';
 import { useWalletKit } from 'hooks';
 import { NG } from 'utils/jsxstyle';
 import AssetItem from './_components/assetItem';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import Filter from '../transactions/_components/Filter';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import { Checkbox } from "@mui/material";
+import { useState } from 'react';
+
 
 export interface INFT {
     name: string;
@@ -87,6 +93,9 @@ const Assets = () => {
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
     const nfts = useAppSelector(SelectNfts)
+    const accountsAll = useAppSelector(SelectAccounts)
+    const accounts = accountsAll.map((a) => a.address)
+
 
 
     const fiat = useAppSelector(SelectFiatPreference)
@@ -102,6 +111,11 @@ const Assets = () => {
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
+
+
+    const [isWalletFilterOpen, setWalletFilterOpen] = useState<boolean>(false)
+    const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+
 
 
     const symbol = useAppSelector(SelectFiatSymbol)
@@ -159,7 +173,50 @@ const Assets = () => {
 
     return <>
         <div>
-            <div className="font-bold text-2xl">Assets</div>
+            <div className='flex justify-between'>
+                <div className="font-bold text-2xl">
+                    Assets
+                </div>
+                <Filter isOpen={isWalletFilterOpen} setOpen={setWalletFilterOpen} title={selectedAccounts.length > 0 ?
+                    <div className="rounded-md font-semimedium text-xs">
+                        <div>Wallets ({selectedAccounts.length})</div>
+                    </div> : "All wallets"} childWidth={12}>
+                    <div className='flex flex-col'>
+                        <div className='flex space-x-1 items-center'>
+                            <Checkbox
+                                icon={<RadioButtonUncheckedIcon />}
+                                checkedIcon={<RadioButtonCheckedIcon />}
+                                style={{
+                                    transform: "scale(0.875)",
+                                    padding: 0
+                                }}
+                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.length === 0} onChange={() => {
+                                    setSelectedAccounts([])
+                                }} /> <span className="text-xs font-medium">All wallets</span>
+                        </div>
+                        {accountsAll.map((account) => {
+                            return <div key={account.id} className='flex space-x-1 items-center'>
+                                <Checkbox
+                                    style={{
+                                        transform: "scale(0.875)",
+                                        padding: 0
+                                    }}
+                                    classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.includes(account.address)} onChange={() => {
+                                        if (selectedAccounts.includes(account.address)) {
+                                            setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))
+                                        } else {
+                                            setSelectedAccounts([...selectedAccounts, account.address])
+                                        }
+                                    }} />
+                                <span className="text-xs font-medium">{account.name}</span>
+                            </div>
+                        })}
+                        {accounts.length === 0 && <div className='text-sm text-gray-400'>
+                            No account found
+                        </div>}
+                    </div>
+                </Filter>
+            </div>
             <div className="w-full h-full  pt-4 ">
                 <div className="flex   pt-2  w-[40%] justify-between text-2xl">
                     <AnimatedTabBar data={assetType} index={index} className={'!text-2xl'} />
@@ -233,7 +290,11 @@ const Assets = () => {
                                         </tr>
                                     </thead>
                                 </table>
-                                {myYieldTokens.map((token) => {
+                                {myYieldTokens.sort((a, b) => {
+                                    const precent1 = totalBalance > 0 ? (calculatePrice(a) / totalBalance) * 100 : 0
+                                    const precent2 = totalBalance > 0 ? (calculatePrice(b) / totalBalance) * 100 : 0
+                                    return precent2 - precent1
+                                }).map((token) => {
                                     return <AssetItem asset={token} key={token.address} />
                                 })}
                             </div>
