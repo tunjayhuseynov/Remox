@@ -34,7 +34,7 @@ const RunModal = ({
           </div>
           <table className="w-full pt-1 pb-4 ">
               <thead>
-                <tr id="header" className={`grid lg:grid-cols-[18%,11%,14%,15%,14%,11%,17%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-darkSecond rounded-md`} >
+                <tr id="header" className={`grid grid-cols-[18.5%,9.5%,9.5%,13.5%,14.5%,12.5%,9.5%,12.5%] bg-[#F2F2F2] shadow-15 py-2  dark:bg-darkSecond rounded-md`} >
                   <th className={`text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ${isAvaible ? "pl-4" : "pl-2" }`}>Contributor</th>
                   <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">Start Date</th>
                   <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">End Date</th>

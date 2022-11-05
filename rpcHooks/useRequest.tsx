@@ -1,4 +1,5 @@
 import { FiatMoneyList } from 'firebaseConfig';
+import { ITag } from 'pages/api/tags/index.api';
 
 export interface IRequest {
     id: string;
@@ -11,7 +12,7 @@ export interface IRequest {
     secondCurrency: string | null;
     fiatSecond: FiatMoneyList | null;
     requestType: string;
-    nameOfService: string;
+    label: ITag,
     serviceDate: number;
     attachLink: string | null;
     uploadedLink: string | null;

@@ -16,20 +16,19 @@ import { storage } from "firebaseConfig/firebase";
 import { ref, StorageReference, deleteObject } from "firebase/storage";
 import { SelectDarkMode } from "redux/slices/account/selector";
 import { Blockchains } from "types/blockchains";
-import { FirestoreReadAll } from "../../rpcHooks/useFirebase";
+import { FirestoreReadAll, FirestoreRead } from "../../rpcHooks/useFirebase";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import Loader from "components/Loader";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Confirm from "./confirm";
-import Stack from "@mui/material/Stack";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { nanoid } from "@reduxjs/toolkit";
 import PriceInputField from "components/general/PriceInputField";
-import { IPrice } from "utils/api";
-import { FiatMoneyList } from 'firebaseConfig';
+import { FiatMoneyList, IIndividual, IOrganization } from "firebaseConfig";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { useAppSelector } from "redux/hooks";
+import { ITag } from "pages/api/tags/index.api";
+import { ToastRun } from "utils/toast";
+import Select from "react-select";
+import { colourStyles, SelectType } from "utils/const";
 
 export interface IFormInput {
   fullname: string;
@@ -39,28 +38,38 @@ export interface IFormInput {
   requestType: string;
 }
 
-
 export default function RequestId() {
   const router = useRouter();
 
-  const { id, coin: blockchain, signer } = router.query as {
+  const {
+    id,
+    coin: blockchain,
+    signer,
+  } = router.query as {
     id: string;
     coin: string;
-    signer: string;
+    signer: "organization" | "individual";
   };
 
   const [GetCoins, setGetCoins] = useState<AltCoins[]>([]);
-  const isDark = useAppSelector(SelectDarkMode)
+  const isDark = useAppSelector(SelectDarkMode);
 
-  const [amount, setAmount] = useState<number | null>()
+  const [amount, setAmount] = useState<number | null>();
   const [coin, setCoin] = useState<AltCoins>();
-  const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>()
-  
-  const [amountSecond, setAmountSecond] = useState<number | null>()
-  const [coinSecond, setCoinSecond] = useState<AltCoins>()
-  const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>()
+  const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>();
+
+  const [amountSecond, setAmountSecond] = useState<number | null>();
+  const [coinSecond, setCoinSecond] = useState<AltCoins>();
+  const [fiatMoneySecond, setFiatMoneySecond] =
+    useState<FiatMoneyList | null>();
 
   const [loader, setLoader] = useState<boolean>(true);
+
+  const [account, setAccount] = useState<
+    IIndividual | IOrganization | undefined
+  >();
+  const [tags, setTags] = useState<ITag[]>();
+  const [tag, setTag] = useState<ITag>();
 
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
@@ -73,7 +82,16 @@ export default function RequestId() {
       const collectionName = Blockchains.find(
         (s) => s.name === blockchain
       )?.currencyCollectionName;
-      const collection: AltCoins[] = await FirestoreReadAll(collectionName ?? "");
+      const collection: AltCoins[] = await FirestoreReadAll(
+        collectionName ?? ""
+      );
+      const acc =
+        signer === "organization"
+          ? await FirestoreRead<IOrganization>("organizations", id)
+          : await FirestoreRead<IIndividual>("individuals", id);
+      const tags = await FirestoreRead<ITag[]>("tags", id);
+      setAccount(acc);
+      setTags(tags);
       setGetCoins(collection);
       setLoader(false);
     }
@@ -85,10 +103,17 @@ export default function RequestId() {
 
   const [modal, setModal] = useState(false);
   const [request, setRequest] = useState<IRequest>();
-  const [dateValue, setDateValue] = React.useState<Date | null>(new Date());
 
-  const handleDateChange = (newValue: Date | null) => {
-    setDateValue(newValue);
+  const onTagChange = (value: any) => {
+    setTag(
+      value.map((s: SelectType) => ({
+        color: s.color,
+        id: s.value,
+        name: s.label,
+        transactions: s.transactions,
+        isDefault: s.isDefault,
+      }))
+    );
   };
 
   const closeModal = async () => {
@@ -102,18 +127,8 @@ export default function RequestId() {
     }
   };
 
-  const onChange1 = (val: number | null, coin: IPrice[0] | AltCoins, fiatMoney: FiatMoneyList | undefined ) => {
-    console.log(val)
-    console.log(coin)
-    console.log(fiatMoney)
-    setAmount(val);
-    setCoin(coin);
-    setFiatMoney(fiatMoney)
-  }
-
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
-    const ServDate = dateValue;
     console.log(data.link);
 
     try {
@@ -123,28 +138,31 @@ export default function RequestId() {
         setImageRef(ref(storage, url));
       }
 
-      const result : IRequest = {
-        id: nanoid(),
-        fullname: data.fullname,
-        address: data.address,
-        amount: (amount ?? 0).toString() ,
-        currency: coin?.symbol ?? "",
-        fiat: fiatMoney ?? null,
-        secondAmount: (amountSecond ?? 0).toString(),
-        secondCurrency: coinSecond?.symbol ?? null,
-        fiatSecond: fiatMoneySecond ?? null,
-        requestType: data.requestType,
-        nameOfService: data.serviceName,
-        serviceDate: GetTime(ServDate!),
-        attachLink: data.link ? data.link : null,
-        uploadedLink: Invoice ? url : null,
-        timestamp: GetTime(),
-        status: RequestStatus.pending,
-      };
-
-      setRequest(result);
-      setFileName(Invoice?.name ?? "");
-      setModal(true);
+      if (tag) {
+        const result: IRequest = {
+          id: nanoid(),
+          fullname: data.fullname,
+          address: data.address,
+          amount: (amount ?? 0).toString(),
+          currency: coin?.symbol ?? "",
+          fiat: fiatMoney ?? null,
+          secondAmount: (amountSecond ?? 0).toString(),
+          secondCurrency: coinSecond?.symbol ?? null,
+          fiatSecond: fiatMoneySecond ?? null,
+          label: tag,
+          requestType: data.requestType,
+          serviceDate: new Date().getTime(),
+          attachLink: data.link ? data.link : null,
+          uploadedLink: Invoice ? url : null,
+          timestamp: GetTime(),
+          status: RequestStatus.pending,
+        };
+        setRequest(result);
+        setFileName(Invoice?.name ?? "");
+        setModal(true);
+      } else {
+        ToastRun(<>Please fill all the fields</>, "warning");
+      }
     } catch (error) {
       console.error(error);
     }
@@ -174,10 +192,10 @@ export default function RequestId() {
 
   return (
     <>
-      <header className="flex justify-start h-[4.688rem] pl-10  md:px-40 items-center absolute top-0 w-full cursor-pointer">
+      <header className="flex justify-start h-[4.688rem]  lg:px-40 items-center absolute top-0 w-full cursor-pointer">
         <div
           onClick={() => router.push("/dashboard")}
-          className="w-[6.25rem] h-[1.25rem] sm:w-full sm:h-[1.875rem]"
+          className=" h-[1.25rem] w-full sm:h-[1.875rem]"
         >
           <img
             src={dark ? "/logo.png" : "/logo_white.png"}
@@ -189,10 +207,10 @@ export default function RequestId() {
       <div className="px-8 ">
         <form onSubmit={handleSubmit(SetModalVisible)}>
           <div className="py-0 pt-24 flex flex-col items-center justify-center min-h-screen sm:py-24">
-            <div className="sm:min-w-[85vw] min-h-[75vh] h-auto ">
+            <div className="w-full md:min-w-[85vw] min-h-[75vh] h-auto ">
               <div className="py-2 text-center w-full">
                 <div className="text-3xl font-semibold">
-                  Request money from Remox
+                  Request money from {account?.name}
                 </div>
               </div>
               <div className="sm:flex flex-col w-1/2 mx-auto gap-3 sm:gap-10 py-10">
@@ -217,34 +235,43 @@ export default function RequestId() {
                     />
                   </div>
                   <div>
-                    <PriceInputField 
+                    <PriceInputField
                       isMaxActive
-                      coins={GetCoins.reduce((a, v) => ({...a, [v.name] : v}), {})} 
+                      coins={GetCoins.reduce(
+                        (a, v) => ({ ...a, [v.name]: v }),
+                        {}
+                      )}
                       onChange={(val, coin, fiatMoney) => {
-                        setAmount(val)
-                        setCoin('amount' in coin ? coin.coin : coin)
-                        setFiatMoney(fiatMoney ?? null)
+                        setAmount(val);
+                        setCoin("amount" in coin ? coin.coin : coin);
+                        setFiatMoney(fiatMoney ?? null);
                       }}
                       disableFiat={true}
                     />
                   </div>
                   {secondActive ? (
                     <div className="col-span-2 relative">
-                      <PriceInputField 
+                      <PriceInputField
                         isMaxActive
-                        coins={GetCoins.reduce((a, v) => ({...a, [v.name] : v}), {})} 
+                        coins={GetCoins.reduce(
+                          (a, v) => ({ ...a, [v.name]: v }),
+                          {}
+                        )}
                         onChange={(val, coin, fiatMoney) => {
-                          setAmountSecond(val)
-                          setCoinSecond('amount' in coin ? coin.coin : coin)
-                          setFiatMoneySecond(fiatMoney ?? null)
+                          setAmountSecond(val);
+                          setCoinSecond("amount" in coin ? coin.coin : coin);
+                          setFiatMoneySecond(fiatMoney ?? null);
                         }}
                         disableFiat={true}
                       />
-                      <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
-                        setSecondActive(false),
-                        setCoinSecond(undefined),
-                        setAmountSecond(undefined)
-                      }}>
+                      <div
+                        className="absolute -right-6 top-5 cursor-pointer"
+                        onClick={() => {
+                          setSecondActive(false),
+                            setCoinSecond(undefined),
+                            setAmountSecond(undefined);
+                        }}
+                      >
                         <IoMdRemoveCircle color="red" />
                       </div>
                     </div>
@@ -266,13 +293,93 @@ export default function RequestId() {
                     </span>
                     <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-10 sm:gap-y-7">
                       <div className="flex flex-col space-y-1">
-                        <TextField
-                          label="Request Type"
-                          placeholder="E.g. payroll"
-                          {...register("requestType", { required: true })}
-                          className="bg-white dark:bg-darkSecond"
-                          variant="outlined"
-                        />
+                       {tags && <Select
+                          closeMenuOnSelect={true}
+                          isMulti
+                          isClearable={false}
+                          placeholder="Select labels"
+                          options={Object.values(tags)?.map((s) => ({
+                            value: s.id,
+                            label: s.name,
+                            color: s.color,
+                            transactions: s.transactions,
+                            isDefault: s.isDefault,
+                          }))}
+                          styles={{
+                            control: (styles: any) => {
+                              return {
+                                ...colourStyles(dark).control(styles),
+                                backgroundColor: dark ? "#1F1F1F" : "white",
+                                border: `1px solid ${
+                                  dark
+                                    ? "rgba(255, 255, 255, 0.23)"
+                                    : "rgba(0,0,0,0.23)"
+                                }`,
+                              };
+                            },
+                            option: (
+                              styles: any,
+                              { data, isDisabled, isFocused, isSelected }: any
+                            ) => {
+                              return {
+                                ...colourStyles(dark).option(styles, {
+                                  data,
+                                  isDisabled,
+                                  isFocused,
+                                  isSelected,
+                                }),
+                                backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
+                                ":hover": {
+                                  backgroundColor: dark ? "#707070" : "#eaeaea",
+                                  cursor: "pointer",
+                                },
+                              };
+                            },
+                            container: (styles: any) => {
+                              return {
+                                ...styles,
+                                backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+                              };
+                            },
+                            multiValueLabel: (styles: any, { data }) => {
+                              return {
+                                ...styles,
+                                color: data.color,
+                                backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+                              };
+                            },
+                            multiValue: (styles: any, { data }) => {
+                              return {
+                                ...styles,
+                                color: data.color,
+                                backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+                              };
+                            },
+                            multiValueRemove: (styles: any) => {
+                              return {
+                                ...styles,
+                                color: dark ? "white" : "black",
+                                backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+                                ":hover": {
+                                  backgroundColor: dark ? "#707070" : "#eaeaea",
+                                },
+                              };
+                            },
+                            menuList: (styles: any) => {
+                              return {
+                                ...styles,
+                                backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
+                                border: `1px solid ${
+                                  dark
+                                    ? "rgba(255, 255, 255, 0.23)"
+                                    : "rgba(0,0,0,0.23)"
+                                }`,
+                              };
+                            },
+                          }}
+                          className="h-full"
+                          onChange={onTagChange}
+                        />}
                       </div>
                       <div className="flex flex-col space-y-1">
                         <TextField
@@ -283,32 +390,14 @@ export default function RequestId() {
                           variant="outlined"
                         />
                       </div>
-                      <div className="flex flex-col space-y-1">
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                          <Stack
-                            spacing={3}
-                            className={` bg-white dark:bg-darkSecond text-sm !rounded-md`}
-                          >
-                            <DesktopDatePicker
-                              label="Date of Service"
-                              inputFormat="MM/dd/yyyy"
-                              value={dateValue}
-                              onChange={handleDateChange}
-                              renderInput={(params) => (
-                                <TextField {...params} />
-                              )}
-                            />
-                          </Stack>
-                        </LocalizationProvider>
-                      </div>
-                      <div className="flex flex-col space-y-1">
-                        <TextField
-                          label="Attach Link (optional)"
-                          {...register("link", { required: false })}
-                          className="bg-white dark:bg-darkSecond"
-                          variant="outlined"
-                        />
-                      </div>
+                    </div>
+                    <div className="w-full">
+                      <TextField
+                        label="Attach Link (optional)"
+                        {...register("link", { required: false })}
+                        className="bg-white dark:bg-darkSecond w-full mt-4"
+                        variant="outlined"
+                      />
                     </div>
                   </div>
                   <div className="flex flex-col space-y-2 w-[82%] sm:w-full">
@@ -316,7 +405,13 @@ export default function RequestId() {
                       Upload receipt or invoice (optional)
                     </span>
                     <div className="grid grid-cols-1 bg-white">
-                      <Upload className={`${isDark ? "!border-greylish" : "!border-dark"}  `} setFile={setFile} noProfilePhoto={false} />
+                      <Upload
+                        className={`${
+                          isDark ? "!border-greylish" : "!border-dark"
+                        }  `}
+                        setFile={setFile}
+                        noProfilePhoto={false}
+                      />
                     </div>
                   </div>
                 </div>
@@ -364,7 +459,5 @@ export default function RequestId() {
   );
 }
 
-
 RequestId.disableLayout = true;
 RequestId.disableGuard = true;
-
