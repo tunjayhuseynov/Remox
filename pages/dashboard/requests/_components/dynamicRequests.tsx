@@ -234,7 +234,7 @@ export default function DynamicRequest({
                 Requested Amount
               </th>
               <th className="text-sm py-3 text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                Request Type
+                Label
               </th>
               {page === RequestStatus.pending &&
                 <th className="flex justify-end pr-4">

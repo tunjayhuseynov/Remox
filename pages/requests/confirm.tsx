@@ -5,6 +5,7 @@ import { AltCoins, Coins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
 import { useForm } from "react-hook-form";
+import { ITag } from "pages/api/tags/index.api";
 
 interface IProps {
   request: IRequest | null | undefined;
@@ -12,6 +13,7 @@ interface IProps {
   GetCoins: AltCoins[];
   loading: boolean;
   filename: string;
+  tag: ITag,
   submit: () => Promise<void>;
 }
 
@@ -20,6 +22,7 @@ export default ({
   GetCoins,
   closeModal,
   loading,
+  tag,
   filename,
   submit
 }: IProps) => {
@@ -100,30 +103,36 @@ export default ({
       <div className="font-semibold">Details</div>
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between">
-          <div className="text-greylish">Request Type</div>
-          <div>{request?.requestType}</div>
+          <div className="text-greylish">Request Label</div>
+          <div style={{
+            "color": `${tag.color}`
+          }}>
+            {tag.name}
+          </div>
         </div>
         <div className="flex justify-between">
-          <div className="text-greylish">Name of service</div>
-          <div>{request?.nameOfService}</div>
-        </div>
-        <div className="flex justify-between">
-          <div className="text-greylish">Date of service</div>
+          <div className="text-greylish">Service Name</div>
           <div>
-            {dateFormat(new Date(request!.serviceDate * 1000), `mmm dd, yyyy`)}
+            {request.serviceName}
           </div>
         </div>
-          <div className="flex justify-between">
-            <div className="text-greylish">
-              Attach links <span className="">(Optional)</span>
-            </div>
-            <div>
-              {request?.attachLink ? (
-              <a href={request?.attachLink} rel="noreferrer" target="_blank">
-                {request?.attachLink.slice(0,50)}...
-              </a>) : "No link provided"}
-            </div>
+        <div className="flex justify-between">
+          <div className="text-greylish">Request Date</div>
+          <div>
+            {dateFormat(new Date(request!.timestamp * 1000), `mmm dd, yyyy`)}
           </div>
+        </div>
+        <div className="flex justify-between">
+          <div className="text-greylish">
+            Attach links <span className="">(Optional)</span>
+          </div>
+          <div>
+            {request?.attachLink ? (
+            <a href={request?.attachLink} rel="noreferrer" target="_blank">
+              {request?.attachLink.slice(0,50)}...
+            </a>) : "No link provided"}
+          </div>
+        </div>
         <div className="flex justify-between">
           <div className="text-greylish">
             Upload receipt or invoice{" "}
