@@ -12,7 +12,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
   const dark = useAppSelector(SelectDarkMode)
   const keys = Object.keys(data).map(s => new Date(s).getTime())
   const symbol = useAppSelector(SelectFiatSymbol)
-  console.log(keys)
+ 
   const series = [
     {
       name: "Value",
@@ -59,7 +59,6 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
       },
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const date = keys[dataPointIndex];
-        console.log(series)
         return (
           `<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">
           <div class="flex justify-between">
@@ -131,7 +130,6 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
     },
   };
 
-  console.log(data)
 
   return <>
     <ReactApexChart

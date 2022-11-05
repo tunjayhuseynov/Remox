@@ -21,10 +21,6 @@ const nextConfig = {
   },
   reactStrictMode: false,
   // reactRoot: 'concurrent',
-  experimental: {
-    workerThreads: true,
-    cpus: 4
-  },
   // webpack5: true,
   // swcMinify: true,
   pageExtensions: ['page.tsx', 'page.ts', 'api.tsx', 'api.ts'],

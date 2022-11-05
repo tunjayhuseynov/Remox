@@ -52,14 +52,14 @@ function EditBudget({ onBack, budget, exercise }: IProps) {
     if (exercise.coins.calculation !== "Custom Price") {
         bAmount = generatePriceCalculation({ ...coins[budget.token], amount: budget.amount, coin: coins[budget.token] }, hp, exercise.coins.calculation, exercise.coins.fiat)
     } else if (exercise.coins.calculation === "Custom Price" && exercise.coins.customPrice) {
-        bAmount = budget.amount / exercise.coins.customPrice
+        bAmount = budget.amount * exercise.coins.customPrice
     }
 
     let bAmount2: number | null = null;
     if (exercise.coins.second?.calculation !== "Custom Price" && budget.secondAmount && budget.secondToken && exercise.coins.second?.calculation && exercise.coins.second?.fiat) {
         bAmount2 = generatePriceCalculation({ ...coins[budget.secondToken], amount: budget.secondAmount, coin: coins[budget.secondToken] }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
     } else if (exercise.coins.second?.calculation === "Custom Price" && exercise.coins.second?.customPrice && budget.secondAmount) {
-        bAmount2 = budget.secondAmount / exercise.coins.second?.customPrice
+        bAmount2 = budget.secondAmount * exercise.coins.second?.customPrice
     }
 
     const [budgetAmount, setBudgetAmount] = useState<number | null>(bAmount)
@@ -79,14 +79,14 @@ function EditBudget({ onBack, budget, exercise }: IProps) {
     if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
         helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
     } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
-        helperCoin = budgetAmount * exercise.coins.customPrice
+        helperCoin = budgetAmount / exercise.coins.customPrice
     }
 
     let helperCoin2 = 0;
     if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
         helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
     } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
-        helperCoin2 = budgetAmount2 * exercise.coins.second.customPrice
+        helperCoin2 = budgetAmount2 / exercise.coins.second.customPrice
     }
 
     const onNext = () => {

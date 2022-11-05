@@ -82,12 +82,13 @@ export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreate
 
 
 
-export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], string>("remoxData/get_organizations", async (id, api) => {
+export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], [string, AbortController]>("remoxData/get_organizations", async ([id, controller], api) => {
     // const response = await Get_Organizations(id);
     const { data: response } = await axios.get<IOrganization[]>("/api/organization/all", {
         params: {
             address: id
-        }
+        },
+        signal: controller.signal
     })
     // let organizations: IOrganization[] = [];
 
@@ -108,5 +109,5 @@ export const Get_Organizations_Thunk = createAsyncThunk<IOrganization[], string>
     //     })
     // })
 
-    return response;
+    return response
 })

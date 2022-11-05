@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import LineChart from "components/general/Linechart";
 import useStorage from "hooks/storage/useStorage";
-import { SelectDailyBalance, SelectFiatSymbol, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectBalance, SelectDailyBalance, SelectFiatSymbol, SelectHistoricalPrices, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
 import { useAppSelector } from "redux/hooks";
 import Payments from "./request-payment";
+
 
 const Statistic = () => {
     const stats = useAppSelector(SelectStats)
@@ -15,7 +16,12 @@ const Statistic = () => {
     // const [openNotify, setNotify] = useState<boolean>(false)
 
     const totalBalance = useAppSelector(SelectTotalBalance)
+    const accounts = useAppSelector(SelectAccounts)
+    const balances = useAppSelector(SelectBalance)
+    const hp = useAppSelector(SelectHistoricalPrices)
     const dailyBalance = useAppSelector(SelectDailyBalance)
+
+
     const symbol = useAppSelector(SelectFiatSymbol)
     return <>
         {/* <Modal onDisable={setNotify} openNotify={openNotify} >
