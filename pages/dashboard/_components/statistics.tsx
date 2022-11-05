@@ -8,6 +8,7 @@ import { IFlowDetailItem } from "pages/api/calculation/_spendingType";
 import { DecimalConverter, IPrice } from "utils/api";
 import { GetFiatPrice } from "utils/const";
 import date from 'date-and-time'
+import BigNumber from "bignumber.js";
 
 const Statistic = () => {
     const stats = useAppSelector(SelectStats)
@@ -98,8 +99,10 @@ const Statistic = () => {
                             // if (timeCoins?.[lastCheckedTime]) {
                             //     // console.log("Time: ", time)
                             //     response[time] = Object.entries(timeCoins[lastCheckedTime]).reduce((a, [key, val]) => {
-                            //         // console.log(val)
-                            //         a += (hp[balance[key].symbol]?.[preference].find(s => new Date(time).getTime() === new Date(s.date).getTime())?.price ?? GetFiatPrice(balances[key], preference)) * val.amount
+                            //         console.log(hp[balance[key].symbol]?.[preference].find(s => new Date(time).getTime() === new Date(s.date).getTime())?.price)
+                            //         console.log(GetFiatPrice(balances[key], preference))
+                            //         a += +(new BigNumber((hp[balance[key].symbol]?.[preference].find(s => new Date(time).getTime() === new Date(s.date).getTime())?.price ?? GetFiatPrice(balances[key], preference))).multipliedBy(val.amount).toFixed(2)) 
+                            //         console.log(a)
                             //         return a;
                             //     }, 0);
                             // } else {
@@ -109,7 +112,7 @@ const Statistic = () => {
                     }
                 }
             }
-            console.log(response)
+          
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
             return {
                 week: Object.entries(response).filter(([time, amount]) => Math.abs(date.subtract(new Date(), new Date(time)).toDays()) <= 7).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),
