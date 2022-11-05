@@ -30,6 +30,8 @@ import moment from "moment";
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { IPrice } from "utils/api";
 import { v4 as uuidv4 } from 'uuid';
+import Modal from "components/general/modal";
+import CsvModal from "./_components/csv";
 
 export interface IPaymentInputs {
     id: string,
@@ -79,6 +81,7 @@ const Pay = () => {
     const dark = useAppSelector(SelectDarkMode)
     const coins = useAppSelector(SelectBalance)
 
+    const [modalVisibility, setModalVisible] = useState(false)
 
     const router = useRouter();
     const { GetCoins, SendTransaction, blockchain } = useWalletKit()
@@ -103,6 +106,10 @@ const Pay = () => {
             fiatMoney: null,
             second: null
         }
+    ])
+
+    const [csvInputs, setCsvInputs] = useState<IPaymentInputs[]>([
+
     ])
 
     const walletBalance = useMemo(() => {
@@ -170,11 +177,17 @@ const Pay = () => {
                 }
                 newInputs.push(newInput)
             }
-            setInputs(s => [...s, ...newInputs])
+            setCsvInputs(s => [...s, ...newInputs])
             // setRefreshPage(generate())
             fileInput.current!.files = new DataTransfer().files;
         }
     }, [csvImport])
+
+    useEffect(() => {
+        if (csvInputs.length > 0) {
+            setModalVisible(true)
+        }
+    }, [csvInputs])
 
 
     const index = router.query.name ? (router.query.name as string[]).includes("recurring") ? 1 : 0 : 0
@@ -644,6 +657,9 @@ const Pay = () => {
                     </div>
                 </div>
             </div>
+            <Modal onDisable={setModalVisible} disableX openNotify={modalVisibility} className="z-[99999999]">
+                <CsvModal data={csvInputs} />
+            </Modal>
         </div>
     </>
 

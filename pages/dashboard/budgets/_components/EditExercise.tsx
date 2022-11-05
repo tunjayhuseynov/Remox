@@ -10,7 +10,7 @@ import useLoading from 'hooks/useLoading';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { Update_Budget_Exercise_Thunk } from 'redux/slices/account/thunks/budgetThunks/budgetExercise';
-import { SelectAccountType, SelectCurrencies, SelectDarkMode, SelectFiatPreference, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectCurrencies, SelectDarkMode, SelectFiatPreference, SelectHistoricalPrices, SelectRemoxAccount } from 'redux/slices/account/selector';
 import { TextField } from '@mui/material';
 import DatePicker from 'react-multi-date-picker';
 import DatePanel from 'react-multi-date-picker/plugins/date_panel';
@@ -21,6 +21,7 @@ import PriceInputField from 'components/general/PriceInputField';
 import { FiatMoneyList } from 'firebaseConfig';
 import { AiOutlinePlusCircle } from 'react-icons/ai';
 import { IoMdRemoveCircle } from 'react-icons/io';
+import { generateTokenPriceCalculation } from 'utils/const';
 
 interface IFormInput {
     name: string;
@@ -36,6 +37,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
     // const [selectedPayment, setSelectedPayment] = useState(paymentType[1])
 
     const [date, setDate] = useState<number[]>([exercise.from * 1e3, exercise.to * 1e3])
+    const hp = useAppSelector(SelectHistoricalPrices)
 
     const remoxAccount = useAppSelector(SelectRemoxAccount)
     const remoxAccountType = useAppSelector(SelectAccountType)
@@ -54,17 +56,31 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
     const [customPrice2, setCustomPrice2] = useState<number | null>(exercise.coins.second?.customPrice ?? null)
 
 
-    const [selectedPriceOption, setSelectedPriceOption] = useState({ name: exercise.coins.calculation ?? null, displayName: exercise.coins.calculation ?? null })
-    const [selectedPriceOption2, setSelectedPriceOption2] = useState(exercise.coins.second ? { name: exercise.coins.second.calculation!, displayName: exercise.coins.second.calculation! } : undefined)
+    const priceOptionName = !isNaN(+exercise.coins.calculation) ? `${exercise.coins.calculation} days average` : exercise.coins.calculation === "current" ? "Current Price" : exercise.coins.calculation
+    const priceOptionName2 = exercise.coins.second?.calculation ? !isNaN(+exercise.coins.second.calculation) ? `${exercise.coins.second.calculation} days average` : exercise.coins.second.calculation === "current" ? "Current Price" : exercise.coins.second.calculation : null
+    const [selectedPriceOption, setSelectedPriceOption] = useState({ name: exercise.coins.calculation ?? null, displayName: priceOptionName ?? null })
+    const [selectedPriceOption2, setSelectedPriceOption2] = useState(exercise.coins.second ? { name: exercise.coins.second.calculation!, displayName: priceOptionName2 ?? "Current Price" } : undefined)
 
-    const navigate = useRouter()
-    const dark = useAppSelector(SelectDarkMode)
+
     const dispatch = useAppDispatch()
     let today = new Date(exercise.from * 1e3)
     let future = new Date(exercise.to * 1e3)
     let From = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate();
     let To = (future.getFullYear() + 1) + '/' + (future.getMonth() + 1) + '/' + future.getDate();
 
+    let helperCoin = 0;
+    if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
+        helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
+    } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
+        helperCoin = budgetAmount / exercise.coins.customPrice
+    }
+
+    let helperCoin2 = 0;
+    if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
+        helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
+    } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
+        helperCoin2 = budgetAmount2 / exercise.coins.second.customPrice
+    }
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
@@ -167,7 +183,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                     </div>
                 </div>}
 
-                <PriceInputField coins={coins} defaultValue={budgetAmount} defaultCoin={budgetCoin} defaultFiat={fiatMoney} textSize={0.75} disableFiatNoneSelection onChange={(val, coin, fiat) => {
+                <PriceInputField helper={`Price Calculation: ${helperCoin.toFixed(2)} ${budgetCoin.symbol}`} coins={coins} defaultValue={budgetAmount} defaultCoin={budgetCoin} defaultFiat={fiatMoney} textSize={0.75} disableFiatNoneSelection onChange={(val, coin, fiat) => {
                     setBudgetAmount(val)
                     setBudgetCoin(coin)
                     if (fiat) {
@@ -209,7 +225,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                         </div>
                     </div>}
                     <div>
-                        <PriceInputField textSize={0.75} defaultValue={budgetAmount2} defaultCoin={budgetCoin} isMaxActive defaultFiat={budgetFiat2} disableFiatNoneSelection coins={coins} onChange={(val, coin, fiatMoney) => {
+                        <PriceInputField helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${budgetCoin2.symbol}`} textSize={0.75} defaultValue={budgetAmount2} defaultCoin={budgetCoin} isMaxActive defaultFiat={budgetFiat2} disableFiatNoneSelection coins={coins} onChange={(val, coin, fiatMoney) => {
                             setBudgetAmount2(val)
                             setBudgetCoin2(coin)
                             if (fiatMoney) {

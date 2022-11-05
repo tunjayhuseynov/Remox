@@ -19,6 +19,7 @@ import { BsPlusLg } from "react-icons/bs";
 import EditableTextInput from "components/general/EditableTextInput";
 import { IoTrashOutline } from "react-icons/io5";
 import { ToastRun } from "utils/toast";
+import { GetTime } from "utils";
 
 export default function TagsSetting() {
   const tags = useSelector(SelectTags);
@@ -43,7 +44,7 @@ export default function TagsSetting() {
     const Color = color;
     if (!id) return;
     if (Color && value) {
-      const dateNow = new Date().getTime()
+      const dateNow = GetTime()
       await dispatch(
         CreateTag({
           color: Color,
@@ -54,7 +55,7 @@ export default function TagsSetting() {
       ).unwrap();
       setShowModal(false);
     } else {
-      ToastRun(<>please fill in all cells</>, "warning" )
+      ToastRun(<>Please fill in all cells</>, "warning" )
     }
 
     setColor("")

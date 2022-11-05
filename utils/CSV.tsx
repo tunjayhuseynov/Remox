@@ -20,7 +20,14 @@ class CSV {
                 if (res.columns.join(';').includes("Name (optional);Wallet address;Token 1 id;Amount 1;Token 2 id (opt.);Amount 2 (opt.)")) {
                     const result: csvFormat[] = []
                     for (let index = 0; index < res.length; index++) {
-                        const data = res[index] as unknown as csvFormat;
+                        const data: csvFormat = {
+                            "Name (optional)": Object.values(res[index])[0]?.split(';')[0] ?? "",
+                            "Wallet address": Object.values(res[index])[0]?.split(';')[1] ?? "",
+                            "Token 1 id": Object.values(res[index])[0]?.split(';')[2] ?? "",
+                            "Amount 1": Object.values(res[index])[0]?.split(';')[3] ?? "",
+                            "Token 2 id (opt.)": Object.values(res[index])[0]?.split(';')[4] ?? "",
+                            "Amount 2 (opt.)": Object.values(res[index])[0]?.split(';')[5] ?? ""
+                        }
                         if (data) {
                             result.push(data)
                         } else {

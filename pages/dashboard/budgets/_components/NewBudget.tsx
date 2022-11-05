@@ -208,8 +208,6 @@ function NewBudget({ exercise, onBack }: IProps) {
     const [isLoading, OnSubmit] = useLoading(onSubmit)
 
 
-
-
     return <div className="w-full relative pb-16">
         <div className="w-[40%] mx-auto flex flex-col space-y-[5rem]">
             <div className='w-full flex justify-center'>

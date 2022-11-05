@@ -49,28 +49,30 @@ export const SelectTotalBalance = createDraftSafeSelector(
 export const SelectYieldBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.accounts,
     (accounts) => {
-        if (accounts.length > 0) {
-            return accounts.reduce<IPrice>(
-                (a, c) => {
+        return (selectedAccounts: string[]) => {
+            if (accounts.filter(s => selectedAccounts.find(d => d === s.id)).length > 0) {
+                return accounts.filter(s => selectedAccounts.find(d => d === s.id)).reduce<IPrice>(
+                    (a, c) => {
 
-                    c.coins.forEach((coin) => {
+                        c.coins.forEach((coin) => {
 
-                        if (coin.type === "Yield") {
-                            if (a?.[coin.symbol]) {
-                                a[coin.symbol].amount += coin.amount;
-                            } else {
-                                a[coin.symbol] = { ...coin };
+                            if (coin.type === "Yield") {
+                                if (a?.[coin.symbol]) {
+                                    a[coin.symbol].amount += coin.amount;
+                                } else {
+                                    a[coin.symbol] = { ...coin };
+                                }
                             }
-                        }
 
-                    })
+                        })
 
-                    return a;
-                },
-                {}
-            );
+                        return a;
+                    },
+                    {}
+                );
+            }
+            return null;
         }
-        return null;
     }
 );
 
@@ -78,28 +80,30 @@ export const SelectYieldBalance = createDraftSafeSelector(
 export const SelectSpotBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.accounts,
     (accounts) => {
-        if (accounts.length > 0) {
-            return accounts.reduce<IPrice>(
-                (a, c) => {
+        return (selectedAccounts: string[]) => {
+            if (accounts.filter(s => selectedAccounts.find(d => d === s.id)).length > 0) {
+                return accounts.filter(s => selectedAccounts.find(d => d === s.id)).reduce<IPrice>(
+                    (a, c) => {
 
-                    c.coins.forEach((coin) => {
+                        c.coins.forEach((coin) => {
 
-                        if (coin.type === "Spot") {
-                            if (a?.[coin.symbol]) {
-                                a[coin.symbol].amount += coin.amount;
-                            } else {
-                                a[coin.symbol] = { ...coin };
+                            if (coin.type === "Spot") {
+                                if (a?.[coin.symbol]) {
+                                    a[coin.symbol].amount += coin.amount;
+                                } else {
+                                    a[coin.symbol] = { ...coin };
+                                }
                             }
-                        }
 
-                    })
+                        })
 
-                    return a;
-                },
-                {}
-            );
+                        return a;
+                    },
+                    {}
+                );
+            }
+            return null;
         }
-        return null;
     }
 );
 
@@ -108,20 +112,22 @@ export const SelectSpotTotalBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (state: RootState) => state.remoxData.historyPriceList,
     (accounts, storage, hp) => {
-        if (accounts.length > 0) {
-            const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
-            // let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
+        return (selectedAccounts: string[]) => {
+            if (accounts.filter(s => selectedAccounts.find(d => d === s.id)).length > 0) {
+                const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
+                // let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
-            return accounts.reduce<number>((a, c) => {
-                c.coins.forEach((s) => {
-                    if (s.coin.type !== TokenType.YieldToken) {
-                        a += (s.amount * GetFiatPrice(s, fiat)) //generatePriceCalculation(s, hp, pc, fiat);
-                    }
-                })
-                return a;
-            }, 0);
+                return accounts.filter(s => selectedAccounts.find(d => d === s.id)).reduce<number>((a, c) => {
+                    c.coins.forEach((s) => {
+                        if (s.coin.type !== TokenType.YieldToken) {
+                            a += (s.amount * GetFiatPrice(s, fiat)) //generatePriceCalculation(s, hp, pc, fiat);
+                        }
+                    })
+                    return a;
+                }, 0);
+            }
+            return 0;
         }
-        return 0;
     }
 );
 
@@ -131,19 +137,21 @@ export const SelectYieldTotalBalance = createDraftSafeSelector(
     (state: RootState) => state.remoxData.storage,
     (state: RootState) => state.remoxData.historyPriceList,
     (accounts, storage, hp) => {
-        if (accounts.length > 0) {
-            const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
-            let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
+        return (selectedAccounts: string[]) => {
+            if (accounts.filter(s => selectedAccounts.find(d => d === s.id)).length > 0) {
+                const fiat = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
+                // let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
-            return accounts.reduce<number>((a, c) => {
-                c.coins.forEach((s) => {
-                    if (s.coin.type === TokenType.YieldToken) {
-                        a += (s.amount * GetFiatPrice(s, fiat)) //generatePriceCalculation(s, hp, pc, fiat);
-                    }
-                })
-                return a;
-            }, 0);
+                return accounts.filter(s => selectedAccounts.find(d => d === s.id)).reduce<number>((a, c) => {
+                    c.coins.forEach((s) => {
+                        if (s.coin.type === TokenType.YieldToken) {
+                            a += (s.amount * GetFiatPrice(s, fiat)) //generatePriceCalculation(s, hp, pc, fiat);
+                        }
+                    })
+                    return a;
+                }, 0);
+            }
+            return 0;
         }
-        return 0;
     }
 );

@@ -7,7 +7,7 @@ import { IAccount, IBudget, IMember } from "firebaseConfig";
 import { ITag } from "pages/api/tags/index.api";
 import { CoinDesignGenerator } from './CoinsGenerator';
 import dateFormat from "dateformat";
-import { AddressReducer } from 'utils';
+import { AddressReducer, GetTime } from 'utils';
 import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
@@ -263,7 +263,8 @@ const Detail = ({
             const newTag = await dispatch(CreateTag({
                 color: color,
                 id: selectedId,
-                name: name
+                name: name,
+                createdDate: GetTime()
             })).unwrap()
             id = newTag.id
             try {

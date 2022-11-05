@@ -11,6 +11,7 @@ import { AiOutlineDown } from "react-icons/ai"
 import { useAppDispatch, useAppSelector } from "redux/hooks"
 import { SelectID } from "redux/slices/account/selector"
 import { CreateTag } from "redux/slices/account/thunks/tags"
+import { GetTime } from "utils"
 import { ToastRun } from "utils/toast"
 
 interface IProps {
@@ -38,7 +39,8 @@ const AddLabel = ({ setAddLabelModal, onSubmit }: IProps) => {
         const newTag = await dispatch(CreateTag({
             color: color,
             id: id,
-            name: name
+            name: name,
+            createdDate: GetTime()
         })).unwrap()
         await onSubmit(newTag)
         setAddLabelModal(false)
