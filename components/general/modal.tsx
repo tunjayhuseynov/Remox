@@ -52,7 +52,7 @@ const Modal = ({ children, onDisable, title, className, disableX = false, animat
                     animate={{ x: 0 }}
                     exit={{ x: "-100%" }}
                     transition={{ type: "tween", duration: .33 }}
-                    className="bg-light dark:bg-dark absolute h-full w-full overflow-x-hidden cursor-default top-[73px]  pt-10 flex flex-col  left-0 ">
+                    className="bg-light dark:bg-dark absolute h-full w-full overflow-x-hidden cursor-default top-[73px] z-[9999999] pt-10 flex flex-col  left-0 ">
 
                     {!disableX && <button onClick={() => { onDisable(false); }} className="z-[9999] pl-[4.25rem] w-[4rem] tracking-wider font-bold transition-all hover:transition-all text-xl flex items-center gap-2">
                         <span className="text-4xl pb-1 ">&#171;</span> Back

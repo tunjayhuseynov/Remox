@@ -82,21 +82,22 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 const Assets = () => {
     const dark = useNextSelector(SelectDarkMode)
-
+    
     const spotTokens = useAppSelector(SelectSpotBalance);
     const yieldTokens = useAppSelector(SelectYieldBalance);
-
-    const mySpotTokens = Object.values(spotTokens ?? {}).filter((token) => token.amount > 0);
-    const myYieldTokens = Object.values(yieldTokens ?? {}).filter((token) => token.amount > 0);
-
-
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
-    const nfts = useAppSelector(SelectNfts)
+    
+    
     const accountsAll = useAppSelector(SelectAccounts)
     const accounts = accountsAll.map((a) => a.address)
-
-
+    const [selectedAccounts, setSelectedAccounts] = useState<string[]>(accountsAll.map(s=>s.id));
+    
+    const nfts = useAppSelector(SelectNfts)
+    
+    
+    const mySpotTokens = Object.values(spotTokens(selectedAccounts) ?? {}).filter((token) => token.amount > 0);
+    const myYieldTokens = Object.values(yieldTokens(selectedAccounts) ?? {}).filter((token) => token.amount > 0);
 
     const fiat = useAppSelector(SelectFiatPreference)
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
@@ -107,14 +108,13 @@ const Assets = () => {
     const totalBalance = useAppSelector(SelectTotalBalance)
 
 
-    let totalBalances = (spotTotalBalance + yieldTotalBalance).toFixed(2);
+    let totalBalances = (spotTotalBalance(selectedAccounts) + yieldTotalBalance(selectedAccounts)).toFixed(2);
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? + navigate.query.index! : 0
     const [expanded, setExpanded] = React.useState<string | false>('panel1');
 
 
     const [isWalletFilterOpen, setWalletFilterOpen] = useState<boolean>(false)
-    const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
 
 
 
@@ -130,12 +130,12 @@ const Assets = () => {
     const TypeCoin = [
         {
             header: "Spot Assets",
-            balance: spotTotalBalance.toFixed(2),
+            balance: spotTotalBalance(selectedAccounts).toFixed(2),
             tokenTypes: TokenType.YieldToken,
         },
         {
             header: "Yield Bearing Assets",
-            balance: yieldTotalBalance.toFixed(2),
+            balance: yieldTotalBalance(selectedAccounts).toFixed(2),
             tokenTypes: TokenType.YieldToken,
         }
 
@@ -177,7 +177,7 @@ const Assets = () => {
                 <div className="font-bold text-2xl">
                     Assets
                 </div>
-                <Filter isOpen={isWalletFilterOpen} setOpen={setWalletFilterOpen} title={selectedAccounts.length > 0 ?
+                <Filter xAxis={-52} isOpen={isWalletFilterOpen} setOpen={setWalletFilterOpen} title={selectedAccounts.length > 0 ?
                     <div className="rounded-md font-semimedium text-xs">
                         <div>Wallets ({selectedAccounts.length})</div>
                     </div> : "All wallets"} childWidth={12}>
@@ -190,8 +190,8 @@ const Assets = () => {
                                     transform: "scale(0.875)",
                                     padding: 0
                                 }}
-                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.length === 0} onChange={() => {
-                                    setSelectedAccounts([])
+                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.length === accountsAll.length} onChange={() => {
+                                    setSelectedAccounts(accountsAll.map(s => s.id))
                                 }} /> <span className="text-xs font-medium">All wallets</span>
                         </div>
                         {accountsAll.map((account) => {
@@ -201,11 +201,11 @@ const Assets = () => {
                                         transform: "scale(0.875)",
                                         padding: 0
                                     }}
-                                    classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.includes(account.address)} onChange={() => {
-                                        if (selectedAccounts.includes(account.address)) {
-                                            setSelectedAccounts(selectedAccounts.filter(s => s !== account.address))
+                                    classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedAccounts.includes(account.id)} onChange={() => {
+                                        if (selectedAccounts.includes(account.id)) {
+                                            setSelectedAccounts(selectedAccounts.filter(s => s !== account.id))
                                         } else {
-                                            setSelectedAccounts([...selectedAccounts, account.address])
+                                            setSelectedAccounts([...selectedAccounts, account.id])
                                         }
                                     }} />
                                 <span className="text-xs font-medium">{account.name}</span>

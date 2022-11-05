@@ -229,7 +229,7 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
 
   } else if (blockchain.name === "celo") {
     // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
-    const formatted = await CeloInputReader({ input: input ?? "", transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe", showMultiOut: allowMultiOut });
+    const formatted = await CeloInputReader({ input: input ?? "", transaction, tags, Coins: coins, blockchain, address, provider: "", showMultiOut: allowMultiOut });
 
     if (formatted && formatted.method && ((formatted.method === ERCMethodIds.automatedCanceled && (formatted as any)?.streamId) || ((formatted as any)?.payments?.length ?? 0) > 0
       || (formatted.method === ERCMethodIds.swap && (formatted as any)?.coinIn)

@@ -136,11 +136,12 @@ const PriceInputField = (
                         <div className='w-auto border border-[#a7a7a7] dark:border-[#777777] px-5 py-1 my-1 rounded-md cursor-pointer select-none' onClick={() => setDropdown(!dropdown)}>
                             {selectedCoin &&
                                 <div className='flex space-x-2 tracking-wide text-xs items-center justify-center'>
-                                    <img src={selectedCoin?.logoURI} className="rounded-full w-5 h-5 mr-1" />
-                                    {selectedCoin?.symbol} {selectedFiat && <>
-                                        <span className='font-thin text-xs dark:text-[#c0c0c0] text-[#808080] px-1 tracking-wider'>based on</span>
-                                        <img src={selectedFiat?.logo} className="aspect-auto w-6 mr-1" /> <span>{selectedFiat?.name}</span>
+                                    {selectedFiat && <>
+                                        <img src={selectedFiat?.logo} className="aspect-auto w-6 ml-1" /> <span>{selectedFiat?.name}</span>
+                                        <span className='font-thin text-xs dark:text-[#c0c0c0] text-[#808080] px-1 tracking-wider'>as</span>
                                     </>}
+                                    <img src={selectedCoin?.logoURI} className="rounded-full w-5 h-5 mr-1" />
+                                    {selectedCoin?.symbol}
                                 </div>}
                             {!selectedCoin && <div>No Coin Selected</div>}
                         </div>
@@ -149,11 +150,11 @@ const PriceInputField = (
                 label="Amount"
             />
             {'amount' in selectedCoin && <FormHelperText className='!text-xs'>Balance: {selectedFiat && selectedCoin ? selectedCoin[`price${selectedFiat.name}`] * selectedCoin.amount : selectedCoin?.amount} {selectedFiat?.name ?? selectedCoin?.symbol}</FormHelperText>}
-            {max && setMaxAmount !== undefined &&
+            {max && setMaxAmount !== undefined ?
                 <FormHelperText className='!text-xs flex justify-between'>
                     <div>Remains: {setMaxAmount - (+(value ?? "0"))} {selectedFiat?.name ?? selectedCoin?.symbol}</div>
                     <div>{helper}</div>
-                </FormHelperText>}
+                </FormHelperText> : helper ? <FormHelperText className='!text-xs'>{helper}</FormHelperText> : null}
             <AnimatePresence>
                 {dropdown &&
                     <ClickAwayListener onClickAway={() => setDropdown(false)}>

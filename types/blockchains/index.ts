@@ -9,7 +9,7 @@ import WETHGatewayV2 from 'rpcHooks/ABI/WETHGatewayV2.json'
 import CeloTerminal from 'rpcHooks/ABI/CeloTerminal.json'
 import BR from 'rpcHooks/ABI/BatchRequest.json'
 
-export type MultisigProviders = "Celo Terminal" | "GnosisSafe" | "Goki"
+export type MultisigProviders = "Celo Terminal" | "GnosisSafe" | "Goki" | ""
 
 export type BlockchainType = {
   name:

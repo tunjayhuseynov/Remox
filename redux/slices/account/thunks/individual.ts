@@ -84,17 +84,20 @@ export const  Create_Individual_Thunk = createAsyncThunk<IIndividual, ICreateInd
     await api.dispatch(CreateTag({
         id,
         color: "#0ffff7",
-        name: "Gas Fee"
+        name: "Gas Fee",
+        createdDate: GetTime()
     }))
     await api.dispatch(CreateTag({
         id,
         color: "#ff0ae6",
-        name: "Swap"
+        name: "Swap",
+        createdDate: GetTime()
     }))
     await api.dispatch(CreateTag({
         id,
         color: "#23c4ff",
-        name: "Payroll"
+        name: "Payroll",
+        createdDate: GetTime()
     }))
 
     api.dispatch(setProviderID(id));

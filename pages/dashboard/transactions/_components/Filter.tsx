@@ -17,9 +17,10 @@ export interface ITransactionFilter {
     setOpen: Dispatch<boolean>,
     width?: number,
     childWidth?: number,
+    xAxis?: number,
 }
 
-const Filter = ({ children, isOpen, setOpen, title, width = 5.625, childWidth }: ITransactionFilter) => {
+const Filter = ({ children, isOpen, setOpen, title, width = 5.625, childWidth, xAxis = 0 }: ITransactionFilter) => {
 
 
     return <div className="relative">
@@ -35,8 +36,9 @@ const Filter = ({ children, isOpen, setOpen, title, width = 5.625, childWidth }:
         </div>
         <AnimatePresence>
             {isOpen && <ClickAwayListener onClickAway={() => setOpen(false)}>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .33 }} className="absolute bg-white dark:bg-darkSecond px-2 py-4 border rounded-md -bottom-2 translate-y-full z-[9999999]" style={{
-                    width: childWidth ? `${childWidth}rem` : "auto"
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .33 }} className="absolute bg-white dark:bg-darkSecond px-2 py-4 border rounded-md -bottom-2 z-[9999999]" style={{
+                    width: childWidth ? `${childWidth}rem` : "auto",
+                    transform: `translateX(${xAxis}%) translateY(100%)`,
                 }}>
                     {children}
                 </motion.div>

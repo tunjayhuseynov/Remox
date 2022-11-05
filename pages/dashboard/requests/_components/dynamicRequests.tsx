@@ -327,7 +327,7 @@ export default function DynamicRequest({
                     Requested Amount
                   </th>
                   <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                    Request Type
+                    Label
                   </th>
                 </tr>
                 {selectedApprovedRequests.map((s) => (

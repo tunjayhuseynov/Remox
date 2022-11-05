@@ -11,7 +11,7 @@ import useLoading from 'hooks/useLoading';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { Create_Budget_Exercise_Thunk } from 'redux/slices/account/thunks/budgetThunks/budgetExercise';
-import { SelectAccountType, SelectCurrencies, SelectDarkMode, SelectFiatPreference, SelectPriceCalculation, SelectRemoxAccount } from 'redux/slices/account/selector';
+import { SelectAccountType, SelectCurrencies, SelectDarkMode, SelectFiatPreference, SelectHistoricalPrices, SelectPriceCalculation, SelectRemoxAccount } from 'redux/slices/account/selector';
 import { TextField } from '@mui/material';
 import DatePicker from 'react-multi-date-picker';
 import DatePanel from 'react-multi-date-picker/plugins/date_panel';
@@ -21,6 +21,7 @@ import PriceInputField from 'components/general/PriceInputField';
 import { FiatMoneyList } from 'firebaseConfig';
 import { AiOutlinePlusCircle } from 'react-icons/ai';
 import { IoMdRemoveCircle } from 'react-icons/io';
+import { generateTokenPriceCalculation } from 'utils/const';
 
 interface IFormInput {
     name: string;
@@ -68,6 +69,22 @@ function NewExercise() {
     let today = new Date()
     let From = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate();
     let To = (today.getFullYear() + 1) + '/' + (today.getMonth() + 1) + '/' + today.getDate();
+
+    const hp = useAppSelector(SelectHistoricalPrices)
+
+    let helperCoin = 0;
+    if (selectedPriceOption.name !== "Custom Price" && budgetAmount) {
+        helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, selectedPriceOption.name, budgetFiat)
+    } else if (selectedPriceOption.name === "Custom Price" && budgetAmount && customPrice) {
+        helperCoin = budgetAmount / customPrice
+    }
+
+    let helperCoin2 = 0;
+    if (selectedPriceOption2.name !== "Custom Price" && budgetAmount2 && budgetFiat2 && selectedPriceOption2) {
+        helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, selectedPriceOption2.name, budgetFiat2)
+    } else if (selectedPriceOption2.name === "Custom Price" && budgetAmount2 && customPrice2) {
+        helperCoin2 = budgetAmount2 / customPrice2
+    }
 
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
@@ -169,13 +186,13 @@ function NewExercise() {
                             className="bg-white dark:bg-darkSecond"
                         />
                         {selectedPriceOption.name === "Custom Price" && <TextField
-                            InputProps={{ style: { fontSize: '0.75rem' } }}
+                            InputProps={{ style: { fontSize: '0.75rem', height: '3.5rem' } }}
                             InputLabelProps={{ style: { fontSize: '0.75rem' } }}
                             className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />}
                     </div>
                 </div>}
 
-                <PriceInputField coins={coins} defaultFiat={fiatMoney} textSize={0.75} disableFiatNoneSelection onChange={(val, coin, fiat) => {
+                <PriceInputField helper={`Price Calculation: ${helperCoin.toFixed(2)} ${budgetCoin.symbol}`}  coins={coins} defaultFiat={fiatMoney} textSize={0.75} disableFiatNoneSelection onChange={(val, coin, fiat) => {
                     setBudgetAmount(val)
                     setBudgetCoin(coin)
                     if (fiat) {
@@ -210,13 +227,13 @@ function NewExercise() {
                                 textClass="text-xs"
                             />
                             {selectedPriceOption2.name === "Custom Price" && <TextField
-                                InputProps={{ style: { fontSize: '0.75rem' } }}
+                                InputProps={{ style: { fontSize: '0.75rem', height: '3.5rem'} }}
                                 InputLabelProps={{ style: { fontSize: '0.75rem' } }}
                                 className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />}
                         </div>
                     </div>}
                     <div>
-                        <PriceInputField textSize={0.75} isMaxActive defaultFiat={budgetFiat2} disableFiatNoneSelection coins={coins} onChange={(val, coin, fiatMoney) => {
+                        <PriceInputField helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${budgetCoin2.symbol}`}  textSize={0.75} isMaxActive defaultFiat={budgetFiat2} disableFiatNoneSelection coins={coins} onChange={(val, coin, fiatMoney) => {
                             setBudgetAmount2(val)
                             setBudgetCoin2(coin)
                             if (fiatMoney) {

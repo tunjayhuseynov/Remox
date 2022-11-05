@@ -104,14 +104,15 @@ export default ({
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between">
           <div className="text-greylish">Request Label</div>
-          <div style={{
-            "color": `${tag.color}`
-          }}>
-            {tag.name}
-          </div>
+          <div className="items-center flex text-sm font-medium ">
+            <div className="flex space-x-2">
+              <div className="w-1 h-5" style={{ backgroundColor: tag?.color }}></div>
+              <span className="text-sm font-medium">{tag?.name}</span>
+            </div>
+        </div>
         </div>
         <div className="flex justify-between">
-          <div className="text-greylish">Service Name</div>
+          <div className="text-greylish">Name of Service</div>
           <div>
             {request.serviceName}
           </div>

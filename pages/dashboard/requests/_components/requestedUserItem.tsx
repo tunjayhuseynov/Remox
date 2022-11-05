@@ -181,7 +181,7 @@ const RequestedUserItem = ({
         className={`py-3 h-[6.1rem]  bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all  grid ${isAllowed ? "" : request.status !== RequestStatus.rejected ? "!border-[#A60000] border-2" : ""}  grid-cols-[25%,20.5%,25.5%,12%,17%]`}
       >
         <td className="flex overflow-hidden">
-          <div className="flex items-center ml-2 mr-3">
+          <div className="flex items-center ml-2 ">
             {request.status !== RequestStatus.rejected ? isAllowed ? (
               (!payment && request.status === RequestStatus.approved ? (
                 <Checkbox
@@ -296,7 +296,10 @@ const RequestedUserItem = ({
             }
         </td>
         <td className="items-center flex text-sm font-medium ">
-          {tag?.name}
+            <div className="flex space-x-2">
+              <div className="w-1 h-5" style={{ backgroundColor: tag?.color }}></div>
+              <span className="text-sm font-medium">{tag?.name}</span>
+            </div>
         </td>
         <td className="flex justify-end cursor-pointer font-medium items-center md:pr-0 ">
           {request.status !== RequestStatus.rejected && !payment && (

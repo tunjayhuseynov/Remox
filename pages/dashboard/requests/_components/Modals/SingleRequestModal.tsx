@@ -1,7 +1,7 @@
 import React from "react";
 import { IRequest, RequestStatus } from "rpcHooks/useRequest";
 import { useAppSelector } from "redux/hooks";
-import { SelectDarkMode } from "redux/slices/account/remoxData";
+import { SelectDarkMode, SelectTags } from "redux/slices/account/remoxData";
 import { AltCoins } from "types";
 import { AddressReducer } from "utils";
 import dateFormat from "dateformat";
@@ -18,6 +18,8 @@ const SingleRequestModal = ({
   coin2?: AltCoins;
 }) => {
   const isDark = useAppSelector(SelectDarkMode);
+  const tags = useAppSelector(SelectTags)
+  const tag = tags.find((tag) => tag.id === request.tag )
 
   const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
   const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
@@ -117,19 +119,22 @@ const SingleRequestModal = ({
         </div>
         <div className="font-semibold text-xl my-4">Details</div>
         <div className="flex flex-col space-y-2 ">
-          <div className="flex justify-between">
-            <div className="text-greylish text-sm font-medium">Request Type</div>
-            <div className="text-sm font-medium">{request?.requestType}</div>
+          <div className="items-center flex text-sm font-medium justify-between">
+          <div className="text-greylish text-sm font-medium">Label</div>
+            <div className="flex space-x-2">
+              <div className="w-1 h-5" style={{ backgroundColor: tag?.color }}></div>
+              <span className="text-sm font-medium">{tag?.name}</span>
+            </div>
           </div>
-          {/* <div className="flex justify-between">
+          <div className="flex justify-between">
             <div className="text-greylish text-sm font-medium">Name of service</div>
-            <div className="text-sm font-medium">{request?.nameOfService}</div>
-          </div> */}
+            <div className="text-sm font-medium">{request?.serviceName}</div>
+          </div>
           <div className="flex justify-between">
             <div className="text-greylish text-sm font-medium">Date of service</div>
             <div className="text-sm font-medium">
               {dateFormat(
-                new Date(request!.serviceDate * 1000),
+                new Date(request!.timestamp * 1000),
                 `mmm dd, yyyy`
               )}
             </div>
