@@ -209,6 +209,8 @@ export default function DynamicPayroll() {
           </tr>
         </thead>
         <tbody>
+        </tbody>
+      </table>
           {contributors.map((contributor) => <PayrollItem runmodal={runmodal} isRuning={isAvaible} key={contributor.id} member={contributor} selectedMembers={selectedContributors} setSelectedMembers={setSelectedContributors} />)}
           {
             contributors.length === 0 && (
@@ -217,8 +219,6 @@ export default function DynamicPayroll() {
               </div>
             )
           }
-        </tbody>
-      </table>
 
     </div>
     <Modal openNotify={choosingBudget} onDisable={setChoosingBudget}>

@@ -60,14 +60,14 @@ function NewBudget({ exercise, onBack }: IProps) {
     if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
         helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
     } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
-        helperCoin = budgetAmount * exercise.coins.customPrice
+        helperCoin = budgetAmount / exercise.coins.customPrice
     }
 
     let helperCoin2 = 0;
     if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
         helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
     } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
-        helperCoin2 = budgetAmount2 * exercise.coins.second.customPrice
+        helperCoin2 = budgetAmount2 / exercise.coins.second.customPrice
     }
 
     const onNext = () => {

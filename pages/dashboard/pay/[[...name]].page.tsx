@@ -79,6 +79,7 @@ const Pay = () => {
     const dark = useAppSelector(SelectDarkMode)
     const coins = useAppSelector(SelectBalance)
 
+    console.log(labels)
 
     const router = useRouter();
     const { GetCoins, SendTransaction, blockchain } = useWalletKit()

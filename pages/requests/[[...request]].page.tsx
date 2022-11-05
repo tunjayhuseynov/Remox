@@ -68,8 +68,8 @@ export default function RequestId() {
   const [account, setAccount] = useState<
     IIndividual | IOrganization | undefined
   >();
-  const [tags, setTags] = useState<ITag[]>();
-  const [tag, setTag] = useState<ITag>();
+  const [labels, setLabels] = useState<ITag[]>();
+  const [label, setLabel] = useState<ITag>();
 
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
@@ -89,9 +89,9 @@ export default function RequestId() {
         signer === "organization"
           ? await FirestoreRead<IOrganization>("organizations", id)
           : await FirestoreRead<IIndividual>("individuals", id);
-      const tags = await FirestoreRead<ITag[]>("tags", id);
+      const labels = await FirestoreRead<ITag[]>("tags", id);
       setAccount(acc);
-      setTags(tags);
+      setLabels(labels);
       setGetCoins(collection);
       setLoader(false);
     }
@@ -105,7 +105,7 @@ export default function RequestId() {
   const [request, setRequest] = useState<IRequest>();
 
   const onTagChange = (value: any) => {
-    setTag(
+    setLabel(
       value.map((s: SelectType) => ({
         color: s.color,
         id: s.value,
@@ -138,7 +138,7 @@ export default function RequestId() {
         setImageRef(ref(storage, url));
       }
 
-      if (tag) {
+      if (label) {
         const result: IRequest = {
           id: nanoid(),
           fullname: data.fullname,
@@ -149,9 +149,9 @@ export default function RequestId() {
           secondAmount: (amountSecond ?? 0).toString(),
           secondCurrency: coinSecond?.symbol ?? null,
           fiatSecond: fiatMoneySecond ?? null,
-          label: tag,
+          label: label,
           requestType: data.requestType,
-          serviceDate: new Date().getTime(),
+          serviceDate: GetTime(new Date()),
           attachLink: data.link ? data.link : null,
           uploadedLink: Invoice ? url : null,
           timestamp: GetTime(),
@@ -189,6 +189,8 @@ export default function RequestId() {
       </div>
     );
   }
+
+  console.log()
 
   return (
     <>
@@ -293,12 +295,12 @@ export default function RequestId() {
                     </span>
                     <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-10 sm:gap-y-7">
                       <div className="flex flex-col space-y-1">
-                       {tags && <Select
+                       {labels && <Select
                           closeMenuOnSelect={true}
                           isMulti
                           isClearable={false}
                           placeholder="Select labels"
-                          options={Object.values(tags)?.map((s) => ({
+                          options={Object.values(labels)?.map((s) => ({
                             value: s.id,
                             label: s.name,
                             color: s.color,

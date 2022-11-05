@@ -32,6 +32,7 @@ import Modal from "components/general/modal";
 import ChooseBudget from "components/general/chooseBudget";
 import { IAccountORM } from "pages/api/account/index.api";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
+import { GetTime } from "utils";
 
 const EditMember = () => {
   const navigate = useRouter();
@@ -131,7 +132,7 @@ const EditMember = () => {
       blockchain: blockchain.name,
     };
 
-    const dateNow = new Date().getTime();
+    const dateNow = new Date();
 
     setLoading(true);
     let inputs: IPaymentInput[] = [];
@@ -234,8 +235,8 @@ const EditMember = () => {
             ? ExecutionType.auto
             : ExecutionType.manual,
         interval: selectedFrequency.type as DateInterval,
-        paymantDate: new Date(startDate ?? dateNow).getTime(),
-        paymantEndDate: endDate ? new Date(endDate).getTime() : null,
+        paymantDate: GetTime(startDate ?? dateNow),
+        paymantEndDate: endDate ? GetTime(endDate) : null,
         checkedCount: member.checkedCount,
         lastCheckedDate: member.lastCheckedDate,
         image: url ? Photo : null,

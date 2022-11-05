@@ -45,7 +45,7 @@ const AddTeam = ({setCreating} : {setCreating : (value: SetStateAction<boolean>)
     <div className="rounded-md cursor-pointer bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 min-h-[12rem] items-start justify-between">
       <div className="flex items-center justify-center w-full h-full px-4 !text-sm">
         <IconTextField
-          label="Name"
+          label={"Name"}
           onChange={(e) => setWorkstreamName(e.target.value)}
           value={workstreamName}
           iconEnd={
@@ -58,7 +58,7 @@ const AddTeam = ({setCreating} : {setCreating : (value: SetStateAction<boolean>)
               />
             )
           }
-          className={`border w-full rounded-xl py-6 text-sm`}
+          className={`border w-full rounded-xl text-sm`}
         />
       </div>
     </div>

@@ -6,7 +6,7 @@ import useAsyncEffect from 'hooks/useAsyncEffect';
 import { auth } from "firebaseConfig";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { SelectAllOrganizations, SelectBlockchain, SelectIndividual, SelectProviderAddress, setAccountType, setOrganizations, setProviderID, setStorage } from "redux/slices/account/remoxData";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Loader from "components/Loader";
 import { Get_Organizations_Thunk } from "redux/slices/account/thunks/organization";
 import { IOrganizationORM } from "types/orm";
@@ -27,19 +27,22 @@ function ChooseType() {
 
   const [organizationLoading, setOrganizationLoading] = useState(false)
 
+  const controller = useRef(new AbortController())
+
 
   useAsyncEffect(async () => {
     setOrganizationLoading(true)
     if (!auth?.currentUser || !address || !blockchain) {
       await navigate.push("/")
     }
-    const organizations = await dispatch(Get_Organizations_Thunk(address!)).unwrap()
+    const organizations = await dispatch(Get_Organizations_Thunk([address!, controller.current])).unwrap()
     dispatch(setOrganizations(organizations))
     setOrganizationLoading(false)
   }, [])
 
   const individualLogin = async () => {
     if (address && auth.currentUser && blockchain && individual) {
+      controller.current.abort()
       dispatch(setAccountType("individual"))
       dispatch(setProviderID(individual.id));
       dispatch(setOrganization(null))

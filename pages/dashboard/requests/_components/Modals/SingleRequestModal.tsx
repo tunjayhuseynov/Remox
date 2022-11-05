@@ -121,10 +121,10 @@ const SingleRequestModal = ({
             <div className="text-greylish text-sm font-medium">Request Type</div>
             <div className="text-sm font-medium">{request?.requestType}</div>
           </div>
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between">
             <div className="text-greylish text-sm font-medium">Name of service</div>
             <div className="text-sm font-medium">{request?.nameOfService}</div>
-          </div>
+          </div> */}
           <div className="flex justify-between">
             <div className="text-greylish text-sm font-medium">Date of service</div>
             <div className="text-sm font-medium">

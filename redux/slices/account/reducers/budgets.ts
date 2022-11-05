@@ -1,8 +1,6 @@
 import { IBudget, IBudgetTX, ISubBudget } from "firebaseConfig";
 import { IBudgetExerciseORM, IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { AltCoins } from "types";
-import { DecimalConverter } from "utils/api";
-import { generatePriceCalculation } from "utils/const";
 import { IRemoxData } from "../remoxData";
 
 export default {
@@ -172,7 +170,7 @@ export default {
                         ...state.budgetExercises[index].budgets[budgetIndex].budgetCoins,
                         second: second ? {
                             ...second,
-                            secondTotalAmount: second.secondTotalAmount += payload.tx.amount,
+                            secondTotalAmount: second.secondTotalAmount,
                             secondTotalPending: payload.isTxExecuted ?
                                 second.secondTotalPending
                                 :
@@ -223,7 +221,7 @@ export default {
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount -= payload.tx.amount,
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount,
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
@@ -240,7 +238,7 @@ export default {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
                             second: second ? {
                                 ...second,
-                                secondTotalAmount: second.secondTotalAmount -= payload.tx.amount,
+                                secondTotalAmount: second.secondTotalAmount,
                                 secondTotalPending: payload.isTxExecuted ?
                                     second.secondTotalPending
                                     :
@@ -270,7 +268,7 @@ export default {
                     if (payload.currency.symbol.toLowerCase() === state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.coin.toLowerCase()) {
                         state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins = {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
-                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount += payload.tx.amount,
+                            totalAmount: state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalAmount,
                             totalPending: payload.isTxExecuted ?
                                 state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins.totalPending
                                 :
@@ -287,7 +285,7 @@ export default {
                             ...state.budgetExercises[index].budgets[budgetIndex].subbudgets[subBudgetIndex].budgetCoins,
                             second: second ? {
                                 ...second,
-                                secondTotalAmount: second.secondTotalAmount += payload.tx.amount,
+                                secondTotalAmount: second.secondTotalAmount,
                                 secondTotalPending: payload.isTxExecuted ?
                                     second.secondTotalPending
                                     :
