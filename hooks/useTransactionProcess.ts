@@ -435,7 +435,7 @@ export default async (
       const topic = (await web3.eth.getTransactionReceipt(transaction.hash))?.logs?.at(provider === "GnosisSafe" ? -2 : 1)?.topics[1]
       if (!topic && isExecuted) return {}
       const streamId = isExecuted && topic ? hexToNumberString(topic) : "0";
-      console.log(streamId)
+   
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase())
 
       if (!coin) return {};

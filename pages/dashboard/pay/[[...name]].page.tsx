@@ -489,7 +489,7 @@ const Pay = () => {
                                     }}>
                                         Add receiver
                                     </Button>
-                                    {/* <Button version="second" onClick={() => {
+                                    <Button version="second" onClick={() => {
                                         fileInput.current?.click()
                                     }} className="min-w-[8rem] bg-white text-left !px-3 font-semibold tracking-wide shadow-none text-xs">
                                         Import CSV file
@@ -511,7 +511,7 @@ const Pay = () => {
                                         }}>
                                             <AiOutlineDownload />
                                         </div>
-                                    </Tooltip> */}
+                                    </Tooltip>
                                 </div>
                             </div>}
                             {index === 1 &&
