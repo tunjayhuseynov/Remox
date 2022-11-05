@@ -94,7 +94,7 @@ const AddMember = () => {
             blockchain: blockchain.name
         }
 
-        const dateNow = new Date().getTime()
+        const dateNow = new Date()
         
         try {
             if(Team.id) {
@@ -141,15 +141,14 @@ const AddMember = () => {
                     address: address.trim(),
                     execution: isAutoPayment ? ExecutionType.auto : ExecutionType.manual,
                     interval: Frequency as DateInterval,
-                    paymantDate: new Date(startDate ?? dateNow).getTime(),
-                    paymantEndDate: endDate ? new Date(endDate).getTime() : null,
+                    paymantDate: GetTime(startDate ?? dateNow),
+                    paymantEndDate: endDate ? GetTime(endDate) : null,
                     lastCheckedDate: null,
                     checkedCount: 0,
                     image: url ? Photo : null,
                     taskId: isAutoPayment ? taskId : null,
                 };
     
-                console.log(member)
                 await addMember(Team.id!.toString(), member);
                 dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
                 setIsLoading(false);

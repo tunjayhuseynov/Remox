@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
@@ -25,6 +25,7 @@ const CreateOrganization = () => {
   const dispatch = useAppDispatch()
   const navigate = useRouter()
   const dark = useAppSelector(SelectDarkMode)
+  const controller = useRef(new AbortController())
 
   const [name, setName] = useState<string>()
   const [url, setUrl] = useState<string>()
@@ -58,7 +59,7 @@ const CreateOrganization = () => {
         image: image
       })).unwrap()
 
-      const organizations = await dispatch(Get_Organizations_Thunk(address)).unwrap()
+      const organizations = await dispatch(Get_Organizations_Thunk([address, controller.current])).unwrap()
       dispatch(setOrganizations(organizations))
 
       navigate.push('/create-multisig')
