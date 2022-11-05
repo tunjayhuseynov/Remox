@@ -432,10 +432,10 @@ export default async (
     }
     else if (result.method === "createStream") {
       const web3 = new Web3(blockchain.rpcUrl);
-      const topic = (await web3.eth.getTransactionReceipt(transaction.hash))?.logs[1]?.topics[1]
-
+      const topic = (await web3.eth.getTransactionReceipt(transaction.hash))?.logs?.at(provider === "GnosisSafe" ? -2 : 1)?.topics[1]
       if (!topic && isExecuted) return {}
-      const streamId = isExecuted ? hexToNumberString(topic) : 0;
+      const streamId = isExecuted && topic ? hexToNumberString(topic) : "0";
+      console.log(streamId)
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase())
 
       if (!coin) return {};
@@ -527,7 +527,7 @@ export default async (
       const assetAddress = result.method === "repayDelegation" ? result.inputs[1] : result.inputs[0];
       const to = result.method === "repayDelegation" ? result.inputs[1] : result.inputs[0]
       let amount = result.method === "repayDelegation" ? result.inputs[2].toString() : result.inputs[1].toString()
-      if(amount.length > 18){
+      if (amount.length > 18) {
         amount = "10000000000000000"
       }
       const from = result.method === "repayDelegation" ? result.inputs[0] : result.inputs[3]

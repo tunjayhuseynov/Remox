@@ -1,9 +1,12 @@
+import { IAccountORM } from "pages/api/account/index.api"
+import { AddressReducer } from "utils"
 import { IPaymentInputs } from "../[[...name]].page"
 
 interface IProps {
-    data: IPaymentInputs[]
+    data: IPaymentInputs[],
+    account: IAccountORM | null
 }
-const CsvModal = ({ data }: IProps) => {
+const CsvModal = ({ data, account }: IProps) => {
 
     return <div className="px-10">
         <h1 className="font-semibold text-2xl mb-7">Uploaded CSV</h1>
@@ -18,12 +21,12 @@ const CsvModal = ({ data }: IProps) => {
                 </tr>
                 {data.map(s => {
 
-                    return <tr className="bg-white dark:bg-darkSecond py-[1.6875rem] pl-5 grid grid-cols-[20%,30%,50%] mt-5 rounded-md">
+                    return <tr className="bg-white dark:bg-darkSecond py-[1.6875rem] pl-5 grid grid-cols-[20%,30%,50%] mt-5 rounded-md shadow-custom">
                         <td className="font-semibold text-sm text-greylish">
                             {s.name}
                         </td>
                         <td className="font-semibold text-sm text-greylish">
-                            {s.address}
+                            {AddressReducer(s.address ?? "")}
                         </td>
                         <td className="flex space-x-1 items-center font-medium">
                             <img src={s.coin?.logoURI} alt="" className="rounded-full object-cover w-5 aspect-square" />
@@ -33,6 +36,19 @@ const CsvModal = ({ data }: IProps) => {
                 })}
             </table>
         </div>
+        {account &&
+            <div className="bg-white dark:bg-darkSecond flex flex-col">
+                <div>Review Treasury Impact</div>
+                <div className="flex">
+                    <div className="w-[30%]">
+
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 }
 

@@ -658,7 +658,7 @@ const Pay = () => {
                 </div>
             </div>
             <Modal onDisable={setModalVisible} disableX openNotify={modalVisibility} className="z-[99999999]">
-                <CsvModal data={csvInputs} />
+                <CsvModal account={selectedAccountAndBudget.account} data={csvInputs} />
             </Modal>
         </div>
     </>
