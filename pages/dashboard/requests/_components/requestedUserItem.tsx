@@ -156,7 +156,10 @@ const RequestedUserItem = ({
   
       await SendTransaction(account!, inputs, {
         budget: budget,
-        subbudget: subbudget
+        subbudget: subbudget,
+        tags: tag ? [
+          tag 
+        ] : undefined
       })
   
       dispatch(removeApprovedRequest(request.id));
