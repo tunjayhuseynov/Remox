@@ -151,7 +151,7 @@ const Budgets = () => {
                                         </div>
                                         <div className="px-4 py-2 hover:bg-greylish hover:bg-opacity-5">
                                             <div className="text-primary cursor-pointer flex space-x-2 items-center" onClick={() => { navigate.push('/dashboard/budgets/new-exercise') }} >
-                                                <AiOutlinePlusCircle className='text-primary' /> <span className='text-sm tracking-wide font-medium'>Create new budgetary exercise</span>
+                                                <AiOutlinePlusCircle className='text-primary' /> <span className='text-sm tracking-wide font-medium'>Create new budgetary cycle</span>
                                             </div>
                                         </div>
                                     </div>
