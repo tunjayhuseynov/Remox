@@ -8,12 +8,13 @@ import { addTransactionHashToTag, removeTransactionHashFromTag, updateTag } from
 
 
 
-export const CreateTag = createAsyncThunk<ITag, { id: string, color: string, name: string }>("remoxData/createTag", async ({ id, color, name }) => {
+export const CreateTag = createAsyncThunk<ITag, { id: string, color: string, name: string, createdDate: number }>("remoxData/createTag", async ({ id, color, name, createdDate }) => {
     const res = await FirestoreRead<{ tags: ITag[] }>("tags", id)
     let tag: ITag = {
         id: nanoid(),
         color: color,
         name: name,
+        createdDate: createdDate,
         transactions: [],
         isDefault: false
     }

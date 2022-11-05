@@ -14,6 +14,7 @@ export interface ITag {
     name: string;
     color: string;
     transactions: ITxTag[],
+    createdDate?: number,
     isDefault: boolean;
 }
 

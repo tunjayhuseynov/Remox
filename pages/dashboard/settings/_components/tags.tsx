@@ -43,11 +43,13 @@ export default function TagsSetting() {
     const Color = color;
     if (!id) return;
     if (Color && value) {
+      const dateNow = new Date().getTime()
       await dispatch(
         CreateTag({
           color: Color,
           id: id,
           name: value,
+          createdDate: dateNow
         })
       ).unwrap();
       setShowModal(false);

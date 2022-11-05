@@ -25,7 +25,7 @@ const Statistic = () => {
     const symbol = useAppSelector(SelectFiatSymbol)
     return <>
         {/* <Modal onDisable={setNotify} openNotify={openNotify} >
-            <NewWalletModal onDisable={setNotify} />
+            <NewWalletModal onDisable={setNotify} />`
         </Modal> */}
         <div className="flex flex-col space-y-3">
             <div className="text-6xl font-semibold text-left">Welcome, {storage?.individual.name}</div>
