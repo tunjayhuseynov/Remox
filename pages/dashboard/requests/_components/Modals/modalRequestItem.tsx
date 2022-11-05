@@ -5,7 +5,7 @@ import { useWalletKit } from 'hooks';
 import Avatar from 'components/avatar';
 import dateFormat from 'dateformat';
 import { useAppSelector } from 'redux/hooks';
-import { SelectOwners } from 'redux/slices/account/remoxData';
+import { SelectOwners, SelectTags } from 'redux/slices/account/remoxData';
 import { fiatList } from "components/general/PriceInputField";
 import { NG } from 'utils/jsxstyle';
 
@@ -17,6 +17,10 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
     const owner = owners.find((owner) => owner.address == request.address)
     const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)
     const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
+
+    const tags = useAppSelector(SelectTags)
+
+    const tag = tags.find((tag) => tag.id === request.tag)
 
     const coin1 = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
     const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
@@ -45,9 +49,9 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
             </div>
         </td>
         <td className="flex h-full items-center ">
-          {request.serviceDate && (
+          {request.timestamp && (
             <div className="flex text-greyish dark:text-white tracking-wide text-sm font-medium">
-              {dateFormat(new Date(request!.serviceDate * 1000), `dd/mm/yyyy`)}
+              {dateFormat(new Date(request!.timestamp * 1000), `dd/mm/yyyy`)}
             </div>
           )}
       </td>
@@ -84,7 +88,10 @@ const ModalRequestItem = ({ request }: { request: IRequest }) => {
           </div>}
       </td>
       <td className="items-center flex text-sm font-medium ">
-        {request.requestType}
+        <div className="flex space-x-2">
+          <div className="w-1 h-5" style={{ backgroundColor: tag?.color }}></div>
+          <span className="text-sm font-medium">{tag?.name}</span>
+        </div>
       </td>
     </tr>
 }

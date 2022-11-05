@@ -22,7 +22,7 @@ const ApprovePendings = ({selectedpPendingRequests , isApproving, setApproving} 
                 Requested Amount
               </th>
               <th className="text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
-                Requests Type
+                Label
               </th>
             </tr>
             {selectedpPendingRequests.map((s) => (

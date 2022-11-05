@@ -35,7 +35,6 @@ export interface IFormInput {
   address: string;
   serviceName: string;
   link?: string;
-  requestType: string;
 }
 
 export default function RequestId() {
@@ -68,8 +67,8 @@ export default function RequestId() {
   const [account, setAccount] = useState<
     IIndividual | IOrganization | undefined
   >();
-  const [labels, setLabels] = useState<ITag[]>();
-  const [label, setLabel] = useState<ITag>();
+  const [tags, setTags] = useState<ITag[]>();
+  const [tag, setTag] = useState<ITag>();
 
   const { register, handleSubmit } = useForm<IFormInput>();
   const { loading, addRequest } = useRequest();
@@ -89,9 +88,9 @@ export default function RequestId() {
         signer === "organization"
           ? await FirestoreRead<IOrganization>("organizations", id)
           : await FirestoreRead<IIndividual>("individuals", id);
-      const labels = await FirestoreRead<ITag[]>("tags", id);
+      const labels = await FirestoreRead<{tags: ITag[]}>("tags", id);
       setAccount(acc);
-      setLabels(labels);
+      setTags(labels?.tags);
       setGetCoins(collection);
       setLoader(false);
     }
@@ -104,15 +103,14 @@ export default function RequestId() {
   const [modal, setModal] = useState(false);
   const [request, setRequest] = useState<IRequest>();
 
-  const onTagChange = (value: any) => {
-    setLabel(
-      value.map((s: SelectType) => ({
+  const onTagChange = (s: any) => {
+    setTag({
         color: s.color,
         id: s.value,
         name: s.label,
         transactions: s.transactions,
         isDefault: s.isDefault,
-      }))
+      }
     );
   };
 
@@ -129,6 +127,7 @@ export default function RequestId() {
 
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
+    const ServiceName = data.serviceName
     console.log(data.link);
 
     try {
@@ -138,7 +137,7 @@ export default function RequestId() {
         setImageRef(ref(storage, url));
       }
 
-      if (label) {
+      if (tag) {
         const result: IRequest = {
           id: nanoid(),
           fullname: data.fullname,
@@ -149,14 +148,14 @@ export default function RequestId() {
           secondAmount: (amountSecond ?? 0).toString(),
           secondCurrency: coinSecond?.symbol ?? null,
           fiatSecond: fiatMoneySecond ?? null,
-          label: label,
-          requestType: data.requestType,
-          serviceDate: GetTime(new Date()),
+          tag: tag.id,
+          serviceName: ServiceName,
           attachLink: data.link ? data.link : null,
           uploadedLink: Invoice ? url : null,
           timestamp: GetTime(),
           status: RequestStatus.pending,
         };
+        console.log(result)
         setRequest(result);
         setFileName(Invoice?.name ?? "");
         setModal(true);
@@ -190,7 +189,7 @@ export default function RequestId() {
     );
   }
 
-  console.log()
+  console.log(tags)
 
   return (
     <>
@@ -294,13 +293,13 @@ export default function RequestId() {
                       Details
                     </span>
                     <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-10 sm:gap-y-7">
-                      <div className="flex flex-col space-y-1">
-                       {labels && <Select
+                      <div className="flex flex-col space-y-1 z-10">
+                       {tags && <Select
                           closeMenuOnSelect={true}
-                          isMulti
+                          isMulti={false}
                           isClearable={false}
                           placeholder="Select labels"
-                          options={Object.values(labels)?.map((s) => ({
+                          options={tags.map((s) => ({
                             value: s.id,
                             label: s.name,
                             color: s.color,
@@ -340,7 +339,7 @@ export default function RequestId() {
                             container: (styles: any) => {
                               return {
                                 ...styles,
-                                backgroundColor: dark ? "#1F1F1F" : "#F9F9F9",
+                                backgroundColor: dark ? "#1F1F1F" : "#F9F4F9",
                               };
                             },
                             multiValueLabel: (styles: any, { data }) => {
@@ -450,6 +449,7 @@ export default function RequestId() {
                 submit={submit}
                 closeModal={closeModal}
                 request={request}
+                tag={tag!}
                 loading={loading}
                 filename={fileName}
               />
