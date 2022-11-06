@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import LineChart from "components/general/Linechart";
 import useStorage from "hooks/storage/useStorage";
-import { SelectAccounts, SelectBalance, SelectDailyBalance, SelectFiatSymbol, SelectHistoricalPrices, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
+import { SelectAccounts, SelectBalance, SelectFiatSymbol, SelectHistoricalPrices, SelectStats, SelectStorage, SelectTotalBalance } from "redux/slices/account/remoxData";
 import { useAppSelector } from "redux/hooks";
 import Payments from "./request-payment";
 import { IFlowDetailItem } from "pages/api/calculation/_spendingType";
