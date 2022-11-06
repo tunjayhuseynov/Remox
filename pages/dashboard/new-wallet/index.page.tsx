@@ -19,6 +19,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { launchApp } from "redux/slices/account/thunks/launch";
 import { TextField } from "@mui/material";
 import { toChecksumAddress } from "web3-utils";
+import { FirestoreReadMultiple } from "rpcHooks/useFirebase";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -108,7 +109,37 @@ function NewWalletModal() {
                     providerName: selectedWalletProvider.name
                 }
             })).data;
-         
+
+            let members: IMember[] = []
+            let owners = [...contract.owners]
+            for (const owner of owners) {
+                const find = await FirestoreReadMultiple<IIndividual>("individuals", [
+                    {
+                        condition: "array-contains",
+                        firstQuery: "members",
+                        secondQuery: toChecksumAddress(owner)
+                    }
+                ])
+                if (find.length > 0) {
+                    members.push({
+                        address: toChecksumAddress(owner),
+                        id: nanoid(),
+                        name: find[0].name,
+                        image: find[0].image,
+                        mail: "",
+                    })
+                } else {
+                    members.push({
+                        address: toChecksumAddress(owner),
+                        id: nanoid(),
+                        name: "",
+                        image: null,
+                        mail: "",
+                    })
+                }
+            }
+
+
             let myResponse: IAccount = {
                 created_date: GetTime(),
                 blockchain: blockchain.name,
@@ -117,20 +148,14 @@ function NewWalletModal() {
                 createdBy: auth.currentUser.uid,
                 pendingMembersObjects: [],
                 id: generate(),
-                members: contract.owners.map<IMember>(s => ({
-                    address: toChecksumAddress(s),
-                    id: nanoid(),
-                    name: "",
-                    image: null,
-                    mail: "",
-                })),
+                members: members,
                 image: image,
                 name: data.name,
                 provider: selectedWalletProvider.name,
                 signerType: "multi"
             }
             let org = Object.assign({}, account)
-            console.log(org, myResponse)
+
             if (accountType === "organization") {
                 await dispatch(Create_Account_For_Organization({
                     account: myResponse,
@@ -142,7 +167,7 @@ function NewWalletModal() {
                     individual: org as IIndividual
                 })).unwrap()
             }
-            console.log(contract)
+
 
             await dispatch(launchApp({
                 accountType: accountType === "organization" ? "organization" : "individual",
