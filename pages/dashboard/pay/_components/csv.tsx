@@ -1,5 +1,8 @@
 import { IAccountORM } from "pages/api/account/index.api"
+import { useAppSelector } from "redux/hooks"
+import { SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectPriceCalculation } from "redux/slices/account/selector"
 import { AddressReducer } from "utils"
+import { generatePriceCalculation } from "utils/const"
 import { IPaymentInputs } from "../[[...name]].page"
 
 interface IProps {
@@ -7,6 +10,11 @@ interface IProps {
     account: IAccountORM | null
 }
 const CsvModal = ({ data, account }: IProps) => {
+    const preference = useAppSelector(SelectFiatPreference)
+    const hp = useAppSelector(SelectHistoricalPrices)
+    const pc = useAppSelector(SelectPriceCalculation)
+    const symbol = useAppSelector(SelectFiatSymbol)
+
 
     return <div className="px-10">
         <h1 className="font-semibold text-2xl mb-7">Uploaded CSV</h1>
@@ -41,10 +49,12 @@ const CsvModal = ({ data, account }: IProps) => {
                 <div>Review Treasury Impact</div>
                 <div className="flex">
                     <div className="w-[30%]">
-
+                        {symbol}{account.coins.reduce((a, c) => {
+                            return a + generatePriceCalculation(c, hp, pc, preference);
+                        }, 0)}
                     </div>
                     <div>
-                        
+
                     </div>
                 </div>
             </div>
