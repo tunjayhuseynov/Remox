@@ -102,6 +102,7 @@ const SingleTransactionItem = ({
         tagId: val.id,
         transaction: {
           id: nanoid(),
+          blockchain: account?.blockchain ?? "",
           address: transaction.address,
           hash: transaction.hash,
           contractType: "single",

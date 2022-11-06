@@ -50,6 +50,7 @@ export const Add_Tx_To_TxList_Thunk = createAsyncThunk<IFormattedTransaction | I
                 id: nanoid(),
                 address: account.address,
                 hash: txHash,
+                blockchain: account.blockchain,
                 contractType: account.signerType,
                 provider: account.provider
             }

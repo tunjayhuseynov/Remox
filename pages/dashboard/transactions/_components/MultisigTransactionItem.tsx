@@ -41,7 +41,7 @@ interface IProps {
     txPositionInRemoxData: number,
     account?: IAccount
 }
-const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account, isDetailOpen,address }, ref) => {
+const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, direction, tags, txPositionInRemoxData, account, isDetailOpen, address }, ref) => {
     const transaction = tx.tx;
     const timestamp = tx.timestamp;
     const [isLabelActive, setLabelActive] = useState(false);
@@ -137,6 +137,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     await dispatch(Add_Tx_To_Budget_Thunk({
                         convertExecuted: true,
                         tx: {
+                            blockchain: account.blockchain,
                             amount: ethAmount,
                             contractAddress: tx.contractAddress,
                             contractType: "multi",
@@ -159,6 +160,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             convertExecuted: true,
                             tx: {
                                 amount: ethAmount,
+                                blockchain: account.blockchain,
                                 contractAddress: tx.contractAddress,
                                 contractType: "multi",
                                 hashOrIndex: tx.hashOrIndex,
@@ -230,6 +232,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 tagId: val.id,
                 transaction: {
                     id: nanoid(),
+                    blockchain: account?.blockchain ?? "",
                     address: tx.contractAddress,
                     hash: tx.hashOrIndex,
                     contractType: "multi",

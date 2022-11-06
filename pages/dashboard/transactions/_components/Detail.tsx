@@ -131,6 +131,7 @@ const Detail = ({
                 txIndex: txIndex,
                 tx: {
                     amount: amount,
+                    blockchain: account?.blockchain ?? '',
                     contractAddress: transaction.address,
                     contractType: isMultisig ? "multi" : "single",
                     hashOrIndex: transaction.hash,
@@ -149,6 +150,7 @@ const Detail = ({
                     txIndex: txIndex,
                     tx: {
                         amount: amount,
+                        blockchain: account?.blockchain ?? "",
                         contractAddress: transaction.address,
                         contractType: isMultisig ? "multi" : "single",
                         hashOrIndex: transaction.hash,
@@ -168,6 +170,7 @@ const Detail = ({
                 txIndex: txIndex,
                 tx: {
                     amount: amount,
+                    blockchain: account?.blockchain ?? "",
                     contractAddress: transaction.address,
                     contractType: isMultisig ? "multi" : "single",
                     hashOrIndex: transaction.hash,
@@ -186,6 +189,7 @@ const Detail = ({
                     txIndex: txIndex,
                     tx: {
                         amount: amount,
+                        blockchain: account?.blockchain ?? "",
                         contractAddress: transaction.address,
                         contractType: isMultisig ? "multi" : "single",
                         hashOrIndex: transaction.hash,
@@ -214,6 +218,7 @@ const Detail = ({
                 txIndex: txIndex,
                 tx: {
                     amount: amount,
+                    blockchain: account?.blockchain ?? "",
                     contractAddress: transaction.address,
                     contractType: isMultisig ? "multi" : "single",
                     hashOrIndex: transaction.hash,
@@ -232,6 +237,7 @@ const Detail = ({
                     txIndex: txIndex,
                     tx: {
                         amount: amount,
+                        blockchain: account?.blockchain ?? "",
                         contractAddress: transaction.address,
                         contractType: isMultisig ? "multi" : "single",
                         hashOrIndex: transaction.hash,
@@ -275,6 +281,7 @@ const Detail = ({
                         tagId: myTag.id,
                         transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
                             hash: transaction.hash,
+                            blockchain: account?.blockchain ?? "",
                             address: transaction.address,
                             contractType: isMultisig ? "multi" : "single",
                             id: transaction.id,
@@ -287,6 +294,7 @@ const Detail = ({
                     tagId: id,
                     transaction: {
                         id: nanoid(),
+                        blockchain: account?.blockchain ?? "",
                         address: transaction.address,
                         hash: transaction.hash,
                         contractType: isMultisig ? "multi" : "single",
@@ -678,6 +686,7 @@ const Detail = ({
                                                             transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
                                                                 hash: transaction.hash,
                                                                 address: transaction.address,
+                                                                blockchain: account?.blockchain ?? "",
                                                                 contractType: isMultisig ? "multi" : "single",
                                                                 id: transaction.id,
                                                                 provider: account?.provider ?? null,

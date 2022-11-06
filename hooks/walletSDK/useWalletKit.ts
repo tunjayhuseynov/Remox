@@ -507,6 +507,7 @@ export default function useWalletKit() {
               Add_Tx_To_Budget_Thunk({
                 budget: budget,
                 tx: {
+                  blockchain: account.blockchain,
                   protocol: account.provider,
                   contractAddress: account.address,
                   contractType: account.signerType,
@@ -526,6 +527,7 @@ export default function useWalletKit() {
                   subbudget: subbudget,
                   tx: {
                     protocol: account.provider,
+                    blockchain: account.blockchain,
                     contractAddress: account.address,
                     contractType: account.signerType,
                     isSendingOut: true,

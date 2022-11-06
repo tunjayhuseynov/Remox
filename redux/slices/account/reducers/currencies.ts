@@ -32,9 +32,9 @@ export default {
   updateUserBalance: (state: IRemoxData, action: any) => {
     if (!action.payload) return;
 
-    state.balances = {
-      ...action.payload,
-    };
+    // state.balances = {
+    //   ...action.payload,
+    // };
   },
 };
 

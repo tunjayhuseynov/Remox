@@ -67,7 +67,7 @@ const Statistic = () => {
                 })
             })
 
-            if (response[stringTime(new Date())] === undefined && Object.keys(response).length > 0) response[stringTime(new Date())] = totalBalance
+            if (    Object.keys(response).length > 0) response[stringTime(new Date())] = totalBalance
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
 
             const calendarList = Object.entries(response)
