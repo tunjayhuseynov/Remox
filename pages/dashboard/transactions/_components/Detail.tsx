@@ -75,7 +75,7 @@ const Detail = ({
         return notes.find(s => s.address.toLowerCase() === transaction.address.toLowerCase() && s.hashOrIndex.toLowerCase() === transaction.hash.toLowerCase())
     }, [])
 
-    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    // const calculatePrice = useAppSelector(SelectPriceCalculationFn)
 
     const myTag = tags?.[0]
 
@@ -593,7 +593,7 @@ const Detail = ({
                                         }
                                     }}>{AddressReducer(transaction.hash)}</div>
                                 </div>
-                                {!swap && action != "Received" && action != "Swap" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
+                                {!swap && action === "Sent" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
                                     <div className="text-greylish">Budget</div>
                                     <div className='w-[10rem]'>
                                         {budgets.length > 0 && !selectedBudget && <Dropdown

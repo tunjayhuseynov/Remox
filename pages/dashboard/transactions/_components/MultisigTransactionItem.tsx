@@ -208,7 +208,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
 
 
-    const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, true, account?.provider ?? undefined);
+    const [image, name, action] = TransactionD  irectionImageNameDeclaration(blockchain, direction, true, account?.provider ?? undefined);
 
 
     const [tagName, setTagName] = useState<string>()
