@@ -67,7 +67,7 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
                 }
             })
         } else {
-            const { data } = await axios.get<{ result: { balance: string, contractAddress?: string }[] }>("https://explorer.celo.org/api?module=account&action=tokenlist&address=" + toChecksumAddress(address));
+            const { data } = await axios.get<{ result: { balance: string, contractAddress?: string }[] }>(blockchain.explorerAPIUrl + "?module=account&action=tokenlist&address=" + toChecksumAddress(address));
             const accountBalance = data.result;
 
             for (const coin of coinList) {

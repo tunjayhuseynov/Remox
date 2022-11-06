@@ -6,6 +6,7 @@ export interface ITxTag {
     address: string;
     contractType: "single" | "multi";
     provider: string | null;
+    blockchain: string;
     hash: string;
 }
 

@@ -52,6 +52,7 @@ export interface IBudgetExercise {
 
 export interface IBudgetTX {
     contractAddress: string;
+    blockchain: string;
     contractType: 'single' | 'multi';
     protocol: string | null;
     hashOrIndex: string,

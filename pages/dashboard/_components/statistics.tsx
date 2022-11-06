@@ -17,19 +17,16 @@ const Statistic = () => {
 
     const [chartDate, setChartDate] = useState<"week" | "month" | "quart" | "year">("week")
 
-    // const [openNotify, setNotify] = useState<boolean>(false)
-
     const totalBalance = useAppSelector(SelectTotalBalance)
     const accounts = useAppSelector(SelectAccounts)
     const balances = useAppSelector(SelectBalance)
     const hp = useAppSelector(SelectHistoricalPrices)
-    // const dailyBalance = useAppSelector(SelectDailyBalance)
+
     const dailyBalance = useMemo(() => {
         if (stats) {
             const stringTime = (time: Date) => `${time.getFullYear()}/${time.getMonth() + 1 > 9 ? time.getMonth() + 1 : `0${time.getMonth() + 1}`}/${time.getDate() > 9 ? time.getDate() : `0${time.getDate()}`}`
-            const timeCoins: { [time: string]: IPrice } = {}
+            const timeCoins: { [time: string]: number } = {}
             const preference = storage?.organization?.fiatMoneyPreference ?? storage?.individual?.fiatMoneyPreference ?? "USD";
-            // let pc = storage?.organization?.priceCalculation ?? storage?.individual?.priceCalculation ?? "current";
 
             let response: { [time: string]: number } = {}
             let balance: typeof balances = accounts.reduce<typeof balances>((a, account) => {
@@ -48,29 +45,21 @@ const Statistic = () => {
                 if (new Date(flowKey).getTime() > new Date(newest).getTime()) newest = flowKey
                 for (const item of flowValue) {
                     if (!timeCoins[flowKey]) {
-                        timeCoins[flowKey] = {};
+                        timeCoins[flowKey] = 0;
                     }
                     if (balance[item.name.symbol]) {
                         balance[item.name.symbol].amount += ((item.type === "in" ? -1 : 1) * DecimalConverter(item.amount, item.name.decimals));
                         balance[item.name.symbol].amount = +balance[item.name.symbol].amount.toFixed(2)
                     }
-                    // if (balance?.[item?.fee?.name?.symbol]) {
-                    //     balance[item.fee.name.symbol].amount += DecimalConverter(item.fee.amount, item.fee.name.decimals);
-                    // }
-                    timeCoins[flowKey] = { ...balance };
-                    // console.log(flowKey,balance);
 
                 }
-                response[flowKey] = Object.entries(timeCoins[flowKey]).reduce((a, [key, val]) => {
-                    a += (hp[balance[key].symbol]?.[preference].find(s => new Date(flowKey).getTime() === new Date(s.date).getTime())?.price ?? GetFiatPrice(balances[key], preference)) * val.amount
+                response[flowKey] = Object.values(balance).reduce((a, b) => {
+                    a += (hp[b.symbol]?.[preference].find(s => new Date(flowKey).getTime() === new Date(s.date).getTime())?.price ?? GetFiatPrice(b, preference)) * b.amount
                     return a;
-                }, 0);
+                }, 0)
             }
-            
-            //(hp[balance[key].symbol]?.[preference].find(s => new Date(flowKey).getTime() === new Date(s.date).getTime())?.price) ?? 
-            // console.log("TimeCoins: ", timeCoins)
-            // console.log("TimeCoins: ", timeCoins)
-            // console.log("Response: ", response)
+
+ 
             let totalBalance = 0;
             accounts.forEach((account) => {
                 account.coins.forEach((coin) => {
@@ -80,7 +69,7 @@ const Statistic = () => {
 
             if (response[stringTime(new Date())] === undefined && Object.keys(response).length > 0) response[stringTime(new Date())] = totalBalance
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
-            // console.log("Fist: ", response)
+
             const calendarList = Object.entries(response)
             if (calendarList.length > 0) {
                 const last = calendarList.at(-1)
@@ -96,23 +85,11 @@ const Statistic = () => {
                             lastCheckedTime = time
                         } else {
                             response[time] = saved
-                            // if (timeCoins?.[lastCheckedTime]) {
-                            //     // console.log("Time: ", time)
-                            //     response[time] = Object.entries(timeCoins[lastCheckedTime]).reduce((a, [key, val]) => {
-                            //         console.log(hp[balance[key].symbol]?.[preference].find(s => new Date(time).getTime() === new Date(s.date).getTime())?.price)
-                            //         console.log(GetFiatPrice(balances[key], preference))
-                            //         a += +(new BigNumber((hp[balance[key].symbol]?.[preference].find(s => new Date(time).getTime() === new Date(s.date).getTime())?.price ?? GetFiatPrice(balances[key], preference))).multipliedBy(val.amount).toFixed(2)) 
-                            //         console.log(a)
-                            //         return a;
-                            //     }, 0);
-                            // } else {
-                            //     response[time] = saved
-                            // }
                         }
                     }
                 }
             }
-          
+
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
             return {
                 week: Object.entries(response).filter(([time, amount]) => Math.abs(date.subtract(new Date(), new Date(time)).toDays()) <= 7).reduce<{ [name: string]: number }>((a, c) => { a[c[0]] = c[1]; return a; }, {}),

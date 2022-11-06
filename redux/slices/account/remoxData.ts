@@ -77,7 +77,7 @@ export interface IRemoxData {
     organizations: IOrganizationORM[],
     isFetching: boolean;
     IsInit: boolean;
-    balances: IPrice;
+    // balances: IPrice;
     addressBook: IAddressBook[];
     tags: ITag[],
     nfts: IFormattedTransaction[],
@@ -135,7 +135,7 @@ export const init = (): IRemoxData => {
         historyPriceList: {},
         budgetExercises: [],
         contributors: [],
-        balances: {},
+        // balances: {},
         requests: {
             pendingRequests: [],
             approvedRequests: [],
@@ -232,7 +232,7 @@ const remoxDataSlice = createSlice({
             state.tags = [];
             state.isFetching = true;
             state.IsInit = false;
-            state.balances = {};
+            // state.balances = {};
             state.addressBook = [];
             state.blockchain = {
                 explorerTxUrl: "",
@@ -482,7 +482,7 @@ const remoxDataSlice = createSlice({
         //******************************************* */
 
         builder.addCase(Refresh_Balance_Thunk.fulfilled, (state, action) => {
-            state.balances = action.payload.AllPrices;
+            // state.balances = action.payload.AllPrices;
         })
 
 
@@ -565,7 +565,7 @@ const remoxDataSlice = createSlice({
             state.transactions = action.payload.Transactions;
             state.historyPriceList = action.payload.HistoryPriceList;
             state.tags = action.payload.Tags;
-            state.balances = action.payload.Balance.AllPrices;
+            // state.balances = action.payload.Balance.AllPrices;
             state.recurringTasks = action.payload.RecurringTasks;
             state.nfts = action.payload.NFTs;
             state.IsInit = true;
@@ -589,6 +589,7 @@ const remoxDataSlice = createSlice({
             }
             state.isFetching = false;
         });
+
         builder.addCase(launchApp.rejected, (state, action) => {
             state.isFetching = false;
         });

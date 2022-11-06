@@ -3,7 +3,7 @@ import Siderbarlist from './sidebarlist'
 import Button from 'components/button';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectFiatSymbol, SelectHistoricalPrices, SelectIndividual, SelectOrganization, SelectProviderAddress, SelectTotalBalance, setAccountType, setProviderID } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectFiatSymbol, SelectIndividual, SelectOrganization, SelectProviderAddress, SelectTotalBalance, setAccountType, setProviderID } from 'redux/slices/account/remoxData';
 import makeBlockie from 'ethereum-blockies-base64';
 import { launchApp } from 'redux/slices/account/thunks/launch';
 import { auth, IAccount } from 'firebaseConfig';
@@ -26,7 +26,6 @@ const Sidebar = () => {
     const totalBalance = useAppSelector(SelectTotalBalance)
     const dispatch = useAppDispatch()
     const selectedAddress = useAppSelector(SelectProviderAddress)
-    const hp = useAppSelector(SelectHistoricalPrices)
 
     const navigator = useRouter()
     const [showBar, setShowBar] = useState<boolean>(true)

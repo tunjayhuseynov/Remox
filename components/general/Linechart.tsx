@@ -12,7 +12,6 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
   const dark = useAppSelector(SelectDarkMode)
   const keys = Object.keys(data).map(s => new Date(s).getTime())
   const symbol = useAppSelector(SelectFiatSymbol)
-  console.log(keys)
   const series = [
     {
       name: "Value",
