@@ -55,8 +55,9 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
                         className="rounded-full object-cover aspect-square"
                     /> : <div className="w-full h-full rounded-full bg-gray-500" />}
                 </div>
-                <span className="font-medium text-sm text-left leading-none self-center gap-x-[7px]">
-                    {payTx?.fiatAmount ?? tokenAmount} <span className="text-greylish">{afterPrice ? `(${symbol}${price})`: ""}</span>
+                <span className="text-left leading-none self-center gap-x-[7px] flex">
+                    <div className="text-sm font-medium"><NG number={payTx?.fiatAmount ?? +tokenAmount} fontSize={0.875} /> </div>
+                    <span className="text-greylish font-medium text-sm">{afterPrice ? `(${symbol}${price.toFixed(2)})` : ""}</span>
                 </span>
             </div>
             {!disableFiat && <div className="grid grid-cols-[1.25rem,1fr] gap-x-[4px]">

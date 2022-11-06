@@ -72,7 +72,7 @@ function BudgetCard({ item, exercise }: { item: IBudgetORM, exercise: IBudgetExe
                             <div className='flex items-center space-x-3 font-medium text-lg'>
                                 <CoinDesignGenerator ether timestamp={Date.now()} transfer={{
                                     coin: GetCoins[budgetCoins.second.secondCoin],
-                                    amount: budgetCoins.second.secondTotalAmount.toFixed(2),
+                                    amount: budgetCoins.second.secondTotalAmount.toString(),
                                 }} />
                                 {/* <CurrencyElement coin={GetCoins[budgetCoins.second.secondCoin]} fiat={item.secondFiatMoney} amount={budgetCoins.second.secondTotalAmount} /> */}
                             </div>}

@@ -112,6 +112,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
       // tickAmount: "dataPoints",
       type: "datetime",
       // offsetX: -20,
+      tickPlacement: "on",
       labels: {
         formatter: (val) => {
           if (selectedDate === "week") {
