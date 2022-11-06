@@ -391,7 +391,7 @@ const Pay = () => {
                             <AnimatedTabBar data={data} index={index} className={'!text-lg'} />
                         </div>
                     </div>
-                    <div className="w-full px-3 py-3 bg-white dark:bg-darkSecond shadow-custom">
+                    <div className="w-full px-3 py-3 bg-white dark:bg-darkSecond shadow-custom min-h-[100px]">
                         <div className={`grid grid-cols-[30%,30%,40%]`}>
                             <div className="flex flex-col gap-2 mb-4 border-r">
                                 <div className="font-medium text-greylish dark:text-white text-sm">Total Treasury</div>
@@ -420,9 +420,9 @@ const Pay = () => {
                             </div>
                         </div>
                     </div>
-                    {selectedAccountAndBudget.budget && <div className="flex justify-center">
-                        <div className={`mt-[1px] shadow-custom px-5 bg-white dark:bg-darkSecond py-2`}>
-                            <div className="grid grid-cols-2">
+                    {selectedAccountAndBudget.budget && <div className="flex justify-center min-h-[100px]">
+                        <div className={`mt-[1px] shadow-custom px-5 bg-white dark:bg-darkSecond py-3`}>
+                            <div className="grid grid-cols-2 pt-2">
                                 <div className="flex flex-col gap-2 mb-4 border-r">
                                     <div className="font-medium text-greylish dark:text-white text-sm">Budget Balance</div>
                                     <div className="text-xl font-medium leading-none">{`${symbol}`}<NG number={(TotalBudget?.totalAmount ?? 0) - (TotalBudget?.totalPending ?? 0) + (TotalBudget?.totalUsedAmount ?? 0)} fontSize={1.25} /></div>

@@ -132,7 +132,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
 
     return <div className="w-full relative">
         <form onSubmit={handleSubmit(submit)} className="w-3/5 mx-auto pt-10">
-            <div className="text-xl text-center font-medium py-6">Define your budgetary exercise</div>
+            <div className="text-xl text-center font-medium py-6">Define your budgetary cycle</div>
             <div className="px-12 flex flex-col space-y-6">
                 <TextField
                     InputProps={{
@@ -148,7 +148,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                     type="text"
                     defaultValue={exercise.name}
                     {...register("name", { required: true })}
-                    label="Name  of your budgetary exercise"
+                    label="Name  of your budgetary cycle"
                     className="w-full py-2 px-1 rounded-lg bg-white dark:bg-darkSecond"
                 />
                 {(budgetFiat) && <div>

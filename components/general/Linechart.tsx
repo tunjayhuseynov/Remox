@@ -12,7 +12,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
   const dark = useAppSelector(SelectDarkMode)
   const keys = Object.keys(data).map(s => new Date(s).getTime())
   const symbol = useAppSelector(SelectFiatSymbol)
- 
+  console.log(keys)
   const series = [
     {
       name: "Value",
@@ -45,12 +45,12 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
     tooltip: {
       x: {
         format: "dd MMM yyyy",
-        formatter: (value, { series, seriesIndex, dataPointIndex, w })=>{
-       
-          if(selectedDate === "week"){
+        formatter: (value, { series, seriesIndex, dataPointIndex, w }) => {
+
+          if (selectedDate === "week") {
             return dateFormat(value, "ddd")
           }
-          if(selectedDate === "month" || selectedDate === "quart"){
+          if (selectedDate === "month" || selectedDate === "quart") {
             return dateFormat(value, "dd mmm")
           }
           return dateFormat(value, "mmm");
@@ -63,7 +63,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
           `<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">
           <div class="flex justify-between">
           <span class='text-greylish dark:text-white text-sm'>
-          ${date ? new Date(date).toLocaleDateString("en-US", {day: "numeric",month: "short", year: "numeric" }) : "N/A"}
+          ${date ? new Date(date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "N/A"}
           </span>
           <span class='text-greylish dark:text-white text-sm'>
           </span>
@@ -98,7 +98,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
       showForNullSeries: false,
       showForZeroSeries: false,
     },
-    yaxis: { show: false },
+    yaxis: { show: false, min: 0 },
     chart: {
       width: "100%",
       toolbar: { show: false },
@@ -111,14 +111,14 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
     },
     xaxis: {
       // tickAmount: "dataPoints",
-      type: "numeric",
+      type: "datetime",
       // offsetX: -20,
       labels: {
-        formatter: (val)=>{
-          if(selectedDate === "week"){
+        formatter: (val) => {
+          if (selectedDate === "week") {
             return dateFormat(val, "ddd")
           }
-          if(selectedDate === "month" || selectedDate === "quart"){
+          if (selectedDate === "month" || selectedDate === "quart") {
             return dateFormat(val, "dd mmm")
           }
           return dateFormat(val, "mmm");
@@ -142,7 +142,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
     />
 
   </>
-    
+
 }
 
 export default LineChart;

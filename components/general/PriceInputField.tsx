@@ -140,7 +140,7 @@ const PriceInputField = (
                                         <img src={selectedFiat?.logo} className="aspect-auto w-6 ml-1" /> <span>{selectedFiat?.name}</span>
                                         <span className='font-thin text-xs dark:text-[#c0c0c0] text-[#808080] px-1 tracking-wider'>as</span>
                                     </>}
-                                    <img src={selectedCoin?.logoURI} className="rounded-full w-5 h-5 mr-1" />
+                                    <img src={selectedCoin?.logoURI} className="rounded-full w-5 h-5 mr-2" />
                                     {selectedCoin?.symbol}
                                 </div>}
                             {!selectedCoin && <div>No Coin Selected</div>}
