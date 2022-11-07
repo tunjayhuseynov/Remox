@@ -81,7 +81,7 @@ function ChooseBudget({submit} : IProps) {
                 <div className="text-xl font-semibold py-6 text-center">
                     Choose account and budget
                 </div>
-                <form onSubmit={onSubmit} className='flex flex-col space-y-5'>
+                <div  className='flex flex-col space-y-5'>
                     <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Wallet</div> */}
                         <div className=" gap-5 w-full">
@@ -115,10 +115,10 @@ function ChooseBudget({submit} : IProps) {
                         <Button version="second" className={'flex items-center justify-center !py-2 w-full rounded-xl'} onClick={() => { router.back() }}>Close</Button>
                         {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}
                         <div className="w-full">
-                            <Button type="submit" className={'flex items-center justify-center !py-2 w-full rounded-xl'} >Next</Button>
+                            <Button type="submit" className={'flex items-center justify-center !py-2 w-full rounded-xl'} onClick={() => onSubmit() } >Next</Button>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </>
