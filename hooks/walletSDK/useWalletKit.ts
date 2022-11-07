@@ -386,12 +386,18 @@ export default function useWalletKit() {
                   tags: tags,
                 }))
 
-                dispatch(Refresh_Balance_Thunk({
-                  blockchain: blockchain,
-                }))
+                // dispatch(Refresh_Balance_Thunk({
+                //   blockchain: blockchain,
+                // }))
                 dispatch(Refresh_Accounts_Thunk({
                   id: account.id,
                 }))
+
+                if (cancelStreaming && streamId) {
+                  dispatch(removeRecurringTask({
+                    streamId: streamId,
+                  }))
+                }
 
                 if (payTransactions) {
                   dispatch(Add_Pay_Transactions(payTransactions.map(s => ({
@@ -541,11 +547,7 @@ export default function useWalletKit() {
             }
           }
         }
-        if (cancelStreaming && streamId) {
-          dispatch(removeRecurringTask({
-            streamId: streamId,
-          }))
-        }
+
 
         if (notes && txhash) {
           dispatch(Add_Notes_Thunk({

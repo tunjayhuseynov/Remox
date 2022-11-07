@@ -6,8 +6,7 @@ import { IRemoxAccountORM } from "pages/api/account/multiple.api";
 import { IBudgetExerciseORM } from "pages/api/budget/index.api";
 import { IAccountMultisig } from "pages/api/multisig/index.api";
 import { RootState } from "redux/store";
-import { BlockchainType } from "types/blockchains";
-import { IAccountType, IRemoxData } from "../../remoxData";
+import { IRemoxData } from "../../remoxData";
 import { Multisig_Fetch_Thunk } from "../multisig";
 
 type TxRefreshResponse = {

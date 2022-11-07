@@ -19,7 +19,7 @@ interface IProps {
 }
 export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize = 1.25, ether, payTx, afterPrice }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
-    const hp = useAppSelector(SelectHistoricalPrices)
+    // const hp = useAppSelector(SelectHistoricalPrices)
     // const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const symbol = useAppSelector(SelectFiatSymbol)
 
@@ -31,11 +31,11 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
     }
     const fiatPrice = GetFiatPrice(transfer.coin, fiatPreference) * +tokenAmount
 
-    const date = new Date(timestamp)
-    const diff = Math.abs(DateTime.subtract(date, new Date()).toDays())
-    const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
-    const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
-    const price = hpCoinPrice && diff >= 1 ? +tokenAmount * hpCoinPrice : fiatPrice
+    // const date = new Date(timestamp)
+    // const diff = Math.abs(DateTime.subtract(date, new Date()).toDays())
+    // const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+    // const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
+    const price = fiatPrice//hpCoinPrice && diff >= 1 ? +tokenAmount * hpCoinPrice : fiatPrice
 
     const fiatImg = fiatList.find(f => f.name === payTx?.fiat)?.logo
 
@@ -56,7 +56,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
                     /> : <div className="w-full h-full rounded-full bg-gray-500" />}
                 </div>
                 <span className="text-left leading-none self-center gap-x-[7px] flex">
-                    <div className="text-sm font-medium"><NG number={payTx?.fiatAmount ?? +tokenAmount} fontSize={0.875} /> </div>
+                    <div className="text-sm font-medium"><NG number={fiatImg ? payTx?.fiatAmount ?? +tokenAmount : +tokenAmount} fontSize={0.875} /> </div>
                     <span className="text-greylish font-medium text-sm">{afterPrice ? `(${symbol}${price.toFixed(2)})` : ""}</span>
                 </span>
             </div>
@@ -70,7 +70,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
                         /> : `${symbol}`}
                     </div>
                     <div>
-                        <NG fontSize={0.625} decimalSize={80} number={payTx?.amount ?? (price.toFixed(0).length > 18 ? 0 : price)} />
+                        <NG fontSize={0.625} decimalSize={80} number={fiatImg ? payTx?.amount ?? (price.toFixed(0).length > 18 ? 0 : price) : (price.toFixed(0).length > 18 ? 0 : +price.toFixed(2))} />
                     </div>
                 </div>
             </div>}

@@ -165,6 +165,7 @@ export default async function handler(
         }
       })
       const txs = transactionsData.results;
+      
       if (ownerData.nonce === undefined) throw new Error("Nonce is not found");
 
       const safeTxs = await Promise.all(txs.filter(s => !(s.to === s.safe && !s.data)).map((tx: any) => parseSafeTransaction(tx, txs, Coins, blockchain, multisigAddress, data.sign, ownerData.owners, tags?.tags ?? [], ownerData.nonce!)))

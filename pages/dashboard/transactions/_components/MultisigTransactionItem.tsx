@@ -248,7 +248,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     }
 
     const isApprovable = tx.confirmations.length >= tx.contractThresholdAmount
-    const isRejected = tx.confirmations.length === 0
+    const isRejected = !!tx.rejection?.isExecuted
 
 
 
@@ -256,7 +256,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
         <>
             <tr className={`pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] gap-y-5 py-5 bg-white dark:bg-darkSecond ${tx.rejection ? "mt-5" : "my-5"} rounded-md shadow-custom hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5`}>
                 <td className="text-left p-0 flex space-x-2 rounded-md">
-                    {(!tx.isExecuted || (tx.rejection && !tx.rejection.isExecuted)) && tx.nonce !== undefined && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center mt-1 rounded-md dark:text-black">{tx.nonce}</div>}
+                    {(!tx.isExecuted && !tx.rejection?.isExecuted) && tx.nonce !== undefined && <div className="font-medium text-sm w-6 h-6 bg-grey flex justify-center mt-1 rounded-md dark:text-black">{tx.nonce}</div>}
                     <div className="relative inlin leading-none">
                         <span className="font-medium text-sm">{dateFormat(new Date(+tx.timestamp * 1e3), "mmm dd")}</span>
                         <span className="text-xxs text-gray-400 absolute translate-y-[120%] top-[0.5rem] left-0">{dateFormat(new Date(+tx.timestamp * 1e3), "HH:MM")}</span>
@@ -389,20 +389,20 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left w-full">
                     <div>
-                        <div className="flex items-center space-x-3 mb-[0.1875rem]">
+                        <div className="grid grid-cols-[60%,10%,30%] items-center space-x-3 mb-[0.1875rem]">
                             <div className="flex space-x-1 items-center font-semibold">
-                                <div className={`w-2 h-2 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
-                                <div className='lg:text-sm 2xl:text-base'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
+                                <div className={`w-2 h-2 flex-shrink-0 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
+                                <div className='lg:text-sm 2xl:text-sm'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
                             </div>
-                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-sm">
                                 |
                             </div>
-                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-sm">
                                 {tx.isExecuted ? tx.contractThresholdAmount : tx.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
-                        <div className="h-[0.375rem] w-[90%] rounded-lg bg-gray-300 relative" >
-                            <div className={`absolute left-0 top-0 h-[0.375rem] ${tx.isExecuted ? "bg-green-500" : tx.confirmations.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
+                        <div className="h-[0.375rem] rounded-lg bg-gray-300 relative" >
+                            <div className={`absolute left-0 top-0 h-[0.375rem] ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.isExecuted ? "100%" : Math.min(((tx.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />
                         </div>
@@ -492,19 +492,19 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     <td className="border-t dark:border-gray-700 border-gray-100"></td>
                     <td className="border-t dark:border-gray-700 border-gray-100"></td>
                     <td className="self-center w-[100%] h-full border-t dark:border-gray-700 border-gray-100 pt-5">
-                        <div className="flex items-center space-x-3 mb-[0.1875rem]">
+                        <div className="grid grid-cols-[60%,10%,30%] items-center space-x-3 mb-[0.1875rem]">
                             <div className="flex space-x-1 items-center font-semibold">
-                                <div className={`w-2 h-2 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
-                                <div className='lg:text-sm 2xl:text-base'>{tx.rejection.isExecuted ? "Rejected" : "Pending"}</div>
+                                <div className={`w-2 h-2 flex-shrink-0 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
+                                <div className='lg:text-sm 2xl:text-sm'>{tx.rejection.isExecuted ? "Rejected" : "Pending"}</div>
                             </div>
-                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-sm">
                                 |
                             </div>
-                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-base">
+                            <div className="text-gray-500 dark:text-gray-300 lg:text-sm 2xl:text-sm">
                                 {tx.rejection.isExecuted ? tx.contractThresholdAmount : tx.rejection.confirmations.length} <span className="font-thin">/</span> {tx.contractThresholdAmount}
                             </div>
                         </div>
-                        <div className="h-[0.375rem] w-[90%] rounded-lg bg-gray-300 relative" >
+                        <div className="h-[0.375rem] rounded-lg bg-gray-300 relative" >
                             <div className={`absolute left-0 top-0 h-[0.375rem] ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.confirmations.length === 0 || tx.rejection.isExecuted ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                 width: tx.rejection.isExecuted ? "100%" : Math.min(((tx.rejection.confirmations.length / tx.contractThresholdAmount) * 100), 100).toFixed(2) + "%"
                             }} />
@@ -512,7 +512,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     </td>
                     <td className="p-0">
                         <div className="flex items-end h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700 pb-2">
-                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) &&
+                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && !name &&
                                 (!(tx.rejection.isExecuted || tx.isExecuted) &&
                                     !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
@@ -536,8 +536,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         <></>
                                 )
                             }
-                            {!tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) &&
-                                (!(tx.rejection.isExecuted || tx.isExecuted) &&
+                            {!tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && !name &&
+                                ((!(tx.rejection.isExecuted || tx.isExecuted)) &&
                                     !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <Tooltip title="You are not an owner">
                                         <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm">
@@ -582,7 +582,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 direction={direction}
                 txIndex={txPositionInRemoxData}
                 action={action}
-                isExecuted={tx.rejection?.isExecuted === true || tx.isExecuted === true}
+                isExecuted={tx.isExecuted === true}
                 isMultisig={true}
                 isRejected={isRejected}
                 signers={tx.confirmations}

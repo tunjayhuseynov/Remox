@@ -1463,13 +1463,13 @@ export default function useMultisig() {
                     executeTxResponse.transactionResponse &&
                     (await executeTxResponse.transactionResponse.wait());
 
-                dispatch(Refresh_Balance_Thunk({
-                    blockchain: blockchain,
-                }))
+                // dispatch(Refresh_Balance_Thunk({
+                //     blockchain: blockchain,
+                // }))
                 // dispatch(Refresh_Accounts_Thunk({
                 //     id: account.id,
                 // }))
-                dispatch(Tx_Refresh_Data_Thunk())
+                await dispatch(Tx_Refresh_Data_Thunk()).unwrap()
 
                 return receipt;
             }

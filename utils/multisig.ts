@@ -194,7 +194,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTra
             reader.push(parsed)
         }
     }
-
+ 
     const transaction: ITransactionMultisig = {
         budget: null,
         confirmations: mainTx.confirmations.map(s => s.owner),

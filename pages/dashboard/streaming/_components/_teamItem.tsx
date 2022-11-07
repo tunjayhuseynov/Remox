@@ -16,6 +16,7 @@ import { BiTrash } from "react-icons/bi";
 import Button from "components/button";
 import Modal from "components/general/modal";
 import { MdCancel } from "react-icons/md";
+import { useRouter } from "next/router";
 
 interface IProps {
     tx: IFormattedTransaction | ITransactionMultisig,
@@ -24,7 +25,7 @@ interface IProps {
 
 const TeamItem = ({ tx, members }: IProps) => {
 
-    const task = tx as IAutomationTransfer
+    const task = ('tx' in tx ? tx.tx : tx) as IAutomationTransfer
     const providerAddress = useAppSelector(SelectProviderAddress)
     const { editMember } = useContributors()
     const { SendTransaction } = useWalletKit()
@@ -33,9 +34,10 @@ const TeamItem = ({ tx, members }: IProps) => {
 
     const [deleteModal, setDeleteModal] = useState(false)
     const [member, setMember] = useState<IMember | null>(null)
+    const router = useRouter()
 
     useAsyncEffect(async () => {
-        const member = members.find(s => s.taskId?.toLowerCase() === task.hash.toLowerCase())
+        const member = members.find(s => s.taskId?.toLowerCase() === ('tx' in tx ? tx.hashOrIndex : tx.hash).toLowerCase())
         if (member?.taskId) {
             setMember(member)
         }
@@ -45,7 +47,7 @@ const TeamItem = ({ tx, members }: IProps) => {
 
     const cancel = async () => {
         try {
-            const account = accounts.find(s => s.address.toLowerCase() === (tx as IAutomationCancel).address.toLowerCase())
+            const account = accounts.find(s => s.address.toLowerCase() === ('tx' in tx ? tx.contractAddress : tx.address).toLowerCase())
             if (!account) return ToastRun(<>Account not found</>, "error")
 
             if (account.signerType === "single" && account.address.toLowerCase() !== providerAddress?.toLowerCase()) return ToastRun(<>Please, choose the wallet {account.address}</>, "warning")
@@ -53,7 +55,7 @@ const TeamItem = ({ tx, members }: IProps) => {
 
             await SendTransaction(account, [], {
                 cancelStreaming: true,
-                streamingIdDirect: (tx as IAutomationTransfer).streamId,
+                streamingIdDirect: (('tx' in tx ? tx.tx : tx) as IAutomationTransfer).streamId,
             })
 
             if (member) {
@@ -75,7 +77,13 @@ const TeamItem = ({ tx, members }: IProps) => {
                 );
             }
 
-            ToastRun(<>Automations has been successfully stopped</>)
+            setDeleteModal(false)
+            if (account.signerType === "single") {
+                ToastRun(<>Automations has been successfully stopped</>)
+            } else {
+                ToastRun(<>The transaction has been successfully created</>)
+                router.push("/dashboard/transactions")
+            }
         } catch (error) {
             console.error(error)
             ToastRun(<>Failed to stop automations</>, "error")

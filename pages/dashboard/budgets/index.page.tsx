@@ -17,6 +17,7 @@ import Modal from 'components/general/modal';
 import EditExercise from './_components/EditExercise';
 import DeleteExercise from './_components/DeleteExercise';
 import { IBudgetExerciseORM } from 'pages/api/budget/index.api';
+import { GetTime } from 'utils';
 
 const Budgets = () => {
 
@@ -116,7 +117,7 @@ const Budgets = () => {
                                                     // const MainFiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
 
                                                     const fiatPrice = GetFiatPrice(coins[b.token], fiatPreference)
-                                                    const totalAmount = b.budgetCoins.totalAmount *fiatPrice
+                                                    const totalAmount = b.budgetCoins.totalAmount * fiatPrice
                                                     // const totalUsedAmount = b.budgetCoins.fiat ? b.budgetCoins.totalUsedAmount / fiatPrice : b.budgetCoins.totalUsedAmount
                                                     // const totalPendingAmount = b.budgetCoins.fiat ? b.budgetCoins.totalPending / fiatPrice : b.budgetCoins.totalPending
 
@@ -134,14 +135,18 @@ const Budgets = () => {
                                                     }
                                                 }, { totalAmount: 0 })
 
-                                                return <div onClick={() => setSelectedExerciseId(item.id)} key={item.id} className="hover:bg-greylish hover:bg-opacity-5 p-2 hover:transition-all transition-all text-start justify-start cursor-pointer w-full border-b dark:border-greylish">
+                                                return <div onClick={() => {
+                                                    if (item.from < GetTime() && item.to > GetTime()) {
+                                                        setSelectedExerciseId(item.id)
+                                                    }
+                                                }} key={item.id} className={`${item.from < GetTime() && item.to > GetTime() ? "hover:bg-greylish hover:bg-opacity-5 cursor-pointer" : "bg-greylish bg-opacity-20"} p-2 hover:transition-all transition-all text-start justify-start w-full border-b dark:border-greylish`}>
                                                     <div className="grid grid-cols-[35%,1fr,33%,1fr] gap-x-1 px-2 ">
                                                         <span className="font-medium text-sm transition-all self-center">{item.name}</span>
                                                         <div className="text-primary border border-primary bg-primary bg-opacity-30 text-xxs px-1 py-1 rounded-sm cursor-pointer text-center font-semibold self-center">
                                                             {item.from * 1e3 > new Date().getTime() ? "Future" : item.to * 1e3 < new Date().getTime() ? "Past" : "Current"}
                                                         </div>
                                                         <span className="font-medium text-sm self-center pl-2">{fiatSymbol}<NG number={TotalBudget.totalAmount} fontSize={0.875} /></span>
-                                                        <div className="flex space-x-2 self-center justify-end w-full pl-2">
+                                                        <div className="flex space-x-2 self-center justify-end w-full pl-2" onClick={(event) => event.stopPropagation()}>
                                                             <VscEdit size={"1.125rem"} className="cursor-pointer hover:text-green-500" onClick={() => { setEditModal(true); setSelectedEditExercise(item) }} />
                                                             <GiCancel size={"1.125rem"} className="cursor-pointer hover:text-red-500" onClick={() => { setDeleteModal(true); setSelectedDeleteExercise(item) }} />
                                                         </div>

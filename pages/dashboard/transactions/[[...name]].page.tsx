@@ -132,7 +132,7 @@ const Transactions = () => {
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
        
             if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
-            if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
+            if ((name) && (c.rejection?.isExecuted === false && c.isExecuted === false)) return false
         } else {
             // console.log(selectedAccounts, c.address)
             if (!name) return false
@@ -183,11 +183,11 @@ const Transactions = () => {
         if ('tx' in c) {
             if (!type) {
                 if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
-                if ((name) && (c.rejection?.isExecuted === false || c.isExecuted === false)) return false
+                if ((name) && (c.rejection?.isExecuted === false && c.isExecuted === false)) return false
             } else if (type === "signing") {
                 if ((c.isExecuted === true || c.rejection?.isExecuted === true)) return false
             } else if (type === "history") {
-                if (c.rejection?.isExecuted === false || c.isExecuted === false) return false
+                if (c.rejection?.isExecuted === false && c.isExecuted === false) return false
             }
         } else {
             if (!type) {

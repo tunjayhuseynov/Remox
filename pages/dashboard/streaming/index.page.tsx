@@ -1,25 +1,22 @@
-import { Fragment, useState, useMemo } from "react";
+import { Fragment, useState, useMemo, useEffect } from "react";
 import { useAppSelector } from "redux/hooks";
-import { IMember } from "types/dashboard/contributors";
-import Modal from "components/general/modal";
-import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { Coins } from "types";
 import _ from "lodash";
 import {
   SelectBalance,
   SelectContributorMembers,
-  SelectFiatPreference,
-  SelectFiatSymbol,
   SelectNonCanceledRecurringTasks,
+  SelectRecurringTasks,
   SelectPriceCalculationFn,
-  SelectSelectedAccountAndBudget
+  SelectFiatSymbol,
 } from "redux/slices/account/selector";
 import TeamItem from "./_components/_teamItem";
-import { IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
+import { ERCMethodIds, IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
 import { DecimalConverter } from "utils/api";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { NG } from "utils/jsxstyle";
+import { GetTime } from "utils";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
@@ -29,14 +26,13 @@ const Automations = () => {
   const calculatePrice = useAppSelector(SelectPriceCalculationFn)
   const tasks = useAppSelector(SelectNonCanceledRecurringTasks)
   const symbol = useAppSelector(SelectFiatSymbol)
-
   const members = useAppSelector(SelectContributorMembers)
   const balance = useAppSelector(SelectBalance);
-
-  const [addStopModal, setAddStopModal] = useState(false);
-  const [selectable, setSelectable] = useState(false);
-  const reccuringState = useState<(ITransactionMultisig | IFormattedTransaction)[]>([]);
-  const memberState = useState<IMember[]>([]);
+  // console.log(tasks)
+  // const [addStopModal, setAddStopModal] = useState(false);
+  // const [selectable, setSelectable] = useState(false);
+  // const reccuringState = useState<(ITransactionMultisig | IFormattedTransaction)[]>([]);
+  // const memberState = useState<IMember[]>([]);
 
   const totalPrice: [{ [name: string]: number }, number] = useMemo(() => {
     let res: { [name: string]: number } = {};
@@ -61,12 +57,12 @@ const Automations = () => {
         <div className="text-2xl font-bold">Streaming</div>
       </div>
       <>
-       {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
+        {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
           <div className="flex  space-y-3 gap-12">
             <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
               <div className="text-base font-medium text-gray-500">Total Streaming Payment</div>
               <div className="text-3xl font-semibold !mt-0">
-                {symbol} <NG number={totalPrice[1]} fontSize={1.75}/>
+                {symbol}<NG number={totalPrice[1]} fontSize={1.75} />
               </div>
             </div>
             <div className="flex flex-col space-y-5 !mt-0">
@@ -114,7 +110,7 @@ const Automations = () => {
                 <th className="py-3 self-center text-left">Labels</th>
               </tr>
               {tasks.map((w) => {
-                const hash = 'tx' in w ? w.tx.hash : w.hash;
+                const hash = 'tx' in w ? w.hashOrIndex : w.hash;
                 return <Fragment key={hash}> <TeamItem tx={w} members={members} /> </Fragment>
               })}
               {

@@ -354,12 +354,12 @@ const Detail = ({
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>
                                                 {direction === TransactionDirection.In ? "+" : "-"}
-                                                {symbol}<NG fontSize={1.5} number={(DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? 0)) || GetFiatPrice(transfer.coin, fiatPreference) * DecimalConverter(+transfer.amount, transfer.coin.decimals)} />
+                                                {symbol}<NG fontSize={1.5} number={GetFiatPrice(transfer.coin, fiatPreference) * DecimalConverter(+transfer.amount, transfer.coin.decimals)} />
                                             </div>}
-                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
-                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? 0)) || GetFiatPrice(automation.coin, fiatPreference) * DecimalConverter(automation.amount, automation.coin.decimals)} /></div>}
-                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
-                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? 0)) || GetFiatPrice(automationCanceled.coin, fiatPreference) * DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals)} /></div>}
+                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + (GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
+                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={GetFiatPrice(automation.coin, fiatPreference) * DecimalConverter(automation.amount, automation.coin.decimals)} /></div>}
+                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + (GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
+                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={GetFiatPrice(automationCanceled.coin, fiatPreference) * DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals)} /></div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}
@@ -417,7 +417,7 @@ const Detail = ({
                                                 {isExecuted ? threshold : signers.length} <span className="font-thin">/</span> {threshold}
                                             </div>
                                             <div className="h-4 w-28 rounded-lg bg-gray-300 relative" >
-                                                <div className={`absolute left-0 top-0 h-4 ${isExecuted ? "bg-green-500" : signers.length === 0 ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
+                                                <div className={`absolute left-0 top-0 h-4 ${isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-lg`} style={{
                                                     width: isExecuted ? "100%" : Math.min(((signers.length / threshold) * 100), 100).toFixed(2) + "%"
                                                 }} />
                                             </div>
@@ -519,17 +519,17 @@ const Detail = ({
                                             >
                                                 {transfer.to.toLowerCase() === account?.address ? (account?.name ?? AddressReducer(account?.address)) : AddressReducer(transfer.to)}
                                             </div>}
-                                            {transferBatch && <div className='flex flex-col'>{transferBatch.payments.map((s, index) => <div
+                                            {transferBatch && <div className='flex flex-col'>{Array.from(new Set(transferBatch.payments.map(s => s.to))).map((s, index) => <div
                                                 className='cursor-pointer'
                                                 onClick={
                                                     async () => {
-                                                        if (s.to) {
-                                                            await navigator.clipboard.writeText(s.to)
+                                                        if (s) {
+                                                            await navigator.clipboard.writeText(s)
                                                             ToastRun("Copied to clipboard", "success")
                                                         }
                                                     }
                                                 }
-                                                key={index}>{AddressReducer(s.to)}</div>)}</div>}
+                                                key={index}>{AddressReducer(s)}</div>)}</div>}
                                             {automation && <div
                                                 className="cursor-pointer"
                                                 onClick={
@@ -542,17 +542,17 @@ const Detail = ({
                                                 }
                                             >{AddressReducer(automation.to)}</div>
                                             }
-                                            {automationBatch && <div className='flex flex-col'>{automationBatch.payments.map((s, index) => <div
+                                            {automationBatch && <div className='flex flex-col'>{Array.from(new Set(automationBatch.payments.map(s => s.to))).map((s, index) => <div
                                                 className='cursor-pointer'
                                                 onClick={
                                                     async () => {
-                                                        if (s.to) {
-                                                            await navigator.clipboard.writeText(s.to)
+                                                        if (s) {
+                                                            await navigator.clipboard.writeText(s)
                                                             ToastRun("Copied to clipboard", "success")
                                                         }
                                                     }
                                                 }
-                                                key={index}>{AddressReducer(s.to)}</div>)}</div>}
+                                                key={index}>{AddressReducer(s)}</div>)}</div>}
                                             {automationCanceled && <div
                                                 className="cursor-pointer"
                                                 onClick={

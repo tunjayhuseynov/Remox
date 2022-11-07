@@ -69,6 +69,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
     let To = (future.getFullYear() + 1) + '/' + (future.getMonth() + 1) + '/' + future.getDate();
 
     let helperCoin = 0;
+    console.log(hp)
     if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
         helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
     } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
@@ -76,7 +77,8 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
     }
 
     let helperCoin2 = 0;
-    if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
+    if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && budgetCoin2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
+        console.log(hp["CELO"],(hp[budgetCoin2.symbol]?.[exercise.coins.second.fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10))
         helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
     } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
         helperCoin2 = budgetAmount2 / exercise.coins.second.customPrice
@@ -130,7 +132,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
 
     const [isLoading, submit] = useLoading(onSubmit)
 
-    return <div className="w-full relative">
+    return <div className="w-full relative pb-16 xl:pb-0">
         <form onSubmit={handleSubmit(submit)} className="w-3/5 mx-auto pt-10">
             <div className="text-xl text-center font-medium py-6">Define your budgetary cycle</div>
             <div className="px-12 flex flex-col space-y-6">
@@ -154,6 +156,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                 {(budgetFiat) && <div>
                     <div className={`grid ${selectedPriceOption.name === "Custom Price" ? "grid-cols-2" : ""} gap-x-5`}>
                         <Dropdown
+                            lock
                             sx={{
                                 fontSize: "0.75rem"
                             }}
@@ -176,14 +179,15 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                             className="bg-white dark:bg-darkSecond"
                         />
                         {selectedPriceOption.name === "Custom Price" && <TextField
-                            InputProps={{ style: { fontSize: '0.75rem' } }}
+                            disabled
+                            InputProps={{ style: { fontSize: '0.75rem', height: '3.5rem' } }}
                             InputLabelProps={{ style: { fontSize: '0.75rem' } }}
                             defaultValue={customPrice}
                             className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice(+e.target.value)} />}
                     </div>
                 </div>}
 
-                <PriceInputField helper={`Price Calculation: ${helperCoin.toFixed(2)} ${budgetCoin.symbol}`} coins={coins} defaultValue={budgetAmount} defaultCoin={budgetCoin} defaultFiat={fiatMoney} textSize={0.75} disableFiatNoneSelection onChange={(val, coin, fiat) => {
+                <PriceInputField lock helper={`Price Calculation: ${helperCoin.toFixed(2)} ${budgetCoin.symbol}`} coins={coins} defaultValue={budgetAmount} defaultCoin={budgetCoin} defaultFiat={fiatMoney} textSize={0.75} disableFiatNoneSelection onChange={(val, coin, fiat) => {
                     setBudgetAmount(val)
                     setBudgetCoin(coin)
                     if (fiat) {
@@ -196,6 +200,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                     {(budgetFiat2) && <div>
                         <div className={`grid ${selectedPriceOption2?.name === "Custom Price" ? "grid-cols-2" : ""} gap-x-5`}>
                             <Dropdown
+                                lock
                                 sx={{
                                     fontSize: "0.75rem"
                                 }}
@@ -218,14 +223,15 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                                 textClass="text-xs"
                             />
                             {selectedPriceOption2?.name === "Custom Price" && <TextField
-                                InputProps={{ style: { fontSize: '0.75rem' } }}
+                                disabled
+                                InputProps={{ style: { fontSize: '0.75rem', height: '3.5rem' } }}
                                 InputLabelProps={{ style: { fontSize: '0.75rem' } }}
                                 defaultValue={customPrice2}
                                 className="w-full bg-white dark:bg-darkSecond" type={'number'} inputProps={{ step: 0.01 }} label="Custom Price" variant="outlined" onChange={(e) => setCustomPrice2(+e.target.value)} />}
                         </div>
                     </div>}
                     <div>
-                        <PriceInputField helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${budgetCoin2.symbol}`} textSize={0.75} defaultValue={budgetAmount2} defaultCoin={budgetCoin} isMaxActive defaultFiat={budgetFiat2} disableFiatNoneSelection coins={coins} onChange={(val, coin, fiatMoney) => {
+                        <PriceInputField lock helper={`Price Calculation: ${helperCoin2.toFixed(2)} ${budgetCoin2.symbol}`} textSize={0.75} defaultValue={budgetAmount2} defaultCoin={budgetCoin2} isMaxActive defaultFiat={budgetFiat2} disableFiatNoneSelection coins={coins} onChange={(val, coin, fiatMoney) => {
                             setBudgetAmount2(val)
                             setBudgetCoin2(coin)
                             if (fiatMoney) {
@@ -237,16 +243,17 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
                             setAnotherToken(false)
                             setBudgetAmount2(null)
                         }}>
-                            <IoMdRemoveCircle color="red" />
+                            {/* <IoMdRemoveCircle color="red" /> */}
                         </div>
                     </div>
                 </div> :
-                    <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem] text-sm !mt-2" onClick={() => setAnotherToken(true)}>
-                        <div className="self-center">
-                            <AiOutlinePlusCircle className='text-primary' />
-                        </div>
-                        <span className="text-primary font-semibold">Add</span>
-                    </div>
+                    <></>
+                    // <div className="col-span-2 relative cursor-pointer grid grid-cols-[20%,80%] gap-x-1 w-[5rem] text-sm !mt-2" onClick={() => setAnotherToken(true)}>
+                    //     <div className="self-center">
+                    //         <AiOutlinePlusCircle className='text-primary' />
+                    //     </div>
+                    //     <span className="text-primary font-semibold">Add</span>
+                    // </div>
                 }
                 <div>
                     <DatePicker render={<CustomRangeInput />} placeholder="-/-/-" plugins={[<DatePanel sort="date" />]} containerClassName="w-full dark:bg-darkSecond bg-white" value={date} onChange={(data) => {

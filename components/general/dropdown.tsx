@@ -25,7 +25,8 @@ interface IProp<T> {
     textClass?: string,
     textContainerClass?: string,
     inputProps?: any,
-    nonrounded?: boolean
+    nonrounded?: boolean,
+    lock?: boolean
 }
 
 interface IGenericExtendedProp {
@@ -36,11 +37,11 @@ interface IGenericExtendedProp {
     image?: string | Image,
     coinUrl?: string,
     logoUrl?: string,
-    secondValue?: string | number
+    secondValue?: string | number,
 }
 
 const Dropdown = <T extends IGenericExtendedProp,>(
-    { loading, nonrounded, selected, label, setSelect, list, className, labelSX = {}, inputProps = {}, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
+    { loading, nonrounded, selected, label, lock, setSelect, list, className, labelSX = {}, inputProps = {}, parentClass = '', runFn, selectClass, sx, textClass, displaySelector, textContainerClass }: IProp<T>) => {
     const id = useId()
     const labelId = useId()
     const [internalLaoding, setInternalLoading] = useState(false)
@@ -55,6 +56,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
             <FormControl className={`${className} w-full`}>
                 {label && <InputLabel sx={labelSX} id={labelId + "-label"}>{label}</InputLabel>}
                 <Select
+                    disabled={lock}
                     id={id}
                     labelId={labelId + "-label"}
                     value={selected ?? ""}

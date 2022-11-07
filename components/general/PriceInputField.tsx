@@ -23,6 +23,7 @@ interface IProps {
     textSize?: number,
     helper?: string,
     disableFiat?: boolean,
+    lock?: boolean,
 }
 interface FiatList { logo: string, name: FiatMoneyList }
 
@@ -58,7 +59,7 @@ export const fiatList: FiatList[] = [
 ]
 
 const PriceInputField = (
-    { isMaxActive: max, helper, onChange, coins, maxRegularCalc, defaultValue, defaultCoin,
+    { isMaxActive: max, helper, onChange, coins, maxRegularCalc, defaultValue, defaultCoin, lock,
         defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount, textSize = 0.875, disableFiat
     }: IProps) => {
     const [dropdown, setDropdown] = useState<boolean>(false);
@@ -92,13 +93,14 @@ const PriceInputField = (
 
     return <>
         <FormControl fullWidth className='relative'>
-            <InputLabel htmlFor='display-amount' sx={{
+            <InputLabel htmlFor='display-amount' disabled={lock} sx={{
                 fontSize: `${textSize}rem`,
                 top: 2
             }}>Amount</InputLabel>
             <OutlinedInput
                 id="display-amount"
                 fullWidth
+                disabled={lock}
                 type="number"
                 className='dark:bg-darkSecond bg-white '
                 inputProps={{ step: 0.01, value: value?.toString() ?? "", inputMode: "numeric", style: { fontSize: `${textSize}rem` } }}
@@ -133,7 +135,7 @@ const PriceInputField = (
                                     MAX
                                 </div>
                             </div>}
-                        <div className='w-auto border border-[#a7a7a7] dark:border-[#777777] px-5 py-1 my-1 rounded-md cursor-pointer select-none' onClick={() => setDropdown(!dropdown)}>
+                        <div className={`w-auto border border-[#a7a7a7] dark:border-[#777777] px-5 py-1 my-1 rounded-md ${lock ? "" : "cursor-pointer"} select-none`} onClick={() => { if (!lock) setDropdown(!dropdown) }}>
                             {selectedCoin &&
                                 <div className='flex space-x-2 tracking-wide text-xs items-center justify-center'>
                                     {selectedFiat && <>
@@ -141,7 +143,7 @@ const PriceInputField = (
                                         <span className='font-thin text-xs dark:text-[#c0c0c0] text-[#808080] px-1 tracking-wider'>as</span>
                                     </>}
                                     <img src={selectedCoin?.logoURI} className="rounded-full w-5 h-5 mr-2" />
-                                    {selectedCoin?.symbol}
+                                    <span>{selectedCoin?.symbol}</span>
                                 </div>}
                             {!selectedCoin && <div>No Coin Selected</div>}
                         </div>

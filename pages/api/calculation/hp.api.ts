@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const bc = Blockchains.filter(b => blockchains.includes(b.name));
     if (!bc) throw new Error("Blockchain not found");
 
-    let bcs = {};
+    let bcs : IHpApiResponse = {};
     for (const blockchain of bc) {
         const collectionName = blockchain.currencyCollectionName;
         const { docs: coinList } = await adminApp.firestore().collection(collectionName).get();
@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }))
         bcs = {
             ...bcs,
-            ...result
+            ...result.reduce((a, b) => ({ ...a, ...b }), {})
         }
     }
 
