@@ -425,7 +425,7 @@ export default async (
         // startTime: details["startTime"],
         method: ERCMethodIds.automatedCanceled,
         id: ERCMethodIds.automatedCanceled,
-        streamId: (result.inputs[0]).toNumber(),
+        streamId: (result.inputs[0]).toString(),
         tags: theTags,
       }
       return res;

@@ -1377,7 +1377,7 @@ export default function useMultisig() {
                 const miltiSendContractAddress = multiSendDeployment?.networkAddresses["42220"] ?? multiSendDeployment?.defaultAddress;
 
                 const { data } = await axios.get(blockchain.multisigProviders.find(s => s.name === "GnosisSafe")?.txServiceUrl as string + `api/v1/safes/${account.address}/creation/`)
-           
+
                 const network = {
                     [4220]: {
                         multiSendAddress: miltiSendContractAddress ?? "",
@@ -1458,7 +1458,7 @@ export default function useMultisig() {
                         from: await safeOwner.getAddress(),
                     }
                 );
-
+                
                 const receipt =
                     executeTxResponse.transactionResponse &&
                     (await executeTxResponse.transactionResponse.wait());

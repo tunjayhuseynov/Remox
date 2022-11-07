@@ -28,6 +28,9 @@ const Automations = () => {
   const symbol = useAppSelector(SelectFiatSymbol)
   const members = useAppSelector(SelectContributorMembers)
   const balance = useAppSelector(SelectBalance);
+  const tsk = useAppSelector(SelectRecurringTasks)
+  console.log(tasks)
+  console.log("tsk: ", tsk)
   // console.log(tasks)
   // const [addStopModal, setAddStopModal] = useState(false);
   // const [selectable, setSelectable] = useState(false);

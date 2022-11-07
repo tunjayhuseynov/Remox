@@ -511,9 +511,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         </div>
                     </td>
                     <td className="p-0">
-                        <div className="flex items-end h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700 pb-2">
-                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && !name &&
-                                (!(tx.rejection.isExecuted || tx.isExecuted) &&
+                        <div className="flex items-end h-full justify-end pr-5 space-x-3 border-t border-gray-100 dark:border-gray-700">
+                            {tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && (tx.rejection.isExecuted === false && tx.isExecuted === false) &&
+                                ((tx.rejection.isExecuted === false && tx.isExecuted === false) &&
                                     !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
                                         <div className="tracking-wider" >
@@ -536,7 +536,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         <></>
                                 )
                             }
-                            {!tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && !name &&
+                            {!tx.contractOwners.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && (tx.rejection.isExecuted === false && tx.isExecuted === false) &&
                                 ((!(tx.rejection.isExecuted || tx.isExecuted)) &&
                                     !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <Tooltip title="You are not an owner">
