@@ -65,9 +65,9 @@ function ChooseBudget() {
 
     return <>
         <div className="bg-light dark:bg-dark h-full relative pr-1 overflow-y-auto  overflow-x-hidden bottom-0 right-0  cursor-default ">
-                <div className="text-xl font-semibold py-6 text-center">
-                    Choose account and budget
-                </div>
+            <div className="text-xl font-semibold py-6 text-center">
+                Choose account and budget
+            </div>
             <div className="w-[25%] mx-auto py-8 flex flex-col gap-5 ">
                 <form onSubmit={onSubmit} className='flex flex-col space-y-5'>
                     <div className="flex flex-col gap-2 w-full">
@@ -80,7 +80,7 @@ function ChooseBudget() {
                                 setSelect={setAccount as any} />
                         </div>
                     </div>
-                    {budgets.length > 0 && <div className="flex flex-col gap-2 w-full">
+                    {budgets.length > 0 && router.query.page != "swap" && <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Budget</div> */}
                         <Dropdown
                             selectClass={'py-2'}
@@ -90,7 +90,7 @@ function ChooseBudget() {
                             setSelect={setBudget}
                         />
                     </div>}
-                    {subbudgets.length > 0 && <div className="flex flex-col gap-2 w-full">
+                    {subbudgets.length > 0 && router.query.page != "swap" && <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Subbudget</div> */}
                         <Dropdown
                             label="Choose Subbudget"

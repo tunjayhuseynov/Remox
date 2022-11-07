@@ -106,7 +106,7 @@ const Budgets = () => {
                         {isOpen &&
                             <ClickAwayListener onClickAway={() => setOpen(false)}>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-                                    className="min-w-[24.75rem] absolute rounded-lg right-0 bottom-0 translate-x-full translate-y-1/2 bg-light dark:bg-darkSecond z-50 border dark:border-gray-500 border-gray-200"
+                                    className="min-w-[24.75rem] absolute rounded-lg right-0 bottom-14 translate-x-full translate-y-full bg-light dark:bg-darkSecond z-50 border dark:border-gray-500 border-gray-200"
                                     onClick={() => setOpen(false)}
                                 >
                                     <div className='flex flex-col'>

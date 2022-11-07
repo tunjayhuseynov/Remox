@@ -321,7 +321,7 @@ const remoxDataSlice = createSlice({
         })
 
         builder.addCase(UpdateFiatCurrencyThunk.fulfilled, (state, action) => {
-            state.historyPriceList = action.payload[1];
+            // state.historyPriceList = action.payload[1];
             if (state.storage?.organization) {
                 state.storage.organization.fiatMoneyPreference = action.payload[0];
             }

@@ -1461,7 +1461,7 @@ export default function useMultisig() {
                 
                 const receipt =
                     executeTxResponse.transactionResponse &&
-                    (await executeTxResponse.transactionResponse.wait());
+                    (await executeTxResponse.transactionResponse.wait(24));
 
                 // dispatch(Refresh_Balance_Thunk({
                 //     blockchain: blockchain,

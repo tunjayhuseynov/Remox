@@ -103,7 +103,7 @@ export const UpdateSeemTimeThunk = createAsyncThunk<ISeendTimeProps, ISeendTimeP
 })
 
 
-export const UpdateFiatCurrencyThunk = createAsyncThunk<[FiatMoneyList, IHpApiResponse], FiatMoneyList>("remoxData/updateFiatCurrency", async (currency, api) => {
+export const UpdateFiatCurrencyThunk = createAsyncThunk<[FiatMoneyList], FiatMoneyList>("remoxData/updateFiatCurrency", async (currency, api) => {
     const type = (api.getState() as RootState).remoxData.accountType
     const userId = (api.getState() as RootState).remoxData.storage?.organization?.id ?? (api.getState() as RootState).remoxData.storage?.individual?.id
     if (!userId) throw new Error('Account is not defined')
@@ -117,14 +117,14 @@ export const UpdateFiatCurrencyThunk = createAsyncThunk<[FiatMoneyList, IHpApiRe
     const allCumulativeTransactions = state.remoxData.cumulativeTransactions;
     const blockchain = state.remoxData.blockchain;
 
-    const hpList = await axios.post<IHpApiResponse>('/api/calculation/hp', {
-        coinList: Object.keys(state.remoxData.coins), //Array.from(new Set(allCoins.filter(s => s))),
-        lastTxDate: allCumulativeTransactions.at(-1)?.timestamp,
-        blockchain: blockchain.name,
-        fiatMoney: currency
-    })
+    // const hpList = await axios.post<IHpApiResponse>('/api/calculation/hp', {
+    //     coinList: Object.keys(state.remoxData.coins), //Array.from(new Set(allCoins.filter(s => s))),
+    //     lastTxDate: allCumulativeTransactions.at(-1)?.timestamp,
+    //     blockchain: blockchain.name,
+    //     fiatMoney: currency
+    // })
 
-    return [currency, hpList.data];
+    return [currency];
 })
 
 export const UpdatePriceCalculationThunk = createAsyncThunk<"current" | "5" | "10" | "15" | "20" | "30", "current" | "5" | "10" | "15" | "20" | "30">("remoxData/updatePriceCalculation", async (priceCalculation, api) => {
