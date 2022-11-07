@@ -11,10 +11,11 @@ import { setStorage } from 'redux/slices/account/storage';
 import { ToastRun } from 'utils/toast';
 import { Blockchains } from 'types/blockchains';
 import { GetFiatPrice } from 'utils/const';
-import { AiOutlineDown } from 'react-icons/ai';
+// import { AiOutlineDown } from 'react-icons/ai';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ClickAwayListener } from '@mui/material';
 import { IPrice } from 'utils/api';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Sidebar = () => {
 
@@ -99,7 +100,7 @@ const Sidebar = () => {
         <div className={`hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin fixed w-[16.875%] 2xl:w-[18%] 3xl:w-[15%] h-full hidden md:block z-[1] md:col-span-2 transitiion-all  flex-none  overflow-y-auto pt-28 bg-[#FFFFFF]  dark:bg-darkSecond shadow-15`}>
             <div className='flex flex-col px-9'>
                 <div className='space-y-1 border border-[#D6D6D6] dark:border-greylish rounded-md w-full px-3 py-1 cursor-pointer relative'>
-                    <div className='grid grid-cols-[25%,55%,1fr]' onClick={() => setSidedown(!sidedown)}>
+                    <div className='grid grid-cols-[25%,61%,1fr]' onClick={() => setSidedown(!sidedown)}>
                         <div className='self-center'>
                             <img src={selectedItem.image ?? makeBlockie(selectedItem.name ?? "random")} className='w-[1.875rem] h-[1.875rem] object-cover rounded-full' alt="" />
                         </div>
@@ -108,11 +109,11 @@ const Sidebar = () => {
                             <div className='text-xxs text-greylish'>{selectedItem.secondValue}</div>
                         </div>
                         <div className='flex items-center justify-end'>
-                            <AiOutlineDown className='text-greylish dark:text-white text-opacity-50' />
+                            <ExpandMoreIcon className={`text-greylish dark:text-white text-opacity-50 transition-all ${sidedown ? "rotate-180" : "rotate-0"}`} />
                         </div>
                     </div>
                     <AnimatePresence>
-                        {sidedown && <div className='absolute overflow-hidden -bottom-1 bg-white dark:bg-darkSecond translate-y-full w-full left-0 z-[999999999999]'>
+                        {sidedown && <div className='absolute overflow-hidden -bottom-1 bg-white dark:bg-darkSecond translate-y-full w-full left-0 z-[999999999999] border border-[#D6D6D6] dark:border-greylish rounded-md'>
                             <ClickAwayListener onClickAway={() => setSidedown(false)}>
                                 <motion.div className="overflow-auto max-h-[200px]" animate={{ opacity: 1 }} initial={{ opacity: 0 }} transition={{ duration: .33 }} exit={{ opacity: 0 }}>
                                     <div>
