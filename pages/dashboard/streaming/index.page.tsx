@@ -10,6 +10,7 @@ import {
   SelectRecurringTasks,
   SelectPriceCalculationFn,
   SelectFiatSymbol,
+  SelectFiatPreference,
 } from "redux/slices/account/selector";
 import TeamItem from "./_components/_teamItem";
 import { ERCMethodIds, IAutomationCancel, IAutomationTransfer, IFormattedTransaction } from "hooks/useTransactionProcess";
@@ -17,6 +18,7 @@ import { DecimalConverter } from "utils/api";
 import { ITransactionMultisig } from "hooks/walletSDK/useMultisig";
 import { NG } from "utils/jsxstyle";
 import { GetTime } from "utils";
+import { GetFiatPrice } from "utils/const";
 
 const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
@@ -29,8 +31,7 @@ const Automations = () => {
   const members = useAppSelector(SelectContributorMembers)
   const balance = useAppSelector(SelectBalance);
   const tsk = useAppSelector(SelectRecurringTasks)
-  console.log(tasks)
-  console.log("tsk: ", tsk)
+  const fiat = useAppSelector(SelectFiatPreference)
   // console.log(tasks)
   // const [addStopModal, setAddStopModal] = useState(false);
   // const [selectable, setSelectable] = useState(false);
@@ -61,37 +62,41 @@ const Automations = () => {
       </div>
       <>
         {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
-          <div className="flex  space-y-3 gap-12">
+          <div className="grid grid-cols-[20%,1fr] gap-12">
             <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
-              <div className="text-base font-medium text-gray-500">Total Streaming Payment</div>
+              <div className="text-base font-medium text-gray-500">Total Reccuring Payment</div>
               <div className="text-3xl font-semibold !mt-0">
                 {symbol}<NG number={totalPrice[1]} fontSize={1.75} />
               </div>
             </div>
             <div className="flex flex-col space-y-5 !mt-0">
               <div className="text-sm font-medium text-gray-500">Token Allocation</div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-12">
+              <div className="flex flex-wrap gap-y-4">
                 {
                   Object.entries(totalPrice[0])
                     .filter((s) => s[1])
                     .map(([currency, amount]) => {
                       return (
-                        <div key={currency} className="flex flex-col space-y-2 relative h-fit">
-                          <div className="flex space-x-2">
-                            <div className="font-semibold text-3xl">
-                              {amount.toFixed(2)}
+                        <div key={currency} className="flex flex-col space-y-2 relative mr-12">
+                          <div className="inline-grid grid-flow-col space-x-2">
+                            <div className="flex flex-col space-y-1">
+                              <div className="font-semibold text-xl leading-none mt-[6px]">
+                                {amount.toFixed(2)}
+                              </div>
+                              <div className="text-xs text-greylish opacity-75 text-left">
+                                {symbol}<NG number={(GetFiatPrice(GetCoins[currency as keyof Coins], fiat) * amount)} fontSize={0.75} />
+                              </div>
                             </div>
-                            <div className="font-semibold text-3xl flex gap-1 items-center">
-                              <img
-                                src={GetCoins[currency as keyof Coins].logoURI}
-                                className="w-[1.563rem] h-[1.563rem] rounded-full"
-                                alt={GetCoins[currency as keyof Coins].name}
-                              />
-                              {GetCoins[currency as keyof Coins].name}
+                            <div className="font-semibold text-xl inline-grid grid-flow-col gap-x-2">
+                              <div className="mt-[3px]">
+                                <img
+                                  src={GetCoins[currency as keyof Coins].logoURI}
+                                  className="w-[1.5625rem] h-[1.5625rem] rounded-full object-cover"
+                                  alt={GetCoins[currency as keyof Coins].symbol}
+                                />
+                              </div>
+                              <span>{GetCoins[currency as keyof Coins].symbol}</span>
                             </div>
-                          </div>
-                          <div className="text-xs text-greylish opacity-75 text-left">
-                            {(calculatePrice({ ...GetCoins[currency as keyof Coins], amount, coin: GetCoins[currency as keyof Coins] }) ?? 1).toFixed(2)} {symbol}
                           </div>
                         </div>
                       );

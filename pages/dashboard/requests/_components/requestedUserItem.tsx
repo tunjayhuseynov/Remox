@@ -61,7 +61,7 @@ const RequestedUserItem = ({
   const [chooseBudget, setChooseBudget] = useState<boolean>(false)
 
   const divRef = useRef<HTMLTableRowElement>(null);
-  
+
   const dispatch = useDispatch();
   const { rejectRequest, approveRequest, removeRequest } = useRequest();
   const { GetCoins, SendTransaction } = useWalletKit();
@@ -73,7 +73,7 @@ const RequestedUserItem = ({
   const fiatSecond = fiatList.find((fiat) => fiat.name === request.fiatSecond)
 
 
-  const tag = tags.find((tag) => tag.id === request.tag )
+  const tag = tags.find((tag) => tag.id === request.tag)
 
   const owner = owners.find((owner) => owner.address === request.address)
 
@@ -114,12 +114,12 @@ const RequestedUserItem = ({
   }
 
   const Execute = async (account: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
-    try{
+    try {
       let inputs: IPaymentInput[] = [];
       const amount = request.amount
       if (request.fiat) {
         const fiatPrice = GetFiatPrice(coin1!, request.fiat)
-  
+
         inputs.push({
           amount: Number(amount) / (fiatPrice),
           coin: coin1?.symbol ?? "",
@@ -132,14 +132,14 @@ const RequestedUserItem = ({
           recipient: request.address,
         });
       }
-  
+
       if (request.secondCurrency && request.secondAmount) {
         const secondAmount = request.secondAmount;
         const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
-  
+
         if (request.fiatSecond) {
           const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
-  
+
           inputs.push({
             amount: Number(secondAmount) / (fiatPrice),
             coin: coin2?.symbol ?? "",
@@ -153,24 +153,24 @@ const RequestedUserItem = ({
           });
         }
       }
-  
+
       await SendTransaction(account!, inputs, {
         budget: budget,
         subbudget: subbudget,
         tags: tag ? [
-          tag 
+          tag
         ] : undefined
       })
-  
+
       dispatch(removeApprovedRequest(request.id));
       await removeRequest(request, userId ?? "")
-  
-  
+
+
       setChooseBudget(false)
     } catch (error: any) {
       console.log(error)
     }
-   
+
   }
 
   const [isRejecting, setRejecting] = useLoading(Reject);
@@ -293,16 +293,16 @@ const RequestedUserItem = ({
           )}
         </td>
         <td className="flex flex-col justify-center text-sm space-y-4 font-medium ">
-            <CurrencyElement fiat={request.fiat} coin={coin1} amount={request.amount} />
-            {(request.secondAmount && request.secondCurrency) && 
-              <CurrencyElement fiat={request.fiatSecond} coin={coin2!} amount={request.secondAmount} />
-            }
+          <CurrencyElement fiat={request.fiat} disableFiat={!request.fiat} coin={coin1} amount={request.amount} />
+          {(request.secondAmount && request.secondCurrency) &&
+            <CurrencyElement fiat={request.fiatSecond} disableFiat={!request.fiatSecond} coin={coin2!} amount={request.secondAmount} />
+          }
         </td>
         <td className="items-center flex text-sm font-medium ">
-            <div className="flex space-x-2">
-              <div className="w-1 h-5" style={{ backgroundColor: tag?.color }}></div>
-              <span className="text-sm font-medium">{tag?.name}</span>
-            </div>
+          <div className="flex space-x-2">
+            <div className="w-1 h-5" style={{ backgroundColor: tag?.color }}></div>
+            <span className="text-sm font-medium">{tag?.name}</span>
+          </div>
         </td>
         <td className="flex justify-end cursor-pointer font-medium items-center md:pr-0 ">
           {request.status !== RequestStatus.rejected && !payment && (
@@ -343,7 +343,7 @@ const RequestedUserItem = ({
         </div>
       </Modal>
       <Modal onDisable={setChooseBudget} openNotify={chooseBudget}>
-        <ChooseBudget submit={Execute}  />
+        <ChooseBudget submit={Execute} />
       </Modal>
     </>
   );

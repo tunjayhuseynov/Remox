@@ -175,6 +175,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     }
                 }
             }
+            ToastRun(<>Transaction has been successfully executed</>);
         } catch (error) {
             console.log(error)
             ToastRun(<>Cannot execute transaction</>, "error");
@@ -575,7 +576,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     timestamp: tx.timestamp,
                     budget: tx.budget ?? undefined,
                     address: tx.contractAddress,
-                    hash: tx.hashOrIndex,
+                    hash: tx?.txHash ?? "",
                     id: tx.tx.id ?? ERCMethodIds.noInput,
                     method: tx.tx.method ?? ERCMethodIds.noInput,
                 }}
@@ -592,6 +593,10 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 account={account}
                 openDetail={openDetail}
                 setOpenDetail={setOpenDetail}
+                safeHash={tx.hashOrIndex}
+                gasFee={{
+                    amount: 0,
+                }}
             />
             {
                 addLabelModal && <AddLabel

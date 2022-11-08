@@ -69,9 +69,9 @@ export default async function Send(
         if (req.method !== 'POST') throw new Error('Only POST method is allowed')
         const { blockchain, requests, executer, createStreaming: isStreaming, endTime, startTime, swap, walletAddress: accountId, cancelStreaming, streamId, providerName } = req.body as IPaymentDataBody
         if (!blockchain) throw new Error("blockchain is required");
-        console.log(cancelStreaming)
+
         if (requests.length === 0 && !swap && !isStreaming && !cancelStreaming) throw new Error("requests is required");
-        console.log("blockchain", blockchain);
+        console.log(providerName)
 
 
         const Blockchain = Blockchains.find(s => s.name === blockchain)!
@@ -132,6 +132,7 @@ export default async function Send(
             }
             if (providerName === "GnosisSafe") {
                 const data = await CreateTransactionGnosis(requests, executer, coins)
+                console.log(data)
                 return res.json(data)
             }
             if (requests.length > 1) {

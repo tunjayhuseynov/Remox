@@ -80,8 +80,7 @@ function ChooseBudget() {
                                 setSelect={setAccount as any} />
                         </div>
                     </div>
-                    {budgets.length > 0 && router.query.page != "swap" && <div className="flex flex-col gap-2 w-full">
-                        {/* <div className="text-greylish dark:text-white">Choose Budget</div> */}
+                    {/* {budgets.length > 0 && router.query.page != "swap" && <div className="flex flex-col gap-2 w-full">
                         <Dropdown
                             selectClass={'py-2'}
                             label="Choose Budget"
@@ -89,16 +88,15 @@ function ChooseBudget() {
                             selected={selectedBudget}
                             setSelect={setBudget}
                         />
-                    </div>}
-                    {subbudgets.length > 0 && router.query.page != "swap" && <div className="flex flex-col gap-2 w-full">
-                        {/* <div className="text-greylish dark:text-white">Choose Subbudget</div> */}
+                    </div>} */}
+                    {/* {subbudgets.length > 0 && router.query.page != "swap" && <div className="flex flex-col gap-2 w-full">
                         <Dropdown
                             label="Choose Subbudget"
                             list={subbudgets}
                             selected={selectedSubbudget}
                             setSelect={setSubbudget}
                         />
-                    </div>}
+                    </div>} */}
                     <div className="grid grid-cols-2 w-full pt-4 gap-4 ">
                         <Button version="second" className={'flex items-center justify-center !py-2 w-full rounded-xl'} onClick={() => { router.back() }}>Close</Button>
                         {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}

@@ -3,14 +3,16 @@ import { useDispatch } from 'react-redux'
 import useCurrency from '../rpcHooks/useCurrency'
 import useWalletKit from './walletSDK/useWalletKit'
 import { useLazyGetAccountBalancePriceQuery } from 'redux/api'
-import useAsyncEffect from './useAsyncEffect'
 import { useAppSelector } from 'redux/hooks'
-import { SelectProviderAddress, updateAllCurrencies, updateUserBalance } from 'redux/slices/account/remoxData'
+import { SelectID, SelectProviderAddress, updateAllCurrencies, updateUserBalance } from 'redux/slices/account/remoxData'
+import { useFirestoreRead } from 'rpcHooks/useFirebase'
+import { IRequest } from 'rpcHooks/useRequest'
 
 const useRefetchData = () => {
     const dispatch = useDispatch()
-
     const selectedAccount = useAppSelector(SelectProviderAddress)
+    
+
 
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
 

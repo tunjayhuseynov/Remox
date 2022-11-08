@@ -99,13 +99,13 @@ function ChooseType() {
               {(organizations.length === 0 && !organizationLoading) && <div className="bg-white dark:bg-darkSecond absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Data Exists</div>}
               {(organizationLoading) && <div className="bg-white dark:bg-darkSecond absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"><Loader /></div>}
             </div>
-            <Button className="top-0 w-full rounded-t-none !border-0" onClick={() => navigate.push("/create-organization")}>Add Organization</Button>
+            <Button className="top-0 w-full rounded-t-none !border-0 h-[2.5rem]" onClick={() => navigate.push("/create-organization")}>Add Organization</Button>
           </div>
           <div onClick={individualLogin} className={`cursor-pointer bg-white group border hover:!border-primary dark:border-greylish  hover:text-primary transition-all dark:bg-darkSecond hover:transition-all h-full rounded-lg w-full`}>
             <div className={`bg-white dark:bg-darkSecond rounded-lg !rounded-b-none min-h-[8rem] group-hover:min-h-[10rem] relative`}>
               <div className={`group-hover:text-primary  font-bold dark:border-greylish absolute text-center top-[4rem] w-full`}>Continue as an individual</div>
             </div>
-            <Button className="group-hover:visible invisible transition-all bg-primary text-white  text-center w-full rounded-lg !py-2 rounded-t-none ">Next  &gt;</Button>
+            <Button className="group-hover:visible invisible transition-all bg-primary text-white  text-center w-full rounded-lg !py-2 rounded-t-none h-[2.5rem]">Next  &gt;</Button>
           </div>
         </div>
       </div>

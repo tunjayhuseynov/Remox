@@ -88,7 +88,7 @@ export default function RequestId() {
         signer === "organization"
           ? await FirestoreRead<IOrganization>("organizations", id)
           : await FirestoreRead<IIndividual>("individuals", id);
-      const labels = await FirestoreRead<{tags: ITag[]}>("tags", id);
+      const labels = await FirestoreRead<{ tags: ITag[] }>("tags", id);
       setAccount(acc);
       setTags(labels?.tags);
       setGetCoins(collection);
@@ -105,12 +105,12 @@ export default function RequestId() {
 
   const onTagChange = (s: any) => {
     setTag({
-        color: s.color,
-        id: s.value,
-        name: s.label,
-        transactions: s.transactions,
-        isDefault: s.isDefault,
-      }
+      color: s.color,
+      id: s.value,
+      name: s.label,
+      transactions: s.transactions,
+      isDefault: s.isDefault,
+    }
     );
   };
 
@@ -294,7 +294,7 @@ export default function RequestId() {
                     </span>
                     <div className="flex flex-col gap-y-3  sm:grid grid-cols-1 md:grid-cols-2 gap-x-10 sm:gap-y-7">
                       <div className="flex flex-col space-y-1 z-10">
-                       {tags && <Select
+                        {tags && <Select
                           closeMenuOnSelect={true}
                           isMulti={false}
                           isClearable={false}
@@ -311,11 +311,11 @@ export default function RequestId() {
                               return {
                                 ...colourStyles(dark).control(styles),
                                 backgroundColor: dark ? "#1F1F1F" : "white",
-                                border: `1px solid ${
-                                  dark
-                                    ? "rgba(255, 255, 255, 0.23)"
-                                    : "rgba(0,0,0,0.23)"
-                                }`,
+                                // color: dark ? "white" : "black",
+                                border: `1px solid ${dark
+                                  ? "rgba(255, 255, 255, 0.23)"
+                                  : "rgba(0,0,0,0.23)"
+                                  }`,
                               };
                             },
                             option: (
@@ -329,9 +329,9 @@ export default function RequestId() {
                                   isFocused,
                                   isSelected,
                                 }),
-                                backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
+                                backgroundColor: isSelected ? data.color : dark ? "#1F1F1F" : "#FFFFFF",
                                 ":hover": {
-                                  backgroundColor: dark ? "#707070" : "#eaeaea",
+                                  backgroundColor: isSelected ? data.color : dark ? "#707070" : "#eaeaea",
                                   cursor: "pointer",
                                 },
                               };
@@ -348,6 +348,14 @@ export default function RequestId() {
                                 color: data.color,
                                 backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
                               };
+                            },
+                            singleValue: (styles: any, { data }) => {
+                              return {
+                                ...styles,
+                                color: data.color,
+                                backgroundColor: dark ? "#1C1C1C" : "#FFFFFF",
+
+                              }
                             },
                             multiValue: (styles: any, { data }) => {
                               return {
@@ -370,11 +378,10 @@ export default function RequestId() {
                               return {
                                 ...styles,
                                 backgroundColor: dark ? "#1F1F1F" : "#FFFFFF",
-                                border: `1px solid ${
-                                  dark
-                                    ? "rgba(255, 255, 255, 0.23)"
-                                    : "rgba(0,0,0,0.23)"
-                                }`,
+                                border: `1px solid ${dark
+                                  ? "rgba(255, 255, 255, 0.23)"
+                                  : "rgba(0,0,0,0.23)"
+                                  }`,
                               };
                             },
                           }}
@@ -407,9 +414,8 @@ export default function RequestId() {
                     </span>
                     <div className="grid grid-cols-1 bg-white">
                       <Upload
-                        className={`${
-                          isDark ? "!border-greylish" : "!border-dark"
-                        }  `}
+                        className={`${isDark ? "!border-greylish" : "!border-dark"
+                          }  `}
                         setFile={setFile}
                         noProfilePhoto={false}
                       />

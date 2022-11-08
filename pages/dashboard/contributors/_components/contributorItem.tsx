@@ -47,11 +47,11 @@ const ContributorItem = ({ member }: PageProps) => {
         try {
             const address = await Address
             const account = accounts.find((acc) => acc.address === address);
-            if(member.execution === "Auto" && member.taskId){
+            if (member.execution === "Auto" && member.taskId) {
                 await SendTransaction(account!, [], {
                     cancelStreaming: true,
                     streamingIdDirect: member.taskId ?? undefined,
-                  });
+                });
             }
             await removeMember(member.teamId, member.id)
             dispatch(removeMemberFromContributor({ id: member.teamId, member: member }))
@@ -85,9 +85,9 @@ const ContributorItem = ({ member }: PageProps) => {
                 {member.role}
             </td>
             <td className="flex flex-col justify-center text-sm font-medium space-y-4">
-                <CurrencyElement amount={member.amount} coin={coin1!} fiat={member.fiat} />
-                {(member.secondAmount && member.secondCurrency) && 
-                    <CurrencyElement amount={member.secondAmount} coin={coin2!} fiat={member.fiatSecond} />
+                <CurrencyElement amount={member.amount} coin={coin1!} fiat={member.fiat} disableFiat={!member.fiat} />
+                {(member.secondAmount && member.secondCurrency) &&
+                    <CurrencyElement amount={member.secondAmount} coin={coin2!} fiat={member.fiatSecond} disableFiat={!member.fiatSecond} />
                 }
             </td>
             <td className="flex items-start truncate fon text-sm font-medium">

@@ -52,11 +52,11 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                 <div>
                                     <div className="flex items-center gap-2 text-greylish py-2">
                                         <span className="text-xl font-bold flex items-center gap-1">
-                                            <CurrencyElement coin={GetCoins[coin.coin]} amount={coin.totalUsedAmount + coin.totalPending} size={1.25} />
+                                            <CurrencyElement coin={GetCoins[coin.coin]} amount={coin.totalUsedAmount + coin.totalPending} size={1.25} disableFiat />
                                         </span>
                                         <span className="text-sm">impacted on</span>
                                         <span className="text-sm font-bold flex items-center">
-                                            <CurrencyElement coin={GetCoins[coin.coin]} amount={coin.totalAmount} size={0.875} />
+                                            <CurrencyElement coin={GetCoins[coin.coin]} amount={coin.totalAmount} size={0.875} disableFiat />
                                         </span>
                                     </div>
                                     <div className="rounded-xl w-full h-[1.2rem] relative bg-greylish bg-opacity-40 overflow-hidden">
@@ -70,19 +70,19 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-primary p-2 font-bold text-xs`}></span>Used</div>
                                             <div className="flex items-center gap-1 font-bold text-xs">
-                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} amount={coin.totalUsedAmount} size={0.75} />
+                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} amount={coin.totalUsedAmount} size={0.75} disableFiat />
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold text-xs`}></span>Pending</div>
                                             <div className="flex items-center gap-1 font-bold text-xs">
-                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} amount={coin.totalPending} size={0.75} />
+                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} amount={coin.totalPending} size={0.75} disableFiat />
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-gray-500 p-2 font-bold text-xs`}></span>Available</div>
                                             <div className="flex items-center gap-1 font-bold text-xs">
-                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} amount={coin.totalAmount - coin.totalUsedAmount - coin.totalPending} size={0.75} />
+                                                <CurrencyElement coin={GetCoins[item.budgetCoins.coin]} amount={coin.totalAmount - coin.totalUsedAmount - coin.totalPending} size={0.75} disableFiat />
                                             </div>
                                         </div>
                                     </div>
@@ -91,11 +91,11 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                     <div>
                                         <div className="flex items-center gap-2 text-greylish py-2">
                                             <span className="text-2xl font-bold flex items-center gap-1">
-                                                <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalUsedAmount + coin.second.secondTotalPending} size={1.25} />
+                                                <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalUsedAmount + coin.second.secondTotalPending} size={1.25} disableFiat />
                                             </span>
                                             <span>impacted on</span>
                                             <span className="text-lg flex items-center gap-1">
-                                                <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalAmount} size={0.875} />
+                                                <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalAmount} size={0.875} disableFiat />
                                             </span>
                                         </div>
                                         <div className=" rounded-xl relative w-full h-[1.2rem] flex bg-greylish bg-opacity-40">
@@ -107,19 +107,19 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                             <div className="flex flex-col gap-2">
                                                 <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-primary p-2 font-bold text-xs`}></span>Used</div>
                                                 <div className="flex items-center gap-1 font-bold text-xs">
-                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalUsedAmount} size={0.75} />
+                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalUsedAmount} size={0.75} disableFiat />
                                                 </div>
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full stripe-1 bg-primary p-2 font-bold text-xs`}></span>Pending</div>
                                                 <div className="flex items-center gap-1 font-bold text-xs">
-                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.totalPending} size={0.75} />
+                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.totalPending} size={0.75} disableFiat />
                                                 </div>
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <div className="flex items-center gap-1 font-bold text-xs"><span className={`rounded-full bg-gray-500 p-2 font-bold text-xs`}></span>Available</div>
                                                 <div className="flex items-center gap-1 font-bold text-xs">
-                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalAmount - coin.second.secondTotalUsedAmount - coin.second.secondTotalPending} size={0.75} />
+                                                    <CurrencyElement coin={GetCoins[coin.second.secondCoin]} amount={coin.second.secondTotalAmount - coin.second.secondTotalUsedAmount - coin.second.secondTotalPending} size={0.75} disableFiat />
                                                 </div>
                                             </div>
                                         </div>
@@ -134,18 +134,18 @@ const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({
                                             <div className="text-greylish w-full font-bold text-xs">{item.name}</div>
                                             <div className='flex flex-col space-y-2 w-full pl-20'>
                                                 <div className="text-greylish flex items-start space-x-2 text-sm">
-                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.coin]} amount={item.budgetCoins.totalAmount} />
+                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.coin]} amount={item.budgetCoins.totalAmount} disableFiat />
                                                     <span>/</span>
-                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.coin]} amount={item.budgetCoins.totalUsedAmount} />
+                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.coin]} amount={item.budgetCoins.totalUsedAmount} disableFiat />
                                                     <span>/</span>
-                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.coin]} amount={item.budgetCoins.totalPending} />
+                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.coin]} amount={item.budgetCoins.totalPending} disableFiat />
                                                 </div>
                                                 {item.budgetCoins.second && <div className="text-greylish flex items-start space-x-2 text-sm">
-                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.second.secondCoin]} amount={item.budgetCoins.second.secondTotalAmount} />
+                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.second.secondCoin]} amount={item.budgetCoins.second.secondTotalAmount} disableFiat />
                                                     <span>/</span>
-                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.second.secondCoin]} amount={item.budgetCoins.second.secondTotalUsedAmount} />
+                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.second.secondCoin]} amount={item.budgetCoins.second.secondTotalUsedAmount} disableFiat />
                                                     <span>/</span>
-                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.second.secondCoin]} amount={item.budgetCoins.second.secondTotalPending} />
+                                                    <CurrencyElement size={0.75} coin={GetCoins[item.budgetCoins.second.secondCoin]} amount={item.budgetCoins.second.secondTotalPending} disableFiat />
                                                 </div>}
                                             </div>
                                             <div className='flex flex-col space-y-2 w-full'>

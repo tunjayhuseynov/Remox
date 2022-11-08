@@ -613,7 +613,7 @@ export const {
     updateAllCurrencies, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget, removeConfirmation,
     AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
     Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name, setResetRemoxData, addOrganizationToList, increaseNonce,
-    chageTxToExecutedInBudget, addPayTransaction
+    chageTxToExecutedInBudget, addPayTransaction, setRequest
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

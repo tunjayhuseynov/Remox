@@ -82,6 +82,7 @@ export interface ITransactionMultisig {
     tags: ITag[],
     budget: IBudgetORM | null
     rejection?: GnosisTransaction | null,
+    fee: string | null,
 
     tx: Omit<
         Partial<ITransfer> &
@@ -1458,10 +1459,10 @@ export default function useMultisig() {
                         from: await safeOwner.getAddress(),
                     }
                 );
-                
+
                 const receipt =
                     executeTxResponse.transactionResponse &&
-                    (await executeTxResponse.transactionResponse.wait(24));
+                    (await executeTxResponse.transactionResponse.wait(6));
 
                 // dispatch(Refresh_Balance_Thunk({
                 //     blockchain: blockchain,

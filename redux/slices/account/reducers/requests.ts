@@ -1,4 +1,4 @@
-import { IRequest } from "rpcHooks/useRequest"
+import { IRequest, RequestStatus } from "rpcHooks/useRequest"
 import { IRemoxData } from "../remoxData"
 
 export default {
@@ -19,5 +19,12 @@ export default {
     },
     removeRejectedRequest: (state: IRemoxData, action: { payload: string }) => {
         state.requests.rejectedRequests = state.requests.rejectedRequests.filter(request => request.id !== action.payload)
+    },
+    setRequest: (state: IRemoxData, action: { payload: IRequest[] }) => {
+        state.requests = {
+            pendingRequests: action.payload.filter(request => request.status === RequestStatus.pending),
+            approvedRequests: action.payload.filter(request => request.status === RequestStatus.approved),
+            rejectedRequests: action.payload.filter(request => request.status === RequestStatus.rejected),
+        };
     }
 }

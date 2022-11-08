@@ -1,0 +1,4 @@
+Name (optional);Wallet address;Token 1 id;Amount 1;Token 2 id (opt.);Amount 2 (opt.);;* - Those Fields are mandatory
+John;0x00000000000000;CELO;5;CUSD;50;;
+;0x00000000000000;MOO;20;;;;
+Harvey;0x00000000000000;CREAL;30;;;;

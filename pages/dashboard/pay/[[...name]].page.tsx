@@ -32,6 +32,7 @@ import { IPrice } from "utils/api";
 import { v4 as uuidv4 } from 'uuid';
 import Modal from "components/general/modal";
 import CsvModal from "./_components/csv";
+import { BsFileBinaryFill, BsFileEarmarkBinary } from "react-icons/bs";
 
 export interface IPaymentInputs {
     id: string,
@@ -301,7 +302,7 @@ const Pay = () => {
                 }
             }
 
-
+            console.log("Account: ", Wallet)
             await SendTransaction(Wallet, pays, {
                 budget: Budget ?? undefined,
                 subbudget: subBudget ?? undefined,
@@ -505,11 +506,18 @@ const Pay = () => {
                                             fileInput.current!.files = new DataTransfer().files;
                                         }
                                     }} />
-                                    <Tooltip title="Download an example file">
+                                    <Tooltip title="Download a file to fill">
                                         <div className="bg-[#D6D6D6] dark:bg-greylish rounded-full p-1 cursor-pointer" onClick={() => {
-                                            window.open("/Example/Remox_Example.csv")
+                                            window.open("/Example/Remox_CSV_Import.csv")
                                         }}>
                                             <AiOutlineDownload />
+                                        </div>
+                                    </Tooltip>
+                                    <Tooltip title="Download a guide file">
+                                        <div className="bg-[#D6D6D6] dark:bg-greylish rounded-full p-1 cursor-pointer" onClick={() => {
+                                            window.open("/Example/Remox_Guide_File.csv")
+                                        }}>
+                                            <BsFileEarmarkBinary />
                                         </div>
                                     </Tooltip>
                                 </div>
@@ -605,6 +613,15 @@ const Pay = () => {
 
                                                         }
                                                     },
+                                              
+                                                    // SingleValue: (styles: any, { data }) => {
+                                                    //     return {
+                                                    //         ...styles,
+                                                    //         color: data.color,
+                                                    //         backgroundColor: dark ? "#1C1C1C" : "#F9F9F9",
+
+                                                    //     }
+                                                    // },
                                                     multiValueRemove: (styles: any) => {
                                                         return {
                                                             ...styles,

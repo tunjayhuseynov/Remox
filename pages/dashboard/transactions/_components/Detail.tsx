@@ -51,6 +51,7 @@ interface IProps {
     signers: string[],
     threshold: number,
     timestamp: number,
+    safeHash?: string,
     gasFee?: {
         amount: number,
         currency?: AltCoins
@@ -61,7 +62,7 @@ interface IProps {
 
 const Detail = ({
     openDetail, setOpenDetail, transaction, account, tags,
-    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex
+    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex, safeHash
 }: IProps) => {
 
     const [mounted, setMounted] = useState(false)
@@ -334,6 +335,7 @@ const Detail = ({
 
     const colorHandler = (color: { hex: string }) => {
         setColor(color.hex)
+        setColorPicker(false)
     }
 
     return mounted ? createPortal(
@@ -460,9 +462,9 @@ const Detail = ({
                                             </div>
                                         </div>}
                                         <div className={`sm:flex flex-col justify-center items-start font-medium`}>
-                                            {!isMultisig && <div className="text-lg dark:text-white">
+                                            <div className="text-lg dark:text-white">
                                                 {swap &&
-                                                    <div className="flex space-x-2">
+                                                    <div className="flex space-x-2 text-xs">
                                                         <img src={swap.coinIn.logoURI} className="w-5 h-5 rounded-full" />
                                                         <span>{swap.coinIn.symbol}</span>
                                                     </div>
@@ -491,16 +493,16 @@ const Detail = ({
                                                         }
                                                     }
                                                 >{account?.name || AddressReducer(account?.address || transaction.address)}</div>}
-                                            </div>}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-between w-full">
-                                    <div className="text-greylish text-sm">Send To</div>
+                                    <div className="text-greylish text-sm">{swap ? "Swap to" : "Send To"}</div>
                                     <div>
                                         <div className={`flex gap-x-1 items-center text-sm font-medium`}>
                                             {swap &&
-                                                <div className="flex space-x-2">
+                                                <div className="flex space-x-2 text-xs">
                                                     <img src={swap.coinOutMin.logoURI} className="w-5 h-5 rounded-full" />
                                                     <span>{swap.coinOutMin.symbol}</span>
                                                 </div>
@@ -519,17 +521,23 @@ const Detail = ({
                                             >
                                                 {transfer.to.toLowerCase() === account?.address ? (account?.name ?? AddressReducer(account?.address)) : AddressReducer(transfer.to)}
                                             </div>}
-                                            {transferBatch && <div className='flex flex-col'>{Array.from(new Set(transferBatch.payments.map(s => s.to))).map((s, index) => <div
-                                                className='cursor-pointer'
-                                                onClick={
-                                                    async () => {
-                                                        if (s) {
-                                                            await navigator.clipboard.writeText(s)
-                                                            ToastRun("Copied to clipboard", "success")
+                                            {transferBatch && <div className='flex flex-col'>
+                                                {Array.from(new Set(transferBatch.payments.map(s => s.to))).map((s, index) =>
+                                                    <div
+                                                        className='cursor-pointer'
+                                                        onClick={
+                                                            async () => {
+                                                                if (s) {
+                                                                    await navigator.clipboard.writeText(s)
+                                                                    ToastRun("Copied to clipboard", "success")
+                                                                }
+                                                            }
                                                         }
-                                                    }
-                                                }
-                                                key={index}>{AddressReducer(s)}</div>)}</div>}
+                                                        key={index}>
+                                                        {AddressReducer(s)}
+                                                    </div>
+                                                )}
+                                            </div>}
                                             {automation && <div
                                                 className="cursor-pointer"
                                                 onClick={
@@ -580,20 +588,26 @@ const Detail = ({
                                     }
                                 </div>
 
-                                <div className="flex justify-between items-center w-full text-sm">
+                                {!!transaction.hash && <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Tx Hash</div>
                                     <div className="cursor-pointer" onClick={async () => {
                                         if (transaction.hash) {
-                                            if (isMultisig) {
-                                                await navigator.clipboard.writeText(transaction.hash)
-                                                ToastRun("Copied to clipboard", "success")
-                                            } else {
-                                                window.open(blockchain.explorerTxUrl + transaction.hash, "_blank")
-                                            }
+                                            window.open(blockchain.explorerTxUrl + transaction.hash, "_blank")
+
                                         }
                                     }}>{AddressReducer(transaction.hash)}</div>
-                                </div>
-                                {!swap && action === "Sent" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
+                                </div>}
+
+                                {!!safeHash && <div className="flex justify-between items-center w-full text-sm">
+                                    <div className="text-greylish">Safe Tx Hash</div>
+                                    <div className="cursor-pointer" onClick={async () => {
+                                        if (safeHash) {
+                                            await navigator.clipboard.writeText(safeHash)
+                                            ToastRun("Copied to clipboard", "success")
+                                        }
+                                    }}>{AddressReducer(safeHash)}</div>
+                                </div>}
+                                {/* {!swap && action === "Sent" && <div className="flex justify-between items-center w-full relative z-[9999959559] text-sm">
                                     <div className="text-greylish">Budget</div>
                                     <div className='w-[10rem]'>
                                         {budgets.length > 0 && !selectedBudget && <Dropdown
@@ -619,7 +633,7 @@ const Detail = ({
                                         </div>}
                                         {budgets.length === 0 && !selectedBudget && <div className="text-sm text-right">No created budget</div>}
                                     </div>
-                                </div>}
+                                </div>} */}
                                 {/* {selectedBudget && <div className="flex justify-between items-center w-full relative z-[9999959559]">
                                     <div className="text-greylish">Budget Label</div>
                                     <div className='w-[15rem]'>
@@ -639,7 +653,7 @@ const Detail = ({
                                             <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative z-[999999]" onClick={() => setColorPicker(true)}>
                                                 <div className="py-1 pl-3">
                                                     <div className="w-1 h-4" style={{
-                                                        backgroundColor: myTag?.color ?? "#000000",
+                                                        backgroundColor: color ?? "#000000",
                                                     }} />
                                                 </div>
                                                 <div className="border-l px-2 py-1">

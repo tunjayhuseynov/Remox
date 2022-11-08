@@ -1,11 +1,9 @@
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import Visitcard from 'components/visitcard';
 import useMultiWallet from "hooks/useMultiWallet";
-import Loader from 'components/Loader';
-import useNextSelector from 'hooks/useNextSelector';
 import { IAccount } from 'firebaseConfig';
 import NotificationCointainer from './Notification';
-import { SelectAccounts, SelectBlockchain, SelectDarkMode, SelectFiatPreference, SelectProviderAddress, setResetRemoxData } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectBlockchain, SelectDarkMode, SelectFiatPreference, SelectID, SelectProviderAddress, setRequest, setResetRemoxData } from 'redux/slices/account/remoxData';
 import { useWalletKit } from 'hooks';
 import { useEffect, useMemo, useState } from 'react';
 import useAsyncEffect from 'hooks/useAsyncEffect';
@@ -14,6 +12,8 @@ import { SelectBalance } from 'redux/slices/account/remoxData';
 import Web3 from 'web3'
 import { Tx_Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh/txRefresh';
 import { useCelo } from '@celo/react-celo';
+import { useFirestoreRead } from 'rpcHooks/useFirebase';
+import { IRequest } from 'rpcHooks/useRequest';
 
 const Navbar = () => {
 
@@ -29,6 +29,15 @@ const Navbar = () => {
     const dispatch = useAppDispatch()
     const { address } = useCelo()
 
+    const id = useAppSelector(SelectID)
+
+    const requests = useFirestoreRead<{ requests: IRequest[] }>("requests", id ?? "0")
+
+    useEffect(() => {
+        if (requests.data && requests.data.requests.length > 0) {
+            dispatch(setRequest(requests.data.requests))
+        }
+    }, [requests])
 
     useEffect(() => {
         if (!address) {
@@ -67,13 +76,13 @@ const Navbar = () => {
     }, [])
 
     return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr] gap-12 pl-4 pr-8">
-        <div className="h-[73px] flex justify-center md:justify-start items-center  lg:pl-6">
-            <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" />
+        <div className="h-[73px] flex justify-center md:justify-start items-center lg:pl-6">
+            <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" className="cursor-pointer" />
         </div>
         <div className="hidden md:flex items-center justify-end">
             <div className="flex gap-x-4">
                 {blockchain.name === "celo" &&
-                    <div className="relative group hover:shadow-navbarShadow">
+                    <div className="relative group hover:shadow-navbarShadow rounded-md">
                         <div className="rounded-md flex items-center px-3 py-2 space-x-3 bg-[#F9F9F9] dark:bg-[#252525] cursor-pointer" onClick={() => window.open("https://app.spirals.so/", "_blank")}>
                             <div className="font-medium text-sm dark:text-white text-dark">
                                 {APR?.toLocaleString()} tCO2

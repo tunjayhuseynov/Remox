@@ -9,7 +9,6 @@ import { AiFillRightCircle } from 'react-icons/ai';
 import { fiatList } from 'components/general/PriceInputField';
 import { NG } from 'utils/jsxstyle';
 import { ProgressBarWidth } from 'utils';
-import CurrencyElement from 'components/general/CurrencyElement';
 
 function TotalExerciseDetails({ total }: { total: IBudgetExerciseORM }) {
     const [openNotify, setNotify] = useState(false)

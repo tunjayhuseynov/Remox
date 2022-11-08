@@ -328,7 +328,7 @@ export default function DynamicPayroll() {
             ))}
           </tbody>
         </table>
-        
+
         {contributors.length === 0 && (
           <div className="pl-5 py-10 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom text-center w-full">
             No Data
@@ -360,12 +360,12 @@ const TotalMonthlyAmount = (
     if (coin2 && curr.secondAmount) {
       fiatPrice2 = GetFiatPrice(coin2, Fiat) * +curr.secondAmount;
     }
-    const contributorStartMonth = new Date(curr.paymantDate);
+    const contributorStartMonth = new Date(curr.paymantDate * 1e3);
 
     if (curr.execution === "Manual") {
       if (curr.interval === "monthly") {
         if (curr.paymantEndDate) {
-          const contributorEndMonth = new Date(curr.paymantEndDate);
+          const contributorEndMonth = new Date(curr.paymantEndDate * 1e3);
           const diff = Math.floor(
             Math.abs(
               datetime
@@ -392,7 +392,7 @@ const TotalMonthlyAmount = (
         }
       } else {
         if (curr.paymantEndDate) {
-          const contributorEndMonth = new Date(curr.paymantEndDate);
+          const contributorEndMonth = new Date(curr.paymantEndDate * 1e3);
           const diff = Math.abs(
             datetime
               .subtract(contributorStartMonth, contributorEndMonth)
@@ -446,7 +446,7 @@ const TotalMonthlyAmount = (
         }
       }
     } else {
-      const contributorEndMonth = new Date(curr.paymantEndDate!);
+      const contributorEndMonth = new Date(curr.paymantEndDate! * 1e3);
       const comDiff = Math.abs(
         datetime.subtract(contributorStartMonth, contributorEndMonth).toDays()
       );

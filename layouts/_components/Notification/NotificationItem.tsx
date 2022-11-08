@@ -89,7 +89,8 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
     const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, 'tx' in item, 'tx' in item ? item.provider : undefined);
 
     const goToTx = () => {
-        navigate.push(`/dashboard/transactions?index=${index}`)
+        let isExecuted = 'tx' in item ? (item.isExecuted || item.rejection?.isExecuted) : true
+        navigate.push(`/dashboard/transactions${isExecuted ? "/history" : ""}?index=${index}`)
         setNotify(false)
     }
 

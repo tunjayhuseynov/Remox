@@ -85,6 +85,10 @@ const CsvModal = ({ data, account, onBack, budget, subbudget }: IProps) => {
             const Budget = budget
             const subBudget = subbudget
 
+            for (const alc of Object.values(allocation)) {
+                if (alc.remain < 0) throw new Error(`Insufficient ${alc.coin.symbol} balance`)
+            }
+
 
             let payTxs: IRemoxPayTransactions[] = []
 
@@ -202,44 +206,48 @@ const CsvModal = ({ data, account, onBack, budget, subbudget }: IProps) => {
 
     return <div className="px-10 pb-20">
         <h1 className="font-semibold text-2xl mb-7">Uploaded CSV</h1>
-        <div>
-            <table className="w-full" style={{
-                emptyCells: "hide"
-            }}>
-                <tr className="pl-5 grid grid-cols-[20%,30%,50%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
-                    <th className="py-2 self-center text-left">Name</th>
-                    <th className="py-2 self-center text-left">Wallet Address</th>
-                    <th className="py-2 self-center text-left">Amount</th>
-                </tr>
-                {data.map(s => {
-                    return <>
-                        <tr className="bg-white dark:bg-darkSecond py-[1.6875rem] pl-5 grid grid-cols-[20%,30%,50%] mt-5 rounded-md shadow-custom">
-                            <td className="font-semibold text-sm text-greylish">
-                                {s.name}
-                            </td>
-                            <td className="font-semibold text-sm text-greylish">
-                                {AddressReducer(s.address ?? "")}
-                            </td>
-                            <td className="flex space-x-1 items-center font-medium">
-                                <img src={s.coin?.logoURI} alt="" className="rounded-full object-cover w-5 aspect-square" />
-                                <div> {s.amount}</div>
-                            </td>
-                        </tr>
-                        {s.second && <tr className="bg-white dark:bg-darkSecond py-[1.6875rem] pl-5 grid grid-cols-[20%,30%,50%] mt-5 rounded-md shadow-custom">
-                            <td className="font-semibold text-sm text-greylish">
-                                {s.name}
-                            </td>
-                            <td className="font-semibold text-sm text-greylish">
-                                {AddressReducer(s.address ?? "")}
-                            </td>
-                            <td className="flex space-x-1 items-center font-medium">
-                                <img src={s.second.coin?.logoURI} alt="" className="rounded-full object-cover w-5 aspect-square" />
-                                <div> {s.second.amount}</div>
-                            </td>
-                        </tr>}
-                    </>
-                })}
-            </table>
+        <table className="w-full">
+            <tr className="pl-5 mb-5 grid grid-cols-[20%,30%,50%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
+                <th className="py-2 self-center text-left">Name</th>
+                <th className="py-2 self-center text-left">Wallet Address</th>
+                <th className="py-2 self-center text-left">Amount</th>
+            </tr>
+        </table>
+        <div className="h-[30rem] overflow-hidden">
+            <div className="overflow-y-scroll h-full">
+                <table className="w-full" style={{
+                    emptyCells: "hide"
+                }}>
+                    {data.map((s, i) => {
+                        return <>
+                            <tr className={`bg-white dark:bg-darkSecond py-[1.6875rem] pl-5 grid grid-cols-[20%,30%,50%] ${i === 0 ? "" : "mt-5"} rounded-md shadow-custom min-h-[5rem]`}>
+                                <td className="font-semibold text-sm text-greylish">
+                                    {s.name}
+                                </td>
+                                <td className="font-semibold text-sm text-greylish">
+                                    {AddressReducer(s.address ?? "")}
+                                </td>
+                                <td className="flex space-x-1 items-center font-medium">
+                                    <img src={s.coin?.logoURI} alt="" className="rounded-full object-cover w-5 aspect-square" />
+                                    <div> {s.amount}</div>
+                                </td>
+                            </tr>
+                            {s.second && <tr className="bg-white dark:bg-darkSecond py-[1.6875rem] pl-5 grid grid-cols-[20%,30%,50%] mt-5 rounded-md shadow-custom">
+                                <td className="font-semibold text-sm text-greylish">
+                                    {s.name}
+                                </td>
+                                <td className="font-semibold text-sm text-greylish">
+                                    {AddressReducer(s.address ?? "")}
+                                </td>
+                                <td className="flex space-x-1 items-center font-medium">
+                                    <img src={s.second.coin?.logoURI} alt="" className="rounded-full object-cover w-5 aspect-square" />
+                                    <div> {s.second.amount}</div>
+                                </td>
+                            </tr>}
+                        </>
+                    })}
+                </table>
+            </div>
         </div>
         {account &&
             <div className="bg-white dark:bg-darkSecond flex flex-col mt-7 px-5 py-5 min-h-[250px] relative">

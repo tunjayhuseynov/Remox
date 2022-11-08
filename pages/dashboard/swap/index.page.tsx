@@ -22,7 +22,7 @@ const Swap = () => {
     const balances = useAppSelector(SelectBalance)
     const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1].address === Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0].address ? Object.values(GetCoins)[0] : Object.values(GetCoins)[1] )
+    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1].address === Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0].address ? Object.values(GetCoins)[0] : Object.values(GetCoins)[1])
     const [loading, setLoading] = useState<boolean>(false)
     const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
     const account = accountAndBudget.account
@@ -103,13 +103,21 @@ const Swap = () => {
                     }
                 })
 
-                ToastRun(
-                    <div className="flex flex-col items-center space-y-1">
-                        <div className="font-semobold text-xl">Successfully Swapped</div>
-                    </div>
-                )
+                if (account.signerType === "single") {
+                    ToastRun(
+                        <div className="flex flex-col items-center space-y-1">
+                            <div className="font-semobold text-xl">Successfully Swapped</div>
+                        </div>
+                    )
+                } else {
+                    ToastRun(
+                        <div className="flex flex-col items-center space-y-1">
+                            <div className="font-semobold text-xl">Transaction has been successfully created</div>
+                        </div>
+                    )
+                }
                 setLoading(false)
-                if(account.signerType === "multi"){
+                if (account.signerType === "multi") {
                     router.push('/dashboard/transactions')
                 }
             } catch (error) {
@@ -325,7 +333,7 @@ const Swap = () => {
                     </div>
                     <div className="flex items-center justify-center">
                         <div className={` ${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5] border-[#F9F9F9] border-[5px]"}  my-2 py-1 px-2 rounded-lg cursor-pointer w-[15%] flex justify-center `} onClick={changeSwap}>
-                                <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
+                            <img src="/icons/arrowdown.svg" className="dark:invert dark:brightness-0" alt="" />
                         </div>
                     </div>
                     <div className={`${isDark ? "bg-[rgb(36,36,36)]" : "bg-[#F5F5F5]"}  min-h-[6.25rem]  flex justify-between rounded-xl py-3 px-4`}>

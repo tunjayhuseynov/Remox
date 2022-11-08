@@ -54,6 +54,7 @@ export const MultisigTxParser = async (
     let obj: ITransactionMultisig = {
         name,
         hashOrIndex: txHashOrIndex,
+        fee: null,
         destination: destination,
         isExecuted: executed,
         confirmations: confirmations,
@@ -194,7 +195,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTra
             reader.push(parsed)
         }
     }
- 
+
     const transaction: ITransactionMultisig = {
         budget: null,
         confirmations: mainTx.confirmations.map(s => s.owner),
@@ -202,6 +203,7 @@ export const parseSafeTransaction = async (tx: GnosisTransaction, txs: GnosisTra
         contractInternalThresholdAmount: contractThreshold,
         contractThresholdAmount: contractThreshold,
         contractOwnerAmount: mainTx.confirmations.length,
+        fee: mainTx.fee,
         contractOwners: owners,
         nonce: mainTx.nonce,
         firstNonce: nonce,
