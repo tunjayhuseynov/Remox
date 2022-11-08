@@ -39,7 +39,7 @@ import { Blockchains, BlockchainType } from "types/blockchains";
 import { useCelo } from "@celo/react-celo";
 import { generate } from "shortid";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
-import { hexToNumberString } from "web3-utils";
+import { hexToNumberString, toChecksumAddress } from "web3-utils";
 import { ToastRun } from "utils/toast";
 import { Refresh_Balance_Thunk } from "redux/slices/account/thunks/refresh/balance";
 import { Refresh_Accounts_Thunk } from "redux/slices/account/thunks/refresh/account";
@@ -180,7 +180,7 @@ export default function useWalletKit() {
 
   const Address = useMemo(async (): Promise<string | null> => {
     if (blockchain.name === "celo") {
-      return address ?? null;
+      return address ? toChecksumAddress(address) : null;
     } else if (blockchain.name === "solana") {
       return publicKey?.toBase58() ?? null;
     } else if (blockchain.name.includes("evm")) {
