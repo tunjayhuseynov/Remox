@@ -44,7 +44,7 @@ const Visitcard = ({ name, address }: { name?: string, address: string }) => {
                 <h3 className="px-3 font-medium text-sm" >{AddressReducer(address)}</h3>
             </div>
             <div className="flex items-center justify-center">
-                <Image className="w-6 aspect-square object-cover rounded-full"/>
+                <Image className="w-6 h-6 aspect-square object-cover rounded-full"/>
             </div>
         </div>
         <Copied tooltip={tooltip} triggerRef={divRef} />

@@ -28,7 +28,6 @@ import { Add_Tx_To_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks
 import { DecimalConverter } from 'utils/api';
 import { BiSearch } from 'react-icons/bi';
 import useAllowance from 'rpcHooks/useAllowance';
-import { useCelo } from '@celo/react-celo';
 
 
 interface IProps {

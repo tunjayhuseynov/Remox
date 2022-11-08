@@ -12,14 +12,12 @@ import { Get_Organizations_Thunk } from "redux/slices/account/thunks/organizatio
 import { IOrganizationORM } from "types/orm";
 import Image from 'next/image'
 import makeBlockie from 'ethereum-blockies-base64';
-import { useCelo } from '@celo/react-celo';
 
 function ChooseType() {
   const navigate = useRouter()
   const dark = useNextSelector(SelectDarkMode)
   const organizations = useAppSelector(SelectAllOrganizations)
   const dispatch = useAppDispatch()
-  const { kit } = useCelo()
 
   const address = useAppSelector(SelectProviderAddress)
   const blockchain = useAppSelector(SelectBlockchain)
