@@ -12,7 +12,7 @@ import { DecimalConverter } from 'utils/api';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import Dropdown from 'components/general/dropdown';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks, SelectTags, SelectID, SelectBlockchain } from 'redux/slices/account/selector';
+import { SelectAllBudgets, SelectFiatPreference, SelectFiatSymbol, SelectHistoricalPrices, SelectNotes, SelectPriceCalculationFn, SelectAlldRecurringTasks, SelectTags, SelectID, SelectBlockchain, SelectCurrencies } from 'redux/slices/account/selector';
 import { Add_Tx_To_Budget_Thunk, Remove_Tx_From_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks/budget';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import Tooltip from '@mui/material/Tooltip';
@@ -89,6 +89,7 @@ const Detail = ({
     const streamings = useAppSelector(SelectAlldRecurringTasks)
     const allTags = useAppSelector(SelectTags)
     const selectedId = useAppSelector(SelectID)
+    const currencies = useAppSelector(SelectCurrencies)
 
     const [color, setColor] = useState<string>(myTag?.color || '#000000')
     const [colorPicker, setColorPicker] = useState(false)
@@ -106,6 +107,10 @@ const Detail = ({
 
         return () => setMounted(false)
     }, [])
+
+    if (gasFee && !gasFee.currency) {
+        gasFee.currency = Object.values(currencies).find(c => c.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+    }
 
     let transfer = [ERCMethodIds.transfer, ERCMethodIds.noInput, ERCMethodIds.transferFrom, ERCMethodIds.transferWithComment, ERCMethodIds.repay, ERCMethodIds.borrow, ERCMethodIds.deposit, ERCMethodIds.withdraw].indexOf(transaction.method ?? "") > -1 ? transaction as ITransfer : null;
     const transferBatch = transaction.id === ERCMethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
@@ -594,14 +599,13 @@ const Detail = ({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center w-full text-sm">
+                                {gasFee?.amount && gasFee.currency && <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Gas fee</div>
-                                    {gasFee &&
-                                        <div className="flex gap-1 items-center text-sm space-x-2">
-                                            {DecimalConverter(gasFee.amount, gasFee.currency?.decimals ?? 18).toFixed(4)} {gasFee.currency && (<img src={gasFee.currency.logoURI} className=" w-[1.5rem] h-[1.5rem] rounded-full" alt="" />)} {gasFee.currency?.symbol}
-                                        </div>
-                                    }
+                                    <div className="flex gap-1 items-center text-sm space-x-2">
+                                        {DecimalConverter(gasFee.amount, gasFee.currency?.decimals ?? 18).toFixed(4)} {gasFee.currency && (<img src={gasFee.currency.logoURI} className=" w-[1.5rem] h-[1.5rem] rounded-full" alt="" />)} {gasFee.currency?.symbol}
+                                    </div>
                                 </div>
+                                }
 
                                 {!!transaction.hash && <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">Tx Hash</div>

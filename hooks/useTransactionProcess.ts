@@ -186,7 +186,6 @@ export default async (
       const coin = Object.values(Coins).find(s =>
         s.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
       if (!res.method) {
-        console.log('res', transaction)
         let decoder = new InputDataDecoder(ERC20)
         let res = decoder.decodeData(input)
         if (!res.method) return {}

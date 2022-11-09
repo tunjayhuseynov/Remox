@@ -3,12 +3,26 @@ import { AltCoins } from "types"
 import { IPrice } from "utils/api"
 import { ITag } from "../tags/index.api"
 
-export type ATag = ITag & { txs: IFormattedTransaction[] }
+export type ATag = ITag & { txs: ITokenApiItem[] }
 
 export interface IFlowDetailItem { amount: string, name: AltCoins, type: "in" | "out", fee: { name: AltCoins, amount: string } }
 export interface IFlowDetail {
     [key: string]: IFlowDetailItem[],
     // total: number,
+}
+
+export interface ITokenApiItem {
+    timeStamp: string,
+    value: string,
+    contractAddress: string,
+    from: string,
+    to: string,
+    gas: string
+    gasUsed: string
+    gasPrice: string
+    tokenDecimal: string
+    tokenSymbol: string,
+    hash: string
 }
 
 export interface ITagFlow {
