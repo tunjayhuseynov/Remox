@@ -1,1 +1,7 @@
 1. Remove Tags when account delete
+
+1) Bir aydan az zaman periodun seçəndə statusda overdue falan göstərmir. Bir aydan az zaman mümkündü çünki həftəlik ödənişlər var. (Əgər uzun çəkəcəksə bu məsələ heç toxunmayın)
+2) Zaman seçəndə yenə də 1970 göstərir həm payrollda həm də edit edəndə. 
+3) price calc səhv hesablayır, settingdə current price seçilib, 100 usd ə 100 celo alıram contributorsda (celo price=$0.72) halbuki daha çox celo düşməlidi ora və hər ödəniş vaxtı yenidən hesablanmalıdı settingdəki price calc əsasən, celo qiyməti dəyişir çünki. Live olaraq token sayı dəyişməlidi hər gün. Bu gün 100usd 120 celo düşürsə sabah 140 düşə bilər 
+4)payrollda total monthly payment 0 göstərir, həmin ay olacaq ödənişlərin cəmin verməlidi. Həmin aya düşəcək ödənişlərin sayı perioddan və frequencydən asılıdı. Tək token ödəniş olanları current price la, usd olan məbləqləri isə o usd məbləqdə toplamalıdı
+5) xatırlatma: düz olub olmadığın hesaba görə bilmirəm çünki, contributorda yazılan amountlar frequency aiddi. Həftədisə həftəlik, aydısa aylıq ödənişdi

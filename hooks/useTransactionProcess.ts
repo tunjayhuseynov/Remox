@@ -1,5 +1,5 @@
 import { Transactions } from "../types/sdk";
-import { hexToNumberString, hexToUtf8 } from "web3-utils";
+import { hexToNumberString, hexToUtf8, toChecksumAddress } from "web3-utils";
 import { AltCoins, Coins, CoinsName } from "types";
 import useWalletKit from "./walletSDK/useWalletKit";
 import { ITag } from "pages/api/tags/index.api";
@@ -185,9 +185,29 @@ export default async (
       let res = decoder.decodeData(input)
       const coin = Object.values(Coins).find(s =>
         s.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+      if (!res.method) {
+        console.log('res', transaction)
+        let decoder = new InputDataDecoder(ERC20)
+        let res = decoder.decodeData(input)
+        if (!res.method) return {}
+        return {
+          rawData: {
+            ...transaction,
+            from: toChecksumAddress(transaction.contractAddress),
+            to: "0xabb380bd683971bdb426f0aa2bf2f111aa7824c2",
+            value: "0",
+          },
+          coin: coin,
+          from: toChecksumAddress(transaction.contractAddress),
+          to: "0xabb380bd683971bdb426f0aa2bf2f111aa7824c2",
+          amount: "0",
+          method: ERCMethodIds.nftTokenERC721,
+          hash: transaction.hash,
+          id: ERCMethodIds.nftTokenERC721,
+          tags: theTags,
+        };
+      }
       return {
-        // rawData: transaction,
-
         rawData: {
           ...transaction,
           from: "0x" + res.inputs[0],
@@ -435,7 +455,7 @@ export default async (
       const topic = (await web3.eth.getTransactionReceipt(transaction.hash))?.logs?.at(provider === "GnosisSafe" ? -2 : 1)?.topics[1]
       if (!topic && isExecuted) return {}
       const streamId = isExecuted && topic ? hexToNumberString(topic) : "0";
-   
+
       const coin = Object.values(Coins).find(s => s.address?.toLowerCase() === "0x" + result.inputs[2].toString()?.toLowerCase())
 
       if (!coin) return {};
