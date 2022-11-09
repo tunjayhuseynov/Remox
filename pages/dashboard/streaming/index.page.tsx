@@ -62,9 +62,9 @@ const Automations = () => {
       </div>
       <>
         {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
-          <div className="grid grid-cols-[20%,1fr] gap-12">
-            <div className="flex flex-col space-y-5 gap-12 lg:gap-4">
-              <div className="text-base font-medium text-gray-500">Total Reccuring Payment</div>
+          <div className="grid grid-cols-[22.5%,1fr] gap-10">
+            <div className="flex flex-col space-y-5 gap-12 lg:gap-4 border-r border-grayHot">
+              <div className="text-base font-medium text-gray-500">Total Streaming Payment</div>
               <div className="text-3xl font-semibold !mt-0">
                 {symbol}<NG number={totalPrice[1]} fontSize={1.75} />
               </div>

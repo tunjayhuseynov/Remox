@@ -33,6 +33,7 @@ module.exports = {
         secondary: "#f94f1b",
         greylish: "#707070",
         grey: "#C4C4C4",
+        grayHot: "#dad8d8",
         darkSecond: "#1C1C1C",
         dark: '#252525',
         light: '#f9f9f9',
@@ -41,7 +42,7 @@ module.exports = {
       boxShadow: {
         custom: "0px 0px 4px 0px #dad8d8",
         customDark: "0px 0px 4px 0px #1C1C1C",
-        navbarShadow : "0px 4px 4px rgba(0, 0, 0, 0.25)"
+        navbarShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)"
       },
       screens: {
         '3xl': '1920px',
@@ -49,6 +50,6 @@ module.exports = {
     },
   },
   plugins: [
-      require('tailwind-scrollbar'),  
+    require('tailwind-scrollbar'),
   ],
 }

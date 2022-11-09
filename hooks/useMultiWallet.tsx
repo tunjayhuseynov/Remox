@@ -20,6 +20,7 @@ import { Create_Account_For_Individual, Create_Account_For_Organization } from '
 import { GetTime } from 'utils';
 import { generate } from 'shortid';
 import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh/refresh';
+import { setProviderAddress, setPS } from 'redux/slices/account/remoxData';
 
 
 export enum WalletIds {
@@ -45,76 +46,88 @@ export default function useMultiWallet() {
     const accounts = useAppSelector(SelectAccounts)
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {
-        const isOrganization = accountType === 'organization'
-        if (!remoxAccount) throw new Error("No remox account selected")
-        if (!providerAddress) throw new Error("No provider address selected")
-        const incomingData = await FirestoreRead<IUser>(isOrganization ? "organizations" : "individuals", remoxAccount.id)
-        if (!incomingData) {
-            throw new Error("No Data In Users")
-        }
-
-        if (connector && connector.kit.connection.defaultAccount && storage) {
-            if (providerAddress === connector.kit.connection.defaultAccount) throw new Error("Provider address already set")
-
-            const account = connector.kit.connection.defaultAccount
-
-            if (account) {
-                if (!isOrganization) {
-                    await dispatch(Create_Account_For_Individual({
-                        individual: remoxAccount as IIndividual,
-                        account: {
-                            mail: null,
-                            address: account,
-                            blockchain: blockchain.name,
-                            created_date: GetTime(),
-                            pendingMembersObjects: [],
-                            createdBy: auth.currentUser?.uid ?? providerAddress,
-                            id: generate(),
-                            image: null,
-                            name: `Remox #${accounts.length}`,
-                            members: [
-                                {
-                                    address: account,
-                                    id: generate(),
-                                    image: null,
-                                    name: `Remox #${Math.round(Math.random() * 100)}`,
-                                    mail: null,
-                                }
-                            ],
-                            provider: null,
-                            signerType: "single",
-                        }
-                    })).unwrap()
-                } else {
-                    await dispatch(Create_Account_For_Organization({
-                        organization: remoxAccount as IOrganization,
-                        account: {
-                            mail: null,
-                            address: account,
-                            blockchain: blockchain.name,
-                            created_date: GetTime(),
-                            pendingMembersObjects: [],
-                            createdBy: auth.currentUser?.uid ?? providerAddress,
-                            id: generate(),
-                            image: null,
-                            name: `Remox #${accounts.length}`,
-                            members: [
-                                {
-                                    address: account,
-                                    id: generate(),
-                                    image: null,
-                                    name: `Remox #${Math.round(Math.random() * 100)}`,
-                                    mail: null,
-                                }
-                            ],
-                            provider: null,
-                            signerType: "single",
-                        }
-                    })).unwrap()
-                }
-                await dispatch(Refresh_Data_Thunk()).unwrap()
-                // dispatch(setProviderAddress(account))
+        try {
+            const isOrganization = accountType === 'organization'
+            if (!remoxAccount) throw new Error("No remox account selected")
+            if (!providerAddress) throw new Error("No provider address selected")
+            const incomingData = await FirestoreRead<IUser>(isOrganization ? "organizations" : "individuals", remoxAccount.id)
+            if (!incomingData) {
+                throw new Error("No Data In Users")
             }
+
+            if (connector && connector.kit.connection.defaultAccount && storage) {
+                if (providerAddress === connector.kit.connection.defaultAccount) throw new Error("Provider address already set")
+
+                const account = connector.kit.connection.defaultAccount
+
+                if (accounts.find(a => a.address.toLowerCase() === account.toLowerCase())) throw new Error("Account already added")
+
+                dispatch(setPS(true))
+
+
+                if (account) {
+                    if (!isOrganization) {
+                        await dispatch(Create_Account_For_Individual({
+                            individual: remoxAccount as IIndividual,
+                            account: {
+                                mail: null,
+                                address: account,
+                                blockchain: blockchain.name,
+                                created_date: GetTime(),
+                                pendingMembersObjects: [],
+                                createdBy: auth.currentUser?.uid ?? providerAddress,
+                                id: generate(),
+                                image: null,
+                                name: `Remox #${accounts.length}`,
+                                members: [
+                                    {
+                                        address: account,
+                                        id: generate(),
+                                        image: null,
+                                        name: `Remox #${Math.round(Math.random() * 100)}`,
+                                        mail: null,
+                                    }
+                                ],
+                                provider: null,
+                                signerType: "single",
+                            }
+                        })).unwrap()
+                    } else {
+                        await dispatch(Create_Account_For_Organization({
+                            organization: remoxAccount as IOrganization,
+                            account: {
+                                mail: null,
+                                address: account,
+                                blockchain: blockchain.name,
+                                created_date: GetTime(),
+                                pendingMembersObjects: [],
+                                createdBy: auth.currentUser?.uid ?? providerAddress,
+                                id: generate(),
+                                image: null,
+                                name: `Remox #${accounts.length}`,
+                                members: [
+                                    {
+                                        address: account,
+                                        id: generate(),
+                                        image: null,
+                                        name: `Remox #${Math.round(Math.random() * 100)}`,
+                                        mail: null,
+                                    }
+                                ],
+                                provider: null,
+                                signerType: "single",
+                            }
+                        })).unwrap()
+                    }
+                    await dispatch(Refresh_Data_Thunk()).unwrap()
+                    dispatch(setProviderAddress(account))
+                    dispatch(setPS(false))
+                }
+            }
+        } catch (error) { 
+            console.log(error)
+            dispatch(setPS(false))
+            throw new Error(error as any)
         }
     }
 

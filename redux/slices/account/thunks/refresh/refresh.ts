@@ -32,6 +32,7 @@ export const Refresh_Data_Thunk = createAsyncThunk<boolean>("remoxData/refresh_d
         accountType: accountType,
         addresses: accounts,
         blockchain: blockchain,
+        // isProgressivScreen: true,
         id: id,
         storage: {
             lastSignedProviderAddress: providerAddress,

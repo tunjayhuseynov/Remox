@@ -17,6 +17,7 @@ import Button from "components/button";
 import Modal from "components/general/modal";
 import { MdCancel } from "react-icons/md";
 import { useRouter } from "next/router";
+import { FiTrash2 } from "react-icons/fi";
 
 interface IProps {
     tx: IFormattedTransaction | ITransactionMultisig,
@@ -140,13 +141,14 @@ const TeamItem = ({ tx, members }: IProps) => {
             </td>
             <td className="pl-[2px] hidden sm:flex items-center text-sm font-medium">
                 {tx.tags.map(s =>
-                    <div key={s.id}>
-                        <div className="w-5 h-5 flex space-x-5" style={{ backgroundColor: s.color }} /> {s.name}
+                    <div key={s.id} className="flex space-x-1 items-center">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
+                        <span>{s.name}</span>
                     </div>
                 )}
             </td>
             <td className="flex justify-center">
-                <MdCancel className="cursor-pointer hover:text-red-500" size={"1.25rem"} onClick={() => setDeleteModal(true)} />
+                <FiTrash2 className="cursor-pointer hover:text-red-500" size={"1.25rem"} onClick={() => setDeleteModal(true)} />
             </td>
         </tr>
         {deleteModal &&

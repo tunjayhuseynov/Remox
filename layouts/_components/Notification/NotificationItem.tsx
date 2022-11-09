@@ -60,31 +60,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
         amount = 'tx' in item ? item.tx.amount : (item as ITransfer).amount
         coin = 'tx' in item ? item.tx.coin : (item as ITransfer).coin
     }
-
-    const isBatch = method === ERCMethodIds.batchRequest
-    const TXs: (IFormattedTransaction | ITransactionMultisig)[] = [];
-    if (isBatch) {
-        const groupBatch = _((item as IBatchRequest).payments).groupBy("to").value()
-        Object.entries(groupBatch).forEach(([key, value]) => {
-            let tx: IBatchRequest = {
-                timestamp: item.timestamp,
-                isError: isError ?? false,
-                method: method,
-                id: method,
-                hash: hash,
-                rawData: rawData ? rawData : GenerateTransaction({
-                    hash,
-                }),
-                payments: value,
-                address: address,
-                tags: item.tags,
-                budget: item.budget ?? undefined,
-            }
-            TXs.push(tx)
-        })
-    } else {
-        TXs.push(item)
-    }
+   
     let direction = TransactionDirectionDeclare(item, addresses);
     const [image, name, action] = TransactionDirectionImageNameDeclaration(blockchain, direction, 'tx' in item, 'tx' in item ? item.provider : undefined);
 
@@ -100,7 +76,7 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
         <div className="flex flex-col items-start">
             <div className="text-sm font-medium">
                 {action} {amount && coin && method !== ERCMethodIds.swap && method !== ERCMethodIds.batchRequest ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERCMethodIds.swap !== method ? coin.symbol : ''}
-                {method === ERCMethodIds.batchRequest ? `${TXs.reduce((a, c) => a + ((c as any)?.["payments"] as any[]).length, 0)} batch requests` : ''}
+                {method === ERCMethodIds.batchRequest ? `${((('tx' in item ? item.tx : item) as IBatchRequest)?.payments).length} batch requests` : ''}
                 {method === ERCMethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18).toFixed(2)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18).toFixed(2)} {coinTo?.symbol}</>)}
             </div>
             <div className="font-medium text-[10px] text-primary cursor-pointer" onClick={() => navigate.push('/dashboard/transactions')}>View Transaction</div>

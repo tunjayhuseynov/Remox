@@ -77,6 +77,7 @@ export interface IRemoxData {
     organizations: IOrganizationORM[],
     isFetching: boolean;
     IsInit: boolean;
+    isProgressivScreen: boolean;
     // balances: IPrice;
     addressBook: IAddressBook[];
     tags: ITag[],
@@ -173,7 +174,8 @@ export const init = (): IRemoxData => {
             budget: null,
             subbudget: null,
         },
-        recurringTasks: []
+        recurringTasks: [],
+        isProgressivScreen: false,
     }
 }
 
@@ -299,6 +301,9 @@ const remoxDataSlice = createSlice({
                 state.storage.organization.image = action.payload.image;
             }
         },
+        setPS: (state: IRemoxData, action: { payload: boolean }) => {
+            state.isProgressivScreen = action.payload;
+        }
     },
     extraReducers: builder => {
         /* Profile */
@@ -542,9 +547,12 @@ const remoxDataSlice = createSlice({
             // if (!state.IsInit) {
             if (!action.meta.arg.isProgressivScreen) {
                 state.isFetching = true;
+            } else {
+                state.isProgressivScreen = true;
             }
             // }
         });
+
         builder.addCase(launchApp.fulfilled, (state, action) => {
             state.coins = action.payload.Coins.reduce<Coins>((acc, coin) => {
                 acc[coin.symbol] = coin;
@@ -553,6 +561,10 @@ const remoxDataSlice = createSlice({
             state.stats = action.payload.Spending;
             state.budgetExercises = action.payload.Budgets;
             state.contributors = action.payload.Contributors;
+
+            state.IsInit = true;
+            state.isFetching = false;
+            state.isProgressivScreen = false;
             state.requests = {
                 pendingRequests: action.payload.Requests.filter(request => request.status === RequestStatus.pending),
                 approvedRequests: action.payload.Requests.filter(request => request.status === RequestStatus.approved),
@@ -568,7 +580,6 @@ const remoxDataSlice = createSlice({
             // state.balances = action.payload.Balance.AllPrices;
             state.recurringTasks = action.payload.RecurringTasks;
             state.nfts = action.payload.NFTs;
-            state.IsInit = true;
             state.addressBook = action.payload.Storage?.individual?.addressBook ?? []
             state.multisigStats = {
                 all: action.payload.multisigAccounts.all,
@@ -587,11 +598,11 @@ const remoxDataSlice = createSlice({
             } else if (action.payload.Storage.signType === "organization" && action.payload.Storage.organization) {
                 state.providerID = action.payload.Storage.organization.id
             }
-            state.isFetching = false;
         });
 
         builder.addCase(launchApp.rejected, (state, action) => {
             state.isFetching = false;
+            state.isProgressivScreen = false;
         });
     }
 })
@@ -613,7 +624,7 @@ export const {
     updateAllCurrencies, updateUserBalance, addConfirmation, changeToExecuted, removeTxFromBudget, removeTxFromSubbudget, removeConfirmation,
     AddModerator, RemoveModerator, UpdateModeratorEmail, UpdateModeratorImage, UpdateModeratorName,
     Update_Account_Member_Email, Update_Account_Member_Image, Update_Account_Member_Name, setResetRemoxData, addOrganizationToList, increaseNonce,
-    chageTxToExecutedInBudget, addPayTransaction, setRequest
+    chageTxToExecutedInBudget, addPayTransaction, setRequest, setPS
 } = remoxDataSlice.actions;
 
 export default remoxDataSlice.reducer;

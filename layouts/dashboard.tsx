@@ -2,7 +2,7 @@ import { createContext, Dispatch, useState, useEffect, useRef } from 'react'
 import { useRefetchData } from 'hooks'
 import Loader from 'components/Loader'
 import { useAppDispatch, useAppSelector } from 'redux/hooks'
-import { SelectAccountType, SelectBlockchain, SelectIsRemoxDataFetching, SelectProviderAddress, SelectRemoxAccount } from 'redux/slices/account/remoxData'
+import { SelectAccountType, SelectBlockchain, SelectIsProgressiveScreen, SelectIsRemoxDataFetching, SelectProviderAddress, SelectRemoxAccount } from 'redux/slices/account/remoxData'
 import { launchApp } from 'redux/slices/account/thunks/launch'
 import { auth, IAccount, IOrganization } from 'firebaseConfig'
 import { useRouter } from 'next/router'
@@ -20,6 +20,7 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
 
 
     const isFetching = useAppSelector(SelectIsRemoxDataFetching)
+    const isPS = useAppSelector(SelectIsProgressiveScreen)
     const [mainAnimate, setMainAnimate] = useState<boolean>(true)
 
     const dispatch = useAppDispatch()
@@ -57,12 +58,15 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const { fetching, isAppLoaded } = useRefetchData()
 
 
-    if (isFetching) return <div className="w-screen h-screen flex items-center justify-center">
+    if (isFetching && !isPS) return <div className="w-screen h-screen flex items-center justify-center">
         <Loader />
     </div>
     return <>
         <DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
-            <div className="flex flex-col min-h-screen ">
+            {isPS && <div className="absolute left-0 top-0 w-screen h-screen flex items-center justify-center z-[999999999999]">
+                <Loader />
+            </div>}
+            <div className={`flex flex-col min-h-screen ${isPS ? "blur-md" : ""}`}>
                 <div className="fixed w-full bg-white dark:bg-darkSecond z-50 shadow-15">
                     <Navbar></Navbar>
                 </div>

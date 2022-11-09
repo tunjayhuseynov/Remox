@@ -113,7 +113,7 @@ const Statistic = () => {
                     <div className="w-full flex justify-between px-5">
                         <div className="flex flex-col gap-1">
                             <div className="font-semibold text-greylish tracking-wide text-sm">Total Treasury Value</div>
-                            <p className="text-3xl font-semibold">{symbol}{Math.floor(totalBalance)}<sup className="text-sm">{`.${totalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup></p>
+                            <p className="text-3xl font-semibold">{symbol}{Math.floor(totalBalance).toLocaleString()}<sup className="text-sm">{`.${totalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup></p>
                         </div>
                         <div className="flex gap-5 ">
                             <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-greylish text-xs font-semibold tracking-wide`} onClick={() => setChartDate("week")}>1W</span>

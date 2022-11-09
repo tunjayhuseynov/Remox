@@ -1,16 +1,21 @@
 
 
-export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: number, fontSize?: number, decimalSize?: number, className?: string}) => {
+export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: number, fontSize?: number, decimalSize?: number, className?: string }) => {
+    let decimal = 0;
+    let friction = (number - Math.floor(number)).toString().split(".")?.[1];
+    if (friction) {
+        decimal = +friction;
+    }
 
     return <>
         <span style={{
             fontSize: `${fontSize}rem`,
-        }}>{Math.floor(number).toLocaleString()}
+        }}>{Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number)}
         </span>
         <span
             style={{
                 fontSize: `${fontSize * (decimalSize ? decimalSize / 100 : 0.6)}rem`,
             }}
-        >.{(+number.toString() - Math.floor(number)).toString().split(".")?.[1]?.substring(0,2) ?? "00"}</span>
+        >.{(+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}</span>
     </>
 }

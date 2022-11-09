@@ -20,6 +20,7 @@ import { launchApp } from "redux/slices/account/thunks/launch";
 import { TextField } from "@mui/material";
 import { toChecksumAddress } from "web3-utils";
 import { FirestoreReadMultiple } from "rpcHooks/useFirebase";
+import { setPS } from "redux/slices/account/remoxData";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -70,7 +71,7 @@ function NewWalletModal() {
             console.log(error)
             ToastRun(<>{(error as any).message}</>, "error")
         }
-        navigate.back();
+        navigate.push("/dashboard");
     }
 
     useEffect(() => {

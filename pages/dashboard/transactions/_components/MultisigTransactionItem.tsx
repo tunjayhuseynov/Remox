@@ -589,6 +589,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 tags={tx.tags}
                 threshold={tx.contractThresholdAmount}
                 timestamp={tx.timestamp}
+                executedAt={tx.executedAt}
                 account={account}
                 openDetail={openDetail}
                 setOpenDetail={setOpenDetail}

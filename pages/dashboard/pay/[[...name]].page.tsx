@@ -405,13 +405,13 @@ const Pay = () => {
                             </div>
                             <div className="flex flex-col gap-2 mb-4 pl-5">
                                 <div className="font-medium  text-greylish dark:text-white text-sm">Token Allocation</div>
-                                <div className="flex flex-col space-y-4">{tokenAllocation.map((s, i) => {
-                                    return <div key={i} className="grid grid-cols-[8.5%,1fr] gap-x-1">
+                                <div className="grid grid-cols-2 gap-y-4">{tokenAllocation.map((s, i) => {
+                                    return <div key={i} className="grid grid-cols-[20%,1fr] gap-x-1">
                                         <div className="self-center">
-                                            <img className="rounded-full w-full aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
+                                            <img className="rounded-full w-5 h-5 aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
                                         <div>
-                                            <div className="text-xl">{s.amount.toFixed(2)}</div>
+                                            <div className="text-xl leadin">{s.amount.toFixed(2)}</div>
                                         </div>
                                         <div></div>
                                         <div className="text-sm text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.875} /></div>
@@ -613,7 +613,7 @@ const Pay = () => {
 
                                                         }
                                                     },
-                                              
+
                                                     // SingleValue: (styles: any, { data }) => {
                                                     //     return {
                                                     //         ...styles,

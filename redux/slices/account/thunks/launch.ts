@@ -52,6 +52,7 @@ type LaunchResponse = {
     signingNeedTxs: IAccountMultisig["txs"];
   };
   cumulativeTransactions: IRemoxData["cumulativeTransactions"];
+  progressiveScreen: boolean;
 };
 
 interface LaunchParams {
@@ -65,7 +66,7 @@ interface LaunchParams {
 
 export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
   "remoxData/launch",
-  async ({ addresses, blockchain, id, accountType, storage }, api) => {
+  async ({ addresses, blockchain, id, accountType, storage, isProgressivScreen }, api) => {
     try {
       axiosRetry(axios, { retries: 3 });
 
@@ -282,6 +283,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
 
       const res: LaunchResponse = {
         NFTs: nfts,
+        progressiveScreen: isProgressivScreen ?? false,
         HistoryPriceList: hpList.data,
         // Balance: Balance.map(s => s.AllPrices)
         RemoxAccount: { accounts: RemoxAccounts.map(s => s.accounts).flat() },

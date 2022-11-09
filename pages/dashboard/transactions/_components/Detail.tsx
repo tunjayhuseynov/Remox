@@ -30,6 +30,7 @@ import { AddTransactionToTag } from 'redux/slices/account/thunks/tags'
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { BiTrash } from 'react-icons/bi';
 import { GetFiatPrice } from 'utils/const';
+import makeBlockie from 'ethereum-blockies-base64';
 
 interface IProps {
     // date: string;
@@ -51,6 +52,7 @@ interface IProps {
     signers: string[],
     threshold: number,
     timestamp: number,
+    executedAt?: number,
     safeHash?: string,
     gasFee?: {
         amount: number,
@@ -62,7 +64,7 @@ interface IProps {
 
 const Detail = ({
     openDetail, setOpenDetail, transaction, account, tags,
-    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex, safeHash
+    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex, safeHash, executedAt
 }: IProps) => {
 
     const [mounted, setMounted] = useState(false)
@@ -452,15 +454,24 @@ const Detail = ({
                                     <div className="text-greylish">{isMultisig ? "Created" : "Tx Time"}</div>
                                     <div>{dateFormat(new Date(timestamp * 1e3), "mmm dd, yyyy, HH:MM:ss")}</div>
                                 </div>
+                                {
+                                    executedAt && <div className="flex justify-between items-center w-full text-sm">
+                                        <div className="text-greylish">Closed on</div>
+                                        <div>{dateFormat(new Date(executedAt * 1e3), "mmm dd, yyyy, HH:MM:ss")}</div>
+                                    </div>
+                                }
                                 {/* <div className="flex justify-between items-center w-full"><div className="text-greylish">Closed On</div><div>{time}, 14:51:52</div></div> */}
                                 <div className="flex justify-between items-center w-full text-sm">
                                     <div className="text-greylish">{swap ? "Swap from" : "Send from"}</div>
                                     <div className="flex gap-1">
-                                        {(((account?.image?.imageUrl as string) ?? account?.image?.nftUrl) && !swap) && <div className={`hidden sm:flex items-center justify-center`}>
-                                            <div className={`bg-greylish bg-opacity-10 w-8 h-8 flex items-center justify-center rounded-full font-medium `}>
-                                                <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl} alt="" className="w-full h-full rounded-full border-greylish" />
+                                        {/* {(((account?.image?.imageUrl as string) ?? account?.image?.nftUrl) && !swap) &&
+                                            <div className={`hidden sm:flex items-center justify-center`}>
+                                                <div className={`bg-greylish bg-opacity-10 w-8 h-8 flex items-center justify-center rounded-full font-medium `}>
+                                                    <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl} alt="" className="w-full h-full rounded-full border-greylish" />
+                                                    <span>{account?.name}</span>
+                                                </div>
                                             </div>
-                                        </div>}
+                                        } */}
                                         <div className={`sm:flex flex-col justify-center items-start font-medium`}>
                                             <div className="text-lg dark:text-white">
                                                 {swap &&
@@ -483,7 +494,7 @@ const Detail = ({
                                                     </div>
                                                 }
                                                 {!transfer && !swap && <div
-                                                    className="cursor-pointer"
+                                                    className="cursor-pointer text-sm flex space-x-1"
                                                     onClick={
                                                         async () => {
                                                             if (account?.address || transaction.address) {
@@ -491,8 +502,12 @@ const Detail = ({
                                                                 ToastRun("Copied to clipboard", "success")
                                                             }
                                                         }
-                                                    }
-                                                >{account?.name || AddressReducer(account?.address || transaction.address)}</div>}
+                                                    }>
+                                                    <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie("random")} alt="" className="w-6 h-6 rounded-full border-greylish" />
+
+                                                    <span>{account?.name || AddressReducer(account?.address || transaction.address)}</span>
+                                                </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -524,7 +539,7 @@ const Detail = ({
                                             {transferBatch && <div className='flex flex-col'>
                                                 {Array.from(new Set(transferBatch.payments.map(s => s.to))).map((s, index) =>
                                                     <div
-                                                        className='cursor-pointer'
+                                                        className='cursor-pointer text-sm'
                                                         onClick={
                                                             async () => {
                                                                 if (s) {
@@ -647,7 +662,7 @@ const Detail = ({
                                     </div>
                                 </div>} */}
                                 <div className="flex justify-between items-center w-full">
-                                    <div className="text-greylish">Tags</div>
+                                    <div className="text-greylish">Labels</div>
                                     <div className="flex">
                                         {!tagDelete && <>
                                             <div className="flex space-x-3 border border-gray-500 rounded-md items-center justify-center cursor-pointer relative z-[999999]" onClick={() => setColorPicker(true)}>

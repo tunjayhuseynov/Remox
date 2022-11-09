@@ -186,6 +186,11 @@ export const SelectIsRemoxDataFetching = createDraftSafeSelector(
   (isFetching) => isFetching
 );
 
+export const SelectIsProgressiveScreen = createDraftSafeSelector(
+  (state: RootState) => state.remoxData.isProgressivScreen,
+  (isPS) => isPS
+);
+
 export const SelectModerators = createDraftSafeSelector(
   (state: RootState) => state.remoxData.storage,
   (storage) => {

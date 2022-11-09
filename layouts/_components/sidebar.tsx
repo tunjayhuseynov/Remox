@@ -3,7 +3,7 @@ import Siderbarlist from './sidebarlist'
 import Button from 'components/button';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectFiatSymbol, SelectIndividual, SelectOrganization, SelectProviderAddress, SelectTotalBalance, setAccountType, setProviderID } from 'redux/slices/account/remoxData';
+import { SelectAccounts, SelectAccountType, SelectAllOrganizations, SelectFiatPreference, SelectFiatSymbol, SelectID, SelectIndividual, SelectOrganization, SelectProviderAddress, SelectTotalBalance, setAccountType, setProviderID } from 'redux/slices/account/remoxData';
 import makeBlockie from 'ethereum-blockies-base64';
 import { launchApp } from 'redux/slices/account/thunks/launch';
 import { auth, IAccount } from 'firebaseConfig';
@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ClickAwayListener } from '@mui/material';
 import { IPrice } from 'utils/api';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { NG } from 'utils/jsxstyle';
 
 const Sidebar = () => {
 
@@ -23,6 +24,8 @@ const Sidebar = () => {
     const organization = useAppSelector(SelectOrganization)
     const individual = useAppSelector(SelectIndividual)
     const selectedAccountType = useAppSelector(SelectAccountType)
+    const id = useAppSelector(SelectID)
+    const fiat = useAppSelector(SelectFiatPreference)
     const accounts = useAppSelector(SelectAccounts)
     const totalBalance = useAppSelector(SelectTotalBalance)
     const dispatch = useAppDispatch()
@@ -36,21 +39,26 @@ const Sidebar = () => {
 
     let organizationList = [
         ...(organization ? allOrganizations.map(e => {
-            let pc = e?.priceCalculation ?? "current";
-            let fiat = e?.fiatMoneyPreference ?? "USD";
+            // let pc = e?.priceCalculation ?? "current";
+            // let fiat = e?.fiatMoneyPreference ?? "USD";
 
             let tb = 0;
-            e.accounts.forEach((account) => {
-                (account as any).coins.forEach((coin: IPrice[0]) => {
-                    tb += (coin.amount * GetFiatPrice(coin, fiat)) //generatePriceCalculation(coin, hp, pc, fiat);
+            if (id === e.id) {
+                tb = totalBalance
+            }
+            else {
+                e.accounts.forEach((account) => {
+                    (account as any).coins.forEach((coin: IPrice[0]) => {
+                        tb += (coin.amount * GetFiatPrice(coin, fiat)) //generatePriceCalculation(coin, hp, pc, fiat);
+                    })
                 })
-            })
+            }
 
             return {
                 id: e.id,
                 name: e.name,
                 image: (typeof e.image?.imageUrl === 'string' ? e.image.imageUrl : null) || e.image?.nftUrl || makeBlockie(e.id),
-                secondValue: `${symbol}${tb.toFixed(2)/*e.totalBalance*/}`,
+                secondValue: <>{symbol}<NG number={tb} decimalSize={100} fontSize={0.625} /></>,
                 onClick: () => {
                     if (!individual) return ToastRun(<>You must be logged in as an individual to switch organizations</>, "error")
                     if (!selectedAddress) return ToastRun(<>You must be logged in as an individual to switch organizations</>, "error")
