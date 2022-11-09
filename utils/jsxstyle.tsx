@@ -6,11 +6,10 @@ export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: n
     if (friction) {
         decimal = +friction;
     }
-
     return <>
         <span style={{
             fontSize: `${fontSize}rem`,
-        }}>{Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number)}
+        }}>{Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number).toLocaleString()}
         </span>
         <span
             style={{

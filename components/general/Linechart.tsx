@@ -58,24 +58,23 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
       },
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const date = keys[dataPointIndex];
+        let number = series[seriesIndex][dataPointIndex];
         return (
           `<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">
-          <div class="flex justify-between">
-          <span class='text-greylish dark:text-white text-sm'>
-          ${date ? new Date(date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "N/A"}
-          </span>
-          <span class='text-greylish dark:text-white text-sm'>
-          </span>
-          </div>
-          <div class="flex justify-between">
-          <span class='text-base flex items-center gap-2 font-semibold'>
-          <div class="rounded-full bg-primary w-3 h-3"></div>
-          Balance
-          </span>
-          <span class='text-base font-bold'>
-          ${symbol}${series[seriesIndex][dataPointIndex].toFixed(2)}
-          </span>
-          </div>
+            <div class="flex justify-between">
+              <span class='text-greylish dark:text-white text-sm'>
+                ${date ? new Date(date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "N/A"}
+              </span>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class='text-base flex items-center gap-2 font-semibold'>
+                <div class="rounded-full bg-primary w-3 h-3"></div>
+                Balance
+              </div>
+            <div class='${Math.floor(number).toString().length == 6 ? "text-sm" : "text-base"} font-bold'>
+            ${symbol}${Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number).toLocaleString()}.${(+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}
+              </div>
+            </div>
           </div>`
         );
       },
@@ -111,7 +110,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
     xaxis: {
       // tickAmount: "dataPoints",
       type: "datetime",
-      // offsetX: -20,
+      // offsetX: 20,
       tickPlacement: "on",
       labels: {
         formatter: (val) => {

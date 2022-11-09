@@ -79,14 +79,6 @@ const Automations = () => {
                       return (
                         <div key={currency} className="flex flex-col space-y-2 relative mr-12">
                           <div className="inline-grid grid-flow-col space-x-2">
-                            <div className="flex flex-col space-y-1">
-                              <div className="font-semibold text-xl leading-none mt-[6px]">
-                                {amount.toFixed(2)}
-                              </div>
-                              <div className="text-xs text-greylish opacity-75 text-left">
-                                {symbol}<NG number={(GetFiatPrice(GetCoins[currency as keyof Coins], fiat) * amount)} fontSize={0.75} />
-                              </div>
-                            </div>
                             <div className="font-semibold text-xl inline-grid grid-flow-col gap-x-2">
                               <div className="mt-[3px]">
                                 <img
@@ -95,7 +87,15 @@ const Automations = () => {
                                   alt={GetCoins[currency as keyof Coins].symbol}
                                 />
                               </div>
-                              <span>{GetCoins[currency as keyof Coins].symbol}</span>
+                              {/* <span>{GetCoins[currency as keyof Coins].symbol}</span> */}
+                            </div>
+                            <div className="flex flex-col space-y-1">
+                              <div className="font-semibold text-xl leading-none mt-[6px]">
+                                <NG number={amount} fontSize={1.25} />
+                              </div>
+                              <div className="text-xs text-greylish opacity-75 text-left">
+                                {symbol}<NG number={(GetFiatPrice(GetCoins[currency as keyof Coins], fiat) * amount)} fontSize={0.75} />
+                              </div>
                             </div>
                           </div>
                         </div>
