@@ -27,7 +27,7 @@ const AssetItem = ({ asset }: { asset: IPrice[0] }) => {
               width={20}
               height={20}
               alt=""
-              className="rounded-full"
+              className="rounded-full object-cover"
             />
           </div>
           <div className="font-medium text-sm ">{asset.symbol}</div>

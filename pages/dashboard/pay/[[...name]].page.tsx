@@ -411,10 +411,12 @@ const Pay = () => {
                                             <img className="rounded-full w-5 h-5 aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
                                         <div>
-                                            <div className="text-xl leadin">{s.amount.toFixed(2)}</div>
+                                            <div className={`${(s.amount).toString().length >= 6 ? "text-xs" : "text-xl"}`}>{s.amount}</div>
                                         </div>
                                         <div></div>
-                                        <div className="text-sm text-gray-400">{symbol}<NG number={s.fiatAmount} fontSize={0.875} /></div>
+                                        <div className={`${(s.amount).toString().length >= 6 ? "text-xs" : "text-sm"} text-gray-400`}>
+                                            {symbol}<NG number={s.fiatAmount} fontSize={(s.amount).toString().length >= 6 ? 0.625 : 0.875} />
+                                        </div>
                                     </div>
                                 })}
                                 </div>

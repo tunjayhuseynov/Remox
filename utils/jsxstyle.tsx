@@ -11,10 +11,10 @@ export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: n
             fontSize: `${fontSize}rem`,
         }}>{Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number).toLocaleString()}
         </span>
-        <span
+        {Math.floor(number).toString().length <= 6 && <span
             style={{
                 fontSize: `${fontSize * (decimalSize ? decimalSize / 100 : 0.6)}rem`,
             }}
-        >.{(+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}</span>
+        >.{(+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}</span>}
     </>
 }
