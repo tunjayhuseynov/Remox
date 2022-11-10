@@ -95,9 +95,9 @@ const EditMember = () => {
     member.secondAmount ? true : false
   );
   const [startDate, setStartDate] = useState<Date>(
-    new Date(member.paymantDate)
+    new Date(member.paymantDate*1000)
   );
-  const [endDate, setEndDate] = useState<Date | null>(member.paymantEndDate ? new Date(member.paymantEndDate) : null);
+  const [endDate, setEndDate] = useState<Date | null>(member.paymantEndDate ? new Date(member.paymantEndDate*1000) : null);
   const [taskId, setTaskId] = useState<string | null>(member.taskId);
   const [loading, setLoading] = useState<boolean>(false);
   const [choosingBudget, setChoosingBudget] = useState<boolean>(false);
@@ -447,6 +447,7 @@ const EditMember = () => {
                     <DesktopDatePicker
                       label="Payment Start Date"
                       inputFormat="MM/dd/yyyy"
+                      disablePast
                       value={startDate}
                       onChange={(newValue) => setStartDate(newValue!)}
                       renderInput={(params) => <TextField {...params} />}
@@ -463,6 +464,7 @@ const EditMember = () => {
                     <DesktopDatePicker
                       label="Payment End Date"
                       inputFormat="MM/dd/yyyy"
+                      disablePast
                       value={endDate}
                       onChange={(newValue) => setEndDate(newValue!)}
                       renderInput={(params) => <TextField {...params} />}
