@@ -19,8 +19,8 @@ interface IProps {
 }
 export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize = 1.25, ether, payTx, afterPrice }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
-    // const hp = useAppSelector(SelectHistoricalPrices)
-    // const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    const hp = useAppSelector(SelectHistoricalPrices)
+    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const symbol = useAppSelector(SelectFiatSymbol)
 
     let tokenAmount = "";
@@ -31,11 +31,11 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
     }
     const fiatPrice = GetFiatPrice(transfer.coin, fiatPreference) * +tokenAmount
 
-    // const date = new Date(timestamp)
-    // const diff = Math.abs(DateTime.subtract(date, new Date()).toDays())
-    // const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
-    // const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
-    const price = fiatPrice//hpCoinPrice && diff >= 1 ? +tokenAmount * hpCoinPrice : fiatPrice
+    const date = new Date(timestamp)
+    const diff = Math.abs(DateTime.subtract(date, new Date()).toDays())
+    const dateString = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+    const hpCoinPrice = hp[transfer.coin.symbol]?.[fiatPreference].find(h => h.date === dateString)?.price
+    const price = hpCoinPrice && diff >= 1 ? +tokenAmount * hpCoinPrice : fiatPrice
 
     const fiatImg = fiatList.find(f => f.name === payTx?.fiat)?.logo
 

@@ -9,10 +9,11 @@ import Loader from "components/Loader";
 import { useAppSelector } from "redux/hooks";
 import { SelectBalance, SelectDarkMode, SelectSelectedAccountAndBudget } from "redux/slices/account/selector";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ClickAwayListener, FormControl, InputAdornment, TextField } from "@mui/material";
+import { ClickAwayListener, FormControl, InputAdornment, OutlinedInput, TextField } from "@mui/material";
 import { BiSearch } from "react-icons/bi";
 import { ToastRun } from "utils/toast";
 import { useRouter } from "next/router";
+import { NG } from "utils/jsxstyle";
 
 
 const Swap = () => {
@@ -272,7 +273,6 @@ const Swap = () => {
                                                     <div className='text-greylish mt-3 mb-2 font-medium text-xs tracking-wide'>Select Token</div>
                                                     <div className='flex flex-col overflow-y-auto pb-2 h-[10rem] hover:scrollbar-thumb-gray-200 dark:hover:scrollbar-thumb-greylish scrollbar-thin'>
                                                         {coinsList.filter((coin) => balances[coin.symbol].amount > 0).map((coin, index) => {
-                                                            console.log(coin)
                                                             return <div key={index} onClick={() => {
                                                                 if (token2 == coin) {
                                                                     setToken2(token1)
@@ -299,13 +299,33 @@ const Swap = () => {
                                     await change(parseFloat((e.target.value)));
                                 }}
                                     type="number"
-                                    className=" text-[22px] bg-transparent outline-none unvisibleArrow ml-4 max-w-[8.125rem]"
+                                    className="text-[22px] bg-transparent outline-none unvisibleArrow ml-4 max-w-[8.125rem]"
                                     placeholder="0" min="0" step="any" />
+                                {/* <OutlinedInput
+                                    id="display-amount"
+                                    fullWidth
+                                    type="number"
+                                    placeholder="0"
+                                    className='!border-none max-w-[12.125rem]'
+                                    inputProps={{ step: 0.01, value: token1Amount?.toString() ?? "", inputMode: "numeric", style: { height: `30px`, fontWeight: "normal", fontSize: "22px", borderStyle: "none", padding: "0" } }}
+                                    onChange={async (e) => {
+                                        const val = e.target.value;
+                                        if (!val && val !== "0") {
+                                            setToken1Amount(undefined);
+                                            // await change(parseFloat((e.target.value)));
+                                            return
+                                        };
+                                        if ((val || val === "0") && !isNaN(+val)) {
+                                            setToken1Amount(parseFloat((e.target.value)));
+                                            await change(parseFloat((e.target.value)));
+                                        }
+                                    }}
+                                /> */}
                             </div>
                         </div>
                         <div className="flex flex-col space-y-7 items-end ">
                             <div className="text-sm">
-                                Balance: {token1 && token1.name && balances[token1.symbol] ? (balances[token1.symbol]?.amount.toFixed(2) ?? 0) : 0}
+                                Balance: <NG number={token1 && token1.name && balances[token1.symbol] ? (balances[token1.symbol]?.amount ?? 0) : 0} fontSize={.875} />
                             </div>
                             <div className="flex space-x-2">
                                 <button className={`${isDark ? "bg-[#1C1C1C] bg-opacity-50" : "bg-[#F9F9F9]"} px-3 py-1 rounded-lg text-xs`} onClick={
@@ -411,7 +431,7 @@ const Swap = () => {
                                 {!(!token1Amount) && (!isLoading ?
                                     <>
                                         <div className="text-[22px] bg-transparent outline-none unvisibleArrow ml-4 max-w-[8.125rem]">
-                                            {parseFloat(appAmount).toFixed(2)}
+                                            <NG number={parseFloat(appAmount)} fontSize={1.375} />
                                         </div>
                                     </> : <div className="text-center"><Loader /></div>)
                                 }
@@ -419,7 +439,7 @@ const Swap = () => {
                         </div>
                         <div className="flex justify-end h-full">
                             <div className="text-right text-sm outline-none unvisibleArrow">
-                                Balance: {token2 && token2.name && balances[token2.symbol] ? (balances[token2.symbol]?.amount.toFixed(2) ?? 0) : 0}
+                                Balance: <NG number={token2 && token2.name && balances[token2.symbol] ? (balances[token2.symbol]?.amount ?? 0) : 0} fontSize={.875} />
                             </div>
                         </div>
                     </div>

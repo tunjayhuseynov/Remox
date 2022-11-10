@@ -9,6 +9,7 @@ import { DecimalConverter, IPrice } from "utils/api";
 import { GetFiatPrice } from "utils/const";
 import date from 'date-and-time'
 import BigNumber from "bignumber.js";
+import { NG } from "utils/jsxstyle";
 
 const Statistic = () => {
     const stats = useAppSelector(SelectStats)
@@ -59,7 +60,7 @@ const Statistic = () => {
                 }, 0)
             }
 
- 
+
             let totalBalance = 0;
             accounts.forEach((account) => {
                 account.coins.forEach((coin) => {
@@ -67,7 +68,7 @@ const Statistic = () => {
                 })
             })
 
-            if (    Object.keys(response).length > 0) response[stringTime(new Date())] = totalBalance
+            if (Object.keys(response).length > 0) response[stringTime(new Date())] = totalBalance
             response = Object.entries(response).sort(([key1], [key2]) => new Date(key1).getTime() > new Date(key2).getTime() ? 1 : -1).reduce<typeof response>((a, c) => { a[c[0]] = c[1]; return a }, {})
 
             const calendarList = Object.entries(response)
@@ -113,7 +114,10 @@ const Statistic = () => {
                     <div className="w-full flex justify-between px-5">
                         <div className="flex flex-col gap-1">
                             <div className="font-semibold text-greylish tracking-wide text-sm">Total Treasury Value</div>
-                            <p className="text-3xl font-semibold">{symbol}{Math.floor(totalBalance).toLocaleString()}<sup className="text-sm">{`.${totalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup></p>
+                            <p className="text-3xl font-semibold">
+                                {symbol}<NG number={totalBalance} fontSize={1.75}/>
+                                {/* {symbol} {Math.floor(totalBalance).toLocaleString()}<sup className="text-sm">{`.${totalBalance.toFixed(2).split(".")[1] ?? "00"}`}</sup> */}
+                            </p>
                         </div>
                         <div className="flex gap-5 ">
                             <span className={`${chartDate === "week" && '!text-primary text-opacity-100'} text-opacity-100'} hover:!text-primary cursor-pointer text-greylish dark:text-greylish text-xs font-semibold tracking-wide`} onClick={() => setChartDate("week")}>1W</span>

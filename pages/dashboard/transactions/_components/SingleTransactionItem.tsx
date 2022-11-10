@@ -144,7 +144,7 @@ const SingleTransactionItem = ({
                 height="100%"
                 layout="responsive"
                 quality={100}
-                className="rounded-full"
+                className="rounded-full object-cover"
               />
             </div>
             <div className="grid grid-rows-[18px,12px] text-left">
