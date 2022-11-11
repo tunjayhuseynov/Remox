@@ -14,6 +14,7 @@ import { AddressReducer } from "utils";
 import CurrencyElement from "components/general/CurrencyElement";
 import { motion } from "framer-motion";
 import { DayDifference, MonthDiff } from "../index.page";
+import dateTime from 'date-and-time'
 
 interface IProps {
   member: IMember;
@@ -40,7 +41,8 @@ const PayrollItem = ({
 
 
   const dateNow = new Date()
-  const haveToBeChecked = member.paymantEndDate ? MonthDiff(new Date(member.paymantDate * 1e3), new Date(member.paymantEndDate * 1e3)) + 1 : null
+  const haveToBeChecked = member.paymantEndDate ? member.interval === "monthly" ?
+    MonthDiff(new Date(member.paymantDate * 1e3), new Date(member.paymantEndDate * 1e3)) + 1 : Math.floor(Math.abs(dateTime.subtract(new Date(member.paymantDate * 1e3), new Date(member.paymantEndDate * 1e3)).toDays()) / 7) : null
 
   const monthPassed = MonthDiff(new Date(member.paymantDate * 1e3), dateNow)
 
@@ -49,7 +51,7 @@ const PayrollItem = ({
   const checkedPrecentage = (haveToBeChecked && member.paymantEndDate) ? ((member.checkedCount ?? 0) * 100) / haveToBeChecked : null
 
   const daysLeft = dateNow.getTime() < payCheckDate ? DayDifference(dateNow.getTime(), payCheckDate) : 0
-console.log(member)
+
   return (
     <tr className="grid grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] py-3 px-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
       <td

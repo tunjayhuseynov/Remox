@@ -411,7 +411,7 @@ const Pay = () => {
                                             <img className="rounded-full w-5 h-5 aspect-square" src={s.coin.logoURI} alt={s.coin.name} />
                                         </div>
                                         <div>
-                                            <div className={`${(s.amount).toString().length >= 6 ? "text-xs" : "text-xl"}`}>{s.amount}</div>
+                                            <div className={`${(s.amount).toString().length >= 6 ? "text-xs" : "text-xl"}`}>{s.amount.toFixed(2)}</div>
                                         </div>
                                         <div></div>
                                         <div className={`${(s.amount).toString().length >= 6 ? "text-xs" : "text-sm"} text-gray-400`}>

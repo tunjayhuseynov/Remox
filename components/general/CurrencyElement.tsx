@@ -1,7 +1,7 @@
 import { FiatMoneyList } from 'firebaseConfig'
 import React from 'react'
 import { AltCoins } from 'types'
-import { GetFiatSymbol } from 'utils/const'
+import { GetFiatPrice, GetFiatSymbol } from 'utils/const'
 import { NG } from 'utils/jsxstyle'
 import { fiatList } from './PriceInputField'
 
@@ -20,7 +20,9 @@ const CurrencyElement = ({ fiat, coin, amount, size, afterPrice, disableFiat, et
   const fiatDetails = fiatList.find((f) => f.name === fiat)
   let fiatImg = fiatDetails?.logo;
   let symbol = null;
+  let tokenAmount = 0;
   if (fiat) {
+    tokenAmount = +amount / GetFiatPrice(coin, fiat)
     symbol = GetFiatSymbol(fiat)
   }
   return (
@@ -54,7 +56,7 @@ const CurrencyElement = ({ fiat, coin, amount, size, afterPrice, disableFiat, et
             /> : `${symbol}`}
           </div>
           <div>
-            <NG fontSize={0.625} decimalSize={80} number={fiatImg ? ((+amount).toFixed(0).length > 18 ? 0 : +amount) : ((+amount).toFixed(0).length > 18 ? 0 : +(+amount).toFixed(2))} />
+            <NG fontSize={0.625} decimalSize={80} number={fiatImg ? ((+tokenAmount).toFixed(0).length > 18 ? 0 : +tokenAmount) : ((+amount).toFixed(0).length > 18 ? 0 : +(+amount).toFixed(2))} />
           </div>
         </div>
       </div>}

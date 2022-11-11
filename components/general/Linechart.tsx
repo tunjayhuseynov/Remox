@@ -72,7 +72,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
                 Balance
               </div>
             <div class='${Math.floor(number).toString().length == 6 ? "text-sm" : "text-base"} font-bold'>
-            ${symbol}${Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number).toLocaleString()}.${(+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}
+            ${symbol}${Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number).toLocaleString() + "." + (((+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2)) ?? "00")}
               </div>
             </div>
           </div>`

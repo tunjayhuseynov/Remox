@@ -98,7 +98,7 @@ const Sidebar = () => {
         id: individual?.id ?? "0",
         name: individual?.name ?? "name",
         image: individual?.image?.imageUrl || individual?.image?.nftUrl || makeBlockie(individual?.id ?? "random"),
-        secondValue: `${symbol}${totalBalance.toFixed(2)}`,
+        secondValue: <>{symbol}<NG number={totalBalance} decimalSize={100} fontSize={0.625} /></>,
         onClick: () => { }
     }
 

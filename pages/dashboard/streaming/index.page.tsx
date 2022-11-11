@@ -61,7 +61,7 @@ const Automations = () => {
         <div className="text-2xl font-bold">Streaming</div>
       </div>
       <>
-        {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
+        {/* {tasks.length > 0 && <div className="px-5 pb-10 pt-6  shadow-custom bg-white dark:bg-darkSecond">
           <div className="grid grid-cols-[22.5%,1fr] gap-10">
             <div className="flex flex-col space-y-5 gap-12 lg:gap-4 border-r border-grayHot">
               <div className="text-base font-medium text-gray-500">Total Streaming Payment</div>
@@ -87,7 +87,6 @@ const Automations = () => {
                                   alt={GetCoins[currency as keyof Coins].symbol}
                                 />
                               </div>
-                              {/* <span>{GetCoins[currency as keyof Coins].symbol}</span> */}
                             </div>
                             <div className="flex flex-col space-y-1">
                               <div className="font-semibold text-xl leading-none mt-[6px]">
@@ -105,7 +104,7 @@ const Automations = () => {
               </div>
             </div>
           </div>
-        </div>}
+        </div>} */}
         <div className="w-full pt-4 pb-6 h-full">
           <table className="w-full">
             <thead>

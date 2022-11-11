@@ -28,6 +28,7 @@ import { IAccountORM } from "pages/api/account/index.api";
 import datetime from "date-and-time";
 import { NG } from "utils/jsxstyle";
 import { updateMemberCheckDate } from "redux/slices/account/remoxData";
+import { ToastRun } from "utils/toast";
 
 export default function DynamicPayroll() {
   const [isAvaible, setIsAviable] = useState<boolean>(false);
@@ -153,7 +154,7 @@ export default function DynamicPayroll() {
       setChoosingBudget(false);
     } catch (error) {
       console.log(error);
-      throw new Error(error as any);
+      ToastRun((error as any).message, "error");
     }
   };
 
@@ -167,21 +168,25 @@ export default function DynamicPayroll() {
       const coin2 = Object.values(GetCoins).find(
         (coin) => coin.symbol === contributor.secondCurrency
       );
-
-      const amount = contributor.amount;
-      total += +amount * (coin1?.priceUSD ?? 0);
-      if (res[coin1?.symbol ?? ""]) {
-        res[coin1?.symbol ?? ""] += +amount;
+      if (!coin1) continue;
+      let coinFiat = contributor.fiat ? GetFiatPrice(coin1, contributor.fiat) : 1
+      const amount = +contributor.amount / (contributor.fiat ? coinFiat : 1);
+      total += +amount;
+      if (res[coin1.symbol ?? ""]) {
+        res[coin1.symbol ?? ""] += +amount;
       } else {
-        res[coin1?.symbol ?? ""] = +amount;
+        res[coin1.symbol ?? ""] = +amount;
       }
       if (contributor.secondAmount) {
-        const secondaryAmount = contributor.secondAmount;
-        total += +secondaryAmount * (coin2?.priceUSD ?? 0);
+        if (!coin2) continue;
+        let coinFiat = contributor.fiatSecond ? GetFiatPrice(coin2, contributor.fiatSecond) : 1
+        const secondaryAmount = +contributor.secondAmount / (contributor.fiatSecond ? coinFiat : 1);
+        const amount2 = +secondaryAmount / (contributor.fiatSecond ? coinFiat : 1);
+        total += amount2;
         if (res[coin2?.symbol ?? ""]) {
-          res[coin2?.symbol ?? ""] += +secondaryAmount;
+          res[coin2?.symbol ?? ""] += +amount2;
         } else {
-          res[coin2?.symbol ?? ""] = +secondaryAmount;
+          res[coin2?.symbol ?? ""] = +amount2;
         }
       }
     }
@@ -266,7 +271,7 @@ export default function DynamicPayroll() {
                           </div>
                           <div className="font-medium text-sm text-greylish text-left pl-[2rem]">
                             {fiatSymbol}
-                            <NG number={amount * GetCoins[currency as keyof Coins].priceUSD} />
+                            <NG number={amount * GetFiatPrice(GetCoins[currency as keyof Coins], defaultFiat)} />
                           </div>
                         </div>
                       );
