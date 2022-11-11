@@ -8,7 +8,7 @@ import { toChecksumAddress } from "web3-utils";
 import { payTxCollectionName } from "crud/payTxs";
 
 
-const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrganization[]>) => {
+const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrganization[] | { message: string }>) => {
     try {
         const { address } = req.query;
         if (typeof address !== "string") throw new Error("Invalid address");
@@ -77,7 +77,7 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
 
         return res.json(orgList);
     } catch (error) {
-        throw error;
+        return res.json({ message: (error as any).message })
     }
 }
 

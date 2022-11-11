@@ -106,12 +106,12 @@ export const Blockchains: BlockchainType[] = [
     hpCollection: "hpCELO",
     logoUrl: CoinsURL.CELO,
     multisigProviders: [
-      {
-        name: "Celo Terminal",
-        abi: CeloTerminal.abi as AbiItem[],
-        logoURL: "/icons/companies/celoterminal.png",
-        displayName: "Celo Terminal",
-      },
+      // {
+      //   name: "Celo Terminal",
+      //   abi: CeloTerminal.abi as AbiItem[],
+      //   logoURL: "/icons/companies/celoterminal.png",
+      //   displayName: "Celo Terminal",
+      // },
       {
         name: "GnosisSafe",
         abi: CeloTerminal.abi as AbiItem[],
