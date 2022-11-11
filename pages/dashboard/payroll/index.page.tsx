@@ -233,7 +233,7 @@ export default function DynamicPayroll() {
             )}
           </div>
         </div>
-        {contributors.length > 0 && (
+        {/* {contributors.length > 0 && (
           <div className="pt-4 !mt-10 pb-5 px-3 max-h-[9.1rem] bg-white shadow-15 dark:bg-darkSecond rounded-md">
             <div className="flex">
               <div className="flex flex-col space-y-5 gap-4 pr-8 border-r border-greylish dark:border-[#454545] border-opacity-10">
@@ -281,7 +281,7 @@ export default function DynamicPayroll() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
         <table className="w-full pt-1 pb-4 ">
           <thead>
             {/* grid-cols-[18%,11%,11%,13%,13%,12%,9%,13%] */}
