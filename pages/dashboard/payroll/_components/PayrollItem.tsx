@@ -53,36 +53,38 @@ const PayrollItem = ({
   const daysLeft = dateNow.getTime() < payCheckDate ? DayDifference(dateNow.getTime(), payCheckDate) : 0
 
   return (
-    <tr className="grid grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] py-3 px-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
+    <tr className="grid grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
       <td
-        className={` flex `}
+        className={` pl-4 pt-5`}
       >
-        <div className={`flex space-x-2 items-center `}>
-          {member.execution !== ExecutionType.auto && isRuning && !runmodal ? (
-            <Checkbox
-              sx={{ "&.Mui-checked": { color: "#ff7348" } }}
-              className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:
+        <div className={`space-x-2`}>
+          <div className="float-left pt-2 pr-3">
+            {member.execution !== ExecutionType.auto && isRuning && !runmodal ? (
+              <Checkbox
+                sx={{ "&.Mui-checked": { color: "#ff7348" } }}
+                className="relative cursor-pointer w-[0.938rem] h-[0.938rem] checked:before:absolute checked:
                 before:w-full checked:before:h-full checked:before:bg-primary checked:before:block"
-              onChange={(e) => {
-                const members = [...selectedMembers!];
-                if (e.target.checked) {
-                  if (!members.includes(member)) {
-                    members.push(member);
-                    setSelectedMembers(members);
+                onChange={(e) => {
+                  const members = [...selectedMembers!];
+                  if (e.target.checked) {
+                    if (!members.includes(member)) {
+                      members.push(member);
+                      setSelectedMembers(members);
+                    }
+                  } else {
+                    setSelectedMembers(members.filter((m) => m.id !== member.id));
                   }
-                } else {
-                  setSelectedMembers(members.filter((m) => m.id !== member.id));
+                }}
+                checked={
+                  selectedMembers?.find((m) => m.id === member.id) ? true : false
                 }
-              }}
-              checked={
-                selectedMembers?.find((m) => m.id === member.id) ? true : false
-              }
-            />
-          ) : (
-            <></>
-          )}
+              />
+            ) : (
+              <></>
+            )}
+          </div>
           <div
-            className={`flex items-center space-x-2 `}
+            className={`flex space-x-2 `}
           >
             <img
               src={member.image?.imageUrl ?? makeBlockie(member.address)}
@@ -100,20 +102,20 @@ const PayrollItem = ({
           </div>
         </div>
       </td>
-      <td className="flex items-center">
+      <td className="flex pt-7">
         {member.paymantDate && (
           <div className="text-sm font-medium">
             {dateFormat(new Date(+member.paymantDate * 1e3), `dd/mm/yyyy`)}
           </div>
         )}
       </td>
-      <td className="flex items-center">
+      <td className="flex pt-7">
         <div className="text-sm font-medium">
           {member.paymantEndDate ? dateFormat(new Date(+member.paymantEndDate * 1e3), `dd/mm/yyyy`) : "Active"}
         </div>
       </td>
-      <td className="flex flex-col justify-center items-center px-9 gap-2">
-        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl h-2 w-full mt-5">
+      <td className="flex flex-col pr-9 gap-2 pt-8">
+        <div className="bg-greylish bg-opacity-10 dark:bg-dark rounded-2xl h-2 w-full">
           <motion.div
             className="h-full bg-primary rounded-2xl z-10 "
             animate={{ x: 0, width: `${member.paymantEndDate ? checkedPrecentage : 100}%` }}
@@ -122,7 +124,7 @@ const PayrollItem = ({
         </div>
         <div className="text-xs text-end w-full"> {member.checkedCount} / {member.paymantEndDate ? haveToBeChecked : "∞"} </div>
       </td>
-      <td className="flex flex-col justify-center text-sm space-y-4">
+      <td className="flex text-sm space-y-4 pt-7">
         <CurrencyElement
           amount={member?.amount}
           fiat={member.fiat}
@@ -138,19 +140,19 @@ const PayrollItem = ({
           />
         )}
       </td>
-      <td className="flex items-center justify-start text-sm font-medium">
+      <td className="flex justify-start text-sm font-medium pt-7">
         {member.execution !== "Auto"
           ? member.interval === DateInterval.monthly
             ? "Monthly"
             : "Weekly"
           : "Streaming"}
       </td>
-      <td className="flex flex-col items-start justify-center text-sm font-medium">
+      <td className="text-sm font-medium pt-7">
         {member.execution === "Auto" ? <p>Streaming</p> : <p>Manual</p>}
         {member.execution !== "Auto" ? payCheckDate < dateNow.getTime() && (member.lastCheckedDate ? member.lastCheckedDate < payCheckDate : true) && <span className="text-[#E84142] ">(overdue)</span> : <></>}
         {member.execution !== "Auto" ? daysLeft <= 3 && daysLeft > 0 ? <span className="text-[#707070]">({daysLeft} days left)</span> : <></> : <></>}
       </td>
-      <td className="flex items-center text-sm font-medium justify-start">
+      <td className="flex text-sm font-medium justify-start pt-7">
         {member.compensation}
       </td>
     </tr>

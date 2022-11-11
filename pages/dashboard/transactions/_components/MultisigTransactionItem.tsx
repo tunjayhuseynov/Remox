@@ -287,7 +287,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         </div>
                         <div className="grid grid-rows-[18px,12px] text-left">
                             <span className="font-medium text-left text-sm leading-none pt-[2px]">
-                                {action}
+                                {action} {transferBatch && `(${transferBatch.payments.length})`}
                             </span>
                             <span className="text-xxs font-medium text-gray-500 dark:text-gray-200 leading-none">
                                 {name}

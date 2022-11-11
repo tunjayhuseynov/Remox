@@ -69,8 +69,8 @@ const ContributorItem = ({ member }: PageProps) => {
                 <Delete name={`"${member.fullname}" contributor`} onDelete={onDelete} onCurrentModal={setDeleteModal} />
             </Modal>
         }
-        <tr className="grid grid-cols-2  sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%]  text-center items-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
-            <td className="pl-3 items-start">
+        <tr className="grid grid-cols-2 sm:grid-cols-[30%,30%,1fr] lg:grid-cols-[20%,13%,14%,15%,15%,16%,7%]  text-center py-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919]   hover:bg-opacity-5 hover:transition-all text-sm relative">
+            <td className="pl-3 items-start pt-[1.125rem]">
                 <div className="flex !items-center space-x-1" >
                     <img src={member.image ? member.image.imageUrl : makeBlockie(member.address)} alt="" className="rounded-full border w-10 object-cover h-10 mr-2" />
                     <div className="text-sm font-medium">
@@ -78,22 +78,22 @@ const ContributorItem = ({ member }: PageProps) => {
                     </div>
                 </div>
             </td>
-            <td className="pl-[2px] flex items-start font-medium text-sm">
+            <td className="pl-[2px] flex items-start font-medium text-sm pt-7">
                 {teamName}
             </td>
-            <td className="pl-[2px] flex items-start font-medium text-sm">
+            <td className="pl-[2px] flex items-start font-medium text-sm pt-7">
                 {member.role}
             </td>
-            <td className="flex flex-col justify-center text-sm font-medium space-y-4">
+            <td className="flex flex-col text-sm font-medium space-y-4 pt-7">
                 <CurrencyElement amount={member.amount} coin={coin1!} fiat={member.fiat} disableFiat={!member.fiat} />
                 {(member.secondAmount && member.secondCurrency) &&
                     <CurrencyElement amount={member.secondAmount} coin={coin2!} fiat={member.fiatSecond} disableFiat={!member.fiatSecond} />
                 }
             </td>
-            <td className="flex items-start truncate fon text-sm font-medium">
+            <td className="flex items-start truncate fon text-sm font-medium pt-7">
                 {AddressReducer(member.address)}
             </td>
-            <td className="flex items-center truncate text-sm font-medium">
+            <td className="flex truncate text-sm font-medium pt-7">
                 <span className="w-12 text-sm">{member.compensation}</span>
             </td>
             <td>

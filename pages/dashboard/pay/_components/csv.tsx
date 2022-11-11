@@ -39,8 +39,8 @@ const CsvModal = ({ data, account, onBack, budget, subbudget }: IProps) => {
         if (!c.coin) return a;
         let samount = c.second?.amount ?? 0;
         let scoin = c.second?.coin ?? c.coin;
-        let price = generatePriceCalculation({ ...scoin, amount: samount ?? 0, coin: scoin }, hp, pc, preference)
-        return a + generatePriceCalculation({ ...c.coin, amount: c.amount ?? 0, coin: c.coin }, hp, pc, preference) + price;
+        let sprice = generatePriceCalculation({ ...scoin, amount: samount ?? 0, coin: scoin }, hp, pc, preference)
+        return a + generatePriceCalculation({ ...c.coin, amount: c.amount ?? 0, coin: c.coin }, hp, pc, preference) + sprice;
     }, 0)
 
     let allocation = data.reduce<{ [coin: string]: { coin: AltCoins, amount: number, remain: number } }>((a, c) => {

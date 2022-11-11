@@ -287,10 +287,10 @@ export default function DynamicPayroll() {
             {/* grid-cols-[18%,11%,11%,13%,13%,12%,9%,13%] */}
             <tr
               id="header"
-              className={`grid  grid-cols-[18.5%,9.5%,9.5%,13.5%,14.5%,12.5%,9.5%,12.5%] bg-[#F2F2F2] shadow-15 py-2 px-3 dark:bg-darkSecond rounded-md`}
+              className={`grid  grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] bg-[#F2F2F2] shadow-15 py-2 dark:bg-darkSecond rounded-md`}
             >
               <th
-                className={`text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]`}
+                className={`text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] pl-4`}
               >
                 Contributor
               </th>
@@ -300,7 +300,7 @@ export default function DynamicPayroll() {
               <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 End Date
               </th>
-              <th className=" text-sm text-center font-semibold text-greylish dark:text-[#aaaaaa]">
+              <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa]">
                 Progress
               </th>
               <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">
@@ -313,7 +313,7 @@ export default function DynamicPayroll() {
                 Status
               </th>
               <th className=" text-sm text-left font-semibold text-greylish dark:text-[#aaaaaa] ">
-                Compensation Type
+                Comp. Type
               </th>
             </tr>
           </thead>
