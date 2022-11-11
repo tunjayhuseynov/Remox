@@ -160,6 +160,7 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
             return organization;
         }))
 
+
         return res.json(orgList.concat(orgList2).concat(orgList3));
     } catch (error) {
         return res.json({ message: (error as any).message })
