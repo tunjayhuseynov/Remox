@@ -19,7 +19,14 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
 
         const organizations = organizationDocs.docs.map(s => s.data()) as IOrganization[]
 
-        // for (const organization of organizations) {
+        // for (const organization of organizations.slice(0, 5)) {
+        //     if (!organization?.payTransactions) {
+        //         await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+        //             payTransactions: []
+        //         })
+        //         organization["payTransactions"] = [];
+        //     }
+
         //     if (!organization?.notes) {
         //         await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
         //             notes: []
@@ -33,14 +40,22 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
         //                 accountId: organization.id
         //             }
         //         })
+
         //         // const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
         //         // const account = accountRef.data() as IAccount;
         //         return data;
         //     }))
 
+        //     organization.budget_execrises = await Promise.all(organization.budget_execrises.map(async (budgetExecriseId) => {
+        //         return (await adminApp.firestore().collection("budget_exercises").doc(budgetExecriseId.id).get()).data() as IBudgetExercise
+        //     }));
+        //     organization.payTransactions = await Promise.all(organization.payTransactions.map(async (pxId) => {
+        //         return (await adminApp.firestore().collection(payTxCollectionName).doc(pxId.id).get()).data() as IRemoxPayTransactions
+        //     }));
+
         // }
         // process.setMaxListeners(20)
-        let orgList = await Promise.all(organizations.map(async organization => {
+        let orgList = await Promise.all(organizations.slice(0, 5).map(async organization => {
             if (!organization?.notes) {
                 await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
                     notes: []
@@ -75,7 +90,77 @@ const AllOrganizations = async (req: NextApiRequest, res: NextApiResponse<IOrgan
             return organization;
         }))
 
-        return res.json(orgList);
+        let orgList2 = await Promise.all(organizations.slice(5, 10).map(async organization => {
+            if (!organization?.notes) {
+                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                    notes: []
+                })
+                organization["notes"] = [];
+            }
+            if (!organization?.payTransactions) {
+                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                    payTransactions: []
+                })
+                organization["payTransactions"] = [];
+            }
+
+            organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
+                const { data } = await axios.get(BASE_URL + '/api/account', {
+                    params: {
+                        id: accountId.id,
+                        accountId: organization.id,
+                        txDisabled: false
+                    }
+                })
+                // const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
+                // const account = accountRef.data() as IAccount;
+                return data;
+            }))
+            organization.budget_execrises = await Promise.all(organization.budget_execrises.map(async (budgetExecriseId) => {
+                return (await adminApp.firestore().collection("budget_exercises").doc(budgetExecriseId.id).get()).data() as IBudgetExercise
+            }));
+            organization.payTransactions = await Promise.all(organization.payTransactions.map(async (pxId) => {
+                return (await adminApp.firestore().collection(payTxCollectionName).doc(pxId.id).get()).data() as IRemoxPayTransactions
+            }));
+            return organization;
+        }))
+
+        let orgList3 = await Promise.all(organizations.slice(10, 15).map(async organization => {
+            if (!organization?.notes) {
+                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                    notes: []
+                })
+                organization["notes"] = [];
+            }
+            if (!organization?.payTransactions) {
+                await adminApp.firestore().collection(organizationCollectionName).doc(organization.id).update({
+                    payTransactions: []
+                })
+                organization["payTransactions"] = [];
+            }
+
+            organization.accounts = await Promise.all(organization.accounts.map(async (accountId) => {
+                const { data } = await axios.get(BASE_URL + '/api/account', {
+                    params: {
+                        id: accountId.id,
+                        accountId: organization.id,
+                        txDisabled: false
+                    }
+                })
+                // const accountRef = await adminApp.firestore().collection("accounts").doc(accountId.id).get()
+                // const account = accountRef.data() as IAccount;
+                return data;
+            }))
+            organization.budget_execrises = await Promise.all(organization.budget_execrises.map(async (budgetExecriseId) => {
+                return (await adminApp.firestore().collection("budget_exercises").doc(budgetExecriseId.id).get()).data() as IBudgetExercise
+            }));
+            organization.payTransactions = await Promise.all(organization.payTransactions.map(async (pxId) => {
+                return (await adminApp.firestore().collection(payTxCollectionName).doc(pxId.id).get()).data() as IRemoxPayTransactions
+            }));
+            return organization;
+        }))
+
+        return res.json(orgList.concat(orgList2).concat(orgList3));
     } catch (error) {
         return res.json({ message: (error as any).message })
     }
