@@ -142,6 +142,7 @@ const TeamItem = ({ tx, members }: IProps) => {
             <td className="pl-[2px] hidden sm:flex items-center font-medium text-sm">
                 {(member?.interval === DateInterval.monthly && "Monthly")}
                 {(member?.interval === DateInterval.weekly && "Weekly")}
+                {!member?.interval && "-"}
             </td>
             <td className="pl-[2px] hidden sm:flex items-center text-sm font-medium">
                 {tx.tags.map(s =>
