@@ -363,12 +363,12 @@ const Detail = ({
                                             {swap && <div>Swap</div>}
                                             {transfer && <div>
                                                 {direction === TransactionDirection.In ? "+" : "-"}
-                                                {symbol}<NG fontSize={1.5} number={GetFiatPrice(transfer.coin, fiatPreference) * DecimalConverter(+transfer.amount, transfer.coin.decimals)} />
+                                                {symbol}<NG fontSize={1.5} number={(DecimalConverter(+transfer.amount, transfer.coin.decimals) * (getHpCoinPrice(transfer.coin) ?? 0)) || GetFiatPrice(transfer.coin, fiatPreference) * DecimalConverter(+transfer.amount, transfer.coin.decimals)} />
                                             </div>}
-                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + (GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
-                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={GetFiatPrice(automation.coin, fiatPreference) * DecimalConverter(automation.amount, automation.coin.decimals)} /></div>}
-                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + (GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
-                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={GetFiatPrice(automationCanceled.coin, fiatPreference) * DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals)} /></div>}
+                                            {transferBatch && <div>-{symbol}<NG fontSize={1.5} number={transferBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
+                                            {automation && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automation.amount, automation.coin.decimals) * (getHpCoinPrice(automation.coin) ?? 0)) || GetFiatPrice(automation.coin, fiatPreference) * DecimalConverter(automation.amount, automation.coin.decimals)} /></div>}
+                                            {automationBatch && <div>-{symbol}<NG fontSize={1.5} number={automationBatch.payments.reduce((a, c) => a + ((DecimalConverter(c.amount, c.coin.decimals) * (getHpCoinPrice(c.coin) ?? 0)) || GetFiatPrice(c.coin, fiatPreference) * DecimalConverter(c.amount, c.coin.decimals)), 0)} /></div>}
+                                            {automationCanceled && <div>-{symbol}<NG fontSize={1.5} number={(DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals) * (getHpCoinPrice(automationCanceled.coin) ?? 0)) || GetFiatPrice(automationCanceled.coin, fiatPreference) * DecimalConverter(automationCanceled.amount, automationCanceled.coin.decimals)} /></div>}
                                             {addOwner && <div>Add Owner</div>}
                                             {removeOwner && <div>Remove Owner</div>}
                                             {changeThreshold && <div>Change Threshold</div>}

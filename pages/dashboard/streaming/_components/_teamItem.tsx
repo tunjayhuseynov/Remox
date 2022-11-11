@@ -97,13 +97,16 @@ const TeamItem = ({ tx, members }: IProps) => {
 
     return <>
         <tr className={`pl-5 grid grid-cols-[15%,repeat(6,minmax(0,1fr))] py-10 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom`}>
-            <td className="hover:cursor-pointer flex items-center gap-2">
-                <Avatar src={member?.image?.imageUrl} />
-                <div className="flex flex-col gap-1">
+            <td className="flex items-center gap-2">
+                <div className="w-[2.5rem] h-[2.5rem] bg-[#D6D6D6] rounded-full flex items-center justify-center">
+                    {member?.image?.imageUrl && <img src={member.image.imageUrl} alt="" className="rounded-full w-[2.5rem] h-[2.5rem] object-cover" />}
+                    {!member?.image?.imageUrl && member?.fullname && <div className="font-semibold text-xs">{member.fullname.split(" ").reduce((a, c) => a + c[0].toUpperCase(), "")}</div>}
+                </div>
+                <div className="flex flex-col">
                     <div className="font-medium text-sm">
-                        {member?.fullname ?? AddressReducer(task.to)}
+                        {member?.fullname ?? "No Name"}
                     </div>
-                    {member && <div className="text-greylish text-xs">{AddressReducer(task.to)}</div>}
+                    <div className="text-greylish text-xxs">{AddressReducer(task.to)}</div>
                 </div>
             </td>
             <td className="flex space-x-8 items-center">
@@ -129,10 +132,11 @@ const TeamItem = ({ tx, members }: IProps) => {
                     </div>
                     <div className="font-medium text-sm">{member?.amount ?? DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
                     {member?.fiat ?
-                        <div>{member.fiat} as {member.currency}</div> :
-                        <div className="text-sm font-medium">
-                            {task.coin.symbol}
-                        </div>}
+                        <div>{member.fiat} as {member.currency}</div> : <></>
+                        // <div className="text-sm font-medium">
+                        //     {task.coin.symbol}
+                        // </div>
+                    }
                 </div>
             </td>
             <td className="pl-[2px] hidden sm:flex items-center font-medium text-sm">

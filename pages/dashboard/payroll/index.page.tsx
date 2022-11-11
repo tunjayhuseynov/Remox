@@ -266,10 +266,7 @@ export default function DynamicPayroll() {
                           </div>
                           <div className="font-medium text-sm text-greylish text-left pl-[2rem]">
                             {fiatSymbol}
-                            {(
-                              amount *
-                              GetCoins[currency as keyof Coins].priceUSD
-                            ).toLocaleString()}
+                            <NG number={amount * GetCoins[currency as keyof Coins].priceUSD} />
                           </div>
                         </div>
                       );

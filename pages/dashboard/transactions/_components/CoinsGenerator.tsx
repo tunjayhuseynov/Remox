@@ -20,7 +20,7 @@ interface IProps {
 export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize = 1.25, ether, payTx, afterPrice }: IProps) => {
     const fiatPreference = useAppSelector(SelectFiatPreference)
     const hp = useAppSelector(SelectHistoricalPrices)
-    const calculatePrice = useAppSelector(SelectPriceCalculationFn)
+    // const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const symbol = useAppSelector(SelectFiatSymbol)
 
     let tokenAmount = "";

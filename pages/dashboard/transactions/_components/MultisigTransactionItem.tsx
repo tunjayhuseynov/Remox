@@ -8,8 +8,8 @@ import { CoinDesignGenerator } from './CoinsGenerator';
 import { ERCMethodIds, GenerateTransaction, IAddOwner, IAutomationCancel, IAutomationTransfer, IBatchRequest, IChangeThreshold, IRemoveOwner, ISwap, ITransfer } from 'hooks/useTransactionProcess';
 import { ITag } from 'pages/api/tags/index.api';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { SelectID, SelectProviderAddress, SelectAlldRecurringTasks, SelectPayTransactions } from 'redux/slices/account/selector';
-import { BlockchainType } from 'types/blockchains';
+import { SelectID, SelectProviderAddress, SelectAlldRecurringTasks, SelectPayTransactions, SelectCurrencies } from 'redux/slices/account/selector';
+import { Blockchains, BlockchainType } from 'types/blockchains';
 import { ToastRun } from 'utils/toast';
 import { AddTransactionToTag } from 'redux/slices/account/thunks/tags';
 import { nanoid } from '@reduxjs/toolkit';
@@ -48,7 +48,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const [labelLoading, setLabelLoading] = useState(false)
     const [openDetail, setOpenDetail] = useState(isDetailOpen ?? false)
     const [addLabelModal, setAddLabelModal] = useState(false);
-    const { allow } = useAllowance()
+    const currencies = useAppSelector(SelectCurrencies)
 
     const txs = useAppSelector(SelectPayTransactions) as IRemoxPayTransactions[]
     const payTx = txs.find(s => s.contract?.toLowerCase() === tx.contractAddress?.toLowerCase() && s.hashOrIndex?.toLowerCase() === tx.hashOrIndex?.toLowerCase())
@@ -251,6 +251,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const isRejected = !!tx.rejection?.isExecuted
 
 
+    const native = Object.values(currencies).find(s => s.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
 
     return (
         <>
@@ -594,9 +595,10 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 openDetail={openDetail}
                 setOpenDetail={setOpenDetail}
                 safeHash={tx.hashOrIndex}
-                gasFee={{
-                    amount: 0,
-                }}
+                gasFee={tx.fee ? {
+                    amount: +tx.fee,
+                    currency: native
+                } : undefined}
             />
             {
                 addLabelModal && <AddLabel

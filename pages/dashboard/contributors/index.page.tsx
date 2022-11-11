@@ -24,7 +24,7 @@ const Contributors = () => {
         {
             to: "/dashboard/contributors",
             text: "Active",
-            count: members.filter(s => (s.paymantEndDate ?? 0) < GetTime()).length.toString()
+            count: members.filter(s => (s.paymantEndDate ?? 0) > GetTime()).length.toString()
         },
         {
             to: "/dashboard/contributors?index=1",
@@ -50,9 +50,7 @@ const Contributors = () => {
 
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
     const ActivePage = index === 0 ? "Active" : data.find((item) => item.to === navigate.asPath)?.text
-    const membersLength = index === 0 ? members.length : members.filter((item) => item.compensation === ActivePage).length
-
-    console.log(membersLength)
+    const membersLength = index === 0 ? members.filter(s => (s.paymantEndDate ?? 0) > GetTime()).length : members.filter((item) => item.compensation === ActivePage).length
 
 
     useEffect(() => {
@@ -88,7 +86,7 @@ const Contributors = () => {
                         </tr>
                         <>
                             {index === 0 ? <>
-                                {members.filter(s => (s.paymantEndDate ?? 0) < GetTime()).slice(pagination - STABLE_INDEX, pagination).map((member) => <ContributorItem key={member.id} member={member} />)}
+                                {members.filter(s => (s.paymantEndDate ?? 0) > GetTime()).slice(Math.max(pagination - STABLE_INDEX, 0), pagination).map((member) => <ContributorItem key={member.id} member={member} />)}
                             </>
                                 :
                                 <>
@@ -121,7 +119,7 @@ const Contributors = () => {
                 {creating && <AddTeam setCreating={setCreating} />}
                 <div onClick={() => {
                     setCreating(!creating)
-                }} className=" rounded-md cursor-pointer bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-h-[12rem] items-start justify-between pl-5">
+                }} className="rounded-md cursor-pointer bg-white transition-all dark:bg-darkSecond hover:transition-all hover:!bg-[#f0f0f0] dark:hover:!bg-[#131313]  hover:shadow-lg px-3  shadow flex  py-2 pb-4  min-h-[12rem] items-start justify-between pl-5">
                     <div className="flex items-center justify-center w-full h-full">
                         <span className={`text-8xl font-light ${isDark ? "" : "text-[#CCCCCC]"}`}>+</span>
                     </div>

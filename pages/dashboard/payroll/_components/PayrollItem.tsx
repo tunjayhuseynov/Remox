@@ -49,7 +49,7 @@ const PayrollItem = ({
   const checkedPrecentage = (haveToBeChecked && member.paymantEndDate) ? ((member.checkedCount ?? 0) * 100) / haveToBeChecked : null
 
   const daysLeft = dateNow.getTime() < payCheckDate ? DayDifference(dateNow.getTime(), payCheckDate) : 0
-
+console.log(member)
   return (
     <tr className="grid grid-cols-[18.5%,9.5%,9.5%,15.5%,12.5%,12.5%,9.5%,12.5%] py-3 px-3 h-[6.1rem] bg-white shadow-15 dark:bg-darkSecond my-4 rounded-md border-opacity-10 hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5 hover:transition-all text-sm`">
       <td
