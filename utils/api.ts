@@ -3,7 +3,7 @@ import { AltCoins, TokenType } from "types";
 
 
 // export const CeloExplorer = "https://explorer.celo.org/api"
-export const BASE_URL = process.env.NODE_ENV === "production" ? "https://remox.vercel.app" : "http://localhost:3000"
+export const BASE_URL = process.env.NODE_ENV === "production" ? "https://app.remox.io" : "http://localhost:3000"
 
 export interface IPrice {
     [name: string]: {
