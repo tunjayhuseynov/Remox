@@ -59,6 +59,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const date = keys[dataPointIndex];
         let number = series[seriesIndex][dataPointIndex];
+        // number = 123467.45;
         return (
           `<div class="flex flex-col gap-3 bg-white dark:bg-dark px-4 py-3 border-none rounded-lg min-w-[13rem] min-h-[5rem]">
             <div class="flex justify-between">
@@ -72,7 +73,7 @@ function LineChart({ data, type, selectedDate }: { data: { [key: string]: number
                 Balance
               </div>
             <div class='${Math.floor(number).toString().length == 6 ? "text-sm" : "text-base"} font-bold'>
-            ${symbol}${Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact" }).format(Math.floor(number)) : Math.floor(number).toLocaleString() + "." + (((+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2)) ?? "00")}
+            ${symbol}${Math.floor(number).toString().length > 6 ? Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 2 }).format(Math.floor(number)) : Math.floor(number).toLocaleString() + "." + (((+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2)) ?? "00")}
               </div>
             </div>
           </div>`
