@@ -51,12 +51,12 @@ const RunModal = ({
               {selectedContributors.map((contributor) => <PayrollItem runmodal={runmodal} isRuning={isAvaible} key={contributor.id} member={contributor} selectedMembers={selectedContributors} setSelectedMembers={setSelectedContributors} />)}
             </tbody>
           </table>
-          {/* <div className="flex flex-col space-y-3 mt-5">
+          <div className="flex flex-col space-y-3 mt-5">
             <div className="text-2xl font-semibold tracking-wide">
               Review Treasury Impact
             </div>
                 <ModalAllocation selectedList={selectedContributors}/>
-          </div> */}
+          </div>
           <div className="flex justify-end pb-5">
             <Button onClick={() => setChoosingBudget(true)} className={" py-3 mt-10 mb-3 text-base"}>
               Run Payroll

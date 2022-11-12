@@ -132,11 +132,11 @@ const ProfileSetting = () => {
                     parentClass="w-[10rem]"
                     list={[
                         { name: "current", displayName: "Current Price" },
-                        { name: "5", displayName: "5 days average" },
-                        { name: "10", displayName: "10 days average" },
-                        { name: "15", displayName: "15 days average" },
-                        { name: "20", displayName: "20 days average" },
-                        { name: "30", displayName: "30 days average" },
+                        // { name: "5", displayName: "5 days average" },
+                        // { name: "10", displayName: "10 days average" },
+                        // { name: "15", displayName: "15 days average" },
+                        // { name: "20", displayName: "20 days average" },
+                        // { name: "30", displayName: "30 days average" },
                     ].map(s => ({ name: (s.name as PriceCalculationList), displayName: s.displayName }))}
                     selected={selectedPriceCalculation}
                     setSelect={SetSelectedPriceCalculation}

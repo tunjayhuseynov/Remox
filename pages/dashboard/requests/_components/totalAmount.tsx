@@ -14,15 +14,15 @@ export const TotalFiatAmount = (coinList: (IRequest | IMember)[], Coins: Coins, 
         const coin = Object.values(Coins).find((c) => c.symbol === curr.currency)
 
         if (coin) {
-            const fiatPrice  = GetFiatPrice(coin, fiat)
+            const fiatPrice = GetFiatPrice(coin, fiat)
             const amount = typeof curr.amount === "string" ? parseFloat(curr.amount) : curr.amount
             if (curr.fiat) {
                 const tokenFiatPrice = GetFiatPrice(coin!, curr.fiat)
                 const tokenAmount = amount / tokenFiatPrice
-                acc += (tokenAmount * fiatPrice )
+                acc += (tokenAmount * fiatPrice)
             } else {
-                acc += (amount  * fiatPrice)
-            }    
+                acc += (amount * fiatPrice)
+            }
         }
         if (curr.secondCurrency && curr.secondAmount) {
             const secondCoin = Object.values(Coins).find((c) => c.symbol === curr.secondCurrency)
@@ -31,13 +31,13 @@ export const TotalFiatAmount = (coinList: (IRequest | IMember)[], Coins: Coins, 
             if (curr.fiatSecond) {
                 const tokenFiatPrice = GetFiatPrice(secondCoin!, curr.fiatSecond)
                 const tokenAmount = amount / tokenFiatPrice
-                acc += (tokenAmount * fiatPrice )
+                acc += (tokenAmount * fiatPrice)
             } else {
                 acc += (amount * fiatPrice)
             }
         }
         return acc
-        
+
     }, 0)
 }
 
@@ -49,7 +49,9 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
     const currency = useAppSelector(SelectCurrencies)
     const fiat = useAppSelector(SelectFiatPreference)
     const { GetCoins } = useWalletKit();
-    const totalAmount = useMemo<number>(() => TotalFiatAmount(coinList, GetCoins, fiat ), [coinList, currency])
+    const totalAmount = useMemo<number>(() => TotalFiatAmount(coinList, GetCoins, fiat), [coinList, currency])
+
+    let remain = totalBalance - totalAmount
 
     return <>
         <div className={`mb-4 w-full  ${coinList.length > 0 && "border-r dark:border-[#D6D6D6]  border-opacity-10"} w-full flex flex-col justify-center  pr-5`}>
@@ -58,14 +60,14 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
             </div>
             {totalAmount.toFixed(2) !== "0.00" &&
                 <div className="w-full flex justify-start items-center text-lg font-semibold">
-                    <div>-{fiatCurrency}<NG number={totalAmount} fontSize={1.25}/></div>
+                    <div>-{fiatCurrency}<NG number={totalAmount} fontSize={1.25} /></div>
                 </div>
             }
         </div>
-        {totalAmount.toFixed(2) !== "0.00" &&  
+        {totalAmount.toFixed(2) !== "0.00" &&
             <div className="w-full pt-3  pr-10">
                 <div className="w-full flex justify-start items-center">
-                    <div className="font-semibold text-3xl">{fiatCurrency}<NG number={totalBalance-totalAmount} fontSize={1.75} /></div>
+                    <div className="font-semibold text-3xl">{fiatCurrency}{remain < 0 ? "-" : ""}<NG number={Math.abs(remain)} fontSize={1.75} /></div>
                 </div>
             </div>
         }

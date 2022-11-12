@@ -152,7 +152,7 @@ const TeamItem = ({ tx, members }: IProps) => {
                     </div>
                 )}
             </td>
-            <td className="flex justify-center">
+            <td className="flex justify-center items-center">
                 <FiTrash2 className="cursor-pointer hover:text-red-500" size={"1.25rem"} onClick={() => setDeleteModal(true)} />
             </td>
         </tr>

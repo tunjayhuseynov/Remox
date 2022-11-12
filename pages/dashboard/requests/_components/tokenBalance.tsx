@@ -27,7 +27,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
             } else {
                 cleanList.push({
                     ...item,
-                    amount: item.secondAmount ,
+                    amount: item.secondAmount,
                     currency: item.secondCurrency,
                 })
             }
@@ -70,6 +70,8 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
         {list.map((item, index) => {
             const coin = Object.values(GetCoins).find((c) => c.symbol === item.currency)
             const coinBalance = Object.values(balance).find((b) => b.symbol === item.currency)
+            let remain = coinBalance!.amount - (parseFloat(item!.amount))
+            
             return <Fragment key={item.id}>
                 <div className="flex flex-col items-start justify-center text-center gap-2 mb-2 w-[12.5rem]">
                     <div className="w-full flex items-center justify-start space-x-1">
@@ -98,7 +100,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium" >
                             <div>
-                                <NG number={coinBalance!.amount - (+item!.amount)} fontSize={1.125}/>
+                               {remain < 0 ? "-" : ""}<NG number={Math.abs(coinBalance!.amount - (parseFloat(item!.amount)))} fontSize={1.125}/>
                             </div>
                         </div>
                     </div>
