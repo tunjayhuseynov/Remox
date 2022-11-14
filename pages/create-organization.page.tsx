@@ -79,7 +79,7 @@ const CreateOrganization = () => {
   return <div className="h-screen w-full">
     <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
       <div>
-        <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" height="40" />
+        <img src={dark ? "/logo_beta.svg" : "/logo_white_beta.svg"} alt="" width="150" height="40" />
       </div>
     </header>
     <div className="py-[6.25rem] sm:py-0 sm:h-full" >

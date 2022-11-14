@@ -6,7 +6,7 @@ export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: n
     if (friction) {
         decimal = +friction;
     }
-    // number = 1204583.56;
+    // number = 1700083.56;
     return <>
         <span style={{
             fontSize: `${fontSize}rem`,

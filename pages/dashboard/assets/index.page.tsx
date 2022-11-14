@@ -82,29 +82,29 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 const Assets = () => {
     const dark = useNextSelector(SelectDarkMode)
-    
+
     const spotTokens = useAppSelector(SelectSpotBalance);
     const yieldTokens = useAppSelector(SelectYieldBalance);
     const spotTotalBalance = useAppSelector(SelectSpotTotalBalance);
     const yieldTotalBalance = useAppSelector(SelectYieldTotalBalance);
-    
-    
+
+
     const accountsAll = useAppSelector(SelectAccounts)
     const accounts = accountsAll.map((a) => a.address)
-    const [selectedAccounts, setSelectedAccounts] = useState<string[]>(accountsAll.map(s=>s.id));
-    
+    const [selectedAccounts, setSelectedAccounts] = useState<string[]>(accountsAll.map(s => s.id));
+
     const nfts = useAppSelector(SelectNfts)
-    
-    
+
+
     const mySpotTokens = Object.values(spotTokens(selectedAccounts) ?? {}).filter((token) => token.amount > 0);
     const myYieldTokens = Object.values(yieldTokens(selectedAccounts) ?? {}).filter((token) => token.amount > 0);
 
     const fiat = useAppSelector(SelectFiatPreference)
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
-    const {GetCoins} = useWalletKit()
-    const nftTotalPrice =  getTotalNftPrice(nfts, fiat,  Object.values(GetCoins).find((c) => c.symbol === "CELO")!)
+    const { GetCoins } = useWalletKit()
+    const nftTotalPrice = getTotalNftPrice(nfts, fiat, Object.values(GetCoins).find((c) => c.symbol === "CELO")!)
 
-    
+
     const totalBalance = useAppSelector(SelectTotalBalance)
 
 
@@ -223,7 +223,7 @@ const Assets = () => {
                 </div>
                 <div className="flex justify-between items-center  py-8 ">
                     <div className="font-medium text-xl">{index === 0 ? 'Token Balances' : "NFT Balances"}</div>
-                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalances) || (totalBalances !== undefined && parseFloat(totalBalances) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalances} fontSize={1.25} /></div>  : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} /></div>}
+                    {index === 0 ? <div className="font-semibold text-xl">{(totalBalances) || (totalBalances !== undefined && parseFloat(totalBalances) === 0) ? <div className='text-xl'>{symbol}<NG number={+totalBalances} fontSize={1.25} /></div> : <Loader />}</div> : <div className="font-bold text-xl">{symbol}<NG number={nftTotalPrice} fontSize={1.25} /></div>}
                 </div>
                 {index === 0 ? <div className=" pb-5 ">
                     <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} className="w-full" sx={{ borderRadius: '5px', marginBottom: '35px' }}>
@@ -236,7 +236,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10 rounded-md">
                                 <div className="flex items-center justify-between  w-full ">
                                     <div className="text-sm font-semibold pl-1">{TypeCoin[0].header}</div>
-                                    <div className={`text-base font-semibold`}>{symbol}<NG number={+TypeCoin[0].balance}/></div>
+                                    <div className={`text-base font-semibold`}>{symbol}<NG number={+TypeCoin[0].balance} /></div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -273,7 +273,7 @@ const Assets = () => {
                             <div className="w-full flex items-center h-10">
                                 <div className="flex items-center justify-between w-full">
                                     <div className="text-sm font-semibold pl-2 ">{TypeCoin[1].header}</div>
-                                    <div className="text-sm font-medium">{symbol}<NG number={+TypeCoin[1].balance} fontSize={0.875}/></div>
+                                    <div className="text-sm font-medium">{symbol}<NG number={+TypeCoin[1].balance} fontSize={0.875} /></div>
                                 </div>
                             </div>
                         </AccordionSummary>
@@ -300,8 +300,8 @@ const Assets = () => {
                             </div>
                         </AccordionDetails>
                     </Accordion>
-                </div> : 
-                    <NftContainer />
+                </div> :
+                    <NftContainer accounts={selectedAccounts} />
                 }
             </div>
         </div>
@@ -310,7 +310,7 @@ const Assets = () => {
 
 export default Assets;
 
-const getTotalNftPrice = (nfts : IFormattedTransaction[] , fiat : FiatMoneyList, coin: AltCoins) => {
+const getTotalNftPrice = (nfts: IFormattedTransaction[], fiat: FiatMoneyList, coin: AltCoins) => {
     return nfts.reduce((acc, curr) => {
         const rawData = curr.rawData
         const fiatPrice = GetFiatPrice(coin, fiat)
@@ -321,4 +321,3 @@ const getTotalNftPrice = (nfts : IFormattedTransaction[] , fiat : FiatMoneyList,
         return acc
     }, 0)
 }
- 

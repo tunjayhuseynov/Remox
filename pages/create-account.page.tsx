@@ -83,7 +83,7 @@ const CreateAccount = () => {
       <header className="flex md:px-40 h-[4.688rem] justify-center md:justify-start items-center absolute top-0 w-full">
         <div>
           <img
-            src={dark ? "/logo.png" : "/logo_white.png"}
+            src={dark ? "/logo_beta.svg" : "/logo_white_beta.svg"}
             alt=""
             width="150"
             height="40"

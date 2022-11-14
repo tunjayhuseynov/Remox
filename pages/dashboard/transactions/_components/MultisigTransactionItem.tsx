@@ -429,14 +429,14 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             <>
                                 {tx.provider === "GnosisSafe" && !tx.rejection && <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-red-500 text-red-500 hover:bg-red-300 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
                                     <span className="tracking-wider" >
-                                        {revokeFnLoading ? <Loader size={14} /> : "Reject"}
+                                        {revokeFnLoading ? <Loader  /> : "Reject"}
                                     </span>
                                 </div>}
                                 {!tx.confirmations.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.confirmations.length ?
                                     <>
                                         <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(false)}>
                                             <span className="tracking-wider" >
-                                                {confirmFnLoading ? <Loader size={14} /> : "Sign"}
+                                                {confirmFnLoading ? <Loader  /> : "Sign"}
                                             </span>
                                         </div>
                                     </> :
@@ -445,19 +445,19 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                             <Tooltip title="Please, finish to execute previous transactions">
                                                 <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-grey text-grey hover:bg-gray-400 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
                                                     <div className="tracking-wider" >
-                                                        {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                        {executeFnLoading ? <Loader  /> : "Execute"}
                                                     </div>
                                                 </div>
                                             </Tooltip> : <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(false)}>
                                                 <div className="tracking-wider" >
-                                                    {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                    {executeFnLoading ? <Loader  /> : "Execute"}
                                                 </div>
                                             </div> :
                                         <>
                                             {tx.provider === "Celo Terminal" &&
                                                 <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
                                                     <span className="tracking-wider" >
-                                                        {revokeFnLoading ? <Loader size={14} /> : "Revoke"}
+                                                        {revokeFnLoading ? <Loader  /> : "Revoke"}
                                                     </span>
                                                 </div>
                                             }
@@ -532,19 +532,19 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
                                         <div className="tracking-wider" >
-                                            {confirmFnLoading ? <Loader size={14} /> : "Sign"}
+                                            {confirmFnLoading ? <Loader  /> : "Sign"}
                                         </div>
                                     </div> :
                                     tx.contractThresholdAmount <= tx.rejection.confirmations.length ?
                                         tx.firstNonce !== tx.nonce ? <Tooltip title="Please, finish to execute previous transactions">
                                             <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-grey text-grey hover:bg-gray-400 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
                                                 <div className="tracking-wider" >
-                                                    {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                    {executeFnLoading ? <Loader  /> : "Execute"}
                                                 </div>
                                             </div>
                                         </Tooltip> : <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(true)}>
                                             <div className="tracking-wider" >
-                                                {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                {executeFnLoading ? <Loader  /> : "Execute"}
                                             </div>
                                         </div>
                                         :
@@ -557,7 +557,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     <Tooltip title="You are not an owner">
                                         <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm">
                                             <div className="tracking-wider" >
-                                                {confirmFnLoading ? <Loader size={14} /> : "Sign"}
+                                                {confirmFnLoading ? <Loader  /> : "Sign"}
                                             </div>
                                         </div>
                                     </Tooltip>
@@ -566,7 +566,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         <Tooltip title="You are not an owner">
                                             <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
                                                 <div className="tracking-wider" >
-                                                    {executeFnLoading ? <Loader size={14} /> : "Execute"}
+                                                    {executeFnLoading ? <Loader  /> : "Execute"}
                                                 </div>
                                             </div>
                                         </Tooltip>

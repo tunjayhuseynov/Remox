@@ -199,7 +199,7 @@ export default function RequestId() {
           className=" h-[1.25rem] w-full sm:h-[1.875rem]"
         >
           <img
-            src={dark ? "/logo.png" : "/logo_white.png"}
+            src={dark ? "/logo_beta.svg" : "/logo_white_beta.svg"}
             alt=""
             width="135"
           />

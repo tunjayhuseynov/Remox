@@ -77,7 +77,7 @@ const Navbar = () => {
 
     return <div className="grid grid-cols-[250px,1fr,1fr] md:grid-cols-[250px,1fr] gap-12 pl-4 pr-8">
         <div className="h-[73px] flex justify-center md:justify-start items-center lg:pl-6">
-            <img src={dark ? "/logo.png" : "/logo_white.png"} alt="" width="150" className="cursor-pointer" />
+            <img src={dark ? "/logo_beta.svg" : "/logo_white_beta.svg"} alt="" width="150" className="cursor-pointer" />
         </div>
         <div className="hidden md:flex items-center justify-end">
             <div className="flex gap-x-4">

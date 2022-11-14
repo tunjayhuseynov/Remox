@@ -51,7 +51,7 @@ export default ({ defaultValue, onSubmit, placeholder, fontSize, letterLimit = 9
                         {value !== savedDefaultValue && letterLimit < 999 && <span style={{ fontSize: "0.75rem", marginRight: "0.5rem" }}>{value.length}/{letterLimit}</span>}
                         {value !== savedDefaultValue &&
                             <div className="cursor-pointer" onClick={submit}>
-                                {isLoading ? <Loader size={14} /> : <MdDone className="cursor-pointer mb-1 rounded-full bg-primary h-4 w-4 p-[0.15rem] text-white" />}
+                                {isLoading ? <Loader  /> : <MdDone className="cursor-pointer mb-1 rounded-full bg-primary h-4 w-4 p-[0.15rem] text-white" />}
                             </div>
                         }
                     </InputAdornment>}

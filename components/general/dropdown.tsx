@@ -81,7 +81,7 @@ const Dropdown = <T extends IGenericExtendedProp,>(
                     renderValue={(selected: T) =>
                         <div className={`${selectClass} flex flex-col items-center`}>
                             <div className="flex items-center text-sm">
-                                {(loading || internalLaoding) && <span><Loader size={16} /></span>}
+                                {(loading || internalLaoding) && <span><Loader size={12} /></span>}
                                 {selected.coinUrl && (!loading && !internalLaoding) && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"} object-cover`} src={`${selected.coinUrl}`} />}
                                 {selected.logoUrl && (!loading && !internalLaoding) && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"} object-cover`} src={`${selected.logoUrl}`} />}
                                 {selected.logoURI && (!loading && !internalLaoding) && <img className={`w-4 h-4 mr-2 ${nonrounded ? "!w-6" : "rounded-full"} object-cover`} src={`${selected.logoURI}`} />}

@@ -3,10 +3,9 @@ import { useWalletKit } from 'hooks'
 import { useAppDispatch } from 'redux/hooks';
 import { SelectDarkMode } from 'redux/slices/account/remoxData';
 import { useRouter } from 'next/router';
-import { Dispatch, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Button from 'components/button';
 import useOneClickSign from 'hooks/walletSDK/useOneClickSign';
-import { isOldUser } from 'hooks/singingProcess/utils';
 import useLoading from 'hooks/useLoading';
 import useNextSelector from 'hooks/useNextSelector';
 import { setBlockchain, setIndividual, setProviderAddress } from 'redux/slices/account/remoxData';
@@ -35,7 +34,7 @@ const Home = () => {
 
   useAsyncEffect(async () => {
     const address = await Address
-    setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Provider Sign" : "Connect to a wallet")
+    setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Sign and Allow" : "Connect to a wallet")
   }, [Address])
 
   const [selected, setSelected] = useState(
@@ -96,7 +95,7 @@ const Home = () => {
       <div className="w-[50rem] h-[37.5rem] bg-[#eeeeee] dark:bg-darkSecond bg-opacity-40 flex flex-col justify-center items-center gap-14">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="w-[25rem]">
-            <Image src={dark ? "/logo.png" : "/logo_white.png"} alt="Remox DAO" layout='responsive' height={50} width={200} />
+            <Image src={dark ? "/logo_beta.svg" : "/logo_white_beta.svg"} alt="Remox DAO" layout='responsive' height={50} width={200} />
           </div>
           <span className="font-semibold text-greylish text-center text-lg tracking-wider">Simplified and Collaborative Treasury Management</span>
         </div>
