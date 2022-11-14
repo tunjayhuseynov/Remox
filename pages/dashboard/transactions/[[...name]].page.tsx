@@ -363,7 +363,7 @@ const Transactions = () => {
                                 </div>
                             </Filter>
 
-                            <Filter isOpen={isBudgetFilterOpen} setOpen={setBudgetFilterOpen} title={selectedBudgets.length > 0 ?
+                            {/* <Filter isOpen={isBudgetFilterOpen} setOpen={setBudgetFilterOpen} title={selectedBudgets.length > 0 ?
                                 <div className="rounded-md font-semimedium text-xs">
                                     <div>Budgets ({selectedBudgets.length})</div>
                                 </div> : "Budgets"
@@ -394,7 +394,7 @@ const Transactions = () => {
                                         No budgets found
                                     </div>}
                                 </div>
-                            </Filter>
+                            </Filter> */}
                             <Filter isOpen={isWalletFilterOpen} setOpen={setWalletFilterOpen} title={selectedAccounts.length > 0 ?
                                 <div className="rounded-md font-semimedium text-xs">
                                     <div>Wallets ({selectedAccounts.length})</div>
