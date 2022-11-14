@@ -457,6 +457,9 @@ const Transactions = () => {
                                 let startDate: string | null = null
                                 let endDate: string | null = null
 
+                                const nativeToken = Object.values(coins).find((c) => blockchain.nativeToken.toLowerCase() === c.address.toLowerCase())
+
+
                                 if (method === ERCMethodIds.transfer || method === ERCMethodIds.transferFrom || method === ERCMethodIds.transferWithComment
                                     || method === ERCMethodIds.deposit || method === ERCMethodIds.withdraw || method === ERCMethodIds.borrow || method === ERCMethodIds.repay
                                 ) {
@@ -490,9 +493,9 @@ const Transactions = () => {
 
                                 let timestamp = w.timestamp * 1e3;
 
-                                let gasCoin = 'tx' in w ? "" : w.rawData.tokenSymbol ?? w.rawData.feeCurrency ?? "";
-                                let gasCoinObj = coins[gasCoin.toUpperCase()];
-                                let gas = 'tx' in w ? "" : +w.rawData.gasPrice * +w.rawData.gasUsed;
+                                // let gasCoin = 'tx' in w ? "" : w.rawData.tokenSymbol ?? w.rawData.feeCurrency ?? "";
+                                // let gasCoinObj = coins[gasCoin.toUpperCase()];
+                                let gas = 'tx' in w ? w.fee : +w.rawData.gasPrice * +w.rawData.gasUsed;
                                 let blockNumber = 'tx' in w ? "" : w.rawData.blockNumber;
                                 let hash = 'tx' in w ? "" : w.rawData.hash;
                                 let blockhash = 'tx' in w ? "" : w.rawData.blockHash;
@@ -502,7 +505,7 @@ const Transactions = () => {
                                 if (method === ERCMethodIds.transfer || method === ERCMethodIds.transferFrom || method === ERCMethodIds.transferWithComment) {
                                     to = 'tx' in w ? (w.tx as ITransfer).to : (w as ITransfer).to;
                                 } else if (method === ERCMethodIds.batchRequest || method === ERCMethodIds.automatedBatchRequest) {
-                                    to = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments.map(w => w.to).join(", ") : (w as unknown as IBatchRequest).payments.map(w => w.to).join(", ");
+                                    to = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments.map(w => w.to).join(", \n") : (w as unknown as IBatchRequest).payments.map(w => w.to).join(", \n");
                                 } else if (method === ERCMethodIds.swap) {
                                     to = 'tx' in w ? (w.tx as unknown as ISwap).coinOutMin.address : (w as unknown as ISwap).coinOutMin.address;
                                 } else if (method === ERCMethodIds.automatedTransfer) {
@@ -519,7 +522,7 @@ const Transactions = () => {
                                     'To:': to,
                                     'Date': method === ERCMethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
                                     "Label": w.tags.map(s => s.name).join(', '),
-                                    "Gas": `${DecimalConverter(gas || "0", gasCoinObj?.decimals ?? 1).toFixed(3)} ${gasCoin}`,
+                                    "Gas": `${DecimalConverter(gas || "0", nativeToken?.decimals ?? 1).toFixed(3)} ${nativeToken?.symbol}`,
                                     "Block Number": blockNumber,
                                     "Transaction Hash": hash,
                                     "Block Hash": blockhash,
