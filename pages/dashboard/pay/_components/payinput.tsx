@@ -112,7 +112,7 @@ const Input = ({ addressBook, onChange, input, onDelete, onDeleteSecond, length,
                         setAmountSecond(val)
                         setCoinSecond('amount' in coin ? coin.coin : coin)
                         setFiatMoneySecond(fiatMoney ?? null)
-                        console.log(val)
+                        // console.log(val)
                     }} />
                     <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
                         onDeleteSecond()

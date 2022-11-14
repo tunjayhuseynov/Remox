@@ -157,7 +157,7 @@ const Pay = () => {
 
     useEffect(() => {
         if (csvImport.length > 0 && GetCoins) {
-            console.log(csvImport)
+            // console.log(csvImport)
             const list = csvImport.filter(w => w["Wallet address"] && w["Amount 1"] && w["Token 1 id"])
             const newInputs: IPaymentInputs[] = []
             for (let index = 0; index < list.length; index++) {
@@ -302,7 +302,7 @@ const Pay = () => {
                 }
             }
 
-            console.log("Account: ", Wallet)
+            // console.log("Account: ", Wallet)
             await SendTransaction(Wallet, pays, {
                 budget: Budget ?? undefined,
                 subbudget: subBudget ?? undefined,

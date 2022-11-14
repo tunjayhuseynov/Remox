@@ -355,7 +355,7 @@ const Detail = ({
         setColor(color.hex)
         setColorPicker(false)
     }
-    console.log(signers)
+    // console.log(signers)
 
     return mounted ? createPortal(
         <AnimatePresence>
@@ -716,18 +716,7 @@ const Detail = ({
                                                     if (myTag) {
                                                         if (!selectedId) return
                                                         setTagDelete(true)
-                                                        console.log({
-                                                            id: selectedId,
-                                                            tagId: myTag.id,
-                                                            transactionId: myTag.transactions.find(s => s.hash === transaction.hash) ?? {
-                                                                hash: transaction.hash,
-                                                                address: transaction.address,
-                                                                contractType: isMultisig ? "multi" : "single",
-                                                                id: transaction.id,
-                                                                provider: account?.provider ?? null,
-                                                            },
-                                                            txIndex: txIndex
-                                                        })
+                                                   
                                                         await dispatch(RemoveTransactionFromTag({
                                                             id: selectedId,
                                                             tagId: myTag.id,

@@ -69,7 +69,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
     let To = (future.getFullYear() + 1) + '/' + (future.getMonth() + 1) + '/' + future.getDate();
 
     let helperCoin = 0;
-    console.log(hp)
+    // console.log(hp)
     if (exercise.coins.calculation !== "Custom Price" && budgetAmount) {
         helperCoin = generateTokenPriceCalculation({ ...budgetCoin, amount: budgetAmount, coin: budgetCoin }, hp, exercise.coins.calculation, exercise.coins.fiat)
     } else if (exercise.coins.calculation === "Custom Price" && budgetAmount && exercise.coins.customPrice) {
@@ -78,7 +78,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
 
     let helperCoin2 = 0;
     if (exercise.coins.second?.calculation !== "Custom Price" && budgetAmount2 && budgetCoin2 && exercise.coins.second?.fiat && exercise.coins.second?.calculation) {
-        console.log(hp["CELO"],(hp[budgetCoin2.symbol]?.[exercise.coins.second.fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10))
+        // console.log(hp["CELO"],(hp[budgetCoin2.symbol]?.[exercise.coins.second.fiat].slice(-10).reduce((a, b) => a + b.price, 0) / 10))
         helperCoin2 = generateTokenPriceCalculation({ ...budgetCoin2, amount: budgetAmount2, coin: budgetCoin2 }, hp, exercise.coins.second.calculation, exercise.coins.second.fiat)
     } else if (exercise.coins.second?.calculation === "Custom Price" && budgetAmount2 && exercise.coins.second.customPrice) {
         helperCoin2 = budgetAmount2 / exercise.coins.second.customPrice
@@ -279,7 +279,7 @@ function EditExercise({ exercise, onBack }: { exercise: IBudgetExerciseORM, onBa
 function CustomRangeInput({ openCalendar, value }: any) {
     let from = value[0] || ""
     let to = value[1] || ""
-    console.log(value)
+    // console.log(value)
     value = from && to ? "From " + from + " to " + to : from
 
     return (

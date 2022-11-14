@@ -22,7 +22,7 @@ function Photo({ setPhoto, photo }: { setPhoto: Dispatch<SetStateAction<boolean>
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
         const Photo = file
-        console.log(data, Photo)
+        // console.log(data, Photo)
     }
 
     return <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-6 items-center w-full">

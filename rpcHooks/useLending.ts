@@ -250,7 +250,7 @@ export default function useLending() {
                 const ltv = await moola.methods.getReserveConfigurationData(address).call()
                 const reserveData = await data.call()
 
-                console.log(reserveData)
+                // console.log(reserveData)
 
                 return {
                     availableLiquidity: print(reserveData.availableLiquidity),

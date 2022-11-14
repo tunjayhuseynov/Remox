@@ -56,7 +56,7 @@ export const GenerateBatchPay = async (inputArr: IPaymentInput[], from: string, 
 
 export const GenerateTx = async ({ coin, amount, recipient, comment, from }: IPaymentInput, fromAddress: string, coins: Coins) => {
     const Coin = coins[coin]
-    console.log(coin)
+    // console.log(coin)
     const amountWei = new BigNumber(amount).multipliedBy(10 ** coins[coin].decimals).toFixed(0);
 
     let token = new web3.eth.Contract(ERC20 as AbiItem[], Coin.address);

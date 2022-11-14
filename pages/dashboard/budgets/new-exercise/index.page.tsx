@@ -281,7 +281,7 @@ function NewExercise() {
 function CustomRangeInput({ openCalendar, value }: any) {
     let from = value[0] || ""
     let to = value[1] || ""
-    console.log(value)
+    // console.log(value)
     value = from && to ? "From " + from + " to " + to : from
 
     return (

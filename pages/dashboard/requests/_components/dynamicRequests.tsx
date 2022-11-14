@@ -102,7 +102,7 @@ export default function DynamicRequest({
         if(request.secondCurrency && request.secondAmount) {
           const secondAmount = request.secondAmount;
           const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
-          console.log(coin2)
+          // console.log(coin2)
 
           if(request.fiatSecond) {
             const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)

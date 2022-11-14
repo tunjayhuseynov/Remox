@@ -128,7 +128,7 @@ export default function RequestId() {
   const setModalVisible: SubmitHandler<IFormInput> = async (data) => {
     const Invoice = file;
     const ServiceName = data.serviceName
-    console.log(data.link);
+    // console.log(data.link);
 
     try {
       let url = "";
@@ -155,7 +155,7 @@ export default function RequestId() {
           timestamp: GetTime(),
           status: RequestStatus.pending,
         };
-        console.log(result)
+        // console.log(result)
         setRequest(result);
         setFileName(Invoice?.name ?? "");
         setModal(true);
@@ -189,7 +189,7 @@ export default function RequestId() {
     );
   }
 
-  console.log(tags)
+  // console.log(tags)
 
   return (
     <>

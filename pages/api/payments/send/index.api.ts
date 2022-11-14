@@ -71,7 +71,7 @@ export default async function Send(
         if (!blockchain) throw new Error("blockchain is required");
 
         if (requests.length === 0 && !swap && !isStreaming && !cancelStreaming) throw new Error("requests is required");
-        console.log(providerName)
+        // console.log(providerName)
 
 
         const Blockchain = Blockchains.find(s => s.name === blockchain)!
@@ -132,7 +132,7 @@ export default async function Send(
             }
             if (providerName === "GnosisSafe") {
                 const data = await CreateTransactionGnosis(requests, executer, coins)
-                console.log(data)
+                // console.log(data)
                 return res.json(data)
             }
             if (requests.length > 1) {

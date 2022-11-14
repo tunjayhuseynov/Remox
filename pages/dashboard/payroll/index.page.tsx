@@ -136,7 +136,7 @@ export default function DynamicPayroll() {
         budget: budget,
         subbudget: subbudget,
       });
-      console.log("hhh")
+      // console.log("hhh")
       if (typeof hash !== "string") throw new Error("No hash")
       for (const member of members) {
         await updateMemberDate(member.teamId, member.id, account?.address, hash);
@@ -391,7 +391,7 @@ const TotalMonthlyAmount = (
             if (monthPassed < diffInMounth) {
               acc += fiatPrice + fiatPrice2;
             }
-            console.log("Month Passed: " + diffInMounth);
+            // console.log("Month Passed: " + diffInMounth);
           }
         } else {
           acc += fiatPrice + fiatPrice2;

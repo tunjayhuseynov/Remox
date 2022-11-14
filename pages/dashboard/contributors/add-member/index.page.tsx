@@ -42,7 +42,7 @@ const AddMember = () => {
         { name: "Part Time" },
         { name: "Bounty" },
     ];
-    console.log(compensationIndex)
+    // console.log(compensationIndex)
     const [selectedSchedule, setSelectedSchedule] = useState(compensationIndex ? +compensationIndex === 0 ? schedule[0] : schedule[+compensationIndex - 1] : schedule[0]);
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);

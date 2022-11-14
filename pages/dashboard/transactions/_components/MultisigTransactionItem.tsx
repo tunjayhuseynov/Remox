@@ -234,7 +234,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const labelChangeFn = (val: ITag) => async () => {
         try {
-            console.log(txPositionInRemoxData)
+            // console.log(txPositionInRemoxData)
             if (!id) {
                 return ToastRun(<>You do not have any id, please sign in again</>, "error");
             }

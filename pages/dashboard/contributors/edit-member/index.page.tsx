@@ -244,7 +244,7 @@ const EditMember = () => {
         taskId: taskId,
       };
 
-      console.log(newMember);
+      // console.log(newMember);
       await editMember(teamId, id, newMember);
       dispatch(
         updateMemberFromContributor({

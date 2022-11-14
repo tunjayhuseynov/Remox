@@ -129,7 +129,7 @@ function WalletList({ item }: { item: IAccountORM }) {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 px-3">
                 <div>
-                  {Image ? <Image className="rounded-full w-9 aspect-square object-cover" /> : <img
+                  {Image ? <Image className="rounded-full w-9 h-9 aspect-square object-cover" /> : <img
                     className="rounded-full w-9 aspect-square object-cover"
                     src={
                       item.image?.nftUrl ??

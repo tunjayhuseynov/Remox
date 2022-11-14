@@ -13,7 +13,7 @@ function Name({setName}:{setName:Dispatch<SetStateAction<boolean>>}) {
     const { register, handleSubmit } = useForm<IFormInput>();
 
     const onSubmit: SubmitHandler<IFormInput> = data => {
-        console.log(data)
+        // console.log(data)
     }
 
     return <div className="flex flex-col space-y-6 items-center w-full">

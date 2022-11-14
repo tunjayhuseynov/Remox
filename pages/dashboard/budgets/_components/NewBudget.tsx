@@ -197,7 +197,7 @@ function NewBudget({ exercise, onBack }: IProps) {
                 subbudgets: subbudgets
             }
         }
-        console.log(budget)
+        // console.log(budget)
 
         await dispatch(Create_Budget_Thunk(budget)).unwrap()
 
