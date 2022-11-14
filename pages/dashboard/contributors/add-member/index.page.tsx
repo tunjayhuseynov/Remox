@@ -30,7 +30,7 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 
 const AddMember = () => {
     const navigate = useRouter()
-    const {compensationIndex } = useRouter().query as { compensationIndex:  string}
+    const { compensationIndex } = useRouter().query as { compensationIndex: string }
     const [url, setUrl] = useState<string>("");
     const [type, setType] = useState<"image" | "nft">("image")
     const { addMember } = useContributors();
@@ -43,7 +43,7 @@ const AddMember = () => {
         { name: "Bounty" },
     ];
     console.log(compensationIndex)
-    const [selectedSchedule, setSelectedSchedule] = useState(compensationIndex ?  +compensationIndex === 0 ? schedule[0] : schedule[+compensationIndex-1] : schedule[0]);
+    const [selectedSchedule, setSelectedSchedule] = useState(compensationIndex ? +compensationIndex === 0 ? schedule[0] : schedule[+compensationIndex - 1] : schedule[0]);
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);
     const isAutoPayment = selectedPaymentType.name === "Auto";
@@ -53,10 +53,10 @@ const AddMember = () => {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [selectedTeam, setSelectedTeam] = useState<DropDownItem>(
         contributors.length > 0
-        ? { name: "Select Team", coinUrl: CoinsURL.None }
-        : { name: "No Team", coinUrl: CoinsURL.None }
-        );
-        
+            ? { name: "Select Team", coinUrl: CoinsURL.None }
+            : { name: "No Team", coinUrl: CoinsURL.None }
+    );
+
     const [amount, setAmount] = useState<number | null>()
     const [coin, setCoin] = useState<AltCoins>()
     const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>()
@@ -64,11 +64,11 @@ const AddMember = () => {
     const [amountSecond, setAmountSecond] = useState<number | null>()
     const [coinSecond, setCoinSecond] = useState<AltCoins>()
     const [fiatMoneySecond, setFiatMoneySecond] = useState<FiatMoneyList | null>()
-        
+
     const [fullname, setFullname] = useState<string>("")
     const [role, setRole] = useState<string>("")
     const [address, setAddress] = useState<string>("")
-        
+
     const teams = contributors.map(w => { return { name: w.name, id: w.id } })
     const Frequency = [{ name: "Monthly", type: DateInterval.monthly }, { name: "Weekly", type: DateInterval.weekly }]
     const [selectedFrequency, setSelectedFrequency] = useState<DropDownItem>({
@@ -95,15 +95,15 @@ const AddMember = () => {
         }
 
         const dateNow = new Date()
-        
+
         try {
-            if(Team.id) {
+            if (Team.id) {
                 let taskId: string | null = null
                 let inputs: IPaymentInput[] = []
                 if (isAutoPayment && startDate && endDate) {
                     inputs.push({
                         amount: Amount ?? 1,
-                        coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol ,
+                        coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol,
                         recipient: address,
                     })
                     if (Amount2 && Coin2) {
@@ -113,7 +113,7 @@ const AddMember = () => {
                             recipient: address,
                         })
                     }
-    
+
                     const id = await SendTransaction(account!, inputs, {
                         createStreaming: true,
                         startTime: GetTime(startDate),
@@ -121,18 +121,18 @@ const AddMember = () => {
                         budget: budget,
                         subbudget: subbudget
                     })
-    
+
                     taskId = id!
                 }
                 setIsLoading(true)
-    
+
                 let member: IMember = {
                     id: uuidv4(),
                     fullname: fullname.trim(),
                     teamId: Team.id!.toString(),
                     compensation: Compensation,
                     role: role.trim(),
-                    amount: (amount ?? 1).toString() ,
+                    amount: (amount ?? 1).toString(),
                     currency: Coin1?.symbol ?? "",
                     fiat: fiatMoney ?? null,
                     secondAmount: amountSecond ? amountSecond.toString() : null,
@@ -143,12 +143,13 @@ const AddMember = () => {
                     interval: Frequency as DateInterval,
                     paymantDate: GetTime(startDate ?? dateNow),
                     paymantEndDate: endDate ? GetTime(endDate) : null,
-                    lastCheckedDate: null,
-                    checkedCount: 0,
+                    // lastCheckedDate: null,
+                    // checkedCount: 0,
+                    checkedList: [],
                     image: url ? Photo : null,
                     taskId: isAutoPayment ? taskId : null,
                 };
-    
+
                 await addMember(Team.id!.toString(), member);
                 dispatch(addMemberToContributor({ id: Team.id!.toString(), member: member }));
                 setIsLoading(false);
@@ -202,38 +203,38 @@ const AddMember = () => {
                             setSelect={setSelectedSchedule}
                             sx={{ '.MuiSelect-select': { paddingTop: '8px', paddingBottom: '8px', maxHeight: '55px' } }}
                         />
-                        <TextField label="Role" value={role} onChange={(e) => setRole(e.target.value)} required  className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
+                        <TextField label="Role" value={role} onChange={(e) => setRole(e.target.value)} required className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                     </div>
                     <div className={`flex w-full gap-x-10 ${choosingBudget ? "z-[0]" : ""}`}>
-                        <PriceInputField 
-                          isMaxActive={true}
-                          coins={GetCoins} 
-                          onChange={(val, coin, fiatMoney) => {
-                            setAmount(val)
-                            setCoin('amount' in coin ? coin.coin : coin)
-                            setFiatMoney(fiatMoney ?? null)
-                          }}
+                        <PriceInputField
+                            isMaxActive={true}
+                            coins={GetCoins}
+                            onChange={(val, coin, fiatMoney) => {
+                                setAmount(val)
+                                setCoin('amount' in coin ? coin.coin : coin)
+                                setFiatMoney(fiatMoney ?? null)
+                            }}
                         />
                     </div>
-                    {secondActive ? 
+                    {secondActive ?
                         <div className={`col-span-2 relative ${choosingBudget ? "z-[0]" : ""}`}>
-                            <PriceInputField 
-                              isMaxActive={true}
-                              coins={GetCoins} 
-                              onChange={(val, coin, fiatMoney) => {
-                                setAmountSecond(val)
-                                setCoinSecond('amount' in coin ? coin.coin : coin)
-                                setFiatMoneySecond(fiatMoney ?? null)
-                              }}
+                            <PriceInputField
+                                isMaxActive={true}
+                                coins={GetCoins}
+                                onChange={(val, coin, fiatMoney) => {
+                                    setAmountSecond(val)
+                                    setCoinSecond('amount' in coin ? coin.coin : coin)
+                                    setFiatMoneySecond(fiatMoney ?? null)
+                                }}
                             />
-                        <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
-                          setSecondActive(false),
-                          setCoinSecond(undefined),
-                          setAmountSecond(undefined)
-                        }}>
-                          <IoMdRemoveCircle color="red" />
-                        </div>
-                      </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span>Add</div>}
+                            <div className="absolute -right-6 top-5 cursor-pointer" onClick={() => {
+                                setSecondActive(false),
+                                    setCoinSecond(undefined),
+                                    setAmountSecond(undefined)
+                            }}>
+                                <IoMdRemoveCircle color="red" />
+                            </div>
+                        </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span>Add</div>}
                     <div className="flex flex-col space-y-1">
                         <TextField value={address} onChange={(e) => setAddress(e.target.value)} required label="Wallet Address" className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                     </div>
@@ -316,7 +317,7 @@ const AddMember = () => {
             </div>
         </div>
         <Modal onDisable={setChoosingBudget} openNotify={choosingBudget} >
-            <ChooseBudget submit={submit}/>
+            <ChooseBudget submit={submit} />
         </Modal>
     </>
 };

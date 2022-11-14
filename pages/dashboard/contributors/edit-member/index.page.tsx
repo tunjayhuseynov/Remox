@@ -237,8 +237,9 @@ const EditMember = () => {
         interval: selectedFrequency.type as DateInterval,
         paymantDate: GetTime(startDate ?? dateNow),
         paymantEndDate: endDate ? GetTime(endDate) : null,
-        checkedCount: member.checkedCount,
-        lastCheckedDate: member.lastCheckedDate,
+        // checkedCount: member.checkedCount,
+        // lastCheckedDate: member.lastCheckedDate,
+        checkedList: member.checkedList,
         image: url ? Photo : null,
         taskId: taskId,
       };
