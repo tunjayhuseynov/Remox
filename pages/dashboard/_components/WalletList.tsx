@@ -25,6 +25,8 @@ import { Box, Tooltip } from "@mui/material";
 import { useAppSelector } from "redux/hooks";
 import zIndex from "@mui/material/styles/zIndex";
 import { NG } from "utils/jsxstyle";
+import { useReactCeloContext } from "@celo/react-celo";
+import { WalletConnect, MetaMask, Ledger, PrivateKey, CoinbaseWallet } from "@celo/react-celo/lib/components/icons";
 
 const style = {
   position: "absolute" as "absolute",
@@ -53,6 +55,30 @@ function WalletList({ item }: { item: IAccountORM }) {
 
   const preference = useAppSelector(SelectFiatPreference);
   const symbol = useAppSelector(SelectFiatSymbol);
+
+  const [state, dispatch, methods] = useReactCeloContext()
+  let Image;
+  if (item.signerType === "single") {
+    switch (state.connector.type) {
+      case "MetaMask":
+        Image = MetaMask
+        break;
+      case "WalletConnect":
+        Image = WalletConnect
+        break;
+      case "Ledger":
+        Image = Ledger
+        break;
+      case "PrivateKey":
+        Image = PrivateKey
+        break;
+      case "CoinbaseWallet":
+        Image = CoinbaseWallet
+        break;
+      default:
+        Image = MetaMask
+    }
+  }
 
   const totalValue = useMemo(() => {
     return item.coins.reduce((a, b) => a + calculatePrice(b), 0);
@@ -96,20 +122,21 @@ function WalletList({ item }: { item: IAccountORM }) {
         </Box>
       </MuiModal>
 
+
       <div className="shadow-15 pt-2 rounded-md bg-white dark:bg-darkSecond min-w-[21.25rem] hover:transition-all hover:bg-[#f9f9f9] dark:hover:!bg-[#191919]">
         <div className="w-full">
           <div className="pb-2 border-b dark:border-[#454545]">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 px-3">
                 <div>
-                  <img
+                  {Image ? <Image className="rounded-full w-9 aspect-square object-cover" /> : <img
                     className="rounded-full w-9 aspect-square object-cover"
                     src={
                       item.image?.nftUrl ??
                       (item.image?.imageUrl as string) ??
                       makeBlockie(item.address ?? "")
                     }
-                  />
+                  />}
                 </div>
                 <div className="flex flex-col">
                   <div className="font-semibold text-sm">{item.name}</div>
@@ -196,44 +223,44 @@ function WalletList({ item }: { item: IAccountORM }) {
                   </Tooltip>
                 </div>
               </div>
-                <div className="flex flex-col mr-2 w-full">
-                  <div className="text-greylish text-xs mb-[1.6rem]">Signers</div>
-                  <div className="relative w-full">
-                    <div>
-                      {item.members.slice(0,3).map((member, index) => (
-                        <Avatar
-                          key={member.id}
-                          sx={{
-                            width: "1.25rem!important",
-                            height: "1.25rem!important", 
-                            position: "absolute",
-                            bottom: "0",
-                            left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6  : 0}rem`,
-                            zIndex: `${zIndex}`,
-                            borderWidth: "1px"
-                          }}
-                          alt={member.name}
-                          src={
-                            member.address.toLowerCase() ===
+              <div className="flex flex-col mr-2 w-full">
+                <div className="text-greylish text-xs mb-[1.6rem]">Signers</div>
+                <div className="relative w-full">
+                  <div>
+                    {item.members.slice(0, 3).map((member, index) => (
+                      <Avatar
+                        key={member.id}
+                        sx={{
+                          width: "1.25rem!important",
+                          height: "1.25rem!important",
+                          position: "absolute",
+                          bottom: "0",
+                          left: `${index === 0 ? 0 : index === 1 ? 0.8 : index === 2 ? 1.6 : 0}rem`,
+                          zIndex: `${zIndex}`,
+                          borderWidth: "1px"
+                        }}
+                        alt={member.name}
+                        src={
+                          member.address.toLowerCase() ===
                             providerID?.toLowerCase()
-                              ? individual?.image?.imageUrl ??
-                                makeBlockie(member.address)
-                              : member?.image?.imageUrl ??
-                                member?.image?.nftUrl ??
-                                makeBlockie(member.address)
-                          }
-                        />
-                      ))}
-                      {item.members.length > 3 && (
-                        <div className="w-[1.25rem] h-[1.25rem] bg-[#E5E5E5] dark:bg-greylish absolute z-5 !bottom-0 left-[2.4rem] flex items-center justify-center !text-xs rounded-full border-[1px]">
-                          <span className="text-[10px] font-medium text-[#707070] dark:text-white">
-                            +{item.members.length - 3}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                            ? individual?.image?.imageUrl ??
+                            makeBlockie(member.address)
+                            : member?.image?.imageUrl ??
+                            member?.image?.nftUrl ??
+                            makeBlockie(member.address)
+                        }
+                      />
+                    ))}
+                    {item.members.length > 3 && (
+                      <div className="w-[1.25rem] h-[1.25rem] bg-[#E5E5E5] dark:bg-greylish absolute z-5 !bottom-0 left-[2.4rem] flex items-center justify-center !text-xs rounded-full border-[1px]">
+                        <span className="text-[10px] font-medium text-[#707070] dark:text-white">
+                          +{item.members.length - 3}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
+              </div>
             </div>
             <div className="rounded-xl">
               <div className="w-full h-full" ref={customRef}>
@@ -244,9 +271,8 @@ function WalletList({ item }: { item: IAccountORM }) {
                   .map((item, index) => {
                     return (
                       <div
-                        className={`w-[95%] mx-auto ${
-                          index !== 2 && "dark:border-[#454545] border-b"
-                        }`}
+                        className={`w-[95%] mx-auto ${index !== 2 && "dark:border-[#454545] border-b"
+                          }`}
                         key={item.coin.address}
                       >
                         <CoinItem

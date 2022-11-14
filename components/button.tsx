@@ -28,6 +28,6 @@ export default forwardRef<HTMLButtonElement, IProps>(function Button({ children,
             `}
             disabled={isLoading}
         >
-            {isLoading ? <Loader /> : children}
+            {isLoading ? <Loader/> : children}
         </button>)
 })

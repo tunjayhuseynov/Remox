@@ -195,7 +195,7 @@ export default function useMultisig() {
     //Celo
     const { kit } = useCelo()
 
-    const providerKit = kit.connection.web3.givenProvider
+    const providerKit = (kit.connection.web3.currentProvider as any) ?? kit.connection.web3.givenProvider
 
     //solana
     const { connection } = useConnection();

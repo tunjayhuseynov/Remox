@@ -130,7 +130,7 @@ const Transactions = () => {
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
             if (maxAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE)) > maxAmount) return false
-       
+
             if ((!name) && (c.isExecuted === true || c.rejection?.isExecuted === true)) return false
             if ((name) && ((c.rejection?.isExecuted ?? false) === false && c.isExecuted === false)) return false
         } else {
@@ -322,7 +322,7 @@ const Transactions = () => {
                                                     classes={{ colorPrimary: "!text-primary", root: "" }} checked={dateLast === s.value} onChange={() => {
                                                         if (dateLast !== s.value) {
                                                             s.action()
-                                                        }else{
+                                                        } else {
                                                             setDateLast("")
                                                             setDate([])
                                                         }
@@ -498,14 +498,25 @@ const Transactions = () => {
                                 let blockhash = 'tx' in w ? "" : w.rawData.blockHash;
                                 let data = 'tx' in w ? "" : w.rawData.input;
 
+                                let to = "";
+                                if (method === ERCMethodIds.transfer || method === ERCMethodIds.transferFrom || method === ERCMethodIds.transferWithComment) {
+                                    to = 'tx' in w ? (w.tx as ITransfer).to : (w as ITransfer).to;
+                                } else if (method === ERCMethodIds.batchRequest || method === ERCMethodIds.automatedBatchRequest) {
+                                    to = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments.map(w => w.to).join(", ") : (w as unknown as IBatchRequest).payments.map(w => w.to).join(", ");
+                                } else if (method === ERCMethodIds.swap) {
+                                    to = 'tx' in w ? (w.tx as unknown as ISwap).coinOutMin.address : (w as unknown as ISwap).coinOutMin.address;
+                                } else if (method === ERCMethodIds.automatedTransfer) {
+                                    to = 'tx' in w ? (w.tx as unknown as IAutomationTransfer).to : (w as unknown as IAutomationTransfer).to;
+                                }
+
                                 return {
                                     'Method': action,
                                     "Provider": name,
-                                    'Status': 'tx' in w ? w.tx.isError ? "Error" : w.isExecuted ? "Success" : w.confirmations.length === 0 ? "Rejected" : "Pending" : w.isError ? "Error" : "Success",
+                                    'Status': 'tx' in w ? w.tx.isError ? "Error" : w.isExecuted ? "Success" : w.rejection?.isExecuted ? "Rejected" : "Pending" : w.isError ? "Error" : "Success",
                                     'From:': from,
                                     'Amount': swapping ? `${swapping.amountIn} => ${swapping.amountOut}` : amountCoins.map(w => `${w.amount}`).join(',\n'),
                                     'Coin': swapping ? `${swapping.amountInCoin} => ${swapping.amountOut}` : amountCoins.map(w => `${w.coin}`).join(',\n'),
-                                    'To:': 'tx' in w ? w.tx.to ?? "" : w.rawData.to,
+                                    'To:': to,
                                     'Date': method === ERCMethodIds.automatedTransfer ? `${startDate} - ${endDate}` : dateFormat(new Date(timestamp), "mediumDate"),
                                     "Label": w.tags.map(s => s.name).join(', '),
                                     "Gas": `${DecimalConverter(gas || "0", gasCoinObj?.decimals ?? 1).toFixed(3)} ${gasCoin}`,

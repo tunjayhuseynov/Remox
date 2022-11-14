@@ -8,6 +8,7 @@ import _ from "lodash";
 import { Dispatch, forwardRef } from 'react'
 import { AltCoins } from "types";
 import { DecimalConverter } from "utils/api";
+import BigNumber from "bignumber.js";
 
 interface IProps {
     item: IFormattedTransaction | ITransactionMultisig,
@@ -70,13 +71,24 @@ const NotificationItem = forwardRef<HTMLDivElement, IProps>(({ setNotify, item, 
         setNotify(false)
     }
 
+    let batchAllocation: [IBatchRequest["payments"][0]["coin"], IBatchRequest["payments"][0]["amount"]][] = [];
+    if (method === ERCMethodIds.batchRequest) {
+        for (const pay of (('tx' in item ? item.tx : item) as IBatchRequest).payments) {
+            if (batchAllocation.find(s => s[0].symbol === pay.coin.symbol)) {
+                batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1] = new BigNumber(batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1]).plus(pay.amount).toString()
+            }else{
+                batchAllocation.push([pay.coin, pay.amount])
+            }
+        }
+    }
+
     return <div ref={ref} key={hash} onClick={goToTx} className="py-2 grid grid-cols-[5%,1fr,60%,25%] items-center hover:bg-light dark:hover:bg-dark rounded-md cursor-pointer">
         {item.timestamp > lastSeenTime ? <div className="rounded-full w-[10px] h-[10px] bg-primary ml-2"></div> : <span></span>}
         <img src={image} alt="" className="w-8 h-8 rounded-full object-cover" />
         <div className="flex flex-col items-start">
             <div className="text-sm font-medium">
                 {action} {amount && coin && method !== ERCMethodIds.swap && method !== ERCMethodIds.batchRequest ? (DecimalConverter(amount, coin.decimals).toFixed(0).length <= 18 ? DecimalConverter(amount, coin.decimals) : 0.0001).toLocaleString() : ''} {amount && coin && ERCMethodIds.swap !== method ? coin.symbol : ''}
-                {method === ERCMethodIds.batchRequest ? `${((('tx' in item ? item.tx : item) as IBatchRequest)?.payments).length} batch requests` : ''}
+                {method === ERCMethodIds.batchRequest ? `${(Array.from(new Set((('tx' in item ? item.tx : item) as IBatchRequest)?.payments.map(s=>s.to)))).length} batch requests` : ''}
                 {method === ERCMethodIds.swap && (<>from {DecimalConverter(amountFrom ?? 0, coinFrom?.decimals ?? 18).toFixed(2)} {coinFrom?.symbol} to {DecimalConverter(amountTo ?? 0, coinTo?.decimals ?? 18).toFixed(2)} {coinTo?.symbol}</>)}
             </div>
             <div className="font-medium text-[10px] text-primary cursor-pointer" onClick={() => navigate.push('/dashboard/transactions')}>View Transaction</div>

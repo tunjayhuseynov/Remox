@@ -76,7 +76,7 @@ export default function useWalletKit() {
 
   //Celo
   const { address, destroy, kit, walletType, connect, initialised } = useCelo();
-
+  
   //solana
   const { connection } = useConnection();
   const {
@@ -144,7 +144,7 @@ export default function useWalletKit() {
         const wallet = kit.getWallet();
         if (!wallet) throw new Error("No wallet");
         const address = ethers.utils.getAddress((await Address)!);
-
+        
         const signature = await kit.connection.web3.eth.personal.sign(
           GetSignedMessage(nonce),
           address,

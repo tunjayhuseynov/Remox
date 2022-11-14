@@ -22,7 +22,9 @@ const Dropdown = dynamic(() => import('components/general/dropdown'), {
 
 const Home = () => {
   const { Connect, Address, Disconnect } = useWalletKit();
-  const { walletChainId, network, updateNetwork } = useCelo()
+  const { walletChainId, network, updateNetwork, kit } = useCelo()
+  console.log((kit.connection.web3.currentProvider as any)?.connection?.wallet?.client)
+  console.log((kit.connection.web3.currentProvider as any)?.connection)
   const { processSigning } = useOneClickSign()
   const dark = useNextSelector(SelectDarkMode)
   const navigate = useRouter()
