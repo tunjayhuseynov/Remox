@@ -68,12 +68,12 @@ export default function useContributors() {
         await FirestoreRead<IContributor>("contributors", teamId).then(async (team) => {
             if(team) {
                 const member = team.members.find(m=> m.id === memberId)
-                const dateNow = new Date().getTime
+                const dateNow = new Date().getTime()
                 if(member) {
                     await FirestoreWrite<{ members: FieldValue }>().updateDoc("contributors", teamId, {
                         members: arrayUnion({
                             ...member,
-                            checkedCount: member.checkedCount ? member.checkedCount += 1 : 0,
+                            checkedCount: member.checkedCount ? member.checkedCount += 1 : 1,
                             lastCheckedDate: dateNow
                         }),
                     })

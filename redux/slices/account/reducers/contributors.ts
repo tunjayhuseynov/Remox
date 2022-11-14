@@ -48,7 +48,7 @@ export default {
             if(contributorIndex !== -1){
                 const memberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
                 if(memberIndex !== -1){
-                    const updatedCount = action.payload.member.checkedCount ? action.payload.member.checkedCount + 1 : 0
+                    const updatedCount = action.payload.member.checkedCount ? action.payload.member.checkedCount + 1 : 1
                     const dateNow = new Date().getTime()
                     state.contributors[contributorIndex].members[memberIndex] =  {...action.payload.member, checkedCount: updatedCount, lastCheckedDate: dateNow };
                 }

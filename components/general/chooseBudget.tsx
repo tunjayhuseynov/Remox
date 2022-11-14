@@ -9,15 +9,16 @@ import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import { useWalletKit } from 'hooks';
 import { IAccountORM } from "pages/api/account/index.api";
 import { useRouter } from 'next/router';
+import useLoading from 'hooks/useLoading';
 
 
-interface IProps { 
-    submit: (account: IAccountORM | undefined, 
-        budget?: IBudgetORM | null, 
+interface IProps {
+    submit: (account: IAccountORM | undefined,
+        budget?: IBudgetORM | null,
         subbudget?: ISubbudgetORM | null) => Promise<void>
 }
 
-function ChooseBudget({submit} : IProps) {
+function ChooseBudget({ submit }: IProps) {
 
     const budgets = useAppSelector(SelectAllBudgets);
     const providerAddress = useAppSelector(SelectProviderAddress);
@@ -25,7 +26,6 @@ function ChooseBudget({submit} : IProps) {
 
     const { Address } = useWalletKit()
     const [subbudgets, setSubbudgets] = useState<ISubbudgetORM[]>([])
-    const [loading, setLoading] = useState(false)
     const router = useRouter()
 
     const dispatch = useDispatch()
@@ -33,7 +33,7 @@ function ChooseBudget({submit} : IProps) {
     const currentWallet = useMemo(() => accounts.find(s => s.address.toLowerCase() === providerAddress?.toLowerCase()), [providerAddress])
 
     const [selectedAccount, setAccount] = useState(currentWallet);
-    
+
     useEffect(() => setAccount(currentWallet), [currentWallet])
 
     const [selectedBudget, setBudget] = useState<IBudgetORM>();
@@ -47,8 +47,7 @@ function ChooseBudget({submit} : IProps) {
     }, [selectedBudget])
 
     const onSubmit = async () => {
-        try{
-            setLoading(true)
+        try {
             const address = await Address
             if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
             if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
@@ -65,14 +64,16 @@ function ChooseBudget({submit} : IProps) {
                 budget: budget ?? null,
                 subbudget: budget?.subbudgets.find(sb => sb.id === selectedSubbudget?.id) ?? null,
             }))
-            
-            submit(selectedAccount, selectedBudget, selectedSubbudget)
+
+            await submit(selectedAccount, selectedBudget, selectedSubbudget)
 
         } catch (error: any) {
             throw new Error(error)
         }
 
     }
+
+    const [isLoading, onsubmit] = useLoading(onSubmit)
 
 
     return <>
@@ -81,7 +82,7 @@ function ChooseBudget({submit} : IProps) {
                 <div className="text-xl font-semibold py-6 text-center">
                     Choose account and budget
                 </div>
-                <div  className='flex flex-col space-y-5'>
+                <div className='flex flex-col space-y-5'>
                     <div className="flex flex-col gap-2 w-full">
                         {/* <div className="text-greylish dark:text-white">Choose Wallet</div> */}
                         <div className=" gap-5 w-full">
@@ -113,7 +114,7 @@ function ChooseBudget({submit} : IProps) {
                         <Button version="second" className={'flex items-center justify-center !py-2 w-full rounded-xl'} onClick={() => { router.back() }}>Close</Button>
                         {/* <ForwardButton setNotify={setNotify} openNotify={openNotify} setModals={setModals} onDisable={onDisable} ref={exceptRef} /> */}
                         <div className="w-full">
-                            <Button type="submit" className={'flex items-center justify-center !py-2 w-full rounded-xl'} onClick={() => onSubmit() } >Next</Button>
+                            <Button type="submit" className={'flex items-center justify-center !py-2 w-full rounded-xl'} isLoading={isLoading} onClick={onsubmit} >Next</Button>
                         </div>
                     </div>
                 </div>
