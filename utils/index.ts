@@ -234,7 +234,7 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 		case TransactionDirection.AutomationCancel:
 			img = blockchain.recurringPaymentProtocols[0].logoURL;
 			name = blockchain.recurringPaymentProtocols[0].name;
-			action = "Stream Canceled"
+			action = "Stream Cancelled"
 			break;
 		case TransactionDirection.AddOwner:
 			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;

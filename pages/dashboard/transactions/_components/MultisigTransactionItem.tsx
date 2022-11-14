@@ -28,6 +28,7 @@ import { Add_Tx_To_Budget_Thunk } from 'redux/slices/account/thunks/budgetThunks
 import { DecimalConverter } from 'utils/api';
 import { BiSearch } from 'react-icons/bi';
 import useAllowance from 'rpcHooks/useAllowance';
+import BigNumber from 'bignumber.js';
 
 
 interface IProps {
@@ -65,7 +66,17 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
     const { executeTransaction, confirmTransaction, revokeTransaction } = useMultisig()
 
     let transfer = [ERCMethodIds.transfer, ERCMethodIds.noInput, ERCMethodIds.transferFrom, ERCMethodIds.transferWithComment, ERCMethodIds.repay, ERCMethodIds.borrow, ERCMethodIds.deposit, ERCMethodIds.withdraw].indexOf(transaction.id ?? "") > -1 ? transaction as ITransfer : null;
-    const transferBatch = transaction.id === ERCMethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
+    let transferBatch = transaction.id === ERCMethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
+    let batchAllocation: [IBatchRequest["payments"][0]["coin"], IBatchRequest["payments"][0]["amount"]][] = [];
+    if (transferBatch) {
+        for (const pay of transferBatch.payments) {
+            if (batchAllocation.find(s => s[0].symbol === pay.coin.symbol)) {
+                batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1] = new BigNumber(batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1]).plus(pay.amount).toString()
+            }else{
+                batchAllocation.push([pay.coin, pay.amount])
+            }
+        }
+    }
     const automation = transaction.id === ERCMethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
     const automationBatch = transaction.id === ERCMethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
     const automationCanceled = transaction.id === ERCMethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
@@ -287,7 +298,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         </div>
                         <div className="grid grid-rows-[18px,12px] text-left">
                             <span className="font-medium text-left text-sm leading-none pt-[2px]">
-                                {action} {transferBatch && `(${transferBatch.payments.length})`}
+                                {action} {transferBatch && `(${Array.from(new Set(transferBatch.payments.map(s => s.to))).length})`}
                             </span>
                             <span className="text-xxs font-medium text-gray-500 dark:text-gray-200 leading-none">
                                 {name}
@@ -302,7 +313,10 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     {
                         transferBatch && (
                             <div className="flex flex-col space-y-5">
-                                {transferBatch.payments.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={transfer} timestamp={timestamp} />)}
+                                {batchAllocation.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={{
+                                     amount: transfer[1],
+                                     coin: transfer[0],
+                                }} timestamp={timestamp} />)}
                             </div>
                         )
                     }

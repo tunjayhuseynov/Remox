@@ -26,15 +26,15 @@ export default {
     updateMemberFromContributor: (state: IRemoxData, action: { payload: { id: string; member: IMember } }) => {
         if (action.payload !== undefined) {
             const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
-            if(contributorIndex !== -1){
+            if (contributorIndex !== -1) {
                 const memberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
-                if(memberIndex !== -1){
-                    if(action.payload.id === action.payload.member.teamId){
+                if (memberIndex !== -1) {
+                    if (action.payload.id === action.payload.member.teamId) {
                         state.contributors[contributorIndex].members[memberIndex] = action.payload.member;
                     } else {
                         const newTeamIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.member.teamId);
                         state.contributors[contributorIndex].members = state.contributors[contributorIndex].members.filter((member) => member.id !== action.payload.member.id);
-                        if(newTeamIndex !== -1){
+                        if (newTeamIndex !== -1) {
                             state.contributors[newTeamIndex].members = [...state.contributors[newTeamIndex].members, action.payload.member];
                         }
                     }
@@ -42,15 +42,14 @@ export default {
             }
         }
     },
-    updateMemberCheckDate: (state: IRemoxData, action: {payload: {id: string, member: IMember }}) => {
-        if(action.payload !== undefined) {
+    updateMemberCheckDate: (state: IRemoxData, action: { payload: { id: string, member: IMember, address: string, hashOrIndex: string } }) => {
+        if (action.payload !== undefined) {
             const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
-            if(contributorIndex !== -1){
+            if (contributorIndex !== -1) {
                 const memberIndex = state.contributors[contributorIndex].members.findIndex((member) => member.id === action.payload.member.id);
-                if(memberIndex !== -1){
-                    const updatedCount = action.payload.member.checkedCount ? action.payload.member.checkedCount + 1 : 1
-                    const dateNow = new Date().getTime()
-                    state.contributors[contributorIndex].members[memberIndex] =  {...action.payload.member, checkedCount: updatedCount, lastCheckedDate: dateNow };
+                if (memberIndex !== -1) {
+                    // const updatedCount = action.payload.member.checkedCount ? action.payload.member.checkedCount + 1 : 1
+                    state.contributors[contributorIndex].members[memberIndex] = { ...action.payload.member, checkedList: [...(action.payload.member?.checkedList ?? []), { contractAddress: action.payload.address, hashOrIndex: action.payload.hashOrIndex }] };
                 }
             }
         }
@@ -64,14 +63,14 @@ export default {
 
         }
     },
-    updateContributor: (state: IRemoxData, action: { payload: { name: string, id: string} }) => {
+    updateContributor: (state: IRemoxData, action: { payload: { name: string, id: string } }) => {
         if (action.payload !== undefined) {
             const contributorIndex = state.contributors.findIndex((contributor) => contributor.id === action.payload.id);
             if (contributorIndex !== -1) {
                 state.contributors[contributorIndex].name = action.payload.name;
             }
         }
-    }, 
+    },
     removeContributor: (state: IRemoxData, action: { payload: string }) => {
         if (action.payload !== undefined) {
             state.contributors = state.contributors.filter((contributor) => contributor.id !== action.payload);

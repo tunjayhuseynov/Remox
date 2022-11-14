@@ -71,6 +71,7 @@ export default function DynamicPayroll() {
     subbudget?: ISubbudgetORM | null
   ) => {
     try {
+      if (!account?.address) throw new Error("No account address")
       let inputs: IPaymentInput[] = [];
       const members = [...selectedContributors];
       const dateNow = new Date().getTime();
@@ -131,17 +132,20 @@ export default function DynamicPayroll() {
         }
       }
 
-      await SendTransaction(account!, inputs, {
+      let hash = await SendTransaction(account!, inputs, {
         budget: budget,
         subbudget: subbudget,
       });
-
+      console.log("hhh")
+      if (typeof hash !== "string") throw new Error("No hash")
       for (const member of members) {
-        await updateMemberDate(member.teamId, member.id);
+        await updateMemberDate(member.teamId, member.id, account?.address, hash);
         dispatch(
           updateMemberCheckDate({
             id: member.teamId,
             member: member,
+            address: account?.address,
+            hashOrIndex: hash,
           })
         );
       }

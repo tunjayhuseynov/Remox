@@ -36,8 +36,12 @@ export interface IMember {
     interval: DateInterval,
     paymantDate: number ,
     paymantEndDate: number | null,
-    lastCheckedDate?: number | null,
-    checkedCount?: number,
+    // lastCheckedDate?: number | null,
+    // checkedCount?: number,
+    checkedList?: {
+        contractAddress: string, 
+        hashOrIndex: string,
+    }[],
     image: Image | null,
     taskId: string | null,
 }

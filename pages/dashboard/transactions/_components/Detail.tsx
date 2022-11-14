@@ -31,6 +31,7 @@ import useAsyncEffect from 'hooks/useAsyncEffect';
 import { BiTrash } from 'react-icons/bi';
 import { GetFiatPrice } from 'utils/const';
 import makeBlockie from 'ethereum-blockies-base64';
+import BigNumber from 'bignumber.js';
 
 interface IProps {
     // date: string;
@@ -114,6 +115,16 @@ const Detail = ({
 
     let transfer = [ERCMethodIds.transfer, ERCMethodIds.noInput, ERCMethodIds.transferFrom, ERCMethodIds.transferWithComment, ERCMethodIds.repay, ERCMethodIds.borrow, ERCMethodIds.deposit, ERCMethodIds.withdraw].indexOf(transaction.method ?? "") > -1 ? transaction as ITransfer : null;
     const transferBatch = transaction.id === ERCMethodIds.batchRequest ? transaction as unknown as IBatchRequest : null;
+    let batchAllocation: [IBatchRequest["payments"][0]["coin"], IBatchRequest["payments"][0]["amount"]][] = [];
+    if (transferBatch) {
+        for (const pay of transferBatch.payments) {
+            if (batchAllocation.find(s => s[0].symbol === pay.coin.symbol)) {
+                batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1] = new BigNumber(batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1]).plus(pay.amount).toString()
+            } else {
+                batchAllocation.push([pay.coin, pay.amount])
+            }
+        }
+    }
     const automation = transaction.id === ERCMethodIds.automatedTransfer ? transaction as unknown as IAutomationTransfer : null;
     const automationBatch = transaction.id === ERCMethodIds.automatedBatchRequest ? transaction as unknown as IBatchRequest : null;
     const automationCanceled = transaction.id === ERCMethodIds.automatedCanceled ? streamings.find(s => (s as IAutomationTransfer).streamId == (transaction as IAutomationCancel).streamId) as IAutomationTransfer : null;
@@ -344,6 +355,7 @@ const Detail = ({
         setColor(color.hex)
         setColorPicker(false)
     }
+    console.log(signers)
 
     return mounted ? createPortal(
         <AnimatePresence>
@@ -380,8 +392,11 @@ const Detail = ({
                                             )}
                                             {
                                                 transferBatch && (
-                                                    <div className="flex space-x-5">
-                                                        {transferBatch.payments.map((transfer, index) => <CoinDesignGenerator afterPrice key={index} transfer={transfer} timestamp={timestamp} disableFiat imgSize={0.875} />)}
+                                                    <div className="flex flex-wrap gap-5">
+                                                        {batchAllocation.map((transfer, i) => <CoinDesignGenerator afterPrice key={i} transfer={{
+                                                            amount: transfer[1],
+                                                            coin: transfer[0],
+                                                        }} timestamp={timestamp} />)}
                                                     </div>
                                                 )
                                             }
@@ -443,7 +458,7 @@ const Detail = ({
                                                             ToastRun("Copied to clipboard", "success")
                                                         }
                                                     }}
-                                                    key={s} className='text-sm cursor-pointer'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name ?? AddressReducer(s)}</span>)}
+                                                    key={s} className='text-sm cursor-pointer'>{account?.members.find(d => d.address.toLowerCase() === s.toLowerCase())?.name || AddressReducer(s)}</span>)}
                                                 {signers.length === 0 && <span className="text-gray-300 text-sm">No signers</span>}
                                             </div>
                                         </div>
