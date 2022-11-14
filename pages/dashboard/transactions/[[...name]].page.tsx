@@ -437,7 +437,7 @@ const Transactions = () => {
                         </div>
 
                         {txs.length > 0 && <div className="py-1">
-                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
+                            <CSVLink separator=";" className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
                                 const account = accountsRaw.find(s => s.address.toLowerCase() === ('tx' in w ? w.contractAddress : w.address).toLowerCase())
                                 const [img, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w, account?.provider ?? undefined);
@@ -505,13 +505,12 @@ const Transactions = () => {
                                 if (method === ERCMethodIds.transfer || method === ERCMethodIds.transferFrom || method === ERCMethodIds.transferWithComment) {
                                     to = 'tx' in w ? (w.tx as ITransfer).to : (w as ITransfer).to;
                                 } else if (method === ERCMethodIds.batchRequest || method === ERCMethodIds.automatedBatchRequest) {
-                                    to = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments.map(w => w.to).join(", \n") : (w as unknown as IBatchRequest).payments.map(w => w.to).join(", \n");
+                                    to = 'tx' in w ? (w.tx as unknown as IBatchRequest).payments.map(w => w.to).join(", ") : (w as unknown as IBatchRequest).payments.map(w => w.to).join(", ");
                                 } else if (method === ERCMethodIds.swap) {
                                     to = 'tx' in w ? (w.tx as unknown as ISwap).coinOutMin.address : (w as unknown as ISwap).coinOutMin.address;
                                 } else if (method === ERCMethodIds.automatedTransfer) {
                                     to = 'tx' in w ? (w.tx as unknown as IAutomationTransfer).to : (w as unknown as IAutomationTransfer).to;
                                 }
-
                                 return {
                                     'Method': action,
                                     "Provider": name,
