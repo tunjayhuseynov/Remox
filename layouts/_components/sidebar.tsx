@@ -75,7 +75,7 @@ const Sidebar = () => {
                     dispatch(launchApp({
                         accountType: "organization",
                         addresses: (e.accounts as IAccount[]),
-                        blockchain: Blockchains.find(s => s.name === 'celo')!,
+                        // blockchain: Blockchains.find(s => s.name === 'celo')!,
                         id: e.id,
                         storage: {
                             lastSignedProviderAddress: selectedAddress,
