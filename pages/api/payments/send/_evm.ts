@@ -41,16 +41,16 @@ export const GenerateTxEvm = async (
 
 export const GenerateSwapDataEvm = async (swap: ISwap, chainId: number) => {
   const swapParams: ISwapParam1inch = {
-    fromTokenAddress: swap.inputCoin.toString(),
-    toTokenAddress: swap.outputCoin.toString(),
-    amount: (+swap.amount * Math.pow(10, 6)).toString(),
+    fromTokenAddress: swap.inputCoin.address.toString(),
+    toTokenAddress: swap.outputCoin.address.toString(),
+    amount: (+swap.amount * Math.pow(10, swap.inputCoin.decimals)).toString(),
     fromAddress: swap.account,
     slippage: +swap.slippage,
     disableEstimate: false,
     allowPartialFill: true
   }
 
-  const apiBaseUrl = "https://api.1inch.io/v4.0/" + chainId;
+  const apiBaseUrl = "https://api.1inch.io/v5.0/" + chainId;
 
   function apiRequestUrl(methodName: string, queryParams: any) {
     return (

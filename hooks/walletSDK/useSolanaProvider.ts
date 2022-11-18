@@ -1,5 +1,4 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { useWalletKit } from 'hooks';
 import * as anchor from "@project-serum/anchor";
 import { SolanaProvider } from "@saberhq/solana-contrib";
 import { useMemo } from 'react';

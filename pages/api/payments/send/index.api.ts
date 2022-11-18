@@ -101,7 +101,7 @@ export default async function Send(
                 destination: null,
                 value: 0
             });
-        } else if (blockchain === "celo") {
+        } else {
             if (cancelStreaming && streamId) {
                 const data = await GenerateCancelStreamingTx(streamId)
                 return res.json({
@@ -123,6 +123,14 @@ export default async function Send(
                 })
             }
             if (swap) {
+                if (Blockchain.name.includes("evm")) {
+                    const data = await GenerateSwapDataEvm(swap, Blockchain.chainId!)
+                    return res.json({
+                        data: data,
+                        destination: Blockchain.swapProtocols[0].contractAddress,
+                        value: 0
+                    })
+                }
                 const data = await GenerateSwapData(swap)
                 return res.json({
                     data,
@@ -145,34 +153,19 @@ export default async function Send(
             } else {
                 const data = await GenerateTx(requests[0], executer, coins)
                 const coin = coins[requests[0].coin]
+                if(coin.address === "0x0000000000000000000000000000000000000000") {
+                    return res.json({
+                        data: "0x",
+                        destination: requests[0].recipient,
+                        value: requests[0].amount
+                    })
+                }
                 return res.json({
                     data: data,
                     destination: coin.address,
                     value: 0
                 })
             }
-        } else if (blockchain.includes("evm")) {
-            if (swap) {
-                const data = await GenerateSwapDataEvm(swap, Blockchain.chainId!)
-                return res.json({
-                    data: data,
-                    destination: "0x11111112542D85B3EF69AE05771c2dCCff4fAa26",
-                    value: 0
-                })
-            }
-
-            if (requests.length > 1) {
-
-            } else {
-                const data = await GenerateTxEvm(requests[0], Blockchain, coins)
-                const coin = coins[requests[0].coin]
-                return res.json({
-                    data: data,
-                    destination: coin.address,
-                    value: 0
-                })
-            }
-
         }
     } catch (error) {
         console.log(error)

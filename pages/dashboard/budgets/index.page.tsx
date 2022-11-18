@@ -21,7 +21,6 @@ import { GetTime } from 'utils';
 
 const Budgets = () => {
 
-    // const { GetCoins } = useWalletKit()
     const [isOpen, setOpen] = useState(false)
     const navigate = useRouter()
     const budget_exercises = useAppSelector(SelectBudgetExercises)

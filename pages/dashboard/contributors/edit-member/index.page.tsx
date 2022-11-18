@@ -33,11 +33,12 @@ import ChooseBudget from "components/general/chooseBudget";
 import { IAccountORM } from "pages/api/account/index.api";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { GetTime } from "utils";
+import { Blockchains } from "types/blockchains";
 
 const EditMember = () => {
   const navigate = useRouter();
   const { id, teamId } = navigate.query as { id: string; teamId: string };
-  const { GetCoins, blockchain, SendTransaction } = useWalletKit();
+  const { GetCoins: coins, SendTransaction } = useWalletKit();
   const dispatch = useAppDispatch();
   const { editMember } = useContributors();
 
@@ -55,6 +56,8 @@ const EditMember = () => {
   ];
 
   //States
+  const blockchain = Blockchains.find(b => b.name === member.blockchain) ?? Blockchains[0]
+  let GetCoins = coins(blockchain.chainId)
 
   const [url, setUrl] = useState<string>(member.image?.imageUrl ?? "");
   const [type, setType] = useState<"image" | "nft">(
@@ -73,7 +76,7 @@ const EditMember = () => {
   const [amount, setAmount] = useState<number | null>(+member.amount);
   const [coin, setCoin] = useState<AltCoins | undefined>(
     Object.values(GetCoins).find((coin) => coin.symbol === member.currency) ??
-      Object.values(GetCoins)[0]
+    Object.values(GetCoins)[0]
   );
   const [fiatMoney, setFiatMoney] = useState<FiatMoneyList | null>(member.fiat);
 
@@ -95,12 +98,13 @@ const EditMember = () => {
     member.secondAmount ? true : false
   );
   const [startDate, setStartDate] = useState<Date>(
-    new Date(member.paymantDate*1000)
+    new Date(member.paymantDate * 1000)
   );
-  const [endDate, setEndDate] = useState<Date | null>(member.paymantEndDate ? new Date(member.paymantEndDate*1000) : null);
+  const [endDate, setEndDate] = useState<Date | null>(member.paymantEndDate ? new Date(member.paymantEndDate * 1000) : null);
   const [taskId, setTaskId] = useState<string | null>(member.taskId);
   const [loading, setLoading] = useState<boolean>(false);
   const [choosingBudget, setChoosingBudget] = useState<boolean>(false);
+  const [selectedBlockchain, setSelectedBlockchain] = useState<typeof Blockchains[0]>(blockchain);
 
   //Variables
 
@@ -120,6 +124,7 @@ const EditMember = () => {
   );
 
   const submit = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+    const blockchain = Blockchains.find((b) => b.name === member.blockchain) ?? Blockchains[0];
     const Team = selectedTeam;
     const Compensation = selectedSchedule.name;
     const Coin1 = coin;
@@ -242,6 +247,7 @@ const EditMember = () => {
         checkedList: member.checkedList,
         image: url ? Photo : null,
         taskId: taskId,
+        blockchain: member.blockchain,
       };
 
       // console.log(newMember);
@@ -287,8 +293,8 @@ const EditMember = () => {
                 avatarUrl={member.image ? url : null}
                 name={member.address ?? ""}
                 userId={userId ?? ""}
-                evm={blockchain.name !== "solana"}
-                blockchain={blockchain}
+                // evm={blockchain.name !== "solana"}
+                // blockchain={blockchain}
                 onChange={onChange}
               />
             </div>
@@ -395,14 +401,15 @@ const EditMember = () => {
                 Add
               </div>
             )}
-            <div className="flex flex-col space-y-1">
-              <TextField
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                label="Wallet Address"
-                className="bg-white dark:bg-darkSecond z-[0]"
-                variant="outlined"
+            <div className="grid grid-cols-[30%,70%]">
+              <Dropdown
+                list={Blockchains}
+                selected={selectedBlockchain}
+                setSelect={setSelectedBlockchain}
+                className='bg-light dark:bg-darkSecond'
+                label="Network"
               />
+              <TextField value={address} onChange={(e) => setAddress(e.target.value)} required label="Wallet Address" className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
             </div>
             <div className="flex gap-x-10">
               <div className="flex flex-col space-y-1 w-full">
@@ -478,10 +485,10 @@ const EditMember = () => {
               <Button
                 className="px-8 py-3 w-full"
                 onClick={() => {
-                  if(!(member.execution === selectedPaymentType.name)){
-                    if(selectedPaymentType.name === "Auto" && (new Date(startDate).getTime() !== member.paymantDate || new Date(endDate!).getTime() !== member.paymantEndDate)) {
+                  if (!(member.execution === selectedPaymentType.name)) {
+                    if (selectedPaymentType.name === "Auto" && (new Date(startDate).getTime() !== member.paymantDate || new Date(endDate!).getTime() !== member.paymantEndDate)) {
                       setChoosingBudget(true)
-                    } else if((member.execution === "Auto" && selectedPaymentType.name == "Manual") || (member.execution === "Manual" && selectedPaymentType.name === "Auto") ) {
+                    } else if ((member.execution === "Auto" && selectedPaymentType.name == "Manual") || (member.execution === "Manual" && selectedPaymentType.name === "Auto")) {
                       setChoosingBudget(true)
                     }
                   } else {
@@ -497,7 +504,7 @@ const EditMember = () => {
         </div>
       </div>
       <Modal onDisable={setChoosingBudget} openNotify={choosingBudget}>
-        <ChooseBudget submit={submit}/>
+        <ChooseBudget submit={submit} />
       </Modal>
     </>
   );

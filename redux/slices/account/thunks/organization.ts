@@ -17,7 +17,6 @@ import { CreateTag } from "./tags";
 interface ICreateMultisig {
     uploadType: "image" | "nft";
     image: Image | null,
-    blockchain: BlockchainType,
     name: string,
     newAccountName: string,
     address: string;
@@ -25,7 +24,7 @@ interface ICreateMultisig {
 }
 
 export const Create_Organization_Thunk = createAsyncThunk<IOrganization, ICreateMultisig>("remoxData/create_organization", async (data, api) => {
-    const { image, blockchain, address, name, uploadType, individual, newAccountName } = data;
+    const { image, address, name, uploadType, individual, newAccountName } = data;
     if (!auth.currentUser) throw new Error("User not logged in");
 
     const id = `${nanoid()}-${nanoid()}`;

@@ -32,10 +32,12 @@ import { BiTrash } from 'react-icons/bi';
 import { GetFiatPrice } from 'utils/const';
 import makeBlockie from 'ethereum-blockies-base64';
 import BigNumber from 'bignumber.js';
+import { BlockchainType } from 'types/blockchains';
 
 interface IProps {
     // date: string;
     // blockchain: BlockchainType,
+    blockchain: BlockchainType,
     transaction: IFormattedTransaction;
     isMultisig: boolean;
     direction: TransactionDirection,
@@ -65,7 +67,7 @@ interface IProps {
 
 const Detail = ({
     openDetail, setOpenDetail, transaction, account, tags,
-    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex, safeHash, executedAt
+    isRejected, isExecuted, signers, threshold, timestamp, gasFee, isMultisig, action, direction, txIndex, safeHash, executedAt, blockchain
 }: IProps) => {
 
     const [mounted, setMounted] = useState(false)
@@ -73,7 +75,7 @@ const Detail = ({
     const [selectedBudget, setSelectedBudget] = useState<IBudgetORM | undefined>(transaction.budget)
     // const [selectedBudgetLabel, setSelectedBudgetLabel] = useState<ISubbudgetORM | undefined>(budget)
     const notes = useAppSelector(SelectNotes)
-    const blockchain = useAppSelector(SelectBlockchain)
+    
 
     const selectedNote = useMemo(() => {
         return notes.find(s => s.address.toLowerCase() === transaction.address.toLowerCase() && s.hashOrIndex.toLowerCase() === transaction.hash.toLowerCase())

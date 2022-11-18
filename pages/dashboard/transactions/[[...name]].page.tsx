@@ -15,7 +15,7 @@ import SingleTransactionItem from "./_components/SingleTransactionItem";
 import MultisigTx from "./_components/MultisigTransactionItem";
 import { Checkbox, ClickAwayListener, Input, TablePagination } from "@mui/material";
 import { IAccountORM } from "pages/api/account/index.api";
-import { BlockchainType } from "types/blockchains";
+import { Blockchains, BlockchainType } from "types/blockchains";
 import { ITag } from "pages/api/tags/index.api";
 import Filter from "./_components/Filter";
 import { AnimatePresence, motion } from "framer-motion";
@@ -53,7 +53,7 @@ const Transactions = () => {
     const pending = navigate.query?.pending as string | undefined;
 
     const dispatch = useAppDispatch()
-    const { Address, blockchain } = useWalletKit()
+    const { Address } = useWalletKit()
     const darkMode = useSelector(SelectDarkMode)
 
 
@@ -63,6 +63,7 @@ const Transactions = () => {
     const [isDateFilterOpen, setDateFilterOpen] = useState(false)
     const [isLabelFilterOpen, setLabelFilterOpen] = useState(false)
     const [isBudgetFilterOpen, setBudgetFilterOpen] = useState(false)
+    const [isChainFilterOpen, setChainFilterOpen] = useState(false)
     const [isWalletFilterOpen, setWalletFilterOpen] = useState(false)
 
     const [pagination, setPagination] = useState(STABLE_INDEX)
@@ -79,6 +80,7 @@ const Transactions = () => {
     const [datePicker, setDate] = useState<number[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [selectedBudgets, setSelectedBudgets] = useState<string[]>([]);
+    const [selectedChains, setSelectedChains] = useState<string[]>([]);
     const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
     const [selectedDirection, setSelectedDirection] = useState<string>("Any");
 
@@ -126,6 +128,7 @@ const Transactions = () => {
             if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.contractAddress.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
+            if (selectedChains.length > 0 && !selectedChains.some((b) => b === c.blockchain)) return false
 
             if (specificAmount && (+(amount ?? 0)) !== specificAmount) return false
             if (minAmount && (+(amount ?? tx?.payments?.reduce((a, c) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0)) < minAmount) return false
@@ -153,6 +156,8 @@ const Transactions = () => {
             if (selectedAccounts.length > 0 && !selectedAccounts.find(s => s.toLowerCase() === c.address.toLowerCase())) return false
 
             if (selectedBudgets.length > 0 && !selectedBudgets.some((b) => b === c.budget?.id)) return false
+            if (selectedChains.length > 0 && !selectedChains.some((b) => b === c.blockchain)) return false
+            
             if (specificAmount && (amount ?? 0) !== specificAmount) return false
             if (minAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? 0) < minAmount) return false
             if (maxAmount && +(amount ?? tx?.payments?.reduce((a: number, c: ITransfer) => a += DecimalConverter(c.amount, c.coin.decimals), 0) ?? Number.MAX_VALUE) > maxAmount) return false
@@ -205,6 +210,7 @@ const Transactions = () => {
 
     const [searchLabel, setSearchLabel] = useState<string>("")
     const [searchBudget, setSearchBudget] = useState<string>("")
+    const [searchChain, setSearchChain] = useState<string>("")
 
     const [dateLast, setDateLast] = useState<string>("")
 
@@ -311,7 +317,7 @@ const Transactions = () => {
                                 <div className="flex flex-col space-y-1 mt-2">
                                     {
                                         lastList.map((s, i) =>
-                                            <div className='flex space-x-1 items-center'>
+                                            <div key={i} className='flex space-x-1 items-center'>
                                                 <Checkbox
                                                     icon={<RadioButtonUncheckedIcon />}
                                                     checkedIcon={<RadioButtonCheckedIcon />}
@@ -434,11 +440,44 @@ const Transactions = () => {
                                     </div>}
                                 </div>
                             </Filter>
+                            <Filter isOpen={isChainFilterOpen} setOpen={setChainFilterOpen} title={selectedChains.length > 0 ?
+                                <div className="rounded-md font-semimedium text-xs">
+                                    <div>Chains ({selectedChains.length})</div>
+                                </div> : "Chains"
+                            } childWidth={10}>
+                                <Input fullWidth disableUnderline sx={{
+                                    fontSize: "0.875rem",
+                                }} className="border px-1" placeholder="Search" onChange={(val) => setSearchChain(val.target.value)} endAdornment={<>
+                                    <AiOutlineSearch />
+                                </>} />
+                                <div className='flex flex-col mt-3'>
+                                    {Object.values(Blockchains).filter(s => s.name.toLowerCase().includes(searchChain.toLowerCase())).map((chain) => {
+                                        return <div key={chain.name} className='flex space-x-1 items-center'>
+                                            <Checkbox
+                                                style={{
+                                                    transform: "scale(0.875)",
+                                                    padding: 0
+                                                }}
+                                                classes={{ colorPrimary: "!text-primary", root: "" }} checked={selectedChains.includes(chain.name)} onChange={() => {
+                                                    if (selectedChains.includes(chain.name)) {
+                                                        setSelectedChains(selectedChains.filter(s => s !== chain.name))
+                                                    } else {
+                                                        setSelectedChains([...selectedChains, chain.name])
+                                                    }
+                                                }} /> <span className="text-xs">{chain.displayName}</span>
+                                        </div>
+                                    })}
+                                    {Object.values(Blockchains).length === 0 && <div className='text-xs text-gray-400'>
+                                        No chain found
+                                    </div>}
+                                </div>
+                            </Filter>
                         </div>
 
                         {txs.length > 0 && <div className="py-1">
                             <CSVLink separator=";" className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
+                                const blockchain = Blockchains.find(s => s.name === w.blockchain)!;
                                 const account = accountsRaw.find(s => s.address.toLowerCase() === ('tx' in w ? w.contractAddress : w.address).toLowerCase())
                                 const [img, name, action] = TransactionDirectionImageNameDeclaration(blockchain, directionType, 'tx' in w, account?.provider ?? undefined);
                                 let method = 'tx' in w ? w.tx.method : w.method;
@@ -539,7 +578,7 @@ const Transactions = () => {
                         }}>
                             <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] text-gray-500 dark:text-gray-300 text-sm font-normal bg-gray-100 dark:bg-darkSecond rounded-md">
                                 <th className="py-2 self-center text-left">Date</th>
-                                <th className="py-2 self-center text-left">Wallet</th>
+                                <th className="py-2 self-center text-left">Wallet | Chain</th>
                                 <th className="py-2 self-center text-left">Type</th>
                                 <th className="py-2 self-center text-left">Amount</th>
                                 <th className="py-2 self-center text-left">Labels</th>
@@ -557,6 +596,7 @@ const Transactions = () => {
                                 {/* <th></th> */}
                             </tr>
                             {txs.slice(pagination - STABLE_INDEX, pagination).map((tx, i) => {
+                                const blockchain = Blockchains.find(b => b.name === tx.blockchain)!;
                                 if ((tx as IFormattedTransaction)['hash']) {
                                     const address = (tx as IFormattedTransaction).address;
                                     const account = accountsRaw.find(s => s.address.toLowerCase() === address.toLowerCase())
@@ -608,6 +648,7 @@ export const SingleTxContainer = ({ transaction, accounts, selectedAccount, bloc
                     isError: transaction.isError,
                     method: transaction.method,
                     id: transaction.id,
+                    blockchain: transaction.blockchain,
                     hash: transaction.hash,
                     rawData: transaction.rawData,
                     payments: value,
@@ -626,6 +667,7 @@ export const SingleTxContainer = ({ transaction, accounts, selectedAccount, bloc
                     method: transaction.method,
                     id: transaction.id,
                     hash: transaction.hash,
+                    blockchain: transaction.blockchain,
                     rawData: transaction.rawData,
                     payments: value,
                     address: transaction.address,

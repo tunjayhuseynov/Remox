@@ -7,18 +7,21 @@ import { useWalletKit } from "hooks";
 import { SelectBalance } from "redux/slices/account/selector";
 import { GetFiatPrice } from "utils/const";
 import { NG } from "utils/jsxstyle";
- 
+import { Blockchains } from "types/blockchains";
+
 export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMember[] }) {
     const balance = useSelector(SelectBalance)
     const { GetCoins } = useWalletKit()
 
+
     const cleanList: (IRequest | IMember)[] = []
     coinList.forEach(item => {
-        const coin = Object.values(GetCoins).find((coin) => coin.symbol === item.currency)
+        let blockchain = Blockchains.find(b => b.name === item.blockchain) ?? Blockchains[0]
+        const coin = Object.values(GetCoins(blockchain.chainId)).find((coin) => coin.symbol === item.currency)
         if (item.secondAmount && item.secondCurrency) {
-            if(item.fiatSecond) {
-                const coin = Object.values(GetCoins).find((coin) => coin.symbol === item.secondCurrency)
-                const fiatPrice = GetFiatPrice((coin ?? Object.values(GetCoins)[0]), item.fiatSecond)
+            if (item.fiatSecond) {
+                const coin = Object.values(GetCoins(blockchain.chainId)).find((coin) => coin.symbol === item.secondCurrency)
+                const fiatPrice = GetFiatPrice((coin ?? Object.values(GetCoins(blockchain.chainId))[0]), item.fiatSecond)
                 cleanList.push({
                     ...item,
                     amount: (+item.secondAmount / fiatPrice).toString(),
@@ -33,9 +36,9 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
             }
         }
 
-        if(coin) {
-            if(item.fiat){
-                const fiatPrice = GetFiatPrice((coin ?? Object.values(GetCoins)[0]), item.fiat)
+        if (coin) {
+            if (item.fiat) {
+                const fiatPrice = GetFiatPrice((coin ?? Object.values(GetCoins(blockchain.chainId))[0]), item.fiat)
                 cleanList.push({
                     ...item,
                     amount: (+item.amount / fiatPrice).toString(),
@@ -50,7 +53,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
             }
 
         }
-            
+
     })
 
 
@@ -68,10 +71,13 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
 
     return <>
         {list.map((item, index) => {
-            const coin = Object.values(GetCoins).find((c) => c.symbol === item.currency)
+            let blockchain = Blockchains.find(b => b.name === item.blockchain) ?? Blockchains[0]
+
+            const coin = Object.values(GetCoins(blockchain?.chainId)).find((c) => c.symbol === item.currency)
             const coinBalance = Object.values(balance).find((b) => b.symbol === item.currency)
             let remain = coinBalance!.amount - (parseFloat(item!.amount))
-            
+            console.log(coinBalance, item, remain)
+
             return <Fragment key={item.id}>
                 <div className="flex flex-col items-start justify-center text-center gap-2 mb-2 w-[12.5rem]">
                     <div className="w-full flex items-center justify-start space-x-1">
@@ -80,7 +86,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium">
                             <div>
-                                <NG number={coinBalance?.amount ?? 1} fontSize={1.125}  />
+                                <NG number={coinBalance?.amount ?? 1} fontSize={1.125} />
                             </div>
                         </div>
 
@@ -100,7 +106,7 @@ export default function TokenBalance({ coinList }: { coinList: IRequest[] | IMem
                         </div>
                         <div className="flex items-start justify-start pr-2 text-lg font-medium" >
                             <div>
-                               {remain < 0 ? "-" : ""}<NG number={Math.abs(coinBalance!.amount - (parseFloat(item!.amount)))} fontSize={1.125}/>
+                                {remain < 0 ? "-" : ""}<NG number={remain} fontSize={1.125} />
                             </div>
                         </div>
                     </div>

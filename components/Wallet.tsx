@@ -25,6 +25,20 @@ export const CeloEndpoint = 'https://forno.celo.org';
 export const SolanaEndpoint = "https://explorer-api.mainnet-beta.solana.com/"
 export const SolanaSerumEndpoint = "https://solana-api.projectserum.com"
 
+export const NETWORKS = [
+    {
+        name: "Celo",
+        rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
+        chainId: 42220,
+        explorer: Blockchains.find(s => s.name === "celo")!.explorerAPIUrl,
+    },
+    // {
+    //     chainId: 1,
+    //     name: "Ethereum",
+    //     rpcUrl: Blockchains.find(s => s.name === "ethereum_evm")!.rpcUrl,
+    //     explorer: Blockchains.find(s => s.name === "ethereum_evm")!.explorerAPIUrl,
+    // }
+]
 
 export default function Wallet({ children }: { children: JSX.Element }) {
     // const web3React = useWeb3React()
@@ -121,20 +135,7 @@ export default function Wallet({ children }: { children: JSX.Element }) {
                                 ]
                             }
                         }}
-                        networks={[
-                            {
-                                name: "Celo",
-                                rpcUrl: Blockchains.find(s => s.name === "celo")!.rpcUrl,
-                                chainId: 42220,
-                                explorer: Blockchains.find(s => s.name === "celo")!.explorerAPIUrl,
-                            },
-                            // {
-                            //     chainId: 42220,
-                            //     name: "Ethereum",
-                            //     rpcUrl: Blockchains.find(s => s.name === "ethereum_evm")!.rpcUrl,
-                            //     explorer: Blockchains.find(s => s.name === "ethereum_evm")!.explorerUrl,
-                            // }
-                        ]}
+                        networks={NETWORKS}
                     >
                         {children}
                     </CeloProvider>

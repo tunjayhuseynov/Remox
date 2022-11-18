@@ -61,7 +61,6 @@ export interface Task {
 }
 
 export default function useWalletKit() {
-  const blockchain = useAppSelector(SelectBlockchain) as BlockchainType;
   const dispatch = useAppDispatch();
   const coins = useAppSelector(SelectCurrencies);
   const isModerator = useAppSelector(SelectIsModerator);
@@ -76,7 +75,7 @@ export default function useWalletKit() {
 
   //Celo
   const { address, destroy, kit, walletType, connect, initialised } = useCelo();
-  
+
   //solana
   const { connection } = useConnection();
   const {
@@ -112,7 +111,7 @@ export default function useWalletKit() {
     }
   };
 
-  const SpiralAPR = useCallback(async () => {
+  const SpiralAPR = useCallback(async (blockchain: BlockchainType) => {
     if (blockchain.name === "celo") {
       const epochRewardsContract = await newKit(blockchain.rpcUrl)._web3Contracts.getEpochRewards()
 
@@ -140,115 +139,67 @@ export default function useWalletKit() {
 
   const signMessageInWallet = useCallback(
     async (nonce: number) => {
-      if (blockchain.name === "celo") {
-        const wallet = kit.getWallet();
-        if (!wallet) throw new Error("No wallet");
-        const address = ethers.utils.getAddress((await Address)!);
-        
-        const signature = await kit.connection.web3.eth.personal.sign(
-          GetSignedMessage(nonce),
-          address,
-          ""
-        );
-        return {
-          publicKey: Address!,
-          signature,
-        };
-      }
+      const wallet = kit.getWallet();
+      if (!wallet) throw new Error("No wallet");
+      const address = ethers.utils.getAddress((await Address)!);
 
-      if (blockchain.name.includes("evm")) {
-        return {
-          publicKey: web3Address,
-          signature: await web3SignMessage(GetSignedMessage(nonce)),
-        };
-      }
-
-      const encodedMessage = new TextEncoder().encode(GetSignedMessage(nonce));
-      if (!signMessage) throw new Error("signMessage not found");
-      const signature = await signMessage(encodedMessage);
+      const signature = await kit.connection.web3.eth.personal.sign(
+        GetSignedMessage(nonce),
+        address,
+        ""
+      );
       return {
         publicKey: Address!,
-        signature: new TextDecoder().decode(signature),
+        signature,
       };
+
     },
-    [blockchain, kit]
+    [kit]
   );
 
-  const GetCoins = useMemo(() => {
+  const GetCoins = useCallback((chainId?: number) => {
+    if (chainId) {
+      return Object.values(coins).filter((coin) => coin.chainID === chainId || coin.chainId === chainId).reduce<Coins>((a, c) => {
+        a[c.symbol] = c;
+        return a;
+      }, {});
+    }
     return coins;
   }, [coins]);
 
   const Address = useMemo(async (): Promise<string | null> => {
-    if (blockchain.name === "celo") {
-      return address ? toChecksumAddress(address) : null;
-    } else if (blockchain.name === "solana") {
-      return publicKey?.toBase58() ?? null;
-    } else if (blockchain.name.includes("evm")) {
-      const address = await web3Address;
-      return address ?? null;
-    }
-    return address ?? null; // Has to be change to null
-  }, [blockchain, publicKey, address]);
+    return address ? toChecksumAddress(address) : null;
+
+  }, [publicKey, address]);
 
   const Connected = useMemo(() => {
-    if (blockchain.name === "celo") {
-      return initialised;
-    } else if (blockchain.name === "solana") {
-      return connected;
-    } else if (blockchain.name.includes("evm")) {
-      return web3Connected;
-    }
-    return initialised; // Has to be change to null
-  }, [blockchain, publicKey, address, initialised, connected]);
+    return initialised;
+  }, [publicKey, address, initialised, connected]);
 
   const Disconnect = useCallback(async () => {
-    if (blockchain.name === "celo") {
-      await destroy();
-    } else if (blockchain.name === "solana") {
-      await disconnect();
-    }
+    await destroy();
+
     // else if (blockchain.name.includes("evm")){
     //     await web3Disconnect()
     // }
-  }, [blockchain]);
+  }, []);
 
   const Connect = useCallback(async () => {
     try {
-      if (blockchain.name === "solana") {
-        setVisible(true);
-        return undefined;
-      } else if (blockchain.name.includes("evm")) {
-        const connector = await web3Connect();
-        return connector;
-      }
-
       let connection = await connect();
       return connection;
     } catch (error) {
       console.error(error);
     }
-  }, [blockchain]);
+  }, []);
 
   const Wallet = useMemo(() => {
-    if (blockchain.name === "solana" && wallet) {
-      return wallet.adapter.name;
-    } else if (blockchain.name.includes("evm") && web3Wallet) {
-      return web3Wallet;
-    }
-
     return walletType;
-  }, [blockchain, walletType, wallet]);
+  }, [walletType, wallet]);
 
   const Collection = useMemo(() => {
-    if (blockchain.name === "celo") {
-      return CollectionName.Celo;
-    } else if (blockchain.name === "solana" && wallet) {
-      return CollectionName.Solana;
-    } else if (blockchain.name.includes("evm")) {
-      return CollectionName.Evm;
-    }
     return CollectionName.Celo;
-  }, [blockchain]);
+  }, []);
 
   const SendTransaction = useCallback(
     async (
@@ -289,6 +240,7 @@ export default function useWalletKit() {
         let streamId: string | null = null;
 
         // const Address = account.address;
+        const blockchain = Blockchains.find(s => s.name === account.blockchain);
 
         if (!blockchain) throw new Error("blockchain not found");
         if (!id) throw new Error("Your session is not active")
@@ -322,7 +274,7 @@ export default function useWalletKit() {
 
         }
 
-        if (blockchain.name === "celo") {
+        if (blockchain.name !== "solana") {
           const destination = Array.isArray(txData) ? "" : txData.destination as string;
           const data = Array.isArray(txData) ? "" : txData.data as string;
           const value = Array.isArray(txData) ? 0 : txData.value;
@@ -343,7 +295,7 @@ export default function useWalletKit() {
           if (account.signerType === "single") { // SINGLE SIGNER
 
             if (inputArr.length > 1 && account.provider !== "GnosisSafe") {
-              const approveArr = await GroupCoinsForApprove(inputArr, GetCoins);
+              const approveArr = await GroupCoinsForApprove(inputArr, GetCoins());
 
               for (let index = 0; index < approveArr.length; index++) {
                 await allow(
@@ -356,7 +308,7 @@ export default function useWalletKit() {
               }
             }
 
-            if (swap) {
+            if (swap && swap.inputCoin.address !== "0x0000000000000000000000000000000000000000") {
               await allow(
                 account.address,
                 swap.inputCoin,
@@ -365,7 +317,7 @@ export default function useWalletKit() {
                 account.signerType === "single" ? account.address : (await Address)!
               );
             }
-            if (createStreaming) {
+            if (createStreaming && coins[inputArr[0].coin].address !== "0x0000000000000000000000000000000000000000") {
               await allow(
                 account.address,
                 coins[inputArr[0].coin],
@@ -418,7 +370,7 @@ export default function useWalletKit() {
           else { // MULTISIGNER
 
             if (!account.provider) throw new Error("Provider not found")
-            if (swap) {
+            if (swap && swap.inputCoin.address !== "0x0000000000000000000000000000000000000000") {
               const data = await allowData(account.address, swap.inputCoin, blockchain.swapProtocols[0].contractAddress, swap.amount.toString(), account.address)
               txData = [{
                 data: data,
@@ -426,7 +378,7 @@ export default function useWalletKit() {
                 value: 0,
               }, (txData as ISendTx)]
             }
-            if (createStreaming) {
+            if (createStreaming && coins[inputArr[0].coin].address !== "0x0000000000000000000000000000000000000000") {
               const coin = coins[inputArr[0].coin]
               const data = await allowData(account.address, coin, blockchain.streamingProtocols[0].contractAddress, inputArr[0].amount.toString(), account.address)
               txData = [{
@@ -573,13 +525,12 @@ export default function useWalletKit() {
         throw Error(error as any);
       }
     },
-    [blockchain, publicKey, address]
+    [publicKey, address]
   );
 
   return {
     Address,
     Disconnect,
-    blockchain,
     Wallet,
     setBlockchain,
     Connect,

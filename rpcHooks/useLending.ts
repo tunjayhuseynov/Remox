@@ -43,7 +43,8 @@ export default function useLending() {
     const { allow } = useAllowance()
     const [loading, setLaoding] = useState(false)
     const [initLoading, setInitLaoding] = useState(false)
-    const { GetCoins, blockchain } = useWalletKit()
+    const { GetCoins: coins } = useWalletKit()
+    let GetCoins = coins()
     const { Provider } = useSolanaProvider()
 
     const dispatch = useDispatch()
@@ -104,25 +105,25 @@ export default function useLending() {
 
     const deposit = async (asset: string, amount: number | string, to?: string) => {
         try {
-            if (blockchain.name === 'solana') {
-                if (!Provider) throw new Error("No provider")
+            // if (blockchain.name === 'solana') {
+            //     if (!Provider) throw new Error("No provider")
 
-                const configResponse = await fetch('https://api.castle.finance/configs')
-                const vaults = (await configResponse.json()) as any
-                const vault = vaults.find(
-                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
-                )
+            //     const configResponse = await fetch('https://api.castle.finance/configs')
+            //     const vaults = (await configResponse.json()) as any
+            //     const vault = vaults.find(
+            //         (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+            //     )
 
-                const vaultClient = await VaultClient.load(
-                    Provider as any,
-                    vault.vault_id,
-                    vault.deploymentEnv
-                )
-                const reserve = await vaultClient.getUserReserveTokenAccount(new PublicKey(account?.address ?? ""));
-                await vaultClient.deposit(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount, reserve)
+            //     const vaultClient = await VaultClient.load(
+            //         Provider as any,
+            //         vault.vault_id,
+            //         vault.deploymentEnv
+            //     )
+            //     const reserve = await vaultClient.getUserReserveTokenAccount(new PublicKey(account?.address ?? ""));
+            //     await vaultClient.deposit(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount, reserve)
 
-                return
-            }
+            //     return
+            // }
 
             setLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {
@@ -149,25 +150,25 @@ export default function useLending() {
 
     const withdraw = async (asset: string, amount: number | string, to?: string) => {
         try {
-            if (blockchain.name === 'solana') {
-                if (!Provider) throw new Error("No provider")
+            // if (blockchain.name === 'solana') {
+            //     if (!Provider) throw new Error("No provider")
 
-                const configResponse = await fetch('https://api.castle.finance/configs')
-                const vaults = (await configResponse.json()) as any
-                const vault = vaults.find(
-                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
-                )
+            //     const configResponse = await fetch('https://api.castle.finance/configs')
+            //     const vaults = (await configResponse.json()) as any
+            //     const vault = vaults.find(
+            //         (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+            //     )
 
-                const vaultClient = await VaultClient.load(
-                    Provider as any,
-                    vault.vault_id,
-                    vault.deploymentEnv
-                )
+            //     const vaultClient = await VaultClient.load(
+            //         Provider as any,
+            //         vault.vault_id,
+            //         vault.deploymentEnv
+            //     )
 
-                await vaultClient.withdraw(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount)
+            //     await vaultClient.withdraw(Provider.wallet as any, typeof amount === "string" ? parseFloat(amount) : amount)
 
-                return
-            }
+            //     return
+            // }
             setLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
@@ -370,73 +371,73 @@ export default function useLending() {
 
     const getSingleInitialUserData = async (currency: AltCoins) => {
         try {
-            if (blockchain.name === 'solana') {
-                if (!Provider) throw new Error("No provider")
+            // if (blockchain.name === 'solana') {
+            //     if (!Provider) throw new Error("No provider")
 
-                const configResponse = await fetch('https://api.castle.finance/configs')
-                const vaults = (await configResponse.json()) as any
-                const vault = vaults.find(
-                    (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
-                )
+            //     const configResponse = await fetch('https://api.castle.finance/configs')
+            //     const vaults = (await configResponse.json()) as any
+            //     const vault = vaults.find(
+            //         (v: any) => v.deploymentEnv == 'mainnet' && v.token_label == 'USDC'
+            //     )
 
-                const vaultClient = await VaultClient.load(
-                    Provider as any,
-                    vault.vault_id,
-                    vault.deploymentEnv
-                )
+            //     const vaultClient = await VaultClient.load(
+            //         Provider as any,
+            //         vault.vault_id,
+            //         vault.deploymentEnv
+            //     )
 
-                let lendingUserData: LendingUserComponentData = {
-                    apy: (await vaultClient.getApy()).toNumber() * 100,
-                    availableBorrow: "0",
-                    averageStableBorrowRate: 0,
-                    currency: currencies["USDC"],
-                    currencyPrice: GetFiatPrice(currencies["USDC"], fiatPreference).toString(),
-                    lendingBalance: (await vaultClient.getUserValue(new PublicKey(account?.address ?? ""))).getAmount(),
-                    loanBalance: 0,
-                    walletBalance: 0,
-                    userData: {
-                        currentATokenBalance: "0",
-                        currentStableDebt: "0",
-                        currentVariableDebt: "0",
-                        liquidityRate: "0",
-                        principalStableDebt: "0",
-                        scaledVariableDebt: "0",
-                        stableBorrowRate: "0",
-                        stableRateLastUpdated: "0",
-                        usageAsCollateralEnabled: false,
-                    },
-                    coinData: {
-                        availableLiquidity: "0",
-                        rawAvailableLiquidity: "0",
-                        totalStableDebt: "0",
-                        totalVariableDebt: "0",
-                        liquidityRate: "0",
-                        rawLiquidityRate: "0",
-                        variableBorrowRate: "0",
-                        stableBorrowRate: "0",
-                        averageStableBorrowRate: "0",
-                        liquidityIndex: "0",
-                        variableBorrowIndex: "0",
-                        lastUpdateTimestamp: "0",
-                        coinReserveConfig: {
-                            Address: "",
-                            Decimals: 0,
-                            LoanToValue: "0",
-                            LiquidationThreshold: "0",
-                            LiquidationBonus: "0",
-                            ReserveFactor: "0",
-                            CollateralEnabled: false,
-                            BorrowingEnabled: false,
-                            StableEnabled: false,
-                            Active: false,
-                            Frozen: false,
-                        },
-                    }
-                };
+            //     let lendingUserData: LendingUserComponentData = {
+            //         apy: (await vaultClient.getApy()).toNumber() * 100,
+            //         availableBorrow: "0",
+            //         averageStableBorrowRate: 0,
+            //         currency: currencies["USDC"],
+            //         currencyPrice: GetFiatPrice(currencies["USDC"], fiatPreference).toString(),
+            //         lendingBalance: (await vaultClient.getUserValue(new PublicKey(account?.address ?? ""))).getAmount(),
+            //         loanBalance: 0,
+            //         walletBalance: 0,
+            //         userData: {
+            //             currentATokenBalance: "0",
+            //             currentStableDebt: "0",
+            //             currentVariableDebt: "0",
+            //             liquidityRate: "0",
+            //             principalStableDebt: "0",
+            //             scaledVariableDebt: "0",
+            //             stableBorrowRate: "0",
+            //             stableRateLastUpdated: "0",
+            //             usageAsCollateralEnabled: false,
+            //         },
+            //         coinData: {
+            //             availableLiquidity: "0",
+            //             rawAvailableLiquidity: "0",
+            //             totalStableDebt: "0",
+            //             totalVariableDebt: "0",
+            //             liquidityRate: "0",
+            //             rawLiquidityRate: "0",
+            //             variableBorrowRate: "0",
+            //             stableBorrowRate: "0",
+            //             averageStableBorrowRate: "0",
+            //             liquidityIndex: "0",
+            //             variableBorrowIndex: "0",
+            //             lastUpdateTimestamp: "0",
+            //             coinReserveConfig: {
+            //                 Address: "",
+            //                 Decimals: 0,
+            //                 LoanToValue: "0",
+            //                 LiquidationThreshold: "0",
+            //                 LiquidationBonus: "0",
+            //                 ReserveFactor: "0",
+            //                 CollateralEnabled: false,
+            //                 BorrowingEnabled: false,
+            //                 StableEnabled: false,
+            //                 Active: false,
+            //                 Frozen: false,
+            //             },
+            //         }
+            //     };
 
 
-                return lendingUserData
-            }
+            //     return lendingUserData
+            // }
             if (!contractRef.current || !priceOracleRef.current) {
                 await getContract()
             }
@@ -479,7 +480,7 @@ export default function useLending() {
     }
 
     const getBorrowInfo = async (borrowAmount: number, currency: AltCoins): Promise<LendingBorrowStatus | null> => {
-        if (blockchain.name === 'solana') return null;
+        // if (blockchain.name === 'solana') return null;
 
         const collaterals = MoolaUserData.map((userData) => (
             {
@@ -527,16 +528,16 @@ export default function useLending() {
 
     const InitializeUser = async () => {
         try {
-            if (blockchain.name === 'solana') {
-                setInitLaoding(true)
+            // if (blockchain.name === 'solana') {
+            //     setInitLaoding(true)
 
-                const data = await getSingleInitialUserData(currencies["USDC"])
-                setTimeout(() => {
-                    dispatch(updateData([data]))
-                }, 1000)
-                setInitLaoding(false)
-                return [data];
-            }
+            //     const data = await getSingleInitialUserData(currencies["USDC"])
+            //     setTimeout(() => {
+            //         dispatch(updateData([data]))
+            //     }, 1000)
+            //     setInitLaoding(false)
+            //     return [data];
+            // }
 
             if (MoolaUserData.length === 0) setInitLaoding(true)
             if (!contractRef.current || !priceOracleRef.current) {

@@ -10,6 +10,7 @@ import { UpdateSeemTimeThunk } from "redux/slices/account/thunks/profile";
 import { AiFillRightCircle } from "react-icons/ai";
 import NotificationItem from "./NotificationItem";
 import { useInView } from "react-intersection-observer";
+import { Blockchains } from "types/blockchains";
 
 
 const NotificationCointainer = () => {
@@ -27,7 +28,6 @@ const NotificationCointainer = () => {
     const individual = useAppSelector(SelectIndividual)
     const seenTime = individual?.seenTime ?? 0
     const [lastSeenTime] = useState(seenTime)
-    const blockchain = useAppSelector(SelectBlockchain)
 
     useEffect(() => {
         if (openNotify) {
@@ -65,6 +65,7 @@ const NotificationCointainer = () => {
                             if (index === limit - 1) {
                                 params.ref = ref
                             }
+                            const blockchain = Blockchains.find(s=>s.name === item.blockchain)!
                             return <NotificationItem key={index} setNotify={setNotify} item={item} index={index} addresses={addresses} blockchain={blockchain} lastSeenTime={lastSeenTime} {...params} />
                         })}
                         {list.length === 0 && <div className="text-center py-1">No notification yet</div>}

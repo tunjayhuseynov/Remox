@@ -32,6 +32,7 @@ import { NG } from "utils/jsxstyle";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IAccountORM } from "pages/api/account/index.api";
 import CurrencyElement from "components/general/CurrencyElement";
+import { Blockchains } from "types/blockchains";
 
 
 const RequestedUserItem = ({
@@ -117,6 +118,7 @@ const RequestedUserItem = ({
     try {
       let inputs: IPaymentInput[] = [];
       const amount = request.amount
+      const blockchain = Blockchains.find((blockchain) => blockchain.name === request.blockchain) ?? Blockchains[0]
       if (request.fiat) {
         const fiatPrice = GetFiatPrice(coin1!, request.fiat)
 
@@ -135,7 +137,7 @@ const RequestedUserItem = ({
 
       if (request.secondCurrency && request.secondAmount) {
         const secondAmount = request.secondAmount;
-        const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+        const coin2 = Object.values(GetCoins(blockchain.chainId)).find((coin) => coin.symbol === request.secondCurrency);
 
         if (request.fiatSecond) {
           const fiatPrice = GetFiatPrice(coin2!, request.fiatSecond)
@@ -247,7 +249,7 @@ const RequestedUserItem = ({
               } justify-center mr-2`}
           >
             <div
-              className={` ${request.status !== RequestStatus.rejected
+              className={`${request.status !== RequestStatus.rejected
                 ? ""
                 : "bg-red-300 text-black"
                 }  ${detect

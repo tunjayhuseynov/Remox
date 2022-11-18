@@ -123,7 +123,7 @@ const EditableAvatar = ({ avatarUrl, name, className, onChange, evm = true, user
                                     <label htmlFor="upload-photo" className="cursor-pointer flex items-center p-2"><BsImages className="float-left mr-2 w-5" /> Upload Image</label>
                                     <input id="upload-photo" type="file" accept="image/*" className="hidden z-[900] absolute w-full h-full left-0 top-0" onChange={uploadImage} />
                                 </div>
-                                {!noNFT && <div className="border-b text-sm hover:bg-opacity-10 hover:dark:bg-opacity-10 hover:bg-gray-800 hover:dark:bg-gray-100 cursor-pointer" onClick={() => setNftModal(true)}>
+                                {!noNFT || !blockchain && <div className="border-b text-sm hover:bg-opacity-10 hover:dark:bg-opacity-10 hover:bg-gray-800 hover:dark:bg-gray-100 cursor-pointer" onClick={() => setNftModal(true)}>
                                     <div className="cursor-pointer flex items-center p-2 space-x-2">
                                         <img className="w-5 h-5" src={dark ? "/icons/settings/nft_dark.png" : "/icons/settings/nft.png"} /> <span> Choose NFT</span>
                                     </div>

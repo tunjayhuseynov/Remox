@@ -26,6 +26,7 @@ import ChooseBudget from "components/general/chooseBudget";
 import { IAccountORM } from "pages/api/account/index.api";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import { Blockchains } from "types/blockchains";
 
 
 const AddMember = () => {
@@ -47,7 +48,7 @@ const AddMember = () => {
     const paymentType: DropDownItem[] = [{ name: "Manual" }, { name: "Auto" }];
     const [selectedPaymentType, setPaymentType] = useState(paymentType[0]);
     const isAutoPayment = selectedPaymentType.name === "Auto";
-    const { GetCoins, blockchain, SendTransaction } = useWalletKit();
+    const { GetCoins, SendTransaction } = useWalletKit();
     const [secondActive, setSecondActive] = useState(false);
     const [startDate, setStartDate] = useState<Date | null>(new Date());
     const [endDate, setEndDate] = useState<Date | null>(null);
@@ -77,8 +78,10 @@ const AddMember = () => {
     });
     const [loading, setIsLoading] = useState(false);
     const [choosingBudget, setChoosingBudget] = useState<boolean>(false)
+    const [selectedBlockchain, setSelectedBlockchain] = useState<typeof Blockchains[0]>(Blockchains[0])
 
     const submit = async (account?: IAccountORM | undefined, budget?: IBudgetORM | null, subbudget?: ISubbudgetORM | null) => {
+        if (!selectedBlockchain) return ToastRun("Please select blockchain", "error")
         const Team = selectedTeam;
         const Compensation = selectedSchedule.name;
         const Amount = amount
@@ -91,7 +94,7 @@ const AddMember = () => {
             nftUrl: url,
             type: type,
             tokenId: null,
-            blockchain: blockchain.name
+            blockchain: selectedBlockchain.name
         }
 
         const dateNow = new Date()
@@ -103,7 +106,7 @@ const AddMember = () => {
                 if (isAutoPayment && startDate && endDate) {
                     inputs.push({
                         amount: Amount ?? 1,
-                        coin: Coin1?.symbol ?? Object.values(GetCoins)[0].symbol,
+                        coin: Coin1?.symbol ?? Object.values(GetCoins())[0].symbol,
                         recipient: address,
                     })
                     if (Amount2 && Coin2) {
@@ -148,6 +151,7 @@ const AddMember = () => {
                     checkedList: [],
                     image: url ? Photo : null,
                     taskId: isAutoPayment ? taskId : null,
+                    blockchain: selectedBlockchain.name,
                 };
 
                 await addMember(Team.id!.toString(), member);
@@ -181,7 +185,7 @@ const AddMember = () => {
                     className="flex flex-col space-y-8 w-[40%] mx-auto pb-4">
                     <div className="text-2xl self-center pt-2 font-semibold ">Add Member</div>
                     <div className="flex justify-center mb-4 w-full">
-                        <EditableAvatar avatarUrl={null} name={"snsabf021"} userId={userId ?? ""} evm={blockchain.name !== "solana"} blockchain={blockchain} onChange={onChange} />
+                        <EditableAvatar avatarUrl={null} name={"snsabf021"} userId={userId ?? ""} onChange={onChange} />
                     </div>
                     <div className="grid grid-cols-2 gap-x-10">
                         <TextField label="Full Name" value={fullname} onChange={(e) => setFullname(e.target.value)} required className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
@@ -208,7 +212,7 @@ const AddMember = () => {
                     <div className={`flex w-full gap-x-10 ${choosingBudget ? "z-[0]" : ""}`}>
                         <PriceInputField
                             isMaxActive={true}
-                            coins={GetCoins}
+                            coins={GetCoins(selectedBlockchain?.chainId)}
                             onChange={(val, coin, fiatMoney) => {
                                 setAmount(val)
                                 setCoin('amount' in coin ? coin.coin : coin)
@@ -220,7 +224,7 @@ const AddMember = () => {
                         <div className={`col-span-2 relative ${choosingBudget ? "z-[0]" : ""}`}>
                             <PriceInputField
                                 isMaxActive={true}
-                                coins={GetCoins}
+                                coins={GetCoins(selectedBlockchain?.chainId)}
                                 onChange={(val, coin, fiatMoney) => {
                                     setAmountSecond(val)
                                     setCoinSecond('amount' in coin ? coin.coin : coin)
@@ -235,7 +239,14 @@ const AddMember = () => {
                                 <IoMdRemoveCircle color="red" />
                             </div>
                         </div> : <div className="text-primary cursor-pointer flex items-center gap-2 !mt-5" onClick={() => setSecondActive(true)}> <span className="w-5 h-5 border rounded-full border-primary  text-primary  flex items-center justify-center">+</span>Add</div>}
-                    <div className="flex flex-col space-y-1">
+                    <div className="grid grid-cols-[30%,70%]">
+                        <Dropdown
+                            list={Blockchains}
+                            selected={selectedBlockchain}
+                            setSelect={setSelectedBlockchain}
+                            className='bg-light dark:bg-darkSecond'
+                            label="Network"
+                        />
                         <TextField value={address} onChange={(e) => setAddress(e.target.value)} required label="Wallet Address" className="bg-white dark:bg-darkSecond z-[0]" variant="outlined" />
                     </div>
                     <div className="flex gap-x-10">

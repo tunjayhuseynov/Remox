@@ -420,10 +420,10 @@ const remoxDataSlice = createSlice({
         })
 
         builder.addCase(Create_Account_For_Organization.fulfilled, (state, action) => {
-            state.accounts = [...state.accounts, action.payload];
             if (state.storage?.organization) {
-                state.storage.organization.accounts = [...state.storage.organization.accounts, (action.payload as IAccount | DocumentReference)] as any;
+                state.storage.organization.accounts = [...state.accounts, action.payload];
             }
+            state.accounts = [...state.accounts, action.payload];
         })
 
         builder.addCase(Remove_Account_From_Individual.fulfilled, (state, action) => {
@@ -571,7 +571,7 @@ const remoxDataSlice = createSlice({
                 rejectedRequests: action.payload.Requests.filter(request => request.status === RequestStatus.rejected),
             };
             state.fees = action.payload.Spending.Fee;
-            state.blockchain = action.payload.Blockchain;
+            // state.blockchain = action.payload.Blockchain;
             state.accounts = action.payload.RemoxAccount.accounts;
             state.storage = action.payload.Storage;
             state.transactions = action.payload.Transactions;

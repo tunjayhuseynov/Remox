@@ -16,6 +16,7 @@ export interface IRequest {
     uploadedLink: string | null;
     timestamp: number;
     status: RequestStatus;
+    blockchain?: string;
 }
 
 export enum RequestStatus {

@@ -15,7 +15,6 @@ interface IProps { item: IModerator }
 const ModeratorItem = ({ item }: IProps) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const dispatch = useAppDispatch()
-    const blockchain = useAppSelector(SelectBlockchain)
     const providerAddress = useAppSelector(SelectProviderAddress)
 
     const updateName = async (name: string) => {
@@ -25,7 +24,7 @@ const ModeratorItem = ({ item }: IProps) => {
     const updateImage = async (url: string, type: "image" | "nft") => {
         await dispatch(Update_Moderator_Image_Thunk({
             moderatorId: item.id, image: {
-                blockchain: blockchain.name,
+                blockchain: "celo",
                 imageUrl: url,
                 nftUrl: url,
                 type,

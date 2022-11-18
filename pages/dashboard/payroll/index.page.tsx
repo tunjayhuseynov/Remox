@@ -39,7 +39,8 @@ export default function DynamicPayroll() {
   );
   const defaultFiat = useAppSelector(SelectFiatPreference);
   const fiatSymbol = useAppSelector(SelectFiatSymbol);
-  const { GetCoins, SendTransaction } = useWalletKit();
+  const { GetCoins: coins, SendTransaction } = useWalletKit();
+  let GetCoins = coins()
   const [choosingBudget, setChoosingBudget] = useState<boolean>(false);
   const organizatiion = useAppSelector(SelectOrganization);
   const individual = useAppSelector(SelectIndividual);

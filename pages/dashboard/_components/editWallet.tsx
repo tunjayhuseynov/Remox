@@ -9,6 +9,7 @@ import { SelectBlockchain, SelectID } from 'redux/slices/account/selector';
 import { Update_Account_Image, Update_Account_Name } from 'redux/slices/account/thunks/account';
 import useLoading from 'hooks/useLoading';
 import { TextField } from '@mui/material';
+import { Blockchains } from 'types/blockchains';
 
 export interface IFormInput {
     name: string;
@@ -20,7 +21,7 @@ function EditWallet({ account, onDisable }: { account: IAccountORM, onDisable: D
 
     const [url, setUrl] = useState<string | undefined>()
     const [imageType, setImageType] = useState<"image" | "nft">("image")
-    const blockchain = useAppSelector(SelectBlockchain)
+    const blockchain = Blockchains.find(s => s.name === account.blockchain)!
     const id = useAppSelector(SelectID)
     const dispatch = useAppDispatch()
 

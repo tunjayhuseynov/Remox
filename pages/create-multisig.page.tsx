@@ -40,7 +40,7 @@ function CreateMultisig() {
     const dispatch = useAppDispatch()
 
 
-    const { Address, blockchain } = useWalletKit();
+    const { Address } = useWalletKit();
 
     const [address, setProviderAddress] = useState<string>("")
     useAsyncEffect(async () => {
@@ -64,16 +64,19 @@ function CreateMultisig() {
     const [sign, setSign] = useState<number | undefined>(1)
 
     const [owners, setOwners] = useState<{ id: string, name: string; address: string; }[]>([])
+    const [selectedBlockchain, setSelectedBlockchain] = useState<typeof Blockchains[0]>()
+
 
 
     const onSubmit: SubmitHandler<IFormInput> = async (data) => {
         try {
             if (!selectedProvider) throw new Error("No provider selected")
+            if (!selectedBlockchain) throw new Error("No blockchain selected")
 
             let image: Image | null = null;
             if (imageURL && imageType) {
                 image = {
-                    blockchain: blockchain.name,
+                    blockchain: selectedBlockchain.name,
                     imageUrl: imageURL,
                     nftUrl: imageURL,
                     tokenId: null,
@@ -96,7 +99,8 @@ function CreateMultisig() {
                         data.threshold ?? 1,
                         image,
                         "organization",
-                        selectedProvider.name
+                        selectedProvider.name,
+                        selectedBlockchain.name
                     )
             } else {
                 if (!data.multisigAddress) throw new Error("No owners added")
@@ -107,7 +111,8 @@ function CreateMultisig() {
                         data.name,
                         image,
                         "organization",
-                        selectedProvider.name
+                        selectedProvider.name,
+                        selectedBlockchain.name
                     )
             }
 
@@ -157,8 +162,7 @@ function CreateMultisig() {
     };
 
     const [selectedProvider, setSelectedProvider] = useState<typeof multisigProviders[0]>()
-    // const [selectedBlockchain, setSelectedBlockchain] = useState<typeof Blockchains[0]>()
-    const selectedBlockchain = useAppSelector(SelectBlockchain)
+
     const multisigProviders = useMemo(() => {
         if (selectedBlockchain) {
             return Blockchains.find(s => s.name === selectedBlockchain.name)?.multisigProviders ?? []
@@ -187,20 +191,20 @@ function CreateMultisig() {
                     <EditableAvatar
                         avatarUrl={null}
                         name={"random"}
-                        blockchain={blockchain}
-                        evm={blockchain.name !== "solana"}
+                        blockchain={selectedBlockchain}
+                        evm={selectedBlockchain?.name !== "solana"}
                         userId={`accounts/${nanoid()}`}
                         onChange={onAvatarChange}
                     />
 
-                    {/* <div className="flex flex-col mb-4 space-y-1 w-full">
+                    <div className="flex flex-col mb-4 space-y-1 w-full">
                         <Dropdown
                             list={Blockchains}
                             selected={selectedBlockchain}
                             setSelect={setSelectedBlockchain}
                             label="Blockchain"
                         />
-                    </div> */}
+                    </div>
                     <div className="flex flex-col mb-4 space-y-1 w-full">
                         <Dropdown
                             inputProps={{ style: { fontSize: '0.875rem' } }}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Button from "components/button";
 import { useWalletKit } from "hooks";
 import { useRouter } from "next/router";
-import { SelectDarkMode } from "redux/slices/account/remoxData";
+import { SelectBlockchain, SelectDarkMode } from "redux/slices/account/remoxData";
 import { ToastRun } from "utils/toast";
 import Upload from "components/upload";
 import Dropdown from "components/general/dropdown";
@@ -10,7 +10,7 @@ import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
 import useLoading from "hooks/useLoading";
 import useNextSelector from "hooks/useNextSelector";
-import { useAppDispatch } from "redux/hooks";
+import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { Create_Individual_Thunk } from "redux/slices/account/thunks/individual";
 import useAsyncEffect from "hooks/useAsyncEffect";
 import { TextField } from "@mui/material";
@@ -26,7 +26,9 @@ interface IFormInput {
 const CreateAccount = () => {
   const { register, handleSubmit } = useForm<IFormInput>();
 
-  const { Address, Wallet, blockchain } = useWalletKit();
+  const blockchain = useAppSelector(SelectBlockchain)
+
+  const { Address, Wallet } = useWalletKit();
   const [address, setAddress] = useState<string>("");
 
   useAsyncEffect(async () => {

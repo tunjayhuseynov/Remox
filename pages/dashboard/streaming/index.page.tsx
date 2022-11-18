@@ -24,7 +24,7 @@ const Automations = () => {
   // const teams = useAppSelector(SelectContributorsAutoPayment)
 
 
-  const { GetCoins } = useWalletKit();
+  // const { GetCoins } = useWalletKit();
   const calculatePrice = useAppSelector(SelectPriceCalculationFn)
   const tasks = useAppSelector(SelectNonCanceledRecurringTasks)
   const symbol = useAppSelector(SelectFiatSymbol)

@@ -19,7 +19,7 @@ export interface IFormInput {
 }
 
 const CreateOrganization = () => {
-  const { Address, blockchain, Wallet } = useWalletKit();
+  const { Address, Wallet } = useWalletKit();
 
   const individual = useAppSelector(SelectIndividual)
   const dispatch = useAppDispatch()
@@ -41,7 +41,7 @@ const CreateOrganization = () => {
       let image: Image | null = null;
       if (url) {
         image = {
-          blockchain: blockchain.name,
+          blockchain: "celo",
           imageUrl: url ?? "",
           nftUrl: url ?? "",
           tokenId: null,
@@ -51,7 +51,6 @@ const CreateOrganization = () => {
 
       await dispatch(Create_Organization_Thunk({
         address: address,
-        blockchain,
         individual,
         name: name,
         newAccountName: Wallet,
@@ -91,8 +90,8 @@ const CreateOrganization = () => {
           <EditableAvatar
             avatarUrl={null}
             name={"random"}
-            blockchain={blockchain}
-            evm={blockchain.name !== "solana"}
+            // blockchain={blockchain}
+            // evm={blockchain.name !== "solana"}
             userId={`accounts/${nanoid()}`}
             onChange={imageSelected}
           />

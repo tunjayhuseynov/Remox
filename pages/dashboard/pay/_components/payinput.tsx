@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import Dropdown from "components/general/dropdown";
-import { useWalletKit } from "hooks";
 import { useDispatch } from "react-redux";
 import { changeAddress, changeAmount, changeName, changeSecondAmount, changeSecondWallet, changeWallet, IPayInput, removePayInput, removeSeconField, SelectInputAmount, SelectIsBaseOnDollar } from "redux/slices/payinput";
 import { useSelector } from "react-redux";

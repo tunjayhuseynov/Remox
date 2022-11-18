@@ -15,16 +15,20 @@ import { Blockchains, BlockchainType } from 'types/blockchains';
 import Image from 'next/image'
 import dynamic from 'next/dynamic';
 import { useCelo } from '@celo/react-celo';
+import { NETWORKS } from 'components/Wallet';
 
 const Dropdown = dynamic(() => import('components/general/dropdown'), {
   ssr: false
 })
 
 const Home = () => {
-  const { Connect, Address, Disconnect } = useWalletKit();
-  const { walletChainId, network, updateNetwork, kit } = useCelo()
+  const { Connect, Disconnect } = useWalletKit();
+  const { walletChainId, networks, network, address, updateNetwork, connect, disconnect } = useCelo()
+  const [selected, setSelected] = useState(
+    Blockchains?.find(s => s.name === blockchain) ?? Blockchains[0],
+  )
 
-  const { processSigning } = useOneClickSign()
+  const { processSigning } = useOneClickSign(selected)
   const dark = useNextSelector(SelectDarkMode)
   const navigate = useRouter()
   const dispatch = useAppDispatch()
@@ -34,13 +38,9 @@ const Home = () => {
   const ref = useRef(0)
 
   useAsyncEffect(async () => {
-    const address = await Address
     setButtonText(address ? auth.currentUser !== null ? "Enter App" : "Sign and Allow" : "Connect to a wallet")
-  }, [Address])
+  }, [address])
 
-  const [selected, setSelected] = useState(
-    Blockchains?.find(s => s.name === blockchain) ?? Blockchains[0],
-  )
 
   useEffect(() => {
     if (selected) {
@@ -49,22 +49,27 @@ const Home = () => {
   }, [selected])
 
   useAsyncEffect(async () => {
-    const address = await Address;
+    if (selected) {
+      await disconnect()
+    }
+  }, [selected])
+
+  useAsyncEffect(async () => {
     if (address && ref.current === 1) {
-      await Disconnect()
+      await disconnect()
     }
     ref.current++;
-  }, [Address])
+  }, [address])
 
   const connectEvent = async () => {
     try {
-      if (walletChainId !== network.chainId) {
-        await updateNetwork(network)
+      if (walletChainId != selected.chainId) {
+        await updateNetwork(networks.find(s => s.chainId === selected.chainId)!)
       }
-      const address = await Address
+
       if (!address) {
         console.log("No address");
-        await Connect()
+        await connect()
       }
       else if (address) {
         // // Kohne userleri unlock sehfesine yonlendirmek ucundur

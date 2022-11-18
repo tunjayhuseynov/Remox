@@ -17,6 +17,7 @@ import { DayDifference, MonthDiff } from "../index.page";
 import dateTime from 'date-and-time'
 import { useAppSelector } from "redux/hooks";
 import { SelectCumlativeTxs } from "redux/slices/account/selector";
+import { Blockchains } from "types/blockchains";
 
 interface IProps {
   member: IMember;
@@ -34,10 +35,11 @@ const PayrollItem = ({
   runmodal,
 }: IProps) => {
   const { GetCoins } = useWalletKit();
-  const coin1 = Object.values(GetCoins).find(
+  let blockchain = Blockchains.find(s => s.name === member.blockchain) ?? Blockchains[0]
+  const coin1 = Object.values(GetCoins(blockchain.chainId)).find(
     (coin) => coin.symbol === member.currency
   );
-  const coin2 = Object.values(GetCoins).find(
+  const coin2 = Object.values(GetCoins(blockchain.chainId)).find(
     (coin) => coin.symbol === member.secondCurrency
   );
 
@@ -47,7 +49,7 @@ const PayrollItem = ({
       d.contractAddress.toLowerCase() === ('tx' in tx ? tx.contractAddress : tx.address).toLowerCase() &&
       d.hashOrIndex.toLowerCase() === ('tx' in tx ? tx.hashOrIndex : tx.hash).toLowerCase()
     )
-      && ('tx' in tx ? tx.isExecuted : true)
+    && ('tx' in tx ? tx.isExecuted : true)
   );
   let lastCheckedDate = checks.length > 0 ? checks[0].timestamp : new Date(0);
   let checkedCount = checks.length || 0

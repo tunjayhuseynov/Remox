@@ -20,7 +20,7 @@ const MdContent = ({ type, setModal, box }: { type: "withdraw" | "repay" | "borr
         {
             id: shortid(),
             amount: 0,
-            wallet: GetCoins[0]
+            wallet: GetCoins()[0]
         }
     ])
 

@@ -8,9 +8,8 @@ import useMultisig from "hooks/walletSDK/useMultisig";
 import { useState } from "react";
 import { IoTrashOutline } from "react-icons/io5";
 import { useAppDispatch, useAppSelector } from "redux/hooks";
-import { SelectBlockchain, SelectProviderAddress } from "redux/slices/account/selector";
+import { SelectProviderAddress } from "redux/slices/account/selector";
 import { Update_Account_Member_Email_Thunk, Update_Account_Member_Image_Thunk, Update_Account_Member_Name_Thunk } from "redux/slices/account/thunks/accountMembers";
-import { MultisigProviders } from "types/blockchains";
 import { AddressReducer } from "utils";
 import { ToastRun } from "utils/toast";
 
@@ -19,7 +18,6 @@ import { ToastRun } from "utils/toast";
 const OwnerItem = ({ item, account }: { item: IMember, account: IAccount }) => {
     const [deleteModal, setDeleteModal] = useState(false)
     const dispatch = useAppDispatch()
-    const blockchain = useAppSelector(SelectBlockchain)
     const providerAddress = useAppSelector(SelectProviderAddress)
     const { removeOwner } = useMultisig()
 
@@ -52,7 +50,7 @@ const OwnerItem = ({ item, account }: { item: IMember, account: IAccount }) => {
     const updateImage = async (url: string, type: "image" | "nft") => {
         try {
             const image = {
-                blockchain: blockchain.name,
+                blockchain: account.blockchain,
                 imageUrl: url,
                 nftUrl: url,
                 type,

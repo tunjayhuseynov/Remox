@@ -1,6 +1,5 @@
-import Dropdown from "components/general/dropdown";
 import { AltCoins } from 'types'
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useModalSideExit, useWalletKit } from 'hooks';
 import Button from "components/button";
 import useSwap from "hooks/walletSDK/useSwap";
@@ -14,19 +13,23 @@ import { BiSearch } from "react-icons/bi";
 import { ToastRun } from "utils/toast";
 import { useRouter } from "next/router";
 import { NG } from "utils/jsxstyle";
+import { Blockchains } from "types/blockchains";
 
 
 const Swap = () => {
-    const { SendTransaction, GetCoins, blockchain } = useWalletKit()
+    const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
+    const account = accountAndBudget.account
+    const blockchain = Blockchains.find((blockchain) => blockchain.name === account?.blockchain) ?? Blockchains[0]
+    const { SendTransaction, GetCoins: coins } = useWalletKit()
+    let GetCoins = coins(blockchain?.chainId)
+    let nativeToken = useMemo(() => Object.values(GetCoins).find((coin) => coin.address === blockchain.nativeToken), [GetCoins])
     const { MinmumAmountOut, isLoading } = useSwap()
     const isDark = useAppSelector(SelectDarkMode)
     const balances = useAppSelector(SelectBalance)
     const [token1, setToken1] = useState<AltCoins>(Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0])
     const [token1Amount, setToken1Amount] = useState<number>()
-    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)[1].address === Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)[0].address ? Object.values(GetCoins)[0] : Object.values(GetCoins)[1])
+    const [token2, setToken2] = useState<AltCoins>(Object.values(GetCoins)?.[1]?.address === Object.values(GetCoins).filter((coin) => balances[coin.symbol].amount > 0)?.[0]?.address ? Object.values(GetCoins)[0] : Object.values(GetCoins)[1])
     const [loading, setLoading] = useState<boolean>(false)
-    const accountAndBudget = useAppSelector(SelectSelectedAccountAndBudget)
-    const account = accountAndBudget.account
 
     const [dropdown, setDropdown] = useState<boolean>(false)
     const [dropdown2, setDropdown2] = useState<boolean>(false)
@@ -66,7 +69,7 @@ const Swap = () => {
     const change = async (value?: number) => {
         if (token1!.symbol && token2!.symbol) {
             try {
-                console.log(GetCoins[token2!.symbol])
+
                 const data = await MinmumAmountOut(
                     GetCoins[token1!.symbol],
                     GetCoins[token2!.symbol],
@@ -152,7 +155,7 @@ const Swap = () => {
         }
     }
 
-    if (!token1 || !token2) return <></>
+    if (!token1 || !token2) return <>You do not have any balance to make a swap operation</>
 
     return <>
         <div className="flex justify-start">
@@ -451,7 +454,7 @@ const Swap = () => {
                     </div>
                     <div className="flex justify-between  mt-1">
                         <div>Fee:</div>
-                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} CELO</div>
+                        <div className="flex">{!isLoading ? fee : <div className="px-3"><Loader /> </div>} {nativeToken?.name ?? "CELO"}</div>
                     </div>
                 </div>
                 <div className="flex justify-center items-center text-center ">
@@ -474,7 +477,7 @@ const Swap = () => {
                 </div>
                 <div className="flex justify-center items-center mt-6 space-x-2 pb-3">
                     <p className="text-base text-[#707070] ">Powered by</p>
-                    {blockchain.name.includes("evm") ? isDark ? <img src="/icons/swap/1inch_color_white.png" className="w-20" alt="1inch" /> : <img src="/icons/swap/1inch_bw_black.png" className="w-20" alt="1inch" /> : blockchain.name === "celo" ?
+                    {blockchain?.name.includes("evm") ? isDark ? <img src="/icons/swap/1inch_color_white.png" className="w-20" alt="1inch" /> : <img src="/icons/swap/1inch_bw_black.png" className="w-20" alt="1inch" /> : blockchain?.name === "celo" ?
                         <div className="flex space-x-2 items-center">
                             <img src="/icons/swap/ubseSwapLogo.png" className="w-5 h-5" alt="ubeswap" />
                             <p>Ubeswap</p>

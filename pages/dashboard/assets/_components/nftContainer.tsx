@@ -1,21 +1,20 @@
 import Loader from 'components/Loader';
-import { useWalletKit } from 'hooks';
 import useAsyncEffect from 'hooks/useAsyncEffect';
 import { IFormattedTransaction } from 'hooks/useTransactionProcess';
 import React, { useState } from 'react'
 import { useAppSelector } from 'redux/hooks'
 import { SelectAccounts, SelectNfts } from 'redux/slices/account/remoxData';
+import { Blockchains } from 'types/blockchains';
 import { NFTFetcher } from 'utils/nft';
 import { INFT } from '../index.page';
 import NftItem from './nftItem';
 
 const NftContainer = ({ accounts }: { accounts: string[] }) => {
-  const { blockchain } = useWalletKit()
   const [loading, setLoading] = useState(false)
   const [nftsDataArray, setNftsDataArray] = useState<INFT[]>([]);
   const nfts = useAppSelector(SelectNfts)
   const allAcounts = useAppSelector(SelectAccounts)
-
+  
 
   useAsyncEffect(async () => {
     setLoading(true)
@@ -30,6 +29,7 @@ const NftContainer = ({ accounts }: { accounts: string[] }) => {
 
 
   const getNftData = async (nft: IFormattedTransaction) => {
+    const blockchain = Blockchains.find(s=>s.name === nft.blockchain)!
     let url = await NFTFetcher(blockchain, nft.rawData.contractAddress, nft.rawData.tokenID);
     let link = ""
     if (url) {
@@ -43,7 +43,8 @@ const NftContainer = ({ accounts }: { accounts: string[] }) => {
       text: nft.rawData.tokenSymbol ?? "",
       contractAddress: nft.rawData.contractAddress,
       imageAddress: link,
-      value: nft.rawData.value
+      value: nft.rawData.value,
+      blockchain: blockchain,
     }
 
     return NFTData

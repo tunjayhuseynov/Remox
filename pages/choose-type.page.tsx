@@ -20,7 +20,6 @@ function ChooseType() {
   const dispatch = useAppDispatch()
 
   const address = useAppSelector(SelectProviderAddress)
-  const blockchain = useAppSelector(SelectBlockchain)
   const individual = useAppSelector(SelectIndividual)
 
   const [organizationLoading, setOrganizationLoading] = useState(false)
@@ -30,7 +29,7 @@ function ChooseType() {
 
   useAsyncEffect(async () => {
     setOrganizationLoading(true)
-    if (!auth?.currentUser || !address || !blockchain) {
+    if (!auth?.currentUser || !address) {
       await navigate.push("/")
     }
     const organizations = await dispatch(Get_Organizations_Thunk([address!, controller.current])).unwrap()
@@ -39,7 +38,7 @@ function ChooseType() {
   }, [])
 
   const individualLogin = async () => {
-    if (address && auth.currentUser && blockchain && individual) {
+    if (address && auth.currentUser && individual) {
       controller.current.abort()
       dispatch(setAccountType("individual"))
       dispatch(setProviderID(individual.id));
@@ -56,7 +55,7 @@ function ChooseType() {
   }
 
   const organizationLogin = async (organization: IOrganizationORM) => {
-    if (address && auth.currentUser && blockchain && individual) {
+    if (address && auth.currentUser && individual) {
       dispatch(setAccountType("organization"))
       dispatch(setProviderID(organization.id));
       dispatch(setStorage({

@@ -19,6 +19,7 @@ import Web3 from 'web3'
 import { IBudgetORM } from "pages/api/budget/index.api";
 import CyberBoxABI from 'rpcHooks/ABI/CyberBox.json'
 import GToken from 'rpcHooks/ABI/GToken.json';
+import OneInch from 'rpcHooks/ABI/OneInch.json';
 
 export const ERCMethodIds = {
   transferFrom: "transferFrom",
@@ -62,7 +63,8 @@ export interface IFormattedTransaction {
   tags: ITag[];
   budget?: IBudgetORM,
   address: string,
-  isError: boolean
+  isError: boolean,
+  blockchain: string,
   indexPlace?: number,
 }
 
@@ -184,7 +186,7 @@ export default async (
       let decoder = new InputDataDecoder(CyberBoxABI)
       let res = decoder.decodeData(input)
       const coin = Object.values(Coins).find(s =>
-        s.address.toLowerCase() === blockchain.nativeToken.toLowerCase())
+        s.address?.toLowerCase() === blockchain.nativeToken?.toLowerCase())
       if (!res.method) {
         let decoder = new InputDataDecoder(ERC20)
         let res = decoder.decodeData(input)
@@ -230,26 +232,30 @@ export default async (
       decoder = new InputDataDecoder(Ubeswap.output.abi);
       result = decoder.decodeData(input);
       if (!result.method) {
-        decoder = new InputDataDecoder(GToken.abi);
+        decoder = new InputDataDecoder(OneInch);
         result = decoder.decodeData(input);
         if (!result.method) {
-          decoder = new InputDataDecoder(Moola.abi);
+          decoder = new InputDataDecoder(GToken.abi);
           result = decoder.decodeData(input);
           if (!result.method) {
-            decoder = new InputDataDecoder(BatchRequest.abi);
+            decoder = new InputDataDecoder(Moola.abi);
             result = decoder.decodeData(input);
             if (!result.method) {
-              decoder = new InputDataDecoder(Sablier.abi);
+              decoder = new InputDataDecoder(BatchRequest.abi);
               result = decoder.decodeData(input);
               if (!result.method) {
-                decoder = new InputDataDecoder(MoolaAirdrop);
+                decoder = new InputDataDecoder(Sablier.abi);
                 result = decoder.decodeData(input);
-                if (!result.method && provider === "Celo Terminal") {
-                  decoder = new InputDataDecoder(CeloTerminal.abi);
+                if (!result.method) {
+                  decoder = new InputDataDecoder(MoolaAirdrop);
                   result = decoder.decodeData(input);
-                } else if (!result.method && provider === "GnosisSafe") {
-                  decoder = new InputDataDecoder(GnosisSafe);
-                  result = decoder.decodeData(input);
+                  if (!result.method && provider === "Celo Terminal") {
+                    decoder = new InputDataDecoder(CeloTerminal.abi);
+                    result = decoder.decodeData(input);
+                  } else if (!result.method && provider === "GnosisSafe") {
+                    decoder = new InputDataDecoder(GnosisSafe);
+                    result = decoder.decodeData(input);
+                  }
                 }
               }
             }
@@ -263,7 +269,7 @@ export default async (
     )
     if (!coin) {
       coin = Object.values(Coins).find(s =>
-        s.symbol.toLowerCase() === transaction?.tokenSymbol?.toLowerCase()
+        s?.symbol?.toLowerCase() === transaction?.tokenSymbol?.toLowerCase()
       )
     }
 
@@ -274,7 +280,7 @@ export default async (
         from: transaction.from,
         to: transaction.to,
         amount: transaction.value.toString(),
-        coin: coin ?? Object.values(Coins).find(s => s.address?.toLowerCase() === blockchain.nativeToken.toLowerCase()),
+        coin: coin ?? Object.values(Coins).find(s => s.address?.toLowerCase() === blockchain?.nativeToken?.toLowerCase()),
         tags: theTags,
       };
     } else if (result.method === ERCMethodIds.transferFrom) {
@@ -309,14 +315,16 @@ export default async (
         amount: (result.inputs[1] as BigNumber).toString(),
         tags: theTags,
       };
-    } else if ((result.method === "changeInternalRequirement" || result.method === "changeRequirement") && provider === "Celo Terminal") { // Celo Terminal
+    }
+    else if ((result.method === "changeInternalRequirement" || result.method === "changeRequirement") && provider === "Celo Terminal") { // Celo Terminal
       return {
         method: result.method === "changeInternalRequirement" ? ERCMethodIds.changeInternalThreshold : ERCMethodIds.changeThreshold,
         id: result.method === "changeInternalRequirement" ? ERCMethodIds.changeInternalThreshold : ERCMethodIds.changeThreshold,
         amount: (result.inputs[0] as BigNumber).toString(),
         tags: theTags,
       }
-    } else if (result.method === "changeThreshold" && provider === "GnosisSafe") {
+    }
+    else if (result.method === "changeThreshold" && provider === "GnosisSafe") {
       return {
         method: ERCMethodIds.changeThreshold,
         id: ERCMethodIds.changeThreshold,
@@ -356,6 +364,38 @@ export default async (
         tags: theTags,
       }
     }
+    else if (result.method === "swap" || result.method === "unoswap" || result.method === "uniswapV3Swap") {
+      const coins: AltCoins[] = Object.values(Coins);
+
+      const web3 = new Web3(blockchain.rpcUrl);
+      const tx = await web3.eth.getTransactionReceipt(transaction.hash)
+      const logs = tx.logs.filter(l => l.topics?.[0]?.toLowerCase() === "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef");
+      const to = logs.at(-1)?.address;
+      const from = logs.at(0)?.address;
+
+      let amountIn = result.method === "uniswapV3Swap" ?
+        result.inputs[0].toString() :
+        result.method === "unoswap" ? result.inputs[1].toString() : result.inputs[1][4].toString();
+
+      let amountOut = result.method === "uniswapV3Swap" ?
+        result.inputs[1].toString() : result.method === "unoswap" ? result.inputs[2].toString() : result.inputs[1][5].toString();
+
+      return {
+        method: ERCMethodIds.swap,
+        id: ERCMethodIds.swap,
+        amountIn: amountIn,
+        amountOutMin: amountOut,
+        coinIn: coins.find(
+          (s) =>
+            s.address?.toLowerCase() === from?.toLowerCase()
+        )!,
+        coinOutMin: coins.find(
+          (s) =>
+            s.address?.toLowerCase() === to?.toLowerCase()
+        )!,
+        tags: theTags,
+      };
+    }
     else if (result.method === "swapExactTokensForTokens" || result.method === "swapTokensForExactTokens" || result.method === "swapExactTokensForTokensSupportingFeeOnTransferTokens") {
       const coins: AltCoins[] = Object.values(Coins);
       return {
@@ -373,7 +413,8 @@ export default async (
         )!,
         tags: theTags,
       };
-    } else if (result.method === "executeTransactions") {
+    }
+    else if (result.method === "executeTransactions") {
       const txList = [];
       const splitData = (result.inputs[2] as string).substring(2).split("23b872dd");
       for (let i = 0; i < result.inputs[0].length; i++) {
@@ -470,7 +511,8 @@ export default async (
         streamId
       };
       return res;
-    } else if (result.method === ERCMethodIds.borrow) {
+    }
+    else if (result.method === ERCMethodIds.borrow) {
       const coins: AltCoins[] = Object.values(Coins);
       return {
         method: ERCMethodIds.borrow,
@@ -483,23 +525,25 @@ export default async (
         to: "0x" + result.inputs[4],
         tags: theTags,
       };
-    } else if (result.method === ERCMethodIds.deposit) {
+    }
+    else if (result.method === ERCMethodIds.deposit) {
       const coins: AltCoins[] = Object.values(Coins);
       return {
         method: ERCMethodIds.deposit,
         id: ERCMethodIds.deposit,
         coin: coins.find(
           (s) =>
-            s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
+            s.address?.toLowerCase() === (result.types.length === 2 ? transaction.contractAddress.toLowerCase() : '0x' + result.inputs[0]?.toLowerCase())
         )!,
-        amount: result.inputs[1].toString(),
-        to: "0x" + result.inputs[2],
+        amount: result.types[0] === "uint256" ? result.inputs[0].toString() : result.inputs[1].toString(),
+        to: result.types[1] === "address" ? "0x" + result.inputs[1] : "0x" + result.inputs[2],
         tags: theTags,
       };
-    } else if (result.method === "depositETH") {
+    }
+    else if (result.method === "depositETH") {
       const coins: AltCoins[] = Object.values(Coins);
       let coin;
-      if ((transaction?.contractAddress?.toLowerCase() || transaction?.to?.toLowerCase()) === "0x8A1639098644A229d08F441ea45A63AE050Ee018".toLowerCase()) {
+      if ((transaction?.contractAddress?.toLowerCase() || transaction?.to?.toLowerCase()) === "0x8A1639098644A229d08F441ea45A63AE050Ee018"?.toLowerCase()) {
         coin = coins.find(
           (s) =>
             s.symbol === "CELO"
@@ -517,6 +561,7 @@ export default async (
     else if (result.method === ERCMethodIds.withdraw) {
       const coins: AltCoins[] = Object.values(Coins);
       let amount, coin, to;
+
       if ((transaction?.contractAddress?.toLowerCase() || transaction?.to?.toLowerCase()) === "0x8A1639098644A229d08F441ea45A63AE050Ee018".toLowerCase()) {
         coin = coins.find(
           (s) =>
@@ -524,7 +569,7 @@ export default async (
         )!
         amount = result.inputs[0].toString()
         to = "0x" + result.inputs[1]
-      } else {
+      } else if (result.types[0] === "address") {
         coin = coins.find(
           (s) =>
             s.address?.toLowerCase() === '0x' + result.inputs[0]?.toLowerCase()
@@ -562,7 +607,8 @@ export default async (
         from,
         tags: theTags,
       };
-    } else if (result.method === ERCMethodIds.reward) {
+    }
+    else if (result.method === ERCMethodIds.reward) {
       const coins: AltCoins[] = Object.values(Coins);
       return {
         method: ERCMethodIds.reward,

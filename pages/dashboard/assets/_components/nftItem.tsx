@@ -15,10 +15,9 @@ const nftItem = ({nft}: {nft: INFT}) => {
   const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)
   const fiat = useAppSelector(SelectFiatPreference)
   const fiatSymbol = useAppSelector(SelectFiatSymbol)
-  const blockchain = useAppSelector(SelectBlockchain)
 
-  const coin = Object.values(GetCoins).find((coin) => coin.symbol === "CELO") 
-  const fiatPrice = GetFiatPrice(coin ?? Object.values(GetCoins)[0], fiat)
+  const coin = Object.values(GetCoins()).find((coin) => coin.symbol === "CELO") 
+  const fiatPrice = GetFiatPrice(coin ?? Object.values(GetCoins())[0], fiat)
 
 
   return (
@@ -44,7 +43,7 @@ const nftItem = ({nft}: {nft: INFT}) => {
                       setTooltip(false)
                   }, 300)
                   }}/>
-                  <BiLinkExternal className="cursor-pointer" onClick={async () => window.open(blockchain.exploreAddressUrl + nft.contractAddress, "_blank")}/>
+                  <BiLinkExternal className="cursor-pointer" onClick={async () => window.open(nft.blockchain.exploreAddressUrl + nft.contractAddress, "_blank")}/>
               </div>
           </div>
       </div>

@@ -33,6 +33,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Modal from "components/general/modal";
 import CsvModal from "./_components/csv";
 import { BsFileBinaryFill, BsFileEarmarkBinary } from "react-icons/bs";
+import { Blockchains } from "types/blockchains";
 
 export interface IPaymentInputs {
     id: string,
@@ -85,7 +86,8 @@ const Pay = () => {
     const [modalVisibility, setModalVisible] = useState(false)
 
     const router = useRouter();
-    const { GetCoins, SendTransaction, blockchain } = useWalletKit()
+    const { GetCoins, SendTransaction } = useWalletKit()
+    const blockchain = Blockchains.find(s => s.name === selectedAccountAndBudget.account?.blockchain) ?? Blockchains[0]
 
     const symbol = useAppSelector(SelectFiatSymbol)
 
@@ -156,7 +158,7 @@ const Pay = () => {
 
 
     useEffect(() => {
-        if (csvImport.length > 0 && GetCoins) {
+        if (csvImport.length > 0 && GetCoins(blockchain?.chainId)) {
             // console.log(csvImport)
             const list = csvImport.filter(w => w["Wallet address"] && w["Amount 1"] && w["Token 1 id"])
             const newInputs: IPaymentInputs[] = []
@@ -671,7 +673,8 @@ const Pay = () => {
                         </div>
                         {index === 1 && <div className="flex space-x-1 justify-center text-xxs font-medium text-greylish mt-2">
                             <span>Powered by</span>
-                            <img src={blockchain.streamingProtocols[0].secondLogoUrl ?? blockchain.streamingProtocols[0].logoURL} alt="" />
+                            <img src={blockchain.streamingProtocols[0].secondLogoUrl ?? blockchain.streamingProtocols[0].logoURL} className="w-4 aspect-auto" alt="" />
+                            {blockchain.streamingProtocols[0].name === "Sablier" && <div className="font-bold">Sablier</div>}
                         </div>}
                     </div>
                 </div>

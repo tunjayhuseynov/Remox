@@ -10,6 +10,7 @@ export interface AltCoins {
   color: string;
   decimals: number;
   chainID: number;
+  chainId?: number;
   logoURI: string;
   priceUSD: number;
   priceAUD: number;
@@ -112,7 +113,7 @@ export enum CoinsURL {
   UXD = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7kbnvuGBxxj8AG9qp8Scn56muWGaRaFqxg1FsRp3PaFT/uxd-icon-black.png",
 
   //Evm
-  ETH = "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
+  ETH = "/icons/currencies/eth.png",
   MATIC = "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912",
   OPTI = "https://assets.coingecko.com/coins/images/25244/small/Optimism.png?1660904599",
   BNB = "https://assets.coingecko.com/coins/images/9576/small/BUSD.png?1568947766",

@@ -26,6 +26,7 @@ import { IAccount } from "firebaseConfig";
 import { fiatList } from "components/general/PriceInputField";
 import { IPrice } from "utils/api";
 import BigNumber from "bignumber.js";
+import { IAccountORM } from "pages/api/account/index.api";
 
 
 type LaunchResponse = {
@@ -37,7 +38,7 @@ type LaunchResponse = {
   Budgets: IBudgetExerciseORM[];
   Spending: ISpendingResponse;
   Contributors: IContributor[];
-  Blockchain: BlockchainType;
+  // Blockchain: BlockchainType;
   Storage: IStorage;
   Transactions: IFormattedTransaction[];
   Requests: IRequest[];
@@ -57,7 +58,7 @@ type LaunchResponse = {
 
 interface LaunchParams {
   addresses: IAccount[];
-  blockchain: BlockchainType;
+  // blockchain: BlockchainType;
   accountType: IAccountType;
   id: string;
   storage: IStorage;
@@ -66,7 +67,7 @@ interface LaunchParams {
 
 export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
   "remoxData/launch",
-  async ({ addresses, blockchain, id, accountType, storage, isProgressivScreen }, api) => {
+  async ({ addresses, id, accountType, storage, isProgressivScreen }, api) => {
     try {
       axiosRetry(axios, { retries: 3 });
 
@@ -83,11 +84,11 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       let MultisigRequests: ITransactionMultisig[] = []
       let AllBudgets: IBudgetExerciseORM[] = [];
       let Balance: IPriceResponse[] = [];
-      let RemoxAccounts: IRemoxAccountORM[] = [];
+      let RemoxAccounts: IAccountORM[] = [];
       let Spending: ISpendingResponse[] = [];
-      let Contributors: IContributor[] = [];
+      // let Contributors: IContributor[] = [];
       let Tags: ITag[] = [];
-      let Requests: IRequest[] = [];
+      // let Requests: IRequest[] = [];
       let AllCoins: AltCoins[] = [];
       let MultisigAccounts: IAccountMultisig[] = [];
       let ApprovedRequests: ITransactionMultisig[] = [];
@@ -95,7 +96,27 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
       let PendingRequests: ITransactionMultisig[] = [];
       let SigningNeedRequests: ITransactionMultisig[] = [];
 
+      const accountReq = await axios.get<IRemoxAccountORM>("/api/account/multiple", {
+        params: {
+          id: id,
+          type: accountType,
+        },
+      });
 
+
+      const contributors = await axios.get<IContributor[]>("/api/contributors", {
+        params: {
+          id: id,
+        },
+      });
+
+      const requests = await axios.get<IRequest[]>("/api/requests", {
+        params: {
+          id: id,
+        },
+      });
+
+      /// Loop starts
       for (const [bc, accountAll] of Object.entries(parsedAddresses)) {
         const spending = axios.get<ISpendingResponse>(
           "/api/calculation/spending",
@@ -127,6 +148,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
           }
         );
 
+        // This should be changed, multichain case
         const budget = axios.get<IBudgetExerciseORM[]>("/api/budget", {
           params: {
             id: id,
@@ -135,24 +157,6 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
           },
         });
 
-        const accountReq = axios.get<IRemoxAccountORM>("/api/account/multiple", {
-          params: {
-            id: id,
-            type: accountType,
-          },
-        });
-
-        const contributors = axios.get<IContributor[]>("/api/contributors", {
-          params: {
-            id: id,
-          },
-        });
-
-        const requests = axios.get<IRequest[]>("/api/requests", {
-          params: {
-            id: id,
-          },
-        });
 
         const tags = axios.get<ITag[]>("/api/tags", {
           params: {
@@ -178,10 +182,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         const [
           spendingRes,
           budgetRes,
-          accountRes,
-          contributorsRes,
           transactionsRes,
-          requestRes,
           tagsRes,
           balanceRes,
           // recurringsRes,
@@ -189,10 +190,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         ] = await Promise.all([
           spending,
           budget,
-          accountReq,
-          contributors,
           transactions,
-          requests,
           tags,
           balances,
           // recurrings,
@@ -200,8 +198,8 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         ]);
 
 
-        const accounts = accountRes.data;
-        const multi = accounts.accounts.filter((s) => s.signerType === "multi");
+        const accounts = accountReq.data.accounts.filter(s => s.blockchain === bc);
+        const multi = accounts.filter((s) => s.signerType === "multi");
 
         const {
           approvedRequests,
@@ -226,10 +224,8 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         AllBudgets = [...AllBudgets, ...budgetRes.data];
         MultisigRequests = [...MultisigRequests, ...multisigRequests]
         Balance = [...Balance, balanceRes.data];
-        RemoxAccounts = [...RemoxAccounts, accounts];
+        RemoxAccounts = [...RemoxAccounts, ...accounts];
         Spending = [...Spending, spendingRes.data];
-        Contributors = [...Contributors, ...contributorsRes.data];
-        Requests = [...Requests, ...requestRes.data];
         Tags = [...Tags, ...tagsRes.data];
         AllCoins = [...AllCoins, ...coinsRes];
         MultisigAccounts = [...MultisigAccounts, ...multisigAccounts]
@@ -286,7 +282,7 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
         progressiveScreen: isProgressivScreen ?? false,
         HistoryPriceList: hpList.data,
         // Balance: Balance.map(s => s.AllPrices)
-        RemoxAccount: { accounts: RemoxAccounts.map(s => s.accounts).flat() },
+        RemoxAccount: { accounts: RemoxAccounts },
         Budgets: AllBudgets,
         Spending: {
           Account: Spending.reduce<IFlowDetail>((a, b) => {
@@ -366,11 +362,11 @@ export const launchApp = createAsyncThunk<LaunchResponse, LaunchParams>(
             return a;
           }, {})
         },
-        Contributors: Contributors,
-        Blockchain: blockchain,
+        Contributors: contributors.data,
+        // Blockchain: blockchain,
         Storage: storage,
         Transactions: formattedTransactions,
-        Requests: Requests,
+        Requests: requests.data,
         Tags: Tags,
         RecurringTasks: recurringList,
         multisigAccounts: {

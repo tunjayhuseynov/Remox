@@ -21,6 +21,9 @@ import { TextField } from "@mui/material";
 import { toChecksumAddress } from "web3-utils";
 import { FirestoreReadMultiple } from "rpcHooks/useFirebase";
 import { setPS } from "redux/slices/account/remoxData";
+import { NETWORKS } from "components/Wallet";
+import { Blockchains } from "types/blockchains";
+import { useCelo } from "@celo/react-celo";
 
 export interface IFormInput {
     nftAddress?: string;
@@ -30,12 +33,14 @@ export interface IFormInput {
 
 }
 function NewWalletModal() {
+    const { walletChainId, networks, updateNetwork, network } = useCelo()
     const { register, handleSubmit } = useForm<IFormInput>();
+
+    // console.log(walletChainId)
 
     const id = useAppSelector(SelectID)
     const accountType = useAppSelector(SelectAccountType)
     const account = useAppSelector(SelectRemoxAccount)
-    const blockchain = useAppSelector(SelectBlockchain)
     const providerAddress = useAppSelector(SelectProviderAddress)
     const individual = useAppSelector(SelectIndividual)
 
@@ -43,15 +48,19 @@ function NewWalletModal() {
 
     const navigate = useRouter()
     const index = (navigate.query.index as string | undefined) ? +navigate.query.index! : 0
-    const providers = blockchain.multisigProviders;
+    // const providers = blockchain.multisigProviders;
 
     const { addWallet } = useMultiWallet()
     const [url, setUrl] = useState<string>()
     const [type, setType] = useState<"image" | "nft">()
 
 
-    const [selectedWalletProvider, setSelectedWalletProvider] = useState(providers.length > 0 ? providers[0] : undefined)
+    const [selectedNetwork, setSelectedNetwork] = useState(Blockchains[0])
+    const [selectedWalletProvider, setSelectedWalletProvider] = useState(selectedNetwork.multisigProviders.length > 0 ? selectedNetwork.multisigProviders[0] : undefined)
 
+    useEffect(() => {
+        setSelectedWalletProvider(selectedNetwork.multisigProviders.length > 0 ? selectedNetwork.multisigProviders[0] : undefined)
+    }, [selectedNetwork])
 
     const data = [
         {
@@ -90,7 +99,7 @@ function NewWalletModal() {
         try {
             if (!selectedWalletProvider) throw new Error("No provider selected")
             if (!auth.currentUser) throw new Error("No user signed in")
-
+            let blockchain = selectedNetwork;
 
             let image: Image | null = null;
             if (url || data.nftAddress) {
@@ -157,15 +166,27 @@ function NewWalletModal() {
             }
             let org = Object.assign({}, account)
 
+
+            // console.log(walletChainId, blockchain.chainId, network.chainId)
+            // if (network.chainId != blockchain.chainId) {
+            //     try {
+            //         await updateNetwork(networks.find(s => s.chainId === blockchain.chainId)!)
+            //     } catch (error) {
+            //         ToastRun("Please, Change Network to " + blockchain.displayName, "warning")
+            //     }
+            //     return
+            // }
+
+
             if (accountType === "organization") {
                 await dispatch(Create_Account_For_Organization({
                     account: myResponse,
-                    organization: org as IOrganization
+                    organization: { ...org } as IOrganization
                 })).unwrap()
             } else if (accountType === "individual") {
                 await dispatch(Create_Account_For_Individual({
                     account: myResponse,
-                    individual: org as IIndividual
+                    individual: { ...org } as IIndividual
                 })).unwrap()
             }
 
@@ -173,7 +194,6 @@ function NewWalletModal() {
             await dispatch(launchApp({
                 accountType: accountType === "organization" ? "organization" : "individual",
                 addresses: [...(account?.accounts as IAccount[]), myResponse],
-                blockchain: blockchain,
                 id: account?.id ?? "",
                 storage: {
                     lastSignedProviderAddress: providerAddress ?? "",
@@ -209,8 +229,8 @@ function NewWalletModal() {
                     <EditableAvatar
                         avatarUrl={null}
                         name={"random"}
-                        blockchain={blockchain}
-                        evm={blockchain.name !== "solana"}
+                        blockchain={selectedNetwork}
+                        evm={selectedNetwork.name !== "solana"}
                         userId={`${id ?? ""}/accounts/${nanoid()}`}
                         onChange={imageSelected}
                     />
@@ -221,7 +241,23 @@ function NewWalletModal() {
                         // parentClass={'w-full rounded-lg h-[3.4rem]'}
                         className={'w-full bg-white dark:bg-darkSecond'}
                         selectClass={'py-2'}
-                        list={providers}
+                        list={Blockchains}
+                        sx={{
+                            fontSize: "0.875rem",
+                            height: "3.33rem",
+                        }}
+                        label="Choose Network"
+                        selected={selectedNetwork}
+                        setSelect={setSelectedNetwork}
+                    />
+                </div>
+                <div className="flex flex-col gap-1">
+                    {/* <div className="text-sm">Choose Wallet Provider</div> */}
+                    <Dropdown
+                        // parentClass={'w-full rounded-lg h-[3.4rem]'}
+                        className={'w-full bg-white dark:bg-darkSecond'}
+                        selectClass={'py-2'}
+                        list={selectedNetwork.multisigProviders}
                         sx={{
                             fontSize: "0.875rem",
                             height: "3.33rem",

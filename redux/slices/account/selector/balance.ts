@@ -87,7 +87,7 @@ export const SelectSpotBalance = createDraftSafeSelector(
 
                         c.coins.forEach((coin) => {
 
-                            if (coin.type === "Spot") {
+                            if (coin?.type !== "Yield") {
                                 if (a?.[coin.symbol]) {
                                     a[coin.symbol].amount += coin.amount;
                                 } else {

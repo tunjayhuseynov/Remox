@@ -8,11 +8,14 @@ import { useAppSelector } from 'redux/hooks';
 import { SelectOwners, SelectTags } from 'redux/slices/account/remoxData';
 import { fiatList } from "components/general/PriceInputField";
 import { NG } from 'utils/jsxstyle';
+import { Blockchains } from 'types/blockchains';
 
 
 const ModalRequestItem = ({ request }: { request: IRequest }) => {
     const divRef = useRef<HTMLTableRowElement>(null)
-    const { GetCoins } = useWalletKit()
+    const { GetCoins: coins } = useWalletKit()
+    let blockchain = Blockchains.find((blockchain) => blockchain.name === request?.blockchain) ?? Blockchains[0]
+    let GetCoins = coins(blockchain.chainId)
     const owners = useAppSelector(SelectOwners)
     const owner = owners.find((owner) => owner.address == request.address)
     const fiatFirst = fiatList.find((fiat) => fiat.name === request.fiat)

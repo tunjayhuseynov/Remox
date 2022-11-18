@@ -62,7 +62,6 @@ function WalletItem({ item }: { item: IAccountORM }) {
 
   const dispatch = useAppDispatch();
   const coins = useAppSelector(SelectCurrencies);
-  const blockchain = useAppSelector(SelectBlockchain);
   const accountType = useAppSelector(SelectAccountType);
   const individual = useAppSelector(SelectIndividual);
   const organization = useAppSelector(SelectOrganization);
@@ -70,6 +69,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
   const preference = useAppSelector(SelectFiatPreference);
   const calculatePrice = useAppSelector(SelectPriceCalculationFn);
   const symbol = useAppSelector(SelectFiatSymbol);
+  const blockchain = Blockchains.find(s=>s.name === item.blockchain)
 
   const totalValue = useMemo(() => {
     return item.coins.reduce((a, b) => {
@@ -120,7 +120,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
           signerType: item.signerType,
         },
         image: {
-          blockchain: blockchain.name,
+          blockchain: item.blockchain,
           imageUrl: url,
           nftUrl: url,
           tokenId: null,
@@ -444,7 +444,7 @@ function WalletItem({ item }: { item: IAccountORM }) {
                 avatarUrl={null}
                 name={"random"}
                 blockchain={blockchain}
-                evm={blockchain.name !== "solana"}
+                evm={blockchain?.name !== "solana"}
                 userId={`${id ?? ""}/accounts/${item.id}`}
                 onChange={(url, type) => {
                   setAddOwnerImageURL(url);

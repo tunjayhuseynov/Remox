@@ -25,7 +25,7 @@ export const CoinDesignGenerator = ({ transfer, timestamp, disableFiat, imgSize 
 
     let tokenAmount = "";
     if (!ether) {
-        tokenAmount = DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? "0" : DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(2)
+        tokenAmount = DecimalConverter(transfer.amount, transfer.coin.decimals).toFixed(0).length > 18 ? "0" : DecimalConverter(transfer.amount, transfer.coin.decimals).toString()
     } else {
         tokenAmount = transfer.amount
     }

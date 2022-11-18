@@ -8,12 +8,15 @@ import { SelectAccounts, SelectAllBudgets, SelectProviderAddress, setSelectedAcc
 import { ToastRun } from 'utils/toast';
 import { IBudgetORM, ISubbudgetORM } from 'pages/api/budget/index.api';
 import { useWalletKit } from 'hooks';
+import { Blockchains } from 'types/blockchains';
+import { useCelo } from '@celo/react-celo';
 
 function ChooseBudget() {
 
     const budgets = useAppSelector(SelectAllBudgets);
     const providerAddress = useAppSelector(SelectProviderAddress);
     const accounts = useAppSelector(SelectAccounts)
+    const {walletChainId, updateNetwork, networks, network, kit} = useCelo()
 
     const { Address } = useWalletKit()
 
@@ -45,6 +48,19 @@ function ChooseBudget() {
         const page = router.query.page;
         if (!page) return ToastRun(<>Page not found</>, "error")
         if (!selectedAccount) return ToastRun(<>Wallet not selected</>, "warning")
+        const blockchain = Blockchains.find(s => s.name === selectedAccount.blockchain);
+
+        const providerKit = kit.connection.web3.givenProvider
+
+        if (providerKit?.networkVersion != blockchain?.chainId) {
+            try {
+                await updateNetwork(networks.find(s => s.chainId === blockchain?.chainId)!)
+            } catch (error) {
+                ToastRun(<>Please, change the network to {blockchain?.displayName}</>, "warning")
+            }
+            return
+        }
+
         if (selectedAccount.signerType === "single" && selectedAccount.address.toLowerCase() !== address?.toLowerCase()) {
             ToastRun(<>You are not connected to the wallet you&apos;ve selected</>, "warning")
             return

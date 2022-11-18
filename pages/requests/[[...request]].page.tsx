@@ -154,6 +154,7 @@ export default function RequestId() {
           uploadedLink: Invoice ? url : null,
           timestamp: GetTime(),
           status: RequestStatus.pending,
+          blockchain: blockchain
         };
         // console.log(result)
         setRequest(result);
@@ -278,14 +279,14 @@ export default function RequestId() {
                     </div>
                   ) : (
                     <div
-                      className="text-primary cursor-pointer"
+                      className="text-primary cursor-pointer w-[4rem]"
                       onClick={() => setSecondActive(true)}
                     >
                       {" "}
-                      <span className="px-2 text-primary border-primary ">
+                      <span className="px-1 text-primary border-primary ">
                         +
-                      </span>{" "}
-                      Add another token
+                      </span>
+                      Add
                     </div>
                   )}
                   <div className="flex flex-col gap-5 pb-5 sm:pb-0 sm:space-y-5 sm:gap-0">

@@ -49,7 +49,7 @@ export default function TotalAmount({ coinList }: { coinList: IRequest[] | IMemb
     const currency = useAppSelector(SelectCurrencies)
     const fiat = useAppSelector(SelectFiatPreference)
     const { GetCoins } = useWalletKit();
-    const totalAmount = useMemo<number>(() => TotalFiatAmount(coinList, GetCoins, fiat), [coinList, currency])
+    const totalAmount = useMemo<number>(() => TotalFiatAmount(coinList, GetCoins(), fiat), [coinList, currency])
 
     let remain = totalBalance - totalAmount
 

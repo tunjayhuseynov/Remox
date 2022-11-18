@@ -8,6 +8,7 @@ import { RiFileCopyLine } from 'react-icons/ri'
 import { BiLinkExternal } from 'react-icons/bi';
 import Copied from 'components/copied';
 import makeBlockie from 'ethereum-blockies-base64';
+import { Blockchains } from 'types/blockchains';
 
 interface IProps {
     onDisable: Dispatch<boolean>,
@@ -16,7 +17,7 @@ interface IProps {
 
 const Deposit = ({ account, onDisable }: IProps) => {
     const dark = useAppSelector(SelectDarkMode)
-    const blockchain = useAppSelector(SelectBlockchain)
+    const blockchain = Blockchains.find(b => b.name === account.blockchain)!
 
     const [tooltip, setTooltip] = useState(false);
     const [divRef, setDivRef] = useState<HTMLDivElement | null>(null)

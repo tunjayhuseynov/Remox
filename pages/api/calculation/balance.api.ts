@@ -54,11 +54,12 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
     const Coins = CoinsReq.docs.map(doc => doc.data() as AltCoins)
     const coinList = Object.values(Coins);
     let balances: { [name: string]: string } = {};
-    const rpc = new Web3.providers.HttpProvider(blockchain.rpcUrl)
-    const web3 = new Web3(rpc)
-
+    const nativeToken = Coins.find(c=>c.address === "0x0000000000000000000000000000000000000000");
+    
     for (const address of addresses) {
         if (blockchain.name === "solana") {
+            const rpc = new Web3.providers.HttpProvider(blockchain.rpcUrl)
+            const web3 = new Web3(rpc)
             const balanceRes = await Promise.allSettled(coinList.map(item => GetBalanceSolana(item, address, blockchain, web3)))
             balanceRes.forEach((altcoinBalance, index) => {
                 if (altcoinBalance.status === "fulfilled") {
@@ -75,6 +76,12 @@ const GetAllBalance = async (addresses: string[], blockchain: BlockchainType) =>
 
                 balances = Object.assign(balances, { [coin.symbol]: balances[coin.symbol] ? new BigNumber(balance?.balance ?? 0).div(10 ** coin.decimals).plus(balances[coin.symbol]).toString() : new BigNumber(balance?.balance ?? 0).div(10 ** coin.decimals).toString() });
 
+            }
+
+            if (nativeToken) {
+                const web3 = new Web3(blockchain.rpcUrl)
+                const balance = await web3.eth.getBalance(address);
+                balances = Object.assign(balances, { [nativeToken.symbol]: balances[nativeToken.symbol] ? new BigNumber(balance).div(10 ** nativeToken.decimals).plus(balances[nativeToken.symbol]).toString() : new BigNumber(balance).div(10 ** nativeToken.decimals).toString() });
             }
         }
     }

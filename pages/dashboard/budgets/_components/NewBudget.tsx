@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import Dropdown from "../../../../components/general/dropdown";
-import { useWalletKit } from "../../../../hooks";
 import Button from '../../../../components/button';
 import { useAppDispatch, useAppSelector } from "redux/hooks";
 import { generate } from 'shortid'

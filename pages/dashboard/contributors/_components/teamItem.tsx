@@ -21,10 +21,11 @@ import { generate } from "shortid";
 import zIndex from "@mui/material/styles/zIndex";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import EditableTextInput from "components/general/EditableTextInput";
+import { Blockchains } from "types/blockchains";
 
 const teamItem = ({ props }: { props: IContributor }) => {
   const { removeTeam } = useContributors();
-  const { SendTransaction, blockchain, Address } = useWalletKit();
+  const { SendTransaction, Address } = useWalletKit();
   const accounts = useAppSelector(SelectAccounts);
   const dispatch = useAppDispatch();
   const [deleteModal, setDeleteModal] = useState(false);
@@ -37,6 +38,7 @@ const teamItem = ({ props }: { props: IContributor }) => {
       for (let index = 0; index < props.members.length; index++) {
         const element = props.members[index];
         if (element.taskId) {
+          const blockchain = Blockchains.find(s => s.name === element.blockchain) ?? Blockchains.find(s => s.name === "celo")!;
           const web3 = new Web3(blockchain.rpcUrl);
           const streamId = hexToNumberString(
             (await web3.eth.getTransactionReceipt(element.taskId)).logs[1]

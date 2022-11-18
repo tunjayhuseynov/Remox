@@ -15,12 +15,13 @@ import useWalletKit from './walletSDK/useWalletKit';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { SelectAccounts, SelectAccountType, SelectProviderAddress, SelectRemoxAccount, SelectStorage } from 'redux/slices/account/selector';
 import { Connector, Mainnet, WalletTypes } from '@celo/react-celo';
-import { useCeloInternal } from '@celo/react-celo/lib/use-celo';
+import { useCelo, useCeloInternal } from '@celo/react-celo/lib/use-celo';
 import { Create_Account_For_Individual, Create_Account_For_Organization } from 'redux/slices/account/thunks/account';
 import { GetTime } from 'utils';
 import { generate } from 'shortid';
 import { Refresh_Data_Thunk } from 'redux/slices/account/thunks/refresh/refresh';
 import { setProviderAddress, setPS } from 'redux/slices/account/remoxData';
+import { Blockchains } from 'types/blockchains';
 
 
 export enum WalletIds {
@@ -35,7 +36,8 @@ const getDeepLink = (uri: string) => {
 };
 
 export default function useMultiWallet() {
-    const { Connect, blockchain, Wallet, Address } = useWalletKit()
+    const { Connect, Wallet, Address } = useWalletKit()
+    const { network } = useCelo()
     const { initConnector } = useCeloInternal()
     const dispatch = useAppDispatch()
     const storage = useSelector(SelectStorage)
@@ -47,6 +49,7 @@ export default function useMultiWallet() {
 
     const actionAfterConnectorSet = async (connector: Connector | void) => {
         try {
+            const blockchain = Blockchains.find(s => s.chainId === network.chainId) ?? Blockchains[0]
             const isOrganization = accountType === 'organization'
             if (!remoxAccount) throw new Error("No remox account selected")
             if (!providerAddress) throw new Error("No provider address selected")
@@ -124,7 +127,7 @@ export default function useMultiWallet() {
                     dispatch(setPS(false))
                 }
             }
-        } catch (error) { 
+        } catch (error) {
             console.log(error)
             dispatch(setPS(false))
             throw new Error(error as any)
@@ -133,12 +136,10 @@ export default function useMultiWallet() {
 
     const addWallet = async () => {
         try {
-            if (blockchain.name === "celo") {
-                const connector = await Connect()
-                if (!connector) throw new Error("No Connector")
-                await actionAfterConnectorSet(connector as Connector)
-                return connector;
-            }
+            const connector = await Connect()
+            if (!connector) throw new Error("No Connector")
+            await actionAfterConnectorSet(connector as Connector)
+            return connector;
         } catch (error: any) {
             console.error(error)
             throw new Error(error.message)

@@ -128,7 +128,7 @@ const TeamItem = ({ tx, members }: IProps) => {
             <td className={`flex space-y-4`}>
                 <div className={`flex gap-1 items-center justify-start`}>
                     <div>
-                        <img src={task.coin.logoURI} width="15" height="15" alt="" className="rounded-full" />
+                        <img src={task.coin.logoURI} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
                     </div>
                     <div className="font-medium text-sm">{member?.amount ?? DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
                     {member?.fiat ?

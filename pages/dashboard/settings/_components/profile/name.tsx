@@ -3,7 +3,6 @@ import Button from "components/button";
 import Dropdown from "components/general/dropdown";
 import { DropDownItem } from "types";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useWalletKit } from 'hooks'
 
 export interface IFormInput {
     name: string;

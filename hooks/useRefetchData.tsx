@@ -16,9 +16,7 @@ const useRefetchData = () => {
 
     const [balanceFetch] = useLazyGetAccountBalancePriceQuery()
 
-    const { blockchain } = useWalletKit()
-
-    const fetchedCurrencies = useCurrency(blockchain.currencyCollectionName)
+    // const fetchedCurrencies = useCurrency(blockchain.currencyCollectionName)
 
 
     const [isBalanceDone, setBalanceDone] = useState<boolean>(false)
@@ -35,18 +33,19 @@ const useRefetchData = () => {
     //     }
     // }, [selectedAccount])
 
-    useEffect(() => { fetching() }, [fetchedCurrencies, selectedAccount])
 
-    const fetching = async () => {
-        if (fetchedCurrencies && fetchedCurrencies.length > 0) {
-            dispatch(updateAllCurrencies(
-                fetchedCurrencies
-            ))
-        }
+    // useEffect(() => { fetching() }, [fetchedCurrencies, selectedAccount])
 
-    }
+    // const fetching = async () => {
+    //     if (fetchedCurrencies && fetchedCurrencies.length > 0) {
+    //         dispatch(updateAllCurrencies(
+    //             fetchedCurrencies
+    //         ))
+    //     }
 
-    return { fetching, isAppLoaded: isBalanceDone };
+    // }
+
+    return { isAppLoaded: isBalanceDone };
 }
 
 export default useRefetchData;

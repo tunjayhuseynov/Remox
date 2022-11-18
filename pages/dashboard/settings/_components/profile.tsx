@@ -7,6 +7,7 @@ import { ToastRun } from "utils/toast";
 import Dropdown from "components/general/dropdown";
 import { useState } from 'react'
 import { FiatMoneyList, PriceCalculationList } from "firebaseConfig";
+import { Blockchains } from "types/blockchains";
 
 export interface IOrgData {
     orgPhoto?: File,
@@ -49,7 +50,7 @@ const ProfileSetting = () => {
     ]
 
 
-    const blockchain = useAppSelector(SelectBlockchain)
+    const blockchain = Blockchains.find(s => s.name === "celo")!
     const dispatch = useAppDispatch()
 
     const individual = useAppSelector(SelectIndividual)

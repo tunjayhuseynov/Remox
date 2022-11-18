@@ -14,7 +14,6 @@ import { Get_Budget_Exercise_Ref } from "crud/budget_exercise";
 import { accountCollectionName, Get_Account_Ref } from "crud/account";
 import { DocumentReference } from "firebase/firestore";
 import { Blockchains } from "types/blockchains";
-import { useWalletKit } from "hooks";
 import axios from "axios";
 import { BASE_URL } from "utils/api";
 import { IMultisigOwners } from 'pages/api/multisig/owners.api'

@@ -48,7 +48,7 @@ import { IAutomationBatchRequest, IAutomationCancel, IAutomationTransfer, IBatch
 import { IBudgetORM } from "pages/api/budget/index.api";
 import { nanoid } from "@reduxjs/toolkit";
 import { Add_Tx_To_TxList_Thunk } from "redux/slices/account/thunks/transaction";
-import { MultisigProviders } from "types/blockchains";
+import { Blockchains, MultisigProviders } from "types/blockchains";
 import { ISendTx } from "pages/api/payments/send/index.api";
 import axios from "axios";
 import { hexToNumberString, toChecksumAddress } from "web3-utils";
@@ -63,6 +63,7 @@ let multisigContract = import("rpcHooks/ABI/CeloTerminal.json")
 
 export interface ITransactionMultisig {
     provider: MultisigProviders,
+    blockchain: string,
     name: string;
     destination: string,
     hashOrIndex: string,
@@ -184,7 +185,6 @@ export type MultisigType = {
 
 export default function useMultisig() {
 
-    const blockchain = useAppSelector(SelectBlockchain)
     const individual = useAppSelector(SelectIndividual)
     const organization = useAppSelector(SelectOrganization)
     const accounts = useAppSelector(SelectAccounts)
@@ -217,7 +217,7 @@ export default function useMultisig() {
         return { sdk, provider };
     }
 
-    const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
+    // const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
 
     const GokiProgram = (multisigAddress?: string) => {
         const connection = new Connection(SolanaSerumEndpoint, "finalized");
@@ -231,8 +231,9 @@ export default function useMultisig() {
         return newProgramMap<Programs>(Provider, GOKI_IDLS, allAddresses);
     }
 
-    const createMultisigAccount = useCallback(async (owners: { name: string; address: string }[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual", provider: MultisigProviders) => {
+    const createMultisigAccount = useCallback(async (owners: { name: string; address: string }[], name: string, sign: number, internalSign: number, image: Image | null, type: "organization" | "individual", provider: MultisigProviders, bcName: string) => {
         let proxyAddress: string;
+        let blockchain = Blockchains.find((b) => b.name === bcName)
 
         if (!blockchain) throw new Error("Blockchain is not selected")
         if (!auth.currentUser) throw new Error("User is not logged in")
@@ -409,11 +410,13 @@ export default function useMultisig() {
         }
 
         return myResponse;
-    }, [blockchain])
+    }, [])
 
-    const importMultisigAccount = async (contractAddress: string, name = "", image: Image | null, type: "organization" | "individual", provider: MultisigProviders) => {
+    const importMultisigAccount = async (contractAddress: string, name = "", image: Image | null, type: "organization" | "individual", provider: MultisigProviders, bcName: string) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === bcName)
             if (!blockchain) throw new Error("Blockchain is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (accounts.some(s => s.address.toLowerCase() === contractAddress.toLowerCase())) throw new Error("This address already exist");
             if (!auth.currentUser) throw new Error("User is not logged in")
 
@@ -459,7 +462,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                 });
 
                 const owners = await safeSdk.getOwners();
@@ -516,9 +519,11 @@ export default function useMultisig() {
 
     const removeOwner = useCallback(async (account: IAccount, ownerAddress: string, provider: MultisigProviders, newInternalSign?: number) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Selected id is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
 
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
@@ -559,7 +564,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress: account.address,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                 });
 
                 const threshold = await safeSdk.getThreshold();
@@ -636,8 +641,10 @@ export default function useMultisig() {
 
     const changeSigns = useCallback(async (account: IAccount, sign: number, internalSign: number, isSign = true, isInternal = true, provider: MultisigProviders) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Account is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
@@ -676,7 +683,7 @@ export default function useMultisig() {
                             dispatch(Add_Tx_To_TxList_Thunk({
                                 account: account,
                                 authId: selectedId,
-                                blockchain: blockchain,
+                                blockchain: blockchain!,
                                 txHash: receipt.transactionHash,
                             }))
                         }
@@ -704,7 +711,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress: account.address,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                 });
 
                 const safeService = new SafeServiceClient({
@@ -769,8 +776,10 @@ export default function useMultisig() {
     const addOwner = useCallback(async (account: IAccount, newOwner: string, name = "", image: Image | null = null, mail: string | null = null, provider: MultisigProviders) => {
         if (remoxAccount) {
             try {
+                let blockchain = Blockchains.find((b) => b.name === account.blockchain)
                 if (!blockchain) throw new Error("Blockchain is not selected")
                 if (!selectedId) throw new Error("Account is not selected")
+                const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
                 if (provider === "Goki") {
                     const { sdk } = await initGokiSolana();
                     const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
@@ -804,7 +813,7 @@ export default function useMultisig() {
                             dispatch(Add_Tx_To_TxList_Thunk({
                                 account: account,
                                 authId: selectedId,
-                                blockchain: blockchain,
+                                blockchain: blockchain!,
                                 txHash: receipt.transactionHash,
                             }))
 
@@ -835,7 +844,7 @@ export default function useMultisig() {
                     const safeSdk = await Safe.create({
                         ethAdapter,
                         safeAddress: account.address,
-                        isL1SafeMasterCopy: false,
+                        isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                     });
 
                     const threshold = await safeSdk.getThreshold();
@@ -921,14 +930,16 @@ export default function useMultisig() {
     }, [])
 
 
-    const replaceOwner = useCallback(async (multisigAddress: string, oldOwner: string, newOwner: string, provider: MultisigProviders) => {
+    const replaceOwner = useCallback(async (account: IAccount, oldOwner: string, newOwner: string, provider: MultisigProviders) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!remoxAccount) throw new Error("Account is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
 
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
                     const owners = wallet.data.owners.map(s => s.toBase58())
                     if (!owners.includes(oldOwner)) throw new Error("Owner is not in the list of owners")
@@ -948,7 +959,7 @@ export default function useMultisig() {
 
                 const Multisig = await multisigContract
 
-                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                const contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
                 await contract.methods.replaceOwner(oldOwner.toLowerCase(), newOwner.toLowerCase()).send({
                     from: selectedAddress,
@@ -959,7 +970,7 @@ export default function useMultisig() {
 
             // await Replace_Member(oldOwner, newOwner)
             dispatch(Replace_Member_In_Account_Thunk({
-                accountAddress: multisigAddress,
+                accountAddress: account.address,
                 newMemberAdress: newOwner,
                 oldMemberAddress: oldOwner,
                 remoxAccount: remoxAccount
@@ -973,8 +984,10 @@ export default function useMultisig() {
 
     const submitTransaction = async (account: IAccount, input: ISendTx | ISendTx[], provider: MultisigProviders, optionals?: SafeTransactionOptionalProps, tags?: ITag[]) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedId) throw new Error("Account is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
@@ -1022,7 +1035,7 @@ export default function useMultisig() {
                         dispatch(Add_Tx_To_TxList_Thunk({
                             account: account,
                             authId: selectedId,
-                            blockchain: blockchain,
+                            blockchain: blockchain!,
                             txHash: receipt.transactionHash,
                             tags: tags
                         }))
@@ -1067,7 +1080,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress: account.address,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm" ? true : false,
                     contractNetworks: blockchain.name === "celo" ? network : undefined,
                 });
 
@@ -1168,8 +1181,10 @@ export default function useMultisig() {
 
     const revokeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedAddress) throw new Error("Account is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
@@ -1228,7 +1243,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress: account.address,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                 });
 
                 const rejectionTransaction = await safeSdk.createRejectionTransaction(
@@ -1252,13 +1267,15 @@ export default function useMultisig() {
         }
     }
 
-    const confirmTransaction = async (multisigAddress: string, transactionId: string, providerName: MultisigProviders, isExecutable?: boolean) => {
+    const confirmTransaction = async (account: IAccount, transactionId: string, providerName: MultisigProviders, isExecutable?: boolean) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!selectedAddress) throw new Error("No address selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (providerName === "Goki") {
                 const { sdk } = await initGokiSolana();
-                const wallet = await sdk.loadSmartWallet(new PublicKey(multisigAddress));
+                const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
                 if (wallet.data) {
                     const tx = wallet.approveTransaction(new PublicKey(transactionId), publicKey!)
                     const pending = await wallet.newTransactionFromEnvelope({ tx })
@@ -1285,7 +1302,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                 });
 
                 const threshold = await safeSdk.getThreshold();
@@ -1313,7 +1330,7 @@ export default function useMultisig() {
 
                 let Multisig = await multisigContract
 
-                let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], multisigAddress)
+                let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
                 await contract.methods.confirmTransaction(+transactionId).send({
                     from: selectedAddress,
                     gas: 500000,
@@ -1330,7 +1347,9 @@ export default function useMultisig() {
 
     const executeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, rejection?: boolean) => {
         try {
+            let blockchain = Blockchains.find((b) => b.name === account.blockchain)
             if (!blockchain) throw new Error("Blockchain is not selected")
+            const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (provider === "Goki") {
                 const { sdk } = await initGokiSolana();
                 const wallet = await sdk.loadSmartWallet(new PublicKey(account.address));
@@ -1397,7 +1416,7 @@ export default function useMultisig() {
                 const safeSdk = await Safe.create({
                     ethAdapter,
                     safeAddress,
-                    isL1SafeMasterCopy: false,
+                    isL1SafeMasterCopy: blockchain.name === "ethereum_evm",
                     contractNetworks: blockchain.name === "celo" ? network : undefined
                 });
 

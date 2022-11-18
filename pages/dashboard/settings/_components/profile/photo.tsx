@@ -13,7 +13,7 @@ export interface IFormInput {
 
 function Photo({ setPhoto, photo }: { setPhoto: Dispatch<SetStateAction<boolean>>, photo: File | undefined }) {
     const { register, handleSubmit } = useForm<IFormInput>();
-    const { blockchain } = useWalletKit();
+
     const [file, setFile] = useState<File>()
 
     const imageType: DropDownItem[] = [{ name: "Upload Photo" }, { name: "NFT" }]
@@ -46,12 +46,12 @@ function Photo({ setPhoto, photo }: { setPhoto: Dispatch<SetStateAction<boolean>
                     {!photoIsUpload ? <input type="text" {...register("nftAddress", { required: true })} className="bg-white dark:bg-darkSecond  h-[3.4rem] rounded-lg  w-full px-1" /> : <Upload className={'!h-[3.4rem] block !rounded-lg  border-none w-full'} setFile={setFile} />}
                 </div>
             </div>}
-            {blockchain.name === 'celo' && !photoIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
+            {/* {blockchain.name === 'celo' && !photoIsUpload && <div className="flex flex-col mb-4 gap-1 w-full">
                 <div className="text-greylish bg-opacity-50 text-left  dark:text-white">Token ID</div>
                 <div className={`w-full border rounded-lg`}>
                     <input type="number" {...register("nftTokenId", { required: true, valueAsNumber: true })} className="bg-white dark:bg-darkSecond rounded-lg h-[3.4rem] unvisibleArrow  w-full px-1" />
                 </div>
-            </div>}
+            </div>} */}
         </div>
         <div className="flex justify-center gap-8">
             <Button version="second" onClick={() => setPhoto(false)} className="px-8 !py-2">

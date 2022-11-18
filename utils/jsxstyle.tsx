@@ -16,6 +16,6 @@ export const NG = ({ fontSize = 1, number, decimalSize, className }: { number: n
             style={{
                 fontSize: `${fontSize * (decimalSize ? decimalSize / 100 : 0.6)}rem`,
             }}
-        >.{(+(number.toFixed(2)) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}</span>}
+        >.{(+(number) - Math.floor(number)).toString().split(".")?.[1]?.substring(0, 2) ?? "00"}</span>}
     </>
 }

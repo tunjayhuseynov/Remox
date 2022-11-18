@@ -99,7 +99,7 @@ export const Create_Account_For_Organization = createAsyncThunk<IAccountORM, { a
     //     org.creator = Get_Individual_Ref(org.creator.id)
     // }
     org.accounts = [...org.accounts, account] as IAccount[];
-    await Update_Organization(org)
+    await Update_Organization({...org})
     // await Add_New_Organization_Account(Object.assign({}, organization), Object.assign({}, account))
 
     const accountReq = await axios.get<IAccountORM>("/api/account", {

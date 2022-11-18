@@ -72,7 +72,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
         for (const pay of transferBatch.payments) {
             if (batchAllocation.find(s => s[0].symbol === pay.coin.symbol)) {
                 batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1] = new BigNumber(batchAllocation.find(s => s[0].symbol === pay.coin.symbol)![1]).plus(pay.amount).toString()
-            }else{
+            } else {
                 batchAllocation.push([pay.coin, pay.amount])
             }
         }
@@ -89,8 +89,9 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
 
     const confirmFn = async (rejection?: boolean) => {
         if (!providerAddress) return ToastRun(<>Cannot get your public key</>, "error");
+        if (!account) return ToastRun(<>Cannot get your account</>, "error");
         let hash = rejection && tx.rejection ? tx.rejection.safeTxHash : tx.hashOrIndex
-        await confirmTransaction(tx.contractAddress, hash, tx.provider)
+        await confirmTransaction(account, hash, tx.provider)
         dispatch(addConfirmation({
             contractAddress: tx.contractAddress,
             ownerAddress: providerAddress,
@@ -277,7 +278,12 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left p-0">
                     <div className="flex items-center space-x-3">
-                        <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] rounded-full" />
+                        <div className="relative">
+                            <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] rounded-full" />
+                            <div className="absolute bottom-[0px] -left-[3px]">
+                                <img src={blockchain.logoUrl} className="w-[1rem] h-[1rem] rounded-full" />
+                            </div>
+                        </div>
                         <div className="text-sm truncate font-medium pr-5">
                             {account?.name ?? "N/A"}
                         </div>
@@ -287,13 +293,11 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 <td className="text-left flex">
                     <div className="grid grid-cols-[1.875rem,1fr] gap-x-[4px]">
                         <div className="w-[1.875rem] h-[1.875rem]">
-                            <Image
+                            <img
                                 src={image}
                                 width="100%"
                                 height="100%"
-                                layout="responsive"
-                                quality={100}
-                                className="rounded-full"
+                                className="rounded-full object-cover"
                             />
                         </div>
                         <div className="grid grid-rows-[18px,12px] text-left">
@@ -314,8 +318,8 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                         transferBatch && (
                             <div className="flex flex-col space-y-5">
                                 {batchAllocation.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={{
-                                     amount: transfer[1],
-                                     coin: transfer[0],
+                                    amount: transfer[1],
+                                    coin: transfer[0],
                                 }} timestamp={timestamp} />)}
                             </div>
                         )
@@ -429,14 +433,14 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                             <>
                                 {tx.provider === "GnosisSafe" && !tx.rejection && <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-red-500 text-red-500 hover:bg-red-300 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
                                     <span className="tracking-wider" >
-                                        {revokeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Reject"}
+                                        {revokeFnLoading ? <div className="mt-1"><Loader /> </div> : "Reject"}
                                     </span>
                                 </div>}
                                 {!tx.confirmations.find(s => s.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.confirmations.length ?
                                     <>
                                         <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(false)}>
                                             <span className="tracking-wider" >
-                                                {confirmFnLoading ? <div className="mt-1"><Loader  /> </div>: "Sign"}
+                                                {confirmFnLoading ? <div className="mt-1"><Loader /> </div> : "Sign"}
                                             </span>
                                         </div>
                                     </> :
@@ -445,19 +449,19 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                             <Tooltip title="Please, finish to execute previous transactions">
                                                 <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-grey text-grey hover:bg-gray-400 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
                                                     <div className="tracking-wider" >
-                                                        {executeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Execute"}
+                                                        {executeFnLoading ? <div className="mt-1"><Loader /> </div> : "Execute"}
                                                     </div>
                                                 </div>
                                             </Tooltip> : <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(false)}>
                                                 <div className="tracking-wider" >
-                                                    {executeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Execute"}
+                                                    {executeFnLoading ? <div className="mt-1"><Loader /> </div> : "Execute"}
                                                 </div>
                                             </div> :
                                         <>
                                             {tx.provider === "Celo Terminal" &&
                                                 <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => RevokeFn(false)}>
                                                     <span className="tracking-wider" >
-                                                        {revokeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Revoke"}
+                                                        {revokeFnLoading ? <div className="mt-1"><Loader /> </div> : "Revoke"}
                                                     </span>
                                                 </div>
                                             }
@@ -532,19 +536,19 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     !tx.rejection.confirmations.some(s => s.owner.toLowerCase() === providerAddress?.toLowerCase()) && tx.contractThresholdAmount > tx.rejection.confirmations.length ?
                                     <div className="w-20 py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm" onClick={() => ConfirmFn(true)}>
                                         <div className="tracking-wider" >
-                                            {confirmFnLoading ? <div className="mt-1"><Loader  /> </div>: "Sign"}
+                                            {confirmFnLoading ? <div className="mt-1"><Loader /> </div> : "Sign"}
                                         </div>
                                     </div> :
                                     tx.contractThresholdAmount <= tx.rejection.confirmations.length ?
                                         tx.firstNonce !== tx.nonce ? <Tooltip title="Please, finish to execute previous transactions">
                                             <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-grey text-grey hover:bg-gray-400 hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
                                                 <div className="tracking-wider" >
-                                                    {executeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Execute"}
+                                                    {executeFnLoading ? <div className="mt-1"><Loader /> </div> : "Execute"}
                                                 </div>
                                             </div>
                                         </Tooltip> : <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2" onClick={() => ExecuteFn(true)}>
                                             <div className="tracking-wider" >
-                                                {executeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Execute"}
+                                                {executeFnLoading ? <div className="mt-1"><Loader /> </div> : "Execute"}
                                             </div>
                                         </div>
                                         :
@@ -557,7 +561,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                     <Tooltip title="You are not an owner">
                                         <div className="w-20 min-h-[1.875rem] py-1 px-1 cursor-pointer border border-primary text-primary rounded-md flex items-center justify-center space-x-2 text-sm">
                                             <div className="tracking-wider" >
-                                                {confirmFnLoading ? <div className="mt-1"><Loader  /> </div>: "Sign"}
+                                                {confirmFnLoading ? <div className="mt-1"><Loader /> </div> : "Sign"}
                                             </div>
                                         </div>
                                     </Tooltip>
@@ -566,7 +570,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                                         <Tooltip title="You are not an owner">
                                             <div className="w-20 min-h-[1.875rem] py-1 px-1 text-xs cursor-pointer border border-primary text-primary hover:bg-primary hover:bg-opacity-10 rounded-md flex items-center justify-center space-x-2">
                                                 <div className="tracking-wider" >
-                                                    {executeFnLoading ? <div className="mt-1"><Loader  /> </div>: "Execute"}
+                                                    {executeFnLoading ? <div className="mt-1"><Loader /> </div> : "Execute"}
                                                 </div>
                                             </div>
                                         </Tooltip>
@@ -582,11 +586,13 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </>
             </tr>}
             <Detail
+                blockchain={blockchain}
                 transaction={{
                     ...transaction,
                     rawData: GenerateTransaction({}),
                     isError: false,
                     tags: tags,
+                    blockchain: tx.blockchain,
                     timestamp: tx.timestamp,
                     budget: tx.budget ?? undefined,
                     address: tx.contractAddress,

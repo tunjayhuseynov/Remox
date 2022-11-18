@@ -37,8 +37,8 @@ const ContributorItem = ({ member }: PageProps) => {
     const dark = useAppSelector(SelectDarkMode)
     const dispatch = useDispatch();
 
-    const coin1 = Object.values(GetCoins).find(w => w.symbol === member.currency)
-    const coin2 = Object.values(GetCoins).find(w => w.symbol === member.secondCurrency)
+    const coin1 = Object.values(GetCoins()).find(w => w.symbol === member.currency)
+    const coin2 = Object.values(GetCoins()).find(w => w.symbol === member.secondCurrency)
 
     const fiatFirst = fiatList.find((fiat) => fiat.name === member.fiat)
     const fiatSecond = fiatList.find((fiat) => fiat.name === member.fiatSecond)

@@ -35,7 +35,6 @@ function NewExercise() {
 
     const paymentType: DropDownItem[] = [{ name: "Current full year" }, { name: "Custom period" }]
     // const [selectedPayment, setSelectedPayment] = useState(paymentType[0])
-    const { blockchain } = useWalletKit()
     const fiatMoney = useAppSelector(SelectFiatPreference)
     const coins = useAppSelector(SelectCurrencies)
 
@@ -105,7 +104,7 @@ function NewExercise() {
 
             await dispatch(Create_Budget_Exercise_Thunk({
                 budgetExercise: {
-                    blockchain: blockchain.name,
+                    blockchain: "celo",
                     budgets: [],
                     created_at: GetTime(),
                     from: GetTime(fromDate),

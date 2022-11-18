@@ -54,6 +54,7 @@ export const TransactionDirectionDeclare = (transaction: IFormattedTransaction |
 					id: (tx as IBatchRequest).payments[0].method,
 					method: (tx as IBatchRequest).payments[0].method,
 					hash: "hash",
+					blockchain: tx.blockchain ?? "celo",
 					address: address,
 					isError: (transaction as IFormattedTransaction).isError,
 					rawData: GenerateTransaction({ blockHash: "", from: address }),

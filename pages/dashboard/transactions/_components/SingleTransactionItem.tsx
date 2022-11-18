@@ -131,7 +131,7 @@ const SingleTransactionItem = ({
 
   return (
     <>
-      <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-[1.469rem] bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5">
+      <tr className="pl-5 grid grid-cols-[8.5%,14.5%,16%,repeat(3,minmax(0,1fr)),22%] py-5 bg-white dark:bg-darkSecond my-5 rounded-md shadow-custom hover:bg-greylish dark:hover:!bg-[#191919] hover:bg-opacity-5">
         <td className="text-left pt-1">
           <div className="relative inline">
             <span className="font-medium text-sm">{dateFormat(new Date(+date * 1e3), "mmm dd")}</span>
@@ -140,7 +140,12 @@ const SingleTransactionItem = ({
         </td>
         <td className="text-left">
           <div className="flex items-center space-x-3">
-            <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] aspect-square rounded-full" />
+            <div className="relative">
+              <img src={(account?.image?.imageUrl as string) ?? account?.image?.nftUrl ?? makeBlockie(account?.address ?? account?.name ?? "random")} className="w-[1.875rem] h-[1.875rem] rounded-full" />
+              <div className="absolute bottom-[0px] -left-[3px]">
+                <img src={blockchain.logoUrl} className="w-[1rem] h-[1rem] rounded-full" />
+              </div>
+            </div>
             <div className="text-sm truncate font-medium pr-5">
               {account?.name ?? "N/A"}
             </div>
@@ -149,12 +154,10 @@ const SingleTransactionItem = ({
         <td className="text-left">
           <div className="grid grid-cols-[1.875rem,1fr] gap-x-[4px]">
             <div className="w-[1.875rem] h-[1.875rem]">
-              <Image
+              <img
                 src={image}
                 width="100%"
                 height="100%"
-                layout="responsive"
-                quality={100}
                 className="rounded-full object-cover"
               />
             </div>
@@ -173,13 +176,13 @@ const SingleTransactionItem = ({
             <CoinDesignGenerator transfer={transfer} timestamp={timestamp} />
           )}
           {
-              transferBatch && (
-                <div className="flex flex-col space-y-5">
-                    {batchAllocation.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={{
-                         amount: transfer[1],
-                         coin: transfer[0],
-                    }} timestamp={timestamp} />)}
-                </div>
+            transferBatch && (
+              <div className="flex flex-col space-y-5">
+                {batchAllocation.map((transfer, i) => <CoinDesignGenerator payTx={payTx} key={i} transfer={{
+                  amount: transfer[1],
+                  coin: transfer[0],
+                }} timestamp={timestamp} />)}
+              </div>
             )
           }
           {
@@ -299,6 +302,7 @@ const SingleTransactionItem = ({
         </td>
       </tr>
       <Detail
+        blockchain={blockchain}
         transaction={transaction}
         action={action}
         txIndex={txPositionInRemoxData}

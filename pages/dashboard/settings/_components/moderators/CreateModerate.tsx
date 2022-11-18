@@ -11,6 +11,7 @@ import { PublicKey } from "@solana/web3.js"
 import { ToastRun } from "utils/toast"
 import useLoading from "hooks/useLoading"
 import { nanoid } from "@reduxjs/toolkit"
+import { Blockchains } from "types/blockchains"
 
 var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -18,7 +19,6 @@ const CreateModerate = ({ onDisable }: { onDisable: Dispatch<boolean> }) => {
 
     const dispatch = useAppDispatch()
 
-    const blockchain = useAppSelector(SelectBlockchain)
     const accounts = useAppSelector(SelectAccounts)
     const id = nanoid()
     const [image, setImage] = useState<Image | null>(null)
@@ -28,7 +28,7 @@ const CreateModerate = ({ onDisable }: { onDisable: Dispatch<boolean> }) => {
 
     const updateImage = async (url: string, type: "image" | "nft") => {
         const image = {
-            blockchain: blockchain.name,
+            blockchain: Blockchains.find(s=>s.name === "celo")!.name,
             imageUrl: url,
             nftUrl: url,
             type,

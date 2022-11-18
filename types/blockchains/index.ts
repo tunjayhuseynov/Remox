@@ -95,6 +95,7 @@ export const Blockchains: BlockchainType[] = [
     name: "celo",
     displayName: "Celo",
     nativeToken: "0x471EcE3750Da237f93B8E339c536989b8978a438",
+    chainId: 42220,
     // rpcUrl: process.env.NODE_ENV === "production" ? "https://rpc.ankr.com/celo/eb990af6ca75cdcc3d06ff7e9f6f8fdecdb08abc587142224199970e4dc46964" : "https://forno.celo.org",
     rpcUrl: "https://forno.celo.org",
     exploreAddressUrl: "https://explorer.celo.org/mainnet/address/",
@@ -216,7 +217,7 @@ export const Blockchains: BlockchainType[] = [
   // {
   //   name: "ethereum_evm",
   //   displayName: "Ethereum",
-  //   nativeToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  //   nativeToken: "0x0000000000000000000000000000000000000000",
   //   rpcUrl: "https://rpc.ankr.com/eth",
   //   explorerAPIUrl: "https://blockscout.com/eth/mainnet/api",
   //   explorerTxUrl: "https://blockscout.com/eth/mainnet/tx/",
@@ -231,7 +232,7 @@ export const Blockchains: BlockchainType[] = [
   //     {
   //       name: "GnosisSafe",
   //       txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
-  //       logoURL: "https://safe-docs.dev.gnosisdev.com/safe/img/gnosis_safe_logo_green.png",
+  //       logoURL: "/icons/companies/gnosis_safe.png",
   //       abi: [],
   //       displayName: "Gnosis Safe",
   //     },
@@ -241,7 +242,7 @@ export const Blockchains: BlockchainType[] = [
   //       name: "1inch",
   //       contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
   //       logoURL: "https://1inch.io/img/logo.png",
-  //       abi: OneInch.abi as any,
+  //       abi: OneInch as any,
   //     },
   //   ],
   //   lendingProtocols: [
@@ -257,7 +258,15 @@ export const Blockchains: BlockchainType[] = [
   //       abi: AavePoolV2.abi as any,
   //     },
   //   ],
-  //   streamingProtocols: [],
+  //   streamingProtocols: [
+  //     {
+  //       name: "Sablier",
+  //       logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
+  //       secondLogoUrl: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
+  //       contractAddress: "0xCD18eAa163733Da39c232722cBC4E8940b1D8888",
+  //       abi: Sablier.abi as any,
+  //     },
+  //   ],
   //   batchPaymentProtocols: [],
   //   recurringPaymentProtocols: [
   //     {

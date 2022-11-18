@@ -44,4 +44,5 @@ export interface IMember {
     }[],
     image: Image | null,
     taskId: string | null,
+    blockchain?: string
 }

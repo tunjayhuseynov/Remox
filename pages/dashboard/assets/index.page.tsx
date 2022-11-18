@@ -26,6 +26,7 @@ import Filter from '../transactions/_components/Filter';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import { Checkbox } from "@mui/material";
 import { useState } from 'react';
+import { BlockchainType } from 'types/blockchains';
 
 
 export interface INFT {
@@ -35,6 +36,7 @@ export interface INFT {
     imageAddress: string;
     currency?: number;
     value: string;
+    blockchain: BlockchainType;
 }
 
 export interface INftData {
@@ -102,7 +104,7 @@ const Assets = () => {
     const fiat = useAppSelector(SelectFiatPreference)
     const calculatePrice = useAppSelector(SelectPriceCalculationFn)
     const { GetCoins } = useWalletKit()
-    const nftTotalPrice = getTotalNftPrice(nfts, fiat, Object.values(GetCoins).find((c) => c.symbol === "CELO")!)
+    const nftTotalPrice = getTotalNftPrice(nfts, fiat, Object.values(GetCoins()).find((c) => c.symbol === "CELO")!)
 
 
     const totalBalance = useAppSelector(SelectTotalBalance)

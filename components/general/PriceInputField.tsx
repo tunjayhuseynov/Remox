@@ -1,6 +1,6 @@
 import { ClickAwayListener, FormControl, InputAdornment, InputLabel, TextField } from '@mui/material';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BiSearch } from 'react-icons/bi';
 import { IPrice } from 'utils/api';
@@ -63,11 +63,20 @@ const PriceInputField = (
         defaultFiat, customFiatList, disableFiatNoneSelection, setMaxAmount, textSize = 0.875, disableFiat
     }: IProps) => {
     const [dropdown, setDropdown] = useState<boolean>(false);
+    const coinMemoList = useRef(Object.values(coins));
     const [coinsList, setCoinsList] = useState<AltCoins[]>(Object.values(coins))
     const [selectedCoin, setSelectedCoin] = useState<IPrice[0] | AltCoins>(defaultCoin ?? Object.values(coins)[0]);
     const [value, setValue] = useState<string | null>(defaultValue?.toString() ?? null);
     const [selectedFiat, setSelectedFiat] = useState<FiatList | undefined>(customFiatList ? customFiatList?.find(f => f.name === defaultFiat) : fiatList?.find(f => f.name === defaultFiat));
 
+    useEffect(() => {
+        let list: AltCoins[] = Object.values(coins)
+        if (list.length !== coinMemoList.current.length && list[0].symbol !== coinMemoList.current[0].symbol) {
+            setCoinsList(Object.values(coins))
+            setSelectedCoin(defaultCoin ?? Object.values(coins)[0])
+            coinMemoList.current = list
+        }
+    }, [coins])
     const searching = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value.trim() === "") {
             setCoinsList(Object.values(coins))

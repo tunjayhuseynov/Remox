@@ -198,29 +198,7 @@ const ParseTxs = async (
 const getParsedTransaction = async (transaction: Transactions, blockchain: BlockchainType, tags: ITag[], coins: Coins, address: string, allowMultiOut: boolean) => {
   const input = transaction.input;
 
-  if (blockchain.name.includes("evm")) {
-    const formatted = await EvmInputReader(input ?? "", blockchain.name, {
-      input: input ?? "",
-      transaction,
-      tags,
-      Coins: coins,
-      blockchain,
-      address,
-      provider: "GnosisSafe",
-      showMultiOut: allowMultiOut,
-    });
-    if (formatted && formatted.method) {
-      return {
-        timestamp: +transaction.timeStamp,
-        rawData: transaction,
-        hash: transaction.hash,
-        tags: formatted.tags ?? [],
-        address,
-        ...formatted,
-      }
-    }
-
-  } else if (blockchain.name === "celo") {
+  if (blockchain.name === "celo" || blockchain.name === "ethereum_evm") {
     // const formatted = await CeloInputReaderParallel.run({ input, transaction, tags, Coins: coins, blockchain, address, provider: "GnosisSafe" });
     const formatted = await CeloInputReader({ input: input ?? "", transaction, tags, Coins: coins, blockchain, address, provider: "", showMultiOut: allowMultiOut });
 
@@ -235,6 +213,7 @@ const getParsedTransaction = async (transaction: Transactions, blockchain: Block
         hash: transaction.hash,
         isError: (transaction?.isError ?? "0") !== "0" ?? false,
         address,
+        blockchain: blockchain.name,
         ...formatted,
       }
     }

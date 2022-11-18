@@ -11,7 +11,7 @@ import Navbar from './_components/navbar'
 import Sidebar from './_components/sidebar'
 
 
-export const DashboardContext = createContext<{ refetch: () => void, setMainAnimate?: Dispatch<boolean>, mainAnimate?: boolean }>({ refetch: () => { } })
+export const DashboardContext = createContext<{ setMainAnimate?: Dispatch<boolean>, mainAnimate?: boolean }>({ })
 
 
 
@@ -27,7 +27,6 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
     const accountType = useAppSelector(SelectAccountType)
     const address = useAppSelector(SelectProviderAddress)
     const remoxAccount = useAppSelector(SelectRemoxAccount)
-    const blockchain = useAppSelector(SelectBlockchain)
 
 
 
@@ -35,11 +34,11 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
         (async () => {
             if (!auth.currentUser) return await router.push("/")
             const individual = await Get_Individual(auth.currentUser.uid)
-            if (address && auth.currentUser && blockchain && individual && accountType && remoxAccount) {
+            if (address && auth.currentUser && individual && accountType && remoxAccount) {
                 dispatch(launchApp({
                     accountType: accountType,
                     addresses: (remoxAccount.accounts as IAccount[]),
-                    blockchain: blockchain,
+                    // blockchain: blockchain,
                     id: remoxAccount.id,
                     storage: {
                         lastSignedProviderAddress: address,
@@ -55,14 +54,14 @@ export default function DashboardLayout({ children }: { children: JSX.Element })
         })()
     }, [])
 
-    const { fetching, isAppLoaded } = useRefetchData()
+    // const { isAppLoaded } = useRefetchData()
 
 
     if (isFetching && !isPS) return <div className="w-screen h-screen flex items-center justify-center">
         <Loader />
     </div>
     return <>
-        <DashboardContext.Provider value={{ refetch: fetching, setMainAnimate, mainAnimate }}>
+        <DashboardContext.Provider value={{ setMainAnimate, mainAnimate }}>
             {isPS && <div className="absolute left-0 top-0 w-screen h-screen flex items-center justify-center z-[999999999999]">
                 <Loader />
             </div>}

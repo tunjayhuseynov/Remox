@@ -25,6 +25,7 @@ import { GetFiatPrice } from "utils/const";
 import ChooseBudget from "components/general/chooseBudget";
 import { IBudgetORM, ISubbudgetORM } from "pages/api/budget/index.api";
 import { IAccountORM } from "pages/api/account/index.api";
+import { Blockchains } from "types/blockchains";
 
 export default function DynamicRequest({
   type,
@@ -79,9 +80,10 @@ export default function DynamicRequest({
       let inputs: IPaymentInput[] = [];
       const requests = [...selectedApprovedRequests];
       for (const request of requests){
+        const blockchain = Blockchains.find(s=>s.name === request.blockchain) ?? Blockchains[0]
         const amount = request.amount;
         const address = request.address;
-        const coin = Object.values(GetCoins).find((coin) => coin.symbol === request.currency);
+        const coin = Object.values(GetCoins(blockchain.chainId)).find((coin) => coin.symbol === request.currency);
 
         if(request.fiat) {
           const fiatPrice = GetFiatPrice(coin!, request.fiat)
@@ -101,7 +103,7 @@ export default function DynamicRequest({
 
         if(request.secondCurrency && request.secondAmount) {
           const secondAmount = request.secondAmount;
-          const coin2 = Object.values(GetCoins).find((coin) => coin.symbol === request.secondCurrency);
+          const coin2 = Object.values(GetCoins(blockchain.chainId)).find((coin) => coin.symbol === request.secondCurrency);
           // console.log(coin2)
 
           if(request.fiatSecond) {
@@ -264,10 +266,11 @@ export default function DynamicRequest({
                 }
             </tr>
             {requestsList.map((request) => {
-              const coin1 = Object.values(GetCoins).find(
+              const blockchain = Blockchains.find(s=>s.name === request.blockchain) ?? Blockchains[0]
+              const coin1 = Object.values(GetCoins(blockchain.chainId)).find(
                 (coin) => coin.symbol === request.currency
               );
-              const coin2 = Object.values(GetCoins).find(
+              const coin2 = Object.values(GetCoins(blockchain.chainId)).find(
                 (coin) => coin.symbol === request.secondCurrency
               );
               let isAllowed: boolean = true;

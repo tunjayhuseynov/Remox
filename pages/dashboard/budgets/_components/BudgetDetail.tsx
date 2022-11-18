@@ -16,7 +16,8 @@ interface IProps {
 
 const BudgetDetails = forwardRef<HTMLDivElement, IProps>(function BudgetDetail({ item, close, visibility }, ref) {
 
-    const { GetCoins } = useWalletKit()
+    const { GetCoins: coins } = useWalletKit()
+    let GetCoins = coins()
 
     const coin = item.budgetCoins;
     const usedPercent = useMemo(() => (coin.totalUsedAmount) * 100 / coin.totalAmount, [item])

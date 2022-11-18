@@ -12,9 +12,9 @@ const TokenItem = ({asset, isVariable, isAPY}: {asset: LendingReserveData, isVar
     const {GetCoins} = useWalletKit()
     const fiat = useAppSelector(SelectFiatPreference)
     const fiatSymbol = useAppSelector(SelectFiatSymbol)
-    const coin = Object.values(GetCoins).find((coin) => coin.address.toLowerCase() === asset.coinReserveConfig.Address.toLowerCase());
+    const coin = Object.values(GetCoins()).find((coin) => coin.address.toLowerCase() === asset.coinReserveConfig.Address.toLowerCase());
 
-    const fiatPrice = GetFiatPrice(coin ?? Object.values(GetCoins)[0] , fiat)
+    const fiatPrice = GetFiatPrice(coin ?? Object.values(GetCoins())[0] , fiat)
 
 
     // BORROW

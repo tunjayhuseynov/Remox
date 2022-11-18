@@ -5,9 +5,10 @@ import { auth, IUser } from "firebaseConfig";
 import { isOldUser } from "hooks/singingProcess/utils";
 import { hashing } from "utils/hashing";
 import useWalletKit from "./useWalletKit";
+import { BlockchainType } from "types/blockchains";
 
-export default function useOneClickSign() {
-    const { signMessageInWallet, blockchain, Address } = useWalletKit()
+export default function useOneClickSign(blockchain: BlockchainType) {
+    const { signMessageInWallet, Address } = useWalletKit()
     const { search } = useFirestoreSearchField()
 
     const requestSignFromWallet = async (nonce: number) => {
