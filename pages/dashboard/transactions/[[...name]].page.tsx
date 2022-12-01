@@ -475,7 +475,7 @@ const Transactions = () => {
                         </div>
 
                         {txs.length > 0 && <div className="py-1">
-                            <CSVLink separator=";" className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
+                            <CSVLink className="cursor-pointer rounded-md dark:bg-darkSecond bg-white border px-5 py-1 font-semibold flex items-center space-x-5 h-9" filename={"remox_transactions.csv"} data={txs.map(w => {
                                 let directionType = TransactionDirectionDeclare(w, accounts);
                                 const blockchain = Blockchains.find(s => s.name === w.blockchain)!;
                                 const account = accountsRaw.find(s => s.address.toLowerCase() === ('tx' in w ? w.contractAddress : w.address).toLowerCase())

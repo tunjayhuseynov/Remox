@@ -107,12 +107,12 @@ export const Blockchains: BlockchainType[] = [
     hpCollection: "hpCELO",
     logoUrl: CoinsURL.CELO,
     multisigProviders: [
-      // {
-      //   name: "Celo Terminal",
-      //   abi: CeloTerminal.abi as AbiItem[],
-      //   logoURL: "/icons/companies/celoterminal.png",
-      //   displayName: "Celo Terminal",
-      // },
+      {
+        name: "Celo Terminal",
+        abi: CeloTerminal.abi as AbiItem[],
+        logoURL: "/icons/companies/celoterminal.png",
+        displayName: "Celo Terminal",
+      },
       {
         name: "GnosisSafe",
         abi: CeloTerminal.abi as AbiItem[],
@@ -214,69 +214,69 @@ export const Blockchains: BlockchainType[] = [
   //   ],
   //   recurringPaymentProtocols: [],
   // },
-  // {
-  //   name: "ethereum_evm",
-  //   displayName: "Ethereum",
-  //   nativeToken: "0x0000000000000000000000000000000000000000",
-  //   rpcUrl: "https://rpc.ankr.com/eth",
-  //   explorerAPIUrl: "https://blockscout.com/eth/mainnet/api",
-  //   explorerTxUrl: "https://blockscout.com/eth/mainnet/tx/",
-  //   explorerUrlAddress: "https://blockscout.com/eth/mainnet/address/",
-  //   wsUrl: "wss://mainnet.infura.io/ws/v3/8a4b4c3a3c8f4f0e9b1c1b3b8d0b0b0c",
-  //   exploreAddressUrl: "https://etherscan.io/address/",
-  //   currencyCollectionName: "ethereumCurrency",
-  //   hpCollection: "hpETH",
-  //   logoUrl: CoinsURL.ETH,
-  //   chainId: 1,
-  //   multisigProviders: [
-  //     {
-  //       name: "GnosisSafe",
-  //       txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
-  //       logoURL: "/icons/companies/gnosis_safe.png",
-  //       abi: [],
-  //       displayName: "Gnosis Safe",
-  //     },
-  //   ],
-  //   swapProtocols: [
-  //     {
-  //       name: "1inch",
-  //       contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
-  //       logoURL: "https://1inch.io/img/logo.png",
-  //       abi: OneInch as any,
-  //     },
-  //   ],
-  //   lendingProtocols: [
-  //     {
-  //       name: "Aave V2",
-  //       logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
-  //       contractAddress: "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
-  //       uiAddress: "0x548e95Ce38B8cb1D91FD82A9F094F26295840277",
-  //       protocolDataProviderAddress:
-  //         "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d",
-  //       ethGatewayAddress: "0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04",
-  //       ethGatewayABI: WETHGatewayV2.abi as any,
-  //       abi: AavePoolV2.abi as any,
-  //     },
-  //   ],
-  //   streamingProtocols: [
-  //     {
-  //       name: "Sablier",
-  //       logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
-  //       secondLogoUrl: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
-  //       contractAddress: "0xCD18eAa163733Da39c232722cBC4E8940b1D8888",
-  //       abi: Sablier.abi as any,
-  //     },
-  //   ],
-  //   batchPaymentProtocols: [],
-  //   recurringPaymentProtocols: [
-  //     {
-  //       name: "Sablier",
-  //       logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
-  //       contractAddress: "0xCD18eAa163733Da39c232722cBC4E8940b1D8888",
-  //       abi: Sablier.abi as any,
-  //     },
-  //   ],
-  // },
+  {
+    name: "ethereum_evm",
+    displayName: "Ethereum",
+    nativeToken: "0x0000000000000000000000000000000000000000",
+    rpcUrl: "https://rpc.ankr.com/eth",
+    explorerAPIUrl: "https://blockscout.com/eth/mainnet/api",
+    explorerTxUrl: "https://blockscout.com/eth/mainnet/tx/",
+    explorerUrlAddress: "https://blockscout.com/eth/mainnet/address/",
+    wsUrl: "wss://mainnet.infura.io/ws/v3/8a4b4c3a3c8f4f0e9b1c1b3b8d0b0b0c",
+    exploreAddressUrl: "https://etherscan.io/address/",
+    currencyCollectionName: "ethereumCurrency",
+    hpCollection: "hpETH",
+    logoUrl: CoinsURL.ETH,
+    chainId: 1,
+    multisigProviders: [
+      {
+        name: "GnosisSafe",
+        txServiceUrl: "https://safe-transaction.mainnet.gnosis.io/",
+        logoURL: "/icons/companies/gnosis_safe.png",
+        abi: [],
+        displayName: "Gnosis Safe",
+      },
+    ],
+    swapProtocols: [
+      {
+        name: "1inch",
+        contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
+        logoURL: "https://1inch.io/img/logo.png",
+        abi: OneInch as any,
+      },
+    ],
+    lendingProtocols: [
+      {
+        name: "Aave V2",
+        logoURL: "https://storage.googleapis.com/zapper-fi-assets/apps/aave-v2.png",
+        contractAddress: "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
+        uiAddress: "0x548e95Ce38B8cb1D91FD82A9F094F26295840277",
+        protocolDataProviderAddress:
+          "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d",
+        ethGatewayAddress: "0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04",
+        ethGatewayABI: WETHGatewayV2.abi as any,
+        abi: AavePoolV2.abi as any,
+      },
+    ],
+    streamingProtocols: [
+      {
+        name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
+        secondLogoUrl: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
+        contractAddress: "0xCD18eAa163733Da39c232722cBC4E8940b1D8888",
+        abi: Sablier.abi as any,
+      },
+    ],
+    batchPaymentProtocols: [],
+    recurringPaymentProtocols: [
+      {
+        name: "Sablier",
+        logoURL: "https://avatars.githubusercontent.com/u/42513172?s=280&v=4",
+        contractAddress: "0xCD18eAa163733Da39c232722cBC4E8940b1D8888",
+        abi: Sablier.abi as any,
+      },
+    ],
+  },
   // {
   //   name: "polygon_evm",
   //   displayName: "Polygon",

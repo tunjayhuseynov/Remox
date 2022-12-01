@@ -130,13 +130,7 @@ const TeamItem = ({ tx, members }: IProps) => {
                     <div>
                         <img src={task.coin.logoURI} alt="" className="w-[1.25rem] h-[1.25rem] rounded-full" />
                     </div>
-                    <div className="font-medium text-sm">{member?.amount ?? DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
-                    {member?.fiat ?
-                        <div>{member.fiat} as {member.currency}</div> : <></>
-                        // <div className="text-sm font-medium">
-                        //     {task.coin.symbol}
-                        // </div>
-                    }
+                    <div className="font-medium text-sm">{DecimalConverter(task.amount, task.coin.decimals).toLocaleString()}</div>
                 </div>
             </td>
             <td className="pl-[2px] hidden sm:flex items-center font-medium text-sm">

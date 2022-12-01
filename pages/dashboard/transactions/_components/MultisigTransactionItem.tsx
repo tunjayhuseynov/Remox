@@ -408,7 +408,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                 </td>
                 <td className="text-left w-full">
                     <div>
-                        <div className="grid grid-cols-[60%,10%,30%] items-center space-x-3 mb-[0.1875rem]">
+                        <div className="grid grid-cols-[50%,10%,40%] items-center space-x-3 mb-[0.1875rem]">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 flex-shrink-0 ${tx.isExecuted ? "bg-green-500" : isRejected ? "bg-red-600" : "bg-primary"} rounded-full`} />
                                 <div className='lg:text-sm 2xl:text-sm'>{tx.isExecuted ? "Approved" : isRejected ? "Rejected" : "Pending"}</div>
@@ -511,7 +511,7 @@ const MultisigTx = forwardRef<HTMLDivElement, IProps>(({ tx, blockchain, directi
                     <td className="border-t dark:border-gray-700 border-gray-100"></td>
                     <td className="border-t dark:border-gray-700 border-gray-100"></td>
                     <td className="self-center w-[100%] h-full border-t dark:border-gray-700 border-gray-100 pt-5">
-                        <div className="grid grid-cols-[60%,10%,30%] items-center space-x-3 mb-[0.1875rem]">
+                        <div className="grid grid-cols-[50%,10%,40%] items-center space-x-3 mb-[0.1875rem]">
                             <div className="flex space-x-1 items-center font-semibold">
                                 <div className={`w-2 h-2 flex-shrink-0 ${tx.rejection.isExecuted ? "bg-green-500" : tx.rejection.isExecuted ? "bg-red-600" : "bg-primary"} rounded-full`} />
                                 <div className='lg:text-sm 2xl:text-sm'>{tx.rejection.isExecuted ? "Rejected" : "Pending"}</div>

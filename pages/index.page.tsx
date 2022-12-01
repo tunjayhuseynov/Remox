@@ -55,7 +55,7 @@ const Home = () => {
   }, [selected])
 
   useAsyncEffect(async () => {
-    if (address && ref.current === 1) {
+    if (address && ref.current === 0) {
       await disconnect()
     }
     ref.current++;

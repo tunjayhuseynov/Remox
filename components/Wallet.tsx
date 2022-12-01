@@ -32,12 +32,12 @@ export const NETWORKS = [
         chainId: 42220,
         explorer: Blockchains.find(s => s.name === "celo")!.explorerAPIUrl,
     },
-    // {
-    //     chainId: 1,
-    //     name: "Ethereum",
-    //     rpcUrl: Blockchains.find(s => s.name === "ethereum_evm")!.rpcUrl,
-    //     explorer: Blockchains.find(s => s.name === "ethereum_evm")!.explorerAPIUrl,
-    // }
+    {
+        chainId: 1,
+        name: "Ethereum",
+        rpcUrl: Blockchains.find(s => s.name === "ethereum_evm")!.rpcUrl,
+        explorer: Blockchains.find(s => s.name === "ethereum_evm")!.explorerAPIUrl,
+    }
 ]
 
 export default function Wallet({ children }: { children: JSX.Element }) {

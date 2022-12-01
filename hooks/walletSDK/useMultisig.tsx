@@ -1182,6 +1182,7 @@ export default function useMultisig() {
     const revokeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, safeTxHash?: string) => {
         try {
             let blockchain = Blockchains.find((b) => b.name === account.blockchain)
+            if(!selectedId) throw new Error("Auth is not selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
             if (!selectedAddress) throw new Error("Account is not selected")
             const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
@@ -1219,6 +1220,16 @@ export default function useMultisig() {
                     data: data,
                     gas: 250000,
                     gasPrice: "5000000000",
+                }).on('confirmation', function (num: number, receipt: any) {
+                    if (num > 23) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain!,
+                            txHash: receipt.transactionHash,
+                            // tags: tags
+                        }))
+                    }
                 })
 
 
@@ -1270,6 +1281,7 @@ export default function useMultisig() {
     const confirmTransaction = async (account: IAccount, transactionId: string, providerName: MultisigProviders, isExecutable?: boolean) => {
         try {
             let blockchain = Blockchains.find((b) => b.name === account.blockchain)
+            if(!selectedId) throw new Error("Auth is not selected")
             if (!selectedAddress) throw new Error("No address selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
             const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
@@ -1331,10 +1343,25 @@ export default function useMultisig() {
                 let Multisig = await multisigContract
 
                 let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
-                await contract.methods.confirmTransaction(+transactionId).send({
+                const data = contract.methods.confirmTransaction(+transactionId).encodeABI()
+
+                const tx = await web3.eth.sendTransaction({
                     from: selectedAddress,
-                    gas: 500000,
-                    gasPrice: "500000000",
+                    to: account.address,
+                    value: "0",
+                    data: data,
+                    gas: 250000,
+                    gasPrice: "5000000000",
+                }).on('confirmation', function (num: number, receipt: any) {
+                    if (num > 23) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain!,
+                            txHash: receipt.transactionHash,
+                            // tags: tags
+                        }))
+                    }
                 })
 
 
@@ -1348,6 +1375,8 @@ export default function useMultisig() {
     const executeTransaction = async (account: IAccount, transactionId: string, provider: MultisigProviders, rejection?: boolean) => {
         try {
             let blockchain = Blockchains.find((b) => b.name === account.blockchain)
+            if(!selectedId) throw new Error("Auth is not selected")
+            if (!selectedAddress) throw new Error("No address selected")
             if (!blockchain) throw new Error("Blockchain is not selected")
             const txServiceUrl = blockchain.multisigProviders.find((s) => s.name === "GnosisSafe")?.txServiceUrl
             if (provider === "Goki") {
@@ -1367,11 +1396,27 @@ export default function useMultisig() {
 
                 let contract = new web3.eth.Contract(Multisig.abi.map(item => Object.assign({}, item, { selected: false })) as AbiItem[], account.address)
 
-                const tx = await contract.methods.executeTransaction(+transactionId).send({
+                const data =  contract.methods.executeTransaction(+transactionId).encodeABI()
+
+                const tx = await web3.eth.sendTransaction({
                     from: selectedAddress,
-                    gas: 500000,
-                    gasPrice: "500000000",
+                    to: account.address,
+                    value: "0",
+                    data: data,
+                    gas: 250000,
+                    gasPrice: "5000000000",
+                }).on('confirmation', function (num: number, receipt: any) {
+                    if (num > 23) {
+                        dispatch(Add_Tx_To_TxList_Thunk({
+                            account: account,
+                            authId: selectedId,
+                            blockchain: blockchain!,
+                            txHash: receipt.transactionHash,
+                            // tags: tags
+                        }))
+                    }
                 })
+
                 return tx.transactionHash as string
             } else if (provider === "GnosisSafe") {
                 if (!txServiceUrl) throw new Error("Tx service is not selected")

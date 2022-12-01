@@ -213,7 +213,7 @@ function CreateMultisig() {
                                 top: 2
                             }}
                             className='bg-light dark:bg-darkSecond'
-                            list={multisigProviders}
+                            list={multisigProviders.filter(s=> isCreate ? s.name !== "Celo Terminal" : true)}
                             selected={selectedProvider}
                             setSelect={setSelectedProvider}
                             label="Multisig Provider"

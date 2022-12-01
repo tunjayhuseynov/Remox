@@ -250,7 +250,7 @@ export const TransactionDirectionImageNameDeclaration = (blockchain: BlockchainT
 		case TransactionDirection.changeInternalRequirement:
 			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
 			name = blockchain.multisigProviders.find(s => s.name === providerName)?.displayName ?? "N/A";
-			action = "Change Internal Threshold"
+			action = "Change I. Threshold"
 			break;
 		case TransactionDirection.ChangeRequirement:
 			img = blockchain.multisigProviders.find(s => s.name === providerName)?.logoURL ?? REMOX_LOGO;
